@@ -25,6 +25,15 @@
 </head>
 <body class="bg-[#0f141c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
 
+  <!-- First Time Initial Data Loader Overlay -->
+  <div id="initialLoader" class="fixed inset-0 z-[100] bg-[#0f141c] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="relative flex items-center justify-center">
+      <div class="w-16 h-16 border-4 border-gray-800 border-t-[#24ee89] rounded-full animate-spin"></div>
+      <div class="absolute text-emerald-400 font-extrabold text-xs">LOAD</div>
+    </div>
+    <p class="mt-4 text-xs font-bold text-gray-400 tracking-widest uppercase animate-pulse">Loading Platform...</p>
+  </div>
+
   <!-- Top Navigation Bar Anchor Container -->
   <div id="topBarContainer" class="sticky top-0 z-50"></div>
 
@@ -37,12 +46,14 @@
         <button onclick="filterCategory('original')" id="catOriginal" class="flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap">
           Original Games
         </button>
-        <button onclick="filterCategory('all')" id="catAll" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
-          All Games
-        </button>
-        <button onclick="filterCategory('slots')" id="catSlots" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
-          Slots
-        </button>
+        <!-- Changed All Games to Roulette with direct link -->
+        <a href="roulette/roulette.html" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
+          Roulette
+        </a>
+        <!-- Changed Slots to Blackjack with direct link -->
+        <a href="blackjack/blackjacktable.html" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
+          Blackjack
+        </a>
         <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
           Live Casino
         </button>
@@ -58,9 +69,8 @@
       <div class="flex items-center justify-between mb-4">
         <h2 id="sectionTitle" class="text-base font-bold text-white flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span>
-          Original Games (game/)
+          Original Games
         </h2>
-        <span class="text-xs text-gray-500 font-medium" id="gameCount">8 Games Available</span>
       </div>
 
       <!-- Exactly 3 Columns Grid -->
@@ -78,16 +88,16 @@
   </footer>
 
   <script>
-    // Local assets/images/ paths for 3D Game Cards
+    // Game list dataset
     const gameList = [
       { 
         id: 'dice', 
         name: 'Classic Dice', 
         path: 'game/dice.html', 
         category: 'original', 
-        players: '2,155',
+        players: 2155,
         image: 'assets/images/dice.png',
-        badge: '500x',
+        badge: '500',
         fallbackBg: 'from-emerald-600 to-teal-950'
       },
       { 
@@ -95,9 +105,9 @@
         name: 'Mines', 
         path: 'game/mines.html', 
         category: 'original', 
-        players: '1,420',
+        players: 1420,
         image: 'assets/images/mines.png',
-        badge: '1000x',
+        badge: '1000',
         fallbackBg: 'from-purple-600 to-indigo-950'
       },
       { 
@@ -105,9 +115,9 @@
         name: 'Limbo', 
         path: 'game/limbo.html', 
         category: 'original', 
-        players: '830',
+        players: 830,
         image: 'assets/images/limbo.png',
-        badge: '10000x',
+        badge: '10000',
         fallbackBg: 'from-green-600 to-emerald-950'
       },
       { 
@@ -115,9 +125,9 @@
         name: 'Plinko', 
         path: 'game/plinko.html', 
         category: 'original', 
-        players: '610',
+        players: 610,
         image: 'assets/images/plinko.png',
-        badge: '1000x',
+        badge: '1000',
         fallbackBg: 'from-teal-600 to-cyan-950'
       },
       { 
@@ -125,9 +135,9 @@
         name: 'Crash', 
         path: 'game/crash.html', 
         category: 'original', 
-        players: '3,105',
+        players: 3105,
         image: 'assets/images/crash.png',
-        badge: 'BOOM',
+        badge: 'HOT',
         fallbackBg: 'from-purple-700 to-purple-950'
       },
       { 
@@ -135,9 +145,9 @@
         name: 'Wheel', 
         path: 'game/wheel.html', 
         category: 'original', 
-        players: '420',
+        players: 420,
         image: 'assets/images/wheel.png',
-        badge: '49.50x',
+        badge: '49.50',
         fallbackBg: 'from-fuchsia-600 to-pink-950'
       },
       { 
@@ -145,24 +155,44 @@
         name: 'Keno', 
         path: 'game/keno.html', 
         category: 'original', 
-        players: '290',
+        players: 290,
         image: 'assets/images/keno.png',
-        badge: '100x',
+        badge: '100',
         fallbackBg: 'from-amber-600 to-yellow-950'
       },
       { 
         id: 'roulette', 
         name: 'Roulette', 
-        path: 'game/roulette.html', 
+        path: 'roulette/roulette.html', 
         category: 'original', 
-        players: '510',
+        players: 510,
         image: 'assets/images/roulette.png',
-        badge: '36x',
+        badge: '36',
         fallbackBg: 'from-red-600 to-rose-950'
       }
     ];
 
     let currentCategory = 'original';
+
+    // Handle First-Time Data Loader Animation
+    function handleInitialLoader() {
+      const loader = document.getElementById('initialLoader');
+      const isLoaded = sessionStorage.getItem('portal_loaded');
+
+      if (!isLoaded) {
+        // Show loader for 800ms on first load, then hide & store flag
+        setTimeout(() => {
+          loader.classList.add('opacity-0');
+          setTimeout(() => {
+            loader.style.display = 'none';
+            sessionStorage.setItem('portal_loaded', 'true');
+          }, 500);
+        }, 800);
+      } else {
+        // Hide immediately without lagging
+        loader.style.display = 'none';
+      }
+    }
 
     // Top Navigation Loader
     async function loadTopBar() {
@@ -188,8 +218,6 @@
         const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
       });
-
-      document.getElementById('gameCount').innerText = `${filteredGames.length} Games Available`;
 
       if (filteredGames.length === 0) {
         grid.innerHTML = `
@@ -218,13 +246,13 @@
           <!-- Dark Gradient Overlay for Text Visibility -->
           <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/40 z-10"></div>
 
-          <!-- Top Bar Overlay: Badge & Online Player Count -->
+          <!-- Top Bar Overlay: Badge & Dynamic Live Users -->
           <div class="relative z-20 flex justify-between items-center p-2">
             <span class="text-[9px] font-extrabold text-yellow-300 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-md border border-yellow-500/30">
               ${game.badge}
             </span>
-            <span class="text-[9px] font-bold text-white bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10 flex items-center gap-1">
-              👤 ${game.players}
+            <span class="text-[9px] font-bold text-emerald-400 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
+              <span id="player-count-${game.id}">${game.players.toLocaleString()}</span>
             </span>
           </div>
 
@@ -243,10 +271,25 @@
       });
     }
 
+    // Dynamic Live User Fluctuation (Fluctuates live users to look realistic)
+    function startRealtimePlayerSimulation() {
+      setInterval(() => {
+        gameList.forEach(game => {
+          const change = Math.floor(Math.random() * 11) - 5; // -5 to +5 change
+          game.players = Math.max(100, game.players + change);
+          
+          const el = document.getElementById(`player-count-${game.id}`);
+          if (el) {
+            el.innerText = game.players.toLocaleString();
+          }
+        });
+      }, 3000);
+    }
+
     // Category Filter Switcher
     function filterCategory(cat) {
       currentCategory = cat;
-      const categories = ['original', 'all', 'slots', 'live'];
+      const categories = ['original', 'live'];
       
       categories.forEach(c => {
         const btn = document.getElementById(`cat${c.charAt(0).toUpperCase() + c.slice(1)}`);
@@ -260,10 +303,8 @@
       });
 
       const titles = {
-        'original': 'Original Games (game/)',
-        'all': 'All Available Games',
-        'slots': 'Slot Games',
-        'live': 'Live Dealer Casino'
+        'original': 'Original Games',
+        'live': 'Live Casino'
       };
 
       document.getElementById('sectionTitle').innerHTML = `
@@ -282,8 +323,10 @@
 
     // Initialization
     document.addEventListener('DOMContentLoaded', () => {
+      handleInitialLoader();
       loadTopBar();
       renderGames('original');
+      startRealtimePlayerSimulation();
     });
   </script>
 </body>
