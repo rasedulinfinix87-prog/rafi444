@@ -13,12 +13,14 @@
   <script src="supabase-config.js"></script>
 
   <style>
+    /* Custom Scrollbar Styling */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track { background: #0f141c; }
     ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #30363d; }
   </style>
 </head>
 <body class="bg-[#0f141c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
@@ -61,7 +63,7 @@
         <span class="text-xs text-gray-500 font-medium" id="gameCount">8 Games Available</span>
       </div>
 
-      <!-- 3 Columns Grid -->
+      <!-- Exactly 3 Columns Grid -->
       <div id="gamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5">
         <!-- Dynamic game cards rendered here -->
       </div>
@@ -69,8 +71,14 @@
 
   </div>
 
+  <!-- Footer Section -->
+  <footer class="bg-[#161b22] border-t border-gray-800/80 mt-12 py-6 text-center text-xs text-gray-500 space-y-2">
+    <p>&copy; 2026 Game Portal. All Rights Reserved.</p>
+    <p class="text-[10px] text-gray-600">Provably Fair Gaming Engine integrated with Supabase Realtime Authentication.</p>
+  </footer>
+
   <script>
-    // Real 3D Rendered Image Art URL Links for each game
+    // Local assets/images/ paths for 3D Game Cards
     const gameList = [
       { 
         id: 'dice', 
@@ -78,8 +86,9 @@
         path: 'game/dice.html', 
         category: 'original', 
         players: '2,155',
-        image: 'https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=600&auto=format&fit=crop&q=80',
-        badge: '500x'
+        image: 'assets/images/dice.png',
+        badge: '500x',
+        fallbackBg: 'from-emerald-600 to-teal-950'
       },
       { 
         id: 'mines', 
@@ -87,8 +96,9 @@
         path: 'game/mines.html', 
         category: 'original', 
         players: '1,420',
-        image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
-        badge: '1000x'
+        image: 'assets/images/mines.png',
+        badge: '1000x',
+        fallbackBg: 'from-purple-600 to-indigo-950'
       },
       { 
         id: 'limbo', 
@@ -96,8 +106,9 @@
         path: 'game/limbo.html', 
         category: 'original', 
         players: '830',
-        image: 'https://images.unsplash.com/photo-1517976487492-5750f3195933?w=600&auto=format&fit=crop&q=80',
-        badge: '10000x'
+        image: 'assets/images/limbo.png',
+        badge: '10000x',
+        fallbackBg: 'from-green-600 to-emerald-950'
       },
       { 
         id: 'plinko', 
@@ -105,8 +116,9 @@
         path: 'game/plinko.html', 
         category: 'original', 
         players: '610',
-        image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80',
-        badge: '1000x'
+        image: 'assets/images/plinko.png',
+        badge: '1000x',
+        fallbackBg: 'from-teal-600 to-cyan-950'
       },
       { 
         id: 'crash', 
@@ -114,8 +126,9 @@
         path: 'game/crash.html', 
         category: 'original', 
         players: '3,105',
-        image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&auto=format&fit=crop&q=80',
-        badge: 'BOOM'
+        image: 'assets/images/crash.png',
+        badge: 'BOOM',
+        fallbackBg: 'from-purple-700 to-purple-950'
       },
       { 
         id: 'wheel', 
@@ -123,8 +136,9 @@
         path: 'game/wheel.html', 
         category: 'original', 
         players: '420',
-        image: 'https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=600&auto=format&fit=crop&q=80',
-        badge: '49.50x'
+        image: 'assets/images/wheel.png',
+        badge: '49.50x',
+        fallbackBg: 'from-fuchsia-600 to-pink-950'
       },
       { 
         id: 'keno', 
@@ -132,8 +146,9 @@
         path: 'game/keno.html', 
         category: 'original', 
         players: '290',
-        image: 'https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=600&auto=format&fit=crop&q=80',
-        badge: '100x'
+        image: 'assets/images/keno.png',
+        badge: '100x',
+        fallbackBg: 'from-amber-600 to-yellow-950'
       },
       { 
         id: 'roulette', 
@@ -141,13 +156,15 @@
         path: 'game/roulette.html', 
         category: 'original', 
         players: '510',
-        image: 'https://images.unsplash.com/photo-1605870445919-838d190e8e1b?w=600&auto=format&fit=crop&q=80',
-        badge: '36x'
+        image: 'assets/images/roulette.png',
+        badge: '36x',
+        fallbackBg: 'from-red-600 to-rose-950'
       }
     ];
 
     let currentCategory = 'original';
 
+    // Top Navigation Loader
     async function loadTopBar() {
       try {
         const response = await fetch('bar/top.html');
@@ -156,9 +173,12 @@
           document.getElementById('topBarContainer').innerHTML = html;
           if (typeof syncTopBarBalance === 'function') syncTopBarBalance();
         }
-      } catch (err) { console.error(err); }
+      } catch (err) { 
+        console.error("Error loading top bar component:", err); 
+      }
     }
 
+    // Render Game Cards
     function renderGames(filter = 'original', searchQuery = '') {
       const grid = document.getElementById('gamesGrid');
       grid.innerHTML = '';
@@ -171,21 +191,34 @@
 
       document.getElementById('gameCount').innerText = `${filteredGames.length} Games Available`;
 
+      if (filteredGames.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12 text-gray-500 text-xs">
+            No games found for the selected category.
+          </div>
+        `;
+        return;
+      }
+
       filteredGames.forEach(game => {
         const card = document.createElement('a');
         card.href = game.path;
-        card.className = "group relative bg-[#161b22] border border-gray-800/80 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-52 md:h-56 transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#24ee89]/20";
+        card.className = "group relative bg-[#161b22] border border-gray-800/80 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-52 md:h-56 transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#24ee89]/15";
         
         card.innerHTML = `
-          <!-- Full Card Image Cover Background -->
+          <!-- Full Card Cover Local Image -->
           <img src="${game.image}" 
-               class="absolute inset-0 w-full h-full object-cover z-0 transition duration-500 group-hover:scale-110" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" 
+               class="absolute inset-0 w-full h-full object-cover z-0 transition duration-500 group-hover:scale-105" 
                alt="${game.name}" />
 
-          <!-- Dark Gradient Overlay for Readability -->
-          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/50 z-10"></div>
+          <!-- Fallback Gradient (Showed if local image is missing) -->
+          <div class="hidden absolute inset-0 bg-gradient-to-b ${game.fallbackBg} opacity-90 transition"></div>
 
-          <!-- Top Overlay: Multiplier Badge & Player Count -->
+          <!-- Dark Gradient Overlay for Text Visibility -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/40 z-10"></div>
+
+          <!-- Top Bar Overlay: Badge & Online Player Count -->
           <div class="relative z-20 flex justify-between items-center p-2">
             <span class="text-[9px] font-extrabold text-yellow-300 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-md border border-yellow-500/30">
               ${game.badge}
@@ -210,16 +243,44 @@
       });
     }
 
+    // Category Filter Switcher
     function filterCategory(cat) {
       currentCategory = cat;
+      const categories = ['original', 'all', 'slots', 'live'];
+      
+      categories.forEach(c => {
+        const btn = document.getElementById(`cat${c.charAt(0).toUpperCase() + c.slice(1)}`);
+        if (btn) {
+          if (c === cat) {
+            btn.className = "flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap";
+          } else {
+            btn.className = "flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap";
+          }
+        }
+      });
+
+      const titles = {
+        'original': 'Original Games (game/)',
+        'all': 'All Available Games',
+        'slots': 'Slot Games',
+        'live': 'Live Dealer Casino'
+      };
+
+      document.getElementById('sectionTitle').innerHTML = `
+        <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span>
+        ${titles[cat] || 'Games'}
+      `;
+
       renderGames(cat);
     }
 
+    // Search Filter
     function searchGames() {
       const query = document.getElementById('gameSearch').value;
       renderGames(currentCategory, query);
     }
 
+    // Initialization
     document.addEventListener('DOMContentLoaded', () => {
       loadTopBar();
       renderGames('original');
