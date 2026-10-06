@@ -18,20 +18,39 @@
       width: 6px;
       height: 6px;
     }
-    ::-webkit-scrollbar-track { background: #0f141c; }
-    ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #30363d; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1b2438; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #283552; }
+
+    /* Card Fade-in & Smooth Loader Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-animate {
+      animation: fadeIn 0.4s ease-out forwards;
+      will-change: transform, opacity;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
 </head>
-<body class="bg-[#0f141c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
+<body class="bg-[#0b0f19] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
 
-  <!-- First Time Initial Data Loader Overlay -->
-  <div id="initialLoader" class="fixed inset-0 z-[100] bg-[#0f141c] flex flex-col items-center justify-center transition-opacity duration-500">
+  <!-- 3 Seconds Loading Screen Overlay -->
+  <div id="loader" class="fixed inset-0 z-[100] bg-[#0b0f19] flex flex-col items-center justify-center transition-opacity duration-500">
     <div class="relative flex items-center justify-center">
-      <div class="w-16 h-16 border-4 border-gray-800 border-t-[#24ee89] rounded-full animate-spin"></div>
-      <div class="absolute text-emerald-400 font-extrabold text-xs">LOAD</div>
+      <div class="w-16 h-16 border-4 border-slate-800 border-t-[#24ee89] rounded-full animate-spin"></div>
+      <div class="absolute text-[10px] font-black text-[#24ee89]">LOADING</div>
     </div>
-    <p class="mt-4 text-xs font-bold text-gray-400 tracking-widest uppercase animate-pulse">Loading Platform...</p>
+    <p class="mt-4 text-xs font-semibold text-slate-400 tracking-wider uppercase animate-pulse">Initializing Portal...</p>
   </div>
 
   <!-- Top Navigation Bar Anchor Container -->
@@ -41,25 +60,23 @@
   <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5">
 
     <!-- Category Navigation Bar -->
-    <div class="flex items-center justify-between border-b border-gray-800/80 pb-3">
+    <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
         <button onclick="filterCategory('original')" id="catOriginal" class="flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap">
           Original Games
         </button>
-        <!-- Changed All Games to Roulette with direct link -->
-        <a href="roulette/roulette.html" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
+        <button onclick="filterCategory('roulette')" id="catRoulette" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
           Roulette
-        </a>
-        <!-- Changed Slots to Blackjack with direct link -->
-        <a href="blackjack/blackjacktable.html" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
+        </button>
+        <button onclick="filterCategory('blackjack')" id="catBlackjack" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
           Blackjack
-        </a>
-        <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
+        </button>
+        <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
           Live Casino
         </button>
       </div>
 
-      <div class="hidden sm:flex items-center bg-[#161b22] border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-400">
+      <div class="hidden sm:flex items-center bg-[#111827] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-400">
         <input type="text" id="gameSearch" onkeyup="searchGames()" placeholder="Search game..." class="bg-transparent text-white focus:outline-none w-28 lg:w-40">
       </div>
     </div>
@@ -82,13 +99,13 @@
   </div>
 
   <!-- Footer Section -->
-  <footer class="bg-[#161b22] border-t border-gray-800/80 mt-12 py-6 text-center text-xs text-gray-500 space-y-2">
+  <footer class="bg-[#111827] border-t border-slate-800/80 mt-12 py-6 text-center text-xs text-slate-500 space-y-2">
     <p>&copy; 2026 Game Portal. All Rights Reserved.</p>
-    <p class="text-[10px] text-gray-600">Provably Fair Gaming Engine integrated with Supabase Realtime Authentication.</p>
+    <p class="text-[10px] text-slate-600">Provably Fair Gaming Engine integrated with Supabase Realtime Authentication.</p>
   </footer>
 
   <script>
-    // Game list dataset
+    // Games List Configuration
     const gameList = [
       { 
         id: 'dice', 
@@ -97,8 +114,8 @@
         category: 'original', 
         players: 2155,
         image: 'assets/images/dice.png',
-        badge: '500',
-        fallbackBg: 'from-emerald-600 to-teal-950'
+        badge: 'BOOM',
+        fallbackBg: 'from-emerald-900 to-slate-950'
       },
       { 
         id: 'mines', 
@@ -107,8 +124,8 @@
         category: 'original', 
         players: 1420,
         image: 'assets/images/mines.png',
-        badge: '1000',
-        fallbackBg: 'from-purple-600 to-indigo-950'
+        badge: 'BOOM',
+        fallbackBg: 'from-indigo-900 to-slate-950'
       },
       { 
         id: 'limbo', 
@@ -117,8 +134,8 @@
         category: 'original', 
         players: 830,
         image: 'assets/images/limbo.png',
-        badge: '10000',
-        fallbackBg: 'from-green-600 to-emerald-950'
+        badge: 'BOOM',
+        fallbackBg: 'from-emerald-950 to-slate-950'
       },
       { 
         id: 'plinko', 
@@ -127,8 +144,8 @@
         category: 'original', 
         players: 610,
         image: 'assets/images/plinko.png',
-        badge: '1000',
-        fallbackBg: 'from-teal-600 to-cyan-950'
+        badge: 'BOOM',
+        fallbackBg: 'from-cyan-950 to-slate-950'
       },
       { 
         id: 'crash', 
@@ -137,8 +154,8 @@
         category: 'original', 
         players: 3105,
         image: 'assets/images/crash.png',
-        badge: 'HOT',
-        fallbackBg: 'from-purple-700 to-purple-950'
+        badge: 'BOOM',
+        fallbackBg: 'from-purple-950 to-slate-950'
       },
       { 
         id: 'wheel', 
@@ -147,8 +164,8 @@
         category: 'original', 
         players: 420,
         image: 'assets/images/wheel.png',
-        badge: '49.50',
-        fallbackBg: 'from-fuchsia-600 to-pink-950'
+        badge: 'BOOM',
+        fallbackBg: 'from-fuchsia-950 to-slate-950'
       },
       { 
         id: 'keno', 
@@ -157,55 +174,102 @@
         category: 'original', 
         players: 290,
         image: 'assets/images/keno.png',
-        badge: '100',
-        fallbackBg: 'from-amber-600 to-yellow-950'
+        badge: 'BOOM',
+        fallbackBg: 'from-amber-950 to-slate-950'
       },
       { 
         id: 'roulette', 
         name: 'Roulette', 
         path: 'roulette/roulette.html', 
-        category: 'original', 
+        category: 'roulette', 
         players: 510,
         image: 'assets/images/roulette.png',
-        badge: '36',
-        fallbackBg: 'from-red-600 to-rose-950'
+        badge: 'BOOM',
+        fallbackBg: 'from-rose-950 to-slate-950'
+      },
+      { 
+        id: 'blackjack', 
+        name: 'Blackjack', 
+        path: 'blackjack/blackjacktable.html', 
+        category: 'blackjack', 
+        players: 940,
+        image: 'assets/images/blackjack.png',
+        badge: 'BOOM',
+        fallbackBg: 'from-blue-950 to-slate-950'
       }
     ];
 
     let currentCategory = 'original';
+    let balanceSubscription = null;
 
-    // Handle First-Time Data Loader Animation
-    function handleInitialLoader() {
-      const loader = document.getElementById('initialLoader');
-      const isLoaded = sessionStorage.getItem('portal_loaded');
+    // Supabase Realtime User Balance Sync
+    async function syncRealtimeUserBalance() {
+      try {
+        if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
+          const user = await getCurrentUser();
+          if (user) {
+            // Initial Balance Fetch
+            const { data: profile } = await supabaseClient
+              .from('profiles')
+              .select('balance')
+              .eq('id', user.id)
+              .single();
 
-      if (!isLoaded) {
-        // Show loader for 800ms on first load, then hide & store flag
-        setTimeout(() => {
-          loader.classList.add('opacity-0');
-          setTimeout(() => {
-            loader.style.display = 'none';
-            sessionStorage.setItem('portal_loaded', 'true');
-          }, 500);
-        }, 800);
-      } else {
-        // Hide immediately without lagging
-        loader.style.display = 'none';
+            if (profile && document.getElementById('topBarBalance')) {
+              document.getElementById('topBarBalance').innerText = parseFloat(profile.balance).toFixed(2);
+            }
+
+            // Realtime Change Listener
+            if (!balanceSubscription) {
+              balanceSubscription = supabaseClient
+                .channel('public:profiles:' + user.id)
+                .on('postgres_changes', {
+                  event: 'UPDATE',
+                  schema: 'public',
+                  table: 'profiles',
+                  filter: `id=eq.${user.id}`
+                }, (payload) => {
+                  if (payload.new && payload.new.balance !== undefined) {
+                    const topBal = document.getElementById('topBarBalance');
+                    if (topBal) topBal.innerText = parseFloat(payload.new.balance).toFixed(2);
+                  }
+                })
+                .subscribe();
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Balance Sync Error:", err);
       }
     }
 
-    // Top Navigation Loader
+    // Dynamic Top Bar Loader
     async function loadTopBar() {
       try {
         const response = await fetch('bar/top.html');
         if (response.ok) {
           const html = await response.text();
           document.getElementById('topBarContainer').innerHTML = html;
-          if (typeof syncTopBarBalance === 'function') syncTopBarBalance();
+          syncRealtimeUserBalance();
         }
       } catch (err) { 
         console.error("Error loading top bar component:", err); 
       }
+    }
+
+    // Dynamic Live Players Fluctuation System
+    function startLivePlayerUpdates() {
+      setInterval(() => {
+        gameList.forEach(game => {
+          const variation = Math.floor(Math.random() * 11) - 5; // -5 to +5
+          game.players = Math.max(100, game.players + variation);
+          
+          const playerElem = document.getElementById(`player-count-${game.id}`);
+          if (playerElem) {
+            playerElem.innerText = game.players.toLocaleString();
+          }
+        });
+      }, 3500);
     }
 
     // Render Game Cards
@@ -221,17 +285,20 @@
 
       if (filteredGames.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full text-center py-12 text-gray-500 text-xs">
+          <div class="col-span-full text-center py-12 text-slate-500 text-xs bg-[#111827] rounded-2xl border border-slate-800">
             No games found for the selected category.
           </div>
         `;
         return;
       }
 
-      filteredGames.forEach(game => {
+      // Render cards cleanly together
+      const fragment = document.createDocumentFragment();
+
+      filteredGames.forEach((game) => {
         const card = document.createElement('a');
         card.href = game.path;
-        card.className = "group relative bg-[#161b22] border border-gray-800/80 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-52 md:h-56 transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#24ee89]/15";
+        card.className = "card-animate group relative bg-[#111827] border border-slate-800 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-52 md:h-56 transition duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-[#24ee89]/15";
         
         card.innerHTML = `
           <!-- Full Card Cover Local Image -->
@@ -246,13 +313,13 @@
           <!-- Dark Gradient Overlay for Text Visibility -->
           <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/40 z-10"></div>
 
-          <!-- Top Bar Overlay: Badge & Dynamic Live Users -->
+          <!-- Top Bar Overlay: BOOM Badge & Online Player Count (Without Aviator Icon) -->
           <div class="relative z-20 flex justify-between items-center p-2">
-            <span class="text-[9px] font-extrabold text-yellow-300 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-md border border-yellow-500/30">
+            <span class="text-[9px] font-extrabold text-amber-400 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-md border border-amber-400/30">
               ${game.badge}
             </span>
-            <span class="text-[9px] font-bold text-emerald-400 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
-              <span id="player-count-${game.id}">${game.players.toLocaleString()}</span>
+            <span class="text-[9px] font-bold text-slate-200 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
+              <span id="player-count-${game.id}">${game.players.toLocaleString()}</span> Online
             </span>
           </div>
 
@@ -261,35 +328,19 @@
             <h3 class="text-xs sm:text-sm font-black text-white tracking-wider uppercase group-hover:text-[#24ee89] transition truncate">
               ${game.name}
             </h3>
-            <span class="text-[8px] font-bold text-gray-300 block uppercase tracking-widest opacity-80">
-              Original Game
-            </span>
           </div>
         `;
 
-        grid.appendChild(card);
+        fragment.appendChild(card);
       });
-    }
 
-    // Dynamic Live User Fluctuation (Fluctuates live users to look realistic)
-    function startRealtimePlayerSimulation() {
-      setInterval(() => {
-        gameList.forEach(game => {
-          const change = Math.floor(Math.random() * 11) - 5; // -5 to +5 change
-          game.players = Math.max(100, game.players + change);
-          
-          const el = document.getElementById(`player-count-${game.id}`);
-          if (el) {
-            el.innerText = game.players.toLocaleString();
-          }
-        });
-      }, 3000);
+      grid.appendChild(fragment);
     }
 
     // Category Filter Switcher
     function filterCategory(cat) {
       currentCategory = cat;
-      const categories = ['original', 'live'];
+      const categories = ['original', 'roulette', 'blackjack', 'live'];
       
       categories.forEach(c => {
         const btn = document.getElementById(`cat${c.charAt(0).toUpperCase() + c.slice(1)}`);
@@ -297,13 +348,15 @@
           if (c === cat) {
             btn.className = "flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap";
           } else {
-            btn.className = "flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap";
+            btn.className = "flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap";
           }
         }
       });
 
       const titles = {
         'original': 'Original Games',
+        'roulette': 'Roulette Games',
+        'blackjack': 'Blackjack Games',
         'live': 'Live Casino'
       };
 
@@ -321,12 +374,20 @@
       renderGames(currentCategory, query);
     }
 
-    // Initialization
+    // Initialization Logic
     document.addEventListener('DOMContentLoaded', () => {
-      handleInitialLoader();
+      // 3 Seconds Loader Timer
+      setTimeout(() => {
+        const loader = document.getElementById('loader');
+        if (loader) {
+          loader.classList.add('opacity-0');
+          setTimeout(() => loader.remove(), 500);
+        }
+      }, 3000);
+
       loadTopBar();
       renderGames('original');
-      startRealtimePlayerSimulation();
+      startLivePlayerUpdates();
     });
   </script>
 </body>
