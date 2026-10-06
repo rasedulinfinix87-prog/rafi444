@@ -1,30 +1,263 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Zone - Home</title>
+  <title>BC.Game Clone - Online Gaming Platform</title>
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Supabase JS Client & App Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+
+  <style>
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f141c;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #21262d;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #30363d;
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-[#0f141c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
 
-  <h1 class="text-4xl font-extrabold text-green-400 mb-8 tracking-wide">🎮 GAME ZONE</h1>
+  <!-- Top Navigation Bar Anchor Container -->
+  <div id="topBarContainer" class="sticky top-0 z-50"></div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl w-full">
-    <!-- Dice Game Card -->
-    <a href="game/dice.html" class="bg-gray-800 p-6 rounded-2xl border border-gray-700 hover:border-green-400 transition transform hover:-translate-y-1 block text-center shadow-lg">
-      <div class="text-5xl mb-3">🎲</div>
-      <h2 class="text-2xl font-bold text-white mb-1">Dice Game</h2>
-      <p class="text-gray-400 text-sm">রিয়েল-টাইম ডাইস রোল করে পয়েন্ট জিতুন</p>
-    </a>
+  <!-- Main Application Wrapper -->
+  <div class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 space-y-6">
 
-    <!-- Baccarat Game Card (Coming Soon) -->
-    <a href="game/baccarat.html" class="bg-gray-800 p-6 rounded-2xl border border-gray-700 hover:border-yellow-400 transition transform hover:-translate-y-1 block text-center shadow-lg opacity-80">
-      <div class="text-5xl mb-3">🃏</div>
-      <h2 class="text-2xl font-bold text-white mb-1">Baccarat</h2>
-      <p class="text-gray-400 text-sm">ক্লাসিক কার্ড গেম (শীঘ্রই আসছে)</p>
-    </a>
+    <!-- Hero Promo Banner Carousel / Card -->
+    <div class="relative w-full rounded-2xl bg-gradient-to-r from-emerald-900/40 via-[#161b22] to-emerald-950/30 border border-gray-800 p-6 md:p-8 overflow-hidden shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="space-y-3 z-10 text-center md:text-left">
+        <span class="bg-[#24ee89]/20 text-[#24ee89] border border-[#24ee89]/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block">
+          Welcome Bonus
+        </span>
+        <h1 class="text-2xl md:text-4xl font-extrabold text-white tracking-tight">
+          Experience Next-Gen Online Casino Gaming
+        </h1>
+        <p class="text-xs md:text-sm text-gray-400 max-w-lg">
+          Play provably fair games, instant withdrawals, and continuous rewards powered by automated casino mechanics.
+        </p>
+        <div class="pt-2">
+          <a href="game/dice.html" class="inline-block bg-[#24ee89] hover:bg-emerald-400 text-black font-extrabold px-6 py-2.5 rounded-xl text-sm transition shadow-lg shadow-emerald-500/10">
+            Play Dice Realtime →
+          </a>
+        </div>
+      </div>
+      <!-- Decorative Neon Graphic Ring -->
+      <div class="w-32 h-32 md:w-44 md:h-44 rounded-full border-4 border-dashed border-[#24ee89]/40 flex items-center justify-center animate-spin-slow relative shrink-0">
+        <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-[#24ee89]/10 border border-[#24ee89]/50 flex items-center justify-center text-3xl font-black text-[#24ee89]">
+          🎲
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Navigation Bar -->
+    <div class="flex items-center justify-between border-b border-gray-800/80 pb-3">
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <!-- Original Category Button -->
+        <button onclick="filterCategory('original')" id="catOriginal" class="flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-4 py-2 rounded-xl text-xs transition shadow-md">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+          BC Originals
+        </button>
+
+        <!-- All Games Button -->
+        <button onclick="filterCategory('all')" id="catAll" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs transition">
+          All Games
+        </button>
+
+        <!-- Slots Category Button -->
+        <button onclick="filterCategory('slots')" id="catSlots" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs transition">
+          Slots
+        </button>
+
+        <!-- Live Casino Button -->
+        <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs transition">
+          Live Casino
+        </button>
+      </div>
+
+      <!-- Search Input -->
+      <div class="hidden sm:flex items-center bg-[#161b22] border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-400">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" id="gameSearch" onkeyup="searchGames()" placeholder="Search game..." class="bg-transparent text-white focus:outline-none w-28 lg:w-40">
+      </div>
+    </div>
+
+    <!-- Games Grid Section -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="sectionTitle" class="text-base font-bold text-white flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span>
+          BC Originals (game/)
+        </h2>
+        <span class="text-xs text-gray-500 font-medium" id="gameCount">8 Games Available</span>
+      </div>
+
+      <!-- Game Cards Grid Container -->
+      <div id="gamesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+        <!-- Dynamically rendered or static fallback game items -->
+      </div>
+    </section>
+
   </div>
 
+  <!-- Footer Section -->
+  <footer class="bg-[#161b22] border-t border-gray-800/80 mt-12 py-6 text-center text-xs text-gray-500 space-y-2">
+    <p>&copy; 2026 BC.Game Portal. All Rights Reserved.</p>
+    <p class="text-[10px] text-gray-600">Provably Fair Gaming Engine integrated with Supabase Realtime Authentication.</p>
+  </footer>
+
+  <script>
+    // List of games located in the /game/ directory
+    const gameList = [
+      { id: 'dice', name: 'Dice Realtime', path: 'game/dice.html', category: 'original', image: '🎲', color: 'from-emerald-600 to-teal-900', isHot: true },
+      { id: 'mines', name: 'Mines', path: 'game/mines.html', category: 'original', image: '💣', color: 'from-amber-600 to-orange-900', isHot: true },
+      { id: 'limbo', name: 'Limbo', path: 'game/limbo.html', category: 'original', image: '🚀', color: 'from-purple-600 to-indigo-900', isHot: false },
+      { id: 'plinko', name: 'Plinko', path: 'game/plinko.html', category: 'original', image: '⚪', color: 'from-blue-600 to-cyan-900', isHot: false },
+      { id: 'crash', name: 'Crash', path: 'game/crash.html', category: 'original', image: '📈', color: 'from-rose-600 to-red-900', isHot: true },
+      { id: 'wheel', name: 'Wheel', path: 'game/wheel.html', category: 'original', image: '🎡', color: 'from-fuchsia-600 to-pink-900', isHot: false },
+      { id: 'keno', name: 'Keno', path: 'game/keno.html', category: 'original', image: '🔢', color: 'from-cyan-600 to-blue-900', isHot: false },
+      { id: 'roulette', name: 'Roulette', path: 'game/roulette.html', category: 'original', image: '🎰', color: 'from-yellow-600 to-amber-900', isHot: false }
+    ];
+
+    let currentCategory = 'original';
+
+    // Component Loader for top.html
+    async function loadTopBar() {
+      try {
+        const response = await fetch('bar/top.html');
+        if (response.ok) {
+          const html = await response.text();
+          document.getElementById('topBarContainer').innerHTML = html;
+          
+          // Re-trigger balance synchronization if functions exist in top.html
+          if (typeof syncTopBarBalance === 'function') {
+            syncTopBarBalance();
+          }
+        } else {
+          console.error("Failed to load bar/top.html component.");
+        }
+      } catch (err) {
+        console.error("Error loading top bar component:", err);
+      }
+    }
+
+    // Render Game Cards
+    function renderGames(filter = 'original', searchQuery = '') {
+      const grid = document.getElementById('gamesGrid');
+      grid.innerHTML = '';
+
+      const filteredGames = gameList.filter(game => {
+        const matchesCategory = (filter === 'all') || (game.category === filter);
+        const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+      });
+
+      document.getElementById('gameCount').innerText = `${filteredGames.length} Games Available`;
+
+      if (filteredGames.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12 text-gray-500 text-xs">
+            No games found for the selected category.
+          </div>
+        `;
+        return;
+      }
+
+      filteredGames.forEach(game => {
+        const card = document.createElement('a');
+        card.href = game.path;
+        card.className = "group relative bg-[#161b22] border border-gray-800 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden p-4 flex flex-col justify-between h-44 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#24ee89]/5";
+        
+        card.innerHTML = `
+          <!-- Gradient Background Backdrop -->
+          <div class="absolute inset-0 bg-gradient-to-br ${game.color} opacity-20 group-hover:opacity-30 transition"></div>
+          
+          <!-- Top Badge Bar -->
+          <div class="relative z-10 flex justify-between items-center">
+            <span class="text-[10px] font-bold text-gray-400 bg-black/40 px-2 py-0.5 rounded-md border border-white/5 uppercase">
+              ${game.category}
+            </span>
+            ${game.isHot ? '<span class="text-[9px] font-extrabold text-black bg-[#24ee89] px-1.5 py-0.5 rounded-md uppercase">HOT</span>' : ''}
+          </div>
+
+          <!-- Game Icon Display -->
+          <div class="relative z-10 text-4xl text-center my-auto transition duration-300 group-hover:scale-110">
+            ${game.image}
+          </div>
+
+          <!-- Game Name & Action Tag -->
+          <div class="relative z-10 flex items-center justify-between pt-2 border-t border-white/5">
+            <span class="text-xs font-bold text-white group-hover:text-[#24ee89] transition">
+              ${game.name}
+            </span>
+            <span class="text-gray-500 group-hover:text-[#24ee89] text-xs">→</span>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Category Filter Switcher
+    function filterCategory(cat) {
+      currentCategory = cat;
+      const categories = ['original', 'all', 'slots', 'live'];
+      
+      categories.forEach(c => {
+        const btn = document.getElementById(`cat${c.charAt(0).toUpperCase() + c.slice(1)}`);
+        if (btn) {
+          if (c === cat) {
+            btn.className = "flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-4 py-2 rounded-xl text-xs transition shadow-md";
+          } else {
+            btn.className = "flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-4 py-2 rounded-xl text-xs transition";
+          }
+        }
+      });
+
+      const titles = {
+        'original': 'BC Originals (game/)',
+        'all': 'All Available Games',
+        'slots': 'Slot Games',
+        'live': 'Live Dealer Casino'
+      };
+
+      document.getElementById('sectionTitle').innerHTML = `
+        <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span>
+        ${titles[cat] || 'Games'}
+      `;
+
+      renderGames(cat);
+    }
+
+    // Search Filter
+    function searchGames() {
+      const query = document.getElementById('gameSearch').value;
+      renderGames(currentCategory, query);
+    }
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTopBar();
+      renderGames('original');
+    });
+  </script>
 </body>
 </html>
