@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Withdraw Funds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+</head>
+<body class="bg-[#0f141c] text-white min-h-screen">
+
+  <header class="bg-[#161b22] border-b border-gray-800 px-4 py-3 flex justify-between items-center">
+    <a href="profile.html" class="text-xs text-gray-400 hover:text-white">← Profile</a>
+    <span class="font-bold text-sm text-[#24ee89]">Withdraw Money</span>
+    <div></div>
+  </header>
+
+  <main class="max-w-md mx-auto p-4">
+    <div id="alertBox" class="hidden mb-4 p-3 rounded-lg text-xs font-medium"></div>
+
+    <form onsubmit="handleWithdraw(event)" class="bg-[#161b22] border border-gray-800 rounded-xl p-5 space-y-4">
+      
+      <div class="bg-[#0f141c] p-3 rounded-lg border border-gray-800 flex justify-between items-center">
+        <span class="text-xs text-gray-400">Available Balance:</span>
+        <span id="availBalance" class="font-bold text-[#24ee89] text-sm">BDT 0.00</span>
+      </div>
+
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Payment Method</label>
+        <select id="paymentMethod" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#24ee89]">
+          <option value="bKash">bKash Personal</option>
+          <option value="Nagad">Nagad Personal</option>
+          <option value="Rocket">Rocket Personal</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Account Number</label>
+        <input type="tel" id="accountNumber" placeholder="017xxxxxxxx" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Withdraw Amount (BDT)</label>
+        <input type="number" id="withdrawAmount" min="50" required placeholder="Min 50 BDT" class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+
+      <button type="submit" id="submitBtn" class="w-full bg-[#24ee89] text-black font-bold py-2.5 rounded-lg text-sm hover:bg-emerald-400 transition">
+        Submit Withdrawal Request
+      </button>
+
+    </form>
+  </main>
+
+  <script>
+    let currentUserId = null;
+    let currentBalance = 0;
+
+    async function init() {
+      const user = await requireAuth();
+      currentUserId = user.id;
+      const profile = await getUserProfile(user.id);
+      if (profile) {
+        currentBalance = parseFloat(profile.balance);
+        document.getElementById('availBalance').innerText = `BDT ${currentBalance.toFixed(2)}`;
+      }
+    }
+
+    function showAlert(msg, isSuccess = false) {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.innerText = msg;
+      alertBox.className = `mb-4 p-3 rounded-lg text-xs font-medium ${isSuccess ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`;
+      alertBox.classList.remove('hidden');
+    }
+
+    async function handleWithdraw(e) {
+      e.preventDefault();
+      const method = document.getElementById('paymentMethod').value;
+      const accountNum = document.getElementById('accountNumber').value.trim();
+      const amount = parseFloat(document.getElementById('withdrawAmount').value);
+      const btn = document.getElementById('submitBtn');
+
+      if (amount > currentBalance) {
+        showAlert("Insufficient balance for this withdrawal!");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "Submitting...";
+
+      const { data, error } = await supabaseClient
+        .from('withdrawals')
+        .insert([
+          {
+            user_id: currentUserId,
+            amount: amount,
+            payment_method: method,
+            account_number: accountNum,
+            status: 'pending'
+          }
+        ]);
+
+      if (error) {
+        showAlert(error.message);
+        btn.disabled = false;
+        btn.innerText = "Submit Withdrawal Request";
+      } else {
+        showAlert("Withdrawal request submitted successfully!", true);
+        setTimeout(() => {
+          window.location.href = "profile.html";
+        }, 1500);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
