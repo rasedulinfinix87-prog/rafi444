@@ -57,13 +57,33 @@
   </main>
 
   <script>
-    // Load bar/top.html dynamically
+    // Load bar/top.html dynamically from correct parent folder
     async function loadTopBar() {
       try {
-        const response = await fetch('bar/top.html');
+        const response = await fetch('../bar/top.html');
         if (response.ok) {
           const content = await response.text();
-          document.getElementById('top-bar-container').innerHTML = content;
+          const container = document.getElementById('top-bar-container');
+          container.innerHTML = content;
+
+          // Execute inner scripts manually because innerHTML doesn't execute <script> tags
+          const scripts = container.querySelectorAll('script');
+          scripts.forEach(script => {
+            const newScript = document.createElement('script');
+            if (script.src) {
+              newScript.src = script.src;
+            } else {
+              newScript.textContent = script.textContent;
+            }
+            document.body.appendChild(newScript);
+          });
+
+          // Trigger balance sync for top bar
+          if (typeof syncTopBarBalance === 'function') {
+            syncTopBarBalance();
+          }
+        } else {
+          console.error('Failed to load top bar:', response.status);
         }
       } catch (error) {
         console.error('Error loading top bar:', error);
