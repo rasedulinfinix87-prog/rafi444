@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game Portal - Online Gaming Platform</title>
-  
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <!-- Supabase JS Client & App Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
@@ -17,292 +17,428 @@
       width: 6px;
       height: 6px;
     }
-    ::-webkit-scrollbar-track { background: #0f141c; }
-    ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; }
+
+    ::-webkit-scrollbar-track {
+      background: #0f141c;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #21262d;
+      border-radius: 4px;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* =========================================
+       PREMIUM DICE EFFECT
+    ========================================= */
+
+    .dice-svg {
+      width: 150px;
+      height: 150px;
+      overflow: visible;
+      filter:
+        drop-shadow(0 18px 18px rgba(0, 0, 0, 0.35))
+        drop-shadow(0 0 18px rgba(36, 238, 137, 0.18));
+      transition: transform 0.35s ease;
+    }
+
+    .group:hover .dice-svg {
+      transform: scale(1.07) rotate(-1deg);
+    }
+
+    .dice-glow {
+      animation: diceGlow 2.5s ease-in-out infinite;
+    }
+
+    @keyframes diceGlow {
+      0%, 100% {
+        opacity: .65;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    /* Soft green light behind dice */
+    .dice-light {
+      position: absolute;
+      width: 130px;
+      height: 90px;
+      border-radius: 50%;
+      background: rgba(36, 238, 137, 0.20);
+      filter: blur(30px);
+      pointer-events: none;
+    }
   </style>
 </head>
+
 <body class="bg-[#0f141c] text-white min-h-screen flex flex-col font-sans antialiased">
 
-  <!-- Top Navigation Bar Anchor Container -->
+  <!-- Top Navigation Bar -->
   <div id="topBarContainer" class="sticky top-0 z-50"></div>
+
 
   <!-- Main Application Wrapper -->
   <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5">
 
+
     <!-- Category Navigation Bar -->
     <div class="flex items-center justify-between border-b border-gray-800/80 pb-3">
+
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-        <button onclick="filterCategory('original')" id="catOriginal" class="flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap">
+
+        <button
+          onclick="filterCategory('original')"
+          id="catOriginal"
+          class="flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap">
           Original Games
         </button>
-        <button onclick="filterCategory('all')" id="catAll" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
+
+        <button
+          onclick="filterCategory('all')"
+          id="catAll"
+          class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
           All Games
         </button>
-        <button onclick="filterCategory('slots')" id="catSlots" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
+
+        <button
+          onclick="filterCategory('slots')"
+          id="catSlots"
+          class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
           Slots
         </button>
-        <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
+
+        <button
+          onclick="filterCategory('live')"
+          id="catLive"
+          class="flex items-center gap-2 bg-[#161b22] hover:bg-gray-800 border border-gray-800 text-gray-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
           Live Casino
         </button>
+
       </div>
 
+
       <div class="hidden sm:flex items-center bg-[#161b22] border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-400">
-        <input type="text" id="gameSearch" onkeyup="searchGames()" placeholder="Search game..." class="bg-transparent text-white focus:outline-none w-28 lg:w-40">
+
+        <input
+          type="text"
+          id="gameSearch"
+          onkeyup="searchGames()"
+          placeholder="Search game..."
+          class="bg-transparent text-white focus:outline-none w-28 lg:w-40">
+
       </div>
+
     </div>
+
 
     <!-- Games Grid Section -->
     <section>
+
       <div class="flex items-center justify-between mb-4">
-        <h2 id="sectionTitle" class="text-base font-bold text-white flex items-center gap-2">
+
+        <h2
+          id="sectionTitle"
+          class="text-base font-bold text-white flex items-center gap-2">
+
           <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span>
+
           Original Games (game/)
+
         </h2>
-        <span class="text-xs text-gray-500 font-medium" id="gameCount">8 Games Available</span>
+
+        <span
+          class="text-xs text-gray-500 font-medium"
+          id="gameCount">
+          8 Games Available
+        </span>
+
       </div>
 
-      <!-- 3 Columns Grid -->
-      <div id="gamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5">
-        <!-- Dynamic game cards rendered here -->
+
+      <!-- Games Grid -->
+      <div
+        id="gamesGrid"
+        class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5">
+
+        <!-- Dynamic game cards -->
+
       </div>
+
     </section>
 
   </div>
 
+
+
   <script>
-    // Pure CSS & Vector SVG Thumbnails Configuration
+
+    /*
+    ============================================================
+    GAME LIST
+    ============================================================
+    */
+
     const gameList = [
-      { 
-        id: 'dice', 
-        name: 'Classic Dice', 
-        path: 'game/dice.html', 
-        category: 'original', 
+
+      /* ========================================================
+         CLASSIC DICE
+      ======================================================== */
+
+      {
+        id: 'dice',
+        name: 'Classic Dice',
+        path: 'game/dice.html',
+        category: 'original',
         players: '2,155',
-        bgGradient: 'from-emerald-600 via-emerald-800 to-teal-950',
+
+        bgGradient:
+          'from-emerald-500 via-green-700 to-emerald-950',
+
         svg: `
-          <svg class="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100">
-            <rect x="20" y="20" width="60" height="60" rx="14" fill="url(#diceGrad)" stroke="#ffffff" stroke-width="2.5"/>
-            <circle cx="38" cy="38" r="5" fill="#0f141c"/>
-            <circle cx="62" cy="38" r="5" fill="#0f141c"/>
-            <circle cx="50" cy="50" r="5" fill="#24ee89"/>
-            <circle cx="38" cy="62" r="5" fill="#0f141c"/>
-            <circle cx="62" cy="62" r="5" fill="#0f141c"/>
-            <defs>
-              <linearGradient id="diceGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#ffffff"/>
-                <stop offset="100%" stop-color="#cbd5e1"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        `
-      },
-      { 
-        id: 'mines', 
-        name: 'Mines', 
-        path: 'game/mines.html', 
-        category: 'original', 
-        players: '1,420',
-        bgGradient: 'from-purple-600 via-indigo-800 to-slate-950',
-        svg: `
-          <svg class="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100">
-            <circle cx="50" cy="55" r="24" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
-            <path d="M50 31 V21 M50 21 C50 15 62 15 62 10" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
-            <polygon points="62,6 66,12 60,14" fill="#ef4444"/>
-            <circle cx="42" cy="48" r="4" fill="#ffffff" opacity="0.6"/>
-          </svg>
-        `
-      },
-      { 
-        id: 'limbo', 
-        name: 'Limbo', 
-        path: 'game/limbo.html', 
-        category: 'original', 
-        players: '830',
-        bgGradient: 'from-green-600 via-emerald-800 to-slate-950',
-        svg: `
-          <svg class="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100">
-            <path d="M30 70 C30 70 45 40 65 25 C75 18 80 20 80 20 C80 20 82 25 75 35 C60 55 30 70 30 70 Z" fill="url(#rocketGrad)" stroke="#ffffff" stroke-width="1.5"/>
-            <polygon points="25,75 20,85 32,80" fill="#f97316"/>
-            <polygon points="35,65 28,78 40,72" fill="#ef4444"/>
-            <circle cx="62" cy="34" r="5" fill="#38bdf8" stroke="#ffffff" stroke-width="1.5"/>
-            <defs>
-              <linearGradient id="rocketGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#f8fafc"/>
-                <stop offset="100%" stop-color="#94a3b8"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        `
-      },
-      { 
-        id: 'plinko', 
-        name: 'Plinko', 
-        path: 'game/plinko.html', 
-        category: 'original', 
-        players: '610',
-        bgGradient: 'from-teal-600 via-cyan-800 to-slate-950',
-        svg: `
-          <svg class="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100">
-            <circle cx="50" cy="25" r="3" fill="#38bdf8"/>
-            <circle cx="38" cy="40" r="3" fill="#38bdf8"/>
-            <circle cx="62" cy="40" r="3" fill="#38bdf8"/>
-            <circle cx="26" cy="55" r="3" fill="#38bdf8"/>
-            <circle cx="50" cy="55" r="3" fill="#38bdf8"/>
-            <circle cx="74" cy="55" r="3" fill="#38bdf8"/>
-            <circle cx="50" cy="38" r="8" fill="url(#ballGrad)" stroke="#ffffff" stroke-width="1.5"/>
-            <defs>
-              <linearGradient id="ballGrad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#24ee89"/>
-                <stop offset="100%" stop-color="#059669"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        `
-      },
-      { 
-        id: 'crash', 
-        name: 'Crash', 
-        path: 'game/crash.html', 
-        category: 'original', 
-        players: '3,105',
-        bgGradient: 'from-purple-700 via-purple-900 to-slate-950',
-        svg: `
-          <svg class="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100">
-            <path d="M15 75 Q 40 70 50 50 T 85 20" fill="none" stroke="#24ee89" stroke-width="5" stroke-linecap="round"/>
-            <polygon points="85,20 72,22 83,33" fill="#24ee89"/>
-            <line x1="15" y1="80" x2="85" y2="80" stroke="#475569" stroke-width="2"/>
-            <line x1="15" y1="20" x2="15" y2="80" stroke="#475569" stroke-width="2"/>
-          </svg>
-        `
-      },
-      { 
-        id: 'wheel', 
-        name: 'Wheel', 
-        path: 'game/wheel.html', 
-        category: 'original', 
-        players: '420',
-        bgGradient: 'from-fuchsia-600 via-pink-800 to-slate-950',
-        svg: `
-          <svg class="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="30" fill="none" stroke="#ec4899" stroke-width="8" stroke-dasharray="15 5"/>
-            <circle cx="50" cy="50" r="10" fill="#ffffff"/>
-            <polygon points="50,12 44,22 56,22" fill="#24ee89"/>
-          </svg>
-        `
-      },
-      { 
-        id: 'keno', 
-        name: 'Keno', 
-        path: 'game/keno.html', 
-        category: 'original', 
-        players: '290',
-        bgGradient: 'from-amber-600 via-yellow-800 to-slate-950',
-        svg: `
-          <svg class="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100">
-            <rect x="22" y="22" width="24" height="24" rx="6" fill="#f59e0b"/>
-            <text x="34" y="39" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">7</text>
-            <rect x="54" y="22" width="24" height="24" rx="6" fill="#1e293b" stroke="#f59e0b"/>
-            <text x="66" y="39" font-size="12" font-weight="bold" fill="#f59e0b" text-anchor="middle">12</text>
-            <rect x="22" y="54" width="24" height="24" rx="6" fill="#1e293b" stroke="#f59e0b"/>
-            <text x="34" y="71" font-size="12" font-weight="bold" fill="#f59e0b" text-anchor="middle">21</text>
-            <rect x="54" y="54" width="24" height="24" rx="6" fill="#24ee89"/>
-            <text x="66" y="71" font-size="12" font-weight="bold" fill="#0f141c" text-anchor="middle">77</text>
-          </svg>
-        `
-      },
-      { 
-        id: 'roulette', 
-        name: 'Roulette', 
-        path: 'game/roulette.html', 
-        category: 'original', 
-        players: '510',
-        bgGradient: 'from-red-600 via-rose-800 to-slate-950',
-        svg: `
-          <svg class="w-16 h-16 sm:w-20 sm:h-20 drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="32" fill="#1e293b" stroke="#f43f5e" stroke-width="4"/>
-            <circle cx="50" cy="50" r="22" fill="none" stroke="#ffffff" stroke-width="6" stroke-dasharray="8 8"/>
-            <circle cx="50" cy="50" r="8" fill="#f59e0b"/>
-            <circle cx="50" cy="24" r="3" fill="#ffffff"/>
-          </svg>
-        `
-      }
-    ];
 
-    let currentCategory = 'original';
+          <div class="relative flex items-center justify-center w-full h-full">
 
-    async function loadTopBar() {
-      try {
-        const response = await fetch('bar/top.html');
-        if (response.ok) {
-          const html = await response.text();
-          document.getElementById('topBarContainer').innerHTML = html;
-          if (typeof syncTopBarBalance === 'function') syncTopBarBalance();
-        }
-      } catch (err) { console.error(err); }
-    }
+            <!-- Soft green light -->
+            <div class="dice-light"></div>
 
-    function renderGames(filter = 'original', searchQuery = '') {
-      const grid = document.getElementById('gamesGrid');
-      grid.innerHTML = '';
+            <svg
+              class="dice-svg relative z-10"
+              viewBox="0 0 240 190"
+              xmlns="http://www.w3.org/2000/svg">
 
-      const filteredGames = gameList.filter(game => {
-        const matchesCategory = (filter === 'all') || (game.category === filter);
-        const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
-      });
+              <defs>
 
-      document.getElementById('gameCount').innerText = `${filteredGames.length} Games Available`;
+                <!-- White Dice Gradient -->
+                <linearGradient
+                  id="whiteDiceGradient"
+                  x1="0"
+                  y1="0"
+                  x2="1"
+                  y2="1">
 
-      filteredGames.forEach(game => {
-        const card = document.createElement('a');
-        card.href = game.path;
-        card.className = "group relative bg-[#161b22] border border-gray-800/80 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-52 md:h-56 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#24ee89]/10";
-        
-        card.innerHTML = `
-          <!-- Custom Vector CSS Gradient Backdrop -->
-          <div class="absolute inset-0 bg-gradient-to-b ${game.bgGradient} opacity-90 transition duration-300 group-hover:opacity-100"></div>
+                  <stop
+                    offset="0%"
+                    stop-color="#ffffff"/>
 
-          <!-- Top Overlay: Online Players -->
-          <div class="relative z-10 flex justify-end p-2">
-            <span class="text-[9px] font-bold text-white bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10 flex items-center gap-1">
-              👤 ${game.players}
-            </span>
-          </div>
+                  <stop
+                    offset="55%"
+                    stop-color="#f8fafc"/>
 
-          <!-- Center Pure SVG Vector Graphics -->
-          <div class="relative z-10 flex justify-center items-center my-auto transition duration-300 group-hover:scale-110">
-            ${game.svg}
-          </div>
+                  <stop
+                    offset="100%"
+                    stop-color="#cbd5e1"/>
 
-          <!-- Bottom Title Gradient Overlay -->
-          <div class="relative z-10 p-2.5 bg-gradient-to-t from-black/95 via-black/60 to-transparent text-center">
-            <h3 class="text-xs sm:text-sm font-black text-white tracking-wide uppercase group-hover:text-[#24ee89] transition truncate">
-              ${game.name}
-            </h3>
-            <span class="text-[8px] font-semibold text-gray-300 block uppercase tracking-wider">
-              Original Game
-            </span>
-          </div>
-        `;
+                </linearGradient>
 
-        grid.appendChild(card);
-      });
-    }
 
-    function filterCategory(cat) {
-      currentCategory = cat;
-      renderGames(cat);
-    }
+                <!-- Second Dice Gradient -->
+                <linearGradient
+                  id="whiteDiceGradient2"
+                  x1="0"
+                  y1="0"
+                  x2="1"
+                  y2="1">
 
-    function searchGames() {
-      const query = document.getElementById('gameSearch').value;
-      renderGames(currentCategory, query);
-    }
+                  <stop
+                    offset="0%"
+                    stop-color="#ffffff"/>
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadTopBar();
-      renderGames('original');
-    });
-  </script>
-</body>
-</html>
+                  <stop
+                    offset="60%"
+                    stop-color="#f1f5f9"/>
+
+                  <stop
+                    offset="100%"
+                    stop-color="#b8c2cf"/>
+
+                </linearGradient>
+
+
+                <!-- Dice Highlight -->
+                <linearGradient
+                  id="diceHighlight"
+                  x1="0"
+                  y1="0"
+                  x2="1"
+                  y2="1">
+
+                  <stop
+                    offset="0%"
+                    stop-color="#ffffff"
+                    stop-opacity=".95"/>
+
+                  <stop
+                    offset="100%"
+                    stop-color="#ffffff"
+                    stop-opacity="0"/>
+
+                </linearGradient>
+
+
+                <!-- Pip Gradient -->
+                <radialGradient
+                  id="pipGradient">
+
+                  <stop
+                    offset="0%"
+                    stop-color="#111827"/>
+
+                  <stop
+                    offset="75%"
+                    stop-color="#020617"/>
+
+                  <stop
+                    offset="100%"
+                    stop-color="#000000"/>
+
+                </radialGradient>
+
+
+                <!-- Shadow -->
+                <filter
+                  id="diceShadow"
+                  x="-50%"
+                  y="-50%"
+                  width="200%"
+                  height="200%">
+
+                  <feDropShadow
+                    dx="0"
+                    dy="10"
+                    stdDeviation="7"
+                    flood-color="#000000"
+                    flood-opacity=".45"/>
+
+                </filter>
+
+
+                <!-- Pip Shadow -->
+                <filter
+                  id="pipShadow"
+                  x="-50%"
+                  y="-50%"
+                  width="200%"
+                  height="200%">
+
+                  <feDropShadow
+                    dx="0"
+                    dy="2"
+                    stdDeviation="1.5"
+                    flood-color="#000000"
+                    flood-opacity=".35"/>
+
+                </filter>
+
+              </defs>
+
+
+              <!-- =================================================
+                   BACK DICE
+              ================================================== -->
+
+              <g
+                transform="translate(83 -3) rotate(10 70 70)"
+                filter="url(#diceShadow)">
+
+                <!-- Main body -->
+                <rect
+                  x="35"
+                  y="18"
+                  width="105"
+                  height="105"
+                  rx="24"
+                  fill="url(#whiteDiceGradient2)"
+                  stroke="#ffffff"
+                  stroke-width="2"/>
+
+
+                <!-- Top glossy highlight -->
+                <path
+                  d="
+                    M55 30
+                    C75 20 110 21 126 35
+                    C133 41 136 49 137 57
+                    C112 45 83 40 55 45
+                    C48 46 44 42 45 37
+                    C46 34 50 32 55 30
+                  "
+                  fill="url(#diceHighlight)"
+                  opacity=".8"/>
+
+
+                <!-- Face pips -->
+
+                <circle
+                  cx="65"
+                  cy="50"
+                  r="7"
+                  fill="url(#pipGradient)"
+                  filter="url(#pipShadow)"/>
+
+                <circle
+                  cx="112"
+                  cy="50"
+                  r="7"
+                  fill="url(#pipGradient)"
+                  filter="url(#pipShadow)"/>
+
+                <circle
+                  cx="88"
+                  cy="72"
+                  r="7"
+                  fill="url(#pipGradient)"
+                  filter="url(#pipShadow)"/>
+
+                <circle
+                  cx="65"
+                  cy="96"
+                  r="7"
+                  fill="url(#pipGradient)"
+                  filter="url(#pipShadow)"/>
+
+                <circle
+                  cx="112"
+                  cy="96"
+                  r="7"
+                  fill="url(#pipGradient)"
+                  filter="url(#pipShadow)"/>
+
+
+                <!-- Gloss line -->
+                <path
+                  d="M53 113 C72 119 99 122 119 116"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  opacity=".5"/>
+
+              </g>
+
+
+
+              <!-- =================================================
+                   FRONT DICE
+              ================================================== -->
+
+              <g
+                transform="translate(4 40) rotate(-8 70 70)"
+                filter="url(#diceShadow)">
+
+                <!-- Main body -->
+                <rect
+                  x="25"
+                  y="20"
+                  width="112"
+                  height="112"
+                  rx="25
