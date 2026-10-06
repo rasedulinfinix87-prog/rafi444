@@ -301,6 +301,7 @@
       document.getElementById(modalId).classList.add('hidden');
     }
 
+    // Updated Submit Withdrawal Function
     async function submitWithdrawal() {
       const accNum = document.getElementById('accountNumber').value.trim();
       const btn = document.getElementById('submitWithdrawBtn');
@@ -308,26 +309,79 @@
       btn.disabled = true;
       btn.innerText = "Processing...";
 
-      const { data, error } = await supabaseClient
-        .from('withdrawals')
-        .insert([
-          {
-            user_id: currentUserId,
-            amount: selectedAmount,
-            payment_method: selectedMethod,
-            account_number: accNum,
-            status: 'pending'
-          }
-        ]);
+      try {
+        // 1. Double Check Balance
+        const { data: profile, error: pErr } = await supabaseClient
+          .from('profiles')
+          .select('balance')
+          .eq('id', currentUserId)
+          .single();
 
-      btn.disabled = false;
-      btn.innerText = "Confirm & Submit";
+        if (pErr || !profile) {
+          alert('ব্যালেন্স আপডেট করতে সমস্যা হয়েছে।');
+          btn.disabled = false;
+          btn.innerText = "Confirm & Submit";
+          return;
+        }
 
-      if (error) {
-        alert('Error: ' + error.message);
-      } else {
+        const latestBal = parseFloat(profile.balance || 0);
+
+        if (latestBal < selectedAmount) {
+          alert('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
+          btn.disabled = false;
+          btn.innerText = "Confirm & Submit";
+          closeModal('withdrawModal');
+          return;
+        }
+
+        // 2. Insert into withdrawals table
+        const { data, error } = await supabaseClient
+          .from('withdrawals')
+          .insert([
+            {
+              user_id: currentUserId,
+              amount: selectedAmount,
+              payment_method: selectedMethod,
+              account_number: accNum,
+              status: 'pending'
+            }
+          ]);
+
+        if (error) {
+          alert('Error: ' + error.message);
+          btn.disabled = false;
+          btn.innerText = "Confirm & Submit";
+          return;
+        }
+
+        // 3. Deduct balance from user profile
+        const newBal = latestBal - selectedAmount;
+        const { error: updateErr } = await supabaseClient
+          .from('profiles')
+          .update({ balance: newBal })
+          .eq('id', currentUserId);
+
+        if (updateErr) {
+          console.error("Balance update error:", updateErr);
+        } else {
+          // Update local state and UI balance instantly
+          currentBalance = newBal;
+          document.getElementById('availBalance').innerText = `BDT ${currentBalance.toFixed(2)}`;
+          const topBal = document.getElementById('topBarBalance');
+          if (topBal) topBal.innerText = currentBalance.toFixed(2);
+        }
+
+        hasPendingWithdrawal = true;
+        btn.disabled = false;
+        btn.innerText = "Confirm & Submit";
+
         closeModal('withdrawModal');
         document.getElementById('verificationModal').classList.remove('hidden');
+
+      } catch (err) {
+        console.error("Withdraw submission error:", err);
+        btn.disabled = false;
+        btn.innerText = "Confirm & Submit";
       }
     }
 
