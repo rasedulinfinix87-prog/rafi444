@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>My Account - Member Center</title>
+  <title>My Account - Recent Transactions</title>
 
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,47 +21,47 @@
       width: 4px;
       height: 4px;
     }
-    ::-webkit-scrollbar-track { background: #0f141c; }
-    ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1b2438; border-radius: 4px; }
 
-    /* Card Gradient Backdrop styling matching screenshot */
+    /* Card Gradient Backdrop styling with deep navy blue touch */
     .profile-card-bg {
-      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
     }
   </style>
 </head>
-<body class="bg-[#0f141c] text-white font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none antialiased">
+<body class="bg-[#0b0f19] text-white font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none antialiased">
 
   <!-- Main Container Wrapper -->
-  <div class="w-full max-w-md min-h-screen bg-[#161b22] flex flex-col justify-between overflow-x-hidden shadow-2xl relative">
+  <div class="w-full max-w-md min-h-screen bg-[#0f172a] flex flex-col justify-between overflow-x-hidden shadow-2xl relative border-x border-slate-800/60">
 
     <!-- Top Header Bar -->
-    <header class="flex items-center justify-between px-4 py-3 bg.transparent sticky top-0 z-40">
-      <a href="../index.html" class="p-2 text-white hover:text-gray-300 transition">
+    <header class="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-800">
+      <a href="../index.html" class="p-2 text-gray-300 hover:text-white transition">
         <i class="fa-solid fa-chevron-left text-lg"></i>
       </a>
       <h1 class="text-base font-bold text-white tracking-wide">My Account</h1>
       <div class="w-6"></div> <!-- Spacer for center alignment -->
     </header>
 
-    <main class="px-3 py-2 flex-1 flex flex-col gap-5">
+    <main class="px-3 py-3 flex-1 flex flex-col gap-4">
 
       <!-- Profile & Account Status Card -->
-      <div class="profile-card-bg text-gray-900 rounded-3xl p-4 shadow-xl relative overflow-hidden">
+      <div class="profile-card-bg border border-slate-700/60 text-white rounded-3xl p-4 shadow-2xl relative overflow-hidden">
         
         <!-- Sign In Top Right Badge -->
-        <div class="absolute top-0 right-0 bg-red-600 text-white text-[11px] font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1 cursor-pointer">
+        <div class="absolute top-0 right-0 bg-red-600/90 text-white text-[11px] font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1 cursor-pointer hover:bg-red-600 transition">
           <i class="fa-solid fa-calendar-check text-xs"></i> Sign In <i class="fa-solid fa-chevron-right text-[9px]"></i>
         </div>
 
         <!-- Watermark Background Graphic -->
-        <div class="absolute -right-4 -bottom-4 text-gray-300/30 text-8xl pointer-events-none">
+        <div class="absolute -right-4 -bottom-4 text-slate-700/20 text-8xl pointer-events-none">
           <i class="fa-solid fa-crown"></i>
         </div>
 
         <div class="flex items-center gap-3 mt-2">
           <!-- Avatar Frame -->
-          <div class="relative w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-md bg-gray-200 shrink-0">
+          <div class="relative w-16 h-16 rounded-full overflow-hidden border-2 border-slate-500 shadow-lg bg-slate-800 shrink-0">
             <img id="userAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" alt="Profile" class="w-full h-full object-cover">
           </div>
 
@@ -69,30 +69,30 @@
           <div class="flex flex-col gap-0.5">
             <div class="flex items-center gap-2">
               <!-- VIP Level Badge -->
-              <span class="bg-gradient-to-r from-gray-700 to-gray-900 text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-300/40">
+              <span class="bg-slate-900/90 text-amber-400 text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-400/30 shadow-sm">
                 <i class="fa-solid fa-crown text-[9px]"></i> VIP 1
               </span>
             </div>
             
             <div class="flex items-center gap-1.5 mt-1">
-              <span id="userName" class="font-extrabold text-sm text-gray-900">mdrasedul</span>
-              <button onclick="copyUsername()" class="text-gray-600 hover:text-black text-xs">
+              <span id="userName" class="font-extrabold text-sm text-white">Loading...</span>
+              <button onclick="copyUsername()" class="text-slate-400 hover:text-white text-xs">
                 <i class="fa-solid fa-copy"></i>
               </button>
             </div>
 
-            <span id="userJoined" class="text-[10px] text-gray-500 font-semibold">Joined: 2025-05-16</span>
+            <span id="userJoined" class="text-[10px] text-slate-400 font-semibold">Joined: ----</span>
           </div>
         </div>
 
         <!-- Balance Row -->
-        <div class="flex items-center justify-between mt-4 border-t border-gray-300/60 pt-3">
+        <div class="flex items-center justify-between mt-4 border-t border-slate-700/70 pt-3">
           <div class="flex items-baseline gap-1">
-            <span class="text-lg font-bold text-gray-900">৳</span>
-            <span id="userBalance" class="text-2xl font-black text-gray-900 tracking-tight">0.00</span>
+            <span class="text-lg font-bold text-emerald-400">৳</span>
+            <span id="userBalance" class="text-2xl font-black text-emerald-400 tracking-tight">0.00</span>
           </div>
           
-          <button onclick="syncMemberBalance()" class="text-gray-600 hover:text-gray-900 text-sm p-1 transition">
+          <button onclick="syncMemberBalance()" class="text-slate-400 hover:text-white text-sm p-1 transition">
             <i class="fa-solid fa-rotate-right" id="refreshIcon"></i>
           </button>
         </div>
@@ -100,145 +100,71 @@
         <!-- Quick Action Buttons Row -->
         <div class="grid grid-cols-3 gap-2 mt-4">
           <!-- Deposit Button -->
-          <a href="../account/deposit.html" class="bg-white hover:bg-gray-100 text-gray-900 font-extrabold text-xs py-2 px-1 rounded-2xl shadow-sm border border-gray-200 text-center flex items-center justify-center gap-1.5 transition active:scale-95">
-            <i class="fa-solid fa-wallet text-emerald-600 text-xs"></i> Deposit
+          <a href="../account/deposit.html" class="bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs py-2 px-1 rounded-2xl shadow-md border border-slate-600/50 text-center flex items-center justify-center gap-1.5 transition active:scale-95">
+            <i class="fa-solid fa-wallet text-emerald-400 text-xs"></i> Deposit
           </a>
 
           <!-- Withdrawal Button -->
-          <a href="../account/withdraw.html" class="bg-white hover:bg-gray-100 text-gray-900 font-extrabold text-xs py-2 px-1 rounded-2xl shadow-sm border border-gray-200 text-center flex items-center justify-center gap-1.5 transition active:scale-95">
-            <i class="fa-solid fa-money-bill-transfer text-amber-600 text-xs"></i> Withdrawal
+          <a href="../account/withdraw.html" class="bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs py-2 px-1 rounded-2xl shadow-md border border-slate-600/50 text-center flex items-center justify-center gap-1.5 transition active:scale-95">
+            <i class="fa-solid fa-money-bill-transfer text-amber-400 text-xs"></i> Withdrawal
           </a>
 
           <!-- Bank Account Button -->
-          <a href="../account/profile.html" class="bg-white hover:bg-gray-100 text-gray-900 font-extrabold text-[11px] py-2 px-1 rounded-2xl shadow-sm border border-gray-200 text-center flex items-center justify-center gap-1 leading-tight transition active:scale-95">
-            <i class="fa-solid fa-building-columns text-blue-600 text-xs"></i> Bank Account
+          <a href="../account/profile.html" class="bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[11px] py-2 px-1 rounded-2xl shadow-md border border-slate-600/50 text-center flex items-center justify-center gap-1 leading-tight transition active:scale-95">
+            <i class="fa-solid fa-building-columns text-blue-400 text-xs"></i> Bank Account
           </a>
         </div>
 
       </div>
 
-      <!-- Member Center Grid Items -->
-      <div class="bg-[#1a212d] rounded-2xl p-4 border border-gray-800 shadow-lg">
-        <div class="mb-3 flex items-center">
-          <span class="bg-gray-800 text-gray-300 text-[10px] font-bold px-2.5 py-1 rounded-full border border-gray-700">
-            Member Center
+      <!-- Recent Transactions Section (Replacing Member Center) -->
+      <div class="bg-[#111827] rounded-2xl p-4 border border-slate-800 shadow-xl flex flex-col gap-4">
+        
+        <!-- Section Header -->
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+          <span class="bg-slate-800/90 text-blue-400 text-xs font-bold px-3 py-1 rounded-full border border-blue-500/20 flex items-center gap-1.5">
+            <i class="fa-solid fa-clock-rotate-left text-[11px]"></i> Recent Transactions
           </span>
+          <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Latest Activity</span>
         </div>
 
-        <!-- 4 Columns Icon Grid matching screenshot -->
-        <div class="grid grid-cols-4 gap-y-5 gap-x-2 text-center">
-          
-          <!-- My Rewards -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-trophy"></i>
+        <!-- Deposit History Container -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1.5 uppercase tracking-wide">
+            <i class="fa-solid fa-arrow-down-left text-emerald-400"></i> Recent Deposits
+          </h3>
+          <div id="depositList" class="space-y-2 text-xs">
+            <div class="text-center py-3 text-slate-500 bg-[#0b0f19] rounded-xl border border-slate-800/60">
+              <i class="fa-solid fa-spinner fa-spin mr-1"></i> Loading deposits...
             </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">My Rewards</span>
-          </a>
-
-          <!-- Bet History -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-dice"></i>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">Bet History</span>
-          </a>
-
-          <!-- Profit And Loss -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-file-invoice-dollar"></i>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">Profit And Loss</span>
-          </a>
-
-          <!-- Deposit Record -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-clipboard-list"></i>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">Deposit Record</span>
-          </a>
-
-          <!-- Withdrawal Record -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-file-export"></i>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">Withdrawal Record</span>
-          </a>
-
-          <!-- Transaction History -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-clock-rotate-left"></i>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">Transaction History</span>
-          </a>
-
-          <!-- My Account -->
-          <a href="../account/profile.html" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-user"></i>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">My Account</span>
-          </a>
-
-          <!-- Security Center -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-shield-halved"></i>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">Security Center</span>
-          </a>
-
-          <!-- Invite Friends -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-user-plus"></i>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">Invite Friends</span>
-          </a>
-
-          <!-- Rebate -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-coins"></i>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">Rebate</span>
-          </a>
-
-          <!-- Internal Message (with Badge) -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group relative">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition relative">
-              <i class="fa-solid fa-envelope"></i>
-              <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-[#1a212d]">7</span>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">Internal Message</span>
-          </a>
-
-          <!-- Suggestion -->
-          <a href="#" class="flex flex-col items-center gap-1.5 group">
-            <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
-              <i class="fa-solid fa-comment-dots"></i>
-            </div>
-            <span class="text-[11px] font-medium text-gray-300 group-hover:text-white leading-tight">Suggestion</span>
-          </a>
-
+          </div>
         </div>
+
+        <!-- Withdrawal History Container -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1.5 uppercase tracking-wide">
+            <i class="fa-solid fa-arrow-up-right text-amber-400"></i> Recent Withdrawals
+          </h3>
+          <div id="withdrawList" class="space-y-2 text-xs">
+            <div class="text-center py-3 text-slate-500 bg-[#0b0f19] rounded-xl border border-slate-800/60">
+              <i class="fa-solid fa-spinner fa-spin mr-1"></i> Loading withdrawals...
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </main>
 
     <!-- Footer Copyright -->
-    <footer class="py-4 text-center text-[11px] text-gray-500 border-t border-gray-800">
+    <footer class="py-4 text-center text-[11px] text-slate-500 border-t border-slate-800/80 bg-[#0b0f19]">
       &copy; 2026 Gaming Portal. All Rights Reserved.
     </footer>
 
   </div>
 
   <script>
-    // Supabase Integration Logic
+    // Load Member Profile Data
     async function syncMemberBalance() {
       const refreshIcon = document.getElementById('refreshIcon');
       if (refreshIcon) refreshIcon.classList.add('fa-spin');
@@ -247,6 +173,7 @@
         if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
           const user = await getCurrentUser();
           if (user) {
+            // Fetch User Profile
             const { data: profile } = await supabaseClient
               .from('profiles')
               .select('*')
@@ -261,6 +188,9 @@
                 document.getElementById('userJoined').innerText = `Joined: ${date}`;
               }
             }
+
+            // Load Transactions History
+            await loadTransactions(user.id);
           }
         }
       } catch (err) {
@@ -270,10 +200,71 @@
       }
     }
 
+    // Load Recent Deposits & Withdrawals
+    async function loadTransactions(userId) {
+      // 1. Fetch Recent Deposits
+      const { data: deposits } = await supabaseClient
+        .from('deposits')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      const depList = document.getElementById('depositList');
+      if (deposits && deposits.length > 0) {
+        depList.innerHTML = deposits.map(d => `
+          <div class="flex justify-between items-center bg-[#0b0f19] p-2.5 rounded-xl border border-slate-800/80">
+            <div>
+              <span class="font-bold text-slate-200">${d.payment_method || 'Deposit'}</span>
+              <span class="text-[10px] text-slate-500 block font-mono">TrxID: ${d.transection_id || 'N/A'}</span>
+            </div>
+            <div class="text-right">
+              <span class="font-black text-emerald-400">+${parseFloat(d.amount).toFixed(2)} ৳</span>
+              <span class="text-[10px] capitalize block font-semibold ${
+                d.status === 'approved' ? 'text-emerald-400' : d.status === 'rejected' ? 'text-red-400' : 'text-amber-400'
+              }">${d.status}</span>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        depList.innerHTML = `<div class="text-center py-3 text-slate-500 bg-[#0b0f19] rounded-xl border border-slate-800/60">No deposit history found.</div>`;
+      }
+
+      // 2. Fetch Recent Withdrawals
+      const { data: withdrawals } = await supabaseClient
+        .from('withdrawals')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      const withList = document.getElementById('withdrawList');
+      if (withdrawals && withdrawals.length > 0) {
+        withList.innerHTML = withdrawals.map(w => `
+          <div class="flex justify-between items-center bg-[#0b0f19] p-2.5 rounded-xl border border-slate-800/80">
+            <div>
+              <span class="font-bold text-slate-200">${w.payment_method || 'Withdrawal'}</span>
+              <span class="text-[10px] text-slate-500 block font-mono">Acc: ${w.account_number || 'N/A'}</span>
+            </div>
+            <div class="text-right">
+              <span class="font-black text-amber-400">-${parseFloat(w.amount).toFixed(2)} ৳</span>
+              <span class="text-[10px] capitalize block font-semibold ${
+                w.status === 'approved' ? 'text-emerald-400' : w.status === 'rejected' ? 'text-red-400' : 'text-amber-400'
+              }">${w.status}</span>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        withList.innerHTML = `<div class="text-center py-3 text-slate-500 bg-[#0b0f19] rounded-xl border border-slate-800/60">No withdrawal history found.</div>`;
+      }
+    }
+
     function copyUsername() {
       const name = document.getElementById('userName').innerText;
-      navigator.clipboard.writeText(name);
-      alert("Username copied to clipboard!");
+      if (name && name !== 'Loading...') {
+        navigator.clipboard.writeText(name);
+        alert("Username copied to clipboard!");
+      }
     }
 
     document.addEventListener('DOMContentLoaded', syncMemberBalance);
