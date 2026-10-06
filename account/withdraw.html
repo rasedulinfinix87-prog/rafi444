@@ -4,115 +4,338 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Withdraw Funds</title>
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Supabase JS Client & App Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
-</head>
-<body class="bg-[#0f141c] text-white min-h-screen">
 
-  <header class="bg-[#161b22] border-b border-gray-800 px-4 py-3 flex justify-between items-center">
-    <a href="profile.html" class="text-xs text-gray-400 hover:text-white">← Profile</a>
-    <span class="font-bold text-sm text-[#24ee89]">Withdraw Money</span>
-    <div></div>
+  <style>
+    /* Custom Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1b2438; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
+
+  <!-- Top Navigation Bar Container (bar/top.html dynamically loaded) -->
+  <div id="topBarContainer" class="sticky top-0 z-50"></div>
+
+  <!-- Header -->
+  <header class="bg-[#111827] border-b border-slate-800/80 px-4 py-3 flex justify-between items-center">
+    <a href="profile.html" class="text-xs text-slate-400 hover:text-white transition flex items-center gap-1 font-semibold">
+      ← Profile
+    </a>
+    <span class="font-black text-sm text-[#24ee89] tracking-wide uppercase">Withdraw Money</span>
+    <div class="w-12"></div>
   </header>
 
-  <main class="max-w-md mx-auto p-4">
-    <div id="alertBox" class="hidden mb-4 p-3 rounded-lg text-xs font-medium"></div>
+  <main class="max-w-md w-full mx-auto p-4 space-y-6 flex-1 pb-10">
 
-    <form onsubmit="handleWithdraw(event)" class="bg-[#161b22] border border-gray-800 rounded-xl p-5 space-y-4">
+    <!-- Alert Box -->
+    <div id="alertBox" class="hidden p-3 rounded-xl text-xs font-semibold shadow-md transition-all"></div>
+
+    <!-- Available Balance Card -->
+    <div class="bg-[#111827] border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-lg">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89] animate-pulse"></span>
+        <span class="text-xs font-bold text-slate-400">Available Balance:</span>
+      </div>
+      <span id="availBalance" class="font-black text-lg text-[#24ee89] tracking-tight">BDT 0.00</span>
+    </div>
+
+    <!-- Withdrawal Method Selection -->
+    <section class="space-y-2">
+      <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
+        <span>Select Payment Method</span>
+      </div>
       
-      <div class="bg-[#0f141c] p-3 rounded-lg border border-gray-800 flex justify-between items-center">
-        <span class="text-xs text-gray-400">Available Balance:</span>
-        <span id="availBalance" class="font-bold text-[#24ee89] text-sm">BDT 0.00</span>
+      <div class="grid grid-cols-3 gap-2.5">
+        <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card relative bg-[#111827] border-2 border-[#24ee89] rounded-xl p-3 flex flex-col items-center justify-center gap-1 transition">
+          <span class="text-xs font-black text-pink-500">bKash</span>
+          <span class="text-[9px] font-bold text-slate-400">Personal</span>
+        </button>
+
+        <button type="button" onclick="selectMethod('Nagad')" id="method-Nagad" class="method-card relative bg-[#111827] border border-slate-800 rounded-xl p-3 flex flex-col items-center justify-center gap-1 hover:border-slate-700 transition">
+          <span class="text-xs font-black text-orange-500">NAGAD</span>
+          <span class="text-[9px] font-bold text-slate-400">Personal</span>
+        </button>
+
+        <button type="button" onclick="selectMethod('Rocket')" id="method-Rocket" class="method-card relative bg-[#111827] border border-slate-800 rounded-xl p-3 flex flex-col items-center justify-center gap-1 hover:border-slate-700 transition">
+          <span class="text-xs font-black text-purple-500">ROCKET</span>
+          <span class="text-[9px] font-bold text-slate-400">Personal</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Phone Number Input -->
+    <section class="space-y-2">
+      <label class="block text-xs font-bold text-slate-300">
+        <span class="w-2 h-2 inline-block rounded-full bg-[#24ee89] mr-1"></span> Account Phone Number
+      </label>
+      <input type="tel" id="accountNumber" maxlength="11" placeholder="e.g. 017XXXXXXXX" class="w-full bg-[#111827] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#24ee89] font-mono tracking-wider placeholder-slate-600">
+    </section>
+
+    <!-- Quick Amounts Selection -->
+    <section class="space-y-2">
+      <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
+        <span>Withdraw Amount</span>
       </div>
 
-      <div>
-        <label class="block text-xs text-gray-400 mb-1">Payment Method</label>
-        <select id="paymentMethod" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#24ee89]">
-          <option value="bKash">bKash Personal</option>
-          <option value="Nagad">Nagad Personal</option>
-          <option value="Rocket">Rocket Personal</option>
-        </select>
+      <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+        <button type="button" onclick="setAmount(100)" class="amount-btn bg-[#111827] border border-slate-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">100</button>
+        <button type="button" onclick="setAmount(200)" class="amount-btn bg-[#111827] border border-slate-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">200</button>
+        <button type="button" onclick="setAmount(500)" class="amount-btn bg-[#111827] border border-slate-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">500</button>
+        <button type="button" onclick="setAmount(1000)" class="amount-btn bg-[#111827] border border-slate-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">1,000</button>
+        <button type="button" onclick="setAmount(2000)" class="amount-btn bg-[#111827] border border-slate-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">2,000</button>
+        <button type="button" onclick="setAmount(5000)" class="amount-btn bg-[#111827] border border-slate-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">5,000</button>
       </div>
 
-      <div>
-        <label class="block text-xs text-gray-400 mb-1">Account Number</label>
-        <input type="tel" id="accountNumber" placeholder="017xxxxxxxx" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      <!-- Custom Amount Input -->
+      <div class="pt-2">
+        <div class="relative flex items-center">
+          <span class="absolute left-3.5 text-xs text-slate-500 font-bold">৳</span>
+          <input type="number" id="customAmount" min="50" placeholder="Min 50 BDT" class="w-full bg-[#111827] border border-slate-800 rounded-xl pl-8 pr-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#24ee89] font-semibold placeholder-slate-600">
+        </div>
       </div>
+    </section>
 
-      <div>
-        <label class="block text-xs text-gray-400 mb-1">Withdraw Amount (BDT)</label>
-        <input type="number" id="withdrawAmount" min="50" required placeholder="Min 50 BDT" class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
-      </div>
+    <!-- Next Action Button -->
+    <button type="button" onclick="openWithdrawModal()" class="w-full bg-[#24ee89] text-black font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition shadow-lg shadow-[#24ee89]/10">
+      Next
+    </button>
 
-      <button type="submit" id="submitBtn" class="w-full bg-[#24ee89] text-black font-bold py-2.5 rounded-lg text-sm hover:bg-emerald-400 transition">
-        Submit Withdrawal Request
-      </button>
-
-    </form>
   </main>
+
+  <!-- STEP 1: CONFIRMATION MODAL POPUP -->
+  <div id="withdrawModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#111827] border border-slate-800 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
+      <button onclick="closeModal('withdrawModal')" class="absolute top-3 right-3 text-slate-500 hover:text-white text-base">✕</button>
+      
+      <div class="text-center border-b border-slate-800/80 pb-3">
+        <h3 class="text-sm font-black text-[#24ee89]">Confirm Withdrawal</h3>
+        <p class="text-[10px] text-slate-400 mt-0.5">Please review details carefully</p>
+      </div>
+
+      <!-- Summary Info -->
+      <div class="bg-[#0b0f19] border border-slate-800/80 rounded-xl p-3.5 space-y-2.5 text-xs">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-400">Method:</span>
+          <span id="modalMethod" class="font-bold text-white">bKash</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-400">Account Number:</span>
+          <span id="modalNumber" class="font-mono font-bold text-amber-400">017XXXXXXXX</span>
+        </div>
+        <div class="flex justify-between items-center border-t border-slate-800/60 pt-2">
+          <span class="text-slate-400">Withdraw Amount:</span>
+          <span id="modalAmount" class="font-extrabold text-[#24ee89]">0 BDT</span>
+        </div>
+      </div>
+
+      <button type="button" id="submitWithdrawBtn" onclick="submitWithdrawal()" class="w-full bg-[#24ee89] text-black font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition">
+        Confirm & Submit
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2: SUCCESS VERIFICATION MODAL POPUP -->
+  <div id="verificationModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#111827] border border-slate-800 rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-xl">
+        ✓
+      </div>
+      
+      <div>
+        <h3 class="text-base font-black text-white">Withdrawal Requested</h3>
+        <p class="text-xs text-slate-400 mt-1">Your withdrawal request is being processed. It will be sent to your account after verification.</p>
+      </div>
+
+      <button type="button" onclick="finishWithdraw()" class="w-full bg-[#24ee89] text-black font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition">
+        Done
+      </button>
+    </div>
+  </div>
 
   <script>
     let currentUserId = null;
     let currentBalance = 0;
+    let selectedMethod = 'bKash';
+    let selectedAmount = 0;
+    let hasPendingWithdrawal = false;
 
+    // Load Top Navigation Component
+    async function loadTopBar() {
+      try {
+        const response = await fetch('bar/top.html');
+        if (response.ok) {
+          const html = await response.text();
+          document.getElementById('topBarContainer').innerHTML = html;
+        }
+      } catch (err) {
+        console.error("Error loading top bar component:", err);
+      }
+    }
+
+    // Initialize Auth & Load User Balance + Check Pending Request
     async function init() {
-      const user = await requireAuth();
-      currentUserId = user.id;
-      const profile = await getUserProfile(user.id);
-      if (profile) {
-        currentBalance = parseFloat(profile.balance);
-        document.getElementById('availBalance').innerText = `BDT ${currentBalance.toFixed(2)}`;
+      await loadTopBar();
+
+      try {
+        let user = null;
+        if (typeof requireAuth === 'function') {
+          user = await requireAuth();
+        } else if (typeof getCurrentUser === 'function') {
+          user = await getCurrentUser();
+        }
+
+        if (user) {
+          currentUserId = user.id;
+
+          // Fetch Profile Balance
+          const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('balance')
+            .eq('id', currentUserId)
+            .single();
+
+          if (profile) {
+            currentBalance = parseFloat(profile.balance) || 0;
+            document.getElementById('availBalance').innerText = `BDT ${currentBalance.toFixed(2)}`;
+            
+            // Sync with Top Bar Balance element if present
+            const topBal = document.getElementById('topBarBalance');
+            if (topBal) topBal.innerText = currentBalance.toFixed(2);
+          }
+
+          // Check if user already has a pending withdrawal request
+          const { data: pending } = await supabaseClient
+            .from('withdrawals')
+            .select('id')
+            .eq('user_id', currentUserId)
+            .eq('status', 'pending')
+            .maybeSingle();
+
+          if (pending) {
+            hasPendingWithdrawal = true;
+            showAlert('আপনার একটি উইথড্রয়াল রিকোয়েস্ট পেন্ডিং অবস্থায় আছে। সেটি সফল হওয়া ছাড়া নতুন উইথড্র দেওয়া সম্ভব নয়।');
+          }
+        }
+      } catch (err) {
+        console.error("Init Error:", err);
       }
     }
 
     function showAlert(msg, isSuccess = false) {
       const alertBox = document.getElementById('alertBox');
       alertBox.innerText = msg;
-      alertBox.className = `mb-4 p-3 rounded-lg text-xs font-medium ${isSuccess ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`;
+      alertBox.className = `p-3 rounded-xl text-xs font-semibold ${isSuccess ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`;
       alertBox.classList.remove('hidden');
     }
 
-    async function handleWithdraw(e) {
-      e.preventDefault();
-      const method = document.getElementById('paymentMethod').value;
-      const accountNum = document.getElementById('accountNumber').value.trim();
-      const amount = parseFloat(document.getElementById('withdrawAmount').value);
-      const btn = document.getElementById('submitBtn');
+    function selectMethod(method) {
+      selectedMethod = method;
+      document.querySelectorAll('.method-card').forEach(card => {
+        card.classList.remove('border-[#24ee89]', 'border-2');
+        card.classList.add('border-slate-800');
+      });
 
-      if (amount > currentBalance) {
-        showAlert("Insufficient balance for this withdrawal!");
+      const activeBtn = document.getElementById(`method-${method}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('border-slate-800');
+        activeBtn.classList.add('border-[#24ee89]', 'border-2');
+      }
+    }
+
+    function setAmount(amount) {
+      selectedAmount = amount;
+      document.getElementById('customAmount').value = amount;
+    }
+
+    function openWithdrawModal() {
+      if (hasPendingWithdrawal) {
+        showAlert('আপনার পূর্বের উইথড্র রিকোয়েস্টটি পেন্ডিং রয়েছে। সেটি প্রসেস হওয়া পর্যন্ত অপেক্ষা করুন।');
         return;
       }
 
+      const accNum = document.getElementById('accountNumber').value.trim();
+      const customAmt = parseFloat(document.getElementById('customAmount').value);
+      const finalAmt = customAmt || selectedAmount;
+
+      // Validations
+      if (!accNum || accNum.length < 11) {
+        showAlert('অনুগ্রহ করে ১১ ডিজিটের সঠিক মোবাইল নম্বর দিন।');
+        return;
+      }
+
+      if (!finalAmt || finalAmt < 50) {
+        showAlert('সর্বনিম্ন ৫০ BDT উইথড্র করতে পারবেন।');
+        return;
+      }
+
+      if (finalAmt > currentBalance) {
+        showAlert('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
+        return;
+      }
+
+      document.getElementById('alertBox').classList.add('hidden');
+      selectedAmount = finalAmt;
+
+      // Populate Modal Fields
+      document.getElementById('modalMethod').innerText = selectedMethod + ' Personal';
+      document.getElementById('modalNumber').innerText = accNum;
+      document.getElementById('modalAmount').innerText = `${selectedAmount} BDT`;
+
+      document.getElementById('withdrawModal').classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    async function submitWithdrawal() {
+      const accNum = document.getElementById('accountNumber').value.trim();
+      const btn = document.getElementById('submitWithdrawBtn');
+
       btn.disabled = true;
-      btn.innerText = "Submitting...";
+      btn.innerText = "Processing...";
 
       const { data, error } = await supabaseClient
         .from('withdrawals')
         .insert([
           {
             user_id: currentUserId,
-            amount: amount,
-            payment_method: method,
-            account_number: accountNum,
+            amount: selectedAmount,
+            payment_method: selectedMethod,
+            account_number: accNum,
             status: 'pending'
           }
         ]);
 
+      btn.disabled = false;
+      btn.innerText = "Confirm & Submit";
+
       if (error) {
-        showAlert(error.message);
-        btn.disabled = false;
-        btn.innerText = "Submit Withdrawal Request";
+        alert('Error: ' + error.message);
       } else {
-        showAlert("Withdrawal request submitted successfully!", true);
-        setTimeout(() => {
-          window.location.href = "profile.html";
-        }, 1500);
+        closeModal('withdrawModal');
+        document.getElementById('verificationModal').classList.remove('hidden');
       }
     }
 
-    init();
+    function finishWithdraw() {
+      window.location.href = "profile.html";
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
