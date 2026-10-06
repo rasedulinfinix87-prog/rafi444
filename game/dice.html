@@ -58,26 +58,16 @@
     input[type=range]:focus {
       outline: none;
     }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      height: 36px;
-      width: 36px;
-      border-radius: 50%;
-      background: #ffffff;
-      cursor: pointer;
-      margin-top: -14px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
 
     /* Hexagon Shape CSS */
     .hexagon {
-      width: 72px;
-      height: 82px;
+      width: 64px;
+      height: 72px;
       clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s ease;
+      transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
     /* Slider track dual visual wrapper */
@@ -96,7 +86,7 @@
       height: 38px;
       border-radius: 50%;
       background: #ffffff;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -109,19 +99,29 @@
       position: absolute;
       top: 50%;
       transform: translate(-50%, -50%);
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: #ffffff;
-      box-shadow: 0 0 12px rgba(255,255,255,0.8);
+      box-shadow: 0 0 12px rgba(255,255,255,0.9);
       z-index: 30;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 10px;
+      font-size: 11px;
       color: #0f141c;
       transition: left 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* Moving Hexagon Badge Overlay on Slider */
+    .moving-hexagon-wrap {
+      position: absolute;
+      top: -85px;
+      transform: translateX(-50%);
+      transition: left 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 25;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -138,7 +138,6 @@
 
       <!-- Right Balance and Deposit Controls -->
       <div class="flex items-center gap-2">
-        <!-- Balance Display Dropdown -->
         <div class="flex items-center bg-inputBg border border-borderDark rounded-xl px-3 py-1.5 gap-2">
           <div class="w-5 h-5 rounded-full bg-bcGreen text-bgDark flex items-center justify-center font-bold text-xs">
             <i class="fa-solid fa-coins"></i>
@@ -158,22 +157,22 @@
 
     <main class="p-3 sm:p-5 flex flex-col gap-4 bg-cardDark flex-1">
       
-      <!-- History Pills Bar -->
-      <div class="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar min-h-[36px]" id="historyContainer">
-        <span class="text-xs text-textGray italic">No roll history yet</span>
-      </div>
+      <!-- History Pills Bar (No text when empty) -->
+      <div class="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar min-h-[36px]" id="historyContainer"></div>
 
-      <!-- Result Hexagon Badge -->
-      <div class="flex flex-col items-center justify-center my-1 relative">
-        <div class="hexagon border-4 bg-panelDark border-borderDark text-textGray shadow-lg" id="hexagonResult">
-          <span class="text-xl font-extrabold tracking-wider" id="hexagonText">00.00</span>
-        </div>
-      </div>
-
-      <div class="relative my-3 px-2">
-        <!-- Range Indicator Hover Bubble -->
-        <div id="targetBubble" class="absolute -top-8 transform -translate-x-1/2 bg-panelDark text-white text-xs font-bold px-2 py-1 rounded border border-borderDark shadow pointer-events-none transition-all" style="left: 50%;">
-          50.00
+      <!-- Main Slider Area with Dynamic Hexagon and Ball -->
+      <div class="relative my-20 px-2">
+        
+        <!-- Moving Hexagon Badge Indicator -->
+        <div id="movingHexagonWrap" class="moving-hexagon-wrap" style="left: 50%;">
+          <div class="flex flex-col items-center">
+            <div class="hexagon border-4 bg-panelDark border-bcGreen shadow-xl" id="hexagonResult">
+              <span class="text-lg font-black tracking-wider text-white" id="hexagonText">50.00</span>
+            </div>
+            <div id="targetBubble" class="mt-1 bg-panelDark text-white text-[11px] font-bold px-2 py-0.5 rounded border border-borderDark shadow">
+              50.00
+            </div>
+          </div>
         </div>
 
         <!-- Animated Dice Result Ball -->
@@ -192,9 +191,9 @@
         <!-- Hidden Native Range Input -->
         <input type="range" min="2" max="98" step="0.01" value="50" id="diceRange" class="absolute top-0 left-0 w-full h-3 opacity-0 cursor-pointer z-10">
 
-        <!-- Thumb Indicator -->
+        <!-- Thumb Indicator with Double Headed Arrow (<>) -->
         <div id="sliderThumb" class="slider-thumb-custom shadow-md pointer-events-none" style="left: 50%;">
-          <i class="fa-solid fa-code-compare text-bgDark text-xs"></i>
+          <i class="fa-solid fa-arrows-left-right text-bgDark text-sm"></i>
         </div>
 
         <!-- Slider Scale Labels -->
@@ -249,12 +248,13 @@
           </div>
         </div>
 
-        <button id="btnBet" onclick="triggerBet()" class="w-full py-3 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2">
+        <button id="btnBet" onclick="triggerBet()" class="w-full py-3.5 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2">
           <span>Bet</span>
         </button>
 
       </div>
 
+      <!-- Strategy Tabs (Manual, Auto, Advanced) -->
       <div class="bg-panelDark rounded-xl border border-borderDark overflow-hidden">
         <!-- Tab Headers -->
         <div class="flex border-b border-borderDark bg-inputBg text-xs font-bold">
@@ -267,23 +267,71 @@
 
         <!-- Tab Body Container -->
         <div class="p-3.5 text-xs text-textGray">
+          <!-- Manual Tab -->
           <div id="contentManual" class="flex flex-col gap-1">
             <p class="text-textGray">Manual Mode: Set your bet amount and roll target above, then click Bet to play.</p>
           </div>
 
+          <!-- Auto Tab (Customized according to Image 2) -->
           <div id="contentAuto" class="hidden flex-col gap-3">
-            <div class="grid grid-cols-2 gap-3">
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] text-textGray">Number of Bets (0 = ∞)</label>
-                <input type="number" id="autoBetCount" value="10" min="0" class="bg-inputBg border border-borderDark rounded-lg px-3 py-1.5 text-white font-bold focus:outline-none">
-              </div>
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] text-textGray">Stop On Profit (BDT)</label>
-                <input type="number" id="autoStopProfit" value="100" class="bg-inputBg border border-borderDark rounded-lg px-3 py-1.5 text-white font-bold focus:outline-none">
+            
+            <!-- On Win Strategy -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs text-textGray font-semibold">On win</label>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="flex bg-inputBg border border-borderDark rounded-lg p-1">
+                  <button onclick="setToggle('win', 'reset')" id="btnWinReset" class="flex-1 py-1 text-xs font-bold rounded bg-panelDark text-white shadow">Reset</button>
+                  <button onclick="setToggle('win', 'increase')" id="btnWinInc" class="flex-1 py-1 text-xs font-bold rounded text-textGray">Increase by</button>
+                </div>
+                <div class="flex items-center bg-inputBg border border-borderDark rounded-lg px-3 py-1">
+                  <input type="number" id="winIncVal" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-right pr-1">
+                  <span class="text-textGray font-bold">%</span>
+                </div>
               </div>
             </div>
+
+            <!-- On Loss Strategy -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs text-textGray font-semibold">On loss</label>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="flex bg-inputBg border border-borderDark rounded-lg p-1">
+                  <button onclick="setToggle('loss', 'reset')" id="btnLossReset" class="flex-1 py-1 text-xs font-bold rounded bg-panelDark text-white shadow">Reset</button>
+                  <button onclick="setToggle('loss', 'increase')" id="btnLossInc" class="flex-1 py-1 text-xs font-bold rounded text-textGray">Increase by</button>
+                </div>
+                <div class="flex items-center bg-inputBg border border-borderDark rounded-lg px-3 py-1">
+                  <input type="number" id="lossIncVal" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-right pr-1">
+                  <span class="text-textGray font-bold">%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stop On Win Input -->
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between items-center">
+                <label class="text-xs text-textGray font-semibold">Stop on win</label>
+                <span class="text-[10px] text-textGray">≈0BCD</span>
+              </div>
+              <div class="flex items-center bg-inputBg border border-borderDark rounded-lg px-3 py-2">
+                <span class="text-bcGreen font-bold mr-2">৳</span>
+                <input type="number" id="stopWinVal" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none">
+              </div>
+            </div>
+
+            <!-- Stop On Loss Input -->
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between items-center">
+                <label class="text-xs text-textGray font-semibold">Stop on loss</label>
+                <span class="text-[10px] text-textGray">≈0BCD</span>
+              </div>
+              <div class="flex items-center bg-inputBg border border-borderDark rounded-lg px-3 py-2">
+                <span class="text-bcGreen font-bold mr-2">৳</span>
+                <input type="number" id="stopLossVal" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none">
+              </div>
+            </div>
+
           </div>
 
+          <!-- Advanced Tab -->
           <div id="contentAdvanced" class="hidden flex-col gap-3">
             <div class="p-2.5 bg-inputBg rounded-lg border border-borderDark flex flex-col gap-2">
               <span class="font-bold text-white">Condition Trigger Strategy</span>
@@ -313,9 +361,8 @@
     let activeTab = 'manual';
     
     let isAutoRunning = false;
-    let consecutiveWins = 0;
-    let consecutiveLosses = 0;
-    let baseBetAmount = 10;
+    let winMode = 'reset';
+    let lossMode = 'reset';
 
     const HOUSE_EDGE = 0.99;
 
@@ -332,6 +379,7 @@
     const btnBet = document.getElementById('btnBet');
     const hexagonResult = document.getElementById('hexagonResult');
     const hexagonText = document.getElementById('hexagonText');
+    const movingHexagonWrap = document.getElementById('movingHexagonWrap');
     const userBalance = document.getElementById('userBalance');
     const historyContainer = document.getElementById('historyContainer');
     const diceBall = document.getElementById('diceBall');
@@ -347,7 +395,6 @@
         if (user) {
           currentUserId = user.id;
 
-          // Fetch User Initial Balance
           const { data: profile } = await supabaseClient
             .from('profiles')
             .select('balance')
@@ -359,7 +406,6 @@
             updateBalanceUI();
           }
 
-          // Subscribe to Realtime Profile Balance Updates
           supabaseClient
             .channel('dice-profile-channel')
             .on(
@@ -381,13 +427,18 @@
       userBalance.innerText = `BDT ${balance.toFixed(2)}`;
     }
 
-    // Slider & Math Logic
+    // Slider Visual Updates
     function updateSliderVisuals() {
       const val = parseFloat(diceRange.value);
-      targetBubble.style.left = val + '%';
       targetBubble.innerText = val.toFixed(2);
       sliderThumb.style.left = val + '%';
       targetLabel.innerText = val.toFixed(2);
+
+      // Keep hexagon badge centered over slider target when idle
+      if (!isRolling) {
+        movingHexagonWrap.style.left = val + '%';
+        hexagonText.innerText = val.toFixed(2);
+      }
 
       if (rollDirection === 'over') {
         greenTrack.style.left = val + '%';
@@ -476,7 +527,7 @@
       executeRoll();
     }
 
-    // Execute Roll & Update DB Logic
+    // Execute Roll Logic
     async function executeRoll() {
       const currentBet = parseFloat(betAmount.value) || 0;
       
@@ -490,7 +541,6 @@
       btnBet.disabled = true;
       btnBet.innerText = "Rolling...";
 
-      // Optimistic balance deduction
       if (currentBet > 0) {
         balance -= currentBet;
         updateBalanceUI();
@@ -499,8 +549,10 @@
       const rollResult = parseFloat((Math.random() * 99.99).toFixed(2));
       const targetVal = parseFloat(diceRange.value);
 
+      // Move Dice Ball and Moving Hexagon Badge to stopping point
       diceBall.classList.remove('hidden');
       diceBall.style.left = rollResult + '%';
+      movingHexagonWrap.style.left = rollResult + '%';
 
       setTimeout(async () => {
         let isWin = false;
@@ -517,16 +569,10 @@
           winAmount = currentBet > 0 ? (currentBet * multiplier) : 0;
           balance += winAmount;
           updateBalanceUI();
-          consecutiveWins++;
-          consecutiveLosses = 0;
-        } else {
-          consecutiveLosses++;
-          consecutiveWins = 0;
         }
 
-        // Database Integration: Save Bet Record & Update User Balance
+        // Save Bet Record to Supabase Database
         if (currentUserId && currentBet > 0 && typeof supabaseClient !== 'undefined') {
-          // 1. Insert Bet Log
           await supabaseClient.from('bets').insert([
             {
               user_id: currentUserId,
@@ -538,18 +584,17 @@
             }
           ]);
 
-          // 2. Sync Final Balance to Supabase Profile Table
           await supabaseClient
             .from('profiles')
             .update({ balance: balance })
             .eq('id', currentUserId);
         }
 
-        // UI Updates
+        // Update Hexagon Styling (Green for win, Red for loss, text is white)
         hexagonText.innerText = rollResult.toFixed(2);
         hexagonResult.className = isWin 
-          ? "hexagon border-4 bg-panelDark border-bcGreen text-bcGreen shadow-lg shadow-bcGreen/20" 
-          : "hexagon border-4 bg-panelDark border-bcRed text-bcRed shadow-lg shadow-bcRed/20";
+          ? "hexagon border-4 bg-panelDark border-bcGreen text-white shadow-lg shadow-bcGreen/20" 
+          : "hexagon border-4 bg-panelDark border-bcRed text-white shadow-lg shadow-bcRed/20";
 
         addHistoryPill(rollResult.toFixed(2), isWin);
 
@@ -561,14 +606,10 @@
           setTimeout(executeAutoStep, 300);
         }
 
-      }, 650);
+      }, 600);
     }
 
     function addHistoryPill(result, isWin) {
-      if (rollHistory.length === 0) {
-        historyContainer.innerHTML = '';
-      }
-
       rollHistory.unshift({ result, isWin });
       if (rollHistory.length > 10) rollHistory.pop();
 
@@ -606,37 +647,4 @@
       }
     }
 
-    function startAutoBet() {
-      isAutoRunning = true;
-      baseBetAmount = parseFloat(betAmount.value) || 0;
-      btnBet.innerText = "Stop Auto Bet";
-      btnBet.className = "w-full py-3 bg-bcRed hover:bg-red-600 text-white font-extrabold text-base rounded-xl transition shadow-lg flex items-center justify-center gap-2";
-      executeAutoStep();
-    }
-
-    function stopAutoBet() {
-      isAutoRunning = false;
-      btnBet.disabled = false;
-      btnBet.innerText = activeTab === 'auto' ? "Start Auto Bet" : "Bet";
-      btnBet.className = "w-full py-3 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
-    }
-
-    function executeAutoStep() {
-      if (!isAutoRunning) return;
-
-      const autoCount = parseInt(document.getElementById('autoBetCount').value);
-      if (autoCount > 0) {
-        document.getElementById('autoBetCount').value = autoCount - 1;
-      }
-
-      executeRoll();
-
-      if (autoCount === 1) {
-        stopAutoBet();
-      }
-    }
-
-    window.onload = initRealtimeGame;
-  </script>
-</body>
-</html>
+    function set
