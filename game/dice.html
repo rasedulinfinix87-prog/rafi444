@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dice Game - Realtime</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Main Root এর Config File লিংক -->
+  <script src="../supabase-config.js"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+  <!-- হোম ব্যাক বাটন -->
+  <div class="w-full max-w-md mb-4 flex justify-between items-center">
+    <a href="../index.html" class="text-sm bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 px-4 py-2 rounded-lg">
+      ← হোমে ফিরুন
+    </a>
+    <span class="text-xs text-gray-400 font-mono">🎲 DICE REALTIME</span>
+  </div>
+
+  <!-- রিয়েল-টাইম রিসেন্ট রোলস -->
+  <div id="recent-rolls" class="flex gap-2 mb-6 overflow-x-auto p-3 bg-gray-800/80 rounded-xl max-w-md w-full justify-center border border-gray-700/50">
+    <span class="text-gray-400 text-sm">লোডিং রিসেন্ট রোলস...</span>
+  </div>
+
+  <!-- ডাইস মেইন কার্ড -->
+  <div class="bg-gray-800 p-6 rounded-2xl w-full max-w-md shadow-2xl border border-gray-700">
+    
+    <!-- টার্গেট নম্বর ডিসপ্লে -->
+    <div class="text-center mb-6">
+      <div id="target-display" class="text-4xl font-extrabold text-green-400 border-2 border-green-400/80 bg-green-500/10 inline-block px-8 py-2 rounded-2xl tracking-wider">
+        50.00
+      </div>
+    </div>
+
+    <!-- স্লাইডার -->
+    <div class="mb-6">
+      <input 
+        type="range" 
+        id="dice-slider" 
+        min="1" 
+        max="98" 
+        value="50" 
+        class="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-500"
+      />
+      <div class="flex justify-between text-xs text-gray-400 mt-2 font-mono">
+        <span>0</span>
+        <span>25</span>
+        <span>50</span>
+        <span>75</span>
+        <span>100</span>
+      </div>
+    </div>
+
+    <!-- পেআউট ও উইন চান্স -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div class="bg-gray-900/80 p-3 rounded-xl text-center border border-gray-700/40">
+        <span class="text-gray-400 text-xs block mb-1">Payout</span>
+        <span id="payout-val" class="text-lg font-bold text-white">1.98x</span>
+      </div>
+      <div class="bg-gray-900/80 p-3 rounded-xl text-center border border-gray-700/40">
+        <span class="text-gray-400 text-xs block mb-1">Win Chance</span>
+        <span id="win-chance-val" class="text-lg font-bold text-white">50%</span>
+      </div>
+    </div>
+
+    <!-- পয়েন্ট ইনপুট -->
+    <div class="mb-6">
+      <label class="text-xs text-gray-400 mb-1 block">পয়েন্ট পরিমাণ</label>
+      <input 
+        type="number" 
+        id="bet-amount" 
+        value="10" 
+        class="w-full bg-gray-900 border border-gray-700 text-white rounded-xl p-3 text-center focus:outline-none focus:border-green-500 font-bold"
+      />
+    </div>
+
+    <!-- রোল বোতাম -->
+    <button 
+      id="roll-btn" 
+      class="w-full bg-green-500 hover:bg-green-600 text-black font-extrabold py-3.5 rounded-xl transition duration-200 shadow-lg text-lg"
+    >
+      Roll Dice
+    </button>
+  </div>
+
+  <script>
+    // DOM Elements
+    const slider = document.getElementById('dice-slider');
+    const targetDisplay = document.getElementById('target-display');
+    const payoutVal = document.getElementById('payout-val');
+    const winChanceVal = document.getElementById('win-chance-val');
+    const betInput = document.getElementById('bet-amount');
+    const rollBtn = document.getElementById('roll-btn');
+    const recentRollsContainer = document.getElementById('recent-rolls');
+
+    // ১. স্লাইডার চেঞ্জের লজিক
+    slider.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      targetDisplay.innerText = val.toFixed(2);
+      
+      const winChance = val;
+      const payout = (99 / winChance).toFixed(2);
+
+      winChanceVal.innerText = `${winChance}%`;
+      payoutVal.innerText = `${payout}x`;
+    });
+
+    // ২. ডাইস রোল বাটন ক্লিক
+    rollBtn.addEventListener('click', async () => {
+      const targetNum = parseFloat(slider.value);
+      const betAmt = parseFloat(betInput.value);
+
+      if (!betAmt || betAmt <= 0) {
+        alert('সঠিক পয়েন্ট সংখ্যা দিন');
+        return;
+      }
+
+      rollBtn.disabled = true;
+      rollBtn.innerText = 'Rolling...';
+
+      // Supabase RPC Function কল
+      const { data, error } = await db.rpc('play_dice', {
+        target_num: targetNum,
+        bet_amt: betAmt,
+        is_under: true
+      });
+
+      rollBtn.disabled = false;
+      rollBtn.innerText = 'Roll Dice';
+
+      if (error) {
+        alert('ত্রুটি: ' + error.message);
+      } else {
+        alert(`ফলাফল: ${data.roll_result} | ${data.is_win ? 'আপনি জিতেছেন! 🎉' : 'আপনি হেরেছেন! ❌'}`);
+      }
+    });
+
+    // ৩. রিয়েল-টাইম রোল ফিড লোড
+    async function loadRecentRolls() {
+      const { data } = await db.from('bets').select('*').order('created_at', { ascending: false }).limit(5);
+      renderRolls(data || []);
+    }
+
+    function renderRolls(rolls) {
+      recentRollsContainer.innerHTML = '';
+      if(rolls.length === 0) {
+        recentRollsContainer.innerHTML = '<span class="text-gray-500 text-xs">কোনো রোল হিস্ট্রি নেই</span>';
+        return;
+      }
+      rolls.forEach(roll => {
+        const badge = document.createElement('span');
+        badge.className = `px-3 py-1 rounded-lg text-sm font-bold ${
+          roll.is_win ? 'bg-green-500 text-black' : 'bg-red-500 text-white'
+        }`;
+        badge.innerText = roll.roll_result;
+        recentRollsContainer.appendChild(badge);
+      });
+    }
+
+    // Supabase Realtime Subscription
+    db.channel('public:bets')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bets' }, () => {
+        loadRecentRolls();
+      })
+      .subscribe();
+
+    // প্রারম্ভিক লোড
+    loadRecentRolls();
+  </script>
+</body>
+</html>
