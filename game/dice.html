@@ -60,8 +60,8 @@
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      height: 36px;
-      width: 36px;
+      height: 38px;
+      width: 38px;
       border-radius: 50%;
       background: #ffffff;
       cursor: pointer;
@@ -71,18 +71,30 @@
 
     /* Hexagon Shape CSS */
     .hexagon {
-      width: 68px;
-      height: 76px;
+      width: 80px;
+      height: 88px;
       clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transition: all 0.3s ease;
     }
 
-    /* Slider track dual visual wrapper */
+    /* Outer Wrapper for Rounded Slider Track (Image 2 Style) */
+    .slider-track-outer {
+      position: relative;
+      height: 28px;
+      border-radius: 14px;
+      background: #151a23;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Inner Track Bar */
     .slider-track-bg {
       position: relative;
+      width: 100%;
       height: 12px;
       border-radius: 6px;
       overflow: hidden;
@@ -96,7 +108,7 @@
       height: 38px;
       border-radius: 50%;
       background: #ffffff;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -105,31 +117,18 @@
       transition: left 0.1s ease-out;
     }
 
-    .dice-ball {
+    /* Vertical Result Line Indicator on Track */
+    .roll-mark-line {
       position: absolute;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
+      top: 0;
+      bottom: 0;
+      width: 4px;
       background: #ffffff;
-      box-shadow: 0 0 12px rgba(255,255,255,0.8);
-      z-index: 30;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 10px;
-      color: #0f141c;
-      transition: left 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-
-    .hexagon-container {
-      position: absolute;
-      bottom: 24px;
+      border-radius: 2px;
+      z-index: 15;
       transform: translateX(-50%);
-      z-index: 25;
-      transition: left 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+      transition: left 0.4s ease-out;
     }
   </style>
 </head>
@@ -168,47 +167,53 @@
       
       <!-- History Pills Bar -->
       <div class="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar min-h-[36px]" id="historyContainer">
-        <!-- History items will dynamically appear here without "No roll history yet" text -->
+        <!-- Dynamic History Pills -->
       </div>
 
-      <!-- Slider Track & Interactive Area -->
-      <div class="relative my-8 px-2 pt-16">
-        
-        <!-- Animated Hexagon Badge moving to the exact rolled point -->
-        <div id="hexagonWrapper" class="hexagon-container hidden" style="left: 50%;">
-          <div class="hexagon border-4 bg-panelDark border-bcGreen text-white shadow-xl" id="hexagonResult">
-            <span class="text-lg font-black tracking-wider text-white" id="hexagonText">00.00</span>
+      <!-- Top Result Display (Image 2 Hexagon Style) -->
+      <div class="flex flex-col items-center justify-center my-3 min-h-[96px]">
+        <div id="hexagonWrapper" class="hexagon border-4 bg-[#151a23] border-bcRed shadow-2xl transition-all duration-300">
+          <span class="text-xl font-extrabold tracking-wider text-bcRed" id="hexagonText">00.00</span>
+        </div>
+      </div>
+
+      <!-- Main Interactive Dice Track Area -->
+      <div class="relative my-4 px-2">
+
+        <!-- Outer Track Pill Container -->
+        <div class="slider-track-outer">
+          
+          <!-- Inner Dual Color Track -->
+          <div class="slider-track-bg" id="sliderContainer">
+            <!-- Green Win Track -->
+            <div id="greenTrack" class="absolute top-0 bottom-0 bg-bcGreen transition-all" style="left: 0%; width: 50%;"></div>
+            <!-- Red Loss Track -->
+            <div id="redTrack" class="absolute top-0 bottom-0 bg-bcRed transition-all" style="left: 50%; width: 50%;"></div>
+            
+            <!-- Result Mark Indicator Line (Shows roll position on track) -->
+            <div id="rollMarkLine" class="roll-mark-line hidden" style="left: 50%;"></div>
           </div>
+
+          <!-- Hidden Native Range Input -->
+          <input type="range" min="2" max="98" step="0.01" value="50" id="diceRange" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-30">
+
+          <!-- Center Slider Thumb Button with (<>) Double Arrows -->
+          <div id="sliderThumb" class="slider-thumb-custom shadow-xl pointer-events-none" style="left: 50%;">
+            <div class="flex items-center justify-center gap-0.5 text-bgDark font-black text-xs">
+              <i class="fa-solid fa-caret-left"></i>
+              <i class="fa-solid fa-caret-right"></i>
+            </div>
+          </div>
+
         </div>
 
-        <!-- Range Indicator Hover Bubble -->
-        <div id="targetBubble" class="absolute -bottom-8 transform -translate-x-1/2 bg-panelDark text-white text-xs font-bold px-2 py-1 rounded border border-borderDark shadow pointer-events-none transition-all" style="left: 50%;">
+        <!-- Target Hover Bubble Indicator Below Track -->
+        <div id="targetBubble" class="absolute -bottom-7 transform -translate-x-1/2 bg-panelDark text-white text-[11px] font-bold px-2 py-0.5 rounded border border-borderDark shadow pointer-events-none transition-all" style="left: 50%;">
           50.00
         </div>
 
-        <!-- Animated Dice Result Ball -->
-        <div id="diceBall" class="dice-ball hidden" style="left: 0%;">
-          <i class="fa-solid fa-dice text-xs"></i>
-        </div>
-
-        <!-- Custom Dual Color Slider Bar -->
-        <div class="slider-track-bg w-full bg-panelDark relative cursor-pointer" id="sliderContainer">
-          <!-- Green Win Track -->
-          <div id="greenTrack" class="absolute top-0 bottom-0 bg-bcGreen transition-all" style="left: 0%; width: 50%;"></div>
-          <!-- Red Loss Track -->
-          <div id="redTrack" class="absolute top-0 bottom-0 bg-bcRed transition-all" style="left: 50%; width: 50%;"></div>
-        </div>
-
-        <!-- Hidden Native Range Input -->
-        <input type="range" min="2" max="98" step="0.01" value="50" id="diceRange" class="absolute top-0 left-0 w-full h-3 opacity-0 cursor-pointer z-10">
-
-        <!-- Thumb Indicator with Double Headed Arrows Symbol (<>) -->
-        <div id="sliderThumb" class="slider-thumb-custom shadow-md pointer-events-none" style="left: 50%;">
-          <i class="fa-solid fa-arrows-left-right text-bgDark text-sm"></i>
-        </div>
-
-        <!-- Slider Scale Labels -->
-        <div class="flex justify-between items-center text-xs text-textGray font-semibold mt-3 px-1">
+        <!-- Slider Scale Scale Markers (0, 25, 50, 75, 100) -->
+        <div class="flex justify-between items-center text-xs text-textGray font-semibold mt-8 px-1">
           <span>0</span>
           <span>25</span>
           <span id="targetLabel" class="text-bcGreen font-bold">50.00</span>
@@ -217,17 +222,17 @@
         </div>
       </div>
 
-      <!-- Controls Panel -->
-      <div class="bg-panelDark p-3.5 sm:p-4 rounded-xl border border-borderDark flex flex-col gap-3.5">
+      <!-- Game Controls Section -->
+      <div class="bg-panelDark p-3.5 sm:p-4 rounded-xl border border-borderDark flex flex-col gap-3.5 mt-2">
         
-        <!-- Payout Multiplier & Win Chance Input Row -->
+        <!-- Payout Multiplier & Win Chance Inputs -->
         <div class="grid grid-cols-2 gap-3">
           <div class="flex flex-col gap-1">
             <label class="text-xs text-textGray font-medium">Payout</label>
             <div class="flex items-center bg-inputBg border border-borderDark rounded-xl overflow-hidden px-3 py-2 focus-within:border-bcGreen">
               <input type="number" id="payoutInput" step="0.01" value="1.98" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
               <span class="text-xs text-textGray ml-1">X</span>
-              <button onclick="toggleDirection()" id="dirToggleBtn" title="Toggle Direction" class="ml-2 w-7 h-7 rounded-lg bg-panelDark hover:bg-borderDark border border-borderDark flex items-center justify-center text-xs text-textGray hover:text-white transition">
+              <button onclick="toggleDirection()" id="dirToggleBtn" title="Toggle Roll Direction" class="ml-2 w-7 h-7 rounded-lg bg-panelDark hover:bg-borderDark border border-borderDark flex items-center justify-center text-xs text-textGray hover:text-white transition">
                 <i class="fa-solid fa-right-left text-xs"></i>
               </button>
             </div>
@@ -242,7 +247,7 @@
           </div>
         </div>
 
-        <!-- Bet Amount Input Row -->
+        <!-- Bet Amount Controls -->
         <div class="flex flex-col gap-1">
           <div class="flex justify-between items-center text-xs text-textGray font-medium">
             <span>Amount (BDT)</span>
@@ -266,7 +271,7 @@
 
       </div>
 
-      <!-- Strategy Tabs Area -->
+      <!-- Tabs Navigation Section -->
       <div class="bg-panelDark rounded-xl border border-borderDark overflow-hidden">
         <!-- Tab Headers -->
         <div class="flex border-b border-borderDark bg-inputBg text-xs font-bold">
@@ -277,18 +282,17 @@
           </button>
         </div>
 
-        <!-- Tab Body Container -->
+        <!-- Tab Content -->
         <div class="p-3.5 text-xs text-textGray">
-          <!-- Manual Mode -->
+          <!-- Manual Tab -->
           <div id="contentManual" class="flex flex-col gap-1">
             <p class="text-textGray">Manual Mode: Set your bet amount and roll target above, then click Bet to play.</p>
           </div>
 
-          <!-- Auto Mode Layout (Matches Image 2 Options) -->
+          <!-- Auto Tab (Matches Image 2 Layout) -->
           <div id="contentAuto" class="hidden flex-col gap-3.5">
             <span class="font-bold text-white text-xs">Advanced Options</span>
 
-            <!-- On Win Options -->
             <div class="flex flex-col gap-1">
               <label class="text-[11px] text-textGray">On win</label>
               <div class="grid grid-cols-2 gap-2">
@@ -303,7 +307,6 @@
               </div>
             </div>
 
-            <!-- On Loss Options -->
             <div class="flex flex-col gap-1">
               <label class="text-[11px] text-textGray">On loss</label>
               <div class="grid grid-cols-2 gap-2">
@@ -318,7 +321,6 @@
               </div>
             </div>
 
-            <!-- Stop On Win Limit -->
             <div class="flex flex-col gap-1">
               <div class="flex justify-between items-center text-[11px]">
                 <span class="text-textGray">Stop on win</span>
@@ -330,7 +332,6 @@
               </div>
             </div>
 
-            <!-- Stop On Loss Limit -->
             <div class="flex flex-col gap-1">
               <div class="flex justify-between items-center text-[11px]">
                 <span class="text-textGray">Stop on loss</span>
@@ -346,10 +347,9 @@
               <label class="text-[11px] text-textGray">Number of Bets (0 = ∞)</label>
               <input type="number" id="autoBetCount" value="0" min="0" class="bg-inputBg border border-borderDark rounded-lg px-3 py-1.5 text-white font-bold focus:outline-none">
             </div>
-
           </div>
 
-          <!-- Advanced Condition Tab -->
+          <!-- Advanced Tab -->
           <div id="contentAdvanced" class="hidden flex-col gap-3">
             <div class="p-2.5 bg-inputBg rounded-lg border border-borderDark flex flex-col gap-2">
               <span class="font-bold text-white">Condition Trigger Strategy</span>
@@ -371,7 +371,7 @@
   </div>
 
   <script>
-    // App & Database State Variables
+    // State Variables
     let currentUserId = null;
     let balance = 0.00;
     let isRolling = false;
@@ -388,7 +388,7 @@
 
     const HOUSE_EDGE = 0.99;
 
-    // DOM Elements
+    // DOM References
     const diceRange = document.getElementById('diceRange');
     const greenTrack = document.getElementById('greenTrack');
     const redTrack = document.getElementById('redTrack');
@@ -399,15 +399,14 @@
     const winChanceInput = document.getElementById('winChanceInput');
     const betAmount = document.getElementById('betAmount');
     const btnBet = document.getElementById('btnBet');
-    const hexagonResult = document.getElementById('hexagonResult');
-    const hexagonText = document.getElementById('hexagonText');
     const hexagonWrapper = document.getElementById('hexagonWrapper');
+    const hexagonText = document.getElementById('hexagonText');
+    const rollMarkLine = document.getElementById('rollMarkLine');
     const userBalance = document.getElementById('userBalance');
     const historyContainer = document.getElementById('historyContainer');
-    const diceBall = document.getElementById('diceBall');
     const dirToggleBtn = document.getElementById('dirToggleBtn');
 
-    // Init App & Realtime Sync with Supabase
+    // Init App & Supabase Realtime Connection
     async function initRealtimeGame() {
       updateSliderVisuals();
       syncCalculations('chance');
@@ -449,7 +448,7 @@
       userBalance.innerText = `BDT ${balance.toFixed(2)}`;
     }
 
-    // Slider & Math Logic
+    // Slider Bar UI Synchronization
     function updateSliderVisuals() {
       const val = parseFloat(diceRange.value);
       targetBubble.style.left = val + '%';
@@ -544,7 +543,7 @@
       executeRoll();
     }
 
-    // Execute Roll & Animation Logic
+    // Roll Execution & Clean Animation (Matching Image 2)
     async function executeRoll() {
       const currentBet = parseFloat(betAmount.value) || 0;
       
@@ -566,12 +565,9 @@
       const rollResult = parseFloat((Math.random() * 99.99).toFixed(2));
       const targetVal = parseFloat(diceRange.value);
 
-      // Move both Ball and Hexagon badge directly to the rolled position
-      diceBall.classList.remove('hidden');
-      hexagonWrapper.classList.remove('hidden');
-      
-      diceBall.style.left = rollResult + '%';
-      hexagonWrapper.style.left = rollResult + '%';
+      // Move track mark line to rolled position
+      rollMarkLine.classList.remove('hidden');
+      rollMarkLine.style.left = rollResult + '%';
 
       setTimeout(async () => {
         let isWin = false;
@@ -595,7 +591,7 @@
           consecutiveWins = 0;
         }
 
-        // DB Update Logic
+        // Database Entry Insertion
         if (currentUserId && currentBet > 0 && typeof supabaseClient !== 'undefined') {
           await supabaseClient.from('bets').insert([
             {
@@ -614,17 +610,21 @@
             .eq('id', currentUserId);
         }
 
-        // Hexagon Styling: Green Border with White Text on Win
+        // Update Top Hexagon Display (Image 2 style)
         hexagonText.innerText = rollResult.toFixed(2);
         if (isWin) {
-          hexagonResult.className = "hexagon border-4 bg-panelDark border-bcGreen text-white shadow-lg shadow-bcGreen/20";
+          hexagonWrapper.className = "hexagon border-4 bg-[#151a23] border-bcGreen shadow-2xl transition-all duration-300";
+          hexagonText.className = "text-xl font-extrabold tracking-wider text-bcGreen";
+          rollMarkLine.style.background = "#24ee89";
         } else {
-          hexagonResult.className = "hexagon border-4 bg-panelDark border-bcRed text-white shadow-lg shadow-bcRed/20";
+          hexagonWrapper.className = "hexagon border-4 bg-[#151a23] border-bcRed shadow-2xl transition-all duration-300";
+          hexagonText.className = "text-xl font-extrabold tracking-wider text-bcRed";
+          rollMarkLine.style.background = "#ed4245";
         }
 
         addHistoryPill(rollResult.toFixed(2), isWin);
 
-        // Auto Strategy Adjustments
+        // Auto Strategy Handle
         if (isAutoRunning) {
           if (isWin && autoWinStrategy === 'increase') {
             const inc = parseFloat(document.getElementById('winIncPercent').value) || 0;
@@ -647,10 +647,10 @@
           setTimeout(executeAutoStep, 300);
         }
 
-      }, 650);
+      }, 400);
     }
 
-    // Add History Pill without "No roll history yet" placeholder
+    // Dynamic History Bar Logic
     function addHistoryPill(result, isWin) {
       rollHistory.unshift({ result, isWin });
       if (rollHistory.length > 10) rollHistory.pop();
