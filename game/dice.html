@@ -2,12 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>BC Game Style Dice</title>
+  
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Supabase Client & App Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -118,59 +125,58 @@
     }
   </style>
 </head>
-<body class="bg-bgDark text-white font-sans min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 select-none">
+<body class="bg-bgDark text-white font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none">
 
-  <div class="w-full max-w-xl bg-cardDark rounded-2xl shadow-2xl border border-borderDark flex flex-col overflow-hidden">
+  <div class="w-full max-w-2xl min-h-screen bg-cardDark flex flex-col justify-between overflow-x-hidden shadow-2xl">
     
-    <header class="flex items-center justify-between p-3 sm:p-4 border-b border-borderDark bg-cardDark">
+    <!-- Header -->
+    <header class="flex items-center justify-between p-3 sm:p-4 border-b border-borderDark bg-cardDark sticky top-0 z-40">
       <!-- Left Home/Back Button -->
-      <button class="w-10 h-10 rounded-xl bg-panelDark border border-borderDark text-textGray hover:text-white hover:bg-borderDark transition flex items-center justify-center">
-        <i class="fa-solid me-0 fa-chevron-left"></i>
-      </button>
+      <a href="../index.html" class="w-10 h-10 rounded-xl bg-panelDark border border-borderDark text-textGray hover:text-white hover:bg-borderDark transition flex items-center justify-center">
+        <i class="fa-solid fa-chevron-left"></i>
+      </a>
 
       <!-- Right Balance and Deposit Controls -->
       <div class="flex items-center gap-2">
         <!-- Balance Display Dropdown -->
         <div class="flex items-center bg-inputBg border border-borderDark rounded-xl px-3 py-1.5 gap-2">
           <div class="w-5 h-5 rounded-full bg-bcGreen text-bgDark flex items-center justify-center font-bold text-xs">
-            <i class="fa-solid fa-bitcoin-sign"></i>
+            <i class="fa-solid fa-coins"></i>
           </div>
           <div class="flex flex-col">
-            <span class="text-xs text-textGray leading-tight">Balance</span>
-            <span class="text-sm font-bold text-white leading-tight" id="userBalance">$ 1,000.00</span>
+            <span class="text-[10px] text-textGray leading-tight">Balance</span>
+            <span class="text-sm font-bold text-white leading-tight" id="userBalance">BDT 0.00</span>
           </div>
-          <i class="fa-solid fa-chevron-down text-xs text-textGray ml-1"></i>
         </div>
 
         <!-- Deposit Button -->
-        <button onclick="depositDemo()" class="h-10 px-3.5 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-bold rounded-xl flex items-center justify-center transition gap-1 text-sm">
+        <a href="../account/deposit.html" class="h-10 px-3.5 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-bold rounded-xl flex items-center justify-center transition gap-1 text-sm">
           <i class="fa-solid fa-plus font-bold"></i>
-        </button>
+        </a>
       </div>
     </header>
 
-    <main class="p-4 sm:p-6 flex flex-col gap-5 bg-cardDark">
+    <main class="p-3 sm:p-5 flex flex-col gap-4 bg-cardDark flex-1">
       
       <!-- History Pills Bar -->
       <div class="flex items-center gap-2 overflow-x-auto py-1 no-scrollbar min-h-[36px]" id="historyContainer">
-        <!-- History item pills will be dynamically inserted here -->
         <span class="text-xs text-textGray italic">No roll history yet</span>
       </div>
 
       <!-- Result Hexagon Badge -->
-      <div class="flex flex-col items-center justify-center my-2 relative">
+      <div class="flex flex-col items-center justify-center my-1 relative">
         <div class="hexagon border-4 bg-panelDark border-borderDark text-textGray shadow-lg" id="hexagonResult">
           <span class="text-xl font-extrabold tracking-wider" id="hexagonText">00.00</span>
         </div>
       </div>
 
-      <div class="relative my-4 px-2">
+      <div class="relative my-3 px-2">
         <!-- Range Indicator Hover Bubble -->
         <div id="targetBubble" class="absolute -top-8 transform -translate-x-1/2 bg-panelDark text-white text-xs font-bold px-2 py-1 rounded border border-borderDark shadow pointer-events-none transition-all" style="left: 50%;">
           50.00
         </div>
 
-        <!-- Animated Dice Result Ball (Appears on roll) -->
+        <!-- Animated Dice Result Ball -->
         <div id="diceBall" class="dice-ball hidden" style="left: 0%;">
           <i class="fa-solid fa-dice text-xs"></i>
         </div>
@@ -186,7 +192,7 @@
         <!-- Hidden Native Range Input -->
         <input type="range" min="2" max="98" step="0.01" value="50" id="diceRange" class="absolute top-0 left-0 w-full h-3 opacity-0 cursor-pointer z-10">
 
-        <!-- Thumb Indicator with Horizontal Arrows -->
+        <!-- Thumb Indicator -->
         <div id="sliderThumb" class="slider-thumb-custom shadow-md pointer-events-none" style="left: 50%;">
           <i class="fa-solid fa-code-compare text-bgDark text-xs"></i>
         </div>
@@ -201,31 +207,23 @@
         </div>
       </div>
 
-      <div class="bg-panelDark p-4 rounded-xl border border-borderDark flex flex-col gap-4">
+      <div class="bg-panelDark p-3.5 sm:p-4 rounded-xl border border-borderDark flex flex-col gap-3.5">
         
         <!-- Payout Multiplier & Win Chance Input Row -->
         <div class="grid grid-cols-2 gap-3">
-          <!-- Multiplier Field -->
           <div class="flex flex-col gap-1">
-            <label class="text-xs text-textGray font-medium flex justify-between">
-              <span>Payout</span>
-            </label>
+            <label class="text-xs text-textGray font-medium">Payout</label>
             <div class="flex items-center bg-inputBg border border-borderDark rounded-xl overflow-hidden px-3 py-2 focus-within:border-bcGreen">
               <input type="number" id="payoutInput" step="0.01" value="1.98" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
               <span class="text-xs text-textGray ml-1">X</span>
-              
-              <!-- Roll Direction Flip Button -->
-              <button onclick="toggleDirection()" id="dirToggleBtn" title="Toggle Roll Over / Roll Under" class="ml-2 w-7 h-7 rounded-lg bg-panelDark hover:bg-borderDark border border-borderDark flex items-center justify-center text-xs text-textGray hover:text-white transition">
+              <button onclick="toggleDirection()" id="dirToggleBtn" title="Toggle Direction" class="ml-2 w-7 h-7 rounded-lg bg-panelDark hover:bg-borderDark border border-borderDark flex items-center justify-center text-xs text-textGray hover:text-white transition">
                 <i class="fa-solid fa-right-left text-xs"></i>
               </button>
             </div>
           </div>
 
-          <!-- Win Chance Field -->
           <div class="flex flex-col gap-1">
-            <label class="text-xs text-textGray font-medium flex justify-between">
-              <span>Win Chance</span>
-            </label>
+            <label class="text-xs text-textGray font-medium">Win Chance</label>
             <div class="flex items-center bg-inputBg border border-borderDark rounded-xl px-3 py-2 focus-within:border-bcGreen">
               <input type="number" id="winChanceInput" step="0.01" value="50.00" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
               <span class="text-xs text-textGray ml-1">%</span>
@@ -236,25 +234,22 @@
         <!-- Bet Amount Input Row -->
         <div class="flex flex-col gap-1">
           <div class="flex justify-between items-center text-xs text-textGray font-medium">
-            <span>Amount</span>
+            <span>Amount (BDT)</span>
             <span id="demoModeNotice" class="text-textGray text-[10px]">Betting with 0 enters demo mode</span>
           </div>
           <div class="flex items-center bg-inputBg border border-borderDark rounded-xl p-1 focus-within:border-bcGreen">
-            <div class="flex items-center px-2 text-bcGreen font-bold text-sm">
-              <i class="fa-solid fa-dollar-sign"></i>
-            </div>
+            <div class="flex items-center px-2 text-bcGreen font-bold text-sm">৳</div>
             <input type="number" id="betAmount" value="10" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
             
-            <!-- Quick Modifiers -->
             <div class="flex items-center gap-1">
-              <button onclick="modifyBet('half')" class="px-2.5 py-1.5 rounded-lg bg-panelDark hover:bg-borderDark text-xs font-bold text-textGray hover:text-white transition">1/2</button>
-              <button onclick="modifyBet('double')" class="px-2.5 py-1.5 rounded-lg bg-panelDark hover:bg-borderDark text-xs font-bold text-textGray hover:text-white transition">2x</button>
-              <button onclick="modifyBet('max')" class="px-2.5 py-1.5 rounded-lg bg-panelDark hover:bg-borderDark text-xs font-bold text-textGray hover:text-white transition">Max</button>
+              <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-panelDark hover:bg-borderDark text-xs font-bold text-textGray hover:text-white transition">1/2</button>
+              <button onclick="modifyBet('double')" class="px-2 py-1 rounded-lg bg-panelDark hover:bg-borderDark text-xs font-bold text-textGray hover:text-white transition">2x</button>
+              <button onclick="modifyBet('max')" class="px-2 py-1 rounded-lg bg-panelDark hover:bg-borderDark text-xs font-bold text-textGray hover:text-white transition">Max</button>
             </div>
           </div>
         </div>
 
-        <button id="btnBet" onclick="triggerBet()" class="w-full py-3.5 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2">
+        <button id="btnBet" onclick="triggerBet()" class="w-full py-3 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2">
           <span>Bet</span>
         </button>
 
@@ -263,22 +258,19 @@
       <div class="bg-panelDark rounded-xl border border-borderDark overflow-hidden">
         <!-- Tab Headers -->
         <div class="flex border-b border-borderDark bg-inputBg text-xs font-bold">
-          <button onclick="switchTab('manual')" id="tabManual" class="flex-1 py-3 text-center text-bcGreen border-b-2 border-bcGreen bg-panelDark transition">Manual</button>
-          <button onclick="switchTab('auto')" id="tabAuto" class="flex-1 py-3 text-center text-textGray hover:text-white transition">Auto</button>
-          <button onclick="switchTab('advanced')" id="tabAdvanced" class="flex-1 py-3 text-center text-textGray hover:text-white transition">
+          <button onclick="switchTab('manual')" id="tabManual" class="flex-1 py-2.5 text-center text-bcGreen border-b-2 border-bcGreen bg-panelDark transition">Manual</button>
+          <button onclick="switchTab('auto')" id="tabAuto" class="flex-1 py-2.5 text-center text-textGray hover:text-white transition">Auto</button>
+          <button onclick="switchTab('advanced')" id="tabAdvanced" class="flex-1 py-2.5 text-center text-textGray hover:text-white transition">
             Advanced <span class="bg-bcGreen text-bgDark text-[9px] px-1.5 py-0.5 rounded-full ml-1">New</span>
           </button>
         </div>
 
         <!-- Tab Body Container -->
-        <div class="p-4 text-xs text-textGray">
-          
-          <!-- Manual Tab Settings -->
-          <div id="contentManual" class="flex flex-col gap-2">
+        <div class="p-3.5 text-xs text-textGray">
+          <div id="contentManual" class="flex flex-col gap-1">
             <p class="text-textGray">Manual Mode: Set your bet amount and roll target above, then click Bet to play.</p>
           </div>
 
-          <!-- Auto Tab Settings -->
           <div id="contentAuto" class="hidden flex-col gap-3">
             <div class="grid grid-cols-2 gap-3">
               <div class="flex flex-col gap-1">
@@ -286,34 +278,14 @@
                 <input type="number" id="autoBetCount" value="10" min="0" class="bg-inputBg border border-borderDark rounded-lg px-3 py-1.5 text-white font-bold focus:outline-none">
               </div>
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] text-textGray">Stop On Profit ($)</label>
+                <label class="text-[11px] text-textGray">Stop On Profit (BDT)</label>
                 <input type="number" id="autoStopProfit" value="100" class="bg-inputBg border border-borderDark rounded-lg px-3 py-1.5 text-white font-bold focus:outline-none">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <!-- On Win Behavior -->
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] text-textGray">On Win</label>
-                <div class="flex gap-1">
-                  <button onclick="setAutoStrategy('win', 'reset')" id="winResetBtn" class="flex-1 py-1 bg-bcGreen text-bgDark font-bold rounded">Reset</button>
-                  <button onclick="setAutoStrategy('win', 'increase')" id="winIncBtn" class="flex-1 py-1 bg-inputBg border border-borderDark text-textGray font-bold rounded">+ %</button>
-                </div>
-              </div>
-              <!-- On Loss Behavior -->
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] text-textGray">On Loss</label>
-                <div class="flex gap-1">
-                  <button onclick="setAutoStrategy('loss', 'reset')" id="lossResetBtn" class="flex-1 py-1 bg-bcGreen text-bgDark font-bold rounded">Reset</button>
-                  <button onclick="setAutoStrategy('loss', 'increase')" id="lossIncBtn" class="flex-1 py-1 bg-inputBg border border-borderDark text-textGray font-bold rounded">+ %</button>
-                </div>
               </div>
             </div>
           </div>
 
-          <!-- Advanced / Condition Tab Settings -->
           <div id="contentAdvanced" class="hidden flex-col gap-3">
-            <div class="p-3 bg-inputBg rounded-lg border border-borderDark flex flex-col gap-2">
+            <div class="p-2.5 bg-inputBg rounded-lg border border-borderDark flex flex-col gap-2">
               <span class="font-bold text-white">Condition Trigger Strategy</span>
               <div class="flex items-center gap-2">
                 <span>If</span>
@@ -323,17 +295,8 @@
                 </select>
                 <input type="number" id="condStreak" value="3" class="w-12 bg-panelDark border border-borderDark text-white rounded px-2 py-1 text-center font-bold">
               </div>
-              <div class="flex items-center gap-2">
-                <span>Then</span>
-                <select id="condAction" class="bg-panelDark border border-borderDark text-white rounded px-2 py-1 focus:outline-none">
-                  <option value="increase_bet">Increase Bet by 100%</option>
-                  <option value="reset_bet">Reset Bet Amount</option>
-                  <option value="switch_dir">Switch Roll Direction</option>
-                </select>
-              </div>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -341,22 +304,22 @@
   </div>
 
   <script>
-    // App State Variables
-    let balance = 1000.00;
+    // App & Database State Variables
+    let currentUserId = null;
+    let balance = 0.00;
     let isRolling = false;
-    let rollDirection = 'over'; // 'over' or 'under'
+    let rollDirection = 'over';
     let rollHistory = [];
     let activeTab = 'manual';
     
-    // Auto Bet State
     let isAutoRunning = false;
-    let autoWinStrategy = 'reset';
-    let autoLossStrategy = 'reset';
     let consecutiveWins = 0;
     let consecutiveLosses = 0;
     let baseBetAmount = 10;
 
-    // DOM References
+    const HOUSE_EDGE = 0.99;
+
+    // DOM Elements
     const diceRange = document.getElementById('diceRange');
     const greenTrack = document.getElementById('greenTrack');
     const redTrack = document.getElementById('redTrack');
@@ -374,16 +337,51 @@
     const diceBall = document.getElementById('diceBall');
     const dirToggleBtn = document.getElementById('dirToggleBtn');
 
-    // House Edge Constant (1%)
-    const HOUSE_EDGE = 0.99;
-
-    // Initialize UI on startup
-    window.onload = function() {
+    // Init App & Realtime Sync with Supabase
+    async function initRealtimeGame() {
       updateSliderVisuals();
       syncCalculations('chance');
-    };
 
-    // Update Slider Visual Track Colors & Thumb Position
+      if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
+        const user = await getCurrentUser();
+        if (user) {
+          currentUserId = user.id;
+
+          // Fetch User Initial Balance
+          const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('balance')
+            .eq('id', user.id)
+            .single();
+
+          if (profile) {
+            balance = parseFloat(profile.balance);
+            updateBalanceUI();
+          }
+
+          // Subscribe to Realtime Profile Balance Updates
+          supabaseClient
+            .channel('dice-profile-channel')
+            .on(
+              'postgres_changes',
+              { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` },
+              (payload) => {
+                if (payload.new && payload.new.balance !== undefined) {
+                  balance = parseFloat(payload.new.balance);
+                  updateBalanceUI();
+                }
+              }
+            )
+            .subscribe();
+        }
+      }
+    }
+
+    function updateBalanceUI() {
+      userBalance.innerText = `BDT ${balance.toFixed(2)}`;
+    }
+
+    // Slider & Math Logic
     function updateSliderVisuals() {
       const val = parseFloat(diceRange.value);
       targetBubble.style.left = val + '%';
@@ -392,13 +390,11 @@
       targetLabel.innerText = val.toFixed(2);
 
       if (rollDirection === 'over') {
-        // Over Mode: Green is to the right of slider target
         greenTrack.style.left = val + '%';
         greenTrack.style.width = (100 - val) + '%';
         redTrack.style.left = '0%';
         redTrack.style.width = val + '%';
       } else {
-        // Under Mode: Green is to the left of slider target
         greenTrack.style.left = '0%';
         greenTrack.style.width = val + '%';
         redTrack.style.left = val + '%';
@@ -406,7 +402,6 @@
       }
     }
 
-    // Two-Way Formula Synchronizer
     function syncCalculations(source) {
       let val = parseFloat(diceRange.value);
 
@@ -441,26 +436,21 @@
       updateSliderVisuals();
     }
 
-    // Event Listeners for Range Inputs
     diceRange.addEventListener('input', () => syncCalculations('slider'));
     winChanceInput.addEventListener('change', () => syncCalculations('chance'));
     payoutInput.addEventListener('change', () => syncCalculations('payout'));
 
-    // Toggle Roll Over / Roll Under Direction
     function toggleDirection() {
       if (isRolling) return;
       rollDirection = (rollDirection === 'over') ? 'under' : 'over';
-      
       if (rollDirection === 'over') {
         dirToggleBtn.classList.remove('text-bcGreen');
       } else {
         dirToggleBtn.classList.add('text-bcGreen');
       }
-      
       syncCalculations('chance');
     }
 
-    // Quick Bet Amount Modifiers
     function modifyBet(type) {
       let current = parseFloat(betAmount.value) || 0;
       if (type === 'half') {
@@ -472,17 +462,6 @@
       }
     }
 
-    // Deposit Demo Balance
-    function depositDemo() {
-      balance += 500;
-      updateBalanceUI();
-    }
-
-    function updateBalanceUI() {
-      userBalance.innerText = `$ ${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    }
-
-    // Main Bet Action Trigger
     function triggerBet() {
       if (isRolling) return;
 
@@ -497,52 +476,47 @@
       executeRoll();
     }
 
-    // Core Roll Execution Logic
-    function executeRoll() {
+    // Execute Roll & Update DB Logic
+    async function executeRoll() {
       const currentBet = parseFloat(betAmount.value) || 0;
       
-      // Validate Balance (if not demo mode 0)
       if (currentBet > 0 && currentBet > balance) {
         alert("Insufficient balance for this bet!");
         stopAutoBet();
         return;
       }
 
-      // Deduct balance
+      isRolling = true;
+      btnBet.disabled = true;
+      btnBet.innerText = "Rolling...";
+
+      // Optimistic balance deduction
       if (currentBet > 0) {
         balance -= currentBet;
         updateBalanceUI();
       }
 
-      isRolling = true;
-      btnBet.disabled = true;
-      btnBet.innerText = "Rolling...";
-
-      // Random result between 0.00 and 99.99
-      const rollResult = (Math.random() * 99.99).toFixed(2);
+      const rollResult = parseFloat((Math.random() * 99.99).toFixed(2));
       const targetVal = parseFloat(diceRange.value);
 
-      // Show animated dice ball
       diceBall.classList.remove('hidden');
       diceBall.style.left = rollResult + '%';
 
-      // Evaluation after animation delay
-      setTimeout(() => {
+      setTimeout(async () => {
         let isWin = false;
-        if (rollDirection === 'over' && parseFloat(rollResult) > targetVal) {
+        if (rollDirection === 'over' && rollResult > targetVal) {
           isWin = true;
-        } else if (rollDirection === 'under' && parseFloat(rollResult) < targetVal) {
+        } else if (rollDirection === 'under' && rollResult < targetVal) {
           isWin = true;
         }
 
-        // Calculate payout
+        const multiplier = parseFloat(payoutInput.value);
         let winAmount = 0;
+
         if (isWin) {
-          const multiplier = parseFloat(payoutInput.value);
           winAmount = currentBet > 0 ? (currentBet * multiplier) : 0;
           balance += winAmount;
           updateBalanceUI();
-
           consecutiveWins++;
           consecutiveLosses = 0;
         } else {
@@ -550,36 +524,46 @@
           consecutiveWins = 0;
         }
 
-        // Update Hexagon Visual
-        hexagonText.innerText = rollResult;
-        if (isWin) {
-          hexagonResult.className = "hexagon border-4 bg-panelDark border-bcGreen text-bcGreen shadow-lg shadow-bcGreen/20";
-        } else {
-          hexagonResult.className = "hexagon border-4 bg-panelDark border-bcRed text-bcRed shadow-lg shadow-bcRed/20";
+        // Database Integration: Save Bet Record & Update User Balance
+        if (currentUserId && currentBet > 0 && typeof supabaseClient !== 'undefined') {
+          // 1. Insert Bet Log
+          await supabaseClient.from('bets').insert([
+            {
+              user_id: currentUserId,
+              target_number: targetVal,
+              roll_result: rollResult,
+              bet_amount: currentBet,
+              payout: multiplier,
+              is_bool: isWin
+            }
+          ]);
+
+          // 2. Sync Final Balance to Supabase Profile Table
+          await supabaseClient
+            .from('profiles')
+            .update({ balance: balance })
+            .eq('id', currentUserId);
         }
 
-        // Push History Pill
-        addHistoryPill(rollResult, isWin);
+        // UI Updates
+        hexagonText.innerText = rollResult.toFixed(2);
+        hexagonResult.className = isWin 
+          ? "hexagon border-4 bg-panelDark border-bcGreen text-bcGreen shadow-lg shadow-bcGreen/20" 
+          : "hexagon border-4 bg-panelDark border-bcRed text-bcRed shadow-lg shadow-bcRed/20";
 
-        // Apply Advanced Conditions if active
-        if (activeTab === 'advanced') {
-          evaluateAdvancedConditions(isWin);
-        }
+        addHistoryPill(rollResult.toFixed(2), isWin);
 
-        // Reset Bet Button State
         isRolling = false;
         if (!isAutoRunning) {
           btnBet.disabled = false;
           btnBet.innerText = "Bet";
         } else {
-          // Continue Auto Loop
           setTimeout(executeAutoStep, 300);
         }
 
       }, 650);
     }
 
-    // Add Roll Result Pill to History Bar
     function addHistoryPill(result, isWin) {
       if (rollHistory.length === 0) {
         historyContainer.innerHTML = '';
@@ -598,20 +582,17 @@
       }
     }
 
-    // Bottom Mode Tabs Switcher
     function switchTab(tab) {
       activeTab = tab;
-      
-      // Update Tab Styles
       ['Manual', 'Auto', 'Advanced'].forEach(t => {
         const tabEl = document.getElementById('tab' + t);
         const contentEl = document.getElementById('content' + t);
         if (t.toLowerCase() === tab) {
-          tabEl.className = "flex-1 py-3 text-center text-bcGreen border-b-2 border-bcGreen bg-panelDark transition";
+          tabEl.className = "flex-1 py-2.5 text-center text-bcGreen border-b-2 border-bcGreen bg-panelDark transition";
           contentEl.classList.remove('hidden');
           contentEl.classList.add('flex');
         } else {
-          tabEl.className = "flex-1 py-3 text-center text-textGray hover:text-white transition";
+          tabEl.className = "flex-1 py-2.5 text-center text-textGray hover:text-white transition";
           contentEl.classList.add('hidden');
           contentEl.classList.remove('flex');
         }
@@ -625,12 +606,11 @@
       }
     }
 
-    // Auto Bet Flow Logic
     function startAutoBet() {
       isAutoRunning = true;
       baseBetAmount = parseFloat(betAmount.value) || 0;
       btnBet.innerText = "Stop Auto Bet";
-      btnBet.className = "w-full py-3.5 bg-bcRed hover:bg-red-600 text-white font-extrabold text-base rounded-xl transition shadow-lg flex items-center justify-center gap-2";
+      btnBet.className = "w-full py-3 bg-bcRed hover:bg-red-600 text-white font-extrabold text-base rounded-xl transition shadow-lg flex items-center justify-center gap-2";
       executeAutoStep();
     }
 
@@ -638,7 +618,7 @@
       isAutoRunning = false;
       btnBet.disabled = false;
       btnBet.innerText = activeTab === 'auto' ? "Start Auto Bet" : "Bet";
-      btnBet.className = "w-full py-3.5 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
+      btnBet.className = "w-full py-3 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
     }
 
     function executeAutoStep() {
@@ -656,41 +636,7 @@
       }
     }
 
-    function setAutoStrategy(type, strategy) {
-      if (type === 'win') {
-        autoWinStrategy = strategy;
-        document.getElementById('winResetBtn').className = strategy === 'reset' ? 'flex-1 py-1 bg-bcGreen text-bgDark font-bold rounded' : 'flex-1 py-1 bg-inputBg border border-borderDark text-textGray font-bold rounded';
-        document.getElementById('winIncBtn').className = strategy === 'increase' ? 'flex-1 py-1 bg-bcGreen text-bgDark font-bold rounded' : 'flex-1 py-1 bg-inputBg border border-borderDark text-textGray font-bold rounded';
-      } else {
-        autoLossStrategy = strategy;
-        document.getElementById('lossResetBtn').className = strategy === 'reset' ? 'flex-1 py-1 bg-bcGreen text-bgDark font-bold rounded' : 'flex-1 py-1 bg-inputBg border border-borderDark text-textGray font-bold rounded';
-        document.getElementById('lossIncBtn').className = strategy === 'increase' ? 'flex-1 py-1 bg-bcGreen text-bgDark font-bold rounded' : 'flex-1 py-1 bg-inputBg border border-borderDark text-textGray font-bold rounded';
-      }
-    }
-
-    // Advanced Condition Handler
-    function evaluateAdvancedConditions(isWin) {
-      const condEvent = document.getElementById('condEvent').value;
-      const streakTarget = parseInt(document.getElementById('condStreak').value);
-      const action = document.getElementById('condAction').value;
-
-      let triggered = false;
-      if (condEvent === 'consecutive_loss' && !isWin && consecutiveLosses >= streakTarget) {
-        triggered = true;
-      } else if (condEvent === 'consecutive_win' && isWin && consecutiveWins >= streakTarget) {
-        triggered = true;
-      }
-
-      if (triggered) {
-        if (action === 'increase_bet') {
-          betAmount.value = (parseFloat(betAmount.value) * 2).toFixed(2);
-        } else if (action === 'reset_bet') {
-          betAmount.value = baseBetAmount;
-        } else if (action === 'switch_dir') {
-          toggleDirection();
-        }
-      }
-    }
+    window.onload = initRealtimeGame;
   </script>
 </body>
 </html>
