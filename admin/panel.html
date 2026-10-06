@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Management Panel</title>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Supabase JS Client & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f141c; }
+    ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-[#0f141c] text-white font-sans min-h-screen flex flex-col antialiased selection:bg-[#24ee89] selection:text-black">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-[#161b22] border-b border-gray-800 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-[#24ee89] text-black font-black flex items-center justify-center text-sm">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <h1 class="text-base font-extrabold tracking-wide text-white">Admin Management Panel</h1>
+    </div>
+    
+    <div class="flex items-center gap-2">
+      <span class="text-xs bg-emerald-500/10 text-[#24ee89] border border-[#24ee89]/30 px-2.5 py-1 rounded-full font-bold">
+        Live System
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Application Wrapper -->
+  <div class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 space-y-6">
+
+    <!-- Stat Cards Summary Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-400 font-medium">Pending Deposits</p>
+          <h3 id="statPendingDeposits" class="text-xl font-black text-amber-400 mt-1">0</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+      </div>
+
+      <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-400 font-medium">Pending Withdrawals</p>
+          <h3 id="statPendingWithdrawals" class="text-xl font-black text-rose-400 mt-1">0</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-money-bill-transfer"></i>
+        </div>
+      </div>
+
+      <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-400 font-medium">Total Users</p>
+          <h3 id="statTotalUsers" class="text-xl font-black text-cyan-400 mt-1">0</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-users"></i>
+        </div>
+      </div>
+
+      <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl flex items-center justify-between">
+        <div>
+          <p class="text-xs text-gray-400 font-medium">Total Bets Placed</p>
+          <h3 id="statTotalBets" class="text-xl font-black text-[#24ee89] mt-1">0</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-[#24ee89]/10 text-[#24ee89] flex items-center justify-center text-lg">
+          <i class="fa-solid fa-dice"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex items-center gap-2 border-b border-gray-800 pb-2 overflow-x-auto">
+      <button onclick="switchTab('deposits')" id="tabDeposits" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#24ee89] text-black shadow-md transition whitespace-nowrap">
+        <i class="fa-solid fa-arrow-down-left-and-arrow-up-right-to-center mr-1"></i> Deposits Request
+      </button>
+      <button onclick="switchTab('withdrawals')" id="tabWithdrawals" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#161b22] text-gray-400 hover:text-white border border-gray-800 transition whitespace-nowrap">
+        <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Withdrawals Request
+      </button>
+      <button onclick="switchTab('users')" id="tabUsers" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#161b22] text-gray-400 hover:text-white border border-gray-800 transition whitespace-nowrap">
+        <i class="fa-solid fa-user-gear mr-1"></i> User Management
+      </button>
+      <button onclick="switchTab('bets')" id="tabBets" class="px-4 py-2 rounded-xl text-xs font-bold bg-[#161b22] text-gray-400 hover:text-white border border-gray-800 transition whitespace-nowrap">
+        <i class="fa-solid fa-list-check mr-1"></i> Recent Bets
+      </button>
+    </div>
+
+    <!-- Content Area -->
+    <main class="bg-[#161b22] border border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
+
+      <!-- 1. DEPOSITS TAB -->
+      <div id="contentDeposits" class="p-4 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Pending Deposits
+          </h2>
+          <button onclick="loadDeposits()" class="text-xs text-[#24ee89] hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-rotate-right"></i> Refresh
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-gray-300">
+            <thead class="bg-[#0f141c] text-gray-400 uppercase text-[10px] tracking-wider border-b border-gray-800">
+              <tr>
+                <th class="p-3">User Phone / ID</th>
+                <th class="p-3">Method</th>
+                <th class="p-3">Amount</th>
+                <th class="p-3">TrxID</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="depositsTableBody" class="divide-y divide-gray-800/60">
+              <tr><td colspan="6" class="text-center py-8 text-gray-500">Loading deposits...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. WITHDRAWALS TAB -->
+      <div id="contentWithdrawals" class="hidden p-4 flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Withdrawal Requests
+          </h2>
+          <button onclick="loadWithdrawals()" class="text-xs text-[#24ee89] hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-rotate-right"></i> Refresh
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-gray-300">
+            <thead class="bg-[#0f141c] text-gray-400 uppercase text-[10px] tracking-wider border-b border-gray-800">
+              <tr>
+                <th class="p-3">User Phone / ID</th>
+                <th class="p-3">Method</th>
+                <th class="p-3">Account Number</th>
+                <th class="p-3">Amount</th>
+                <th class="p-3">Status</th>
+                <th class="p-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="withdrawalsTableBody" class="divide-y divide-gray-800/60">
+              <tr><td colspan="6" class="text-center py-8 text-gray-500">Loading withdrawals...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 3. USERS TAB -->
+      <div id="contentUsers" class="hidden p-4 flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Users Database
+          </h2>
+          <button onclick="loadUsers()" class="text-xs text-[#24ee89] hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-rotate-right"></i> Refresh
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-gray-300">
+            <thead class="bg-[#0f141c] text-gray-400 uppercase text-[10px] tracking-wider border-b border-gray-800">
+              <tr>
+                <th class="p-3">Full Name</th>
+                <th class="p-3">Phone Number</th>
+                <th class="p-3">Balance</th>
+                <th class="p-3">Joined Date</th>
+                <th class="p-3 text-right">Manual Balance Adjust</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody" class="divide-y divide-gray-800/60">
+              <tr><td colspan="5" class="text-center py-8 text-gray-500">Loading users...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. BETS TAB -->
+      <div id="contentBets" class="hidden p-4 flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> Realtime Bets History
+          </h2>
+          <button onclick="loadBets()" class="text-xs text-[#24ee89] hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-rotate-right"></i> Refresh
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-gray-300">
+            <thead class="bg-[#0f141c] text-gray-400 uppercase text-[10px] tracking-wider border-b border-gray-800">
+              <tr>
+                <th class="p-3">User ID</th>
+                <th class="p-3">Bet Amount</th>
+                <th class="p-3">Target / Roll Result</th>
+                <th class="p-3">Payout</th>
+                <th class="p-3">Outcome</th>
+                <th class="p-3">Time</th>
+              </tr>
+            </thead>
+            <tbody id="betsTableBody" class="divide-y divide-gray-800/60">
+              <tr><td colspan="6" class="text-center py-8 text-gray-500">Loading bets...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    let activeTab = 'deposits';
+
+    // Tab Switcher
+    function switchTab(tab) {
+      activeTab = tab;
+      const tabs = ['deposits', 'withdrawals', 'users', 'bets'];
+
+      tabs.forEach(t => {
+        const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+        const content = document.getElementById('content' + t.charAt(0).toUpperCase() + t.slice(1));
+
+        if (t === tab) {
+          btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-[#24ee89] text-black shadow-md transition whitespace-nowrap";
+          content.classList.remove('hidden');
+          content.classList.add('flex');
+        } else {
+          btn.className = "px-4 py-2 rounded-xl text-xs font-bold bg-[#161b22] text-gray-400 hover:text-white border border-gray-800 transition whitespace-nowrap";
+          content.classList.add('hidden');
+          content.classList.remove('flex');
+        }
+      });
+
+      if (tab === 'deposits') loadDeposits();
+      if (tab === 'withdrawals') loadWithdrawals();
+      if (tab === 'users') loadUsers();
+      if (tab === 'bets') loadBets();
+    }
+
+    // Load Overview Stats
+    async function loadStats() {
+      try {
+        const { count: pendingDep } = await supabaseClient.from('deposits').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+        const { count: pendingWith } = await supabaseClient.from('withdrawals').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+        const { count: totalUsers } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
+        const { count: totalBets } = await supabaseClient.from('bets').select('*', { count: 'exact', head: true });
+
+        document.getElementById('statPendingDeposits').innerText = pendingDep || 0;
+        document.getElementById('statPendingWithdrawals').innerText = pendingWith || 0;
+        document.getElementById('statTotalUsers').innerText = totalUsers || 0;
+        document.getElementById('statTotalBets').innerText = totalBets || 0;
+      } catch (err) {
+        console.error("Stats fetch error:", err);
+      }
+    }
+
+    // 1. DEPOSITS LOGIC WITH BALANCE INCREMENT
+    async function loadDeposits() {
+      const tbody = document.getElementById('depositsTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-gray-500">Fetching deposits...</td></tr>';
+
+      const { data: deposits, error } = await supabaseClient
+        .from('deposits')
+        .select('*, profiles(full_name, phone_number)')
+        .order('created_at', { ascending: false });
+
+      if (error || !deposits || deposits.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-gray-500">No deposits found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      deposits.forEach(dep => {
+        const tr = document.createElement('tr');
+        const isPending = dep.status === 'pending';
+        
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-white">${dep.profiles?.full_name || 'N/A'}</div>
+            <div class="text-[10px] text-gray-500">${dep.profiles?.phone_number || dep.user_id}</div>
+          </td>
+          <td class="p-3 font-semibold uppercase">${dep.payment_method}</td>
+          <td class="p-3 font-bold text-[#24ee89]">৳ ${parseFloat(dep.amount).toFixed(2)}</td>
+          <td class="p-3 font-mono text-gray-300">${dep.transection_id}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${dep.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400' : dep.status === 'rejected' ? 'bg-rose-500/20 text-rose-400' : 'bg-amber-500/20 text-amber-400'}">
+              ${dep.status}
+            </span>
+          </td>
+          <td class="p-3 text-right">
+            ${isPending ? `
+              <button onclick="approveDeposit('${dep.id}', '${dep.user_id}',${dep.amount})" class="bg-[#24ee89] hover:bg-emerald-400 text-black font-extrabold px-2.5 py-1 rounded text-xs transition mr-1">
+                Approve
+              </button>
+              <button onclick="rejectDeposit('${dep.id}')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-2.5 py-1 rounded text-xs transition">
+                Reject
+              </button>
+            ` : '<span class="text-gray-600 text-[11px]">Processed</span>'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Approve Deposit: Updates deposit status AND increases profile balance
+    async function approveDeposit(depositId, userId, amount) {
+      if (!confirm(`Approve deposit of ৳${amount} and credit to user?`)) return;
+
+      try {
+        // 1. Fetch user's current profile balance
+        const { data: profile, error: pErr } = await supabaseClient
+          .from('profiles')
+          .select('balance')
+          .eq('id', userId)
+          .single();
+
+        if (pErr || !profile) {
+          alert("Error fetching user profile balance.");
+          return;
+        }
+
+        const newBalance = parseFloat(profile.balance || 0) + parseFloat(amount);
+
+        // 2. Update profiles balance
+        const { error: balErr } = await supabaseClient
+          .from('profiles')
+          .update({ balance: newBalance })
+          .eq('id', userId);
+
+        if (balErr) {
+          alert("Failed to update user balance: " + balErr.message);
+          return;
+        }
+
+        // 3. Update deposit status to approved
+        await supabaseClient
+          .from('deposits')
+          .update({ status: 'approved' })
+          .eq('id', depositId);
+
+        alert("Deposit Approved successfully! User balance updated.");
+        loadDeposits();
+        loadStats();
+      } catch (err) {
+        console.error("Deposit approval error:", err);
+      }
+    }
+
+    // Reject Deposit
+    async function rejectDeposit(depositId) {
+      if (!confirm("Reject this deposit request?")) return;
+      await supabaseClient.from('deposits').update({ status: 'rejected' }).eq('id', depositId);
+      loadDeposits();
+      loadStats();
+    }
+
+    // 2. WITHDRAWALS LOGIC
+    async function loadWithdrawals() {
+      const tbody = document.getElementById('withdrawalsTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-gray-500">Fetching withdrawals...</td></tr>';
+
+      const { data: withdrawals, error } = await supabaseClient
+        .from('withdrawals')
+        .select('*, profiles(full_name, phone_number)')
+        .order('created_at', { ascending: false });
+
+      if (error || !withdrawals || withdrawals.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-gray-500">No withdrawal requests.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      withdrawals.forEach(w => {
+        const tr = document.createElement('tr');
+        const isPending = w.status === 'pending';
+
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="font-bold text-white">${w.profiles?.full_name || 'N/A'}</div>
+            <div class="text-[10px] text-gray-500">${w.profiles?.phone_number || w.user_id}</div>
+          </td>
+          <td class="p-3 font-semibold uppercase">${w.payment_method}</td>
+          <td class="p-3 font-mono text-white">${w.account_number}</td>
+          <td class="p-3 font-bold text-rose-400">৳ ${parseFloat(w.amount).toFixed(2)}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${w.status === 'approved' ? 'bg-emerald-500/20 text-emerald-400' : w.status === 'rejected' ? 'bg-rose-500/20 text-rose-400' : 'bg-amber-500/20 text-amber-400'}">
+              ${w.status}
+            </span>
+          </td>
+          <td class="p-3 text-right">
+            ${isPending ? `
+              <button onclick="processWithdrawal('${w.id}', 'approved')" class="bg-[#24ee89] hover:bg-emerald-400 text-black font-extrabold px-2.5 py-1 rounded text-xs transition mr-1">
+                Approve
+              </button>
+              <button onclick="refundAndRejectWithdrawal('${w.id}', '${w.user_id}',${w.amount})" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-2.5 py-1 rounded text-xs transition">
+                Reject & Refund
+              </button>
+            ` : '<span class="text-gray-600 text-[11px]">Completed</span>'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function processWithdrawal(wId, status) {
+      if (!confirm(`Mark withdrawal request as ${status}?`)) return;
+      await supabaseClient.from('withdrawals').update({ status }).eq('id', wId);
+      loadWithdrawals();
+      loadStats();
+    }
+
+    async function refundAndRejectWithdrawal(wId, userId, amount) {
+      if (!confirm(`Reject withdrawal and refund ৳${amount} back to user balance?`)) return;
+
+      const { data: profile } = await supabaseClient.from('profiles').select('balance').eq('id', userId).single();
+      if (profile) {
+        const refundedBalance = parseFloat(profile.balance || 0) + parseFloat(amount);
+        await supabaseClient.from('profiles').update({ balance: refundedBalance }).eq('id', userId);
+        await supabaseClient.from('withdrawals').update({ status: 'rejected' }).eq('id', wId);
+        alert("Withdrawal rejected and balance refunded!");
+        loadWithdrawals();
+        loadStats();
+      }
+    }
+
+    // 3. USERS LOGIC
+    async function loadUsers() {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-gray-500">Fetching users...</td></tr>';
+
+      const { data: users, error } = await supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
+
+      if (error || !users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-gray-500">No users registered yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      users.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-3 font-bold text-white">${u.full_name || 'N/A'}</td>
+          <td class="p-3 text-gray-400">${u.phone_number || u.id}</td>
+          <td class="p-3 font-bold text-[#24ee89]">৳ ${parseFloat(u.balance || 0).toFixed(2)}</td>
+          <td class="p-3 text-gray-500 text-[11px]">${new Date(u.created_at).toLocaleDateString()}</td>
+          <td class="p-3 text-right">
+            <button onclick="manualAdjustBalance('${u.id}', ${u.balance || 0})" class="bg-panelDark hover:bg-gray-800 border border-gray-700 text-gray-300 font-bold px-2.5 py-1 rounded text-xs transition">
+              <i class="fa-solid fa-pen mr-1"></i> Edit Balance
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function manualAdjustBalance(userId, currentBal) {
+      const input = prompt(`Enter new balance amount for user (Current: ৳${currentBal}):`, currentBal);
+      if (input !== null && !isNaN(input)) {
+        const newBal = parseFloat(input);
+        await supabaseClient.from('profiles').update({ balance: newBal }).eq('id', userId);
+        alert("User balance updated!");
+        loadUsers();
+      }
+    }
+
+    // 4. BETS LOGIC
+    async function loadBets() {
+      const tbody = document.getElementById('betsTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-gray-500">Fetching bets history...</td></tr>';
+
+      const { data: bets, error } = await supabaseClient.from('bets').select('*').order('created_at', { ascending: false }).limit(30);
+
+      if (error || !bets || bets.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-gray-500">No bets history found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      bets.forEach(b => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-3 font-mono text-[11px] text-gray-400">${b.user_id}</td>
+          <td class="p-3 font-bold text-white">৳ ${parseFloat(b.bet_amount).toFixed(2)}</td>
+          <td class="p-3 text-gray-300">${b.target_number} / <span class="font-bold text-white">${b.roll_result}</span></td>
+          <td class="p-3 text-gray-400">${b.payout}x</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${b.is_bool ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">
+              ${b.is_bool ? 'WIN' : 'LOSS'}
+            </span>
+          </td>
+          <td class="p-3 text-gray-500 text-[10px]">${new Date(b.created_at).toLocaleTimeString()}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Init Admin Dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStats();
+      loadDeposits();
+    });
+  </script>
+</body>
+</html>
