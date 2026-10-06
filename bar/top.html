@@ -66,26 +66,63 @@
 </header>
 
 <script>
-  // Load and sync real balance from Supabase
+  let profileSubscription = null;
+
+  // Function to Update UI Balance Display
+  function updateBalanceUI(newBalance) {
+    const el = document.getElementById('topBarBalance');
+    if (el && newBalance !== undefined && newBalance !== null) {
+      el.innerText = parseFloat(newBalance).toFixed(2);
+    }
+  }
+
+  // Fetch initial profile balance and subscribe to Supabase Realtime changes
   async function syncTopBarBalance() {
     try {
-      if (typeof getCurrentUser === 'function' && typeof getUserProfile === 'function') {
+      if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
         const user = await getCurrentUser();
         if (user) {
-          const profile = await getUserProfile(user.id);
-          if (profile && profile.balance !== undefined) {
-            document.getElementById('topBarBalance').innerText = parseFloat(profile.balance).toFixed(2);
+          // 1. Fetch current profile balance
+          const { data: profile, error } = await supabaseClient
+            .from('profiles')
+            .select('balance')
+            .eq('id', user.id)
+            .single();
+
+          if (!error && profile) {
+            updateBalanceUI(profile.balance);
+          }
+
+          // 2. Realtime Listener for Instant Balance Changes
+          if (!profileSubscription) {
+            profileSubscription = supabaseClient
+              .channel('public:profiles:' + user.id)
+              .on(
+                'postgres_changes',
+                {
+                  event: 'UPDATE',
+                  schema: 'public',
+                  table: 'profiles',
+                  filter: `id=eq.${user.id}`
+                },
+                (payload) => {
+                  if (payload.new && payload.new.balance !== undefined) {
+                    updateBalanceUI(payload.new.balance);
+                  }
+                }
+              )
+              .subscribe();
           }
         }
       }
     } catch (err) {
-      console.error("Top bar balance fetch error:", err);
+      console.error("Top bar balance sync error:", err);
     }
   }
 
   function toggleNotifications() {
     const dropdown = document.getElementById('notifDropdown');
-    dropdown.classList.toggle('hidden');
+    if (dropdown) dropdown.classList.toggle('hidden');
   }
 
   function clearNotifications() {
@@ -94,7 +131,6 @@
   }
 
   function toggleSidebar() {
-    // Custom sidebar toggle event for main app integration
     const sidebar = document.getElementById('appSidebar');
     if (sidebar) {
       sidebar.classList.toggle('hidden');
@@ -103,6 +139,19 @@
     }
   }
 
-  // Initialize balance on load
-  document.addEventListener('DOMContentLoaded', syncTopBarBalance);
+  // Initialize and attach listener on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    syncTopBarBalance();
+
+    // Listen to Supabase Auth State changes if available
+    if (typeof supabaseClient !== 'undefined') {
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          syncTopBarBalance();
+        } else if (event === 'SIGNED_OUT') {
+          updateBalanceUI(0);
+        }
+      });
+    }
+  });
 </script>
