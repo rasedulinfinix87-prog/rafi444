@@ -10,6 +10,9 @@
 </head>
 <body class="bg-[#0f141c] text-white min-h-screen">
 
+  <!-- Top Bar Container (Loaded dynamically from bar/top.html) -->
+  <div id="top-bar-container"></div>
+
   <!-- Header -->
   <header class="bg-[#161b22] border-b border-gray-800 px-4 py-3 flex justify-between items-center">
     <a href="../index.html" class="text-xs text-gray-400 hover:text-white flex items-center gap-1">
@@ -65,6 +68,19 @@
   </main>
 
   <script>
+    // Load bar/top.html dynamically
+    async function loadTopBar() {
+      try {
+        const response = await fetch('bar/top.html');
+        if (response.ok) {
+          const content = await response.text();
+          document.getElementById('top-bar-container').innerHTML = content;
+        }
+      } catch (error) {
+        console.error('Error loading top bar:', error);
+      }
+    }
+
     async function loadProfile() {
       const user = await requireAuth();
       const profile = await getUserProfile(user.id);
@@ -128,6 +144,7 @@
       }
     }
 
+    loadTopBar();
     loadProfile();
   </script>
 </body>
