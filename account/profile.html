@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+</head>
+<body class="bg-[#0f141c] text-white min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-[#161b22] border-b border-gray-800 px-4 py-3 flex justify-between items-center">
+    <a href="../index.html" class="text-xs text-gray-400 hover:text-white flex items-center gap-1">
+      ← Back to Game
+    </a>
+    <span class="font-bold text-sm text-[#24ee89]">My Profile</span>
+    <button onclick="logoutUser()" class="text-xs bg-red-600/20 text-red-400 px-3 py-1.5 rounded-md hover:bg-red-600 hover:text-white transition">
+      Logout
+    </button>
+  </header>
+
+  <main class="max-w-md mx-auto p-4 space-y-4">
+    <!-- User Info Card -->
+    <div class="bg-[#161b22] border border-gray-800 rounded-xl p-5 relative overflow-hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 id="userName" class="text-lg font-bold">Loading...</h2>
+          <p id="userPhone" class="text-xs text-gray-400 mt-0.5">...</p>
+          <p id="userEmail" class="text-xs text-gray-500">...</p>
+        </div>
+        <div class="text-right">
+          <span class="text-xs text-gray-400 block">Balance</span>
+          <span id="userBalance" class="text-xl font-extrabold text-[#24ee89]">BDT 0.00</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-2 gap-3 mt-6">
+        <a href="deposit.html" class="bg-[#24ee89] text-black text-center font-bold py-2 rounded-lg text-sm hover:bg-emerald-400 transition">
+          Deposit
+        </a>
+        <a href="withdraw.html" class="bg-[#21262d] border border-gray-700 text-center font-bold py-2 rounded-lg text-sm hover:bg-gray-800 transition">
+          Withdraw
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Deposit History -->
+    <div class="bg-[#161b22] border border-gray-800 rounded-xl p-4">
+      <h3 class="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">Recent Deposits</h3>
+      <div id="depositList" class="space-y-2 text-xs">
+        <p class="text-gray-500">Loading history...</p>
+      </div>
+    </div>
+
+    <!-- Recent Withdrawal History -->
+    <div class="bg-[#161b22] border border-gray-800 rounded-xl p-4">
+      <h3 class="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">Recent Withdrawals</h3>
+      <div id="withdrawList" class="space-y-2 text-xs">
+        <p class="text-gray-500">Loading history...</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    async function loadProfile() {
+      const user = await requireAuth();
+      const profile = await getUserProfile(user.id);
+
+      if (profile) {
+        document.getElementById('userName').innerText = profile.full_name;
+        document.getElementById('userPhone').innerText = profile.phone_number;
+        document.getElementById('userEmail').innerText = user.email;
+        document.getElementById('userBalance').innerText = `BDT ${parseFloat(profile.balance).toFixed(2)}`;
+      }
+
+      // Load Recent Deposits
+      const { data: deposits } = await supabaseClient
+        .from('deposits')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      const depList = document.getElementById('depositList');
+      if (deposits && deposits.length > 0) {
+        depList.innerHTML = deposits.map(d => `
+          <div class="flex justify-between items-center bg-[#0f141c] p-2.5 rounded-lg border border-gray-800/80">
+            <div>
+              <span class="font-bold text-white">${d.payment_method}</span>
+              <span class="text-[10px] text-gray-500 block">TrxID: ${d.transaction_id}</span>
+            </div>
+            <div class="text-right">
+              <span class="font-bold text-emerald-400">+${d.amount} BDT</span>
+              <span class="text-[10px] block ${d.status === 'approved' ? 'text-emerald-400' : d.status === 'rejected' ? 'text-red-400' : 'text-yellow-400'}">${d.status}</span>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        depList.innerHTML = `<p class="text-gray-500">No deposit history found.</p>`;
+      }
+
+      // Load Recent Withdrawals
+      const { data: withdrawals } = await supabaseClient
+        .from('withdrawals')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      const withList = document.getElementById('withdrawList');
+      if (withdrawals && withdrawals.length > 0) {
+        withList.innerHTML = withdrawals.map(w => `
+          <div class="flex justify-between items-center bg-[#0f141c] p-2.5 rounded-lg border border-gray-800/80">
+            <div>
+              <span class="font-bold text-white">${w.payment_method} (${w.account_number})</span>
+            </div>
+            <div class="text-right">
+              <span class="font-bold text-red-400">-${w.amount} BDT</span>
+              <span class="text-[10px] block ${w.status === 'approved' ? 'text-emerald-400' : w.status === 'rejected' ? 'text-red-400' : 'text-yellow-400'}">${w.status}</span>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        withList.innerHTML = `<p class="text-gray-500">No withdrawal history found.</p>`;
+      }
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>
