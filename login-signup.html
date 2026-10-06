@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication - Game Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+</head>
+<body class="bg-[#0f141c] text-white flex items-center justify-center min-h-screen p-4">
+
+  <div class="w-full max-w-md bg-[#161b22] border border-gray-800 rounded-2xl p-6 shadow-2xl">
+    
+    <!-- Tab Toggle -->
+    <div class="flex border-b border-gray-800 mb-6">
+      <button id="tabLogin" onclick="switchTab('login')" class="flex-1 py-2 text-center font-semibold border-b-2 border-[#24ee89] text-[#24ee89]">Login</button>
+      <button id="tabSignup" onclick="switchTab('signup')" class="flex-1 py-2 text-center font-semibold border-b-2 border-transparent text-gray-400">Sign Up</button>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="alertBox" class="hidden mb-4 p-3 rounded-lg text-xs font-medium"></div>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Email Address</label>
+        <input type="email" id="loginEmail" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Password</label>
+        <input type="password" id="loginPassword" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+      <button type="submit" id="loginBtn" class="w-full bg-[#24ee89] text-black font-bold py-2.5 rounded-lg hover:bg-emerald-400 transition">Log In</button>
+    </form>
+
+    <!-- SIGNUP FORM -->
+    <form id="signupForm" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Full Name</label>
+        <input type="text" id="signupFullName" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Phone Number</label>
+        <input type="tel" id="signupPhone" required placeholder="017xxxxxxxx" class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Email Address</label>
+        <input type="email" id="signupEmail" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Password</label>
+        <input type="password" id="signupPassword" minlength="6" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+      <button type="submit" id="signupBtn" class="w-full bg-[#24ee89] text-black font-bold py-2.5 rounded-lg hover:bg-emerald-400 transition">Create Account</button>
+    </form>
+
+  </div>
+
+  <script>
+    function switchTab(type) {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.classList.add('hidden');
+      if (type === 'login') {
+        document.getElementById('loginForm').classList.remove('hidden');
+        document.getElementById('signupForm').classList.add('hidden');
+        document.getElementById('tabLogin').className = "flex-1 py-2 text-center font-semibold border-b-2 border-[#24ee89] text-[#24ee89]";
+        document.getElementById('tabSignup').className = "flex-1 py-2 text-center font-semibold border-b-2 border-transparent text-gray-400";
+      } else {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('signupForm').classList.remove('hidden');
+        document.getElementById('tabSignup').className = "flex-1 py-2 text-center font-semibold border-b-2 border-[#24ee89] text-[#24ee89]";
+        document.getElementById('tabLogin').className = "flex-1 py-2 text-center font-semibold border-b-2 border-transparent text-gray-400";
+      }
+    }
+
+    function showAlert(msg, isSuccess = false) {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.innerText = msg;
+      alertBox.className = `mb-4 p-3 rounded-lg text-xs font-medium ${isSuccess ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`;
+      alertBox.classList.remove('hidden');
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      btn.innerText = "Logging in...";
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        showAlert(error.message);
+        btn.disabled = false;
+        btn.innerText = "Log In";
+      } else {
+        window.location.href = "account/profile.html";
+      }
+    }
+
+    async function handleSignup(e) {
+      e.preventDefault();
+      const fullName = document.getElementById('signupFullName').value;
+      const phone = document.getElementById('signupPhone').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const btn = document.getElementById('signupBtn');
+
+      btn.disabled = true;
+      btn.innerText = "Creating Account...";
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            phone_number: phone
+          }
+        }
+      });
+
+      if (error) {
+        showAlert(error.message);
+        btn.disabled = false;
+        btn.innerText = "Create Account";
+      } else {
+        showAlert("Account created successfully! Redirecting...", true);
+        setTimeout(() => {
+          window.location.href = "account/profile.html";
+        }, 1500);
+      }
+    }
+  </script>
+</body>
+</html>
