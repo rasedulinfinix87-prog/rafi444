@@ -408,11 +408,11 @@
           </td>
           <td class="p-3 text-right">
             ${isPending ? `
-              <button onclick="processWithdrawal('${w.id}', 'approved')" class="bg-[#24ee89] hover:bg-emerald-400 text-black font-extrabold px-2.5 py-1 rounded text-xs transition mr-1">
+              <button onclick="processWithdrawal('${w.id}', '${w.user_id}',${w.amount})" class="bg-[#24ee89] hover:bg-emerald-400 text-black font-extrabold px-2.5 py-1 rounded text-xs transition mr-1">
                 Approve
               </button>
               <button onclick="refundAndRejectWithdrawal('${w.id}', '${w.user_id}',${w.amount})" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-2.5 py-1 rounded text-xs transition">
-                Reject & Refund
+                Reject
               </button>
             ` : '<span class="text-gray-600 text-[11px]">Completed</span>'}
           </td>
@@ -421,24 +421,74 @@
       });
     }
 
-    async function processWithdrawal(wId, status) {
-      if (!confirm(`Mark withdrawal request as ${status}?`)) return;
-      await supabaseClient.from('withdrawals').update({ status }).eq('id', wId);
-      loadWithdrawals();
-      loadStats();
-    }
+    // Approve Withdrawal: Deducts amount from user balance and marks status as approved
+    async function processWithdrawal(wId, userId, amount) {
+      if (!confirm(`Approve withdrawal of ৳${amount} and deduct from user balance?`)) return;
 
-    async function refundAndRejectWithdrawal(wId, userId, amount) {
-      if (!confirm(`Reject withdrawal and refund ৳${amount} back to user balance?`)) return;
+      try {
+        // 1. Fetch user profile balance
+        const { data: profile, error: pErr } = await supabaseClient
+          .from('profiles')
+          .select('balance')
+          .eq('id', userId)
+          .single();
 
-      const { data: profile } = await supabaseClient.from('profiles').select('balance').eq('id', userId).single();
-      if (profile) {
-        const refundedBalance = parseFloat(profile.balance || 0) + parseFloat(amount);
-        await supabaseClient.from('profiles').update({ balance: refundedBalance }).eq('id', userId);
-        await supabaseClient.from('withdrawals').update({ status: 'rejected' }).eq('id', wId);
-        alert("Withdrawal rejected and balance refunded!");
+        if (pErr || !profile) {
+          alert("Error fetching user profile balance.");
+          return;
+        }
+
+        const currentBal = parseFloat(profile.balance || 0);
+        const withdrawAmt = parseFloat(amount);
+
+        // Check if user has sufficient balance
+        if (currentBal < withdrawAmt) {
+          alert(`Insufficient balance! User's current balance is ৳${currentBal.toFixed(2)}.`);
+          return;
+        }
+
+        const newBalance = currentBal - withdrawAmt;
+
+        // 2. Deduct from user profiles balance
+        const { error: balErr } = await supabaseClient
+          .from('profiles')
+          .update({ balance: newBalance })
+          .eq('id', userId);
+
+        if (balErr) {
+          alert("Failed to update user balance: " + balErr.message);
+          return;
+        }
+
+        // 3. Mark withdrawal status as approved
+        await supabaseClient
+          .from('withdrawals')
+          .update({ status: 'approved' })
+          .eq('id', wId);
+
+        alert("Withdrawal Approved! Amount successfully deducted from user balance.");
         loadWithdrawals();
         loadStats();
+      } catch (err) {
+        console.error("Withdrawal processing error:", err);
+      }
+    }
+
+    // Reject Withdrawal
+    async function refundAndRejectWithdrawal(wId, userId, amount) {
+      if (!confirm(`Reject withdrawal request?`)) return;
+
+      try {
+        await supabaseClient
+          .from('withdrawals')
+          .update({ status: 'rejected' })
+          .eq('id', wId);
+
+        alert("Withdrawal request rejected.");
+        loadWithdrawals();
+        loadStats();
+      } catch (err) {
+        console.error("Reject withdrawal error:", err);
       }
     }
 
