@@ -4,99 +4,310 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Deposit Funds</title>
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Supabase JS Client & App Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
-</head>
-<body class="bg-[#0f141c] text-white min-h-screen">
 
-  <header class="bg-[#161b22] border-b border-gray-800 px-4 py-3 flex justify-between items-center">
-    <a href="profile.html" class="text-xs text-gray-400 hover:text-white">← Profile</a>
-    <span class="font-bold text-sm text-[#24ee89]">Deposit Money</span>
-    <div></div>
+  <style>
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track { background: #0f141c; }
+    ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-[#0f141c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
+
+  <!-- Header -->
+  <header class="bg-[#161b22] border-b border-gray-800/80 px-4 py-3.5 flex justify-between items-center sticky top-0 z-40">
+    <a href="profile.html" class="text-xs text-gray-400 hover:text-white transition flex items-center gap-1 font-semibold">
+      ← Profile
+    </a>
+    <span class="font-black text-sm text-[#24ee89] tracking-wide uppercase">Deposit</span>
+    <div class="w-12"></div>
   </header>
 
-  <main class="max-w-md mx-auto p-4">
-    <div id="alertBox" class="hidden mb-4 p-3 rounded-lg text-xs font-medium"></div>
+  <main class="max-w-md w-full mx-auto p-4 space-y-6 flex-1 pb-10">
 
-    <form onsubmit="handleDeposit(event)" class="bg-[#161b22] border border-gray-800 rounded-xl p-5 space-y-4">
+    <!-- Alert Box -->
+    <div id="alertBox" class="hidden p-3 rounded-xl text-xs font-semibold shadow-md transition-all"></div>
+
+    <!-- Deposit Method Section -->
+    <section class="space-y-2">
+      <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
+        <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
+        <span>Deposit Method</span>
+      </div>
+      
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="methodGrid">
+        <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card relative bg-[#161b22] border-2 border-[#24ee89] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 transition">
+          <span class="text-xs font-black text-pink-500">bKash</span>
+          <span class="text-[10px] font-bold text-gray-300">Send Money bKash</span>
+        </button>
+
+        <button type="button" onclick="selectMethod('Nagad')" id="method-Nagad" class="method-card relative bg-[#161b22] border border-gray-800 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 hover:border-gray-700 transition">
+          <span class="text-xs font-black text-orange-500">NAGAD</span>
+          <span class="text-[10px] font-bold text-gray-300">Send Money Nagad</span>
+        </button>
+
+        <button type="button" onclick="selectMethod('Rocket')" id="method-Rocket" class="method-card relative bg-[#161b22] border border-gray-800 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 hover:border-gray-700 transition">
+          <span class="text-xs font-black text-purple-500">ROCKET</span>
+          <span class="text-[10px] font-bold text-gray-300">Rocket Pay</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Deposit Amounts Quick Selection -->
+    <section class="space-y-2">
+      <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
+        <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
+        <span>Deposit Amounts</span>
+      </div>
+
+      <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+        <button type="button" onclick="setAmount(100)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">100</button>
+        <button type="button" onclick="setAmount(200)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">200</button>
+        <button type="button" onclick="setAmount(500)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">500</button>
+        <button type="button" onclick="setAmount(1000)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">1,000</button>
+        <button type="button" onclick="setAmount(2000)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">2,000</button>
+        <button type="button" onclick="setAmount(5000)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">5,000</button>
+        <button type="button" onclick="setAmount(10000)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">10,000</button>
+        <button type="button" onclick="setAmount(25000)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">25,000</button>
+      </div>
+
+      <!-- Custom Amount Input -->
+      <div class="pt-2">
+        <div class="relative flex items-center">
+          <span class="absolute left-3 text-xs text-gray-500 font-bold">৳</span>
+          <input type="number" id="customAmount" min="10" max="25000" placeholder="100 - 25,000 BDT" class="w-full bg-[#161b22] border border-gray-800 rounded-xl pl-7 pr-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#24ee89] font-semibold placeholder-gray-600">
+        </div>
+      </div>
+    </section>
+
+    <!-- Next Action Button -->
+    <button type="button" onclick="openPaymentModal()" class="w-full bg-[#24ee89] text-black font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition shadow-lg shadow-[#24ee89]/10">
+      Next
+    </button>
+
+  </main>
+
+  <!-- STEP 1: PAYMENT MODAL POPUP -->
+  <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#161b22] border border-gray-800 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
+      <button onclick="closeModal('paymentModal')" class="absolute top-3 right-3 text-gray-500 hover:text-white text-base">✕</button>
+      
+      <div class="text-center border-b border-gray-800/80 pb-3">
+        <h3 class="text-sm font-black text-[#24ee89]">Confirm Payment</h3>
+        <p class="text-[10px] text-gray-400 mt-0.5">Follow instructions to complete deposit</p>
+      </div>
+
+      <!-- Payment Information -->
+      <div class="bg-[#0f141c] border border-gray-800/80 rounded-xl p-3.5 space-y-2.5 text-xs">
+        <div class="flex justify-between items-center">
+          <span class="text-gray-400">Method:</span>
+          <span id="modalMethod" class="font-bold text-white">bKash</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-400">Amount:</span>
+          <span id="modalAmount" class="font-extrabold text-[#24ee89]">0 BDT</span>
+        </div>
+        <div class="flex justify-between items-center border-t border-gray-800/60 pt-2">
+          <span class="text-gray-400">Send Money To:</span>
+          <div class="flex items-center gap-1.5">
+            <span id="modalNumber" class="font-black text-amber-400 tracking-wider">Loading...</span>
+            <button onclick="copyNumber()" class="text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction ID Input Field -->
+      <div class="space-y-1">
+        <label class="block text-[11px] font-bold text-gray-300">Transaction ID (TrxID)</label>
+        <input type="text" id="modalTrxId" placeholder="e.g. 9J83KS92" class="w-full bg-[#0f141c] border border-gray-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#24ee89] tracking-wider uppercase font-mono">
+      </div>
+
+      <!-- Modal Submit Button -->
+      <button type="button" id="submitDepositBtn" onclick="submitDeposit()" class="w-full bg-[#24ee89] text-black font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition">
+        Submit Request
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2: SUCCESS VERIFICATION MODAL POPUP -->
+  <div id="verificationModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#161b22] border border-gray-800 rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-xl">
+        ✓
+      </div>
       
       <div>
-        <label class="block text-xs text-gray-400 mb-1">Select Payment Method</label>
-        <select id="paymentMethod" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#24ee89]">
-          <option value="bKash">bKash</option>
-          <option value="Nagad">Nagad</option>
-          <option value="Rocket">Rocket</option>
-        </select>
+        <h3 class="text-base font-black text-white">Payment Verification</h3>
+        <p class="text-xs text-gray-400 mt-1">Your deposit request is currently being verified. Please allow a few minutes for funds to reflect in your account.</p>
       </div>
 
-      <div>
-        <label class="block text-xs text-gray-400 mb-1">Deposit Amount (BDT)</label>
-        <input type="number" id="depositAmount" min="10" required placeholder="Min 10 BDT" class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
-      </div>
-
-      <div>
-        <label class="block text-xs text-gray-400 mb-1">Transaction ID (TrxID)</label>
-        <input type="text" id="trxId" required placeholder="e.g. 9J83KS92" class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
-      </div>
-
-      <button type="submit" id="submitBtn" class="w-full bg-[#24ee89] text-black font-bold py-2.5 rounded-lg text-sm hover:bg-emerald-400 transition">
-        Submit Deposit Request
+      <button type="button" onclick="finishDeposit()" class="w-full bg-[#24ee89] text-black font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition">
+        Done
       </button>
-
-    </form>
-  </main>
+    </div>
+  </div>
 
   <script>
     let currentUserId = null;
+    let selectedMethod = 'bKash';
+    let selectedAmount = 0;
+    let paymentNumbers = {};
 
+    // Initialize Auth and Fetch Dynamic Numbers from Supabase
     async function init() {
-      const user = await requireAuth();
-      currentUserId = user.id;
+      try {
+        if (typeof requireAuth === 'function') {
+          const user = await requireAuth();
+          currentUserId = user.id;
+        } else if (typeof getCurrentUser === 'function') {
+          const user = await getCurrentUser();
+          if (user) currentUserId = user.id;
+        }
+
+        // Fetch numbers from Supabase `payment_numbers` table
+        const { data, error } = await supabaseClient
+          .from('payment_numbers')
+          .select('method_name, number');
+
+        if (data && !error) {
+          data.forEach(item => {
+            paymentNumbers[item.method_name] = item.number;
+          });
+        }
+      } catch (err) {
+        console.error("Initialization Error:", err);
+      }
     }
 
     function showAlert(msg, isSuccess = false) {
       const alertBox = document.getElementById('alertBox');
       alertBox.innerText = msg;
-      alertBox.className = `mb-4 p-3 rounded-lg text-xs font-medium ${isSuccess ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`;
+      alertBox.className = `p-3 rounded-xl text-xs font-semibold ${isSuccess ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`;
       alertBox.classList.remove('hidden');
     }
 
-    async function handleDeposit(e) {
-      e.preventDefault();
-      const method = document.getElementById('paymentMethod').value;
-      const amount = parseFloat(document.getElementById('depositAmount').value);
-      const trxId = document.getElementById('trxId').value.trim();
-      const btn = document.getElementById('submitBtn');
+    function selectMethod(method) {
+      selectedMethod = method;
+      document.querySelectorAll('.method-card').forEach(card => {
+        card.classList.remove('border-[#24ee89]', 'border-2');
+        card.classList.add('border-gray-800');
+      });
+
+      const activeBtn = document.getElementById(`method-${method}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('border-gray-800');
+        activeBtn.classList.add('border-[#24ee89]', 'border-2');
+      }
+    }
+
+    function setAmount(amount) {
+      selectedAmount = amount;
+      document.getElementById('customAmount').value = amount;
+    }
+
+    async function openPaymentModal() {
+      const customAmt = parseFloat(document.getElementById('customAmount').value);
+      const finalAmt = customAmt || selectedAmount;
+
+      if (!finalAmt || finalAmt < 10) {
+        showAlert('Please select or enter a valid amount (Min 10 BDT)');
+        return;
+      }
+
+      document.getElementById('alertBox').classList.add('hidden');
+      selectedAmount = finalAmt;
+
+      // Populate Modal Fields
+      document.getElementById('modalMethod').innerText = selectedMethod;
+      document.getElementById('modalAmount').innerText = `${selectedAmount} BDT`;
+      
+      // Dynamic payment number load
+      const payNum = paymentNumbers[selectedMethod] || '01700000000';
+      document.getElementById('modalNumber').innerText = payNum;
+      document.getElementById('modalTrxId').value = '';
+
+      document.getElementById('paymentModal').classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    function copyNumber() {
+      const num = document.getElementById('modalNumber').innerText;
+      navigator.clipboard.writeText(num);
+      alert('Number copied to clipboard!');
+    }
+
+    async function submitDeposit() {
+      const trxId = document.getElementById('modalTrxId').value.trim();
+      const btn = document.getElementById('submitDepositBtn');
+
+      if (!trxId) {
+        alert('Please enter your Transaction ID (TrxID)');
+        return;
+      }
 
       btn.disabled = true;
-      btn.innerText = "Submitting...";
+      btn.innerText = "Processing...";
 
+      // Check duplicate TrxID locally before inserting
+      const { data: existingTrx } = await supabaseClient
+        .from('deposits')
+        .select('id')
+        .eq('transection_id', trxId)
+        .maybeSingle();
+
+      if (existingTrx) {
+        alert('This Transaction ID has already been submitted!');
+        btn.disabled = false;
+        btn.innerText = "Submit Request";
+        return;
+      }
+
+      // Insert Deposit Data into Supabase
       const { data, error } = await supabaseClient
         .from('deposits')
         .insert([
           {
             user_id: currentUserId,
-            amount: amount,
-            payment_method: method,
-            transaction_id: trxId,
+            amount: selectedAmount,
+            payment_method: selectedMethod,
+            transection_id: trxId,
             status: 'pending'
           }
         ]);
 
+      btn.disabled = false;
+      btn.innerText = "Submit Request";
+
       if (error) {
-        showAlert(error.message);
-        btn.disabled = false;
-        btn.innerText = "Submit Deposit Request";
+        if (error.code === '23505') { // Unique constraint code
+          alert('This Transaction ID has already been used.');
+        } else {
+          alert('Error: ' + error.message);
+        }
       } else {
-        showAlert("Deposit request submitted successfully! Awaiting approval.", true);
-        setTimeout(() => {
-          window.location.href = "profile.html";
-        }, 1500);
+        closeModal('paymentModal');
+        document.getElementById('verificationModal').classList.remove('hidden');
       }
     }
 
-    init();
+    function finishDeposit() {
+      window.location.href = "profile.html";
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
