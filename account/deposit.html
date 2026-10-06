@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deposit Funds</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+</head>
+<body class="bg-[#0f141c] text-white min-h-screen">
+
+  <header class="bg-[#161b22] border-b border-gray-800 px-4 py-3 flex justify-between items-center">
+    <a href="profile.html" class="text-xs text-gray-400 hover:text-white">← Profile</a>
+    <span class="font-bold text-sm text-[#24ee89]">Deposit Money</span>
+    <div></div>
+  </header>
+
+  <main class="max-w-md mx-auto p-4">
+    <div id="alertBox" class="hidden mb-4 p-3 rounded-lg text-xs font-medium"></div>
+
+    <form onsubmit="handleDeposit(event)" class="bg-[#161b22] border border-gray-800 rounded-xl p-5 space-y-4">
+      
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Select Payment Method</label>
+        <select id="paymentMethod" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#24ee89]">
+          <option value="bKash">bKash</option>
+          <option value="Nagad">Nagad</option>
+          <option value="Rocket">Rocket</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Deposit Amount (BDT)</label>
+        <input type="number" id="depositAmount" min="10" required placeholder="Min 10 BDT" class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Transaction ID (TrxID)</label>
+        <input type="text" id="trxId" required placeholder="e.g. 9J83KS92" class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+
+      <button type="submit" id="submitBtn" class="w-full bg-[#24ee89] text-black font-bold py-2.5 rounded-lg text-sm hover:bg-emerald-400 transition">
+        Submit Deposit Request
+      </button>
+
+    </form>
+  </main>
+
+  <script>
+    let currentUserId = null;
+
+    async function init() {
+      const user = await requireAuth();
+      currentUserId = user.id;
+    }
+
+    function showAlert(msg, isSuccess = false) {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.innerText = msg;
+      alertBox.className = `mb-4 p-3 rounded-lg text-xs font-medium ${isSuccess ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`;
+      alertBox.classList.remove('hidden');
+    }
+
+    async function handleDeposit(e) {
+      e.preventDefault();
+      const method = document.getElementById('paymentMethod').value;
+      const amount = parseFloat(document.getElementById('depositAmount').value);
+      const trxId = document.getElementById('trxId').value.trim();
+      const btn = document.getElementById('submitBtn');
+
+      btn.disabled = true;
+      btn.innerText = "Submitting...";
+
+      const { data, error } = await supabaseClient
+        .from('deposits')
+        .insert([
+          {
+            user_id: currentUserId,
+            amount: amount,
+            payment_method: method,
+            transaction_id: trxId,
+            status: 'pending'
+          }
+        ]);
+
+      if (error) {
+        showAlert(error.message);
+        btn.disabled = false;
+        btn.innerText = "Submit Deposit Request";
+      } else {
+        showAlert("Deposit request submitted successfully! Awaiting approval.", true);
+        setTimeout(() => {
+          window.location.href = "profile.html";
+        }, 1500);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
