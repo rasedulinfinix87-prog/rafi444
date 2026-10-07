@@ -183,11 +183,8 @@
         let selectedNumbers = new Set();
         const maxSelections = 10;
         let isSpinning = false;
-        let currentBalance = 0.00;
         let currentUserId = null;
-
-        // Initialize Supabase Client dynamically
-        const supabaseClient = window.supabase || window.supabaseClient;
+        let currentBalance = 0.00;
 
         // Load Top Bar Component dynamically
         async function loadTopBar() {
@@ -208,51 +205,6 @@
             }
         }
 
-        // Realtime Balance Subscription from Supabase `profiles` table
-        async function initRealtimeUser() {
-            if (!supabaseClient) return;
-
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) {
-                console.log('User not logged in');
-                return;
-            }
-
-            currentUserId = user.id;
-
-            // Fetch initial balance
-            const { data, error } = await supabaseClient
-                .from('profiles')
-                .select('balance')
-                .eq('id', currentUserId)
-                .single();
-
-            if (data && data.balance !== undefined) {
-                currentBalance = parseFloat(data.balance) || 0;
-                updateUIBalance();
-            }
-
-            // Realtime Listener for profiles table updates
-            supabaseClient
-                .channel('realtime-profile-balance')
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'UPDATE',
-                        schema: 'public',
-                        table: 'profiles',
-                        filter: `id=eq.${currentUserId}`
-                    },
-                    (payload) => {
-                        if (payload.new && payload.new.balance !== undefined) {
-                            currentBalance = parseFloat(payload.new.balance) || 0;
-                            updateUIBalance();
-                        }
-                    }
-                )
-                .subscribe();
-        }
-
         // Multipliers based on matched count
         const payoutRates = {
             1: [0, 1.8],
@@ -267,11 +219,54 @@
             10: [0, 0.0, 0.0, 0.5, 2.0, 5.0, 10.0, 25.0, 80.0, 200.0, 500.0]
         };
 
+        // Initialize Supabase & Realtime User Balance Connection
+        async function initSupabaseAuthAndRealtime() {
+            try {
+                const client = window.supabaseClient || window.supabase;
+                if (!client) return;
+
+                const { data: { user } } = await client.auth.getUser();
+                if (user) {
+                    currentUserId = user.id;
+
+                    // Initial balance fetch
+                    const { data: profile } = await client
+                        .from('profiles')
+                        .select('balance')
+                        .eq('id', currentUserId)
+                        .single();
+
+                    if (profile) {
+                        currentBalance = parseFloat(profile.balance) || 0;
+                        updateUIBalance();
+                    }
+
+                    // Realtime Balance Subscription from `profiles`
+                    client
+                        .channel('realtime-user-balance')
+                        .on('postgres_changes', {
+                            event: 'UPDATE',
+                            schema: 'public',
+                            table: 'profiles',
+                            filter: `id=eq.${currentUserId}`
+                        }, (payload) => {
+                            if (payload.new && payload.new.balance !== undefined) {
+                                currentBalance = parseFloat(payload.new.balance) || 0;
+                                updateUIBalance();
+                            }
+                        })
+                        .subscribe();
+                }
+            } catch (err) {
+                console.error("Supabase Realtime Connection Error:", err);
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             await loadTopBar();
-            await initRealtimeUser();
             renderGrid();
             updateBcdValue();
+            await initSupabaseAuthAndRealtime();
         });
 
         // Render 1 to 40 Grid
@@ -381,19 +376,15 @@
             document.getElementById('bcd-equivalent').innerText = bcd;
         }
 
-        // Update Balance on Top Bar (or elements with id='topBarBalance')
+        // Update Balance on Top Bar
         function updateUIBalance() {
             const topBal = document.getElementById('topBarBalance');
             if (topBal) {
                 topBal.innerText = currentBalance.toFixed(2);
             }
-            const localBal = document.getElementById('user-balance');
-            if (localBal) {
-                localBal.innerText = currentBalance.toFixed(2);
-            }
         }
 
-        // Main Bet Logic
+        // Main Bet Logic with Supabase Sync
         async function placeBet() {
             if (isSpinning) return;
 
@@ -413,6 +404,19 @@
             if (currentBalance < betAmount) {
                 showToast('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!', 'error');
                 return;
+            }
+
+            const client = window.supabaseClient || window.supabase;
+
+            // Step 1: Deduct balance in Supabase
+            currentBalance -= betAmount;
+            updateUIBalance();
+
+            if (client && currentUserId) {
+                await client
+                    .from('profiles')
+                    .update({ balance: currentBalance })
+                    .eq('id', currentUserId);
             }
 
             isSpinning = true;
@@ -448,25 +452,32 @@
                 if (drawnNumbers.has(n)) matchCount++;
             });
 
-            // Calculate Multiplier & Payout
+            // Calculate Multiplier
             const selCount = selectedNumbers.size;
             const table = payoutRates[selCount] || [0];
             const multiplier = table[matchCount] || 0;
             const payout = betAmount * multiplier;
             const isWin = payout > 0;
 
-            // Calculate New Balance
-            const netChange = payout - betAmount;
-            const newBalance = currentBalance + netChange;
+            if (isWin) {
+                currentBalance += payout;
+                updateUIBalance();
+                showToast(`অভিনন্দন! ${matchCount} টি মিলেছে! আপনি পেয়েছেন ৳${payout.toFixed(2)} (${multiplier}x)`, 'success');
 
-            // Update Database (profiles and bets table)
-            if (currentUserId && supabaseClient) {
-                await supabaseClient
-                    .from('profiles')
-                    .update({ balance: newBalance })
-                    .eq('id', currentUserId);
+                // Step 2: Add payout back to balance in Supabase if Win
+                if (client && currentUserId) {
+                    await client
+                        .from('profiles')
+                        .update({ balance: currentBalance })
+                        .eq('id', currentUserId);
+                }
+            } else {
+                showToast(`দুঃখিত! ${matchCount} টি নম্বর মিলেছে। আবার চেষ্টা করুন।`, 'error');
+            }
 
-                await supabaseClient
+            // Record Bet Entry in Supabase `bets` Table
+            if (client && currentUserId) {
+                await client
                     .from('bets')
                     .insert([{
                         user_id: currentUserId,
@@ -476,15 +487,6 @@
                         payout: payout,
                         is_bool: isWin
                     }]);
-            } else {
-                currentBalance = newBalance;
-                updateUIBalance();
-            }
-
-            if (isWin) {
-                showToast(`অভিনন্দন! ${matchCount} টি মিলেছে! আপনি পেয়েছেন ৳${payout.toFixed(2)} (${multiplier}x)`, 'success');
-            } else {
-                showToast(`দুঃখিত! ${matchCount} টি নম্বর মিলেছে। আবার চেষ্টা করুন।`, 'error');
             }
 
             // Push multiplier to top bar
