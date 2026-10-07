@@ -22,8 +22,8 @@
                         panelDark: '#1a222d',
                         inputBg: '#0f141c',
                         bcGreen: '#24ee89',
-                        dragonRed: '#dc2626',
-                        tigerBlue: '#2563eb',
+                        dragonRed: '#e53935',
+                        tigerBlue: '#1e88e5',
                         tieGreen: '#065f46',
                         textGray: '#8596a6',
                         borderDark: '#273446'
@@ -59,115 +59,102 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-between p-1 select-none selection:bg-bcGreen selection:text-bgDark">
+<body class="min-h-screen flex flex-col items-center justify-between p-0 select-none selection:bg-bcGreen selection:text-bgDark">
 
-    <!-- Top Navigation / Header Info Bar -->
-    <div class="w-full max-w-md bg-cardDark border-b border-borderDark px-3 py-2 flex items-center justify-between text-xs text-textGray">
-        <div class="flex items-center space-x-2">
-            <a href="../index.html" class="text-white hover:text-bcGreen"><i class="fa-solid fa-arrow-left text-sm"></i></a>
-            <span class="font-bold text-white uppercase tracking-wider">Asian Dragon Tiger</span>
-        </div>
-        <div class="flex items-center space-x-2 font-mono">
-            <span>ID: 18465280917</span>
-            <span class="text-bcGreen font-bold" id="live-clock">22:32</span>
-        </div>
-    </div>
-
-    <!-- Main Game Wrapper (Matching Reference Screenshot Structure) -->
-    <main class="w-full max-w-md flex flex-col bg-cardDark shadow-2xl overflow-hidden relative pb-14">
+    <!-- Main Game Wrapper (Exact Screenshot Structure) -->
+    <main class="w-full max-w-md flex flex-col bg-cardDark shadow-2xl overflow-hidden relative pb-16">
         
-        <!-- 1. Top Video/Live Dealer Simulation Section with Shoe -->
-        <div class="relative w-full h-44 bg-[#141a23] border-b border-borderDark flex flex-col justify-between p-2 overflow-hidden">
-            <!-- Background Dealer Image/Mock -->
-            <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600');"></div>
+        <!-- Top Video / Live Dealer Simulation Section -->
+        <div class="relative w-full h-52 bg-[#141a23] border-b border-borderDark flex flex-col justify-between p-2.5 overflow-hidden">
+            <!-- Background Dealer Image -->
+            <div class="absolute inset-0 opacity-45 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600');"></div>
             
-            <!-- Top Controls in Video Area -->
+            <!-- Top Controls inside Video Area -->
             <div class="relative z-10 flex items-center justify-between w-full text-[11px] text-white">
-                <span class="bg-black/50 px-2 py-0.5 rounded backdrop-blur-sm border border-white/10">Chinese Speed Dragon Tiger</span>
-                <div class="flex items-center space-x-1 bg-black/50 px-2 py-0.5 rounded backdrop-blur-sm border border-white/10 font-bold text-yellow-400">
+                <span class="bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm border border-white/10 font-medium">Chinese Speed Dragon Tiger</span>
+                <div class="flex items-center space-x-1 bg-black/60 px-2.5 py-0.5 rounded backdrop-blur-sm border border-white/10 font-bold text-yellow-400">
                     <i class="fa-solid fa-trophy text-[10px]"></i>
                     <span id="video-timer-badge">15s</span>
                 </div>
             </div>
 
-            <!-- Shoe and Card Dealing Visual Area -->
-            <div class="relative z-10 flex items-center justify-between w-full px-4 my-auto">
+            <!-- Shoe and Card Dealing Display Area -->
+            <div class="relative z-10 flex items-center justify-around w-full px-2 my-auto">
                 <!-- Dragon Card Box -->
-                <div class="flex flex-col items-center">
-                    <span class="text-[10px] font-bold text-red-500 mb-0.5">DRAGON</span>
-                    <div id="dragon-card-box" class="w-12 h-16 bg-white text-gray-900 border-2 border-red-600 rounded-md flex items-center justify-center font-black text-base shadow-lg transition-all">
+                <div class="flex flex-col items-center space-y-1">
+                    <span class="text-[10px] font-black text-red-500 tracking-wider">DRAGON</span>
+                    <div id="dragon-card-box" class="w-14 h-20 bg-white text-gray-900 border-2 border-red-600 rounded-lg flex items-center justify-center font-black text-xl shadow-xl transition-all">
                         ?
                     </div>
                 </div>
 
-                <!-- Center Timer / VS -->
+                <!-- Center Timer / VS Circle -->
                 <div class="flex flex-col items-center justify-center">
-                    <div id="center-timer-circle" class="w-9 h-9 rounded-full bg-black/70 border-2 border-bcGreen flex items-center justify-center font-black text-xs text-white shadow-inner">
+                    <div id="center-timer-circle" class="w-10 h-10 rounded-full bg-black/80 border-2 border-bcGreen flex items-center justify-center font-black text-sm text-white shadow-inner animate-pulse">
                         15
                     </div>
                 </div>
 
                 <!-- Tiger Card Box -->
-                <div class="flex flex-col items-center">
-                    <span class="text-[10px] font-bold text-blue-500 mb-0.5">TIGER</span>
-                    <div id="tiger-card-box" class="w-12 h-16 bg-white text-gray-900 border-2 border-blue-600 rounded-md flex items-center justify-center font-black text-base shadow-lg transition-all">
+                <div class="flex flex-col items-center space-y-1">
+                    <span class="text-[10px] font-black text-blue-500 tracking-wider">TIGER</span>
+                    <div id="tiger-card-box" class="w-14 h-20 bg-white text-gray-900 border-2 border-blue-600 rounded-lg flex items-center justify-center font-black text-xl shadow-xl transition-all">
                         ?
                     </div>
                 </div>
             </div>
 
             <!-- Result Overlay Banner -->
-            <div id="result-overlay" class="absolute inset-0 bg-black/70 z-20 flex items-center justify-center text-bcGreen font-black text-base tracking-widest uppercase hidden backdrop-blur-[2px]">
+            <div id="result-overlay" class="absolute inset-0 bg-black/75 z-20 flex items-center justify-center text-bcGreen font-black text-base tracking-widest uppercase hidden backdrop-blur-[2px]">
                 Dragon Wins!
             </div>
         </div>
 
-        <!-- 2. Middle Roadmap Grid (Scoreboard Matrix matching screenshot style) -->
-        <div class="w-full h-28 bg-[#0f141c] border-b border-borderDark p-1 relative overflow-x-auto">
-            <div class="grid grid-cols-12 grid-rows-6 gap-[1px] w-[350px] h-full bg-[#273446]/40 p-0.5">
-                <!-- Grid Cells generated dynamically or statically for scoreboard representation -->
+        <!-- Middle Roadmap Matrix Grid Section -->
+        <div class="w-full h-32 bg-[#0f141c] border-b border-borderDark p-1.5 relative overflow-x-auto">
+            <div class="grid grid-cols-12 grid-rows-6 gap-[2px] w-[380px] h-full bg-[#273446]/30 p-1 rounded">
                 <script>
                     for(let i=0; i<72; i++) {
-                        document.write('<div class="bg-[#141a23] rounded-[1px] flex items-center justify-center text-[8px] text-textGray"></div>');
+                        document.write('<div class="bg-[#141a23] rounded-[2px] flex items-center justify-center text-[8px] text-textGray"></div>');
                     }
                 </script>
             </div>
         </div>
 
-        <!-- 3. Betting Layout Area (Dragon, Tiger, Tie, Suited Tie) -->
-        <div class="p-2 flex flex-col space-y-2 bg-cardDark">
+        <!-- Betting Grid Layout (Dragon, Tiger, Tie, Suited Tie) -->
+        <div class="p-2.5 flex flex-col space-y-2.5 bg-cardDark">
             
-            <!-- Top Row: Dragon & Tiger Main Betting Options -->
-            <div class="grid grid-cols-2 gap-2">
+            <!-- Top Row: Dragon & Tiger Main Bets (1:1) -->
+            <div class="grid grid-cols-2 gap-2.5">
                 <!-- Dragon Spot -->
-                <button onclick="placeUserBet('dragon')" id="spot-dragon" class="relative p-4 bg-dragonRed hover:bg-red-700 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-md">
-                    <span class="text-sm font-extrabold text-white tracking-wider">DRAGON</span>
-                    <span class="text-[11px] font-semibold text-white/80">1:1</span>
-                    <div id="chip-dragon" class="absolute bottom-1 right-2 bg-white text-dragonRed text-[10px] font-black px-1.5 py-0.2 rounded-full shadow hidden">৳0</div>
+                <button onclick="placeUserBet('dragon')" id="spot-dragon" class="relative p-5 bg-dragonRed hover:bg-red-700 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
+                    <span class="text-base font-black text-white tracking-wider">DRAGON</span>
+                    <span class="text-xs font-bold text-white/90">1:1</span>
+                    <div id="chip-dragon" class="absolute bottom-1.5 right-2.5 bg-white text-dragonRed text-[11px] font-black px-2 py-0.5 rounded-full shadow hidden">৳0</div>
                 </button>
 
                 <!-- Tiger Spot -->
-                <button onclick="placeUserBet('tiger')" id="spot-tiger" class="relative p-4 bg-tigerBlue hover:bg-blue-700 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-md">
-                    <span class="text-sm font-extrabold text-white tracking-wider">TIGER</span>
-                    <span class="text-[11px] font-semibold text-white/80">1:1</span>
-                    <div id="chip-tiger" class="absolute bottom-1 right-2 bg-white text-tigerBlue text-[10px] font-black px-1.5 py-0.2 rounded-full shadow hidden">৳0</div>
+                <button onclick="placeUserBet('tiger')" id="spot-tiger" class="relative p-5 bg-tigerBlue hover:bg-blue-700 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
+                    <span class="text-base font-black text-white tracking-wider">TIGER</span>
+                    <span class="text-xs font-bold text-white/90">1:1</span>
+                    <div id="chip-tiger" class="absolute bottom-1.5 right-2.5 bg-white text-tigerBlue text-[11px] font-black px-2 py-0.5 rounded-full shadow hidden">৳0</div>
                 </button>
             </div>
 
-            <!-- Bottom Row: Tie & Suited Tie Options -->
-            <div class="grid grid-cols-2 gap-2">
+            <!-- Bottom Row: Tie (8:1) & Suited Tie (50:1) -->
+            <div class="grid grid-cols-2 gap-2.5">
                 <!-- Tie Spot -->
-                <button onclick="placeUserBet('tie')" id="spot-tie" class="relative p-3 bg-tieGreen hover:bg-emerald-800 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-md">
-                    <span class="text-xs font-bold text-white tracking-wide">TIE</span>
-                    <span class="text-[10px] font-semibold text-white/80">8:1</span>
-                    <div id="chip-tie" class="absolute bottom-1 right-2 bg-white text-tieGreen text-[10px] font-black px-1.5 py-0.2 rounded-full shadow hidden">৳0</div>
+                <button onclick="placeUserBet('tie')" id="spot-tie" class="relative p-3.5 bg-tieGreen hover:bg-emerald-800 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
+                    <span class="text-sm font-black text-white tracking-wide">TIE</span>
+                    <span class="text-[11px] font-bold text-white/90">8:1</span>
+                    <div id="chip-tie" class="absolute bottom-1 right-2 bg-white text-tieGreen text-[10px] font-black px-1.5 py-0.5 rounded-full shadow hidden">৳0</div>
                 </button>
 
                 <!-- Suited Tie Spot -->
-                <button onclick="placeUserBet('suited_tie')" id="spot-suited_tie" class="relative p-3 bg-[#1e293b] hover:bg-slate-800 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-md border-yellow-500/50">
-                    <span class="text-xs font-bold text-yellow-400 tracking-wide">SUITED TIE</span>
-                    <span class="text-[10px] font-semibold text-yellow-200/80">50:1</span>
-                    <div id="chip-suited_tie" class="absolute bottom-1 right-2 bg-yellow-400 text-bgDark text-[10px] font-black px-1.5 py-0.2 rounded-full shadow hidden">৳0</div>
+                <button onclick="placeUserBet('suited_tie')" id="spot-suited_tie" class="relative p-3.5 bg-[#1e293b] hover:bg-slate-800 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-yellow-500/40 shadow-lg active:scale-95">
+                    <span class="text-sm font-black text-yellow-400 tracking-wide">SUITED TIE</span>
+                    <span class="text-[11px] font-bold text-yellow-200/90">50:1</span>
+                    <div id="chip-suited_tie" class="absolute bottom-1 right-2 bg-yellow-400 text-bgDark text-[10px] font-black px-1.5 py-0.5 rounded-full shadow hidden">৳0</div>
                 </button>
             </div>
 
@@ -175,36 +162,37 @@
 
     </main>
 
-    <!-- Bottom Status & Fixed Footer Bar (Matching Screenshot Bottom Structure) -->
+    <!-- Fixed Bottom Footer (Exact Screenshot Layout & Status Bar) -->
     <footer class="w-full max-w-md fixed bottom-0 z-50 bg-[#0f141c] border-t border-borderDark flex flex-col">
-        <!-- Center Action Status Bar ("WAIT FOR NEXT GAME") -->
-        <div id="footer-status-bar" class="w-full bg-[#1a222d] py-2.5 text-center font-black text-xs tracking-widest text-white uppercase border-b border-borderDark">
-            WAIT FOR NEXT GAME
+        <!-- Status Bar ("WAIT FOR NEXT GAME" or "BETTING OPEN") -->
+        <div id="footer-status-bar" class="w-full bg-[#1a222d] py-2.5 text-center font-black text-xs tracking-widest text-bcGreen uppercase border-b border-borderDark">
+            BETTING OPEN
         </div>
 
-        <!-- Balance and Chip Selection Controls Bar -->
-        <div class="flex items-center justify-between px-3 py-2 text-xs">
+        <!-- Balance, Chips Selector & Total Bet Bar -->
+        <div class="flex items-center justify-between px-3 py-2 text-xs bg-[#121821]">
             <div class="flex flex-col">
                 <span class="text-textGray text-[10px]">Balance</span>
-                <span class="text-white font-mono font-bold">৳<span id="user-balance-display">0.00</span></span>
+                <span class="text-white font-mono font-bold text-sm">৳<span id="user-balance-display">0.00</span></span>
             </div>
             
+            <!-- Chip Selector Buttons -->
             <div class="flex items-center space-x-1.5">
                 <button onclick="setChip(10)" class="w-7 h-7 rounded-full bg-red-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="10">10</button>
                 <button onclick="setChip(50)" class="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="50">50</button>
                 <button onclick="setChip(100)" class="w-7 h-7 rounded-full bg-green-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn ring-2 ring-bcGreen" data-val="100">100</button>
-                <button onclick="setChip(500)" class="w-7 h-7 rounded-full bg-purple-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn">500</button>
+                <button onclick="setChip(500)" class="w-7 h-7 rounded-full bg-purple-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="500">500</button>
             </div>
 
             <div class="flex flex-col text-right">
                 <span class="text-textGray text-[10px]">Total Bet</span>
-                <span class="text-bcGreen font-mono font-bold">৳<span id="total-bet-display">0.00</span></span>
+                <span class="text-bcGreen font-mono font-bold text-sm">৳<span id="total-bet-display">0.00</span></span>
             </div>
         </div>
     </footer>
 
     <script>
-        // Game & User State Variables
+        // Game State Variables
         let currentUserId = null;
         let userBalance = 0.00;
         let selectedChipValue = 100;
@@ -231,12 +219,6 @@
         }
 
         async function initGame() {
-            // Clock updater
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('live-clock').innerText = now.toTimeString().substr(0, 5);
-            }, 1000);
-
             const client = getClient();
             try {
                 let user = null;
@@ -292,8 +274,9 @@
             document.getElementById('dragon-card-box').innerText = '?';
             document.getElementById('tiger-card-box').innerText = '?';
             document.getElementById('result-overlay').classList.add('hidden');
-            document.getElementById('footer-status-bar').innerText = 'BETTING OPEN';
-            document.getElementById('footer-status-bar').style.color = '#24ee89';
+            const statusBox = document.getElementById('footer-status-bar');
+            statusBox.innerText = 'BETTING OPEN';
+            statusBox.style.color = '#24ee89';
 
             if (globalTimerInterval) clearInterval(globalTimerInterval);
 
@@ -303,8 +286,8 @@
                 document.getElementById('video-timer-badge').innerText = timeLeft + 's';
 
                 if (timeLeft <= 3 && timeLeft > 0) {
-                    document.getElementById('footer-status-bar').innerText = `CLOSING IN ${timeLeft}s`;
-                    document.getElementById('footer-status-bar').style.color = '#facc15';
+                    statusBox.innerText = `CLOSING IN ${timeLeft}s`;
+                    statusBox.style.color = '#facc15';
                 }
 
                 if (timeLeft <= 0) {
@@ -316,7 +299,7 @@
 
         async function placeUserBet(spot) {
             if (currentRoundState !== 'betting') {
-                alert('Wait For Next Round'); // Strict requirement check
+                alert('Wait For Next Round');
                 return;
             }
 
@@ -330,7 +313,6 @@
             updateBalanceUI();
             updateChipsDisplay();
 
-            // Highlight selected spot briefly
             const spotEl = document.getElementById(`spot-${spot}`);
             spotEl.classList.add('bet-spot-selected');
             setTimeout(() => spotEl.classList.remove('bet-spot-selected'), 300);
@@ -357,8 +339,9 @@
         // Deal Cards and Evaluate Winner after 15 seconds expire
         async function lockBetsAndExecuteDeal() {
             currentRoundState = 'dealing';
-            document.getElementById('footer-status-bar').innerText = 'WAIT FOR NEXT GAME';
-            document.getElementById('footer-status-bar').style.color = '#ffffff';
+            const statusBox = document.getElementById('footer-status-bar');
+            statusBox.innerText = 'WAIT FOR NEXT ROUND';
+            statusBox.style.color = '#ffffff';
 
             // Generate random cards (Ace = 1 to King = 13)
             const rankKeys = Object.keys(cardRanks);
@@ -369,11 +352,11 @@
             const tSuit = cardSuits[Math.floor(Math.random() * cardSuits.length)];
 
             // Reveal Dragon Card
-            await new Promise(r => setTimeout(r, 600));
+            await new Promise(r => setTimeout(r, 700));
             document.getElementById('dragon-card-box').innerText = `${dRankKey}${dSuit}`;
 
             // Reveal Tiger Card
-            await new Promise(r => setTimeout(r, 600));
+            await new Promise(r => setTimeout(r, 700));
             document.getElementById('tiger-card-box').innerText = `${tRankKey}${tSuit}`;
 
             // Compare Values (A = 1)
@@ -398,7 +381,7 @@
             }
             if (winner === 'suited_tie') {
                 totalPayout += activeBets.suited_tie * 51;
-                totalPayout += activeBets.tie * 9; // Tie bet also wins on suited tie in standard rules
+                totalPayout += activeBets.tie * 9;
             }
 
             if (totalPayout > 0) {
