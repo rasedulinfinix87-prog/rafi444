@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,45 +16,66 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
 
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bgDark: '#0f141c',
+            cardDark: '#1a212d',
+            panelDark: '#212936',
+            inputBg: '#151a23',
+            bcGreen: '#24ee89',
+            bcGreenHover: '#1fd879',
+            bcRed: '#ed4245',
+            textGray: '#8596a6',
+            borderDark: '#2a3546'
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    /* Dark Mode Neon Theme */
+    /* Dark Mode Theme matching BC Game style */
     body {
-      background: linear-gradient(135deg, #05050a 0%, #0c0a14 50%, #12081f 100%);
+      background: #0f141c;
     }
 
     .mines-card-bg {
-      background: linear-gradient(145deg, rgba(18, 14, 32, 0.95), rgba(10, 8, 20, 0.95));
-      border: 1px solid rgba(139, 92, 246, 0.25);
+      background: #1a212d;
+      border: 1px solid #2a3546;
       box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
     }
 
     /* Grid Tile Styles */
     .tile {
-      background: linear-gradient(145deg, #1a1528, #0f0c18);
-      border: 1px solid rgba(139, 92, 246, 0.15);
+      background: #151a23;
+      border: 1px solid #2a3546;
       transition: all 0.2s ease-in-out;
     }
 
     .tile:hover:not(:disabled) {
-      background: linear-gradient(145deg, #241c38, #161022);
-      border-color: #a78bfa;
+      background: #212936;
+      border-color: #24ee89;
       transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(167, 139, 250, 0.35);
+      box-shadow: 0 0 15px rgba(36, 238, 137, 0.25);
     }
 
     /* Diamond Tile revealed */
     .tile-gem {
-      background: linear-gradient(135deg, #0891b2 0%, #2563eb 50%, #7c3aed 100%) !important;
-      border-color: #22d3ee !important;
-      box-shadow: 0 0 20px rgba(34, 211, 238, 0.7) !important;
+      background: linear-gradient(135deg, #1fd879 0%, #24ee89 100%) !important;
+      border-color: #24ee89 !important;
+      box-shadow: 0 0 20px rgba(36, 238, 137, 0.6) !important;
       animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     /* Bomb Tile revealed */
     .tile-bomb {
-      background: linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%) !important;
-      border-color: #f87171 !important;
-      box-shadow: 0 0 25px rgba(239, 68, 68, 0.8) !important;
+      background: linear-gradient(135deg, #ed4245 0%, #b91c1c 100%) !important;
+      border-color: #ed4245 !important;
+      box-shadow: 0 0 25px rgba(237, 66, 69, 0.7) !important;
       animation: shake 0.4s ease-in-out;
     }
 
@@ -69,18 +91,18 @@
     }
   </style>
 </head>
-<body class="text-gray-100 min-h-screen flex flex-col font-sans antialiased selection:bg-violet-600 selection:text-white">
+<body class="bg-bgDark text-white min-h-screen flex flex-col font-sans antialiased selection:bg-bcGreen selection:text-bgDark">
 
   <!-- Top Bar Anchor -->
   <div id="topBarContainer" class="sticky top-0 z-50"></div>
 
   <!-- Header -->
-  <header class="bg-[#0a0812]/90 backdrop-blur-md border-b border-violet-900/40 px-4 py-3 flex justify-between items-center">
-    <a href="../index.html" class="text-xs text-violet-300 hover:text-white transition flex items-center gap-1 font-semibold">
+  <header class="bg-cardDark/90 backdrop-blur-md border-b border-borderDark px-4 py-3 flex justify-between items-center">
+    <a href="../index.html" class="text-xs text-textGray hover:text-white transition flex items-center gap-1 font-semibold">
       <i class="fa-solid fa-chevron-left"></i> Games
     </a>
     <div class="flex items-center gap-2">
-      <span class="text-xs font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-500 uppercase">
+      <span class="text-xs font-black tracking-widest text-bcGreen uppercase">
         💎 MINES ORIGINAL
       </span>
     </div>
@@ -93,12 +115,12 @@
     <!-- Multiplier Display Banner -->
     <div class="mines-card-bg rounded-2xl p-3 flex justify-between items-center text-xs">
       <div class="flex items-center gap-2">
-        <span class="text-gray-400 font-medium">Next Multiplier:</span>
-        <span id="nextMultiplier" class="font-extrabold text-cyan-400 text-sm">1.03x</span>
+        <span class="text-textGray font-medium">Next Multiplier:</span>
+        <span id="nextMultiplier" class="font-extrabold text-bcGreen text-sm">1.03x</span>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-gray-400 font-medium">Profit:</span>
-        <span id="profitAmount" class="font-extrabold text-emerald-400 text-sm">৳ 0.00</span>
+        <span class="text-textGray font-medium">Profit:</span>
+        <span id="profitAmount" class="font-extrabold text-bcGreen text-sm">৳ 0.00</span>
       </div>
     </div>
 
@@ -113,32 +135,32 @@
     <div class="mines-card-bg rounded-2xl p-4 space-y-3.5">
 
       <!-- Action Button (Bet / Cashout) -->
-      <button id="actionBtn" onclick="handleAction()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg shadow-emerald-900/40">
+      <button id="actionBtn" onclick="handleAction()" class="w-full bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg">
         Bet
       </button>
 
       <!-- Bet Amount Selection -->
       <div class="space-y-1">
-        <div class="flex justify-between text-xs text-violet-200 font-semibold">
+        <div class="flex justify-between text-xs text-textGray font-semibold">
           <span>Bet Amount</span>
-          <span class="text-xs text-gray-500">Min: 10 ৳</span>
+          <span class="text-xs text-textGray">Min: 10 ৳</span>
         </div>
-        <div class="flex items-center bg-[#0c0a14] border border-violet-900/50 rounded-xl p-1">
-          <input type="number" id="betAmount" value="10" min="10" class="w-full bg-transparent px-3 text-xs font-bold text-gray-100 focus:outline-none">
-          <button onclick="adjustBet(0.5)" class="bg-violet-950/80 hover:bg-violet-900 text-violet-300 px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">1/2</button>
-          <button onclick="adjustBet(2)" class="bg-violet-950/80 hover:bg-violet-900 text-violet-300 px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">2x</button>
-          <button onclick="setMaxBet()" class="bg-violet-950/80 hover:bg-violet-900 text-violet-300 px-2.5 py-1 rounded-lg text-[10px] font-bold">MAX</button>
+        <div class="flex items-center bg-inputBg border border-borderDark rounded-xl p-1">
+          <input type="number" id="betAmount" value="10" min="10" class="w-full bg-transparent px-3 text-xs font-bold text-white focus:outline-none">
+          <button onclick="adjustBet(0.5)" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">1/2</button>
+          <button onclick="adjustBet(2)" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">2x</button>
+          <button onclick="setMaxBet()" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">MAX</button>
         </div>
       </div>
 
       <!-- Mines Slider Count Selection -->
       <div class="space-y-1">
-        <div class="flex justify-between text-xs text-violet-200 font-semibold">
+        <div class="flex justify-between text-xs text-textGray font-semibold">
           <span>Mines Count</span>
-          <span id="minesCountDisplay" class="font-bold text-fuchsia-400">3 Mines</span>
+          <span id="minesCountDisplay" class="font-bold text-bcGreen">3 Mines</span>
         </div>
         <div class="flex items-center gap-3">
-          <input type="range" id="minesRange" min="1" max="24" value="3" oninput="updateMinesCount(this.value)" class="w-full accent-fuchsia-500 cursor-pointer h-2 bg-violet-950 rounded-lg">
+          <input type="range" id="minesRange" min="1" max="24" value="3" oninput="updateMinesCount(this.value)" class="w-full accent-bcGreen cursor-pointer h-2 bg-inputBg rounded-lg">
         </div>
       </div>
 
@@ -278,7 +300,7 @@
       document.getElementById('betAmount').disabled = true;
       
       const btn = document.getElementById('actionBtn');
-      btn.className = "w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg shadow-amber-900/40";
+      btn.className = "w-full bg-amber-500 hover:bg-amber-400 text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg";
       btn.innerText = `Cashout (৳ ${currentBet.toFixed(2)})`;
 
       calculateNextMultiplier();
@@ -300,7 +322,7 @@
       } else {
         // SAFE - Found Diamond!
         tileBtn.classList.add('tile-gem');
-        tileBtn.innerHTML = '<i class="fa-solid fa-gem text-cyan-200"></i>';
+        tileBtn.innerHTML = '<i class="fa-solid fa-gem text-bgDark"></i>';
         
         calculateNextMultiplier();
 
@@ -369,7 +391,7 @@
       document.getElementById('betAmount').disabled = false;
 
       const btn = document.getElementById('actionBtn');
-      btn.className = "w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg shadow-emerald-900/40";
+      btn.className = "w-full bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg";
       btn.innerText = "Bet";
     }
 
@@ -382,3 +404,4 @@
   </script>
 </body>
 </html>
+```
