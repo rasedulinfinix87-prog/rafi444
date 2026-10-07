@@ -20,11 +20,12 @@
                         bgDark: '#090d12',
                         cardDark: '#121821',
                         panelDark: '#1a222d',
-                        inputBg: '#0f141c',
                         bcGreen: '#24ee89',
-                        dragonRed: '#e53935',
-                        tigerBlue: '#1e88e5',
+                        dragonRed: '#b91c1c',
+                        tigerBlue: '#1d4ed8',
                         tieGreen: '#065f46',
+                        sideBetBrown: '#78350f',
+                        sideBetOrange: '#c2410c',
                         textGray: '#8596a6',
                         borderDark: '#273446'
                     }
@@ -61,24 +62,21 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-0 select-none selection:bg-bcGreen selection:text-bgDark">
 
-    <!-- Main Game Wrapper (Exact Screenshot Structure) -->
+    <!-- Main Game Wrapper -->
     <main class="w-full max-w-md flex flex-col bg-cardDark shadow-2xl overflow-hidden relative pb-16">
         
         <!-- Top Video / Live Dealer Simulation Section -->
-        <div class="relative w-full h-52 bg-[#141a23] border-b border-borderDark flex flex-col justify-between p-2.5 overflow-hidden">
-            <!-- Background Dealer Image -->
+        <div class="relative w-full h-48 bg-[#141a23] border-b border-borderDark flex flex-col justify-between p-2.5 overflow-hidden">
             <div class="absolute inset-0 opacity-45 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600');"></div>
             
-            <!-- Top Controls inside Video Area -->
             <div class="relative z-10 flex items-center justify-between w-full text-[11px] text-white">
-                <span class="bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm border border-white/10 font-medium">Chinese Speed Dragon Tiger</span>
+                <span class="bg-black/60 px-2 py-0.5 rounded backdrop-blur-sm border border-white/10 font-medium">Asian Dragon Tiger</span>
                 <div class="flex items-center space-x-1 bg-black/60 px-2.5 py-0.5 rounded backdrop-blur-sm border border-white/10 font-bold text-yellow-400">
                     <i class="fa-solid fa-trophy text-[10px]"></i>
                     <span id="video-timer-badge">15s</span>
                 </div>
             </div>
 
-            <!-- Shoe and Card Dealing Display Area -->
             <div class="relative z-10 flex items-center justify-around w-full px-2 my-auto">
                 <!-- Dragon Card Box -->
                 <div class="flex flex-col items-center space-y-1">
@@ -104,14 +102,13 @@
                 </div>
             </div>
 
-            <!-- Result Overlay Banner -->
             <div id="result-overlay" class="absolute inset-0 bg-black/75 z-20 flex items-center justify-center text-bcGreen font-black text-base tracking-widest uppercase hidden backdrop-blur-[2px]">
                 Dragon Wins!
             </div>
         </div>
 
         <!-- Middle Roadmap Matrix Grid Section -->
-        <div class="w-full h-32 bg-[#0f141c] border-b border-borderDark p-1.5 relative overflow-x-auto">
+        <div class="w-full h-28 bg-[#0f141c] border-b border-borderDark p-1.5 relative overflow-x-auto">
             <div class="grid grid-cols-12 grid-rows-6 gap-[2px] w-[380px] h-full bg-[#273446]/30 p-1 rounded">
                 <script>
                     for(let i=0; i<72; i++) {
@@ -121,40 +118,73 @@
             </div>
         </div>
 
-        <!-- Betting Grid Layout (Dragon, Tiger, Tie, Suited Tie) -->
-        <div class="p-2.5 flex flex-col space-y-2.5 bg-cardDark">
+        <!-- Exact Layout Match: Side Bets & Main Bets Grid Structure -->
+        <div class="p-1 flex flex-col space-y-1 bg-cardDark">
             
-            <!-- Top Row: Dragon & Tiger Main Bets (1:1) -->
-            <div class="grid grid-cols-2 gap-2.5">
-                <!-- Dragon Spot -->
-                <button onclick="placeUserBet('dragon')" id="spot-dragon" class="relative p-5 bg-dragonRed hover:bg-red-700 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
-                    <span class="text-base font-black text-white tracking-wider">DRAGON</span>
-                    <span class="text-xs font-bold text-white/90">1:1</span>
-                    <div id="chip-dragon" class="absolute bottom-1.5 right-2.5 bg-white text-dragonRed text-[11px] font-black px-2 py-0.5 rounded-full shadow hidden">৳0</div>
+            <!-- Top Side Bets Row -->
+            <div class="grid grid-cols-2 gap-1">
+                <!-- Dragon Pair / Left Top -->
+                <button onclick="placeUserBet('dragon_pair')" id="spot-dragon_pair" class="p-2.5 bg-sideBetBrown hover:bg-amber-900 rounded-t-lg flex flex-col items-center justify-center transition-all border border-white/10 relative">
+                    <span class="text-[11px] font-bold text-white tracking-wider">DRAGON PAIR</span>
+                    <span class="text-[10px] font-semibold text-white/80">11:1</span>
+                    <div id="chip-dragon_pair" class="absolute bottom-1 right-2 bg-white text-sideBetBrown text-[9px] font-black px-1.5 py-0.2 rounded-full shadow hidden">৳0</div>
                 </button>
 
-                <!-- Tiger Spot -->
-                <button onclick="placeUserBet('tiger')" id="spot-tiger" class="relative p-5 bg-tigerBlue hover:bg-blue-700 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
-                    <span class="text-base font-black text-white tracking-wider">TIGER</span>
-                    <span class="text-xs font-bold text-white/90">1:1</span>
-                    <div id="chip-tiger" class="absolute bottom-1.5 right-2.5 bg-white text-tigerBlue text-[11px] font-black px-2 py-0.5 rounded-full shadow hidden">৳0</div>
+                <!-- Tiger Pair / Right Top -->
+                <button onclick="placeUserBet('tiger_pair')" id="spot-tiger_pair" class="p-2.5 bg-sideBetOrange hover:bg-orange-700 rounded-t-lg flex flex-col items-center justify-center transition-all border border-white/10 relative">
+                    <span class="text-[11px] font-bold text-white tracking-wider">TIGER PAIR</span>
+                    <span class="text-[10px] font-semibold text-white/80">11:1</span>
+                    <div id="chip-tiger_pair" class="absolute bottom-1 right-2 bg-white text-sideBetOrange text-[9px] font-black px-1.5 py-0.2 rounded-full shadow hidden">৳0</div>
                 </button>
             </div>
 
-            <!-- Bottom Row: Tie (8:1) & Suited Tie (50:1) -->
-            <div class="grid grid-cols-2 gap-2.5">
-                <!-- Tie Spot -->
-                <button onclick="placeUserBet('tie')" id="spot-tie" class="relative p-3.5 bg-tieGreen hover:bg-emerald-800 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
-                    <span class="text-sm font-black text-white tracking-wide">TIE</span>
-                    <span class="text-[11px] font-bold text-white/90">8:1</span>
-                    <div id="chip-tie" class="absolute bottom-1 right-2 bg-white text-tieGreen text-[10px] font-black px-1.5 py-0.5 rounded-full shadow hidden">৳0</div>
+            <!-- Second Side Bets Row (Bonus / Extra) -->
+            <div class="grid grid-cols-2 gap-1">
+                <div class="grid grid-cols-2 gap-1">
+                    <button onclick="placeUserBet('dragon_bonus')" id="spot-dragon_bonus" class="p-2 bg-[#1e293b] hover:bg-slate-800 flex flex-col items-center justify-center border border-white/10 text-center relative">
+                        <span class="text-[9px] font-bold text-white">DRAGON BONUS</span>
+                        <div id="chip-dragon_bonus" class="absolute bottom-1 right-1 bg-white text-black text-[8px] font-black px-1 rounded hidden">৳0</div>
+                    </button>
+                    <button onclick="placeUserBet('suited_tie')" id="spot-suited_tie" class="p-2 bg-[#1e293b] hover:bg-slate-800 flex flex-col items-center justify-center border border-white/10 text-center relative">
+                        <span class="text-[9px] font-bold text-yellow-400">SUITED TIE</span>
+                        <span class="text-[8px] text-yellow-200">50:1</span>
+                        <div id="chip-suited_tie" class="absolute bottom-1 right-1 bg-yellow-400 text-black text-[8px] font-black px-1 rounded hidden">৳0</div>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-1">
+                    <button onclick="placeUserBet('tiger_bonus')" id="spot-tiger_bonus" class="p-2 bg-dragonRed hover:bg-red-700 flex flex-col items-center justify-center border border-white/10 text-center relative">
+                        <span class="text-[9px] font-bold text-white">TIGER BONUS</span>
+                        <div id="chip-tiger_bonus" class="absolute bottom-1 right-1 bg-white text-red-700 text-[8px] font-black px-1 rounded hidden">৳0</div>
+                    </button>
+                    <button onclick="placeUserBet('perfect_pair')" id="spot-perfect_pair" class="p-2 bg-sideBetBrown hover:bg-amber-900 flex flex-col items-center justify-center border border-white/10 text-center relative">
+                        <span class="text-[9px] font-bold text-white">PERFECT PAIR</span>
+                        <span class="text-[8px] text-white/80">25:1</span>
+                        <div id="chip-perfect_pair" class="absolute bottom-1 right-1 bg-white text-sideBetBrown text-[8px] font-black px-1 rounded hidden">৳0</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Betting Rows (Dragon, Tie, Tiger matching reference image style) -->
+            <div class="grid grid-cols-3 gap-1 h-32 pt-1">
+                <!-- Dragon Main Spot (Left - Dark Blue/Navy) -->
+                <button onclick="placeUserBet('dragon')" id="spot-dragon" class="col-span-1 bg-tigerBlue hover:bg-blue-800 rounded-l-xl p-3 flex flex-col justify-between border border-white/10 relative transition-all">
+                    <span class="text-xs font-black text-white tracking-widest">DRAGON</span>
+                    <span class="text-[11px] font-bold text-white/90">1:1</span>
+                    <div id="chip-dragon" class="absolute bottom-2 right-2 bg-white text-tigerBlue text-[10px] font-black px-1.5 py-0.5 rounded-full shadow hidden">৳0</div>
                 </button>
 
-                <!-- Suited Tie Spot -->
-                <button onclick="placeUserBet('suited_tie')" id="spot-suited_tie" class="relative p-3.5 bg-[#1e293b] hover:bg-slate-800 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-yellow-500/40 shadow-lg active:scale-95">
-                    <span class="text-sm font-black text-yellow-400 tracking-wide">SUITED TIE</span>
-                    <span class="text-[11px] font-bold text-yellow-200/90">50:1</span>
-                    <div id="chip-suited_tie" class="absolute bottom-1 right-2 bg-yellow-400 text-bgDark text-[10px] font-black px-1.5 py-0.5 rounded-full shadow hidden">৳0</div>
+                <!-- Tie Main Spot (Center - Green) -->
+                <button onclick="placeUserBet('tie')" id="spot-tie" class="col-span-1 bg-tieGreen hover:bg-emerald-800 p-3 flex flex-col justify-between border border-white/10 relative transition-all">
+                    <span class="text-xs font-black text-white tracking-wide">TIE</span>
+                    <span class="text-[11px] font-bold text-white/90">8:1</span>
+                    <div id="chip-tie" class="absolute bottom-2 right-2 bg-white text-tieGreen text-[10px] font-black px-1.5 py-0.5 rounded-full shadow hidden">৳0</div>
+                </button>
+
+                <!-- Tiger Main Spot (Right - Red) -->
+                <button onclick="placeUserBet('tiger')" id="spot-tiger" class="col-span-1 bg-dragonRed hover:bg-red-800 rounded-r-xl p-3 flex flex-col justify-between border border-white/10 relative transition-all">
+                    <span class="text-xs font-black text-white tracking-widest">TIGER</span>
+                    <span class="text-[11px] font-bold text-white/90">1:1</span>
+                    <div id="chip-tiger" class="absolute bottom-2 right-2 bg-white text-dragonRed text-[10px] font-black px-1.5 py-0.5 rounded-full shadow hidden">৳0</div>
                 </button>
             </div>
 
@@ -164,19 +194,16 @@
 
     <!-- Fixed Bottom Footer (Exact Screenshot Layout & Status Bar) -->
     <footer class="w-full max-w-md fixed bottom-0 z-50 bg-[#0f141c] border-t border-borderDark flex flex-col">
-        <!-- Status Bar ("WAIT FOR NEXT GAME" or "BETTING OPEN") -->
         <div id="footer-status-bar" class="w-full bg-[#1a222d] py-2.5 text-center font-black text-xs tracking-widest text-bcGreen uppercase border-b border-borderDark">
-            BETTING OPEN
+            WAIT FOR NEXT GAME
         </div>
 
-        <!-- Balance, Chips Selector & Total Bet Bar -->
         <div class="flex items-center justify-between px-3 py-2 text-xs bg-[#121821]">
             <div class="flex flex-col">
                 <span class="text-textGray text-[10px]">Balance</span>
                 <span class="text-white font-mono font-bold text-sm">৳<span id="user-balance-display">0.00</span></span>
             </div>
             
-            <!-- Chip Selector Buttons -->
             <div class="flex items-center space-x-1.5">
                 <button onclick="setChip(10)" class="w-7 h-7 rounded-full bg-red-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="10">10</button>
                 <button onclick="setChip(50)" class="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="50">50</button>
@@ -192,11 +219,10 @@
     </footer>
 
     <script>
-        // Game State Variables
         let currentUserId = null;
         let userBalance = 0.00;
         let selectedChipValue = 100;
-        let currentRoundState = 'betting'; // 'betting', 'dealing', 'ended'
+        let currentRoundState = 'betting';
         let timeLeft = 15;
         let globalTimerInterval = null;
 
@@ -204,7 +230,12 @@
             dragon: 0,
             tiger: 0,
             tie: 0,
-            suited_tie: 0
+            suited_tie: 0,
+            dragon_pair: 0,
+            tiger_pair: 0,
+            dragon_bonus: 0,
+            tiger_bonus: 0,
+            perfect_pair: 0
         };
 
         const cardRanks = { 'A': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13 };
@@ -262,15 +293,13 @@
             document.getElementById('total-bet-display').innerText = total.toFixed(2);
         }
 
-        // 15 Seconds Synchronized Global Round Timer
         function startGlobalTimer() {
             timeLeft = 15;
             currentRoundState = 'betting';
-            activeBets = { dragon: 0, tiger: 0, tie: 0, suited_tie: 0 };
+            activeBets = { dragon: 0, tiger: 0, tie: 0, suited_tie: 0, dragon_pair: 0, tiger_pair: 0, dragon_bonus: 0, tiger_bonus: 0, perfect_pair: 0 };
             updateChipsDisplay();
             updateBalanceUI();
 
-            // Reset Board UI
             document.getElementById('dragon-card-box').innerText = '?';
             document.getElementById('tiger-card-box').innerText = '?';
             document.getElementById('result-overlay').classList.add('hidden');
@@ -314,8 +343,10 @@
             updateChipsDisplay();
 
             const spotEl = document.getElementById(`spot-${spot}`);
-            spotEl.classList.add('bet-spot-selected');
-            setTimeout(() => spotEl.classList.remove('bet-spot-selected'), 300);
+            if(spotEl) {
+                spotEl.classList.add('bet-spot-selected');
+                setTimeout(() => spotEl.classList.remove('bet-spot-selected'), 300);
+            }
 
             const client = getClient();
             if (client && currentUserId) {
@@ -325,25 +356,25 @@
         window.placeUserBet = placeUserBet;
 
         function updateChipsDisplay() {
-            ['dragon', 'tiger', 'tie', 'suited_tie'].forEach(spot => {
+            Object.keys(activeBets).forEach(spot => {
                 const chip = document.getElementById(`chip-${spot}`);
-                if (activeBets[spot] > 0) {
-                    chip.innerText = `৳${activeBets[spot]}`;
-                    chip.classList.remove('hidden');
-                } else {
-                    chip.classList.add('hidden');
+                if (chip) {
+                    if (activeBets[spot] > 0) {
+                        chip.innerText = `৳${activeBets[spot]}`;
+                        chip.classList.remove('hidden');
+                    } else {
+                        chip.classList.add('hidden');
+                    }
                 }
             });
         }
 
-        // Deal Cards and Evaluate Winner after 15 seconds expire
         async function lockBetsAndExecuteDeal() {
             currentRoundState = 'dealing';
             const statusBox = document.getElementById('footer-status-bar');
             statusBox.innerText = 'WAIT FOR NEXT ROUND';
             statusBox.style.color = '#ffffff';
 
-            // Generate random cards (Ace = 1 to King = 13)
             const rankKeys = Object.keys(cardRanks);
             const dRankKey = rankKeys[Math.floor(Math.random() * rankKeys.length)];
             const dSuit = cardSuits[Math.floor(Math.random() * cardSuits.length)];
@@ -351,15 +382,12 @@
             const tRankKey = rankKeys[Math.floor(Math.random() * rankKeys.length)];
             const tSuit = cardSuits[Math.floor(Math.random() * cardSuits.length)];
 
-            // Reveal Dragon Card
             await new Promise(r => setTimeout(r, 700));
             document.getElementById('dragon-card-box').innerText = `${dRankKey}${dSuit}`;
 
-            // Reveal Tiger Card
             await new Promise(r => setTimeout(r, 700));
             document.getElementById('tiger-card-box').innerText = `${tRankKey}${tSuit}`;
 
-            // Compare Values (A = 1)
             const dVal = cardRanks[dRankKey];
             const tVal = cardRanks[tRankKey];
             let winner = '';
@@ -371,17 +399,12 @@
                 else winner = 'tie';
             }
 
-            // Calculate Payouts
             let totalPayout = 0;
             if (winner === 'dragon') totalPayout += activeBets.dragon * 2;
             if (winner === 'tiger') totalPayout += activeBets.tiger * 2;
-            if (winner === 'tie') {
+            if (winner === 'tie' || winner === 'suited_tie') {
                 totalPayout += activeBets.tie * 9;
                 totalPayout += activeBets.suited_tie * 51;
-            }
-            if (winner === 'suited_tie') {
-                totalPayout += activeBets.suited_tie * 51;
-                totalPayout += activeBets.tie * 9;
             }
 
             if (totalPayout > 0) {
@@ -393,12 +416,10 @@
                 }
             }
 
-            // Show Winner Overlay Banner
             const overlay = document.getElementById('result-overlay');
             overlay.innerText = `${winner.replace('_', ' ').toUpperCase()} WINS!`;
             overlay.classList.remove('hidden');
 
-            // Restart new round after 4 seconds pause
             setTimeout(() => {
                 startGlobalTimer();
             }, 4000);
