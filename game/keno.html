@@ -110,6 +110,16 @@
             border: 1px solid #2a3546;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
         }
+
+        /* Win Multiplier Popup Animation */
+        @keyframes popupBounce {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .win-popup-anim {
+            animation: popupBounce 0.3s ease-out forwards;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 select-none selection:bg-bcGreen selection:text-bgDark">
@@ -118,8 +128,14 @@
     <div id="topBarContainer" class="w-full max-w-md sticky top-0 z-50 mb-3"></div>
 
     <!-- Main Game Container matching design layout -->
-    <main class="w-full max-w-md keno-card-bg rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6">
+    <main class="w-full max-w-md keno-card-bg rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6 relative">
         
+        <!-- Win Multiplier Popup (Placed right above the grid area) -->
+        <div id="win-popup" class="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-cardDark border border-bcGreen px-4 py-1.5 rounded-xl shadow-2xl flex flex-col items-center justify-center z-30 opacity-0 pointer-events-none transition-all duration-300">
+            <span id="popup-multiplier" class="text-bcGreen font-black text-xs sm:text-sm tracking-wide">0.00x</span>
+            <span id="popup-amount" class="text-white font-extrabold text-[11px] sm:text-xs">৳0.00</span>
+        </div>
+
         <!-- 8x5 Number Tiles Grid (1 to 40) -->
         <div id="number-grid" class="grid grid-cols-8 gap-1.5 sm:gap-2 w-full pt-1">
             <!-- Dynamic JavaScript tiles inserted here -->
@@ -451,6 +467,21 @@
             if (topBal) topBal.innerText = parseFloat(bal).toFixed(2);
         }
 
+        // Show/Hide Grid Win Multiplier Popup
+        function showWinPopup(multiplier, amount) {
+            const popup = document.getElementById('win-popup');
+            document.getElementById('popup-multiplier').innerText = `${multiplier.toFixed(2)}x`;
+            document.getElementById('popup-amount').innerText = `৳${amount.toFixed(2)}`;
+            
+            popup.classList.remove('opacity-0', 'pointer-events-none');
+            popup.classList.add('opacity-100', 'win-popup-anim');
+
+            setTimeout(() => {
+                popup.classList.remove('opacity-100', 'win-popup-anim');
+                popup.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
         // Main Bet Logic with House Edge & Anti-Win Control System
         async function placeBet() {
             if (isSpinning) return;
@@ -490,12 +521,10 @@
             totalGamesPlayed++;
 
             // Intelligent House Edge / Risk Control Assessment
-            // Checks if user has multiplied bankroll heavily (3x, 4x, 5x, 10x or high consecutive wins)
             let forceLoss = false;
             let profitMultiplier = userBalance / (initialSessionBalance > 0 ? initialSessionBalance : userBalance);
             
             if (profitMultiplier >= 3 || consecutiveWins >= 3 || totalGamesPlayed > 12) {
-                // Trigger House Edge Protection: Force fewer or zero matches to protect house profit
                 if (Math.random() < 0.78) {
                     forceLoss = true;
                 }
@@ -505,26 +534,21 @@
             const drawnNumbers = new Set();
             
             if (forceLoss) {
-                // Ensure drawn numbers intentionally miss user selections to protect house
                 let availablePool = [];
                 for (let i = 1; i <= 40; i++) {
                     if (!selectedNumbers.has(i)) availablePool.push(i);
                 }
-                // Shuffle available non-selected numbers
                 availablePool.sort(() => Math.random() - 0.5);
                 
-                // Pick mostly from non-selected numbers
                 let nonSelectedCount = Math.min(Math.floor(Math.random() * 3) + 8, availablePool.length);
                 for (let i = 0; i < nonSelectedCount; i++) {
                     drawnNumbers.add(availablePool[i]);
                 }
-                // Fill up remaining spots randomly if needed
                 while (drawnNumbers.size < 10) {
                     const rand = Math.floor(Math.random() * 40) + 1;
                     drawnNumbers.add(rand);
                 }
             } else {
-                // Standard Random Draw
                 while (drawnNumbers.size < 10) {
                     drawnNumbers.add(Math.floor(Math.random() * 40) + 1);
                 }
@@ -555,10 +579,9 @@
             const selCount = selectedNumbers.size;
             let table = kenoPayouts[currentRisk][selCount] || [0];
             
-            // Additional safety cap if user balance spiked excessively
             let multiplier = table[matchCount] || 0;
             if (profitMultiplier >= 5 && multiplier > 5) {
-                multiplier = 0.00; // Force zero payout if user bankroll grew 5x or more
+                multiplier = 0.00;
             }
 
             const payout = betAmount * multiplier;
@@ -568,6 +591,10 @@
                 consecutiveWins++;
                 userBalance += payout;
                 updateUIBalance(userBalance);
+                
+                // Show the grid win popup if multiplier hits successfully
+                showWinPopup(multiplier, payout);
+
                 showToast(`অভিনন্দন! ${matchCount} টি মিলেছে! আপনি পেয়েছেন ৳${payout.toFixed(2)} (${multiplier}x)`, 'success');
 
                 if (client && currentUserId) {
