@@ -120,19 +120,14 @@
     <!-- Main Game Container matching design layout -->
     <main class="w-full max-w-md keno-card-bg rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6">
         
-        <!-- Top Instruction Box (Formerly Select 1-10 numbers message) -->
-        <div class="w-full bg-inputBg border-b-2 border-bcGreen/80 rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-medium text-textGray shadow-inner" id="status-message">
-            Select 1-10 numbers to play
-        </div>
-
         <!-- 8x5 Number Tiles Grid (1 to 40) -->
         <div id="number-grid" class="grid grid-cols-8 gap-1.5 sm:gap-2 w-full pt-1">
             <!-- Dynamic JavaScript tiles inserted here -->
         </div>
 
-        <!-- Dynamic Multipliers Preview Bar (Moved from top to here) -->
-        <div id="multipliers-bar" class="flex gap-1.5 w-full overflow-x-auto py-1">
-            <div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 px-3 text-center text-xs sm:text-sm font-black transition-all flex-1">Select numbers</div>
+        <!-- Dynamic Multipliers Preview Bar (Grid layout so all items stay visible without sliding) -->
+        <div id="multipliers-bar" class="grid grid-cols-5 gap-1 w-full py-1">
+            <div class="bg-panelDark border border-transparent text-textGray rounded-md py-1 px-1 text-center text-[11px] font-bold">Select numbers</div>
         </div>
 
         <!-- Main Actions: Bet & Auto Pick -->
@@ -161,8 +156,8 @@
                 <input type="number" id="bet-amount-input" value="10" min="1" step="1" oninput="updateBcdValue()" class="w-full bg-transparent text-white font-bold text-sm focus:outline-none px-1">
                 
                 <div class="flex items-center space-x-1 pl-1">
-                    <button onclick="halveBet()" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors">1/2</button>
-                    <button onclick="doubleBet()" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors">2x</button>
+                    <button onclick="halveBet()" class="bg-panelDark hover:bg-borderDark text-textGray text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors">1/2</button>
+                    <button onclick="doubleBet()" class="bg-panelDark hover:bg-borderDark text-textGray text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors">2x</button>
                     <div class="flex flex-col space-y-0.5 bg-panelDark rounded-lg p-0.5 border border-borderDark">
                         <button onclick="stepBet(5)" class="text-textGray hover:text-white text-[9px] px-1"><i class="fa-solid fa-chevron-up"></i></button>
                         <button onclick="stepBet(-5)" class="text-textGray hover:text-white text-[9px] px-1"><i class="fa-solid fa-chevron-down"></i></button>
@@ -356,7 +351,6 @@
                 selectedNumbers.add(num);
             }
             updateGridVisuals();
-            updateStatusMsg();
             updateMultiplierBarPreview();
         }
 
@@ -374,14 +368,14 @@
             }
         }
 
-        // Update Multipliers Preview Bar
+        // Update Multipliers Preview Bar (Grid layout to show all items together nicely)
         function updateMultiplierBarPreview() {
             const bar = document.getElementById('multipliers-bar');
             bar.innerHTML = '';
             const count = selectedNumbers.size;
 
             if (count === 0) {
-                bar.innerHTML = `<div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 px-3 text-center text-xs sm:text-sm font-black transition-all flex-1">Select numbers</div>`;
+                bar.innerHTML = `<div class="bg-panelDark border border-transparent text-textGray rounded-md py-1.5 px-3 text-center text-xs font-bold col-span-5">Select numbers</div>`;
                 return;
             }
 
@@ -389,22 +383,10 @@
             rates.forEach((rate, hits) => {
                 const item = document.createElement('div');
                 const isWinRate = rate > 0;
-                item.className = `${isWinRate ? 'bg-bcGreen/20 border-bcGreen text-bcGreen' : 'bg-panelDark border-transparent text-textGray'} border rounded-lg py-1 px-2 text-center text-xs font-bold transition-all min-w-[55px] flex-1 flex flex-col justify-center items-center`;
-                item.innerHTML = `<span>${rate.toFixed(2)}x</span><span class="text-[9px] opacity-70">${hits}x hit</span>`;
+                item.className = `${isWinRate ? 'bg-bcGreen/20 border-bcGreen text-bcGreen' : 'bg-panelDark border-transparent text-textGray'} border rounded-md py-1 px-1 text-center font-bold transition-all flex flex-col justify-center items-center`;
+                item.innerHTML = `<span class="text-[11px]">${rate.toFixed(2)}x</span><span class="text-[8px] opacity-70">${hits}x hit</span>`;
                 bar.appendChild(item);
             });
-        }
-
-        // Status Message Banner
-        function updateStatusMsg() {
-            const msg = document.getElementById('status-message');
-            if (selectedNumbers.size === 0) {
-                msg.innerText = "Select 1-10 numbers to play";
-                msg.className = "w-full bg-inputBg border-b-2 border-bcGreen/80 rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-medium text-textGray shadow-inner";
-            } else {
-                msg.innerText = `Selected ${selectedNumbers.size} of 10 numbers`;
-                msg.className = "w-full bg-panelDark border-b-2 border-bcGreen rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-bold text-bcGreen shadow-inner";
-            }
         }
 
         // Auto Pick Function
@@ -417,7 +399,6 @@
                 selectedNumbers.add(randomNum);
             }
             updateGridVisuals();
-            updateStatusMsg();
             updateMultiplierBarPreview();
         }
 
@@ -426,7 +407,6 @@
             if (isSpinning) return;
             selectedNumbers.clear();
             updateGridVisuals();
-            updateStatusMsg();
             updateMultiplierBarPreview();
         }
 
