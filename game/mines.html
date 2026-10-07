@@ -38,7 +38,6 @@
   </script>
 
   <style>
-    /* Dark Mode Theme matching BC Game style */
     body {
       background: #0f141c;
     }
@@ -49,7 +48,6 @@
       box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
     }
 
-    /* Grid Tile Styles */
     .tile {
       background: #151a23;
       border: 1px solid #2a3546;
@@ -63,7 +61,6 @@
       box-shadow: 0 0 15px rgba(36, 238, 137, 0.25);
     }
 
-    /* Diamond Tile revealed */
     .tile-gem {
       background: linear-gradient(135deg, #1fd879 0%, #24ee89 100%) !important;
       border-color: #24ee89 !important;
@@ -71,7 +68,6 @@
       animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* Bomb Tile revealed */
     .tile-bomb {
       background: linear-gradient(135deg, #ed4245 0%, #b91c1c 100%) !important;
       border-color: #ed4245 !important;
@@ -96,23 +92,17 @@
   <!-- Top Bar Anchor -->
   <div id="topBarContainer" class="sticky top-0 z-50"></div>
 
-  <!-- Header -->
-  <header class="bg-cardDark/90 backdrop-blur-md border-b border-borderDark px-4 py-3 flex justify-between items-center">
-    <a href="../index.html" class="text-xs text-textGray hover:text-white transition flex items-center gap-1 font-semibold">
-      <i class="fa-solid fa-chevron-left"></i> Games
-    </a>
-    <div class="flex items-center gap-2">
-      <span class="text-xs font-black tracking-widest text-bcGreen uppercase">
-        💎 MINES ORIGINAL
-      </span>
-    </div>
-    <div class="w-12"></div>
-  </header>
-
   <!-- Main Game Container -->
-  <main class="max-w-md w-full mx-auto p-3 sm:p-4 space-y-4 flex-1 pb-10">
+  <main class="max-w-md w-full mx-auto p-3 sm:p-4 space-y-3 flex-1 pb-10">
 
-    <!-- Multiplier Display Banner -->
+    <!-- 5x5 Mines Grid Board -->
+    <div class="mines-card-bg rounded-3xl p-3.5 sm:p-4 shadow-2xl relative">
+      <div id="minesGrid" class="grid grid-cols-5 gap-2 sm:gap-2.5 aspect-square w-full">
+        <!-- 25 Tiles generated dynamically -->
+      </div>
+    </div>
+
+    <!-- Multiplier + Profit (moved below grid) -->
     <div class="mines-card-bg rounded-2xl p-3 flex justify-between items-center text-xs">
       <div class="flex items-center gap-2">
         <span class="text-textGray font-medium">Next Multiplier:</span>
@@ -124,43 +114,117 @@
       </div>
     </div>
 
-    <!-- 5x5 Mines Grid Board -->
-    <div class="mines-card-bg rounded-3xl p-3.5 sm:p-4 shadow-2xl relative">
-      <div id="minesGrid" class="grid grid-cols-5 gap-2 sm:gap-2.5 aspect-square w-full">
-        <!-- 25 Tiles generated dynamically -->
-      </div>
-    </div>
-
     <!-- Controls Panel -->
     <div class="mines-card-bg rounded-2xl p-4 space-y-3.5">
 
-      <!-- Action Button (Bet / Cashout) -->
-      <button id="actionBtn" onclick="handleAction()" class="w-full bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg">
-        Bet
-      </button>
-
-      <!-- Bet Amount Selection -->
+      <!-- Bet Amount -->
       <div class="space-y-1">
         <div class="flex justify-between text-xs text-textGray font-semibold">
           <span>Bet Amount</span>
           <span class="text-xs text-textGray">Min: 10 ৳</span>
         </div>
         <div class="flex items-center bg-inputBg border border-borderDark rounded-xl p-1">
-          <input type="number" id="betAmount" value="10" min="10" class="w-full bg-transparent px-3 text-xs font-bold text-white focus:outline-none">
+          <input type="number" id="betAmount" value="10" min="0" class="w-full bg-transparent px-3 text-xs font-bold text-white focus:outline-none">
           <button onclick="adjustBet(0.5)" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">1/2</button>
           <button onclick="adjustBet(2)" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">2x</button>
           <button onclick="setMaxBet()" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">MAX</button>
         </div>
       </div>
 
-      <!-- Mines Slider Count Selection -->
+      <!-- Mines Count Slider -->
       <div class="space-y-1">
         <div class="flex justify-between text-xs text-textGray font-semibold">
-          <span>Mines Count</span>
-          <span id="minesCountDisplay" class="font-bold text-bcGreen">3 Mines</span>
+          <span>Mines</span>
+          <span id="minesCountDisplay" class="font-bold text-bcGreen">3</span>
         </div>
         <div class="flex items-center gap-3">
+          <span class="text-xs text-textGray">1</span>
           <input type="range" id="minesRange" min="1" max="24" value="3" oninput="updateMinesCount(this.value)" class="w-full accent-bcGreen cursor-pointer h-2 bg-inputBg rounded-lg">
+          <span class="text-xs text-textGray">24</span>
+        </div>
+      </div>
+
+      <!-- Number of Bets (Auto) -->
+      <div id="autoBetsSection" class="space-y-1 hidden">
+        <div class="flex justify-between text-xs text-textGray font-semibold">
+          <span>Number of Bets</span>
+          <span class="text-xs text-textGray">0 = ∞</span>
+        </div>
+        <div class="flex items-center bg-inputBg border border-borderDark rounded-xl p-1">
+          <input type="number" id="autoBetCount" value="0" min="0" class="w-full bg-transparent px-3 text-xs font-bold text-white focus:outline-none">
+          <button onclick="setAutoBets(0)" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">∞</button>
+          <button onclick="setAutoBets(10)" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">10</button>
+          <button onclick="setAutoBets(100)" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">100</button>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button id="actionBtn" onclick="handleAction()" class="w-full bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg">
+        Bet
+      </button>
+
+      <!-- Manual / Auto Tabs -->
+      <div class="flex bg-inputBg rounded-xl overflow-hidden border border-borderDark text-xs font-bold">
+        <button onclick="switchTab('manual')" id="tabManual" class="flex-1 py-2.5 text-center text-bcGreen border-b-2 border-bcGreen bg-panelDark transition">Manual</button>
+        <button onclick="switchTab('auto')" id="tabAuto" class="flex-1 py-2.5 text-center text-textGray hover:text-white transition">Auto</button>
+      </div>
+
+      <!-- Advanced Options (Auto only) -->
+      <div id="advancedOptions" class="hidden space-y-3 pt-1">
+        <div class="text-xs font-bold text-white">Advanced Options</div>
+
+        <!-- On Win -->
+        <div class="space-y-1">
+          <label class="text-[11px] text-textGray">On win</label>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex bg-inputBg border border-borderDark rounded-lg p-1">
+              <button onclick="setAutoStrategy('win', 'reset')" id="winResetBtn" class="flex-1 py-1 bg-panelDark text-white font-bold rounded text-xs shadow">Reset</button>
+              <button onclick="setAutoStrategy('win', 'increase')" id="winIncBtn" class="flex-1 py-1 text-textGray font-bold rounded text-xs">Increase by</button>
+            </div>
+            <div class="flex items-center bg-inputBg border border-borderDark rounded-lg px-2 py-1">
+              <input type="number" id="winIncPercent" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-right pr-1 text-xs">
+              <span class="text-textGray text-xs">%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- On Loss -->
+        <div class="space-y-1">
+          <label class="text-[11px] text-textGray">On loss</label>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="flex bg-inputBg border border-borderDark rounded-lg p-1">
+              <button onclick="setAutoStrategy('loss', 'reset')" id="lossResetBtn" class="flex-1 py-1 bg-panelDark text-white font-bold rounded text-xs shadow">Reset</button>
+              <button onclick="setAutoStrategy('loss', 'increase')" id="lossIncBtn" class="flex-1 py-1 text-textGray font-bold rounded text-xs">Increase by</button>
+            </div>
+            <div class="flex items-center bg-inputBg border border-borderDark rounded-lg px-2 py-1">
+              <input type="number" id="lossIncPercent" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-right pr-1 text-xs">
+              <span class="text-textGray text-xs">%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stop on Win -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center text-[11px]">
+            <span class="text-textGray">Stop on win</span>
+            <span class="text-textGray text-[10px]">≈0 BDT</span>
+          </div>
+          <div class="flex items-center bg-inputBg border border-borderDark rounded-lg px-3 py-1.5">
+            <span class="text-bcGreen font-bold mr-2 text-xs">৳</span>
+            <input type="number" id="autoStopProfit" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-xs">
+          </div>
+        </div>
+
+        <!-- Stop on Loss -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center text-[11px]">
+            <span class="text-textGray">Stop on loss</span>
+            <span class="text-textGray text-[10px]">≈0 BDT</span>
+          </div>
+          <div class="flex items-center bg-inputBg border border-borderDark rounded-lg px-3 py-1.5">
+            <span class="text-bcGreen font-bold mr-2 text-xs">৳</span>
+            <input type="number" id="autoStopLoss" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-xs">
+          </div>
         </div>
       </div>
 
@@ -177,6 +241,13 @@
     let minesCount = 3;
     let currentBet = 10;
     let currentMultiplier = 1.0;
+    let activeTab = 'manual';
+    let isAutoRunning = false;
+    let autoWinStrategy = 'reset';
+    let autoLossStrategy = 'reset';
+    let baseBetAmount = 10;
+    let autoRemainingBets = 0;
+    let sessionProfit = 0;
 
     // Load Top Bar Component
     async function loadTopBar() {
@@ -208,9 +279,9 @@
       } catch (err) { console.error("Init Error:", err); }
 
       renderGrid();
+      calculateNextMultiplier();
     }
 
-    // Render 5x5 Grid Tiles
     function renderGrid() {
       const grid = document.getElementById('minesGrid');
       grid.innerHTML = '';
@@ -227,7 +298,7 @@
     function updateMinesCount(val) {
       if (gameState === 'playing') return;
       minesCount = parseInt(val);
-      document.getElementById('minesCountDisplay').innerText = `${minesCount} Mines`;
+      document.getElementById('minesCountDisplay').innerText = minesCount;
       calculateNextMultiplier();
     }
 
@@ -235,13 +306,17 @@
       if (gameState === 'playing') return;
       const inp = document.getElementById('betAmount');
       let val = parseFloat(inp.value) * factor;
-      if (val < 10) val = 10;
-      inp.value = val.toFixed(0);
+      if (val < 0) val = 0;
+      inp.value = Math.floor(val);
     }
 
     function setMaxBet() {
       if (gameState === 'playing') return;
       document.getElementById('betAmount').value = Math.floor(userBalance);
+    }
+
+    function setAutoBets(n) {
+      document.getElementById('autoBetCount').value = n;
     }
 
     function calculateNextMultiplier() {
@@ -252,14 +327,63 @@
       for (let i = 0; i <= openedCount; i++) {
         mult *= (25 - i) / (safeTiles - i);
       }
-      currentMultiplier = parseFloat((mult * 0.97).toFixed(2)); // 3% House Edge
+      currentMultiplier = parseFloat((mult * 0.97).toFixed(2));
       document.getElementById('nextMultiplier').innerText = `${currentMultiplier.toFixed(2)}x`;
       
       const profit = (currentBet * currentMultiplier) - currentBet;
       document.getElementById('profitAmount').innerText = `৳ ${Math.max(0, profit).toFixed(2)}`;
     }
 
+    function switchTab(tab) {
+      if (gameState === 'playing' || isAutoRunning) return;
+      activeTab = tab;
+
+      const tabManual = document.getElementById('tabManual');
+      const tabAuto = document.getElementById('tabAuto');
+      const autoBetsSection = document.getElementById('autoBetsSection');
+      const advancedOptions = document.getElementById('advancedOptions');
+      const btn = document.getElementById('actionBtn');
+
+      if (tab === 'manual') {
+        tabManual.className = "flex-1 py-2.5 text-center text-bcGreen border-b-2 border-bcGreen bg-panelDark transition";
+        tabAuto.className = "flex-1 py-2.5 text-center text-textGray hover:text-white transition";
+        autoBetsSection.classList.add('hidden');
+        advancedOptions.classList.add('hidden');
+        btn.innerText = "Bet";
+        btn.className = "w-full bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg";
+      } else {
+        tabAuto.className = "flex-1 py-2.5 text-center text-bcGreen border-b-2 border-bcGreen bg-panelDark transition";
+        tabManual.className = "flex-1 py-2.5 text-center text-textGray hover:text-white transition";
+        autoBetsSection.classList.remove('hidden');
+        advancedOptions.classList.remove('hidden');
+        btn.innerText = "Start Auto";
+        btn.className = "w-full bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg";
+      }
+    }
+
+    function setAutoStrategy(type, strategy) {
+      if (type === 'win') {
+        autoWinStrategy = strategy;
+        document.getElementById('winResetBtn').className = strategy === 'reset' ? 'flex-1 py-1 bg-panelDark text-white font-bold rounded text-xs shadow' : 'flex-1 py-1 text-textGray font-bold rounded text-xs';
+        document.getElementById('winIncBtn').className = strategy === 'increase' ? 'flex-1 py-1 bg-panelDark text-white font-bold rounded text-xs shadow' : 'flex-1 py-1 text-textGray font-bold rounded text-xs';
+      } else {
+        autoLossStrategy = strategy;
+        document.getElementById('lossResetBtn').className = strategy === 'reset' ? 'flex-1 py-1 bg-panelDark text-white font-bold rounded text-xs shadow' : 'flex-1 py-1 text-textGray font-bold rounded text-xs';
+        document.getElementById('lossIncBtn').className = strategy === 'increase' ? 'flex-1 py-1 bg-panelDark text-white font-bold rounded text-xs shadow' : 'flex-1 py-1 text-textGray font-bold rounded text-xs';
+      }
+    }
+
     async function handleAction() {
+      if (activeTab === 'auto') {
+        if (isAutoRunning) {
+          stopAuto();
+        } else {
+          startAuto();
+        }
+        return;
+      }
+
+      // Manual mode
       if (gameState === 'idle' || gameState === 'ended') {
         await startGame();
       } else if (gameState === 'playing') {
@@ -268,23 +392,23 @@
     }
 
     async function startGame() {
-      currentBet = parseFloat(document.getElementById('betAmount').value);
-      if (isNaN(currentBet) || currentBet < 10) {
+      currentBet = parseFloat(document.getElementById('betAmount').value) || 0;
+      if (currentBet > 0 && currentBet < 10) {
         alert("সর্বনিম্ন বেট ১০ ৳");
-        return;
+        return false;
       }
 
       if (currentBet > userBalance) {
         alert("আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!");
-        return;
+        return false;
       }
 
-      // Deduct Bet Amount
-      userBalance -= currentBet;
-      updateUIBalance(userBalance);
-      await supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+      if (currentBet > 0) {
+        userBalance -= currentBet;
+        updateUIBalance(userBalance);
+        await supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+      }
 
-      // Generate Random Mines Positions
       minesPositions = [];
       while (minesPositions.length < minesCount) {
         const r = Math.floor(Math.random() * 25);
@@ -294,16 +418,18 @@
       openedTiles = [];
       gameState = 'playing';
 
-      // UI Updates
       renderGrid();
       document.getElementById('minesRange').disabled = true;
       document.getElementById('betAmount').disabled = true;
-      
+
       const btn = document.getElementById('actionBtn');
-      btn.className = "w-full bg-amber-500 hover:bg-amber-400 text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg";
-      btn.innerText = `Cashout (৳ ${currentBet.toFixed(2)})`;
+      if (activeTab === 'manual') {
+        btn.className = "w-full bg-amber-500 hover:bg-amber-400 text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg";
+        btn.innerText = `Cashout (৳ ${currentBet.toFixed(2)})`;
+      }
 
       calculateNextMultiplier();
+      return true;
     }
 
     async function revealTile(index) {
@@ -314,13 +440,12 @@
       const tileBtn = tiles[index];
 
       if (minesPositions.includes(index)) {
-        // BUSTED - Hit a Bomb!
+        // Bomb
         tileBtn.classList.add('tile-bomb');
         tileBtn.innerHTML = '<i class="fa-solid fa-bomb text-yellow-300 animate-bounce"></i>';
-        
         await gameOver(false);
       } else {
-        // SAFE - Found Diamond!
+        // Gem
         tileBtn.classList.add('tile-gem');
         tileBtn.innerHTML = '<i class="fa-solid fa-gem text-bgDark"></i>';
         
@@ -328,9 +453,10 @@
 
         const currentPayout = currentBet * currentMultiplier;
         const btn = document.getElementById('actionBtn');
-        btn.innerText = `Cashout (৳ ${currentPayout.toFixed(2)})`;
+        if (activeTab === 'manual') {
+          btn.innerText = `Cashout (৳ ${currentPayout.toFixed(2)})`;
+        }
 
-        // Check if all safe tiles are opened
         if (openedTiles.length === (25 - minesCount)) {
           await cashout();
         }
@@ -341,41 +467,45 @@
       if (gameState !== 'playing' || openedTiles.length === 0) return;
 
       const payout = currentBet * currentMultiplier;
-      userBalance += payout;
-      updateUIBalance(userBalance);
+      const profit = payout - currentBet;
+      sessionProfit += profit;
 
-      // Credit winnings
-      await supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
-      
-      // Save record in bets table
-      await supabaseClient.from('bets').insert([{
-        user_id: currentUserId,
-        target_number: minesCount,
-        roll_result: openedTiles.length,
-        bet_amount: currentBet,
-        payout: currentMultiplier,
-        is_bool: true
-      }]);
+      if (currentBet > 0) {
+        userBalance += payout;
+        updateUIBalance(userBalance);
+        await supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
 
-      alert(`🎉 অভিনন্দন! আপনি ৳ ${payout.toFixed(2)} জিতেছেন!`);
+        await supabaseClient.from('bets').insert([{
+          user_id: currentUserId,
+          target_number: minesCount,
+          roll_result: openedTiles.length,
+          bet_amount: currentBet,
+          payout: currentMultiplier,
+          is_bool: true
+        }]);
+      }
+
+      // Show clean result instead of celebration
+      const btn = document.getElementById('actionBtn');
+      btn.innerText = `${currentMultiplier.toFixed(2)}x  |  +৳ ${profit.toFixed(2)}`;
+
       await gameOver(true);
     }
 
     async function gameOver(isWin) {
       gameState = 'ended';
       
-      // Reveal all remaining mines
       const tiles = document.getElementById('minesGrid').children;
       for (let i = 0; i < 25; i++) {
         tiles[i].disabled = true;
-        if (minesPositions.includes(i)) {
+        if (minesPositions.includes(i) && !openedTiles.includes(i)) {
           tiles[i].classList.add('tile-bomb');
           tiles[i].innerHTML = '<i class="fa-solid fa-bomb text-yellow-300"></i>';
         }
       }
 
-      if (!isWin) {
-        // Save loss record in bets table
+      if (!isWin && currentBet > 0) {
+        sessionProfit -= currentBet;
         await supabaseClient.from('bets').insert([{
           user_id: currentUserId,
           target_number: minesCount,
@@ -386,13 +516,138 @@
         }]);
       }
 
-      // Reset Control Buttons
       document.getElementById('minesRange').disabled = false;
       document.getElementById('betAmount').disabled = false;
 
+      // Apply Auto strategies
+      if (isAutoRunning) {
+        applyAutoStrategy(isWin);
+        checkAutoStopConditions(isWin);
+
+        if (isAutoRunning) {
+          // Continue next round after short delay
+          setTimeout(() => {
+            if (isAutoRunning) runAutoRound();
+          }, 800);
+          return;
+        }
+      }
+
+      // Reset button for manual
       const btn = document.getElementById('actionBtn');
+      if (activeTab === 'manual') {
+        setTimeout(() => {
+          btn.className = "w-full bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg";
+          btn.innerText = "Bet";
+        }, 1500);
+      }
+    }
+
+    function applyAutoStrategy(isWin) {
+      if (isWin && autoWinStrategy === 'increase') {
+        const inc = parseFloat(document.getElementById('winIncPercent').value) || 0;
+        let newBet = parseFloat(document.getElementById('betAmount').value) * (1 + inc / 100);
+        document.getElementById('betAmount').value = Math.floor(newBet);
+      } else if (isWin && autoWinStrategy === 'reset') {
+        document.getElementById('betAmount').value = baseBetAmount;
+      } else if (!isWin && autoLossStrategy === 'increase') {
+        const inc = parseFloat(document.getElementById('lossIncPercent').value) || 0;
+        let newBet = parseFloat(document.getElementById('betAmount').value) * (1 + inc / 100);
+        document.getElementById('betAmount').value = Math.floor(newBet);
+      } else if (!isWin && autoLossStrategy === 'reset') {
+        document.getElementById('betAmount').value = baseBetAmount;
+      }
+    }
+
+    function checkAutoStopConditions(isWin) {
+      const stopProfit = parseFloat(document.getElementById('autoStopProfit').value) || 0;
+      const stopLoss = parseFloat(document.getElementById('autoStopLoss').value) || 0;
+
+      if (stopProfit > 0 && sessionProfit >= stopProfit) {
+        stopAuto();
+        return;
+      }
+      if (stopLoss > 0 && sessionProfit <= -stopLoss) {
+        stopAuto();
+        return;
+      }
+
+      if (autoRemainingBets > 0) {
+        autoRemainingBets--;
+        document.getElementById('autoBetCount').value = autoRemainingBets;
+        if (autoRemainingBets === 0) {
+          stopAuto();
+        }
+      }
+    }
+
+    async function startAuto() {
+      baseBetAmount = parseFloat(document.getElementById('betAmount').value) || 0;
+      autoRemainingBets = parseInt(document.getElementById('autoBetCount').value) || 0;
+      sessionProfit = 0;
+      isAutoRunning = true;
+
+      const btn = document.getElementById('actionBtn');
+      btn.innerText = "Stop Auto";
+      btn.className = "w-full bg-bcRed hover:bg-red-600 text-white font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg";
+
+      document.getElementById('minesRange').disabled = true;
+      document.getElementById('betAmount').disabled = true;
+
+      runAutoRound();
+    }
+
+    function stopAuto() {
+      isAutoRunning = false;
+      const btn = document.getElementById('actionBtn');
+      btn.innerText = "Start Auto";
       btn.className = "w-full bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg";
-      btn.innerText = "Bet";
+
+      document.getElementById('minesRange').disabled = false;
+      document.getElementById('betAmount').disabled = false;
+
+      if (gameState === 'playing') {
+        // Force end current game without cashout if stopping mid-round
+        gameState = 'ended';
+        renderGrid();
+      }
+    }
+
+    async function runAutoRound() {
+      if (!isAutoRunning) return;
+
+      const started = await startGame();
+      if (!started) {
+        stopAuto();
+        return;
+      }
+
+      // Auto select random safe tiles one by one
+      const safeCount = 25 - minesCount;
+      const tilesToOpen = Math.min(3, safeCount); // open up to 3 tiles per auto round for reasonable risk
+
+      for (let t = 0; t < tilesToOpen; t++) {
+        if (!isAutoRunning || gameState !== 'playing') break;
+
+        await new Promise(r => setTimeout(r, 400));
+
+        // Pick a random unopened tile
+        let candidates = [];
+        for (let i = 0; i < 25; i++) {
+          if (!openedTiles.includes(i)) candidates.push(i);
+        }
+        if (candidates.length === 0) break;
+
+        const pick = candidates[Math.floor(Math.random() * candidates.length)];
+        await revealTile(pick);
+
+        if (gameState !== 'playing') break; // hit bomb or finished
+      }
+
+      // If still playing after auto opens, cashout
+      if (gameState === 'playing' && openedTiles.length > 0) {
+        await cashout();
+      }
     }
 
     function updateUIBalance(bal) {
