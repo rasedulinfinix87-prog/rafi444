@@ -577,12 +577,11 @@
                     }
                 });
 
-                // If a hit tile exists, display the small popup over it containing multiplier and win amount
+                // If a hit tile exists, display the small popup centered in the grid box and scaled up by ~30%
                 if (hitTile) {
                     const popup = document.createElement('div');
-                    // Positioning the popup neatly above the grid tile box
-                    popup.className = `win-popup absolute -top-9 left-1/2 -translate-x-1/2 bg-[#151a23] border border-bcGreen text-bcGreen px-1.5 py-0.5 rounded-md text-[10px] font-bold shadow-xl z-30 flex flex-col items-center whitespace-nowrap animate-bounce`;
-                    popup.innerHTML = `<span>${multiplier.toFixed(2)}x</span><span class="text-white text-[9px]">৳${payout.toFixed(2)}</span>`;
+                    popup.className = `win-popup absolute inset-0 m-auto bg-[#151a23] border border-bcGreen text-bcGreen px-2 py-1 rounded-md text-xs font-bold shadow-2xl z-30 flex flex-col items-center justify-center whitespace-nowrap animate-bounce w-max h-max`;
+                    popup.innerHTML = `<span class="text-xs leading-tight">${multiplier.toFixed(2)}x</span><span class="text-white text-[11px] leading-tight">৳${payout.toFixed(2)}</span>`;
                     hitTile.appendChild(popup);
                 }
             } else {
