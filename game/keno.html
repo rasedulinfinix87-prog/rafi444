@@ -47,7 +47,7 @@
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 4px;
-            height: 4px;
+            height: 3px;
         }
         ::-webkit-scrollbar-track {
             background: #0f141c;
@@ -125,9 +125,9 @@
             <!-- Dynamic JavaScript tiles inserted here -->
         </div>
 
-        <!-- Dynamic Multipliers Preview Bar (Fixed in 1 horizontal scrollable/flex row) -->
-        <div id="multipliers-bar" class="flex items-center gap-1.5 w-full overflow-x-auto py-1 scrollbar-thin">
-            <div class="bg-panelDark border border-transparent text-textGray rounded-md py-1.5 px-3 text-center text-xs font-bold whitespace-nowrap flex-1">Select numbers</div>
+        <!-- Dynamic Multipliers Preview Bar (Strictly 1 horizontal line, reduced size to fit inside card boundary) -->
+        <div id="multipliers-bar" class="flex items-center gap-1 w-full overflow-x-auto py-1 px-0.5">
+            <div class="bg-panelDark border border-transparent text-textGray rounded-md py-1 px-2 text-center text-xs font-bold w-full">Select numbers</div>
         </div>
 
         <!-- Main Actions: Bet & Auto Pick -->
@@ -368,7 +368,7 @@
             }
         }
 
-        // Update Multipliers Preview Bar (Strictly 1 horizontal line fix)
+        // Update Multipliers Preview Bar (Compact size and strictly 1 line without overflowing right side)
         function updateMultiplierBarPreview() {
             const bar = document.getElementById('multipliers-bar');
             bar.innerHTML = '';
@@ -383,8 +383,8 @@
             rates.forEach((rate, hits) => {
                 const item = document.createElement('div');
                 const isWinRate = rate > 0;
-                item.className = `${isWinRate ? 'bg-bcGreen/20 border-bcGreen text-bcGreen' : 'bg-panelDark border-transparent text-textGray'} border rounded-md py-1 px-2 text-center font-bold transition-all flex flex-col justify-center items-center shrink-0 min-w-[55px]`;
-                item.innerHTML = `<span class="text-[11px]">${rate.toFixed(2)}x</span><span class="text-[8px] opacity-70">${hits}x hit</span>`;
+                item.className = `${isWinRate ? 'bg-bcGreen/20 border-bcGreen text-bcGreen' : 'bg-panelDark border-transparent text-textGray'} border rounded-md py-0.5 px-1.5 text-center font-bold transition-all flex flex-col justify-center items-center shrink-0 min-w-[36px] max-w-[44px]`;
+                item.innerHTML = `<span class="text-[10px] leading-tight">${rate.toFixed(2)}x</span><span class="text-[7px] leading-none opacity-70">${hits}h</span>`;
                 bar.appendChild(item);
             });
         }
