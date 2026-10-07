@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keno & Plinko Casino Game</title>
+    <title>Keno Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
@@ -100,7 +100,7 @@
     <div id="topBarContainer" class="w-full max-w-md sticky top-0 z-50 mb-3"></div>
 
     <!-- Main Game Container matching design layout -->
-    <main class="w-full max-w-md bg-brand-card border border-gray-800/80 rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3">
+    <main class="w-full max-w-md bg-brand-card border border-gray-800/80 rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6">
         
         <!-- Top Multipliers Bar -->
         <div id="multipliers-bar" class="grid grid-cols-5 gap-1.5 w-full">
@@ -172,205 +172,6 @@
 
     </main>
 
-    <!-- Navigation Tabs for Supabase Tables Simulation -->
-    <section class="w-full max-w-md mt-4 bg-brand-card border border-gray-800 rounded-2xl p-2 flex justify-between gap-1 shadow-lg text-xs">
-        <button onclick="switchTab('bets-tab')" id="tab-btn-bets" class="tab-btn flex-1 py-2 px-1 text-center font-semibold rounded-xl bg-emerald-600 text-white transition-all">
-            <i class="fa-solid fa-dice mr-1"></i>Bets
-        </button>
-        <button onclick="switchTab('deposits-tab')" id="tab-btn-deposits" class="tab-btn flex-1 py-2 px-1 text-center font-semibold rounded-xl text-gray-400 hover:text-white hover:bg-brand-tile transition-all">
-            <i class="fa-solid fa-wallet mr-1"></i>Deposits
-        </button>
-        <button onclick="switchTab('withdrawals-tab')" id="tab-btn-withdrawals" class="tab-btn flex-1 py-2 px-1 text-center font-semibold rounded-xl text-gray-400 hover:text-white hover:bg-brand-tile transition-all">
-            <i class="fa-solid fa-money-bill-transfer mr-1"></i>Withdraw
-        </button>
-        <button onclick="switchTab('profile-tab')" id="tab-btn-profile" class="tab-btn flex-1 py-2 px-1 text-center font-semibold rounded-xl text-gray-400 hover:text-white hover:bg-brand-tile transition-all">
-            <i class="fa-solid fa-user mr-1"></i>Profile
-        </button>
-    </section>
-
-    <!-- Tab Contents Container -->
-    <section class="w-full max-w-md mt-2 mb-6">
-        
-        <!-- Bets Table View -->
-        <div id="bets-tab" class="tab-content bg-brand-card border border-gray-800 rounded-2xl p-3 shadow-md">
-            <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-800">
-                <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fa-solid fa-list-ol text-emerald-400 mr-2"></i>Bets History (<span class="font-mono text-[10px]">bets</span> table)
-                </h3>
-                <span class="text-[10px] text-gray-500 font-mono">id | roll_result | payout</span>
-            </div>
-            <div class="overflow-x-auto max-h-48 overflow-y-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="text-gray-400 bg-brand-input/50 sticky top-0 text-[10px]">
-                        <tr>
-                            <th class="p-1.5">Target</th>
-                            <th class="p-1.5">Result</th>
-                            <th class="p-1.5">Bet</th>
-                            <th class="p-1.5">Payout</th>
-                            <th class="p-1.5">Win?</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bets-table-body" class="divide-y divide-gray-800 text-gray-300 font-mono text-[11px]">
-                        <!-- Dynamic Bets History -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Deposits Table View -->
-        <div id="deposits-tab" class="tab-content hidden bg-brand-card border border-gray-800 rounded-2xl p-3 shadow-md">
-            <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-800">
-                <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fa-solid fa-building-columns text-emerald-400 mr-2"></i>Deposits (<span class="font-mono text-[10px]">deposits</span> table)
-                </h3>
-                <button onclick="openModal('deposit-modal')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] px-2 py-1 rounded-lg font-bold">
-                    + New Deposit
-                </button>
-            </div>
-            <div class="overflow-x-auto max-h-48 overflow-y-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="text-gray-400 bg-brand-input/50 sticky top-0 text-[10px]">
-                        <tr>
-                            <th class="p-1.5">Method</th>
-                            <th class="p-1.5">Trx ID</th>
-                            <th class="p-1.5">Amount</th>
-                            <th class="p-1.5">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="deposits-table-body" class="divide-y divide-gray-800 text-gray-300 font-mono text-[11px]">
-                        <!-- Dynamic Deposits Data -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Withdrawals Table View -->
-        <div id="withdrawals-tab" class="tab-content hidden bg-brand-card border border-gray-800 rounded-2xl p-3 shadow-md">
-            <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-800">
-                <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400 mr-2"></i>Withdrawals (<span class="font-mono text-[10px]">withdrawals</span>)
-                </h3>
-                <button onclick="openModal('withdraw-modal')" class="bg-amber-600 hover:bg-amber-500 text-white text-[11px] px-2 py-1 rounded-lg font-bold">
-                    + Request Withdraw
-                </button>
-            </div>
-            <div class="overflow-x-auto max-h-48 overflow-y-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="text-gray-400 bg-brand-input/50 sticky top-0 text-[10px]">
-                        <tr>
-                            <th class="p-1.5">Method</th>
-                            <th class="p-1.5">Account</th>
-                            <th class="p-1.5">Amount</th>
-                            <th class="p-1.5">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="withdrawals-table-body" class="divide-y divide-gray-800 text-gray-300 font-mono text-[11px]">
-                        <!-- Dynamic Withdrawals Data -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Profile View -->
-        <div id="profile-tab" class="tab-content hidden bg-brand-card border border-gray-800 rounded-2xl p-3 shadow-md">
-            <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-800">
-                <h3 class="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center">
-                    <i class="fa-solid fa-id-card text-emerald-400 mr-2"></i>User Profile (<span class="font-mono text-[10px]">profiles</span> table)
-                </h3>
-            </div>
-            <div class="space-y-2 text-xs">
-                <div class="flex justify-between bg-brand-input p-2 rounded-xl">
-                    <span class="text-gray-400">ID (UUID):</span>
-                    <span id="prof-id" class="text-gray-200 font-mono text-[10px] truncate max-w-[200px]">...</span>
-                </div>
-                <div class="flex justify-between bg-brand-input p-2 rounded-xl">
-                    <span class="text-gray-400">Full Name:</span>
-                    <span id="prof-name" class="text-white font-semibold">...</span>
-                </div>
-                <div class="flex justify-between bg-brand-input p-2 rounded-xl">
-                    <span class="text-gray-400">Phone Number:</span>
-                    <span id="prof-phone" class="text-white font-mono">...</span>
-                </div>
-                <div class="flex justify-between bg-brand-input p-2 rounded-xl">
-                    <span class="text-gray-400">Balance:</span>
-                    <span id="prof-balance" class="text-emerald-400 font-bold font-mono">৳0.00</span>
-                </div>
-                <div class="flex justify-between bg-brand-input p-2 rounded-xl">
-                    <span class="text-gray-400">Created At:</span>
-                    <span id="prof-created" class="text-gray-400 font-mono text-[10px]">...</span>
-                </div>
-            </div>
-        </div>
-
-    </section>
-
-    <!-- Deposit Modal -->
-    <div id="deposit-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-brand-card border border-gray-800 rounded-2xl w-full max-w-sm p-4 space-y-3 shadow-2xl relative">
-            <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-                <h3 class="text-sm font-bold text-white flex items-center">
-                    <i class="fa-solid fa-money-bill-wave text-emerald-400 mr-2"></i>নতুন ডিপোজিট (Deposit)
-                </h3>
-                <button onclick="closeModal('deposit-modal')" class="text-gray-400 hover:text-white text-lg">&times;</button>
-            </div>
-            <form id="deposit-form" onsubmit="handleDeposit(event)" class="space-y-3 text-xs">
-                <div>
-                    <label class="block text-gray-400 mb-1">পেমেন্ট মেথড (Payment Method)</label>
-                    <select id="dep-method" class="w-full bg-brand-input border border-gray-700 rounded-xl p-2 text-white focus:outline-none focus:border-emerald-500">
-                        <option value="bKash">bKash (বিকাশ)</option>
-                        <option value="Nagad">Nagad (নগদ)</option>
-                        <option value="Rocket">Rocket (রকেট)</option>
-                        <option value="Upay">Upay (উপায়)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-gray-400 mb-1">পরিমাণ (Amount in ৳)</label>
-                    <input type="number" id="dep-amount" min="100" value="500" required class="w-full bg-brand-input border border-gray-700 rounded-xl p-2 text-white font-bold focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-gray-400 mb-1">ট্রানজেকশন আইডি (Transaction ID)</label>
-                    <input type="text" id="dep-trx" placeholder="e.g. TRX10928374" required class="w-full bg-brand-input border border-gray-700 rounded-xl p-2 text-white font-mono uppercase focus:outline-none focus:border-emerald-500">
-                </div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition-colors shadow-lg">
-                    ডিপোজিট সাবমিট করুন
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Withdrawal Modal -->
-    <div id="withdraw-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-brand-card border border-gray-800 rounded-2xl w-full max-w-sm p-4 space-y-3 shadow-2xl relative">
-            <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-                <h3 class="text-sm font-bold text-white flex items-center">
-                    <i class="fa-solid fa-hand-holding-dollar text-amber-400 mr-2"></i>উইথড্রয়াল রিকোয়েস্ট (Withdraw)
-                </h3>
-                <button onclick="closeModal('withdraw-modal')" class="text-gray-400 hover:text-white text-lg">&times;</button>
-            </div>
-            <form id="withdraw-form" onsubmit="handleWithdraw(event)" class="space-y-3 text-xs">
-                <div>
-                    <label class="block text-gray-400 mb-1">পেমেন্ট মেথড (Payment Method)</label>
-                    <select id="wit-method" class="w-full bg-brand-input border border-gray-700 rounded-xl p-2 text-white focus:outline-none focus:border-amber-500">
-                        <option value="bKash">bKash (বিকাশ)</option>
-                        <option value="Nagad">Nagad (নগদ)</option>
-                        <option value="Rocket">Rocket (রকেট)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-gray-400 mb-1">অ্যাকাউন্ট নম্বর (Account Number)</label>
-                    <input type="text" id="wit-account" placeholder="01700000000" required class="w-full bg-brand-input border border-gray-700 rounded-xl p-2 text-white font-mono focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-gray-400 mb-1">পরিমাণ (Amount in ৳)</label>
-                    <input type="number" id="wit-amount" min="100" value="200" required class="w-full bg-brand-input border border-gray-700 rounded-xl p-2 text-white font-bold focus:outline-none focus:border-amber-500">
-                </div>
-                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-xl transition-colors shadow-lg">
-                    উইথড্র জমা দিন
-                </button>
-            </form>
-        </div>
-    </div>
-
     <!-- Notification Toast Box -->
     <div id="toast" class="fixed bottom-4 right-4 bg-gray-900 border border-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-20 opacity-0 z-50 flex items-center space-x-2">
         <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
@@ -378,46 +179,11 @@
     </div>
 
     <script>
-        // Helper to generate UUID v4
-        function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                const r = Math.random() * 16 | 0;
-                const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-
-        // Mock Supabase Database Initial State
-        const db = {
-            profiles: {
-                id: generateUUID(),
-                full_name: "আরিফুল ইসলাম",
-                phone_number: "01823456789",
-                balance: 1000.00,
-                created_at: new Date().toISOString()
-            },
-            deposits: [
-                {
-                    id: generateUUID(),
-                    user_id: "",
-                    amount: 500,
-                    payment_method: "bKash",
-                    transection_id: "TRX88291039",
-                    status: "completed",
-                    created_at: new Date(Date.now() - 3600000 * 5).toISOString()
-                }
-            ],
-            withdrawals: [],
-            bets: []
-        };
-
-        // Align IDs
-        db.deposits[0].user_id = db.profiles.id;
-
         // Game State Variables
         let selectedNumbers = new Set();
         const maxSelections = 10;
         let isSpinning = false;
+        let currentBalance = 1000.00; // Default local balance
 
         // Load Top Bar Component dynamically
         async function loadTopBar() {
@@ -431,6 +197,7 @@
                             a.href = a.href.replace('admin/mem/member.html', 'mem/member.html');
                         }
                     });
+                    updateUIBalance();
                 }
             } catch (e) {
                 console.error("Top bar fetch error:", e);
@@ -454,8 +221,6 @@
         window.addEventListener('DOMContentLoaded', async () => {
             await loadTopBar();
             renderGrid();
-            updateUserUI();
-            renderTables();
             updateBcdValue();
         });
 
@@ -566,6 +331,14 @@
             document.getElementById('bcd-equivalent').innerText = bcd;
         }
 
+        // Update Balance on Top Bar
+        function updateUIBalance() {
+            const topBal = document.getElementById('topBarBalance');
+            if (topBal) {
+                topBal.innerText = currentBalance.toFixed(2);
+            }
+        }
+
         // Main Bet Logic
         async function placeBet() {
             if (isSpinning) return;
@@ -583,14 +356,14 @@
                 return;
             }
 
-            if (db.profiles.balance < betAmount) {
+            if (currentBalance < betAmount) {
                 showToast('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!', 'error');
                 return;
             }
 
             // Deduct balance
-            db.profiles.balance -= betAmount;
-            updateUserUI();
+            currentBalance -= betAmount;
+            updateUIBalance();
 
             isSpinning = true;
             document.getElementById('bet-btn').disabled = true;
@@ -633,26 +406,12 @@
             const isWin = payout > 0;
 
             if (isWin) {
-                db.profiles.balance += payout;
-                updateUserUI();
+                currentBalance += payout;
+                updateUIBalance();
                 showToast(`অভিনন্দন! ${matchCount} টি মিলেছে! আপনি পেয়েছেন ৳${payout.toFixed(2)} (${multiplier}x)`, 'success');
             } else {
                 showToast(`দুঃখিত! ${matchCount} টি নম্বর মিলেছে। আবার চেষ্টা করুন।`, 'error');
             }
-
-            // Log Bet into Supabase simulated 'bets' table
-            const betRecord = {
-                id: generateUUID(),
-                user_id: db.profiles.id,
-                target_number: selCount,
-                roll_result: matchCount,
-                bet_amount: betAmount,
-                payout: payout,
-                is_bool: isWin,
-                created_at: new Date().toISOString()
-            };
-            db.bets.unshift(betRecord);
-            renderBetsTable();
 
             // Push multiplier to top bar
             pushMultiplierBar(multiplier);
@@ -682,184 +441,6 @@
             if (bar.children.length > 5) {
                 bar.removeChild(bar.lastChild);
             }
-        }
-
-        // Deposit Handling
-        function handleDeposit(e) {
-            e.preventDefault();
-            const method = document.getElementById('dep-method').value;
-            const amount = parseFloat(document.getElementById('dep-amount').value);
-            const trx = document.getElementById('dep-trx').value.trim();
-
-            if (!amount || amount < 100) {
-                showToast('সর্বনিম্ন ১০০ টাকা ডিপোজিট করতে পারবেন', 'error');
-                return;
-            }
-
-            const record = {
-                id: generateUUID(),
-                user_id: db.profiles.id,
-                amount: amount,
-                payment_method: method,
-                transection_id: trx,
-                status: 'completed', // Auto-completed for demo smooth experience
-                created_at: new Date().toISOString()
-            };
-
-            db.deposits.unshift(record);
-            db.profiles.balance += amount;
-
-            updateUserUI();
-            renderDepositsTable();
-            closeModal('deposit-modal');
-            showToast(`৳${amount} ডিপোজিট সফল হয়েছে!`, 'success');
-            document.getElementById('deposit-form').reset();
-        }
-
-        // Withdraw Handling
-        function handleWithdraw(e) {
-            e.preventDefault();
-            const method = document.getElementById('wit-method').value;
-            const account = document.getElementById('wit-account').value.trim();
-            const amount = parseFloat(document.getElementById('wit-amount').value);
-
-            if (amount > db.profiles.balance) {
-                showToast('আপনার পর্যাপ্ত ব্যালেন্স নেই', 'error');
-                return;
-            }
-
-            const record = {
-                id: generateUUID(),
-                user_id: db.profiles.id,
-                amount: amount,
-                payment_method: method,
-                account_number: account,
-                status: 'pending',
-                created_at: new Date().toISOString()
-            };
-
-            db.withdrawals.unshift(record);
-            db.profiles.balance -= amount;
-
-            updateUserUI();
-            renderWithdrawalsTable();
-            closeModal('withdraw-modal');
-            showToast(`৳${amount} উইথড্রয়াল প্রসেসিংয়ে আছে`, 'info');
-            document.getElementById('withdraw-form').reset();
-        }
-
-        // Update User UI Sync
-        function updateUserUI() {
-            // Update balance in local state
-            const topBal = document.getElementById('topBarBalance');
-            if (topBal) {
-                topBal.innerText = db.profiles.balance.toFixed(2);
-            }
-
-            const userNameDisplay = document.getElementById('user-name-display');
-            if (userNameDisplay) {
-                userNameDisplay.innerText = `ব্যবহারকারী: ${db.profiles.full_name}`;
-            }
-
-            // Profile Tab Sync
-            document.getElementById('prof-id').innerText = db.profiles.id;
-            document.getElementById('prof-name').innerText = db.profiles.full_name;
-            document.getElementById('prof-phone').innerText = db.profiles.phone_number;
-            document.getElementById('prof-balance').innerText = `৳${db.profiles.balance.toFixed(2)}`;
-            document.getElementById('prof-created').innerText = new Date(db.profiles.created_at).toLocaleDateString('bn-BD');
-        }
-
-        // Render Tables Data
-        function renderTables() {
-            renderBetsTable();
-            renderDepositsTable();
-            renderWithdrawalsTable();
-        }
-
-        function renderBetsTable() {
-            const tbody = document.getElementById('bets-table-body');
-            tbody.innerHTML = '';
-            if (db.bets.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-3 text-gray-500">কোনো বাজির রেকর্ড নেই</td></tr>`;
-                return;
-            }
-
-            db.bets.forEach(b => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-1.5">${b.target_number} nums</td>
-                    <td class="p-1.5 font-bold">${b.roll_result} hit</td>
-                    <td class="p-1.5">৳${b.bet_amount}</td>
-                    <td class="p-1.5 font-bold ${b.payout > 0 ? 'text-emerald-400' : 'text-gray-400'}">৳${b.payout.toFixed(1)}</td>
-                    <td class="p-1.5">${b.is_bool ? '<span class="text-emerald-400 font-bold">WIN</span>' : '<span class="text-rose-400">LOSS</span>'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function renderDepositsTable() {
-            const tbody = document.getElementById('deposits-table-body');
-            tbody.innerHTML = '';
-            if (db.deposits.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-3 text-gray-500">কোনো ডিপোজিট রেকর্ড নেই</td></tr>`;
-                return;
-            }
-
-            db.deposits.forEach(d => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-1.5 font-bold text-emerald-400">${d.payment_method}</td>
-                    <td class="p-1.5 text-[10px] text-gray-400">${d.transection_id}</td>
-                    <td class="p-1.5 font-bold">৳${d.amount}</td>
-                    <td class="p-1.5"><span class="bg-emerald-950 text-emerald-400 px-1.5 py-0.5 rounded text-[9px] border border-emerald-800">${d.status}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function renderWithdrawalsTable() {
-            const tbody = document.getElementById('withdrawals-table-body');
-            tbody.innerHTML = '';
-            if (db.withdrawals.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-3 text-gray-500">কোনো উইথড্রয়াল রেকর্ড নেই</td></tr>`;
-                return;
-            }
-
-            db.withdrawals.forEach(w => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-1.5 font-bold text-amber-400">${w.payment_method}</td>
-                    <td class="p-1.5 text-[10px] text-gray-400">${w.account_number}</td>
-                    <td class="p-1.5 font-bold">৳${w.amount}</td>
-                    <td class="p-1.5"><span class="bg-amber-950 text-amber-400 px-1.5 py-0.5 rounded text-[9px] border border-amber-800">${w.status}</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // Tab Switcher
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-emerald-600', 'text-white');
-                btn.classList.add('text-gray-400');
-            });
-
-            document.getElementById(tabId).classList.remove('hidden');
-            const activeBtn = document.getElementById(`tab-btn-${tabId.replace('-tab', '')}`);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-emerald-600', 'text-white');
-                activeBtn.classList.remove('text-gray-400');
-            }
-        }
-
-        // Modal Helpers
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
         }
 
         // Toast Messages
