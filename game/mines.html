@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,10 +57,11 @@
       width: 100%;
     }
 
+    /* Default deep gray tiles - less rounded */
     .tile {
-      background: #151a23;
+      background: #1c2330;
       border: 1px solid #2a3546;
-      border-radius: 12px;
+      border-radius: 6px;
       transition: all 0.2s ease-in-out;
       width: 100%;
       height: 100%;
@@ -74,17 +74,16 @@
     }
 
     .tile:hover:not(:disabled) {
-      background: #212936;
-      border-color: #24ee89;
-      transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(36, 238, 137, 0.25);
+      background: #252e3d;
+      border-color: #3a4658;
     }
 
-    /* Selected tile for Auto mode */
+    /* Selected tile for Auto mode - glassy green */
     .tile-selected {
-      background: #1a2e24 !important;
+      background: rgba(36, 238, 137, 0.18) !important;
       border: 2px solid #24ee89 !important;
-      box-shadow: 0 0 12px rgba(36, 238, 137, 0.4);
+      box-shadow: 0 0 14px rgba(36, 238, 137, 0.35), inset 0 0 12px rgba(36, 238, 137, 0.12);
+      backdrop-filter: blur(4px);
     }
 
     .tile-gem {
@@ -352,7 +351,7 @@
 
     function handleTileClick(index) {
       if (activeTab === 'auto' && gameState === 'idle' && !isAutoRunning) {
-        // Toggle selection for Auto
+        // Toggle selection for Auto → glassy green
         const idx = selectedTiles.indexOf(index);
         if (idx > -1) {
           selectedTiles.splice(idx, 1);
@@ -360,11 +359,11 @@
           selectedTiles.push(index);
         }
         renderGrid();
-        calculateNextMultiplier(); // update based on selected count
+        calculateNextMultiplier();
         return;
       }
 
-      // Manual mode reveal
+      // Manual mode reveal (after bet)
       if (activeTab === 'manual' && gameState === 'playing') {
         revealTile(index);
       }
@@ -396,7 +395,6 @@
 
     function calculateNextMultiplier() {
       const safeTiles = 25 - minesCount;
-      // In Auto use selected tiles count, in Manual use opened
       const count = (activeTab === 'auto' && gameState === 'idle') 
         ? selectedTiles.length 
         : openedTiles.length;
@@ -405,7 +403,6 @@
       for (let i = 0; i < count; i++) {
         mult *= (25 - i) / (safeTiles - i);
       }
-      // For next multiplier show one step ahead
       if (count < safeTiles) {
         mult *= (25 - count) / (safeTiles - count);
       }
@@ -626,7 +623,6 @@
           renderGrid();
         }, 1500);
       } else {
-        // Auto stopped
         btn.innerText = "Start Auto";
         btn.className = "w-full bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg";
         gameState = 'idle';
@@ -715,17 +711,17 @@
         return;
       }
 
-      // Reveal the user-selected tiles one by one
+      // Directly reveal selected tiles one by one (result shown immediately)
       for (let i = 0; i < selectedTiles.length; i++) {
         if (!isAutoRunning || gameState !== 'playing') break;
 
-        await new Promise(r => setTimeout(r, 350));
+        await new Promise(r => setTimeout(r, 300));
         await revealTile(selectedTiles[i]);
 
-        if (gameState !== 'playing') break; // hit bomb
+        if (gameState !== 'playing') break;
       }
 
-      // If still playing after all selected tiles revealed → cashout
+      // If still playing after all selected → cashout
       if (gameState === 'playing' && openedTiles.length > 0) {
         await cashout();
       }
@@ -740,4 +736,3 @@
   </script>
 </body>
 </html>
-```
