@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Asia Roulette - Live</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bgDark: '#0f141c',
+            cardDark: '#1a212d',
+            panelDark: '#212936',
+            inputBg: '#151a23',
+            bcGreen: '#24ee89',
+            bcGreenHover: '#1fd879',
+            bcRed: '#ed4245',
+            textGray: '#8596a6',
+            borderDark: '#2a3546'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background: #0f141c; }
+
+    /* Roulette Wheel */
+    .wheel-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 0 auto;
+    }
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(
+        #0a7a2f 0deg 9.73deg,
+        #d32f2f 9.73deg 19.46deg,
+        #1a1a1a 19.46deg 29.19deg,
+        #d32f2f 29.19deg 38.92deg,
+        #1a1a1a 38.92deg 48.65deg,
+        #d32f2f 48.65deg 58.38deg,
+        #1a1a1a 58.38deg 68.11deg,
+        #d32f2f 68.11deg 77.84deg,
+        #1a1a1a 77.84deg 87.57deg,
+        #d32f2f 87.57deg 97.3deg,
+        #1a1a1a 97.3deg 107.03deg,
+        #d32f2f 107.03deg 116.76deg,
+        #1a1a1a 116.76deg 126.49deg,
+        #d32f2f 126.49deg 136.22deg,
+        #1a1a1a 136.22deg 145.95deg,
+        #d32f2f 145.95deg 155.68deg,
+        #1a1a1a 155.68deg 165.41deg,
+        #d32f2f 165.41deg 175.14deg,
+        #1a1a1a 175.14deg 184.87deg,
+        #d32f2f 184.87deg 194.6deg,
+        #1a1a1a 194.6deg 204.33deg,
+        #d32f2f 204.33deg 214.06deg,
+        #1a1a1a 214.06deg 223.79deg,
+        #d32f2f 223.79deg 233.52deg,
+        #1a1a1a 233.52deg 243.25deg,
+        #d32f2f 243.25deg 252.98deg,
+        #1a1a1a 252.98deg 262.71deg,
+        #d32f2f 262.71deg 272.44deg,
+        #1a1a1a 272.44deg 282.17deg,
+        #d32f2f 282.17deg 291.9deg,
+        #1a1a1a 291.9deg 301.63deg,
+        #d32f2f 301.63deg 311.36deg,
+        #1a1a1a 311.36deg 321.09deg,
+        #d32f2f 321.09deg 330.82deg,
+        #1a1a1a 330.82deg 340.55deg,
+        #d32f2f 340.55deg 350.28deg,
+        #1a1a1a 350.28deg 360deg
+      );
+      box-shadow: 0 0 0 10px #2a3546, 0 0 0 14px #1a212d, 0 15px 40px rgba(0,0,0,0.6);
+      transition: transform 4s cubic-bezier(0.15, 0.05, 0.15, 1);
+    }
+    .wheel-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px; height: 60px;
+      background: #1a212d;
+      border-radius: 50%;
+      border: 4px solid #24ee89;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.1rem;
+      z-index: 10;
+      box-shadow: 0 0 15px rgba(36,238,137,0.4);
+    }
+    .pointer {
+      position: absolute;
+      top: -8px; left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 22px solid #24ee89;
+      z-index: 20;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+
+    .number-btn {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      transition: all 0.15s;
+      border: 2px solid transparent;
+    }
+    .number-btn.red { background: #c62828; }
+    .number-btn.black { background: #212121; }
+    .number-btn.green { background: #2e7d32; }
+    .number-btn.selected {
+      border-color: #24ee89;
+      box-shadow: 0 0 12px rgba(36,238,137,0.6);
+      transform: scale(1.08);
+    }
+    .chip {
+      position: absolute;
+      width: 22px; height: 22px;
+      background: #24ee89;
+      color: #0f141c;
+      border-radius: 50%;
+      font-size: 10px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+  </style>
+</head>
+<body class="bg-bgDark text-white min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- Top Bar -->
+  <div id="topBarContainer" class="sticky top-0 z-50"></div>
+
+  <main class="max-w-md w-full mx-auto p-3 space-y-3 pb-8 flex-1">
+
+    <!-- Timer + Status -->
+    <div class="bg-cardDark rounded-2xl p-3 flex justify-between items-center border border-borderDark">
+      <div class="text-xs text-textGray">Next Spin</div>
+      <div id="timerDisplay" class="text-xl font-black text-bcGreen">12.0s</div>
+      <div id="statusText" class="text-xs font-bold text-textGray">Betting...</div>
+    </div>
+
+    <!-- Wheel -->
+    <div class="bg-cardDark rounded-2xl p-4 border border-borderDark">
+      <div class="wheel-container">
+        <div class="pointer"></div>
+        <div id="wheel" class="wheel"></div>
+        <div class="wheel-center">
+          <span id="resultNumber">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Last Result -->
+    <div class="bg-cardDark rounded-xl p-2.5 flex justify-center items-center gap-3 border border-borderDark">
+      <span class="text-xs text-textGray">Last Result:</span>
+      <span id="lastResult" class="text-lg font-black text-white">-</span>
+    </div>
+
+    <!-- Chip Value Selector -->
+    <div class="bg-cardDark rounded-2xl p-3 border border-borderDark">
+      <div class="text-xs text-textGray mb-2 font-semibold">Chip Value</div>
+      <div class="flex gap-2">
+        <button onclick="setChip(10)" class="chip-btn flex-1 py-2 rounded-xl bg-panelDark text-xs font-bold border border-borderDark" data-value="10">৳10</button>
+        <button onclick="setChip(50)" class="chip-btn flex-1 py-2 rounded-xl bg-panelDark text-xs font-bold border border-borderDark" data-value="50">৳50</button>
+        <button onclick="setChip(100)" class="chip-btn flex-1 py-2 rounded-xl bg-panelDark text-xs font-bold border border-borderDark" data-value="100">৳100</button>
+        <button onclick="setChip(500)" class="chip-btn flex-1 py-2 rounded-xl bg-panelDark text-xs font-bold border border-borderDark" data-value="500">৳500</button>
+      </div>
+    </div>
+
+    <!-- Number Board (0-36) -->
+    <div class="bg-cardDark rounded-2xl p-3 border border-borderDark">
+      <div class="text-xs text-textGray mb-2 font-semibold flex justify-between">
+        <span>Place Your Bets</span>
+        <span id="totalBetDisplay" class="text-bcGreen">Total: ৳0</span>
+      </div>
+
+      <!-- Zero -->
+      <div class="mb-2">
+        <button onclick="placeBet(0)" class="number-btn green w-full h-12 relative" id="btn-0">
+          0
+          <span class="chip hidden" id="chip-0"></span>
+        </button>
+      </div>
+
+      <!-- 1-36 Grid -->
+      <div class="grid grid-cols-6 gap-1.5" id="numberBoard">
+        <!-- filled by JS -->
+      </div>
+
+      <div class="flex gap-2 mt-3">
+        <button onclick="clearBets()" class="flex-1 py-2.5 rounded-xl bg-panelDark text-xs font-bold border border-borderDark text-textGray">
+          Clear
+        </button>
+        <button onclick="repeatLastBet()" class="flex-1 py-2.5 rounded-xl bg-panelDark text-xs font-bold border border-borderDark text-textGray">
+          Repeat
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // ==================== CONFIG ====================
+    const SPIN_INTERVAL = 12;          // seconds
+    const SPIN_DURATION = 4;           // wheel animation seconds
+    const HOUSE_EDGE = 0.027;          // \~2.7% European
+    const PAYOUT = 35;                 // 35:1 for straight
+
+    // European order (for visual reference)
+    const RED_NUMBERS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+
+    // ==================== STATE ====================
+    let currentUserId = null;
+    let userBalance = 0;
+    let currentChip = 10;
+    let bets = {};                      // { number: amount }
+    let lastBets = {};
+    let isSpinning = false;
+    let timeLeft = SPIN_INTERVAL;
+    let timerInterval = null;
+    let currentRotation = 0;
+
+    // ==================== INIT ====================
+    async function loadTopBar() {
+      try {
+        const res = await fetch('../bar/top.html');
+        if (res.ok) {
+          document.getElementById('topBarContainer').innerHTML = await res.text();
+          document.querySelectorAll('a[href*="deposit"]').forEach(a => a.href = '../account/deposit.html');
+        }
+      } catch(e) {}
+    }
+
+    async function init() {
+      await loadTopBar();
+      try {
+        let user = null;
+        if (typeof requireAuth === 'function') user = await requireAuth();
+        else if (typeof getCurrentUser === 'function') user = await getCurrentUser();
+
+        if (user) {
+          currentUserId = user.id;
+          const { data } = await supabaseClient.from('profiles').select('balance').eq('id', user.id).single();
+          if (data) {
+            userBalance = parseFloat(data.balance) || 0;
+            updateBalanceUI();
+          }
+        }
+      } catch(e) { console.error(e); }
+
+      buildNumberBoard();
+      setChip(10);
+      startRoundTimer();
+    }
+
+    function updateBalanceUI() {
+      const el = document.getElementById('topBarBalance');
+      if (el) el.innerText = userBalance.toFixed(2);
+    }
+
+    // ==================== NUMBER BOARD ====================
+    function buildNumberBoard() {
+      const board = document.getElementById('numberBoard');
+      board.innerHTML = '';
+      for (let i = 1; i <= 36; i++) {
+        const color = RED_NUMBERS.includes(i) ? 'red' : 'black';
+        const btn = document.createElement('button');
+        btn.className = `number-btn ${color} relative`;
+        btn.id = `btn-${i}`;
+        btn.onclick = () => placeBet(i);
+        btn.innerHTML = `\( {i}<span class="chip hidden" id="chip- \){i}"></span>`;
+        board.appendChild(btn);
+      }
+    }
+
+    // ==================== CHIP & BET ====================
+    function setChip(val) {
+      currentChip = val;
+      document.querySelectorAll('.chip-btn').forEach(b => {
+        b.classList.remove('bg-bcGreen', 'text-bgDark');
+        b.classList.add('bg-panelDark', 'text-white');
+        if (parseInt(b.dataset.value) === val) {
+          b.classList.add('bg-bcGreen', 'text-bgDark');
+          b.classList.remove('bg-panelDark', 'text-white');
+        }
+      });
+    }
+
+    function placeBet(num) {
+      if (isSpinning || timeLeft < 2) return; // no bet in last 2s or while spinning
+
+      const cost = currentChip;
+      if (cost > userBalance) {
+        alert('পর্যাপ্ত ব্যালেন্স নেই!');
+        return;
+      }
+
+      // Deduct immediately
+      userBalance -= cost;
+      updateBalanceUI();
+      supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+
+      bets[num] = (bets[num] || 0) + cost;
+      updateChipDisplay(num);
+      updateTotalBet();
+    }
+
+    function updateChipDisplay(num) {
+      const chipEl = document.getElementById(`chip-${num}`);
+      const btn = document.getElementById(`btn-${num}`);
+      if (bets[num] > 0) {
+        chipEl.innerText = bets[num] >= 1000 ? (bets[num]/1000).toFixed(1)+'k' : bets[num];
+        chipEl.classList.remove('hidden');
+        btn.classList.add('selected');
+      } else {
+        chipEl.classList.add('hidden');
+        btn.classList.remove('selected');
+      }
+    }
+
+    function updateTotalBet() {
+      const total = Object.values(bets).reduce((a,b) => a+b, 0);
+      document.getElementById('totalBetDisplay').innerText = `Total: ৳${total}`;
+    }
+
+    function clearBets() {
+      // Refund all current bets
+      const total = Object.values(bets).reduce((a,b) => a+b, 0);
+      if (total > 0) {
+        userBalance += total;
+        updateBalanceUI();
+        supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+      }
+      bets = {};
+      for (let i = 0; i <= 36; i++) updateChipDisplay(i);
+      updateTotalBet();
+    }
+
+    function repeatLastBet() {
+      if (Object.keys(lastBets).length === 0) return;
+      clearBets();
+      for (const [num, amt] of Object.entries(lastBets)) {
+        currentChip = amt; // temporary
+        placeBet(parseInt(num));
+      }
+    }
+
+    // ==================== TIMER & SPIN ====================
+    function startRoundTimer() {
+      timeLeft = SPIN_INTERVAL;
+      isSpinning = false;
+      document.getElementById('statusText').innerText = 'Betting...';
+      document.getElementById('statusText').className = 'text-xs font-bold text-bcGreen';
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timeLeft -= 0.1;
+        document.getElementById('timerDisplay').innerText = Math.max(0, timeLeft).toFixed(1) + 's';
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          doSpin();
+        }
+      }, 100);
+    }
+
+    function doSpin() {
+      isSpinning = true;
+      document.getElementById('statusText').innerText = 'Spinning...';
+      document.getElementById('statusText').className = 'text-xs font-bold text-amber-400';
+
+      // Generate result 0-36
+      const result = Math.floor(Math.random() * 37);
+
+      // Calculate rotation (many full spins + land on number)
+      const extraSpins = 4 + Math.random() * 3;
+      const degreePerNumber = 360 / 37;
+      const targetDegree = result * degreePerNumber;
+      currentRotation += (extraSpins * 360) + (360 - targetDegree);
+
+      const wheel = document.getElementById('wheel');
+      wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+      // After animation finishes
+      setTimeout(() => {
+        showResult(result);
+      }, SPIN_DURATION * 1000);
+    }
+
+    async function showResult(result) {
+      document.getElementById('resultNumber').innerText = result;
+      document.getElementById('lastResult').innerText = result;
+      document.getElementById('lastResult').className = 
+        result === 0 ? 'text-lg font-black text-bcGreen' :
+        RED_NUMBERS.includes(result) ? 'text-lg font-black text-red-500' : 'text-lg font-black text-white';
+
+      document.getElementById('statusText').innerText = 'Result: ' + result;
+      document.getElementById('statusText').className = 'text-xs font-bold text-white';
+
+      // Calculate winnings
+      let totalWin = 0;
+      const betEntries = Object.entries(bets);
+
+      for (const [num, amount] of betEntries) {
+        if (parseInt(num) === result) {
+          const win = amount * (PAYOUT + 1); // stake + profit
+          totalWin += win;
+        }
+      }
+
+      if (totalWin > 0) {
+        userBalance += totalWin;
+        updateBalanceUI();
+        await supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+      }
+
+      // Save bets to database
+      if (currentUserId && betEntries.length > 0) {
+        for (const [num, amount] of betEntries) {
+          const won = parseInt(num) === result;
+          await supabaseClient.from('bets').insert([{
+            user_id: currentUserId,
+            target_number: parseInt(num),
+            roll_result: result,
+            bet_amount: amount,
+            payout: won ? PAYOUT : 0,
+            is_bool: won
+          }]);
+        }
+      }
+
+      // Keep last bets for repeat
+      lastBets = { ...bets };
+
+      // Clear current bets
+      bets = {};
+      for (let i = 0; i <= 36; i++) updateChipDisplay(i);
+      updateTotalBet();
+
+      // Start next round after short delay
+      setTimeout(() => {
+        startRoundTimer();
+      }, 2500);
+    }
+
+    // ==================== START ====================
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
