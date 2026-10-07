@@ -46,8 +46,8 @@
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
             background: #0f141c;
@@ -125,9 +125,9 @@
             <!-- Dynamic JavaScript tiles inserted here -->
         </div>
 
-        <!-- Dynamic Multipliers Preview Bar (Grid layout so all items stay visible without sliding) -->
-        <div id="multipliers-bar" class="grid grid-cols-5 gap-1 w-full py-1">
-            <div class="bg-panelDark border border-transparent text-textGray rounded-md py-1 px-1 text-center text-[11px] font-bold">Select numbers</div>
+        <!-- Dynamic Multipliers Preview Bar (Fixed in 1 horizontal scrollable/flex row) -->
+        <div id="multipliers-bar" class="flex items-center gap-1.5 w-full overflow-x-auto py-1 scrollbar-thin">
+            <div class="bg-panelDark border border-transparent text-textGray rounded-md py-1.5 px-3 text-center text-xs font-bold whitespace-nowrap flex-1">Select numbers</div>
         </div>
 
         <!-- Main Actions: Bet & Auto Pick -->
@@ -368,14 +368,14 @@
             }
         }
 
-        // Update Multipliers Preview Bar (Grid layout to show all items together nicely)
+        // Update Multipliers Preview Bar (Strictly 1 horizontal line fix)
         function updateMultiplierBarPreview() {
             const bar = document.getElementById('multipliers-bar');
             bar.innerHTML = '';
             const count = selectedNumbers.size;
 
             if (count === 0) {
-                bar.innerHTML = `<div class="bg-panelDark border border-transparent text-textGray rounded-md py-1.5 px-3 text-center text-xs font-bold col-span-5">Select numbers</div>`;
+                bar.innerHTML = `<div class="bg-panelDark border border-transparent text-textGray rounded-md py-1.5 px-3 text-center text-xs font-bold w-full">Select numbers</div>`;
                 return;
             }
 
@@ -383,7 +383,7 @@
             rates.forEach((rate, hits) => {
                 const item = document.createElement('div');
                 const isWinRate = rate > 0;
-                item.className = `${isWinRate ? 'bg-bcGreen/20 border-bcGreen text-bcGreen' : 'bg-panelDark border-transparent text-textGray'} border rounded-md py-1 px-1 text-center font-bold transition-all flex flex-col justify-center items-center`;
+                item.className = `${isWinRate ? 'bg-bcGreen/20 border-bcGreen text-bcGreen' : 'bg-panelDark border-transparent text-textGray'} border rounded-md py-1 px-2 text-center font-bold transition-all flex flex-col justify-center items-center shrink-0 min-w-[55px]`;
                 item.innerHTML = `<span class="text-[11px]">${rate.toFixed(2)}x</span><span class="text-[8px] opacity-70">${hits}x hit</span>`;
                 bar.appendChild(item);
             });
