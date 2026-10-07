@@ -179,12 +179,21 @@
     </div>
 
     <script>
-        // Game State Variables
+        // Global Game Variables
         let selectedNumbers = new Set();
         const maxSelections = 10;
         let isSpinning = false;
         let currentUserId = null;
         let currentBalance = 0.00;
+
+        // Helper function to safely get Supabase Client Instance
+        function getSupabaseInstance() {
+            if (typeof supabase !== 'undefined') return supabase;
+            if (typeof supabaseClient !== 'undefined') return supabaseClient;
+            if (window.supabase) return window.supabase;
+            if (window.supabaseClient) return window.supabaseClient;
+            return null;
+        }
 
         // Load Top Bar Component dynamically
         async function loadTopBar() {
@@ -219,46 +228,58 @@
             10: [0, 0.0, 0.0, 0.5, 2.0, 5.0, 10.0, 25.0, 80.0, 200.0, 500.0]
         };
 
-        // Initialize Supabase & Realtime User Balance Connection
-        async function initSupabaseAuthAndRealtime() {
+        // Initialize Supabase Connection and Subscribe to Realtime Updates
+        async function initSupabaseRealtime() {
+            const client = getSupabaseInstance();
+            if (!client) {
+                console.warn("Supabase Config File Not Found or Initialized properly!");
+                return;
+            }
+
             try {
-                const client = window.supabaseClient || window.supabase;
-                if (!client) return;
-
+                // Get Auth User
                 const { data: { user } } = await client.auth.getUser();
-                if (user) {
-                    currentUserId = user.id;
+                if (!user) {
+                    console.log("No User Logged In");
+                    return;
+                }
 
-                    // Initial balance fetch
-                    const { data: profile } = await client
-                        .from('profiles')
-                        .select('balance')
-                        .eq('id', currentUserId)
-                        .single();
+                currentUserId = user.id;
 
-                    if (profile) {
-                        currentBalance = parseFloat(profile.balance) || 0;
-                        updateUIBalance();
-                    }
+                // 1. Fetch Initial Profile Balance
+                const { data: profile, error } = await client
+                    .from('profiles')
+                    .select('balance')
+                    .eq('id', currentUserId)
+                    .single();
 
-                    // Realtime Balance Subscription from `profiles`
-                    client
-                        .channel('realtime-user-balance')
-                        .on('postgres_changes', {
+                if (profile) {
+                    currentBalance = parseFloat(profile.balance) || 0;
+                    updateUIBalance();
+                }
+
+                // 2. Realtime Listener on `profiles` table for current User
+                client
+                    .channel('keno-realtime-balance')
+                    .on(
+                        'postgres_changes',
+                        {
                             event: 'UPDATE',
                             schema: 'public',
                             table: 'profiles',
                             filter: `id=eq.${currentUserId}`
-                        }, (payload) => {
+                        },
+                        (payload) => {
                             if (payload.new && payload.new.balance !== undefined) {
                                 currentBalance = parseFloat(payload.new.balance) || 0;
                                 updateUIBalance();
                             }
-                        })
-                        .subscribe();
-                }
+                        }
+                    )
+                    .subscribe();
+
             } catch (err) {
-                console.error("Supabase Realtime Connection Error:", err);
+                console.error("Realtime Initialization Error:", err);
             }
         }
 
@@ -266,7 +287,7 @@
             await loadTopBar();
             renderGrid();
             updateBcdValue();
-            await initSupabaseAuthAndRealtime();
+            await initSupabaseRealtime();
         });
 
         // Render 1 to 40 Grid
@@ -376,7 +397,7 @@
             document.getElementById('bcd-equivalent').innerText = bcd;
         }
 
-        // Update Balance on Top Bar
+        // Update Balance on Top Bar DOM
         function updateUIBalance() {
             const topBal = document.getElementById('topBarBalance');
             if (topBal) {
@@ -384,7 +405,7 @@
             }
         }
 
-        // Main Bet Logic with Supabase Sync
+        // Main Bet Logic with Supabase Data Insertion & Update
         async function placeBet() {
             if (isSpinning) return;
 
@@ -406,9 +427,9 @@
                 return;
             }
 
-            const client = window.supabaseClient || window.supabase;
+            const client = getSupabaseInstance();
 
-            // Step 1: Deduct balance in Supabase
+            // Deduct balance from Database Profile
             currentBalance -= betAmount;
             updateUIBalance();
 
@@ -464,7 +485,7 @@
                 updateUIBalance();
                 showToast(`অভিনন্দন! ${matchCount} টি মিলেছে! আপনি পেয়েছেন ৳${payout.toFixed(2)} (${multiplier}x)`, 'success');
 
-                // Step 2: Add payout back to balance in Supabase if Win
+                // Win Payout Update in Database
                 if (client && currentUserId) {
                     await client
                         .from('profiles')
@@ -475,7 +496,7 @@
                 showToast(`দুঃখিত! ${matchCount} টি নম্বর মিলেছে। আবার চেষ্টা করুন।`, 'error');
             }
 
-            // Record Bet Entry in Supabase `bets` Table
+            // Insert Bet Record in Supabase `bets` Table
             if (client && currentUserId) {
                 await client
                     .from('bets')
