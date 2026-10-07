@@ -179,19 +179,19 @@
     </div>
 
     <script>
-        // Global Game Variables
+        // Game State Variables
         let selectedNumbers = new Set();
         const maxSelections = 10;
         let isSpinning = false;
         let currentUserId = null;
-        let currentBalance = 0.00;
+        let userBalance = 0.00;
 
-        // Helper function to safely get Supabase Client Instance
-        function getSupabaseInstance() {
-            if (typeof supabase !== 'undefined') return supabase;
+        // Helper to get client matching mines.html
+        function getClient() {
             if (typeof supabaseClient !== 'undefined') return supabaseClient;
-            if (window.supabase) return window.supabase;
+            if (typeof supabase !== 'undefined') return supabase;
             if (window.supabaseClient) return window.supabaseClient;
+            if (window.supabase) return window.supabase;
             return null;
         }
 
@@ -207,7 +207,6 @@
                             a.href = a.href.replace('admin/mem/member.html', 'mem/member.html');
                         }
                     });
-                    updateUIBalance();
                 }
             } catch (e) {
                 console.error("Top bar fetch error:", e);
@@ -228,67 +227,58 @@
             10: [0, 0.0, 0.0, 0.5, 2.0, 5.0, 10.0, 25.0, 80.0, 200.0, 500.0]
         };
 
-        // Initialize Supabase Connection and Subscribe to Realtime Updates
-        async function initSupabaseRealtime() {
-            const client = getSupabaseInstance();
-            if (!client) {
-                console.warn("Supabase Config File Not Found or Initialized properly!");
-                return;
-            }
-
+        // Exact init logic pattern from mines.html + Realtime subscription
+        async function init() {
+            await loadTopBar();
+            const client = getClient();
+            
             try {
-                // Get Auth User
-                const { data: { user } } = await client.auth.getUser();
-                if (!user) {
-                    console.log("No User Logged In");
-                    return;
+                let user = null;
+                if (typeof requireAuth === 'function') user = await requireAuth();
+                else if (typeof getCurrentUser === 'function') user = await getCurrentUser();
+                else if (client) {
+                    const { data } = await client.auth.getUser();
+                    user = data?.user;
                 }
 
-                currentUserId = user.id;
+                if (user && client) {
+                    currentUserId = user.id;
+                    
+                    // Fetch initial balance
+                    const { data: profile } = await client
+                        .from('profiles')
+                        .select('balance')
+                        .eq('id', user.id)
+                        .single();
 
-                // 1. Fetch Initial Profile Balance
-                const { data: profile, error } = await client
-                    .from('profiles')
-                    .select('balance')
-                    .eq('id', currentUserId)
-                    .single();
+                    if (profile) {
+                        userBalance = parseFloat(profile.balance) || 0;
+                        updateUIBalance(userBalance);
+                    }
 
-                if (profile) {
-                    currentBalance = parseFloat(profile.balance) || 0;
-                    updateUIBalance();
-                }
-
-                // 2. Realtime Listener on `profiles` table for current User
-                client
-                    .channel('keno-realtime-balance')
-                    .on(
-                        'postgres_changes',
-                        {
+                    // Setup Realtime Balance Update Listener
+                    client
+                        .channel('keno-balance-channel')
+                        .on('postgres_changes', {
                             event: 'UPDATE',
                             schema: 'public',
                             table: 'profiles',
-                            filter: `id=eq.${currentUserId}`
-                        },
-                        (payload) => {
+                            filter: `id=eq.${user.id}`
+                        }, (payload) => {
                             if (payload.new && payload.new.balance !== undefined) {
-                                currentBalance = parseFloat(payload.new.balance) || 0;
-                                updateUIBalance();
+                                userBalance = parseFloat(payload.new.balance) || 0;
+                                updateUIBalance(userBalance);
                             }
-                        }
-                    )
-                    .subscribe();
-
+                        })
+                        .subscribe();
+                }
             } catch (err) {
-                console.error("Realtime Initialization Error:", err);
+                console.error("Init Error:", err);
             }
-        }
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            await loadTopBar();
             renderGrid();
             updateBcdValue();
-            await initSupabaseRealtime();
-        });
+        }
 
         // Render 1 to 40 Grid
         function renderGrid() {
@@ -351,7 +341,7 @@
         function autoPick() {
             if (isSpinning) return;
             selectedNumbers.clear();
-            const count = Math.floor(Math.random() * 5) + 3; // pick 3 to 7 randomly
+            const count = Math.floor(Math.random() * 5) + 3;
             while (selectedNumbers.size < count) {
                 const randomNum = Math.floor(Math.random() * 40) + 1;
                 selectedNumbers.add(randomNum);
@@ -397,15 +387,13 @@
             document.getElementById('bcd-equivalent').innerText = bcd;
         }
 
-        // Update Balance on Top Bar DOM
-        function updateUIBalance() {
+        // Update Balance on Top Bar Target (topBarBalance ID)
+        function updateUIBalance(bal) {
             const topBal = document.getElementById('topBarBalance');
-            if (topBal) {
-                topBal.innerText = currentBalance.toFixed(2);
-            }
+            if (topBal) topBal.innerText = parseFloat(bal).toFixed(2);
         }
 
-        // Main Bet Logic with Supabase Data Insertion & Update
+        // Main Bet Logic with Supabase Sync
         async function placeBet() {
             if (isSpinning) return;
 
@@ -422,22 +410,19 @@
                 return;
             }
 
-            if (currentBalance < betAmount) {
+            if (userBalance < betAmount) {
                 showToast('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!', 'error');
                 return;
             }
 
-            const client = getSupabaseInstance();
+            const client = getClient();
 
-            // Deduct balance from Database Profile
-            currentBalance -= betAmount;
-            updateUIBalance();
+            // Deduct balance
+            userBalance -= betAmount;
+            updateUIBalance(userBalance);
 
             if (client && currentUserId) {
-                await client
-                    .from('profiles')
-                    .update({ balance: currentBalance })
-                    .eq('id', currentUserId);
+                await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
             }
 
             isSpinning = true;
@@ -459,10 +444,8 @@
                 await new Promise(r => setTimeout(r, 120));
 
                 if (selectedNumbers.has(num)) {
-                    // Match Hit!
                     tile.className = `aspect-square bg-yellow-400 text-black font-black text-base rounded-lg flex items-center justify-center shadow-lg ring-4 ring-yellow-200 scale-110 z-10`;
                 } else {
-                    // Miss
                     tile.className = `aspect-square bg-rose-600 text-white font-black text-base rounded-lg flex items-center justify-center shadow-md scale-100 opacity-90`;
                 }
             }
@@ -481,33 +464,27 @@
             const isWin = payout > 0;
 
             if (isWin) {
-                currentBalance += payout;
-                updateUIBalance();
+                userBalance += payout;
+                updateUIBalance(userBalance);
                 showToast(`অভিনন্দন! ${matchCount} টি মিলেছে! আপনি পেয়েছেন ৳${payout.toFixed(2)} (${multiplier}x)`, 'success');
 
-                // Win Payout Update in Database
                 if (client && currentUserId) {
-                    await client
-                        .from('profiles')
-                        .update({ balance: currentBalance })
-                        .eq('id', currentUserId);
+                    await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
                 }
             } else {
                 showToast(`দুঃখিত! ${matchCount} টি নম্বর মিলেছে। আবার চেষ্টা করুন।`, 'error');
             }
 
-            // Insert Bet Record in Supabase `bets` Table
+            // Insert Record in `bets` table
             if (client && currentUserId) {
-                await client
-                    .from('bets')
-                    .insert([{
-                        user_id: currentUserId,
-                        target_number: selCount,
-                        roll_result: matchCount,
-                        bet_amount: betAmount,
-                        payout: payout,
-                        is_bool: isWin
-                    }]);
+                await client.from('bets').insert([{
+                    user_id: currentUserId,
+                    target_number: selCount,
+                    roll_result: matchCount,
+                    bet_amount: betAmount,
+                    payout: payout,
+                    is_bool: isWin
+                }]);
             }
 
             // Push multiplier to top bar
@@ -563,6 +540,8 @@
                 toast.classList.add('translate-y-20', 'opacity-0');
             }, 3000);
         }
+
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
