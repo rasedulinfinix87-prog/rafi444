@@ -17,16 +17,18 @@
             theme: {
                 extend: {
                     colors: {
+                        bgDark: '#0f141c',
+                        cardDark: '#1a212d',
+                        panelDark: '#212936',
+                        inputBg: '#151a23',
+                        bcGreen: '#24ee89',
+                        bcGreenHover: '#1fd879',
+                        bcRed: '#ed4245',
+                        textGray: '#8596a6',
+                        borderDark: '#2a3546',
                         brand: {
-                            green: '#10b981',
-                            neon: '#00e701',
-                            darkGreen: '#059669',
-                            bg: '#181a20',
-                            card: '#222630',
-                            input: '#2b303c',
-                            tile: '#2f3542',
-                            tileActive: '#10b981',
-                            accent: '#374151'
+                            tile: '#2a313c',
+                            tileHover: '#343d4a'
                         }
                     }
                 }
@@ -37,7 +39,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f1115;
+            background-color: #0f141c;
             color: #f3f4f6;
             touch-action: manipulation;
         }
@@ -48,14 +50,14 @@
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #181a20;
+            background: #0f141c;
         }
         ::-webkit-scrollbar-thumb {
-            background: #374151;
+            background: #2a3546;
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #4b5563;
+            background: #343d4a;
         }
 
         /* Custom range slider styling */
@@ -71,8 +73,9 @@
             width: 100%;
             height: 8px;
             cursor: pointer;
-            background: #2b303c;
+            background: #151a23;
             border-radius: 4px;
+            border: 1px solid #2a3546;
         }
         input[type=range]::-webkit-slider-thumb {
             height: 20px;
@@ -85,30 +88,45 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         }
 
-        /* Glow effects */
-        .neon-glow {
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+        /* Tile Glow & Style Effects */
+        .tile-selected {
+            background: rgba(36, 238, 137, 0.22) !important;
+            border: 2px solid #24ee89 !important;
+            box-shadow: 0 0 14px rgba(36, 238, 137, 0.4), inset 0 0 10px rgba(36, 238, 137, 0.15) !important;
         }
-        .tile-pressed {
-            transform: scale(0.95);
+
+        .tile-hit {
+            background: linear-gradient(135deg, #1fd879 0%, #24ee89 100%) !important;
+            box-shadow: 0 0 18px rgba(36, 238, 137, 0.55) !important;
+        }
+
+        .tile-miss {
+            background: linear-gradient(135deg, #ed4245 0%, #b91c1c 100%) !important;
+            box-shadow: 0 0 20px rgba(237, 66, 69, 0.65) !important;
+        }
+
+        .keno-card-bg {
+            background: #1a212d;
+            border: 1px solid #2a3546;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 select-none">
+<body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 select-none selection:bg-bcGreen selection:text-bgDark">
 
     <!-- Top Navigation Header / Dynamic Anchor -->
     <div id="topBarContainer" class="w-full max-w-md sticky top-0 z-50 mb-3"></div>
 
     <!-- Main Game Container matching design layout -->
-    <main class="w-full max-w-md bg-brand-card border border-gray-800/80 rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6">
+    <main class="w-full max-w-md keno-card-bg rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6">
         
         <!-- Top Multipliers Bar -->
         <div id="multipliers-bar" class="grid grid-cols-5 gap-1.5 w-full">
-            <div class="bg-brand-neon/20 border border-emerald-500 text-emerald-400 rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">1.88x</div>
-            <div class="bg-brand-tile border border-transparent text-gray-400 rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">0.00x</div>
-            <div class="bg-brand-neon/20 border border-emerald-500 text-emerald-400 rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">4.45x</div>
-            <div class="bg-brand-neon/20 border border-emerald-500 text-emerald-400 rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">4.45x</div>
-            <div class="bg-brand-tile border border-transparent text-gray-400 rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">0.98x</div>
+            <div class="bg-bcGreen/20 border border-bcGreen text-bcGreen rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">1.88x</div>
+            <div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">0.00x</div>
+            <div class="bg-bcGreen/20 border border-bcGreen text-bcGreen rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">4.45x</div>
+            <div class="bg-bcGreen/20 border border-bcGreen text-bcGreen rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">4.45x</div>
+            <div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">0.98x</div>
         </div>
 
         <!-- 8x5 Number Tiles Grid (1 to 40) -->
@@ -117,41 +135,41 @@
         </div>
 
         <!-- Info / Selection Message Box -->
-        <div class="w-full bg-brand-input/90 border-b-2 border-emerald-500/80 rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-medium text-gray-300 shadow-inner" id="status-message">
+        <div class="w-full bg-inputBg border-b-2 border-bcGreen/80 rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-medium text-textGray shadow-inner" id="status-message">
             Select 1-10 numbers to play
         </div>
 
         <!-- Main Actions: Bet & Auto Pick -->
         <div class="flex flex-col space-y-2 pt-1">
-            <button id="bet-btn" onclick="placeBet()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold text-base rounded-xl transition-all shadow-lg active:scale-[0.99] flex items-center justify-center space-x-2">
+            <button id="bet-btn" onclick="placeBet()" class="w-full py-3.5 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black text-base rounded-xl transition-all shadow-lg active:scale-[0.99] flex items-center justify-center space-x-2 uppercase tracking-wider">
                 <span>Bet</span>
             </button>
 
-            <button onclick="autoPick()" class="w-full py-3 bg-brand-tile hover:bg-gray-700 text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center space-x-2 border border-gray-700/50 shadow-md">
-                <i class="fa-solid fa-wand-magic-sparkles text-gray-300 text-xs"></i>
+            <button onclick="autoPick()" class="w-full py-3 bg-panelDark hover:bg-borderDark text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center space-x-2 border border-borderDark shadow-md">
+                <i class="fa-solid fa-wand-magic-sparkles text-textGray text-xs"></i>
                 <span>Auto Pick</span>
             </button>
         </div>
 
         <!-- Amount Control Box -->
         <div class="flex flex-col space-y-1">
-            <div class="flex justify-between items-center text-xs text-gray-400 font-medium px-1">
+            <div class="flex justify-between items-center text-xs text-textGray font-semibold px-1">
                 <span class="flex items-center gap-1">Amount <i class="fa-regular fa-circle-question text-[10px]" title="Betting amount per round"></i></span>
-                <span class="text-gray-400 font-mono text-[11px]">≈<span id="bcd-equivalent">0.00001</span>BCD</span>
+                <span class="text-textGray font-mono text-[11px]">≈<span id="bcd-equivalent">0.00001</span>BCD</span>
             </div>
 
-            <div class="flex items-center bg-brand-input border border-gray-700/60 rounded-xl p-1.5 focus-within:border-emerald-500 transition-colors">
-                <div class="flex items-center pl-2 pr-1 text-emerald-400 font-bold text-base">
+            <div class="flex items-center bg-inputBg border border-borderDark rounded-xl p-1 focus-within:border-bcGreen transition-colors">
+                <div class="flex items-center pl-2 pr-1 text-bcGreen font-bold text-base">
                     ৳
                 </div>
                 <input type="number" id="bet-amount-input" value="10" min="1" step="1" oninput="updateBcdValue()" class="w-full bg-transparent text-white font-bold text-sm focus:outline-none px-1">
                 
                 <div class="flex items-center space-x-1 pl-1">
-                    <button onclick="halveBet()" class="bg-brand-tile hover:bg-gray-600 text-gray-300 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors">1/2</button>
-                    <button onclick="doubleBet()" class="bg-brand-tile hover:bg-gray-600 text-gray-300 text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors">2x</button>
-                    <div class="flex flex-col space-y-0.5 bg-brand-tile rounded-lg p-0.5 border border-gray-700">
-                        <button onclick="stepBet(5)" class="text-gray-400 hover:text-white text-[9px] px-1"><i class="fa-solid fa-chevron-up"></i></button>
-                        <button onclick="stepBet(-5)" class="text-gray-400 hover:text-white text-[9px] px-1"><i class="fa-solid fa-chevron-down"></i></button>
+                    <button onclick="halveBet()" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors">1/2</button>
+                    <button onclick="doubleBet()" class="bg-panelDark hover:bg-borderDark text-textGray hover:text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors">2x</button>
+                    <div class="flex flex-col space-y-0.5 bg-panelDark rounded-lg p-0.5 border border-borderDark">
+                        <button onclick="stepBet(5)" class="text-textGray hover:text-white text-[9px] px-1"><i class="fa-solid fa-chevron-up"></i></button>
+                        <button onclick="stepBet(-5)" class="text-textGray hover:text-white text-[9px] px-1"><i class="fa-solid fa-chevron-down"></i></button>
                     </div>
                 </div>
             </div>
@@ -159,22 +177,22 @@
 
         <!-- Row / Risk Slider -->
         <div class="flex flex-col space-y-1 pt-1">
-            <div class="flex justify-between items-center text-xs text-gray-400 px-1 font-medium">
+            <div class="flex justify-between items-center text-xs text-textGray px-1 font-semibold">
                 <span>Row</span>
-                <button onclick="clearTable()" class="text-gray-400 hover:text-emerald-400 underline underline-offset-2 text-xs transition-colors" id="clear-btn">Clear Table</button>
+                <button onclick="clearTable()" class="text-textGray hover:text-bcGreen underline underline-offset-2 text-xs transition-colors" id="clear-btn">Clear Table</button>
             </div>
-            <div class="flex items-center space-x-3 bg-brand-input/40 px-3 py-2 rounded-xl border border-gray-800">
-                <span class="text-xs font-bold text-gray-400" id="row-min">0</span>
+            <div class="flex items-center space-x-3 bg-inputBg px-3 py-2 rounded-xl border border-borderDark">
+                <span class="text-xs font-bold text-textGray" id="row-min">0</span>
                 <input type="range" id="row-slider" min="0" max="10" value="0" oninput="document.getElementById('row-val').innerText = this.value">
-                <span class="text-xs font-bold text-gray-400" id="row-val">0</span>
+                <span class="text-xs font-bold text-textGray" id="row-val">0</span>
             </div>
         </div>
 
     </main>
 
     <!-- Notification Toast Box -->
-    <div id="toast" class="fixed bottom-4 right-4 bg-gray-900 border border-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-20 opacity-0 z-50 flex items-center space-x-2">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <div id="toast" class="fixed bottom-4 right-4 bg-cardDark border border-bcGreen text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-20 opacity-0 z-50 flex items-center space-x-2">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-bcGreen"></i>
         <span id="toast-msg">Notification Message</span>
     </div>
 
@@ -287,7 +305,7 @@
             for (let i = 1; i <= 40; i++) {
                 const btn = document.createElement('button');
                 btn.id = `tile-${i}`;
-                btn.className = `aspect-square bg-brand-tile hover:bg-gray-600 border-b-2 border-black/40 text-white font-extrabold text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-md active:scale-95`;
+                btn.className = `aspect-square bg-[#2a313c] hover:bg-[#343d4a] border-none text-white font-extrabold text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.35)] active:scale-95`;
                 btn.innerText = i;
                 btn.onclick = () => toggleNumber(i);
                 grid.appendChild(btn);
@@ -318,9 +336,9 @@
                 if (!tile) continue;
 
                 if (selectedNumbers.has(i)) {
-                    tile.className = `aspect-square bg-brand-neon hover:bg-emerald-400 text-gray-950 font-black text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-lg neon-glow scale-105 border-b-2 border-emerald-800`;
+                    tile.className = `aspect-square text-white font-black text-sm sm:text-base rounded-lg transition-all flex items-center justify-center tile-selected scale-105`;
                 } else {
-                    tile.className = `aspect-square bg-brand-tile hover:bg-gray-600 border-b-2 border-black/40 text-white font-extrabold text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-md active:scale-95`;
+                    tile.className = `aspect-square bg-[#2a313c] hover:bg-[#343d4a] border-none text-white font-extrabold text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.35)] active:scale-95`;
                 }
             }
         }
@@ -330,10 +348,10 @@
             const msg = document.getElementById('status-message');
             if (selectedNumbers.size === 0) {
                 msg.innerText = "Select 1-10 numbers to play";
-                msg.className = "w-full bg-brand-input/90 border-b-2 border-emerald-500/80 rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-medium text-gray-300 shadow-inner";
+                msg.className = "w-full bg-inputBg border-b-2 border-bcGreen/80 rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-medium text-textGray shadow-inner";
             } else {
                 msg.innerText = `Selected ${selectedNumbers.size} of 10 numbers`;
-                msg.className = "w-full bg-emerald-950/40 border-b-2 border-emerald-400 rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-bold text-emerald-300 shadow-inner";
+                msg.className = "w-full bg-panelDark border-b-2 border-bcGreen rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-bold text-bcGreen shadow-inner";
             }
         }
 
@@ -444,9 +462,9 @@
                 await new Promise(r => setTimeout(r, 120));
 
                 if (selectedNumbers.has(num)) {
-                    tile.className = `aspect-square bg-yellow-400 text-black font-black text-base rounded-lg flex items-center justify-center shadow-lg ring-4 ring-yellow-200 scale-110 z-10`;
+                    tile.className = `aspect-square text-bgDark font-black text-base rounded-lg flex items-center justify-center tile-hit scale-110 z-10`;
                 } else {
-                    tile.className = `aspect-square bg-rose-600 text-white font-black text-base rounded-lg flex items-center justify-center shadow-md scale-100 opacity-90`;
+                    tile.className = `aspect-square text-white font-black text-base rounded-lg flex items-center justify-center tile-miss scale-100 opacity-90`;
                 }
             }
 
@@ -505,9 +523,9 @@
             const multStr = mult.toFixed(2) + 'x';
 
             if (mult > 0) {
-                newDiv.className = 'bg-brand-neon/20 border border-emerald-500 text-emerald-400 rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all';
+                newDiv.className = 'bg-bcGreen/20 border border-bcGreen text-bcGreen rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all';
             } else {
-                newDiv.className = 'bg-brand-tile border border-transparent text-gray-400 rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all';
+                newDiv.className = 'bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all';
             }
             newDiv.innerText = multStr;
 
@@ -526,13 +544,13 @@
             toastMsg.innerText = msg;
 
             if (type === 'success') {
-                toast.className = "fixed bottom-4 right-4 bg-gray-900 border border-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-0 opacity-100 z-50 flex items-center space-x-2";
-                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+                toast.className = "fixed bottom-4 right-4 bg-cardDark border border-bcGreen text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-0 opacity-100 z-50 flex items-center space-x-2";
+                toastIcon.className = "fa-solid fa-circle-check text-bcGreen";
             } else if (type === 'error') {
-                toast.className = "fixed bottom-4 right-4 bg-gray-900 border border-rose-500 text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-0 opacity-100 z-50 flex items-center space-x-2";
-                toastIcon.className = "fa-solid fa-circle-xmark text-rose-400";
+                toast.className = "fixed bottom-4 right-4 bg-cardDark border border-bcRed text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-0 opacity-100 z-50 flex items-center space-x-2";
+                toastIcon.className = "fa-solid fa-circle-xmark text-bcRed";
             } else {
-                toast.className = "fixed bottom-4 right-4 bg-gray-900 border border-sky-500 text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-0 opacity-100 z-50 flex items-center space-x-2";
+                toast.className = "fixed bottom-4 right-4 bg-cardDark border border-sky-500 text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-0 opacity-100 z-50 flex items-center space-x-2";
                 toastIcon.className = "fa-solid fa-circle-info text-sky-400";
             }
 
