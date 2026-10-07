@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,7 +48,7 @@
       box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
     }
 
-    /* Fixed equal size tiles - matching screenshot style */
+    /* Fixed equal size tiles */
     #minesGrid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -57,7 +58,6 @@
       width: 100%;
     }
 
-    /* Deep gray raised tiles like the screenshot */
     .tile {
       background: #2a313c;
       border: none;
@@ -88,7 +88,6 @@
       cursor: default;
     }
 
-    /* Selected tile for Auto mode - glassy green */
     .tile-selected {
       background: rgba(36, 238, 137, 0.22) !important;
       border: 2px solid #24ee89 !important;
@@ -141,6 +140,35 @@
       box-shadow: 0 20px 50px rgba(0,0,0,0.5);
       animation: popIn 0.25s ease;
     }
+
+    /* ========== Skeleton Loading ========== */
+    .skeleton {
+      background: linear-gradient(90deg, #1a212d 25%, #252e3a 50%, #1a212d 75%);
+      background-size: 200% 100%;
+      animation: skeleton-shimmer 1.4s ease-in-out infinite;
+      border-radius: 8px;
+    }
+
+    @keyframes skeleton-shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    #skeletonLoader {
+      display: block;
+    }
+    #mainContent {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+    #mainContent.loaded {
+      display: block;
+      opacity: 1;
+    }
+    #skeletonLoader.hidden {
+      display: none;
+    }
   </style>
 </head>
 <body class="bg-bgDark text-white min-h-screen flex flex-col font-sans antialiased selection:bg-bcGreen selection:text-bgDark">
@@ -156,8 +184,75 @@
     </div>
   </div>
 
-  <!-- Main Game Container -->
-  <main class="max-w-md w-full mx-auto p-3 sm:p-4 space-y-3 flex-1 pb-10">
+  <!-- ===================== SKELETON LOADER ===================== -->
+  <div id="skeletonLoader" class="max-w-md w-full mx-auto p-3 sm:p-4 space-y-3 flex-1 pb-10">
+    <!-- Grid Skeleton -->
+    <div class="mines-card-bg rounded-2xl p-3 sm:p-3.5">
+      <div class="grid grid-cols-5 gap-1.5 aspect-square w-full">
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+        <div class="skeleton w-full aspect-square rounded-lg"></div>
+      </div>
+    </div>
+
+    <!-- Multiplier Banner Skeleton -->
+    <div class="mines-card-bg rounded-2xl p-3 flex justify-between items-center">
+      <div class="skeleton h-4 w-28 rounded"></div>
+      <div class="skeleton h-4 w-24 rounded"></div>
+    </div>
+
+    <!-- Controls Skeleton -->
+    <div class="mines-card-bg rounded-2xl p-4 space-y-4">
+      <div class="space-y-2">
+        <div class="skeleton h-3 w-20 rounded"></div>
+        <div class="skeleton h-10 w-full rounded-xl"></div>
+      </div>
+      <div class="space-y-2">
+        <div class="skeleton h-3 w-16 rounded"></div>
+        <div class="skeleton h-3 w-full rounded"></div>
+      </div>
+      <div class="skeleton h-12 w-full rounded-xl"></div>
+      <div class="skeleton h-10 w-full rounded-xl"></div>
+    </div>
+  </div>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <main id="mainContent" class="max-w-md w-full mx-auto p-3 sm:p-4 space-y-3 flex-1 pb-10">
 
     <!-- 5x5 Mines Grid Board -->
     <div class="mines-card-bg rounded-2xl p-3 sm:p-3.5 shadow-2xl relative">
@@ -329,6 +424,13 @@
       } catch (e) { console.error(e); }
     }
 
+    function hideSkeleton() {
+      const skeleton = document.getElementById('skeletonLoader');
+      const main = document.getElementById('mainContent');
+      skeleton.classList.add('hidden');
+      main.classList.add('loaded');
+    }
+
     async function init() {
       await loadTopBar();
       try {
@@ -345,8 +447,11 @@
           }
         }
       } catch (err) { console.error("Init Error:", err); }
+
       renderGrid();
       calculateNextMultiplier();
+      // Hide skeleton after data ready
+      hideSkeleton();
     }
 
     function renderGrid() {
@@ -708,3 +813,4 @@
   </script>
 </body>
 </html>
+```
