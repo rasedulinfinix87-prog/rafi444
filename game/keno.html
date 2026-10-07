@@ -120,9 +120,9 @@
     <!-- Main Game Container matching design layout -->
     <main class="w-full max-w-md keno-card-bg rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6">
         
-        <!-- Dynamic Multipliers Preview Bar -->
-        <div id="multipliers-bar" class="flex gap-1.5 w-full overflow-x-auto py-1">
-            <div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 px-3 text-center text-xs sm:text-sm font-black transition-all flex-1">Select numbers</div>
+        <!-- Top Instruction Box (Formerly Select 1-10 numbers message) -->
+        <div class="w-full bg-inputBg border-b-2 border-bcGreen/80 rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-medium text-textGray shadow-inner" id="status-message">
+            Select 1-10 numbers to play
         </div>
 
         <!-- 8x5 Number Tiles Grid (1 to 40) -->
@@ -130,9 +130,9 @@
             <!-- Dynamic JavaScript tiles inserted here -->
         </div>
 
-        <!-- Info / Selection Message Box -->
-        <div class="w-full bg-inputBg border-b-2 border-bcGreen/80 rounded-xl py-3 px-4 text-center text-xs sm:text-sm font-medium text-textGray shadow-inner" id="status-message">
-            Select 1-10 numbers to play
+        <!-- Dynamic Multipliers Preview Bar (Moved from top to here) -->
+        <div id="multipliers-bar" class="flex gap-1.5 w-full overflow-x-auto py-1">
+            <div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 px-3 text-center text-xs sm:text-sm font-black transition-all flex-1">Select numbers</div>
         </div>
 
         <!-- Main Actions: Bet & Auto Pick -->
@@ -381,7 +381,7 @@
             const count = selectedNumbers.size;
 
             if (count === 0) {
-                bar.innerHTML = `<div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 px-3 text-center text-xs sm:text-sm font-black transition-all flex-1">Select 1-10 numbers</div>`;
+                bar.innerHTML = `<div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 px-3 text-center text-xs sm:text-sm font-black transition-all flex-1">Select numbers</div>`;
                 return;
             }
 
