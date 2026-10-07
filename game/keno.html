@@ -110,16 +110,6 @@
             border: 1px solid #2a3546;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
         }
-
-        /* Win Multiplier Popup Animation */
-        @keyframes popupBounce {
-            0% { transform: scale(0.8); opacity: 0; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .win-popup-anim {
-            animation: popupBounce 0.3s ease-out forwards;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 select-none selection:bg-bcGreen selection:text-bgDark">
@@ -128,14 +118,8 @@
     <div id="topBarContainer" class="w-full max-w-md sticky top-0 z-50 mb-3"></div>
 
     <!-- Main Game Container matching design layout -->
-    <main class="w-full max-w-md keno-card-bg rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6 relative">
+    <main class="w-full max-w-md keno-card-bg rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6">
         
-        <!-- Win Multiplier Popup (Placed right above the grid area) -->
-        <div id="win-popup" class="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-cardDark border border-bcGreen px-4 py-1.5 rounded-xl shadow-2xl flex flex-col items-center justify-center z-30 opacity-0 pointer-events-none transition-all duration-300">
-            <span id="popup-multiplier" class="text-bcGreen font-black text-xs sm:text-sm tracking-wide">0.00x</span>
-            <span id="popup-amount" class="text-white font-extrabold text-[11px] sm:text-xs">৳0.00</span>
-        </div>
-
         <!-- 8x5 Number Tiles Grid (1 to 40) -->
         <div id="number-grid" class="grid grid-cols-8 gap-1.5 sm:gap-2 w-full pt-1">
             <!-- Dynamic JavaScript tiles inserted here -->
@@ -198,12 +182,6 @@
         </div>
 
     </main>
-
-    <!-- Notification Toast Box -->
-    <div id="toast" class="fixed bottom-4 right-4 bg-cardDark border border-bcGreen text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-20 opacity-0 z-50 flex items-center space-x-2">
-        <i id="toast-icon" class="fa-solid fa-circle-check text-bcGreen"></i>
-        <span id="toast-msg">Notification Message</span>
-    </div>
 
     <script>
         // Game State Variables
@@ -346,7 +324,8 @@
             for (let i = 1; i <= 40; i++) {
                 const btn = document.createElement('button');
                 btn.id = `tile-${i}`;
-                btn.className = `aspect-square bg-[#2a313c] hover:bg-[#343d4a] border-none text-white font-extrabold text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.35)] active:scale-95`;
+                // Added relative positioning to contain the popover popup accurately inside the grid box top area
+                btn.className = `relative aspect-square bg-[#2a313c] hover:bg-[#343d4a] border-none text-white font-extrabold text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.35)] active:scale-95`;
                 btn.innerText = i;
                 btn.onclick = () => toggleNumber(i);
                 grid.appendChild(btn);
@@ -367,7 +346,6 @@
                 selectedNumbers.delete(num);
             } else {
                 if (selectedNumbers.size >= maxSelections) {
-                    showToast('সর্বোচ্চ ১০টি নম্বর নির্বাচন করতে পারবেন', 'warning');
                     return;
                 }
                 selectedNumbers.add(num);
@@ -376,16 +354,20 @@
             updateMultiplierBarPreview();
         }
 
-        // Update Grid Tile Styles
+        // Update Grid Tile Styles and clear previous win popups
         function updateGridVisuals() {
             for (let i = 1; i <= 40; i++) {
                 const tile = document.getElementById(`tile-${i}`);
                 if (!tile) continue;
 
+                // Remove existing popup if any during grid reset/update
+                const existingPopup = tile.querySelector('.win-popup');
+                if (existingPopup) existingPopup.remove();
+
                 if (selectedNumbers.has(i)) {
-                    tile.className = `aspect-square text-white font-black text-sm sm:text-base rounded-lg transition-all flex items-center justify-center tile-selected scale-105`;
+                    tile.className = `relative aspect-square text-white font-black text-sm sm:text-base rounded-lg transition-all flex items-center justify-center tile-selected scale-105`;
                 } else {
-                    tile.className = `aspect-square bg-[#2a313c] hover:bg-[#343d4a] border-none text-white font-extrabold text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.35)] active:scale-95`;
+                    tile.className = `relative aspect-square bg-[#2a313c] hover:bg-[#343d4a] border-none text-white font-extrabold text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.35)] active:scale-95`;
                 }
             }
         }
@@ -467,27 +449,11 @@
             if (topBal) topBal.innerText = parseFloat(bal).toFixed(2);
         }
 
-        // Show/Hide Grid Win Multiplier Popup
-        function showWinPopup(multiplier, amount) {
-            const popup = document.getElementById('win-popup');
-            document.getElementById('popup-multiplier').innerText = `${multiplier.toFixed(2)}x`;
-            document.getElementById('popup-amount').innerText = `৳${amount.toFixed(2)}`;
-            
-            popup.classList.remove('opacity-0', 'pointer-events-none');
-            popup.classList.add('opacity-100', 'win-popup-anim');
-
-            setTimeout(() => {
-                popup.classList.remove('opacity-100', 'win-popup-anim');
-                popup.classList.add('opacity-0', 'pointer-events-none');
-            }, 3000);
-        }
-
         // Main Bet Logic with House Edge & Anti-Win Control System
         async function placeBet() {
             if (isSpinning) return;
 
             if (selectedNumbers.size === 0) {
-                showToast('অন্তত ১টি নম্বর সিলেক্ট করুন!', 'error');
                 return;
             }
 
@@ -495,12 +461,10 @@
             const betAmount = parseFloat(betInput.value) || 0;
 
             if (betAmount <= 0) {
-                showToast('সঠিক বাজি পরিমাণ লিখুন', 'error');
                 return;
             }
 
             if (userBalance < betAmount) {
-                showToast('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!', 'error');
                 return;
             }
 
@@ -517,6 +481,15 @@
             isSpinning = true;
             document.getElementById('bet-btn').disabled = true;
             document.getElementById('bet-btn').classList.add('opacity-60');
+
+            // Clear previous popups before starting a new spin round
+            for (let i = 1; i <= 40; i++) {
+                const tile = document.getElementById(`tile-${i}`);
+                if (tile) {
+                    const pop = tile.querySelector('.win-popup');
+                    if (pop) pop.remove();
+                }
+            }
 
             totalGamesPlayed++;
 
@@ -563,9 +536,9 @@
                 await new Promise(r => setTimeout(r, 120));
 
                 if (selectedNumbers.has(num)) {
-                    tile.className = `aspect-square text-bgDark font-black text-base rounded-lg flex items-center justify-center tile-hit scale-110 z-10`;
+                    tile.className = `relative aspect-square text-bgDark font-black text-base rounded-lg flex items-center justify-center tile-hit scale-110 z-10`;
                 } else {
-                    tile.className = `aspect-square text-white font-black text-base rounded-lg flex items-center justify-center tile-miss scale-100 opacity-90`;
+                    tile.className = `relative aspect-square text-white font-black text-base rounded-lg flex items-center justify-center tile-miss scale-100 opacity-90`;
                 }
             }
 
@@ -581,7 +554,7 @@
             
             let multiplier = table[matchCount] || 0;
             if (profitMultiplier >= 5 && multiplier > 5) {
-                multiplier = 0.00;
+                multiplier = 0.00; 
             }
 
             const payout = betAmount * multiplier;
@@ -591,18 +564,29 @@
                 consecutiveWins++;
                 userBalance += payout;
                 updateUIBalance(userBalance);
-                
-                // Show the grid win popup if multiplier hits successfully
-                showWinPopup(multiplier, payout);
-
-                showToast(`অভিনন্দন! ${matchCount} টি মিলেছে! আপনি পেয়েছেন ৳${payout.toFixed(2)} (${multiplier}x)`, 'success');
 
                 if (client && currentUserId) {
                     await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
                 }
+
+                // Find a hit tile to place the winning popup over it
+                let hitTile = null;
+                selectedNumbers.forEach(n => {
+                    if (drawnNumbers.has(n) && !hitTile) {
+                        hitTile = document.getElementById(`tile-${n}`);
+                    }
+                });
+
+                // If a hit tile exists, display the small popup over it containing multiplier and win amount
+                if (hitTile) {
+                    const popup = document.createElement('div');
+                    // Positioning the popup neatly above the grid tile box
+                    popup.className = `win-popup absolute -top-9 left-1/2 -translate-x-1/2 bg-[#151a23] border border-bcGreen text-bcGreen px-1.5 py-0.5 rounded-md text-[10px] font-bold shadow-xl z-30 flex flex-col items-center whitespace-nowrap animate-bounce`;
+                    popup.innerHTML = `<span>${multiplier.toFixed(2)}x</span><span class="text-white text-[9px]">৳${payout.toFixed(2)}</span>`;
+                    hitTile.appendChild(popup);
+                }
             } else {
                 consecutiveWins = 0;
-                showToast(`দুঃখিত! ${matchCount} টি নম্বর মিলেছে। আবার চেষ্টা করুন।`, 'error');
             }
 
             // Insert Record in `bets` table
@@ -623,30 +607,6 @@
             isSpinning = false;
             document.getElementById('bet-btn').disabled = false;
             document.getElementById('bet-btn').classList.remove('opacity-60');
-        }
-
-        // Toast Messages
-        function showToast(msg, type = 'info') {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-msg');
-            const toastIcon = document.getElementById('toast-icon');
-
-            toastMsg.innerText = msg;
-
-            if (type === 'success') {
-                toast.className = "fixed bottom-4 right-4 bg-cardDark border border-bcGreen text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-0 opacity-100 z-50 flex items-center space-x-2";
-                toastIcon.className = "fa-solid fa-circle-check text-bcGreen";
-            } else if (type === 'error') {
-                toast.className = "fixed bottom-4 right-4 bg-cardDark border border-bcRed text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-0 opacity-100 z-50 flex items-center space-x-2";
-                toastIcon.className = "fa-solid fa-circle-xmark text-bcRed";
-            } else {
-                toast.className = "fixed bottom-4 right-4 bg-cardDark border border-sky-500 text-white px-4 py-2.5 rounded-xl text-xs shadow-2xl transition-all transform translate-y-0 opacity-100 z-50 flex items-center space-x-2";
-                toastIcon.className = "fa-solid fa-circle-info text-sky-400";
-            }
-
-            setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
         }
 
         document.addEventListener('DOMContentLoaded', init);
