@@ -120,13 +120,9 @@
     <!-- Main Game Container matching design layout -->
     <main class="w-full max-w-md keno-card-bg rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6">
         
-        <!-- Top Multipliers Bar -->
-        <div id="multipliers-bar" class="grid grid-cols-5 gap-1.5 w-full">
-            <div class="bg-bcGreen/20 border border-bcGreen text-bcGreen rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">1.88x</div>
-            <div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">0.00x</div>
-            <div class="bg-bcGreen/20 border border-bcGreen text-bcGreen rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">4.45x</div>
-            <div class="bg-bcGreen/20 border border-bcGreen text-bcGreen rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">4.45x</div>
-            <div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all">0.98x</div>
+        <!-- Dynamic Multipliers Preview Bar -->
+        <div id="multipliers-bar" class="flex gap-1.5 w-full overflow-x-auto py-1">
+            <div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 px-3 text-center text-xs sm:text-sm font-black transition-all flex-1">Select numbers</div>
         </div>
 
         <!-- 8x5 Number Tiles Grid (1 to 40) -->
@@ -175,16 +171,18 @@
             </div>
         </div>
 
-        <!-- Row / Risk Slider -->
+        <!-- Risk Level Selector -->
         <div class="flex flex-col space-y-1 pt-1">
             <div class="flex justify-between items-center text-xs text-textGray px-1 font-semibold">
-                <span>Row</span>
+                <span>Risk Level</span>
                 <button onclick="clearTable()" class="text-textGray hover:text-bcGreen underline underline-offset-2 text-xs transition-colors" id="clear-btn">Clear Table</button>
             </div>
-            <div class="flex items-center space-x-3 bg-inputBg px-3 py-2 rounded-xl border border-borderDark">
-                <span class="text-xs font-bold text-textGray" id="row-min">0</span>
-                <input type="range" id="row-slider" min="0" max="10" value="0" oninput="document.getElementById('row-val').innerText = this.value">
-                <span class="text-xs font-bold text-textGray" id="row-val">0</span>
+            <div class="flex items-center bg-inputBg rounded-xl border border-borderDark p-1">
+                <select id="risk-select" onchange="changeRiskLevel(this.value)" class="w-full bg-transparent text-white font-bold text-xs p-2 focus:outline-none cursor-pointer">
+                    <option value="classic" class="bg-cardDark text-white">Classic (Low)</option>
+                    <option value="medium" class="bg-cardDark text-white">Medium</option>
+                    <option value="high" class="bg-cardDark text-white">High</option>
+                </select>
             </div>
         </div>
 
@@ -203,6 +201,47 @@
         let isSpinning = false;
         let currentUserId = null;
         let userBalance = 0.00;
+        let currentRisk = 'classic';
+
+        // Multipliers based on Risk Level & Matched Count
+        const kenoPayouts = {
+            classic: {
+                1: [0.70, 1.85],
+                2: [0.00, 2.00, 3.80],
+                3: [0.00, 1.00, 1.10, 27.00],
+                4: [0.00, 0.50, 1.80, 4.00, 10.00],
+                5: [0.00, 0.20, 1.20, 3.00, 8.00, 20.00],
+                6: [0.00, 0.00, 1.00, 2.50, 6.00, 15.00, 45.00],
+                7: [0.00, 0.00, 0.50, 2.00, 4.50, 10.00, 30.00, 80.00],
+                8: [0.00, 0.00, 0.00, 1.50, 3.50, 8.00, 20.00, 50.00, 150.00],
+                9: [0.00, 0.00, 0.00, 1.00, 2.50, 6.00, 15.00, 40.00, 100.00, 300.00],
+                10: [0.00, 0.00, 1.10, 1.20, 1.30, 1.80, 3.50, 13.00, 50.00, 250.00, 1000.00]
+            },
+            medium: {
+                1: [0.40, 2.75],
+                2: [0.00, 1.80, 5.10],
+                3: [0.00, 0.00, 2.80, 47.50],
+                4: [0.00, 0.00, 1.70, 10.00, 80.00],
+                5: [0.00, 0.00, 1.40, 4.00, 14.00, 100.00],
+                6: [0.00, 0.00, 0.00, 3.00, 9.00, 180.00, 700.00],
+                7: [0.00, 0.00, 0.00, 2.00, 7.00, 30.00, 200.00, 800.00],
+                8: [0.00, 0.00, 0.00, 0.00, 5.00, 15.00, 50.00, 200.00, 1000.00],
+                9: [0.00, 0.00, 0.00, 0.00, 3.00, 10.00, 35.00, 150.00, 400.00, 1000.00],
+                10: [0.00, 0.00, 0.00, 1.60, 2.00, 4.00, 7.00, 26.00, 100.00, 500.00, 1000.00]
+            },
+            high: {
+                1: [0.00, 3.96],
+                2: [0.00, 0.00, 17.10],
+                3: [0.00, 0.00, 0.00, 81.50],
+                4: [0.00, 0.00, 0.00, 10.00, 250.00],
+                5: [0.00, 0.00, 0.00, 4.50, 40.00, 450.00],
+                6: [0.00, 0.00, 0.00, 0.00, 15.00, 150.00, 750.00],
+                7: [0.00, 0.00, 0.00, 0.00, 7.00, 40.00, 250.00, 850.00],
+                8: [0.00, 0.00, 0.00, 0.00, 0.00, 25.00, 90.00, 250.00, 1000.00],
+                9: [0.00, 0.00, 0.00, 0.00, 0.00, 10.00, 50.00, 200.00, 600.00, 1000.00],
+                10: [0.00, 0.00, 0.00, 0.00, 3.50, 8.00, 13.00, 63.00, 500.00, 800.00, 1000.00]
+            }
+        };
 
         // Helper to get client matching mines.html
         function getClient() {
@@ -231,21 +270,7 @@
             }
         }
 
-        // Multipliers based on matched count
-        const payoutRates = {
-            1: [0, 1.8],
-            2: [0, 1.2, 3.2],
-            3: [0, 1.0, 2.1, 5.5],
-            4: [0, 0.5, 1.8, 4.0, 10.0],
-            5: [0, 0.2, 1.2, 3.0, 8.0, 20.0],
-            6: [0, 0.0, 1.0, 2.5, 6.0, 15.0, 45.0],
-            7: [0, 0.0, 0.5, 2.0, 4.5, 10.0, 30.0, 80.0],
-            8: [0, 0.0, 0.0, 1.5, 3.5, 8.0, 20.0, 50.0, 150.0],
-            9: [0, 0.0, 0.0, 1.0, 2.5, 6.0, 15.0, 40.0, 100.0, 300.0],
-            10: [0, 0.0, 0.0, 0.5, 2.0, 5.0, 10.0, 25.0, 80.0, 200.0, 500.0]
-        };
-
-        // Exact init logic pattern from mines.html + Realtime subscription
+        // Init logic
         async function init() {
             await loadTopBar();
             const client = getClient();
@@ -262,7 +287,6 @@
                 if (user && client) {
                     currentUserId = user.id;
                     
-                    // Fetch initial balance
                     const { data: profile } = await client
                         .from('profiles')
                         .select('balance')
@@ -274,7 +298,6 @@
                         updateUIBalance(userBalance);
                     }
 
-                    // Setup Realtime Balance Update Listener
                     client
                         .channel('keno-balance-channel')
                         .on('postgres_changes', {
@@ -296,6 +319,7 @@
 
             renderGrid();
             updateBcdValue();
+            updateMultiplierBarPreview();
         }
 
         // Render 1 to 40 Grid
@@ -310,6 +334,12 @@
                 btn.onclick = () => toggleNumber(i);
                 grid.appendChild(btn);
             }
+        }
+
+        // Change Risk Mode
+        function changeRiskLevel(val) {
+            currentRisk = val;
+            updateMultiplierBarPreview();
         }
 
         // Toggle Selection
@@ -327,6 +357,7 @@
             }
             updateGridVisuals();
             updateStatusMsg();
+            updateMultiplierBarPreview();
         }
 
         // Update Grid Tile Styles
@@ -341,6 +372,27 @@
                     tile.className = `aspect-square bg-[#2a313c] hover:bg-[#343d4a] border-none text-white font-extrabold text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.35)] active:scale-95`;
                 }
             }
+        }
+
+        // Update Multipliers Preview Bar
+        function updateMultiplierBarPreview() {
+            const bar = document.getElementById('multipliers-bar');
+            bar.innerHTML = '';
+            const count = selectedNumbers.size;
+
+            if (count === 0) {
+                bar.innerHTML = `<div class="bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 px-3 text-center text-xs sm:text-sm font-black transition-all flex-1">Select 1-10 numbers</div>`;
+                return;
+            }
+
+            const rates = kenoPayouts[currentRisk][count] || [];
+            rates.forEach((rate, hits) => {
+                const item = document.createElement('div');
+                const isWinRate = rate > 0;
+                item.className = `${isWinRate ? 'bg-bcGreen/20 border-bcGreen text-bcGreen' : 'bg-panelDark border-transparent text-textGray'} border rounded-lg py-1 px-2 text-center text-xs font-bold transition-all min-w-[55px] flex-1 flex flex-col justify-center items-center`;
+                item.innerHTML = `<span>${rate.toFixed(2)}x</span><span class="text-[9px] opacity-70">${hits}x hit</span>`;
+                bar.appendChild(item);
+            });
         }
 
         // Status Message Banner
@@ -366,6 +418,7 @@
             }
             updateGridVisuals();
             updateStatusMsg();
+            updateMultiplierBarPreview();
         }
 
         // Clear Table
@@ -374,6 +427,7 @@
             selectedNumbers.clear();
             updateGridVisuals();
             updateStatusMsg();
+            updateMultiplierBarPreview();
         }
 
         // Amount Calculations
@@ -405,13 +459,13 @@
             document.getElementById('bcd-equivalent').innerText = bcd;
         }
 
-        // Update Balance on Top Bar Target (topBarBalance ID)
+        // Update Balance on Top Bar Target
         function updateUIBalance(bal) {
             const topBal = document.getElementById('topBarBalance');
             if (topBal) topBal.innerText = parseFloat(bal).toFixed(2);
         }
 
-        // Main Bet Logic with Supabase Sync
+        // Main Bet Logic
         async function placeBet() {
             if (isSpinning) return;
 
@@ -474,9 +528,9 @@
                 if (drawnNumbers.has(n)) matchCount++;
             });
 
-            // Calculate Multiplier
+            // Calculate Multiplier based on Risk Level & Pick Count
             const selCount = selectedNumbers.size;
-            const table = payoutRates[selCount] || [0];
+            const table = kenoPayouts[currentRisk][selCount] || [0];
             const multiplier = table[matchCount] || 0;
             const payout = betAmount * multiplier;
             const isWin = payout > 0;
@@ -505,34 +559,12 @@
                 }]);
             }
 
-            // Push multiplier to top bar
-            pushMultiplierBar(multiplier);
-
             // Reset after delay
             await new Promise(r => setTimeout(r, 1500));
             updateGridVisuals();
             isSpinning = false;
             document.getElementById('bet-btn').disabled = false;
             document.getElementById('bet-btn').classList.remove('opacity-60');
-        }
-
-        // Push top recent multipliers
-        function pushMultiplierBar(mult) {
-            const bar = document.getElementById('multipliers-bar');
-            const newDiv = document.createElement('div');
-            const multStr = mult.toFixed(2) + 'x';
-
-            if (mult > 0) {
-                newDiv.className = 'bg-bcGreen/20 border border-bcGreen text-bcGreen rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all';
-            } else {
-                newDiv.className = 'bg-panelDark border border-transparent text-textGray rounded-lg py-1.5 text-center text-xs sm:text-sm font-black transition-all';
-            }
-            newDiv.innerText = multStr;
-
-            bar.insertBefore(newDiv, bar.firstChild);
-            if (bar.children.length > 5) {
-                bar.removeChild(bar.lastChild);
-            }
         }
 
         // Toast Messages
