@@ -11,62 +11,140 @@
   <script src="../supabase-config.js"></script>
 
   <style>
-    body { background: #0b0e14; margin: 0; font-family: system-ui, sans-serif; color: white; }
+    body { background: #0b0e14; margin: 0; font-family: system-ui, sans-serif; color: white; overflow-x: hidden; }
 
-    /* Wheel */
-    .wheel-box {
+    /* ========== REAL WHEEL ========== */
+    .wheel-wrapper {
       position: relative;
-      width: 220px;
-      height: 220px;
+      width: 260px;
+      height: 260px;
       margin: 0 auto;
     }
     .wheel {
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: conic-gradient(
-        #0d5c26 0deg 9.73deg, #c62828 9.73deg 19.46deg, #1a1a1a 19.46deg 29.19deg,
-        #c62828 29.19deg 38.92deg, #1a1a1a 38.92deg 48.65deg, #c62828 48.65deg 58.38deg,
-        #1a1a1a 58.38deg 68.11deg, #c62828 68.11deg 77.84deg, #1a1a1a 77.84deg 87.57deg,
-        #c62828 87.57deg 97.3deg, #1a1a1a 97.3deg 107.03deg, #c62828 107.03deg 116.76deg,
-        #1a1a1a 116.76deg 126.49deg, #c62828 126.49deg 136.22deg, #1a1a1a 136.22deg 145.95deg,
-        #c62828 145.95deg 155.68deg, #1a1a1a 155.68deg 165.41deg, #c62828 165.41deg 175.14deg,
-        #1a1a1a 175.14deg 184.87deg, #c62828 184.87deg 194.6deg, #1a1a1a 194.6deg 204.33deg,
-        #c62828 204.33deg 214.06deg, #1a1a1a 214.06deg 223.79deg, #c62828 223.79deg 233.52deg,
-        #1a1a1a 233.52deg 243.25deg, #c62828 243.25deg 252.98deg, #1a1a1a 252.98deg 262.71deg,
-        #c62828 262.71deg 272.44deg, #1a1a1a 272.44deg 282.17deg, #c62828 282.17deg 291.9deg,
-        #1a1a1a 291.9deg 301.63deg, #c62828 301.63deg 311.36deg, #1a1a1a 311.36deg 321.09deg,
-        #c62828 321.09deg 330.82deg, #1a1a1a 330.82deg 340.55deg, #c62828 340.55deg 350.28deg,
-        #1a1a1a 350.28deg 360deg
-      );
-      box-shadow: 0 0 0 8px #2a2f3a, 0 0 0 12px #1a1f2a, 0 10px 30px rgba(0,0,0,0.7);
-      transition: transform 4s cubic-bezier(0.15, 0.05, 0.15, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 0 8px #2a2f3a, 0 0 0 12px #1a1f2a, 0 12px 35px rgba(0,0,0,0.7);
+      transition: transform 4.2s cubic-bezier(0.15, 0.05, 0.12, 1);
+    }
+    .wheel-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      position: absolute;
+      top: 0; left: 0;
+    }
+    .segment {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      left: 50%;
+      top: 0;
+      transform-origin: 0% 100%;
+      clip-path: polygon(0 100%, 100% 100%, 50% 0);
+    }
+    .segment span {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%) rotate(90deg);
+      font-size: 11px;
+      font-weight: 800;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
     }
     .wheel-center {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 48px; height: 48px;
-      background: #1a1f2a;
+      width: 52px; height: 52px;
+      background: #111827;
       border-radius: 50%;
       border: 3px solid #24ee89;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 1rem;
-      z-index: 5;
+      font-size: 1.1rem;
+      z-index: 20;
+      box-shadow: 0 0 15px rgba(36,238,137,0.45);
     }
     .pointer {
       position: absolute;
-      top: -6px; left: 50%;
+      top: -2px; left: 50%;
       transform: translateX(-50%);
       width: 0; height: 0;
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-top: 18px solid #24ee89;
-      z-index: 10;
+      border-left: 11px solid transparent;
+      border-right: 11px solid transparent;
+      border-top: 20px solid #24ee89;
+      z-index: 30;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
     }
+
+    /* Timer Popup */
+    .timer-popup {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(36,238,137,0.3);
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #24ee89;
+      z-index: 40;
+    }
+
+    /* Result Popup */
+    .result-popup {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.6);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(12px);
+      border: 2px solid #24ee89;
+      border-radius: 20px;
+      padding: 24px 40px;
+      font-size: 3rem;
+      font-weight: 900;
+      color: white;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+    .result-popup.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* History */
+    .history-bar {
+      display: flex;
+      flex-direction: row-reverse;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 8px 0;
+      scrollbar-width: none;
+    }
+    .history-bar::-webkit-scrollbar { display: none; }
+    .hist-item {
+      min-width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .hist-red { background: #c62828; }
+    .hist-black { background: #212121; }
+    .hist-green { background: #2e7d32; }
 
     /* Table */
     .table-wrap {
@@ -128,22 +206,35 @@
   <!-- Top Bar -->
   <div id="topBarContainer" class="sticky top-0 z-50"></div>
 
-  <main class="max-w-md w-full mx-auto px-2 pb-6 flex-1">
+  <!-- Result Popup -->
+  <div id="resultPopup" class="result-popup">36</div>
 
-    <!-- Status Bar -->
+  <main class="max-w-md w-full mx-auto px-2 pb-6 flex-1 relative">
+
+    <!-- Status -->
     <div class="flex justify-between items-center py-2 text-xs">
-      <div class="text-gray-400">Next Spin: <span id="timer" class="text-green-400 font-bold">12.0s</span></div>
+      <div class="text-gray-400">Asia Roulette</div>
       <div id="status" class="text-green-400 font-bold">Betting Open</div>
     </div>
 
     <!-- Wheel Section -->
-    <div class="bg-[#141a22] rounded-xl p-3 mb-3">
-      <div class="wheel-box">
+    <div class="bg-[#141a22] rounded-xl p-3 mb-2 relative">
+      <!-- Small Timer Popup -->
+      <div class="timer-popup">
+        <span id="timer">12.0</span>s
+      </div>
+
+      <div class="wheel-wrapper">
         <div class="pointer"></div>
-        <div id="wheel" class="wheel"></div>
+        <div id="wheel" class="wheel">
+          <div id="wheelInner" class="wheel-inner"></div>
+        </div>
         <div class="wheel-center"><span id="resultNum">-</span></div>
       </div>
     </div>
+
+    <!-- History (newest on left) -->
+    <div class="history-bar mb-3" id="historyBar"></div>
 
     <!-- Hot / Cold -->
     <div class="flex gap-2 mb-3 text-[10px]">
@@ -159,26 +250,20 @@
 
     <!-- Betting Table -->
     <div class="table-wrap mb-3">
-      <!-- Top zeros + numbers -->
-      <div class="grid grid-cols-[32px_1fr] ">
-        <!-- 0 and 00 -->
+      <div class="grid grid-cols-[32px_1fr]">
         <div class="flex flex-col">
           <div class="cell green h-10 border border-[#1a2a1a]" onclick="placeBet('00')" id="cell-00">00</div>
           <div class="cell green h-10 border border-[#1a2a1a]" onclick="placeBet('0')" id="cell-0">0</div>
         </div>
-
-        <!-- Main numbers 1-36 -->
         <div class="grid grid-cols-12 grid-rows-3" id="mainNumbers"></div>
       </div>
 
-      <!-- Dozens -->
       <div class="grid grid-cols-3 h-9">
         <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('1st12')" id="cell-1st12">1st 12</div>
         <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('2nd12')" id="cell-2nd12">2nd 12</div>
         <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('3rd12')" id="cell-3rd12">3rd 12</div>
       </div>
 
-      <!-- Outside bets -->
       <div class="grid grid-cols-6 h-9">
         <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('1-18')" id="cell-1-18">1-18</div>
         <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('even')" id="cell-even">EVEN</div>
@@ -189,7 +274,7 @@
       </div>
     </div>
 
-    <!-- Chip Selector + Info -->
+    <!-- Bottom Info + Chips -->
     <div class="bg-[#141a22] rounded-xl p-3">
       <div class="flex justify-between items-center mb-3 text-xs">
         <div>Cash: <span id="balanceText" class="text-green-400 font-bold">BDT 0.00</span></div>
@@ -210,24 +295,19 @@
         <button onclick="repeatBet()" class="flex-1 py-2.5 rounded-lg bg-[#1e2633] text-xs font-bold text-gray-300">REBET</button>
       </div>
     </div>
-
   </main>
 
   <script>
     // ========== CONFIG ==========
     const ROUND_TIME = 12;
-    const SPIN_TIME = 4;
-    const PAYOUTS = {
-      straight: 35,
-      dozen: 2,
-      column: 2,
-      evenodd: 1,
-      redblack: 1,
-      highlow: 1
-    };
+    const SPIN_TIME = 4.2;
 
+    // American Roulette order (clockwise)
+    const WHEEL_ORDER = [
+      0,28,9,26,30,11,7,20,32,17,5,22,34,15,3,24,36,13,1,
+      '00',27,10,25,29,12,8,19,31,18,6,21,33,16,4,23,35,14,2
+    ];
     const RED = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
-    const NUMBERS = [0, '00', ...Array.from({length:36}, (_,i)=>i+1)];
 
     // ========== STATE ==========
     let userId = null;
@@ -245,9 +325,7 @@
     async function loadTopBar() {
       try {
         const res = await fetch('../bar/top.html');
-        if (res.ok) {
-          document.getElementById('topBarContainer').innerHTML = await res.text();
-        }
+        if (res.ok) document.getElementById('topBarContainer').innerHTML = await res.text();
       } catch(e) {}
     }
 
@@ -265,12 +343,12 @@
             updateBalance();
           }
         }
-      } catch(e) { console.error(e); }
+      } catch(e) {}
 
+      buildWheel();
       buildTable();
       setChip(10);
       startTimer();
-      updateHotCold();
     }
 
     function updateBalance() {
@@ -279,16 +357,35 @@
       if (top) top.innerText = balance.toFixed(2);
     }
 
+    // ========== REAL WHEEL WITH NUMBERS ==========
+    function buildWheel() {
+      const inner = document.getElementById('wheelInner');
+      inner.innerHTML = '';
+      const total = WHEEL_ORDER.length; // 38
+      const angle = 360 / total;
+
+      WHEEL_ORDER.forEach((num, i) => {
+        const seg = document.createElement('div');
+        seg.className = 'segment';
+        const color = (num === 0 || num === '00') ? '#0d5c26' : (RED.includes(num) ? '#c62828' : '#1a1a1a');
+        seg.style.background = color;
+        seg.style.transform = `rotate(${i * angle}deg)`;
+        
+        const span = document.createElement('span');
+        span.innerText = num;
+        seg.appendChild(span);
+        inner.appendChild(seg);
+      });
+    }
+
     // ========== TABLE ==========
     function buildTable() {
       const container = document.getElementById('mainNumbers');
-      // Layout: 3 rows × 12 cols (European/American style)
       const order = [
         [3,6,9,12,15,18,21,24,27,30,33,36],
         [2,5,8,11,14,17,20,23,26,29,32,35],
         [1,4,7,10,13,16,19,22,25,28,31,34]
       ];
-
       order.forEach(row => {
         row.forEach(n => {
           const color = RED.includes(n) ? 'red' : 'black';
@@ -302,7 +399,7 @@
       });
     }
 
-    // ========== CHIP & BET ==========
+    // ========== BETTING ==========
     function setChip(val) {
       chip = val;
       document.querySelectorAll('.chip-btn').forEach(b => {
@@ -312,10 +409,7 @@
 
     function placeBet(target) {
       if (isSpinning || timeLeft < 1.5) return;
-      if (chip > balance) {
-        alert('Insufficient balance!');
-        return;
-      }
+      if (chip > balance) return alert('Insufficient balance!');
 
       balance -= chip;
       updateBalance();
@@ -327,10 +421,8 @@
     }
 
     function renderChips() {
-      // clear old
       document.querySelectorAll('.chip-on').forEach(e => e.remove());
       document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
-
       for (const [key, amount] of Object.entries(bets)) {
         const cell = document.getElementById(`cell-${key}`);
         if (!cell) continue;
@@ -378,7 +470,7 @@
       clearInterval(timer);
       timer = setInterval(() => {
         timeLeft -= 0.1;
-        document.getElementById('timer').innerText = Math.max(0, timeLeft).toFixed(1) + 's';
+        document.getElementById('timer').innerText = Math.max(0, timeLeft).toFixed(1);
         if (timeLeft <= 0) {
           clearInterval(timer);
           spin();
@@ -391,12 +483,15 @@
       document.getElementById('status').innerText = 'No More Bets';
       document.getElementById('status').className = 'text-yellow-400 font-bold';
 
-      // American: 0, 00, 1-36 → 38 numbers
-      const resultPool = [0, '00', ...Array.from({length:36},(_,i)=>i+1)];
-      const result = resultPool[Math.floor(Math.random() * resultPool.length)];
+      const result = WHEEL_ORDER[Math.floor(Math.random() * WHEEL_ORDER.length)];
+      const index = WHEEL_ORDER.indexOf(result);
+      const anglePer = 360 / WHEEL_ORDER.length;
 
-      const extra = 5 + Math.random() * 3;
-      rotation += extra * 360 + Math.random() * 360;
+      // Spin many times + land on the number
+      const extraSpins = 6 + Math.random() * 3;
+      const targetAngle = 360 - (index * anglePer) - (anglePer / 2);
+      rotation += extraSpins * 360 + targetAngle;
+
       document.getElementById('wheel').style.transform = `rotate(${rotation}deg)`;
 
       setTimeout(() => finishSpin(result), SPIN_TIME * 1000);
@@ -404,22 +499,26 @@
 
     async function finishSpin(result) {
       document.getElementById('resultNum').innerText = result;
-      document.getElementById('status').innerText = 'Result: ' + result;
-      document.getElementById('status').className = 'text-white font-bold';
 
+      // Show result popup
+      const popup = document.getElementById('resultPopup');
+      popup.innerText = result;
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 2000);
+
+      // History (newest left)
       history.unshift(result);
-      if (history.length > 20) history.pop();
+      if (history.length > 15) history.pop();
+      renderHistory();
       updateHotCold();
 
-      // Calculate win
+      // Win calculation
       let winAmount = 0;
       for (const [target, amount] of Object.entries(bets)) {
         if (checkWin(target, result)) {
-          const mult = getPayout(target);
-          winAmount += amount * (mult + 1);
+          winAmount += amount * (getPayout(target) + 1);
         }
       }
-
       if (winAmount > 0) {
         balance += winAmount;
         updateBalance();
@@ -427,7 +526,7 @@
       }
       document.getElementById('lastWin').innerText = 'BDT ' + winAmount.toFixed(2);
 
-      // Save to bets table
+      // Save bets
       if (userId && Object.keys(bets).length) {
         for (const [target, amount] of Object.entries(bets)) {
           const won = checkWin(target, result);
@@ -447,7 +546,15 @@
       renderChips();
       updateTotalBet();
 
-      setTimeout(startTimer, 2500);
+      setTimeout(startTimer, 2800);
+    }
+
+    function renderHistory() {
+      const bar = document.getElementById('historyBar');
+      bar.innerHTML = history.map(n => {
+        const cls = (n === 0 || n === '00') ? 'hist-green' : (RED.includes(n) ? 'hist-red' : 'hist-black');
+        return `<div class="hist-item \( {cls}"> \){n}</div>`;
+      }).join('');
     }
 
     function checkWin(target, result) {
@@ -466,17 +573,17 @@
     }
 
     function getPayout(target) {
-      if (!isNaN(target) || target === '00') return PAYOUTS.straight;
-      if (['1st12','2nd12','3rd12'].includes(target)) return PAYOUTS.dozen;
-      return PAYOUTS.evenodd;
+      if (!isNaN(target) || target === '00') return 35;
+      if (['1st12','2nd12','3rd12'].includes(target)) return 2;
+      return 1;
     }
 
     function updateHotCold() {
       const count = {};
       history.forEach(n => count[n] = (count[n] || 0) + 1);
-      const sorted = Object.entries(count).sort((a,b) => b[1]-a[1]);
-      document.getElementById('hotNums').innerHTML = sorted.slice(0,5).map(([n]) => `<span>${n}</span>`).join('');
-      document.getElementById('coldNums').innerHTML = sorted.slice(-5).reverse().map(([n]) => `<span>${n}</span>`).join('') || '-';
+      const sorted = Object.entries(count).sort((a,b) => b[1] - a[1]);
+      document.getElementById('hotNums').innerHTML = sorted.slice(0,5).map(([n]) => `<span>${n}</span>`).join(' ');
+      document.getElementById('coldNums').innerHTML = sorted.slice(-5).reverse().map(([n]) => `<span>${n}</span>`).join(' ') || '-';
     }
 
     document.addEventListener('DOMContentLoaded', init);
