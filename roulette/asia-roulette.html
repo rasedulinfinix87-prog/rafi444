@@ -3,41 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Asia Roulette - Live</title>
+  <title>Asia Roulette</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            bgDark: '#0f141c',
-            cardDark: '#1a212d',
-            panelDark: '#212936',
-            inputBg: '#151a23',
-            bcGreen: '#24ee89',
-            bcGreenHover: '#1fd879',
-            bcRed: '#ed4245',
-            textGray: '#8596a6',
-            borderDark: '#2a3546'
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
-    body { background: #0f141c; }
+    body { background: #0b0e14; margin: 0; font-family: system-ui, sans-serif; color: white; }
 
-    /* Roulette Wheel */
-    .wheel-container {
+    /* Wheel */
+    .wheel-box {
       position: relative;
-      width: 280px;
-      height: 280px;
+      width: 220px;
+      height: 220px;
       margin: 0 auto;
     }
     .wheel {
@@ -45,210 +25,228 @@
       height: 100%;
       border-radius: 50%;
       background: conic-gradient(
-        #0a7a2f 0deg 9.73deg,
-        #d32f2f 9.73deg 19.46deg,
-        #1a1a1a 19.46deg 29.19deg,
-        #d32f2f 29.19deg 38.92deg,
-        #1a1a1a 38.92deg 48.65deg,
-        #d32f2f 48.65deg 58.38deg,
-        #1a1a1a 58.38deg 68.11deg,
-        #d32f2f 68.11deg 77.84deg,
-        #1a1a1a 77.84deg 87.57deg,
-        #d32f2f 87.57deg 97.3deg,
-        #1a1a1a 97.3deg 107.03deg,
-        #d32f2f 107.03deg 116.76deg,
-        #1a1a1a 116.76deg 126.49deg,
-        #d32f2f 126.49deg 136.22deg,
-        #1a1a1a 136.22deg 145.95deg,
-        #d32f2f 145.95deg 155.68deg,
-        #1a1a1a 155.68deg 165.41deg,
-        #d32f2f 165.41deg 175.14deg,
-        #1a1a1a 175.14deg 184.87deg,
-        #d32f2f 184.87deg 194.6deg,
-        #1a1a1a 194.6deg 204.33deg,
-        #d32f2f 204.33deg 214.06deg,
-        #1a1a1a 214.06deg 223.79deg,
-        #d32f2f 223.79deg 233.52deg,
-        #1a1a1a 233.52deg 243.25deg,
-        #d32f2f 243.25deg 252.98deg,
-        #1a1a1a 252.98deg 262.71deg,
-        #d32f2f 262.71deg 272.44deg,
-        #1a1a1a 272.44deg 282.17deg,
-        #d32f2f 282.17deg 291.9deg,
-        #1a1a1a 291.9deg 301.63deg,
-        #d32f2f 301.63deg 311.36deg,
-        #1a1a1a 311.36deg 321.09deg,
-        #d32f2f 321.09deg 330.82deg,
-        #1a1a1a 330.82deg 340.55deg,
-        #d32f2f 340.55deg 350.28deg,
+        #0d5c26 0deg 9.73deg, #c62828 9.73deg 19.46deg, #1a1a1a 19.46deg 29.19deg,
+        #c62828 29.19deg 38.92deg, #1a1a1a 38.92deg 48.65deg, #c62828 48.65deg 58.38deg,
+        #1a1a1a 58.38deg 68.11deg, #c62828 68.11deg 77.84deg, #1a1a1a 77.84deg 87.57deg,
+        #c62828 87.57deg 97.3deg, #1a1a1a 97.3deg 107.03deg, #c62828 107.03deg 116.76deg,
+        #1a1a1a 116.76deg 126.49deg, #c62828 126.49deg 136.22deg, #1a1a1a 136.22deg 145.95deg,
+        #c62828 145.95deg 155.68deg, #1a1a1a 155.68deg 165.41deg, #c62828 165.41deg 175.14deg,
+        #1a1a1a 175.14deg 184.87deg, #c62828 184.87deg 194.6deg, #1a1a1a 194.6deg 204.33deg,
+        #c62828 204.33deg 214.06deg, #1a1a1a 214.06deg 223.79deg, #c62828 223.79deg 233.52deg,
+        #1a1a1a 233.52deg 243.25deg, #c62828 243.25deg 252.98deg, #1a1a1a 252.98deg 262.71deg,
+        #c62828 262.71deg 272.44deg, #1a1a1a 272.44deg 282.17deg, #c62828 282.17deg 291.9deg,
+        #1a1a1a 291.9deg 301.63deg, #c62828 301.63deg 311.36deg, #1a1a1a 311.36deg 321.09deg,
+        #c62828 321.09deg 330.82deg, #1a1a1a 330.82deg 340.55deg, #c62828 340.55deg 350.28deg,
         #1a1a1a 350.28deg 360deg
       );
-      box-shadow: 0 0 0 10px #2a3546, 0 0 0 14px #1a212d, 0 15px 40px rgba(0,0,0,0.6);
+      box-shadow: 0 0 0 8px #2a2f3a, 0 0 0 12px #1a1f2a, 0 10px 30px rgba(0,0,0,0.7);
       transition: transform 4s cubic-bezier(0.15, 0.05, 0.15, 1);
     }
     .wheel-center {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 60px; height: 60px;
-      background: #1a212d;
+      width: 48px; height: 48px;
+      background: #1a1f2a;
       border-radius: 50%;
-      border: 4px solid #24ee89;
+      border: 3px solid #24ee89;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 1.1rem;
-      z-index: 10;
-      box-shadow: 0 0 15px rgba(36,238,137,0.4);
+      font-size: 1rem;
+      z-index: 5;
     }
     .pointer {
       position: absolute;
-      top: -8px; left: 50%;
+      top: -6px; left: 50%;
       transform: translateX(-50%);
       width: 0; height: 0;
-      border-left: 12px solid transparent;
-      border-right: 12px solid transparent;
-      border-top: 22px solid #24ee89;
-      z-index: 20;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 18px solid #24ee89;
+      z-index: 10;
     }
 
-    .number-btn {
-      width: 100%;
-      aspect-ratio: 1;
-      border-radius: 8px;
+    /* Table */
+    .table-wrap {
+      background: #1a2a1a;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #2e4a2e;
+    }
+    .cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-weight: 800;
-      font-size: 0.8rem;
-      transition: all 0.15s;
-      border: 2px solid transparent;
+      font-size: 12px;
+      cursor: pointer;
+      position: relative;
+      user-select: none;
+      transition: all 0.12s;
     }
-    .number-btn.red { background: #c62828; }
-    .number-btn.black { background: #212121; }
-    .number-btn.green { background: #2e7d32; }
-    .number-btn.selected {
-      border-color: #24ee89;
-      box-shadow: 0 0 12px rgba(36,238,137,0.6);
-      transform: scale(1.08);
-    }
-    .chip {
+    .cell:active { transform: scale(0.96); }
+    .cell.red { background: #8b1e1e; }
+    .cell.black { background: #1c1c1c; }
+    .cell.green { background: #1b5e20; }
+    .cell.outside { background: #2a3d2a; font-size: 11px; }
+    .cell.selected { outline: 2px solid #24ee89; outline-offset: -2px; box-shadow: inset 0 0 12px rgba(36,238,137,0.4); }
+
+    .chip-on {
       position: absolute;
-      width: 22px; height: 22px;
+      width: 18px; height: 18px;
       background: #24ee89;
-      color: #0f141c;
+      color: #0b0e14;
       border-radius: 50%;
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 900;
       display: flex;
       align-items: center;
       justify-content: center;
-      pointer-events: none;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      top: 2px; right: 2px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+
+    .chip-btn {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      font-weight: 900;
+      font-size: 11px;
+      border: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    .chip-btn.active {
+      border-color: #fff;
+      transform: scale(1.12);
+      box-shadow: 0 0 12px rgba(255,255,255,0.4);
     }
   </style>
 </head>
-<body class="bg-bgDark text-white min-h-screen flex flex-col font-sans antialiased">
+<body class="min-h-screen flex flex-col">
 
   <!-- Top Bar -->
   <div id="topBarContainer" class="sticky top-0 z-50"></div>
 
-  <main class="max-w-md w-full mx-auto p-3 space-y-3 pb-8 flex-1">
+  <main class="max-w-md w-full mx-auto px-2 pb-6 flex-1">
 
-    <!-- Timer + Status -->
-    <div class="bg-cardDark rounded-2xl p-3 flex justify-between items-center border border-borderDark">
-      <div class="text-xs text-textGray">Next Spin</div>
-      <div id="timerDisplay" class="text-xl font-black text-bcGreen">12.0s</div>
-      <div id="statusText" class="text-xs font-bold text-textGray">Betting...</div>
+    <!-- Status Bar -->
+    <div class="flex justify-between items-center py-2 text-xs">
+      <div class="text-gray-400">Next Spin: <span id="timer" class="text-green-400 font-bold">12.0s</span></div>
+      <div id="status" class="text-green-400 font-bold">Betting Open</div>
     </div>
 
-    <!-- Wheel -->
-    <div class="bg-cardDark rounded-2xl p-4 border border-borderDark">
-      <div class="wheel-container">
+    <!-- Wheel Section -->
+    <div class="bg-[#141a22] rounded-xl p-3 mb-3">
+      <div class="wheel-box">
         <div class="pointer"></div>
         <div id="wheel" class="wheel"></div>
-        <div class="wheel-center">
-          <span id="resultNumber">-</span>
+        <div class="wheel-center"><span id="resultNum">-</span></div>
+      </div>
+    </div>
+
+    <!-- Hot / Cold -->
+    <div class="flex gap-2 mb-3 text-[10px]">
+      <div class="flex-1 bg-[#141a22] rounded-lg p-2">
+        <div class="text-orange-400 font-bold mb-1">HOT</div>
+        <div id="hotNums" class="flex gap-1 flex-wrap text-white font-bold"></div>
+      </div>
+      <div class="flex-1 bg-[#141a22] rounded-lg p-2">
+        <div class="text-blue-400 font-bold mb-1">COLD</div>
+        <div id="coldNums" class="flex gap-1 flex-wrap text-white font-bold"></div>
+      </div>
+    </div>
+
+    <!-- Betting Table -->
+    <div class="table-wrap mb-3">
+      <!-- Top zeros + numbers -->
+      <div class="grid grid-cols-[32px_1fr] ">
+        <!-- 0 and 00 -->
+        <div class="flex flex-col">
+          <div class="cell green h-10 border border-[#1a2a1a]" onclick="placeBet('00')" id="cell-00">00</div>
+          <div class="cell green h-10 border border-[#1a2a1a]" onclick="placeBet('0')" id="cell-0">0</div>
         </div>
+
+        <!-- Main numbers 1-36 -->
+        <div class="grid grid-cols-12 grid-rows-3" id="mainNumbers"></div>
+      </div>
+
+      <!-- Dozens -->
+      <div class="grid grid-cols-3 h-9">
+        <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('1st12')" id="cell-1st12">1st 12</div>
+        <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('2nd12')" id="cell-2nd12">2nd 12</div>
+        <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('3rd12')" id="cell-3rd12">3rd 12</div>
+      </div>
+
+      <!-- Outside bets -->
+      <div class="grid grid-cols-6 h-9">
+        <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('1-18')" id="cell-1-18">1-18</div>
+        <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('even')" id="cell-even">EVEN</div>
+        <div class="cell red border border-[#1a2a1a]" onclick="placeBet('red')" id="cell-red">RED</div>
+        <div class="cell black border border-[#1a2a1a]" onclick="placeBet('black')" id="cell-black">BLACK</div>
+        <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('odd')" id="cell-odd">ODD</div>
+        <div class="cell outside border border-[#1a2a1a]" onclick="placeBet('19-36')" id="cell-19-36">19-36</div>
       </div>
     </div>
 
-    <!-- Last Result -->
-    <div class="bg-cardDark rounded-xl p-2.5 flex justify-center items-center gap-3 border border-borderDark">
-      <span class="text-xs text-textGray">Last Result:</span>
-      <span id="lastResult" class="text-lg font-black text-white">-</span>
-    </div>
+    <!-- Chip Selector + Info -->
+    <div class="bg-[#141a22] rounded-xl p-3">
+      <div class="flex justify-between items-center mb-3 text-xs">
+        <div>Cash: <span id="balanceText" class="text-green-400 font-bold">BDT 0.00</span></div>
+        <div>Bet: <span id="totalBet" class="text-yellow-400 font-bold">BDT 0.00</span></div>
+        <div>Win: <span id="lastWin" class="text-green-400 font-bold">BDT 0.00</span></div>
+      </div>
 
-    <!-- Chip Value Selector -->
-    <div class="bg-cardDark rounded-2xl p-3 border border-borderDark">
-      <div class="text-xs text-textGray mb-2 font-semibold">Chip Value</div>
+      <div class="flex justify-center gap-3 mb-3">
+        <button class="chip-btn bg-red-600 text-white" data-val="10" onclick="setChip(10)">10</button>
+        <button class="chip-btn bg-blue-600 text-white" data-val="50" onclick="setChip(50)">50</button>
+        <button class="chip-btn bg-green-600 text-white" data-val="100" onclick="setChip(100)">100</button>
+        <button class="chip-btn bg-purple-600 text-white" data-val="500" onclick="setChip(500)">500</button>
+        <button class="chip-btn bg-yellow-500 text-black" data-val="1000" onclick="setChip(1000)">1K</button>
+      </div>
+
       <div class="flex gap-2">
-        <button onclick="setChip(10)" class="chip-btn flex-1 py-2 rounded-xl bg-panelDark text-xs font-bold border border-borderDark" data-value="10">৳10</button>
-        <button onclick="setChip(50)" class="chip-btn flex-1 py-2 rounded-xl bg-panelDark text-xs font-bold border border-borderDark" data-value="50">৳50</button>
-        <button onclick="setChip(100)" class="chip-btn flex-1 py-2 rounded-xl bg-panelDark text-xs font-bold border border-borderDark" data-value="100">৳100</button>
-        <button onclick="setChip(500)" class="chip-btn flex-1 py-2 rounded-xl bg-panelDark text-xs font-bold border border-borderDark" data-value="500">৳500</button>
-      </div>
-    </div>
-
-    <!-- Number Board (0-36) -->
-    <div class="bg-cardDark rounded-2xl p-3 border border-borderDark">
-      <div class="text-xs text-textGray mb-2 font-semibold flex justify-between">
-        <span>Place Your Bets</span>
-        <span id="totalBetDisplay" class="text-bcGreen">Total: ৳0</span>
-      </div>
-
-      <!-- Zero -->
-      <div class="mb-2">
-        <button onclick="placeBet(0)" class="number-btn green w-full h-12 relative" id="btn-0">
-          0
-          <span class="chip hidden" id="chip-0"></span>
-        </button>
-      </div>
-
-      <!-- 1-36 Grid -->
-      <div class="grid grid-cols-6 gap-1.5" id="numberBoard">
-        <!-- filled by JS -->
-      </div>
-
-      <div class="flex gap-2 mt-3">
-        <button onclick="clearBets()" class="flex-1 py-2.5 rounded-xl bg-panelDark text-xs font-bold border border-borderDark text-textGray">
-          Clear
-        </button>
-        <button onclick="repeatLastBet()" class="flex-1 py-2.5 rounded-xl bg-panelDark text-xs font-bold border border-borderDark text-textGray">
-          Repeat
-        </button>
+        <button onclick="clearBets()" class="flex-1 py-2.5 rounded-lg bg-[#1e2633] text-xs font-bold text-gray-300">CLEAR</button>
+        <button onclick="repeatBet()" class="flex-1 py-2.5 rounded-lg bg-[#1e2633] text-xs font-bold text-gray-300">REBET</button>
       </div>
     </div>
 
   </main>
 
   <script>
-    // ==================== CONFIG ====================
-    const SPIN_INTERVAL = 12;          // seconds
-    const SPIN_DURATION = 4;           // wheel animation seconds
-    const HOUSE_EDGE = 0.027;          // \~2.7% European
-    const PAYOUT = 35;                 // 35:1 for straight
+    // ========== CONFIG ==========
+    const ROUND_TIME = 12;
+    const SPIN_TIME = 4;
+    const PAYOUTS = {
+      straight: 35,
+      dozen: 2,
+      column: 2,
+      evenodd: 1,
+      redblack: 1,
+      highlow: 1
+    };
 
-    // European order (for visual reference)
-    const RED_NUMBERS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+    const RED = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+    const NUMBERS = [0, '00', ...Array.from({length:36}, (_,i)=>i+1)];
 
-    // ==================== STATE ====================
-    let currentUserId = null;
-    let userBalance = 0;
-    let currentChip = 10;
-    let bets = {};                      // { number: amount }
+    // ========== STATE ==========
+    let userId = null;
+    let balance = 0;
+    let chip = 10;
+    let bets = {};
     let lastBets = {};
     let isSpinning = false;
-    let timeLeft = SPIN_INTERVAL;
-    let timerInterval = null;
-    let currentRotation = 0;
+    let timeLeft = ROUND_TIME;
+    let timer = null;
+    let rotation = 0;
+    let history = [];
 
-    // ==================== INIT ====================
+    // ========== INIT ==========
     async function loadTopBar() {
       try {
         const res = await fetch('../bar/top.html');
         if (res.ok) {
           document.getElementById('topBarContainer').innerHTML = await res.text();
-          document.querySelectorAll('a[href*="deposit"]').forEach(a => a.href = '../account/deposit.html');
         }
       } catch(e) {}
     }
@@ -259,213 +257,228 @@
         let user = null;
         if (typeof requireAuth === 'function') user = await requireAuth();
         else if (typeof getCurrentUser === 'function') user = await getCurrentUser();
-
         if (user) {
-          currentUserId = user.id;
+          userId = user.id;
           const { data } = await supabaseClient.from('profiles').select('balance').eq('id', user.id).single();
           if (data) {
-            userBalance = parseFloat(data.balance) || 0;
-            updateBalanceUI();
+            balance = parseFloat(data.balance) || 0;
+            updateBalance();
           }
         }
       } catch(e) { console.error(e); }
 
-      buildNumberBoard();
+      buildTable();
       setChip(10);
-      startRoundTimer();
+      startTimer();
+      updateHotCold();
     }
 
-    function updateBalanceUI() {
-      const el = document.getElementById('topBarBalance');
-      if (el) el.innerText = userBalance.toFixed(2);
+    function updateBalance() {
+      document.getElementById('balanceText').innerText = 'BDT ' + balance.toFixed(2);
+      const top = document.getElementById('topBarBalance');
+      if (top) top.innerText = balance.toFixed(2);
     }
 
-    // ==================== NUMBER BOARD ====================
-    function buildNumberBoard() {
-      const board = document.getElementById('numberBoard');
-      board.innerHTML = '';
-      for (let i = 1; i <= 36; i++) {
-        const color = RED_NUMBERS.includes(i) ? 'red' : 'black';
-        const btn = document.createElement('button');
-        btn.className = `number-btn ${color} relative`;
-        btn.id = `btn-${i}`;
-        btn.onclick = () => placeBet(i);
-        btn.innerHTML = `\( {i}<span class="chip hidden" id="chip- \){i}"></span>`;
-        board.appendChild(btn);
-      }
-    }
+    // ========== TABLE ==========
+    function buildTable() {
+      const container = document.getElementById('mainNumbers');
+      // Layout: 3 rows × 12 cols (European/American style)
+      const order = [
+        [3,6,9,12,15,18,21,24,27,30,33,36],
+        [2,5,8,11,14,17,20,23,26,29,32,35],
+        [1,4,7,10,13,16,19,22,25,28,31,34]
+      ];
 
-    // ==================== CHIP & BET ====================
-    function setChip(val) {
-      currentChip = val;
-      document.querySelectorAll('.chip-btn').forEach(b => {
-        b.classList.remove('bg-bcGreen', 'text-bgDark');
-        b.classList.add('bg-panelDark', 'text-white');
-        if (parseInt(b.dataset.value) === val) {
-          b.classList.add('bg-bcGreen', 'text-bgDark');
-          b.classList.remove('bg-panelDark', 'text-white');
-        }
+      order.forEach(row => {
+        row.forEach(n => {
+          const color = RED.includes(n) ? 'red' : 'black';
+          const div = document.createElement('div');
+          div.className = `cell ${color} h-10 border border-[#1a2a1a]`;
+          div.id = `cell-${n}`;
+          div.onclick = () => placeBet(n);
+          div.innerHTML = n;
+          container.appendChild(div);
+        });
       });
     }
 
-    function placeBet(num) {
-      if (isSpinning || timeLeft < 2) return; // no bet in last 2s or while spinning
+    // ========== CHIP & BET ==========
+    function setChip(val) {
+      chip = val;
+      document.querySelectorAll('.chip-btn').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.val) === val);
+      });
+    }
 
-      const cost = currentChip;
-      if (cost > userBalance) {
-        alert('পর্যাপ্ত ব্যালেন্স নেই!');
+    function placeBet(target) {
+      if (isSpinning || timeLeft < 1.5) return;
+      if (chip > balance) {
+        alert('Insufficient balance!');
         return;
       }
 
-      // Deduct immediately
-      userBalance -= cost;
-      updateBalanceUI();
-      supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+      balance -= chip;
+      updateBalance();
+      supabaseClient.from('profiles').update({ balance }).eq('id', userId);
 
-      bets[num] = (bets[num] || 0) + cost;
-      updateChipDisplay(num);
+      bets[target] = (bets[target] || 0) + chip;
+      renderChips();
       updateTotalBet();
     }
 
-    function updateChipDisplay(num) {
-      const chipEl = document.getElementById(`chip-${num}`);
-      const btn = document.getElementById(`btn-${num}`);
-      if (bets[num] > 0) {
-        chipEl.innerText = bets[num] >= 1000 ? (bets[num]/1000).toFixed(1)+'k' : bets[num];
-        chipEl.classList.remove('hidden');
-        btn.classList.add('selected');
-      } else {
-        chipEl.classList.add('hidden');
-        btn.classList.remove('selected');
+    function renderChips() {
+      // clear old
+      document.querySelectorAll('.chip-on').forEach(e => e.remove());
+      document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
+
+      for (const [key, amount] of Object.entries(bets)) {
+        const cell = document.getElementById(`cell-${key}`);
+        if (!cell) continue;
+        cell.classList.add('selected');
+        const span = document.createElement('span');
+        span.className = 'chip-on';
+        span.innerText = amount >= 1000 ? (amount/1000)+'k' : amount;
+        cell.appendChild(span);
       }
     }
 
     function updateTotalBet() {
-      const total = Object.values(bets).reduce((a,b) => a+b, 0);
-      document.getElementById('totalBetDisplay').innerText = `Total: ৳${total}`;
+      const total = Object.values(bets).reduce((a,b)=>a+b, 0);
+      document.getElementById('totalBet').innerText = 'BDT ' + total.toFixed(2);
     }
 
     function clearBets() {
-      // Refund all current bets
-      const total = Object.values(bets).reduce((a,b) => a+b, 0);
+      const total = Object.values(bets).reduce((a,b)=>a+b, 0);
       if (total > 0) {
-        userBalance += total;
-        updateBalanceUI();
-        supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+        balance += total;
+        updateBalance();
+        supabaseClient.from('profiles').update({ balance }).eq('id', userId);
       }
       bets = {};
-      for (let i = 0; i <= 36; i++) updateChipDisplay(i);
+      renderChips();
       updateTotalBet();
     }
 
-    function repeatLastBet() {
-      if (Object.keys(lastBets).length === 0) return;
+    function repeatBet() {
+      if (!Object.keys(lastBets).length) return;
       clearBets();
-      for (const [num, amt] of Object.entries(lastBets)) {
-        currentChip = amt; // temporary
-        placeBet(parseInt(num));
+      for (const [k, v] of Object.entries(lastBets)) {
+        chip = v;
+        placeBet(k);
       }
     }
 
-    // ==================== TIMER & SPIN ====================
-    function startRoundTimer() {
-      timeLeft = SPIN_INTERVAL;
+    // ========== TIMER & SPIN ==========
+    function startTimer() {
+      timeLeft = ROUND_TIME;
       isSpinning = false;
-      document.getElementById('statusText').innerText = 'Betting...';
-      document.getElementById('statusText').className = 'text-xs font-bold text-bcGreen';
+      document.getElementById('status').innerText = 'Betting Open';
+      document.getElementById('status').className = 'text-green-400 font-bold';
 
-      clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
+      clearInterval(timer);
+      timer = setInterval(() => {
         timeLeft -= 0.1;
-        document.getElementById('timerDisplay').innerText = Math.max(0, timeLeft).toFixed(1) + 's';
-
+        document.getElementById('timer').innerText = Math.max(0, timeLeft).toFixed(1) + 's';
         if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          doSpin();
+          clearInterval(timer);
+          spin();
         }
       }, 100);
     }
 
-    function doSpin() {
+    function spin() {
       isSpinning = true;
-      document.getElementById('statusText').innerText = 'Spinning...';
-      document.getElementById('statusText').className = 'text-xs font-bold text-amber-400';
+      document.getElementById('status').innerText = 'No More Bets';
+      document.getElementById('status').className = 'text-yellow-400 font-bold';
 
-      // Generate result 0-36
-      const result = Math.floor(Math.random() * 37);
+      // American: 0, 00, 1-36 → 38 numbers
+      const resultPool = [0, '00', ...Array.from({length:36},(_,i)=>i+1)];
+      const result = resultPool[Math.floor(Math.random() * resultPool.length)];
 
-      // Calculate rotation (many full spins + land on number)
-      const extraSpins = 4 + Math.random() * 3;
-      const degreePerNumber = 360 / 37;
-      const targetDegree = result * degreePerNumber;
-      currentRotation += (extraSpins * 360) + (360 - targetDegree);
+      const extra = 5 + Math.random() * 3;
+      rotation += extra * 360 + Math.random() * 360;
+      document.getElementById('wheel').style.transform = `rotate(${rotation}deg)`;
 
-      const wheel = document.getElementById('wheel');
-      wheel.style.transform = `rotate(${currentRotation}deg)`;
-
-      // After animation finishes
-      setTimeout(() => {
-        showResult(result);
-      }, SPIN_DURATION * 1000);
+      setTimeout(() => finishSpin(result), SPIN_TIME * 1000);
     }
 
-    async function showResult(result) {
-      document.getElementById('resultNumber').innerText = result;
-      document.getElementById('lastResult').innerText = result;
-      document.getElementById('lastResult').className = 
-        result === 0 ? 'text-lg font-black text-bcGreen' :
-        RED_NUMBERS.includes(result) ? 'text-lg font-black text-red-500' : 'text-lg font-black text-white';
+    async function finishSpin(result) {
+      document.getElementById('resultNum').innerText = result;
+      document.getElementById('status').innerText = 'Result: ' + result;
+      document.getElementById('status').className = 'text-white font-bold';
 
-      document.getElementById('statusText').innerText = 'Result: ' + result;
-      document.getElementById('statusText').className = 'text-xs font-bold text-white';
+      history.unshift(result);
+      if (history.length > 20) history.pop();
+      updateHotCold();
 
-      // Calculate winnings
-      let totalWin = 0;
-      const betEntries = Object.entries(bets);
-
-      for (const [num, amount] of betEntries) {
-        if (parseInt(num) === result) {
-          const win = amount * (PAYOUT + 1); // stake + profit
-          totalWin += win;
+      // Calculate win
+      let winAmount = 0;
+      for (const [target, amount] of Object.entries(bets)) {
+        if (checkWin(target, result)) {
+          const mult = getPayout(target);
+          winAmount += amount * (mult + 1);
         }
       }
 
-      if (totalWin > 0) {
-        userBalance += totalWin;
-        updateBalanceUI();
-        await supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+      if (winAmount > 0) {
+        balance += winAmount;
+        updateBalance();
+        await supabaseClient.from('profiles').update({ balance }).eq('id', userId);
       }
+      document.getElementById('lastWin').innerText = 'BDT ' + winAmount.toFixed(2);
 
-      // Save bets to database
-      if (currentUserId && betEntries.length > 0) {
-        for (const [num, amount] of betEntries) {
-          const won = parseInt(num) === result;
+      // Save to bets table
+      if (userId && Object.keys(bets).length) {
+        for (const [target, amount] of Object.entries(bets)) {
+          const won = checkWin(target, result);
           await supabaseClient.from('bets').insert([{
-            user_id: currentUserId,
-            target_number: parseInt(num),
-            roll_result: result,
+            user_id: userId,
+            target_number: isNaN(target) ? -1 : parseInt(target),
+            roll_result: result === '00' ? -1 : parseInt(result),
             bet_amount: amount,
-            payout: won ? PAYOUT : 0,
+            payout: won ? getPayout(target) : 0,
             is_bool: won
           }]);
         }
       }
 
-      // Keep last bets for repeat
-      lastBets = { ...bets };
-
-      // Clear current bets
+      lastBets = {...bets};
       bets = {};
-      for (let i = 0; i <= 36; i++) updateChipDisplay(i);
+      renderChips();
       updateTotalBet();
 
-      // Start next round after short delay
-      setTimeout(() => {
-        startRoundTimer();
-      }, 2500);
+      setTimeout(startTimer, 2500);
     }
 
-    // ==================== START ====================
+    function checkWin(target, result) {
+      const r = result === '00' ? '00' : parseInt(result);
+      if (target == r) return true;
+      if (target === 'red' && RED.includes(r)) return true;
+      if (target === 'black' && r !== 0 && r !== '00' && !RED.includes(r)) return true;
+      if (target === 'even' && r !== 0 && r !== '00' && r % 2 === 0) return true;
+      if (target === 'odd' && r % 2 === 1) return true;
+      if (target === '1-18' && r >= 1 && r <= 18) return true;
+      if (target === '19-36' && r >= 19 && r <= 36) return true;
+      if (target === '1st12' && r >= 1 && r <= 12) return true;
+      if (target === '2nd12' && r >= 13 && r <= 24) return true;
+      if (target === '3rd12' && r >= 25 && r <= 36) return true;
+      return false;
+    }
+
+    function getPayout(target) {
+      if (!isNaN(target) || target === '00') return PAYOUTS.straight;
+      if (['1st12','2nd12','3rd12'].includes(target)) return PAYOUTS.dozen;
+      return PAYOUTS.evenodd;
+    }
+
+    function updateHotCold() {
+      const count = {};
+      history.forEach(n => count[n] = (count[n] || 0) + 1);
+      const sorted = Object.entries(count).sort((a,b) => b[1]-a[1]);
+      document.getElementById('hotNums').innerHTML = sorted.slice(0,5).map(([n]) => `<span>${n}</span>`).join('');
+      document.getElementById('coldNums').innerHTML = sorted.slice(-5).reverse().map(([n]) => `<span>${n}</span>`).join('') || '-';
+    }
+
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
