@@ -43,6 +43,35 @@
             border-color: #24ee89 !important;
             box-shadow: 0 0 15px rgba(36, 238, 137, 0.6);
         }
+
+        /* ডাইস ঝাঁকানোর (Shaking/Jiggling) অ্যানিমেশন */
+        @keyframes shakeDice {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-3px, 0px) rotate(-5deg); }
+            40% { transform: translate(3px, -2px) rotate(5deg); }
+            60% { transform: translate(-1px, 2px) rotate(0deg); }
+            80% { transform: translate(2px, 1px) rotate(-2deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+        .dice-shaking {
+            animation: shakeDice 0.4s infinite ease-in-out;
+        }
+
+        /* শাড়ি পরা মেয়ের অ্যাভাটার ডান দিক থেকে স্লাইড ইন করার অ্যানিমেশন */
+        @keyframes slideInAvatar {
+            0% { transform: translateX(120%); opacity: 0; }
+            100% { transform: translateX(0%); opacity: 1; }
+        }
+        @keyframes slideOutAvatar {
+            0% { transform: translateX(0%); opacity: 1; }
+            100% { transform: translateX(120%); opacity: 0; }
+        }
+        .avatar-slide-in {
+            animation: slideInAvatar 0.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .avatar-slide-out {
+            animation: slideOutAvatar 0.5s forwards ease-in;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-0 select-none selection:bg-yellow-500 selection:text-black">
@@ -61,12 +90,27 @@
             </div>
 
             <!-- Dice Rolling Animation Area -->
-            <div class="flex items-center justify-center space-x-6 my-auto">
+            <div id="dice-container-box" class="flex items-center justify-center space-x-6 my-auto transition-transform">
                 <div id="dice-1" class="w-16 h-16 bg-white text-gray-900 rounded-xl shadow-2xl flex items-center justify-center text-3xl font-black border-4 border-gray-300">
                     🎲
                 </div>
                 <div id="dice-2" class="w-16 h-16 bg-white text-gray-900 rounded-xl shadow-2xl flex items-center justify-center text-3xl font-black border-4 border-gray-300">
                     🎲
+                </div>
+            </div>
+
+            <!-- শাড়ি পরা মেয়ের অ্যাভাটার ও হাত (ডান দিক থেকে এন্ট্রি নেবে) -->
+            <div id="dealer-avatar-box" class="absolute right-0 bottom-0 z-10 flex items-end translate-x-[120%] transition-transform duration-500 pointer-events-none">
+                <div class="relative flex items-center bg-gradient-to-l from-pink-900/90 to-transparent p-2 rounded-l-2xl border-l border-pink-500/40">
+                    <!-- মেয়ের আইকন ও শাড়ির থিমযুক্ত লেআউট -->
+                    <div class="flex flex-col items-center mr-1">
+                        <i class="fa-solid fa-female text-3xl text-pink-400 animate-pulse"></i>
+                        <span class="text-[9px] text-pink-200 font-semibold bg-black/60 px-1.5 rounded">শারিিতা</span>
+                    </div>
+                    <!-- হাত থেকে ডাইস ড্রপ করার আইকন বা ইলাস্ট্রেশন -->
+                    <div class="text-xl text-yellow-300 animate-bounce mr-2">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                    </div>
                 </div>
             </div>
 
@@ -153,7 +197,6 @@
         let timeLeft = 10;
         let globalTimerInterval = null;
 
-        // স্টোরেজ অবজেক্ট যেখানে ইউজারের বর্তমান রাউন্ডের বেটগুলো জমা হবে
         let activeBets = {
             under: 0,
             over: 0,
@@ -183,7 +226,6 @@
                     currentUserId = user.id;
                     await fetchUserProfile(client, currentUserId);
 
-                    // ব্যালেন্স বা প্রোফাইল লাইভ সিঙ্কের জন্য রিয়েলটাইম লিসেনার
                     client.channel('public:profiles')
                         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${currentUserId}` }, payload => {
                             if (payload.new && payload.new.balance !== undefined) {
@@ -194,7 +236,7 @@
                         .subscribe();
                 } else {
                     alert('দয়া করে প্রথমে লগইন করুন!');
-                    window.location.href = '../login.html'; // প্রয়োজনে লগইন পেজ পাথ ঠিক করে নিন
+                    window.location.href = '../login.html';
                 }
             } catch (err) {
                 console.error("Auth init error:", err);
@@ -238,10 +280,19 @@
             updateChipsDisplay();
             updateBalanceUI();
 
+            // টাইমার শুরু হলে ডাইস বক্সে ঝাঁকানোর (Shaking) ক্লাস যোগ করা
+            const diceBox = document.getElementById('dice-container-box');
+            diceBox.classList.add('dice-shaking');
+
             document.getElementById('dice-1').innerText = '🎲';
             document.getElementById('dice-2').innerText = '🎲';
             document.getElementById('sum-result-text').innerText = 'BETTING OPEN';
             document.getElementById('result-overlay').classList.add('hidden');
+
+            // অ্যাভাটার লুকিয়ে রাখা
+            const avatarBox = document.getElementById('dealer-avatar-box');
+            avatarBox.classList.remove('translate-x-0');
+            avatarBox.classList.add('translate-x-[120%]');
 
             if (globalTimerInterval) clearInterval(globalTimerInterval);
 
@@ -251,6 +302,8 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(globalTimerInterval);
+                    // টাইমার শেষ হলে ঝাঁকানো বন্ধ করা
+                    diceBox.classList.remove('dice-shaking');
                     lockBetsAndRollDice();
                 }
             }, 1000);
@@ -280,7 +333,6 @@
 
             const client = getClient();
             if (client && currentUserId) {
-                // ডাটাবেজে ইউজারের ব্যালেন্স তাৎক্ষণিকভাবে আপডেট করা
                 await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
             }
         }
@@ -304,7 +356,12 @@
             currentRoundState = 'rolling';
             document.getElementById('sum-result-text').innerText = 'ROLLING...';
 
-            // দুটি ডাইসের রেন্ডম রোল (১ থেকে ৬)
+            // টাইম শেষ হওয়ার সাথে সাথে ডান দিক থেকে শাড়ি পরা মেয়ের অ্যাভাটার প্রবেশ করবে
+            const avatarBox = document.getElementById('dealer-avatar-box');
+            avatarBox.classList.remove('translate-x-[120%]');
+            avatarBox.classList.add('translate-x-0');
+
+            // ডাইস রোল হওয়ার রেন্ডম মান (১ থেকে ৬)
             const d1 = Math.floor(Math.random() * 6) + 1;
             const d2 = Math.floor(Math.random() * 6) + 1;
             const sum = d1 + d2;
@@ -320,7 +377,6 @@
 
             const client = getClient();
 
-            // প্রতিটি অ্যাক্টিভ বেটের জন্য bets টেবিলে ডাটা সেভ এবং পেআউট ক্যালকুলেশন
             for (let spot in activeBets) {
                 let bAmount = activeBets[spot];
                 if (bAmount > 0) {
@@ -333,7 +389,6 @@
                         userBalance += itemPayout;
                     }
 
-                    // آپনার schema অনুযায়ী bets টেবিলে রেকর্ড ইনসার্ট করা
                     if (client && currentUserId) {
                         await client.from('bets').insert({
                             user_id: currentUserId,
@@ -348,7 +403,6 @@
             }
 
             if (client && currentUserId) {
-                // আপডেট হওয়া ব্যালেন্স ডাটাবেজে সেভ করা
                 await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
             }
 
