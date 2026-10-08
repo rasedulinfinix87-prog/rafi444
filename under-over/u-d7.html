@@ -206,7 +206,7 @@
 
 
         /* =========================================================
-           PLACE A BET
+           PLACE A BET + TIMER
         ========================================================= */
 
         .place-bet {
@@ -223,13 +223,17 @@
 
             width: 66%;
 
-            min-height: 40px;
+            min-height: 44px;
+
+            padding: 0 15px;
 
             display: flex;
 
             align-items: center;
 
             justify-content: center;
+
+            gap: 10px;
 
             background:
                 linear-gradient(
@@ -251,6 +255,78 @@
             font-weight: 800;
 
             color: #fff;
+
+        }
+
+
+        .place-bet-text {
+
+            white-space: nowrap;
+
+        }
+
+
+        .bet-timer {
+
+            min-width: 32px;
+
+            height: 27px;
+
+            padding: 0 8px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 5px;
+
+            border: 1px solid rgba(215,185,109,.55);
+
+            background:
+                rgba(20,18,30,.65);
+
+            color: #f5d879;
+
+            font-size: 14px;
+
+            font-weight: 900;
+
+            line-height: 1;
+
+        }
+
+
+        .bet-timer.warning {
+
+            color: #ff6969;
+
+            border-color: rgba(255,80,80,.7);
+
+            animation:
+                timerPulse .55s infinite alternate;
+
+        }
+
+
+        @keyframes timerPulse {
+
+            from {
+
+                transform: scale(1);
+
+                opacity: .8;
+
+            }
+
+            to {
+
+                transform: scale(1.08);
+
+                opacity: 1;
+
+            }
 
         }
 
@@ -689,94 +765,300 @@
 
 
         /* =========================================================
-           BET AMOUNT
+           POKER CHIP AREA
         ========================================================= */
 
-        .amount-controls {
+        .chip-area {
+
+            width: 100%;
 
             margin-top: 14px;
 
-            width: 100%;
+            padding: 8px 2px;
 
             display: grid;
 
             grid-template-columns:
-                repeat(4, minmax(0, 1fr));
+                repeat(8, minmax(0, 1fr));
 
-            gap: 10px;
+            gap: 9px;
 
-        }
+            align-items: center;
 
-
-        .amount-btn {
-
-            min-width: 0;
-
-            width: 100%;
-
-            height: 50px;
-
-            border-radius: 8px;
-
-            border: 2px solid #9a8b65;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #f0e5b8,
-                    #998d69
-                );
-
-            color: #292634;
-
-            font-size: 17px;
-
-            font-weight: 900;
-
-            box-shadow:
-                inset 0 2px 3px rgba(255,255,255,.7),
-                0 3px 6px rgba(0,0,0,.35);
+            justify-items: center;
 
         }
 
 
-        .amount-btn:active {
+        .chip-button {
 
-            transform:
-                translateY(2px);
+            width: 68px;
 
-        }
+            height: 68px;
 
+            max-width: 100%;
 
-        .amount-display {
+            padding: 0;
 
-            margin-top: 12px;
+            border-radius: 50%;
 
-            width: 100%;
-
-            height: 60px;
+            position: relative;
 
             display: flex;
 
             align-items: center;
 
-            padding-left: 20px;
+            justify-content: center;
 
-            border-radius: 8px;
+            border: 5px dashed rgba(255,255,255,.72);
 
-            border: 3px solid #bfa35b;
+            outline: 3px solid rgba(0,0,0,.48);
 
-            background: #272334;
-
-            box-shadow:
-                inset 0 0 10px rgba(0,0,0,.5),
-                0 3px 7px rgba(0,0,0,.25);
+            outline-offset: -8px;
 
             color: #fff;
 
-            font-size: 19px;
+            font-size: 14px;
 
-            font-weight: 800;
+            font-weight: 900;
+
+            text-shadow:
+                0 2px 2px rgba(0,0,0,.65);
+
+            box-shadow:
+                0 5px 9px rgba(0,0,0,.55),
+                inset 0 4px 7px rgba(255,255,255,.3),
+                inset 0 -7px 9px rgba(0,0,0,.3);
+
+            transition:
+                transform .12s ease,
+                box-shadow .12s ease;
+
+        }
+
+
+        .chip-button::before {
+
+            content: "";
+
+            position: absolute;
+
+            inset: 9px;
+
+            border-radius: 50%;
+
+            border: 2px solid rgba(255,255,255,.45);
+
+            pointer-events: none;
+
+        }
+
+
+        .chip-button::after {
+
+            content: "";
+
+            position: absolute;
+
+            inset: 15px;
+
+            border-radius: 50%;
+
+            border: 1px solid rgba(255,255,255,.2);
+
+            pointer-events: none;
+
+        }
+
+
+        .chip-button span {
+
+            position: relative;
+
+            z-index: 3;
+
+            font-size: 13px;
+
+            line-height: 1;
+
+        }
+
+
+        .chip-button:active {
+
+            transform:
+                scale(.90);
+
+        }
+
+
+        .chip-button.selected-chip {
+
+            transform:
+                translateY(-5px)
+                scale(1.08);
+
+            box-shadow:
+                0 0 0 3px #fff,
+                0 0 18px rgba(255,255,255,.5),
+                0 7px 14px rgba(0,0,0,.55),
+                inset 0 4px 7px rgba(255,255,255,.3);
+
+        }
+
+
+        /* =========================================================
+           INDIVIDUAL CHIP COLORS
+        ========================================================= */
+
+        .chip-10 {
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    #ff7373,
+                    #e52d2d 48%,
+                    #9d1111 100%
+                );
+
+        }
+
+
+        .chip-20 {
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    #70a5ff,
+                    #3468d4 48%,
+                    #17357d 100%
+                );
+
+        }
+
+
+        .chip-50 {
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    #7edb8e,
+                    #2ca650 48%,
+                    #11632c 100%
+                );
+
+        }
+
+
+        .chip-100 {
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    #a982ff,
+                    #6b38cf 48%,
+                    #321276 100%
+                );
+
+        }
+
+
+        .chip-500 {
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    #ff9c55,
+                    #e55b19 48%,
+                    #8b2608 100%
+                );
+
+        }
+
+
+        .chip-1k {
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    #55dbe8,
+                    #168fa7 48%,
+                    #07505f 100%
+                );
+
+        }
+
+
+        .chip-5k {
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    #f45bb8,
+                    #bf2788 48%,
+                    #68104a 100%
+                );
+
+        }
+
+
+        .chip-10k {
+
+            background:
+                radial-gradient(
+                    circle at 35% 30%,
+                    #f5df74,
+                    #c39824 48%,
+                    #70540a 100%
+                );
+
+        }
+
+
+        /* =========================================================
+           BOTTOM BET LIMIT BAR
+        ========================================================= */
+
+        .bet-limit-bar {
+
+            width: 100%;
+
+            height: 30px;
+
+            margin-top: 7px;
+
+            padding: 0 12px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: flex-start;
+
+            border-radius: 5px;
+
+            border:
+                1px solid rgba(215,185,109,.45);
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(35,32,48,.98),
+                    rgba(48,43,61,.9)
+                );
+
+            box-shadow:
+                inset 0 1px rgba(255,255,255,.05);
+
+            color: #d7b96d;
+
+            font-size: 10px;
+
+            font-weight: 900;
+
+            letter-spacing: .4px;
+
+            text-transform: uppercase;
 
         }
 
@@ -989,6 +1271,29 @@
            RESPONSIVE
         ========================================================= */
 
+        @media (max-width: 700px) {
+
+            .chip-area {
+
+                grid-template-columns:
+                    repeat(4, minmax(0, 1fr));
+
+                gap: 10px;
+
+            }
+
+
+            .chip-button {
+
+                width: 62px;
+
+                height: 62px;
+
+            }
+
+        }
+
+
         @media (max-width: 600px) {
 
             .game-top {
@@ -1081,11 +1386,13 @@
 
             .place-bet {
 
-                width: 82%;
+                width: 88%;
 
                 top: 9px;
 
                 min-height: 40px;
+
+                font-size: 16px;
 
             }
 
@@ -1104,9 +1411,44 @@
             }
 
 
-            .amount-controls {
+            .chip-area {
 
-                gap: 6px;
+                gap: 7px;
+
+                padding-left: 0;
+
+                padding-right: 0;
+
+            }
+
+
+            .chip-button {
+
+                width: 57px;
+
+                height: 57px;
+
+                border-width: 4px;
+
+            }
+
+
+            .chip-button span {
+
+                font-size: 11px;
+
+            }
+
+
+            .bet-timer {
+
+                height: 25px;
+
+                min-width: 29px;
+
+                font-size: 12px;
+
+                padding: 0 6px;
 
             }
 
@@ -1156,13 +1498,6 @@
             }
 
 
-            .amount-btn {
-
-                font-size: 15px;
-
-            }
-
-
             .balance-value {
 
                 font-size: 17px;
@@ -1183,9 +1518,13 @@
 
             .place-bet {
 
-                width: 86%;
+                width: 92%;
 
                 top: 8px;
+
+                font-size: 14px;
+
+                gap: 6px;
 
             }
 
@@ -1218,16 +1557,41 @@
             }
 
 
-            .amount-controls {
+            .chip-area {
 
                 gap: 5px;
 
             }
 
 
-            .amount-btn {
+            .chip-button {
 
-                font-size: 13px;
+                width: 50px;
+
+                height: 50px;
+
+                border-width: 3px;
+
+            }
+
+
+            .chip-button::before {
+
+                inset: 7px;
+
+            }
+
+
+            .chip-button::after {
+
+                inset: 11px;
+
+            }
+
+
+            .chip-button span {
+
+                font-size: 10px;
 
             }
 
@@ -1289,8 +1653,18 @@
 
         <div class="place-bet">
 
-            <span id="place-bet-text">
+            <span
+                id="place-bet-text"
+                class="place-bet-text"
+            >
                 Place a bet
+            </span>
+
+            <span
+                id="bet-timer"
+                class="bet-timer"
+            >
+                10
             </span>
 
         </div>
@@ -1382,6 +1756,10 @@
         </div>
 
 
+        <!-- =====================================================
+             BET OPTIONS
+        ====================================================== -->
+
         <div class="bet-options">
 
 
@@ -1455,41 +1833,121 @@
 
 
         <!-- =====================================================
-             AMOUNT CONTROLS
+             POKER CHIPS
         ====================================================== -->
 
-        <div class="amount-controls">
+        <div class="chip-area">
 
 
             <button
-                class="amount-btn"
-                onclick="setBetAmount('min')"
+                type="button"
+                class="chip-button chip-10 selected-chip"
+                data-value="10"
+                onclick="selectChip(10, 'chip-10')"
             >
-                MIN
+
+                <span>
+                    10
+                </span>
+
             </button>
 
 
             <button
-                class="amount-btn"
-                onclick="setBetAmount('double')"
+                type="button"
+                class="chip-button chip-20"
+                data-value="20"
+                onclick="selectChip(20, 'chip-20')"
             >
-                X2
+
+                <span>
+                    20
+                </span>
+
             </button>
 
 
             <button
-                class="amount-btn"
-                onclick="setBetAmount('half')"
+                type="button"
+                class="chip-button chip-50"
+                data-value="50"
+                onclick="selectChip(50, 'chip-50')"
             >
-                X/2
+
+                <span>
+                    50
+                </span>
+
             </button>
 
 
             <button
-                class="amount-btn"
-                onclick="setBetAmount('max')"
+                type="button"
+                class="chip-button chip-100"
+                data-value="100"
+                onclick="selectChip(100, 'chip-100')"
             >
-                MAX
+
+                <span>
+                    100
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="chip-button chip-500"
+                data-value="500"
+                onclick="selectChip(500, 'chip-500')"
+            >
+
+                <span>
+                    500
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="chip-button chip-1k"
+                data-value="1000"
+                onclick="selectChip(1000, 'chip-1k')"
+            >
+
+                <span>
+                    1K
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="chip-button chip-5k"
+                data-value="5000"
+                onclick="selectChip(5000, 'chip-5k')"
+            >
+
+                <span>
+                    5K
+                </span>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="chip-button chip-10k"
+                data-value="10000"
+                onclick="selectChip(10000, 'chip-10k')"
+            >
+
+                <span>
+                    10K
+                </span>
+
             </button>
 
 
@@ -1497,14 +1955,13 @@
 
 
         <!-- =====================================================
-             BET AMOUNT
+             MIN / MAX BET BAR
         ====================================================== -->
 
-        <div
-            id="amount-display"
-            class="amount-display"
-        >
-            ৳ 10
+        <div class="bet-limit-bar">
+
+            MIN 10-10000 BET
+
         </div>
 
 
@@ -1516,9 +1973,9 @@
 
 
             <button
-                onclick="setChip(selectedChipValue)"
+                onclick="showSelectedChip()"
                 class="control-btn"
-                title="Coins"
+                title="Selected Chip"
             >
 
                 <i class="fa-solid fa-coins"></i>
@@ -1595,11 +2052,15 @@
     let userBalance = 0.00;
 
 
+    /*
+     * DEFAULT SELECTED CHIP
+     */
+
     let selectedChipValue = 10;
 
 
     let selectedChipColor =
-        'bg-red-600';
+        'chip-10';
 
 
     let currentRoundState =
@@ -2024,30 +2485,6 @@
 
                             updateBalanceUI();
 
-
-                            /*
-                             * Keep selected MAX amount
-                             * inside available balance
-                             */
-
-                            if (
-                                selectedChipValue >
-                                userBalance &&
-                                userBalance >= 10
-                            ) {
-
-
-                                selectedChipValue =
-                                    Math.floor(
-                                        userBalance
-                                    );
-
-
-                                updateAmountDisplay();
-
-                            }
-
-
                         }
 
                     }
@@ -2249,167 +2686,109 @@
 
 
     /* =========================================================
-       CHIP
+       SELECT POKER CHIP
     ========================================================== */
 
-    function setChip(
-        val,
-        colorClass = 'bg-red-600'
+    function selectChip(
+        value,
+        colorClass
     ) {
 
 
+        const chipValue =
+            Number(value) || 10;
+
+
         selectedChipValue =
-            Number(val) || 10;
+            chipValue;
 
 
         selectedChipColor =
             colorClass;
 
 
-        updateAmountDisplay();
+        /*
+         * Remove previous selected state
+         */
+
+        document
+            .querySelectorAll(
+                '.chip-button'
+            )
+            .forEach(
+
+                chip => {
+
+                    chip.classList.remove(
+                        'selected-chip'
+                    );
+
+                }
+
+            );
+
+
+        /*
+         * Select current chip
+         */
+
+        const selected =
+            document.querySelector(
+                `.chip-button[data-value="${chipValue}"]`
+            );
+
+
+        if (selected) {
+
+
+            selected.classList.add(
+                'selected-chip'
+            );
+
+        }
+
+
+        /*
+         * If balance is lower than selected chip
+         */
+
+        if (
+            userBalance <
+            chipValue
+        ) {
+
+
+            showMessage(
+                `এই chip ব্যবহার করতে কমপক্ষে ৳${chipValue.toLocaleString()} balance প্রয়োজন।`
+            );
+
+
+            return;
+
+        }
+
 
     }
 
 
-    window.setChip =
-        setChip;
+    window.selectChip =
+        selectChip;
 
 
     /* =========================================================
-       BET AMOUNT
+       SHOW SELECTED CHIP
     ========================================================== */
 
-    function setBetAmount(type) {
+    function showSelectedChip() {
 
 
-        let value =
-            Number(
+        showMessage(
+
+            `Selected Bet: ৳${Number(
                 selectedChipValue
-            ) || 10;
+            ).toLocaleString()}`
 
-
-        if (
-            type === 'min'
-        ) {
-
-
-            value =
-                10;
-
-
-        } else if (
-            type === 'double'
-        ) {
-
-
-            value *= 2;
-
-
-        } else if (
-            type === 'half'
-        ) {
-
-
-            value =
-                Math.max(
-                    10,
-                    Math.floor(
-                        value / 2
-                    )
-                );
-
-
-        } else if (
-            type === 'max'
-        ) {
-
-
-            value =
-                Math.max(
-                    10,
-                    Math.floor(
-                        userBalance
-                    )
-                );
-
-        }
-
-
-        /*
-         * Never allow selected amount
-         * to exceed balance.
-         */
-
-        if (
-            userBalance >= 10 &&
-            value > userBalance
-        ) {
-
-
-            value =
-                Math.floor(
-                    userBalance
-                );
-
-        }
-
-
-        selectedChipValue =
-            Math.max(
-                10,
-                value
-            );
-
-
-        /*
-         * If balance is below minimum
-         */
-
-        if (
-            userBalance < 10
-        ) {
-
-
-            selectedChipValue =
-                10;
-
-        }
-
-
-        updateAmountDisplay();
-
-    }
-
-
-    /* =========================================================
-       AMOUNT DISPLAY
-    ========================================================== */
-
-    function updateAmountDisplay() {
-
-
-        const el =
-            document.getElementById(
-                'amount-display'
-            );
-
-
-        if (el) {
-
-
-            el.innerText =
-                '৳ ' +
-                Number(
-                    selectedChipValue
-                ).toLocaleString(
-                    'en-US',
-                    {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 2
-                    }
-                );
-
-        }
+        );
 
     }
 
@@ -2444,10 +2823,6 @@
 
         }
 
-
-        /*
-         * Existing total bet support
-         */
 
         const total =
             Object.values(
@@ -2565,6 +2940,11 @@
             );
 
 
+        updateTimerUI(
+            timeLeft
+        );
+
+
         window.globalTimerInterval =
             setInterval(
 
@@ -2577,6 +2957,11 @@
                         );
 
 
+                    updateTimerUI(
+                        timeLeft
+                    );
+
+
                     if (
                         timeLeft <= 3
                     ) {
@@ -2586,21 +2971,6 @@
                             timeLeft > 0
                                 ? `Rolling in ${timeLeft}...`
                                 : 'Rolling...';
-
-
-                    } else {
-
-
-                        placeBetText.innerText =
-                            'Place a bet';
-
-                    }
-
-
-                    if (
-                        timeLeft <= 3 &&
-                        timeLeft > 0
-                    ) {
 
 
                         document
@@ -2625,6 +2995,13 @@
 
                         currentRoundState =
                             'rolling_soon';
+
+                    } else {
+
+
+                        placeBetText.innerText =
+                            'Place a bet';
+
 
                     }
 
@@ -2666,6 +3043,61 @@
 
 
     /* =========================================================
+       TIMER UI
+    ========================================================== */
+
+    function updateTimerUI(
+        timeLeft
+    ) {
+
+
+        const timer =
+            document.getElementById(
+                'bet-timer'
+            );
+
+
+        if (!timer)
+
+            return;
+
+
+        const safeTime =
+            Math.max(
+                0,
+                Number(
+                    timeLeft
+                ) || 0
+            );
+
+
+        timer.innerText =
+            safeTime;
+
+
+        if (
+            safeTime <= 3
+        ) {
+
+
+            timer.classList.add(
+                'warning'
+            );
+
+
+        } else {
+
+
+            timer.classList.remove(
+                'warning'
+            );
+
+        }
+
+    }
+
+
+    /* =========================================================
        PLACE BET
     ========================================================== */
 
@@ -2685,8 +3117,7 @@
 
 
         /*
-         * Check current database balance
-         * before placing every bet.
+         * Refresh latest database balance.
          */
 
         await refreshBalanceFromDatabase();
@@ -2747,8 +3178,7 @@
 
 
         /*
-         * IMPORTANT:
-         * Never allow betting above balance.
+         * NEVER allow bet above balance.
          */
 
         if (
@@ -2758,7 +3188,9 @@
 
 
             showMessage(
-                'পর্যাপ্ত ব্যালেন্স নেই!'
+                `পর্যাপ্ত ব্যালেন্স নেই! ৳${Number(
+                    selectedChipValue
+                ).toLocaleString()} প্রয়োজন।`
             );
 
 
@@ -2799,10 +3231,6 @@
                 'ব্যালেন্স আপডেট করা যায়নি!'
             );
 
-
-            /*
-             * Reload actual balance.
-             */
 
             await refreshBalanceFromDatabase();
 
@@ -2870,7 +3298,7 @@
 
 
     /* =========================================================
-       CHIPS DISPLAY
+       CHIPS DISPLAY ON BET OPTION
     ========================================================== */
 
     function updateChipsDisplay() {
@@ -2900,7 +3328,9 @@
 
 
                     chip.innerText =
-                        `৳${activeBets[spot]}`;
+                        `৳${Number(
+                            activeBets[spot]
+                        ).toLocaleString()}`;
 
 
                     chip.className =
@@ -3266,6 +3696,9 @@
             'Rolling...';
 
 
+        updateTimerUI(0);
+
+
         const dice1 =
             document.getElementById(
                 'dice-1'
@@ -3498,11 +3931,6 @@
             ) {
 
 
-                /*
-                 * If update fails,
-                 * fetch actual database balance.
-                 */
-
                 await refreshBalanceFromDatabase();
 
             }
@@ -3591,6 +4019,17 @@
             over: 0,
 
             exact: 0
+
+        };
+
+
+        activeBetChipColors = {
+
+            under: '',
+
+            over: '',
+
+            exact: ''
 
         };
 
@@ -3727,14 +4166,63 @@
         };
 
 
+        activeBetChipColors = {
+
+            under: '',
+
+            over: '',
+
+            exact: ''
+
+        };
+
+
         updateChipsDisplay();
 
+
+        /*
+         * Reset to 10 chip
+         */
 
         selectedChipValue =
             10;
 
 
-        updateAmountDisplay();
+        selectedChipColor =
+            'chip-10';
+
+
+        document
+            .querySelectorAll(
+                '.chip-button'
+            )
+            .forEach(
+
+                chip => {
+
+                    chip.classList.remove(
+                        'selected-chip'
+                    );
+
+                }
+
+            );
+
+
+        const defaultChip =
+            document.querySelector(
+                '.chip-button[data-value="10"]'
+            );
+
+
+        if (defaultChip) {
+
+
+            defaultChip.classList.add(
+                'selected-chip'
+            );
+
+        }
 
 
         currentRoundState =
@@ -3841,10 +4329,27 @@
             initGame();
 
 
-            updateAmountDisplay();
-
-
             updateBalanceUI();
+
+
+            /*
+             * Default 10 chip selected
+             */
+
+            const defaultChip =
+                document.querySelector(
+                    '.chip-button[data-value="10"]'
+                );
+
+
+            if (defaultChip) {
+
+
+                defaultChip.classList.add(
+                    'selected-chip'
+                );
+
+            }
 
 
         }
