@@ -43,17 +43,22 @@
             border-color: #24ee89 !important;
             box-shadow: 0 0 15px rgba(36, 238, 137, 0.6);
         }
-        /* ডাইস রোলিং অ্যানিমেশন স্টাইল */
+        /* ডাইস রোলিং অ্যানিমেশন স্টাইল (স্মুথ ঘূর্ণন ও ঝাঁকুনি) */
+        @keyframes diceSpin {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
         @keyframes diceShake {
             0% { transform: translate(0, 0) rotate(0deg); }
-            20% { transform: translate(-3px, 3px) rotate(-10deg); }
-            40% { transform: translate(3px, -3px) rotate(10deg); }
-            60% { transform: translate(-3px, -3px) rotate(-5deg); }
-            80% { transform: translate(3px, 3px) rotate(5deg); }
+            20% { transform: translate(-4px, 4px) rotate(-15deg); }
+            40% { transform: translate(4px, -4px) rotate(15deg); }
+            60% { transform: translate(-4px, -4px) rotate(-10deg); }
+            80% { transform: translate(4px, 4px) rotate(10deg); }
             100% { transform: translate(0, 0) rotate(0deg); }
         }
         .rolling-anim {
-            animation: diceShake 0.4s infinite ease-in-out;
+            animation: diceSpin 0.4s infinite linear, diceShake 0.4s infinite ease-in-out;
         }
         /* ক্যাসিনো স্টাইল ট্রান্সপারেন্ট ওভারলে */
         .casino-overlay {
@@ -67,7 +72,7 @@
             85% { opacity: 1; transform: scale(1); }
             100% { opacity: 0; transform: scale(1.1); display: none; }
         }
-        /* পোকার চিপ ডিজাইন স্টাইল (দ্বিতীয় ছবির আদলে) */
+        /* পোকার চিপ ডিজাইন স্টাইল */
         .poker-chip {
             border-radius: 50%;
             border: 3px dashed rgba(255, 255, 255, 0.7);
@@ -94,17 +99,18 @@
                 </div>
             </div>
 
-            <!-- Dice Rolling Animation Area (ছবি ১ অনুযায়ী ডাইস ডিজাইন ও ডট ডিসপ্লে) -->
-            <div class="flex items-center justify-center space-x-6 my-auto">
-                <div id="dice-1" class="w-16 h-16 bg-white text-gray-900 rounded-2xl shadow-2xl flex items-center justify-center border-4 border-gray-300">
-                    <!-- ডাইস ডট কনটেইনার -->
-                    <div class="w-full h-full p-2 grid grid-cols-3 grid-rows-3 items-center justify-items-center">
-                        <span class="dot-1 col-start-2 row-start-2 w-3.5 h-3.5 bg-black rounded-full"></span>
+            <!-- Dice Rolling Animation Area (গোল সার্কেলের ভিতরে দুটি ডাইস) -->
+            <div class="flex items-center justify-center my-auto">
+                <div class="w-36 h-36 rounded-full bg-black/40 border-2 border-yellow-500/30 flex items-center justify-center space-x-4 shadow-[0_0_20px_rgba(0,0,0,0.6)_inset]">
+                    <div id="dice-1" class="w-14 h-14 bg-white text-gray-900 rounded-xl shadow-2xl flex items-center justify-center border-2 border-gray-300 transition-all duration-300">
+                        <div class="w-full h-full p-2 grid grid-cols-3 grid-rows-3 items-center justify-items-center">
+                            <span class="dot-1 col-start-2 row-start-2 w-3 h-3 bg-black rounded-full"></span>
+                        </div>
                     </div>
-                </div>
-                <div id="dice-2" class="w-16 h-16 bg-white text-gray-900 rounded-2xl shadow-2xl flex items-center justify-center border-4 border-gray-300">
-                    <div class="w-full h-full p-2 grid grid-cols-3 grid-rows-3 items-center justify-items-center">
-                        <span class="dot-2 col-start-2 row-start-2 w-3.5 h-3.5 bg-black rounded-full"></span>
+                    <div id="dice-2" class="w-14 h-14 bg-white text-gray-900 rounded-xl shadow-2xl flex items-center justify-center border-2 border-gray-300 transition-all duration-300">
+                        <div class="w-full h-full p-2 grid grid-cols-3 grid-rows-3 items-center justify-items-center">
+                            <span class="dot-2 col-start-2 row-start-2 w-3 h-3 bg-black rounded-full"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -128,7 +134,7 @@
             </div>
         </div>
 
-        <!-- Betting Options Layout (Over 7, Equal 7, Under 7 with updated payouts) -->
+        <!-- Betting Options Layout -->
         <div class="p-3 grid grid-cols-3 gap-2.5 bg-cardDark">
             
             <!-- Over 7 -->
@@ -138,7 +144,7 @@
                 <div id="chip-over" class="absolute -top-2 -right-2 w-7 h-7 text-[10px] text-white shadow-md hidden"></div>
             </button>
 
-            <!-- Equal 7 (5.8 Odds) -->
+            <!-- Equal 7 -->
             <button onclick="placeUserBet('exact')" id="spot-exact" class="relative p-3 bg-[#1e293b] hover:bg-slate-800 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-gray-700 shadow-lg active:scale-95">
                 <span class="text-[11px] font-bold text-gray-300 uppercase">Equal 7</span>
                 <span class="text-xs font-black text-yellow-400 my-1">x 5.8</span>
@@ -156,7 +162,7 @@
 
     </main>
 
-    <!-- Fixed Bottom Footer (Balance & Chips Bar - ছবির কালার অনুযায়ী চিপস) -->
+    <!-- Fixed Bottom Footer (Balance & Chips Bar) -->
     <footer class="w-full max-w-md fixed bottom-0 z-50 bg-[#111827] border-t border-gray-800 flex flex-col">
         <div class="flex items-center justify-between px-3 py-2.5 text-xs bg-[#18181b]">
             <div class="flex flex-col">
@@ -164,7 +170,7 @@
                 <span class="text-white font-mono font-bold text-sm">৳<span id="user-balance-display">0.00</span></span>
             </div>
             
-            <!-- Chip Selector Buttons (Different Colors based on second image) -->
+            <!-- Chip Selector Buttons -->
             <div class="flex items-center space-x-2">
                 <button onclick="setChip(10, 'bg-red-600')" class="w-8 h-8 rounded-full bg-red-600 text-white font-bold text-[10px] shadow flex items-center justify-center border-2 border-dashed border-white/70 chip-btn ring-2 ring-yellow-400" data-val="10" data-color="bg-red-600">10</button>
                 <button onclick="setChip(50, 'bg-blue-600')" class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-[10px] shadow flex items-center justify-center border-2 border-dashed border-white/70 chip-btn" data-val="50" data-color="bg-blue-600">50</button>
@@ -186,7 +192,6 @@
         let selectedChipColor = 'bg-red-600';
         let currentRoundState = 'betting';
         
-        // লোকাল স্টোরেজ ব্যবহার করে রাউন্ড ও টাইমার সিঙ্ক রাখা যাতে স্ক্রিন রিফ্রেশ করলে টাইম বা রাউন্ড রিসেট না হয়
         const ROUND_DURATION = 10; // ১০ সেকেন্ড
         
         let activeBets = {
@@ -195,7 +200,6 @@
             exact: 0
         };
 
-        // নির্দিষ্ট চিপের কালার সেভ রাখার জন্য অবজেক্ট
         let activeBetChipColors = {
             under: '',
             over: '',
@@ -234,7 +238,7 @@
                         })
                         .subscribe();
                 } else {
-                    alert('দয়া করে প্রথমে লগইন করুন!');
+                    alert('দয়া করে প্রথমে লগইন করুন!');
                     window.location.href = '../login.html';
                 }
             } catch (err) {
@@ -272,7 +276,6 @@
             document.getElementById('total-bet-display').innerText = total.toFixed(2);
         }
 
-        // গ্লোবাল টাইমার সিঙ্ক (লোকালস্টোরেজ ভিত্তিক যেন পেজ রিফ্রেশে টাইম রিসেট না হয়)
         function syncAndStartTimer() {
             let roundStartTime = localStorage.getItem('dice_round_start_time');
             let now = Date.now();
@@ -296,16 +299,24 @@
             
             if (window.globalTimerInterval) clearInterval(window.globalTimerInterval);
 
+            // টাইমার শুরু হওয়ার সাথে সাথেই ডাইসে রোলিং অ্যানিমেশন সচল করা (টাইম সিংক অনুযায়ী)
+            if (timeLeft <= 3) {
+                document.getElementById('dice-1').classList.add('rolling-anim');
+                document.getElementById('dice-2').classList.add('rolling-anim');
+            }
+
             window.globalTimerInterval = setInterval(() => {
                 timerDisplay.innerText = timeLeft + 's';
 
                 if (timeLeft <= 3 && timeLeft > 0) {
                     currentRoundState = 'rolling_soon';
+                    document.getElementById('dice-1').classList.add('rolling-anim');
+                    document.getElementById('dice-2').classList.add('rolling-anim');
                 }
 
                 if (timeLeft <= 0) {
                     clearInterval(window.globalTimerInterval);
-                    localStorage.setItem('dice_round_start_time', Date.now()); // নতুন রাউন্ডের সময় সেট
+                    localStorage.setItem('dice_round_start_time', Date.now());
                     lockBetsAndRollDice();
                 }
                 timeLeft--;
@@ -317,9 +328,8 @@
             let elapsed = Math.floor((Date.now() - roundStartTime) / 1000);
             let timeLeft = ROUND_DURATION - (elapsed % ROUND_DURATION);
 
-            // শেষ ৩ সেকেন্ডে বেট নেওয়া বন্ধ থাকবে
             if (timeLeft <= 2) {
-                alert('এই রাউন্ডের বেটিং সময় শেষ!');
+                alert('এই রাউন্ডের বেটিং সময় শেষ!');
                 return;
             }
 
@@ -330,7 +340,7 @@
 
             userBalance -= selectedChipValue;
             activeBets[spot] += selectedChipValue;
-            activeBetChipColors[spot] = selectedChipColor; // নির্দিষ্ট চিপ কালার সেভ করা
+            activeBetChipColors[spot] = selectedChipColor;
             
             updateBalanceUI();
             updateChipsDisplay();
@@ -363,58 +373,57 @@
             });
         }
 
-        // ডাইসের সঠিক ডট প্যাটার্ন রেন্ডার করার ফাংশন (১ থেকে ৬ ফোটা)
         function renderDiceDots(diceElementId, value) {
             const diceEl = document.getElementById(diceElementId);
             let dotPositions = '';
 
             switch(value) {
                 case 1:
-                    dotPositions = '<span class="col-start-2 row-start-2 w-3.5 h-3.5 bg-black rounded-full"></span>';
+                    dotPositions = '<span class="col-start-2 row-start-2 w-3 h-3 bg-black rounded-full"></span>';
                     break;
                 case 2:
                     dotPositions = `
-                        <span class="col-start-1 row-start-1 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-3 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-1 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-3 w-2.5 h-2.5 bg-black rounded-full"></span>
                     `;
                     break;
                 case 3:
                     dotPositions = `
-                        <span class="col-start-1 row-start-1 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-2 row-start-2 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-3 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-1 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-2 row-start-2 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-3 w-2.5 h-2.5 bg-black rounded-full"></span>
                     `;
                     break;
                 case 4:
                     dotPositions = `
-                        <span class="col-start-1 row-start-1 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-3 row-start-1 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-1 row-start-3 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-3 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-1 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-1 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-3 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-3 w-2.5 h-2.5 bg-black rounded-full"></span>
                     `;
                     break;
                 case 5:
                     dotPositions = `
-                        <span class="col-start-1 row-start-1 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-3 row-start-1 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-2 row-start-2 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-1 row-start-3 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-3 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-1 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-1 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-2 row-start-2 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-3 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-3 w-2.5 h-2.5 bg-black rounded-full"></span>
                     `;
                     break;
                 case 6:
                     dotPositions = `
-                        <span class="col-start-1 row-start-1 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-3 row-start-1 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-1 row-start-2 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-3 row-start-2 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-1 row-start-3 w-3 h-3 bg-black rounded-full"></span>
-                        <span class="col-start-3 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-1 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-1 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-2 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-2 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-3 w-2.5 h-2.5 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-3 w-2.5 h-2.5 bg-black rounded-full"></span>
                     `;
                     break;
             }
 
-            diceEl.innerHTML = `<div class="w-full h-full p-2 grid grid-cols-3 grid-rows-3 items-center justify-items-center">${dotPositions}</div>`;
+            diceEl.innerHTML = `<div class="w-full h-full p-1.5 grid grid-cols-3 grid-rows-3 items-center justify-items-center">${dotPositions}</div>`;
         }
 
         async function lockBetsAndRollDice() {
@@ -424,7 +433,6 @@
             document.getElementById('dice-1').classList.add('rolling-anim');
             document.getElementById('dice-2').classList.add('rolling-anim');
 
-            // দুটি ডাইসের রেন্ডম রোল (১ থেকে ৬)
             const d1 = Math.floor(Math.random() * 6) + 1;
             const d2 = Math.floor(Math.random() * 6) + 1;
             const sum = d1 + d2;
@@ -450,7 +458,7 @@
                 let bAmount = activeBets[spot];
                 if (bAmount > 0) {
                     let isWinner = (spot === winner);
-                    let payoutMultiplier = (spot === 'exact') ? 5.8 : 2.3; // পেআউট আপডেট করা হয়েছে
+                    let payoutMultiplier = (spot === 'exact') ? 5.8 : 2.3;
                     let itemPayout = isWinner ? (bAmount * payoutMultiplier) : 0;
                     let targetNum = (spot === 'under') ? 6 : (spot === 'over') ? 8 : 7;
 
@@ -481,7 +489,6 @@
 
             document.getElementById('sum-result-text').innerText = `TOTAL SUM: ${sum} (${winner.toUpperCase()})`;
             
-            // ক্যাসিনো স্টাইল উইন/লস ট্রান্সপারেন্ট ওভারলে মেসেজ
             const overlay = document.getElementById('result-overlay');
             const overlayText = document.getElementById('overlay-text');
             
@@ -500,7 +507,6 @@
 
             updateHistoryLog(sum);
 
-            // রাউন্ড শেষে বেট ক্লিয়ার করা
             activeBets = { under: 0, over: 0, exact: 0 };
             updateChipsDisplay();
 
@@ -517,7 +523,6 @@
             span.innerText = sum;
             container.prepend(span);
             
-            // লোকালস্টোরেজে হিস্ট্রি সেভ রাখা যাতে রিফ্রেশে না হারায়
             let histories = JSON.parse(localStorage.getItem('dice_game_histories') || '[]');
             histories.unshift(sum);
             if(histories.length > 10) histories.pop();
