@@ -36,6 +36,9 @@
             color: #f3f4f6;
             touch-action: manipulation;
         }
+        .dice-box {
+            perspective: 1000px;
+        }
         .bet-spot-selected {
             border-color: #24ee89 !important;
             box-shadow: 0 0 15px rgba(36, 238, 137, 0.6);
@@ -44,14 +47,11 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-0 select-none selection:bg-yellow-500 selection:text-black">
 
-    <!-- Top Bar Inclusion Container -->
-    <div id="top-bar-container" class="w-full flex justify-center"></div>
-
     <!-- Main Game Wrapper -->
     <main class="w-full max-w-md flex flex-col bg-cardDark shadow-2xl overflow-hidden relative pb-16">
         
         <!-- Top Display Section (Dice Roll Area) -->
-        <div class="relative w-full h-52 bg-gradient-to-b from-[#111827] to-[#1f2937] border-b border-gray-800 flex flex-col justify-between p-3 overflow-hidden">
+        <div class="relative w-full h-56 bg-gradient-to-b from-[#111827] to-[#1f2937] border-b border-gray-800 flex flex-col justify-between p-3 overflow-hidden">
             <div class="flex items-center justify-between w-full text-[11px] text-gray-400">
                 <span class="bg-black/40 px-2.5 py-1 rounded border border-gray-700 font-medium text-yellow-400">7 Under / Over</span>
                 <div class="flex items-center space-x-1 bg-black/40 px-2.5 py-1 rounded border border-gray-700 font-bold text-white">
@@ -84,13 +84,14 @@
         <div class="w-full h-12 bg-[#111827] border-b border-gray-800 flex items-center px-3 space-x-2 overflow-x-auto">
             <span class="text-[10px] text-gray-400 font-bold">HISTORY:</span>
             <div id="history-container" class="flex items-center space-x-1.5">
-                <!-- History badges -->
+                <!-- History badges will load here -->
             </div>
         </div>
 
-        <!-- Betting Options Layout -->
+        <!-- Betting Options Layout (Under 7, Exactly 7, Over 7) -->
         <div class="p-3 flex flex-col space-y-3 bg-cardDark">
             
+            <!-- Under 7 & Over 7 (Main Bets) -->
             <div class="grid grid-cols-2 gap-3">
                 <!-- Under 7 -->
                 <button onclick="placeUserBet('under')" id="spot-under" class="relative p-5 bg-gameRed hover:bg-red-700 rounded-2xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
@@ -109,7 +110,7 @@
                 </button>
             </div>
 
-            <!-- Exactly 7 -->
+            <!-- Exactly 7 (High Payout) -->
             <button onclick="placeUserBet('exact')" id="spot-exact" class="relative p-4 bg-gameGreen hover:bg-emerald-700 rounded-2xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
                 <span class="text-xs font-bold text-white/80 uppercase tracking-widest">Lucky Number</span>
                 <span class="text-2xl font-black text-white">EXACTLY 7</span>
@@ -132,7 +133,7 @@
             <!-- Chip Selector Buttons -->
             <div class="flex items-center space-x-1.5">
                 <button onclick="setChip(10)" class="w-8 h-8 rounded-full bg-red-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="10">10</button>
-                <button onclick="setChip(50)" class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="50">50</button>
+                <button onclick="setChip(50)" class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-xs shadow flex items-center justify-center border border-white/20 chip-btn" data-val="50">50</button>
                 <button onclick="setChip(100)" class="w-8 h-8 rounded-full bg-green-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn ring-2 ring-yellow-400" data-val="100">100</button>
                 <button onclick="setChip(500)" class="w-8 h-8 rounded-full bg-purple-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="500">500</button>
             </div>
@@ -152,6 +153,7 @@
         let timeLeft = 10;
         let globalTimerInterval = null;
 
+        // স্টোরেজ অবজেক্ট যেখানে ইউজারের বর্তমান রাউন্ডের বেটগুলো জমা হবে
         let activeBets = {
             under: 0,
             over: 0,
@@ -159,36 +161,40 @@
         };
 
         function getClient() {
-            return window.supabaseClient || null;
-        }
-
-        async function loadTopBar() {
-            try {
-                const response = await fetch('bar/top.html');
-                const html = await response.text();
-                document.getElementById('top-bar-container').innerHTML = html;
-            } catch (e) {
-                console.error("Top bar load error:", e);
-            }
+            if (typeof supabaseClient !== 'undefined') return supabaseClient;
+            if (typeof supabase !== 'undefined') return supabase;
+            if (window.supabaseClient) return window.supabaseClient;
+            if (window.supabase) return window.supabase;
+            return null;
         }
 
         async function initGame() {
-            await loadTopBar();
             const client = getClient();
-            if (!client) {
-                alert('Supabase client connection failed!');
-                return;
-            }
-
             try {
-                const { data: { user } } = await client.auth.getUser();
-                if (user) {
+                let user = null;
+                if (typeof requireAuth === 'function') user = await requireAuth();
+                else if (typeof getCurrentUser === 'function') user = await getCurrentUser();
+                else if (client) {
+                    const { data } = await client.auth.getUser();
+                    user = data?.user;
+                }
+
+                if (user && client) {
                     currentUserId = user.id;
-                    await fetchUserProfile(currentUserId);
-                    setupRealtimeProfileSync(currentUserId);
+                    await fetchUserProfile(client, currentUserId);
+
+                    // ব্যালেন্স বা প্রোফাইল লাইভ সিঙ্কের জন্য রিয়েলটাইম লিসেনার
+                    client.channel('public:profiles')
+                        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${currentUserId}` }, payload => {
+                            if (payload.new && payload.new.balance !== undefined) {
+                                userBalance = parseFloat(payload.new.balance) || 0.00;
+                                updateBalanceUI();
+                            }
+                        })
+                        .subscribe();
                 } else {
-                    // ডেমো বা টেস্ট ইউজার আইডি যদি সেশন না থাকে
-                    console.warn("No active auth session found.");
+                    alert('দয়া করে প্রথমে লগইন করুন!');
+                    window.location.href = '../login.html'; // প্রয়োজনে লগইন পেজ পাথ ঠিক করে নিন
                 }
             } catch (err) {
                 console.error("Auth init error:", err);
@@ -197,29 +203,14 @@
             startGlobalTimer();
         }
 
-        async function fetchUserProfile(userId) {
-            const client = getClient();
-            const { data, error } = await client.from('profiles').select('*').eq('id', userId).single();
-            if (data && !error) {
-                userBalance = parseFloat(data.balance) || 0;
+        async function fetchUserProfile(client, userId) {
+            const { data: profile, error } = await client.from('profiles').select('balance').eq('id', userId).single();
+            if (profile) {
+                userBalance = parseFloat(profile.balance) || 0.00;
                 updateBalanceUI();
-                if(document.getElementById('top-user-name')) {
-                    document.getElementById('top-user-name').innerText = data.full_name || 'User';
-                    document.getElementById('user-initials').innerText = (data.full_name || 'U').charAt(0).toUpperCase();
-                }
+            } else if (error) {
+                console.error("Error fetching profile:", error);
             }
-        }
-
-        function setupRealtimeProfileSync(userId) {
-            const client = getClient();
-            client.channel('public:profiles')
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${userId}` }, payload => {
-                    if (payload.new) {
-                        userBalance = parseFloat(payload.new.balance) || 0;
-                        updateBalanceUI();
-                    }
-                })
-                .subscribe();
         }
 
         function setChip(val) {
@@ -236,9 +227,6 @@
 
         function updateBalanceUI() {
             document.getElementById('user-balance-display').innerText = userBalance.toFixed(2);
-            if(document.getElementById('top-user-balance')) {
-                document.getElementById('top-user-balance').innerText = userBalance.toFixed(2);
-            }
             let total = Object.values(activeBets).reduce((a, b) => a + b, 0);
             document.getElementById('total-bet-display').innerText = total.toFixed(2);
         }
@@ -270,12 +258,12 @@
 
         async function placeUserBet(spot) {
             if (currentRoundState !== 'betting') {
-                alert('Wait For Next Round');
+                alert('পরবর্তী রাউন্ডের জন্য অপেক্ষা করুন!');
                 return;
             }
 
             if (userBalance < selectedChipValue) {
-                alert('Insufficient balance!');
+                alert('পর্যাপ্ত ব্যালেন্স নেই!');
                 return;
             }
 
@@ -292,7 +280,7 @@
 
             const client = getClient();
             if (client && currentUserId) {
-                // ডাটাবেসে ব্যালেন্স আপডেট
+                // ডাটাবেজে ইউজারের ব্যালেন্স তাৎক্ষণিকভাবে আপডেট করা
                 await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
             }
         }
@@ -316,6 +304,7 @@
             currentRoundState = 'rolling';
             document.getElementById('sum-result-text').innerText = 'ROLLING...';
 
+            // দুটি ডাইসের রেন্ডম রোল (১ থেকে ৬)
             const d1 = Math.floor(Math.random() * 6) + 1;
             const d2 = Math.floor(Math.random() * 6) + 1;
             const sum = d1 + d2;
@@ -329,34 +318,41 @@
             else if (sum > 7) winner = 'over';
             else winner = 'exact';
 
-            let totalPayout = 0;
-            let targetNumVal = (winner === 'under') ? 6 : (winner === 'over') ? 8 : 7;
+            const client = getClient();
 
-            // প্রতিটা বেটের হিসাব ও পেআউট নির্ধারণ
-            if (activeBets.under > 0) {
-                let payoutAmt = (winner === 'under') ? activeBets.under * 2 : 0;
-                totalPayout += payoutAmt;
-                await recordBetToDatabase('under', activeBets.under, sum, payoutAmt, winner === 'under');
-            }
-            if (activeBets.over > 0) {
-                let payoutAmt = (winner === 'over') ? activeBets.over * 2 : 0;
-                totalPayout += payoutAmt;
-                await recordBetToDatabase('over', activeBets.over, sum, payoutAmt, winner === 'over');
-            }
-            if (activeBets.exact > 0) {
-                let payoutAmt = (winner === 'exact') ? activeBets.exact * 6 : 0;
-                totalPayout += payoutAmt;
-                await recordBetToDatabase('exact', activeBets.exact, sum, payoutAmt, winner === 'exact');
-            }
+            // প্রতিটি অ্যাক্টিভ বেটের জন্য bets টেবিলে ডাটা সেভ এবং পেআউট ক্যালকুলেশন
+            for (let spot in activeBets) {
+                let bAmount = activeBets[spot];
+                if (bAmount > 0) {
+                    let isWinner = (spot === winner);
+                    let payoutMultiplier = (spot === 'exact') ? 6 : 2; 
+                    let itemPayout = isWinner ? (bAmount * payoutMultiplier) : 0;
+                    let targetNum = (spot === 'under') ? 6 : (spot === 'over') ? 8 : 7;
 
-            if (totalPayout > 0) {
-                userBalance += totalPayout;
-                updateBalanceUI();
-                const client = getClient();
-                if (client && currentUserId) {
-                    await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+                    if (itemPayout > 0) {
+                        userBalance += itemPayout;
+                    }
+
+                    // آپনার schema অনুযায়ী bets টেবিলে রেকর্ড ইনসার্ট করা
+                    if (client && currentUserId) {
+                        await client.from('bets').insert({
+                            user_id: currentUserId,
+                            target_number: targetNum,
+                            roll_result: sum,
+                            bet_amount: bAmount,
+                            payout: itemPayout,
+                            is_bool: isWinner
+                        });
+                    }
                 }
             }
+
+            if (client && currentUserId) {
+                // আপডেট হওয়া ব্যালেন্স ডাটাবেজে সেভ করা
+                await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+            }
+
+            updateBalanceUI();
 
             document.getElementById('sum-result-text').innerText = `TOTAL SUM: ${sum} (${winner.toUpperCase()})`;
             
@@ -371,29 +367,13 @@
             }, 4000);
         }
 
-        async function recordBetToDatabase(targetType, betAmt, rollSum, payoutAmt, isWin) {
-            const client = getClient();
-            if (!client || !currentUserId || betAmt <= 0) return;
-
-            let targetNum = targetType === 'under' ? 6 : targetType === 'over' ? 8 : 7;
-
-            await client.from('bets').insert({
-                user_id: currentUserId,
-                target_number: targetNum,
-                roll_result: rollSum,
-                bet_amount: betAmt,
-                payout: payoutAmt,
-                is_bool: isWin
-            });
-        }
-
         function updateHistoryLog(sum) {
             const container = document.getElementById('history-container');
             const span = document.createElement('span');
             span.className = `w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black text-white ${sum < 7 ? 'bg-gameRed' : sum > 7 ? 'bg-gameYellow' : 'bg-gameGreen'}`;
             span.innerText = sum;
             container.prepend(span);
-            if(container.children.length > 8) {
+            if(container.children.length > 6) {
                 container.lastChild.remove();
             }
         }
