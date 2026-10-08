@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="bn" class="dark">
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -58,6 +59,7 @@
             'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap'
         );
 
+
         * {
 
             box-sizing: border-box;
@@ -65,6 +67,7 @@
             -webkit-tap-highlight-color: transparent;
 
         }
+
 
         html,
         body {
@@ -80,6 +83,7 @@
             max-width: 100%;
 
         }
+
 
         body {
 
@@ -105,6 +109,7 @@
             overflow-x: hidden;
 
         }
+
 
         button {
 
@@ -143,10 +148,6 @@
 
         /* =========================================================
            TOP GAME HEADER
-           
-           UPDATED:
-           Header height increased so dice stays completely
-           above RESULT and betting panel.
         ========================================================= */
 
         .game-top {
@@ -182,8 +183,6 @@
         }
 
 
-        /* decorative rays */
-
         .game-top::before {
 
             content: "";
@@ -208,9 +207,6 @@
 
         /* =========================================================
            PLACE A BET
-           
-           UPDATED:
-           Text is now fixed clearly ABOVE the dice.
         ========================================================= */
 
         .place-bet {
@@ -261,9 +257,6 @@
 
         /* =========================================================
            DICE AREA
-           
-           UPDATED:
-           Dice moved lower inside the larger header.
         ========================================================= */
 
         .dice-area {
@@ -468,9 +461,6 @@
 
         /* =========================================================
            RESULT
-           
-           UPDATED:
-           Result now naturally appears BELOW the entire dice area.
         ========================================================= */
 
         .result-text {
@@ -494,6 +484,83 @@
             width: 100%;
 
             overflow: hidden;
+
+        }
+
+
+        /* =========================================================
+           REAL TIME BALANCE
+        ========================================================= */
+
+        .balance-bar {
+
+            width: 100%;
+
+            min-height: 58px;
+
+            margin-bottom: 12px;
+
+            padding: 10px 15px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            border-radius: 9px;
+
+            border: 1px solid rgba(215,185,109,.55);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(62,54,72,.98),
+                    rgba(37,35,53,.98)
+                );
+
+            box-shadow:
+                inset 0 1px rgba(255,255,255,.07),
+                0 4px 10px rgba(0,0,0,.25);
+
+        }
+
+
+        .balance-label {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            color: #d8d5df;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+        }
+
+
+        .balance-label i {
+
+            color: #d7b96d;
+
+            font-size: 18px;
+
+        }
+
+
+        .balance-value {
+
+            color: #f5d879;
+
+            font-size: 19px;
+
+            font-weight: 900;
+
+            letter-spacing: .2px;
 
         }
 
@@ -924,12 +991,6 @@
 
         @media (max-width: 600px) {
 
-            /*
-             * UPDATED:
-             * Mobile header increased to keep
-             * Place a bet above dice and result below dice.
-             */
-
             .game-top {
 
                 height: 205px;
@@ -1098,6 +1159,13 @@
             .amount-btn {
 
                 font-size: 15px;
+
+            }
+
+
+            .balance-value {
+
+                font-size: 17px;
 
             }
 
@@ -1285,6 +1353,33 @@
     ========================================================== -->
 
     <section class="bet-panel">
+
+
+        <!-- =====================================================
+             REAL TIME BALANCE
+        ====================================================== -->
+
+        <div class="balance-bar">
+
+            <div class="balance-label">
+
+                <i class="fa-solid fa-wallet"></i>
+
+                <span>
+                    Balance
+                </span>
+
+            </div>
+
+
+            <div
+                id="balance-display"
+                class="balance-value"
+            >
+                ৳ 0.00
+            </div>
+
+        </div>
 
 
         <div class="bet-options">
@@ -1490,6 +1585,10 @@
 <script>
 
 
+    /* =========================================================
+       GLOBAL VARIABLES
+    ========================================================== */
+
     let currentUserId = null;
 
 
@@ -1530,6 +1629,9 @@
         exact: ''
 
     };
+
+
+    let profileRealtimeChannel = null;
 
 
     /* =========================================================
@@ -1624,71 +1726,14 @@
             }
 
 
+            /*
+             * USER NOT LOGGED IN
+             */
+
             if (
-                user &&
-                client
+                !user ||
+                !client
             ) {
-
-
-                currentUserId =
-                    user.id;
-
-
-                await fetchUserProfile(
-                    client,
-                    currentUserId
-                );
-
-
-                client.channel(
-                    'public:profiles'
-                )
-
-                .on(
-
-                    'postgres_changes',
-
-                    {
-
-                        event: 'UPDATE',
-
-                        schema: 'public',
-
-                        table: 'profiles',
-
-                        filter:
-                            `id=eq.${currentUserId}`
-
-                    },
-
-                    payload => {
-
-
-                        if (
-                            payload.new &&
-                            payload.new.balance !==
-                            undefined
-                        ) {
-
-
-                            userBalance =
-                                parseFloat(
-                                    payload.new.balance
-                                ) || 0.00;
-
-
-                            updateBalanceUI();
-
-                        }
-
-                    }
-
-                )
-
-                .subscribe();
-
-
-            } else {
 
 
                 userBalance =
@@ -1697,7 +1742,35 @@
 
                 updateBalanceUI();
 
+
+                return;
+
             }
+
+
+            currentUserId =
+                user.id;
+
+
+            /*
+             * LOAD USER PROFILE
+             */
+
+            await fetchUserProfile(
+                client,
+                currentUserId,
+                user
+            );
+
+
+            /*
+             * REALTIME BALANCE
+             */
+
+            subscribeToRealtimeBalance(
+                client,
+                currentUserId
+            );
 
 
         } catch (err) {
@@ -1707,6 +1780,13 @@
                 "Auth init error:",
                 err
             );
+
+
+            userBalance =
+                0;
+
+
+            updateBalanceUI();
 
         }
 
@@ -1728,6 +1808,7 @@
             1
         );
 
+
     }
 
 
@@ -1737,30 +1818,432 @@
 
     async function fetchUserProfile(
         client,
-        userId
+        userId,
+        user
     ) {
 
 
-        const { data: profile } =
+        const { data: profile, error } =
             await client
                 .from('profiles')
-                .select('balance')
-                .eq('id', userId)
-                .single();
+                .select(
+                    'id, full_name, phone_number, balance, created_at'
+                )
+                .eq(
+                    'id',
+                    userId
+                )
+                .maybeSingle();
 
+
+        if (error) {
+
+
+            console.error(
+                'Profile fetch error:',
+                error
+            );
+
+
+            return;
+
+        }
+
+
+        /*
+         * PROFILE EXISTS
+         */
 
         if (profile) {
 
 
             userBalance =
-                parseFloat(
+                Number(
                     profile.balance
-                ) || 0.00;
+                ) || 0;
 
 
             updateBalanceUI();
 
+
+            return;
+
         }
+
+
+        /*
+         * PROFILE DOES NOT EXIST
+         * CREATE PROFILE
+         */
+
+        const metadata =
+            user?.user_metadata || {};
+
+
+        const fullName =
+            metadata.full_name ||
+            metadata.name ||
+            '';
+
+
+        const phoneNumber =
+            metadata.phone ||
+            metadata.phone_number ||
+            user?.phone ||
+            '';
+
+
+        const { data: newProfile, error: insertError } =
+            await client
+                .from('profiles')
+                .insert({
+
+                    id:
+                        userId,
+
+                    full_name:
+                        fullName,
+
+                    phone_number:
+                        phoneNumber,
+
+                    balance:
+                        0
+
+                })
+                .select()
+                .single();
+
+
+        if (insertError) {
+
+
+            console.error(
+                'Profile creation error:',
+                insertError
+            );
+
+
+            userBalance =
+                0;
+
+
+            updateBalanceUI();
+
+
+            return;
+
+        }
+
+
+        userBalance =
+            Number(
+                newProfile?.balance
+            ) || 0;
+
+
+        updateBalanceUI();
+
+    }
+
+
+    /* =========================================================
+       REALTIME BALANCE SUBSCRIPTION
+    ========================================================== */
+
+    function subscribeToRealtimeBalance(
+        client,
+        userId
+    ) {
+
+
+        /*
+         * Prevent duplicate subscription
+         */
+
+        if (
+            profileRealtimeChannel
+        ) {
+
+
+            try {
+
+                client.removeChannel(
+                    profileRealtimeChannel
+                );
+
+            } catch (e) {
+
+                console.warn(
+                    'Old channel remove error:',
+                    e
+                );
+
+            }
+
+        }
+
+
+        profileRealtimeChannel =
+            client
+                .channel(
+                    `profile-balance-${userId}`
+                )
+                .on(
+
+                    'postgres_changes',
+
+                    {
+
+                        event: 'UPDATE',
+
+                        schema: 'public',
+
+                        table: 'profiles',
+
+                        filter:
+                            `id=eq.${userId}`
+
+                    },
+
+                    payload => {
+
+
+                        if (
+                            payload?.new &&
+                            payload.new.balance !==
+                            undefined
+                        ) {
+
+
+                            userBalance =
+                                Number(
+                                    payload.new.balance
+                                ) || 0;
+
+
+                            updateBalanceUI();
+
+
+                            /*
+                             * Keep selected MAX amount
+                             * inside available balance
+                             */
+
+                            if (
+                                selectedChipValue >
+                                userBalance &&
+                                userBalance >= 10
+                            ) {
+
+
+                                selectedChipValue =
+                                    Math.floor(
+                                        userBalance
+                                    );
+
+
+                                updateAmountDisplay();
+
+                            }
+
+
+                        }
+
+                    }
+
+                )
+                .subscribe(
+
+                    status => {
+
+
+                        console.log(
+                            'Balance realtime status:',
+                            status
+                        );
+
+                    }
+
+                );
+
+    }
+
+
+    /* =========================================================
+       REFRESH BALANCE FROM DATABASE
+    ========================================================== */
+
+    async function refreshBalanceFromDatabase() {
+
+
+        const client =
+            getClient();
+
+
+        if (
+            !client ||
+            !currentUserId
+        ) {
+
+            return false;
+
+        }
+
+
+        const { data, error } =
+            await client
+                .from('profiles')
+                .select('balance')
+                .eq(
+                    'id',
+                    currentUserId
+                )
+                .maybeSingle();
+
+
+        if (error) {
+
+
+            console.error(
+                'Balance refresh error:',
+                error
+            );
+
+
+            return false;
+
+        }
+
+
+        if (data) {
+
+
+            userBalance =
+                Number(
+                    data.balance
+                ) || 0;
+
+
+            updateBalanceUI();
+
+
+            return true;
+
+        }
+
+
+        return false;
+
+    }
+
+
+    /* =========================================================
+       UPDATE BALANCE IN DATABASE
+    ========================================================== */
+
+    async function saveBalanceToDatabase(
+        newBalance
+    ) {
+
+
+        const client =
+            getClient();
+
+
+        if (
+            !client ||
+            !currentUserId
+        ) {
+
+
+            return {
+
+                success: false,
+
+                error:
+                    'User is not authenticated.'
+
+            };
+
+        }
+
+
+        const safeBalance =
+            Math.max(
+                0,
+                Number(
+                    newBalance
+                ) || 0
+            );
+
+
+        const { data, error } =
+            await client
+                .from('profiles')
+                .update({
+
+                    balance:
+                        safeBalance
+
+                })
+                .eq(
+                    'id',
+                    currentUserId
+                )
+                .select('balance')
+                .maybeSingle();
+
+
+        if (error) {
+
+
+            console.error(
+                'Balance update error:',
+                error
+            );
+
+
+            return {
+
+                success: false,
+
+                error
+
+            };
+
+        }
+
+
+        if (data) {
+
+
+            userBalance =
+                Number(
+                    data.balance
+                ) || 0;
+
+
+        } else {
+
+
+            userBalance =
+                safeBalance;
+
+        }
+
+
+        updateBalanceUI();
+
+
+        return {
+
+            success: true,
+
+            balance:
+                userBalance
+
+        };
 
     }
 
@@ -1810,7 +2293,8 @@
         ) {
 
 
-            value = 10;
+            value =
+                10;
 
 
         } else if (
@@ -1851,8 +2335,45 @@
         }
 
 
+        /*
+         * Never allow selected amount
+         * to exceed balance.
+         */
+
+        if (
+            userBalance >= 10 &&
+            value > userBalance
+        ) {
+
+
+            value =
+                Math.floor(
+                    userBalance
+                );
+
+        }
+
+
         selectedChipValue =
-            value;
+            Math.max(
+                10,
+                value
+            );
+
+
+        /*
+         * If balance is below minimum
+         */
+
+        if (
+            userBalance < 10
+        ) {
+
+
+            selectedChipValue =
+                10;
+
+        }
 
 
         updateAmountDisplay();
@@ -1880,7 +2401,13 @@
                 '৳ ' +
                 Number(
                     selectedChipValue
-                ).toLocaleString();
+                ).toLocaleString(
+                    'en-US',
+                    {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 2
+                    }
+                );
 
         }
 
@@ -1894,11 +2421,42 @@
     function updateBalanceUI() {
 
 
+        const balanceEl =
+            document.getElementById(
+                'balance-display'
+            );
+
+
+        if (balanceEl) {
+
+
+            balanceEl.innerText =
+                '৳ ' +
+                Number(
+                    userBalance
+                ).toLocaleString(
+                    'en-US',
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+        }
+
+
+        /*
+         * Existing total bet support
+         */
+
         const total =
             Object.values(
                 activeBets
             ).reduce(
-                (a, b) =>
+                (
+                    a,
+                    b
+                ) =>
                     a + b,
                 0
             );
@@ -2126,6 +2684,14 @@
         }
 
 
+        /*
+         * Check current database balance
+         * before placing every bet.
+         */
+
+        await refreshBalanceFromDatabase();
+
+
         let roundStartTime =
             parseInt(
 
@@ -2180,8 +2746,12 @@
         }
 
 
+        /*
+         * IMPORTANT:
+         * Never allow betting above balance.
+         */
+
         if (
-            userBalance > 0 &&
             userBalance <
             selectedChipValue
         ) {
@@ -2197,16 +2767,54 @@
         }
 
 
+        const oldBalance =
+            Number(
+                userBalance
+            ) || 0;
+
+
+        const newBalance =
+            oldBalance -
+            Number(
+                selectedChipValue
+            );
+
+
+        /*
+         * Update database first.
+         */
+
+        const balanceResult =
+            await saveBalanceToDatabase(
+                newBalance
+            );
+
+
         if (
-            userBalance > 0
+            !balanceResult.success
         ) {
 
 
-            userBalance -=
-                selectedChipValue;
+            showMessage(
+                'ব্যালেন্স আপডেট করা যায়নি!'
+            );
+
+
+            /*
+             * Reload actual balance.
+             */
+
+            await refreshBalanceFromDatabase();
+
+
+            return;
 
         }
 
+
+        /*
+         * Update local active bet.
+         */
 
         activeBets[spot] +=
             selectedChipValue;
@@ -2251,32 +2859,6 @@
                 300
 
             );
-
-        }
-
-
-        const client =
-            getClient();
-
-
-        if (
-            client &&
-            currentUserId
-        ) {
-
-
-            await client
-                .from('profiles')
-                .update({
-
-                    balance:
-                        userBalance
-
-                })
-                .eq(
-                    'id',
-                    currentUserId
-                );
 
         }
 
@@ -2539,10 +3121,137 @@
 
 
     /* =========================================================
+       INSERT BET HISTORY
+    ========================================================== */
+
+    async function saveBetHistory(
+        spot,
+        sum,
+        bAmount,
+        itemPayout,
+        isWinner
+    ) {
+
+
+        const client =
+            getClient();
+
+
+        if (
+            !client ||
+            !currentUserId
+        ) {
+
+
+            return {
+
+                success: false,
+
+                error:
+                    'Authentication unavailable.'
+
+            };
+
+        }
+
+
+        /*
+         * target_number:
+         *
+         * Under 7 = 6
+         * Equal 7 = 7
+         * Over 7  = 8
+         */
+
+        const targetNumber =
+            spot === 'under'
+                ? 6
+                : spot === 'over'
+                ? 8
+                : 7;
+
+
+        const { data, error } =
+            await client
+                .from('bets')
+                .insert({
+
+                    user_id:
+                        currentUserId,
+
+                    target_number:
+                        targetNumber,
+
+                    roll_result:
+                        sum,
+
+                    bet_amount:
+                        Number(
+                            bAmount
+                        ),
+
+                    payout:
+                        Number(
+                            itemPayout
+                        ),
+
+                    is_bool:
+                        Boolean(
+                            isWinner
+                        )
+
+                })
+                .select()
+                .single();
+
+
+        if (error) {
+
+
+            console.error(
+                'Bet history insert error:',
+                error
+            );
+
+
+            return {
+
+                success: false,
+
+                error
+
+            };
+
+        }
+
+
+        return {
+
+            success: true,
+
+            data
+
+        };
+
+    }
+
+
+    /* =========================================================
        ROLL DICE
     ========================================================== */
 
     async function lockBetsAndRollDice() {
+
+
+        if (
+            currentRoundState ===
+            'rolling'
+        ) {
+
+
+            return;
+
+        }
 
 
         currentRoundState =
@@ -2664,89 +3373,102 @@
             getClient();
 
 
+        /*
+         * Process each active bet.
+         */
+
         for (
             let spot in activeBets
         ) {
 
 
             let bAmount =
-                activeBets[spot];
+                Number(
+                    activeBets[spot]
+                ) || 0;
 
 
             if (
-                bAmount > 0
+                bAmount <= 0
             ) {
 
 
-                let isWinner =
-                    spot === winner;
+                continue;
+
+            }
 
 
-                let payoutMultiplier =
-                    spot === 'exact'
-                        ? 5.8
-                        : 2.3;
+            let isWinner =
+                spot === winner;
 
 
-                let itemPayout =
-                    isWinner
-                        ? bAmount *
-                          payoutMultiplier
-                        : 0;
+            let payoutMultiplier =
+                spot === 'exact'
+                    ? 5.8
+                    : 2.3;
+
+
+            let itemPayout =
+                isWinner
+                    ? bAmount *
+                      payoutMultiplier
+                    : 0;
+
+
+            if (
+                itemPayout > 0
+            ) {
+
+
+                userBalance +=
+                    itemPayout;
+
+
+                totalPayoutEarned +=
+                    itemPayout;
+
+
+                userWonAny =
+                    true;
+
+            }
+
+
+            /*
+             * Save bet history to bets table.
+             */
+
+            if (
+                client &&
+                currentUserId
+            ) {
+
+
+                const result =
+                    await saveBetHistory(
+
+                        spot,
+
+                        sum,
+
+                        bAmount,
+
+                        itemPayout,
+
+                        isWinner
+
+                    );
 
 
                 if (
-                    itemPayout > 0
+                    !result.success
                 ) {
 
 
-                    userBalance +=
-                        itemPayout;
-
-
-                    totalPayoutEarned +=
-                        itemPayout;
-
-
-                    userWonAny =
-                        true;
-
-                }
-
-
-                if (
-                    client &&
-                    currentUserId
-                ) {
-
-
-                    await client
-                        .from('bets')
-                        .insert({
-
-                            user_id:
-                                currentUserId,
-
-                            target_number:
-                                spot === 'under'
-                                    ? 6
-                                    : spot === 'over'
-                                    ? 8
-                                    : 7,
-
-                            roll_result:
-                                sum,
-
-                            bet_amount:
-                                bAmount,
-
-                            payout:
-                                itemPayout,
-
-                            is_bool:
-                                isWinner
-
-                        });
+                    console.error(
+                        'Could not save bet history:',
+                        result.error
+                    );
 
                 }
 
@@ -2755,24 +3477,35 @@
         }
 
 
+        /*
+         * Save final balance after payout.
+         */
+
         if (
             client &&
             currentUserId
         ) {
 
 
-            await client
-                .from('profiles')
-                .update({
-
-                    balance:
-                        userBalance
-
-                })
-                .eq(
-                    'id',
-                    currentUserId
+            const balanceResult =
+                await saveBalanceToDatabase(
+                    userBalance
                 );
+
+
+            if (
+                !balanceResult.success
+            ) {
+
+
+                /*
+                 * If update fails,
+                 * fetch actual database balance.
+                 */
+
+                await refreshBalanceFromDatabase();
+
+            }
 
         }
 
@@ -2863,6 +3596,9 @@
 
 
         updateChipsDisplay();
+
+
+        updateBalanceUI();
 
 
         setTimeout(
@@ -2968,6 +3704,7 @@
 
 
     function loadHistoryFromStorage() {
+
 
     }
 
@@ -3105,6 +3842,9 @@
 
 
             updateAmountDisplay();
+
+
+            updateBalanceUI();
 
 
         }
