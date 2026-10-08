@@ -537,7 +537,7 @@
 
         /* =========================================================
            RESULT
-        ========================================================= */
+        ========================================================== */
 
         .result-text {
 
@@ -1064,126 +1064,6 @@
 
 
         /* =========================================================
-           MAIN CONTROL BUTTONS
-        ========================================================= */
-
-        .main-controls {
-
-            width: 100%;
-
-            display: grid;
-
-            grid-template-columns:
-                minmax(0, 1fr)
-                minmax(0, 1.35fr)
-                minmax(0, 1fr);
-
-            gap: 18px;
-
-            align-items: center;
-
-            margin-top: 14px;
-
-        }
-
-
-        .control-btn {
-
-            min-width: 0;
-
-            width: 100%;
-
-            height: 92px;
-
-            border-radius: 20px;
-
-            border: 4px solid #171521;
-
-            background:
-                linear-gradient(
-                    145deg,
-                    #527fdc,
-                    #2746a3
-                );
-
-            box-shadow:
-                inset 0 3px 6px rgba(255,255,255,.35),
-                inset 0 -5px 10px rgba(0,0,0,.35),
-                0 5px 10px rgba(0,0,0,.45);
-
-            color: white;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            font-size: 32px;
-
-            transition: .15s;
-
-        }
-
-
-        .control-btn:active {
-
-            transform:
-                scale(.94);
-
-        }
-
-
-        .play-btn {
-
-            min-width: 0;
-
-            width: 100%;
-
-            height: 108px;
-
-            border-radius: 23px;
-
-            background:
-                radial-gradient(
-                    circle at 50% 35%,
-                    #b4e45b,
-                    #6cae23 55%,
-                    #477d12 100%
-                );
-
-            border: 5px solid #191723;
-
-            box-shadow:
-                0 0 20px rgba(140,207,41,.55),
-                inset 0 4px 7px rgba(255,255,255,.4),
-                inset 0 -8px 12px rgba(0,0,0,.3),
-                0 6px 12px rgba(0,0,0,.5);
-
-            color: white;
-
-            font-size: 46px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            transition: .15s;
-
-        }
-
-
-        .play-btn:active {
-
-            transform:
-                scale(.94);
-
-        }
-
-
-        /* =========================================================
            OVERLAY
         ========================================================= */
 
@@ -1354,24 +1234,6 @@
 
             }
 
-
-            .control-btn {
-
-                height: 80px;
-
-                font-size: 28px;
-
-            }
-
-
-            .play-btn {
-
-                height: 96px;
-
-                font-size: 42px;
-
-            }
-
         }
 
 
@@ -1449,13 +1311,6 @@
                 font-size: 12px;
 
                 padding: 0 6px;
-
-            }
-
-
-            .main-controls {
-
-                gap: 9px;
 
             }
 
@@ -1592,13 +1447,6 @@
             .chip-button span {
 
                 font-size: 10px;
-
-            }
-
-
-            .main-controls {
-
-                gap: 6px;
 
             }
 
@@ -1961,49 +1809,6 @@
         <div class="bet-limit-bar">
 
             MIN 10-10000 BET
-
-        </div>
-
-
-        <!-- =====================================================
-             MAIN CONTROLS
-        ====================================================== -->
-
-        <div class="main-controls">
-
-
-            <button
-                onclick="showSelectedChip()"
-                class="control-btn"
-                title="Selected Chip"
-            >
-
-                <i class="fa-solid fa-coins"></i>
-
-            </button>
-
-
-            <button
-                onclick="manualRoll()"
-                class="play-btn"
-                title="Play"
-            >
-
-                <i class="fa-solid fa-play"></i>
-
-            </button>
-
-
-            <button
-                onclick="resetGame()"
-                class="control-btn"
-                title="Refresh"
-            >
-
-                <i class="fa-solid fa-rotate"></i>
-
-            </button>
-
 
         </div>
 
@@ -2773,24 +2578,6 @@
 
     window.selectChip =
         selectChip;
-
-
-    /* =========================================================
-       SHOW SELECTED CHIP
-    ========================================================== */
-
-    function showSelectedChip() {
-
-
-        showMessage(
-
-            `Selected Bet: ৳${Number(
-                selectedChipValue
-            ).toLocaleString()}`
-
-        );
-
-    }
 
 
     /* =========================================================
@@ -4075,28 +3862,6 @@
 
 
     /* =========================================================
-       MANUAL ROLL
-    ========================================================== */
-
-    function manualRoll() {
-
-
-        if (
-            currentRoundState ===
-            'rolling'
-        ) {
-
-            return;
-
-        }
-
-
-        lockBetsAndRollDice();
-
-    }
-
-
-    /* =========================================================
        HISTORY
     ========================================================== */
 
@@ -4144,120 +3909,6 @@
 
     function loadHistoryFromStorage() {
 
-
-    }
-
-
-    /* =========================================================
-       RESET GAME
-    ========================================================== */
-
-    function resetGame() {
-
-
-        activeBets = {
-
-            under: 0,
-
-            over: 0,
-
-            exact: 0
-
-        };
-
-
-        activeBetChipColors = {
-
-            under: '',
-
-            over: '',
-
-            exact: ''
-
-        };
-
-
-        updateChipsDisplay();
-
-
-        /*
-         * Reset to 10 chip
-         */
-
-        selectedChipValue =
-            10;
-
-
-        selectedChipColor =
-            'chip-10';
-
-
-        document
-            .querySelectorAll(
-                '.chip-button'
-            )
-            .forEach(
-
-                chip => {
-
-                    chip.classList.remove(
-                        'selected-chip'
-                    );
-
-                }
-
-            );
-
-
-        const defaultChip =
-            document.querySelector(
-                '.chip-button[data-value="10"]'
-            );
-
-
-        if (defaultChip) {
-
-
-            defaultChip.classList.add(
-                'selected-chip'
-            );
-
-        }
-
-
-        currentRoundState =
-            'betting';
-
-
-        renderDiceDots(
-            'dice-1',
-            6
-        );
-
-
-        renderDiceDots(
-            'dice-2',
-            1
-        );
-
-
-        document
-            .getElementById(
-                'place-bet-text'
-            )
-            .innerText =
-            'Place a bet';
-
-
-        document
-            .getElementById(
-                'sum-result-text'
-            )
-            .innerText =
-            'DEMO ROUND • NO REAL MONEY';
-
-
-        syncAndStartTimer();
 
     }
 
