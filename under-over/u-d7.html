@@ -22,7 +22,6 @@
 
     <script src="../supabase-config.js"></script>
 
-
     <script>
 
         tailwind.config = {
@@ -53,13 +52,11 @@
 
     </script>
 
-
     <style>
 
         @import url(
             'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap'
         );
-
 
         * {
 
@@ -68,7 +65,6 @@
             -webkit-tap-highlight-color: transparent;
 
         }
-
 
         html,
         body {
@@ -84,7 +80,6 @@
             max-width: 100%;
 
         }
-
 
         body {
 
@@ -111,7 +106,6 @@
 
         }
 
-
         button {
 
             font-family: inherit;
@@ -121,7 +115,6 @@
 
         /* =========================================================
            MAIN GAME
-           MOBILE WIDTH FIX
         ========================================================= */
 
         .game-wrapper {
@@ -150,13 +143,17 @@
 
         /* =========================================================
            TOP GAME HEADER
+           
+           UPDATED:
+           Header height increased so dice stays completely
+           above RESULT and betting panel.
         ========================================================= */
 
         .game-top {
 
             position: relative;
 
-            height: 145px;
+            height: 205px;
 
             overflow: hidden;
 
@@ -211,6 +208,9 @@
 
         /* =========================================================
            PLACE A BET
+           
+           UPDATED:
+           Text is now fixed clearly ABOVE the dice.
         ========================================================= */
 
         .place-bet {
@@ -221,7 +221,7 @@
 
             left: 50%;
 
-            top: 35px;
+            top: 12px;
 
             transform: translateX(-50%);
 
@@ -261,6 +261,9 @@
 
         /* =========================================================
            DICE AREA
+           
+           UPDATED:
+           Dice moved lower inside the larger header.
         ========================================================= */
 
         .dice-area {
@@ -271,7 +274,7 @@
 
             right: 0;
 
-            bottom: -3px;
+            bottom: 5px;
 
             display: flex;
 
@@ -465,15 +468,22 @@
 
         /* =========================================================
            RESULT
+           
+           UPDATED:
+           Result now naturally appears BELOW the entire dice area.
         ========================================================= */
 
         .result-text {
 
             text-align: center;
 
-            min-height: 22px;
+            min-height: 30px;
 
-            margin-top: 6px;
+            margin-top: 0;
+
+            padding-top: 8px;
+
+            padding-bottom: 4px;
 
             font-size: 12px;
 
@@ -914,9 +924,24 @@
 
         @media (max-width: 600px) {
 
+            /*
+             * UPDATED:
+             * Mobile header increased to keep
+             * Place a bet above dice and result below dice.
+             */
+
             .game-top {
 
-                height: 145px;
+                height: 205px;
+
+            }
+
+
+            .place-bet {
+
+                top: 10px;
+
+                width: 76%;
 
             }
 
@@ -924,6 +949,8 @@
             .dice-area {
 
                 gap: 18px;
+
+                bottom: 5px;
 
             }
 
@@ -984,6 +1011,24 @@
 
         @media (max-width: 420px) {
 
+            .game-top {
+
+                height: 200px;
+
+            }
+
+
+            .place-bet {
+
+                width: 82%;
+
+                top: 9px;
+
+                min-height: 40px;
+
+            }
+
+
             .bet-panel {
 
                 padding: 12px;
@@ -1015,6 +1060,8 @@
             .dice-area {
 
                 gap: 12px;
+
+                bottom: 5px;
 
             }
 
@@ -1058,6 +1105,22 @@
 
 
         @media (max-width: 350px) {
+
+            .game-top {
+
+                height: 190px;
+
+            }
+
+
+            .place-bet {
+
+                width: 86%;
+
+                top: 8px;
+
+            }
+
 
             .bet-panel {
 
@@ -1112,6 +1175,8 @@
 
                 gap: 8px;
 
+                bottom: 4px;
+
             }
 
 
@@ -1149,7 +1214,6 @@
 
     <!-- =========================================================
          GAME HEADER
-         ID / DEMO LABEL REMOVED
     ========================================================== -->
 
     <section class="game-top">
@@ -1203,6 +1267,10 @@
 
     </section>
 
+
+    <!-- =========================================================
+         RESULT
+    ========================================================== -->
 
     <div
         id="sum-result-text"
@@ -1389,11 +1457,6 @@
 
 
     </section>
-
-
-    <!-- =========================================================
-         BOTTOM DEMO / REGISTRATION BAR REMOVED COMPLETELY
-    ========================================================== -->
 
 
     <!-- =========================================================
