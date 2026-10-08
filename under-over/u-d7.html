@@ -36,41 +36,43 @@
             color: #f3f4f6;
             touch-action: manipulation;
         }
-        .dice-box {
-            perspective: 1000px;
-        }
         .bet-spot-selected {
             border-color: #24ee89 !important;
             box-shadow: 0 0 15px rgba(36, 238, 137, 0.6);
         }
 
-        /* ডাইস ঝাঁকানোর (Shaking/Jiggling) অ্যানিমেশন */
-        @keyframes shakeDice {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-3px, 0px) rotate(-5deg); }
-            40% { transform: translate(3px, -2px) rotate(5deg); }
-            60% { transform: translate(-1px, 2px) rotate(0deg); }
-            80% { transform: translate(2px, 1px) rotate(-2deg); }
-            100% { transform: translate(0px, 0px) rotate(0deg); }
-        }
-        .dice-shaking {
-            animation: shakeDice 0.4s infinite ease-in-out;
+        /* ক্যাসিনো স্টাইল গোল্ডেন রিং ডাইস বক্স */
+        .dice-circle-box {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #27272a 0%, #09090b 100%);
+            border: 4px solid #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 10px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* শাড়ি পরা মেয়ের অ্যাভাটার ডান দিক থেকে স্লাইড ইন করার অ্যানিমেশন */
-        @keyframes slideInAvatar {
-            0% { transform: translateX(120%); opacity: 0; }
-            100% { transform: translateX(0%); opacity: 1; }
+        /* ১ সেকেন্ডে ডাইস ঘূর্ণন অ্যানিমেশন */
+        @keyframes diceSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
         }
-        @keyframes slideOutAvatar {
-            0% { transform: translateX(0%); opacity: 1; }
-            100% { transform: translateX(120%); opacity: 0; }
+        .dice-rolling-anim {
+            animation: diceSpin 1s linear infinite;
         }
-        .avatar-slide-in {
-            animation: slideInAvatar 0.5s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .avatar-slide-out {
-            animation: slideOutAvatar 0.5s forwards ease-in;
+
+        /* ক্যাসিনো চিপ স্টাইল ডিজাইন */
+        .casino-chip {
+            border-radius: 50%;
+            border: 3px dashed rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
         }
     </style>
 </head>
@@ -89,28 +91,13 @@
                 </div>
             </div>
 
-            <!-- Dice Rolling Animation Area -->
-            <div id="dice-container-box" class="flex items-center justify-center space-x-6 my-auto transition-transform">
-                <div id="dice-1" class="w-16 h-16 bg-white text-gray-900 rounded-xl shadow-2xl flex items-center justify-center text-3xl font-black border-4 border-gray-300">
-                    🎲
+            <!-- Dice Rolling Animation Area (Gold Ring Boxes) -->
+            <div class="flex items-center justify-center space-x-6 my-auto">
+                <div class="dice-circle-box">
+                    <div id="dice-1" class="text-white text-3xl font-black">🎲</div>
                 </div>
-                <div id="dice-2" class="w-16 h-16 bg-white text-gray-900 rounded-xl shadow-2xl flex items-center justify-center text-3xl font-black border-4 border-gray-300">
-                    🎲
-                </div>
-            </div>
-
-            <!-- শাড়ি পরা মেয়ের অ্যাভাটার ও হাত (ডান দিক থেকে এন্ট্রি নেবে) -->
-            <div id="dealer-avatar-box" class="absolute right-0 bottom-0 z-10 flex items-end translate-x-[120%] transition-transform duration-500 pointer-events-none">
-                <div class="relative flex items-center bg-gradient-to-l from-pink-900/90 to-transparent p-2 rounded-l-2xl border-l border-pink-500/40">
-                    <!-- মেয়ের আইকন ও শাড়ির থিমযুক্ত লেআউট -->
-                    <div class="flex flex-col items-center mr-1">
-                        <i class="fa-solid fa-female text-3xl text-pink-400 animate-pulse"></i>
-                        <span class="text-[9px] text-pink-200 font-semibold bg-black/60 px-1.5 rounded">শারিিতা</span>
-                    </div>
-                    <!-- হাত থেকে ডাইস ড্রপ করার আইকন বা ইলাস্ট্রেশন -->
-                    <div class="text-xl text-yellow-300 animate-bounce mr-2">
-                        <i class="fa-solid fa-hand-holding-heart"></i>
-                    </div>
+                <div class="dice-circle-box">
+                    <div id="dice-2" class="text-white text-3xl font-black">🎲</div>
                 </div>
             </div>
 
@@ -174,12 +161,12 @@
                 <span class="text-white font-mono font-bold text-sm">৳<span id="user-balance-display">0.00</span></span>
             </div>
             
-            <!-- Chip Selector Buttons -->
+            <!-- Chip Selector Buttons with Custom Colors -->
             <div class="flex items-center space-x-1.5">
-                <button onclick="setChip(10)" class="w-8 h-8 rounded-full bg-red-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="10">10</button>
-                <button onclick="setChip(50)" class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-xs shadow flex items-center justify-center border border-white/20 chip-btn" data-val="50">50</button>
-                <button onclick="setChip(100)" class="w-8 h-8 rounded-full bg-green-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn ring-2 ring-yellow-400" data-val="100">100</button>
-                <button onclick="setChip(500)" class="w-8 h-8 rounded-full bg-purple-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="500">500</button>
+                <button onclick="setChip(10)" class="w-9 h-9 bg-red-600 text-white text-[10px] shadow-md flex items-center justify-center casino-chip chip-btn" data-val="10">10</button>
+                <button onclick="setChip(50)" class="w-10 h-10 bg-blue-600 text-white text-xs shadow-md flex items-center justify-center casino-chip chip-btn" data-val="50">50</button>
+                <button onclick="setChip(100)" class="w-9 h-9 bg-green-600 text-white text-[10px] shadow-md flex items-center justify-center casino-chip chip-btn ring-2 ring-yellow-400" data-val="100">100</button>
+                <button onclick="setChip(500)" class="w-9 h-9 bg-black text-white text-[10px] shadow-md flex items-center justify-center casino-chip chip-btn" data-val="500">500</button>
             </div>
 
             <div class="flex flex-col text-right">
@@ -280,19 +267,12 @@
             updateChipsDisplay();
             updateBalanceUI();
 
-            // টাইমার শুরু হলে ডাইস বক্সে ঝাঁকানোর (Shaking) ক্লাস যোগ করা
-            const diceBox = document.getElementById('dice-container-box');
-            diceBox.classList.add('dice-shaking');
-
             document.getElementById('dice-1').innerText = '🎲';
             document.getElementById('dice-2').innerText = '🎲';
+            document.getElementById('dice-1').classList.remove('dice-rolling-anim');
+            document.getElementById('dice-2').classList.remove('dice-rolling-anim');
             document.getElementById('sum-result-text').innerText = 'BETTING OPEN';
             document.getElementById('result-overlay').classList.add('hidden');
-
-            // অ্যাভাটার লুকিয়ে রাখা
-            const avatarBox = document.getElementById('dealer-avatar-box');
-            avatarBox.classList.remove('translate-x-0');
-            avatarBox.classList.add('translate-x-[120%]');
 
             if (globalTimerInterval) clearInterval(globalTimerInterval);
 
@@ -302,8 +282,6 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(globalTimerInterval);
-                    // টাইমার শেষ হলে ঝাঁকানো বন্ধ করা
-                    diceBox.classList.remove('dice-shaking');
                     lockBetsAndRollDice();
                 }
             }, 1000);
@@ -356,19 +334,22 @@
             currentRoundState = 'rolling';
             document.getElementById('sum-result-text').innerText = 'ROLLING...';
 
-            // টাইম শেষ হওয়ার সাথে সাথে ডান দিক থেকে শাড়ি পরা মেয়ের অ্যাভাটার প্রবেশ করবে
-            const avatarBox = document.getElementById('dealer-avatar-box');
-            avatarBox.classList.remove('translate-x-[120%]');
-            avatarBox.classList.add('translate-x-0');
+            // ১ সেকেন্ডের জন্য ডাইস ঘূর্ণন অ্যানিমেশন চালু করা
+            const dEl1 = document.getElementById('dice-1');
+            const dEl2 = document.getElementById('dice-2');
+            dEl1.classList.add('dice-rolling-anim');
+            dEl2.classList.add('dice-rolling-anim');
 
-            // ডাইস রোল হওয়ার রেন্ডম মান (১ থেকে ৬)
             const d1 = Math.floor(Math.random() * 6) + 1;
             const d2 = Math.floor(Math.random() * 6) + 1;
             const sum = d1 + d2;
 
-            await new Promise(r => setTimeout(r, 800));
-            document.getElementById('dice-1').innerText = d1;
-            document.getElementById('dice-2').innerText = d2;
+            // ঠিক ১ সেকেন্ড পর অ্যানিমেশন থামিয়ে ফলাফল প্রদর্শন
+            await new Promise(r => setTimeout(r, 1000));
+            dEl1.classList.remove('dice-rolling-anim');
+            dEl2.classList.remove('dice-rolling-anim');
+            dEl1.innerText = d1;
+            dEl2.innerText = d2;
 
             let winner = '';
             if (sum < 7) winner = 'under';
