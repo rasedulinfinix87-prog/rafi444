@@ -2,23 +2,39 @@
 <html lang="bn" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
     <title>7 Under Over Game</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        rel="stylesheet"
+    >
 
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script src="../supabase-config.js"></script>
 
+
     <script>
+
         tailwind.config = {
+
             darkMode: 'class',
+
             theme: {
+
                 extend: {
+
                     colors: {
+
                         bgDark: '#29283b',
                         cardDark: '#242334',
                         gameGreen: '#78b82a',
@@ -26,137 +42,197 @@
                         gameYellow: '#d6a52a',
                         gold: '#d7b96d',
                         textGray: '#d8d5df'
+
                     }
+
                 }
+
             }
+
         }
+
     </script>
 
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        @import url(
+            'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap'
+        );
+
 
         * {
+
             box-sizing: border-box;
+
             -webkit-tap-highlight-color: transparent;
+
         }
+
 
         html,
         body {
+
             margin: 0;
+
             padding: 0;
+
             width: 100%;
+
             min-height: 100%;
+
+            max-width: 100%;
+
         }
+
 
         body {
+
             font-family: 'Inter', sans-serif;
+
             background:
-                radial-gradient(circle at 50% 25%, rgba(94, 79, 130, .25), transparent 38%),
-                linear-gradient(180deg, #302f43 0%, #272638 45%, #1e1d2b 100%);
+                radial-gradient(
+                    circle at 50% 25%,
+                    rgba(94, 79, 130, .25),
+                    transparent 38%
+                ),
+                linear-gradient(
+                    180deg,
+                    #302f43 0%,
+                    #272638 45%,
+                    #1e1d2b 100%
+                );
+
             color: #fff;
+
             touch-action: manipulation;
+
             overflow-x: hidden;
+
         }
 
+
         button {
+
             font-family: inherit;
+
         }
+
 
         /* =========================================================
            MAIN GAME
-           30% ZOOM OUT = 70% SCALE
+           MOBILE WIDTH FIX
         ========================================================= */
 
         .game-wrapper {
-            width: 142.857%;
+
+            width: 100%;
+
             max-width: 971px;
-            min-height: 142.857vh;
+
+            min-height: 100vh;
+
             margin: 0 auto;
 
             background: #272638;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 45px rgba(0, 0, 0, .45);
 
-            /* 30% smaller */
-            zoom: 0.7;
+            position: relative;
+
+            overflow-x: hidden;
+
+            overflow-y: hidden;
+
+            box-shadow:
+                0 0 45px rgba(0, 0, 0, .45);
+
         }
+
 
         /* =========================================================
            TOP GAME HEADER
         ========================================================= */
 
         .game-top {
+
             position: relative;
+
             height: 145px;
+
             overflow: hidden;
 
             background:
-                radial-gradient(circle at 50% 55%, rgba(135, 91, 29, .25), transparent 22%),
-                radial-gradient(circle at 20% 55%, rgba(184, 128, 45, .18), transparent 25%),
-                radial-gradient(circle at 80% 55%, rgba(184, 128, 45, .18), transparent 25%),
-                linear-gradient(180deg, #29283a 0%, #252436 100%);
+                radial-gradient(
+                    circle at 50% 55%,
+                    rgba(135, 91, 29, .25),
+                    transparent 22%
+                ),
+                radial-gradient(
+                    circle at 20% 55%,
+                    rgba(184, 128, 45, .18),
+                    transparent 25%
+                ),
+                radial-gradient(
+                    circle at 80% 55%,
+                    rgba(184, 128, 45, .18),
+                    transparent 25%
+                ),
+                linear-gradient(
+                    180deg,
+                    #29283a 0%,
+                    #252436 100%
+                );
+
         }
+
 
         /* decorative rays */
 
         .game-top::before {
+
             content: "";
+
             position: absolute;
+
             inset: -70px;
+
             background:
                 repeating-conic-gradient(
                     from 0deg,
                     rgba(255,255,255,.035) 0deg 2deg,
                     transparent 2deg 10deg
                 );
+
             opacity: .65;
+
             pointer-events: none;
+
         }
 
-        .top-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            z-index: 10;
-
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            font-size: 9px;
-            color: #ddd;
-        }
-
-        .top-label {
-            background: rgba(0, 0, 0, .35);
-            border-radius: 4px;
-            padding: 5px 8px;
-            color: #e0c46f;
-        }
-
-        .top-id {
-            color: #c9c7d0;
-        }
 
         /* =========================================================
            PLACE A BET
         ========================================================= */
 
         .place-bet {
+
             position: absolute;
+
             z-index: 8;
 
             left: 50%;
+
             top: 35px;
+
             transform: translateX(-50%);
 
             width: 66%;
+
             min-height: 40px;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
             background:
@@ -167,6 +243,7 @@
                 );
 
             border: 1px solid #766780;
+
             border-radius: 6px;
 
             box-shadow:
@@ -174,36 +251,57 @@
                 0 5px 15px rgba(0,0,0,.35);
 
             font-size: 18px;
+
             font-weight: 800;
+
             color: #fff;
+
         }
+
 
         /* =========================================================
            DICE AREA
         ========================================================= */
 
         .dice-area {
+
             position: absolute;
+
             left: 0;
+
             right: 0;
+
             bottom: -3px;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             gap: 26px;
 
             z-index: 5;
+
+            max-width: 100%;
+
         }
 
+
         .dice-ring {
+
             width: 122px;
+
             height: 122px;
+
+            flex: 0 0 auto;
 
             border-radius: 50%;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
             background:
@@ -222,21 +320,31 @@
                 inset 0 0 12px rgba(255,255,255,.15);
 
             position: relative;
+
         }
 
+
         .dice-ring::after {
+
             content: "";
+
             position: absolute;
+
             inset: 8px;
 
             border-radius: 50%;
 
             border: 2px solid rgba(255,255,255,.08);
+
             pointer-events: none;
+
         }
 
+
         .dice {
+
             width: 82px;
+
             height: 82px;
 
             background:
@@ -257,65 +365,139 @@
             border: 2px solid #bdbdbd;
 
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            grid-template-rows:
+                repeat(3, 1fr);
 
             padding: 12px;
 
             position: relative;
+
             z-index: 2;
+
         }
 
+
         .dice-dot {
+
             width: 12px;
+
             height: 12px;
+
             border-radius: 50%;
+
             background: #17151b;
 
             box-shadow:
                 inset 0 1px 1px rgba(255,255,255,.25),
                 0 1px 2px rgba(0,0,0,.3);
+
         }
+
 
         /* =========================================================
            DICE ROLL ANIMATION
         ========================================================= */
 
         @keyframes diceRoll {
+
             0% {
-                transform: rotate(0deg) scale(1);
+
+                transform:
+                    rotate(0deg)
+                    scale(1);
+
             }
 
             20% {
-                transform: rotate(70deg) scale(.88);
+
+                transform:
+                    rotate(70deg)
+                    scale(.88);
+
             }
 
             40% {
-                transform: rotate(145deg) scale(1.05);
+
+                transform:
+                    rotate(145deg)
+                    scale(1.05);
+
             }
 
             60% {
-                transform: rotate(220deg) scale(.9);
+
+                transform:
+                    rotate(220deg)
+                    scale(.9);
+
             }
 
             80% {
-                transform: rotate(290deg) scale(1.04);
+
+                transform:
+                    rotate(290deg)
+                    scale(1.04);
+
             }
 
             100% {
-                transform: rotate(360deg) scale(1);
+
+                transform:
+                    rotate(360deg)
+                    scale(1);
+
             }
+
         }
 
+
         .rolling-anim {
-            animation: diceRoll .42s infinite linear;
+
+            animation:
+                diceRoll .42s infinite linear;
+
         }
+
+
+        /* =========================================================
+           RESULT
+        ========================================================= */
+
+        .result-text {
+
+            text-align: center;
+
+            min-height: 22px;
+
+            margin-top: 6px;
+
+            font-size: 12px;
+
+            font-weight: 800;
+
+            color: #d5d1dc;
+
+            width: 100%;
+
+            overflow: hidden;
+
+        }
+
 
         /* =========================================================
            BETTING PANEL
         ========================================================= */
 
         .bet-panel {
+
+            width: 100%;
+
+            max-width: 100%;
+
             background:
                 linear-gradient(
                     180deg,
@@ -323,17 +505,36 @@
                     #252435 100%
                 );
 
-            padding: 16px 16px 14px;
+            padding: 16px;
+
+            overflow: hidden;
+
         }
+
 
         .bet-options {
+
+            width: 100%;
+
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
             gap: 10px;
+
         }
 
+
         .bet-option {
+
+            min-width: 0;
+
+            width: 100%;
+
             min-height: 80px;
+
+            position: relative;
 
             border-radius: 7px;
 
@@ -347,8 +548,11 @@
             border: 2px solid #4e526d;
 
             display: flex;
+
             flex-direction: column;
+
             align-items: center;
+
             justify-content: center;
 
             color: #e4dfc6;
@@ -358,46 +562,81 @@
                 0 3px 8px rgba(0,0,0,.25);
 
             transition: .15s ease;
+
         }
+
 
         .bet-option:active {
+
             transform: scale(.96);
+
         }
 
+
         .bet-option.selected {
-            border-color: #8fbc26 !important;
+
+            border-color:
+                #8fbc26 !important;
 
             box-shadow:
                 0 0 12px rgba(143,188,38,.5),
                 inset 0 0 12px rgba(143,188,38,.12);
+
         }
+
 
         .bet-title {
+
             font-size: 17px;
+
             font-weight: 800;
+
             font-style: italic;
+
+            white-space: nowrap;
+
         }
 
+
         .bet-multiplier {
+
             margin-top: 5px;
+
             font-size: 14px;
+
             font-weight: 800;
+
             color: #f0ead6;
+
         }
+
 
         /* =========================================================
            BET AMOUNT
         ========================================================= */
 
         .amount-controls {
+
             margin-top: 14px;
 
+            width: 100%;
+
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
             gap: 10px;
+
         }
 
+
         .amount-btn {
+
+            min-width: 0;
+
+            width: 100%;
+
             height: 50px;
 
             border-radius: 8px;
@@ -414,25 +653,36 @@
             color: #292634;
 
             font-size: 17px;
+
             font-weight: 900;
 
             box-shadow:
                 inset 0 2px 3px rgba(255,255,255,.7),
                 0 3px 6px rgba(0,0,0,.35);
+
         }
+
 
         .amount-btn:active {
-            transform: translateY(2px);
+
+            transform:
+                translateY(2px);
+
         }
 
+
         .amount-display {
+
             margin-top: 12px;
 
             width: 100%;
+
             height: 60px;
 
             display: flex;
+
             align-items: center;
+
             padding-left: 20px;
 
             border-radius: 8px;
@@ -446,25 +696,44 @@
                 0 3px 7px rgba(0,0,0,.25);
 
             color: #fff;
+
             font-size: 19px;
+
             font-weight: 800;
+
         }
+
 
         /* =========================================================
            MAIN CONTROL BUTTONS
         ========================================================= */
 
         .main-controls {
+
+            width: 100%;
+
             display: grid;
-            grid-template-columns: 1fr 1.35fr 1fr;
+
+            grid-template-columns:
+                minmax(0, 1fr)
+                minmax(0, 1.35fr)
+                minmax(0, 1fr);
+
             gap: 18px;
 
             align-items: center;
 
             margin-top: 14px;
+
         }
 
+
         .control-btn {
+
+            min-width: 0;
+
+            width: 100%;
+
             height: 92px;
 
             border-radius: 20px;
@@ -486,19 +755,32 @@
             color: white;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
             font-size: 32px;
 
             transition: .15s;
+
         }
+
 
         .control-btn:active {
-            transform: scale(.94);
+
+            transform:
+                scale(.94);
+
         }
 
+
         .play-btn {
+
+            min-width: 0;
+
+            width: 100%;
+
             height: 108px;
 
             border-radius: 23px;
@@ -524,150 +806,86 @@
             font-size: 46px;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
             transition: .15s;
+
         }
+
 
         .play-btn:active {
-            transform: scale(.94);
+
+            transform:
+                scale(.94);
+
         }
 
-        /* =========================================================
-           RESULT
-        ========================================================= */
-
-        .result-text {
-            text-align: center;
-            min-height: 22px;
-
-            margin-top: 6px;
-
-            font-size: 12px;
-            font-weight: 800;
-            color: #d5d1dc;
-        }
-
-        /* =========================================================
-           BOTTOM DEMO BAR
-        ========================================================= */
-
-        .bottom-bar {
-            background: #f8f8f8;
-
-            min-height: 84px;
-
-            display: grid;
-            grid-template-columns: 1fr 1.7fr .65fr .65fr;
-
-            align-items: center;
-
-            border-top: 1px solid #ddd;
-
-            color: #385b78;
-        }
-
-        .demo-balance {
-            padding: 8px 12px;
-        }
-
-        .demo-label {
-            display: inline-block;
-
-            background: #f25e68;
-            color: white;
-
-            padding: 4px 8px;
-
-            border-radius: 6px;
-
-            font-size: 13px;
-            font-weight: 900;
-        }
-
-        .demo-money {
-            margin-top: 3px;
-
-            font-size: 17px;
-            font-weight: 900;
-        }
-
-        .registration-btn {
-            height: 65px;
-
-            margin: 0 4px;
-
-            border: none;
-            border-radius: 7px;
-
-            background: #83b52d;
-
-            color: white;
-
-            font-size: 17px;
-            font-weight: 500;
-        }
-
-        .login-btn,
-        .demo-btn {
-            height: 65px;
-
-            border: none;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 22px;
-        }
-
-        .login-btn {
-            background: #286ca5;
-            color: white;
-        }
-
-        .demo-btn {
-            background: #e9eef2;
-            color: #3e6c91;
-            font-size: 14px;
-            font-weight: 800;
-        }
 
         /* =========================================================
            OVERLAY
         ========================================================= */
 
         .casino-overlay {
+
             position: fixed;
+
             inset: 0;
 
-            background: rgba(0,0,0,.65);
-            backdrop-filter: blur(4px);
+            width: 100vw;
+
+            height: 100vh;
+
+            background:
+                rgba(0,0,0,.65);
+
+            backdrop-filter:
+                blur(4px);
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
             z-index: 100;
 
-            animation: overlayIn .25s ease;
+            animation:
+                overlayIn .25s ease;
+
         }
 
+
         @keyframes overlayIn {
+
             from {
+
                 opacity: 0;
-                transform: scale(.95);
+
+                transform:
+                    scale(.95);
+
             }
 
             to {
+
                 opacity: 1;
-                transform: scale(1);
+
+                transform:
+                    scale(1);
+
             }
+
         }
 
+
         .result-card {
+
             min-width: 250px;
+
+            max-width: calc(100vw - 40px);
 
             padding: 25px;
 
@@ -686,113 +904,275 @@
 
             box-shadow:
                 0 20px 50px rgba(0,0,0,.7);
+
         }
+
 
         /* =========================================================
            RESPONSIVE
         ========================================================= */
 
-        @media (max-width: 500px) {
+        @media (max-width: 600px) {
 
             .game-top {
+
                 height: 145px;
+
             }
 
-            .dice-ring {
-                width: 112px;
-                height: 112px;
-            }
-
-            .dice {
-                width: 76px;
-                height: 76px;
-                padding: 11px;
-            }
 
             .dice-area {
-                gap: 22px;
+
+                gap: 18px;
+
             }
+
+
+            .dice-ring {
+
+                width: 108px;
+
+                height: 108px;
+
+            }
+
+
+            .dice {
+
+                width: 76px;
+
+                height: 76px;
+
+                padding: 11px;
+
+            }
+
 
             .bet-title {
+
                 font-size: 15px;
+
             }
+
 
             .bet-multiplier {
+
                 font-size: 13px;
+
             }
+
 
             .control-btn {
+
                 height: 80px;
+
+                font-size: 28px;
+
             }
+
 
             .play-btn {
+
                 height: 96px;
+
+                font-size: 42px;
+
             }
+
         }
 
-        @media (max-width: 380px) {
 
-            .dice-ring {
-                width: 100px;
-                height: 100px;
-            }
-
-            .dice {
-                width: 68px;
-                height: 68px;
-            }
-
-            .dice-dot {
-                width: 10px;
-                height: 10px;
-            }
-
-            .dice-area {
-                gap: 14px;
-            }
+        @media (max-width: 420px) {
 
             .bet-panel {
+
                 padding: 12px;
+
             }
+
+
+            .bet-options {
+
+                gap: 7px;
+
+            }
+
 
             .amount-controls {
+
                 gap: 6px;
+
             }
 
+
             .main-controls {
-                gap: 10px;
+
+                gap: 9px;
+
             }
+
+
+            .dice-area {
+
+                gap: 12px;
+
+            }
+
+
+            .dice-ring {
+
+                width: 100px;
+
+                height: 100px;
+
+            }
+
+
+            .dice {
+
+                width: 70px;
+
+                height: 70px;
+
+                border-radius: 18px;
+
+            }
+
+
+            .dice-dot {
+
+                width: 10px;
+
+                height: 10px;
+
+            }
+
+
+            .amount-btn {
+
+                font-size: 15px;
+
+            }
+
         }
+
+
+        @media (max-width: 350px) {
+
+            .bet-panel {
+
+                padding: 10px;
+
+            }
+
+
+            .bet-options {
+
+                gap: 5px;
+
+            }
+
+
+            .bet-title {
+
+                font-size: 13px;
+
+            }
+
+
+            .bet-multiplier {
+
+                font-size: 11px;
+
+            }
+
+
+            .amount-controls {
+
+                gap: 5px;
+
+            }
+
+
+            .amount-btn {
+
+                font-size: 13px;
+
+            }
+
+
+            .main-controls {
+
+                gap: 6px;
+
+            }
+
+
+            .dice-area {
+
+                gap: 8px;
+
+            }
+
+
+            .dice-ring {
+
+                width: 92px;
+
+                height: 92px;
+
+            }
+
+
+            .dice {
+
+                width: 64px;
+
+                height: 64px;
+
+                padding: 9px;
+
+            }
+
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
+
 <main class="game-wrapper">
+
+
+    <!-- =========================================================
+         GAME HEADER
+         ID / DEMO LABEL REMOVED
+    ========================================================== -->
 
     <section class="game-top">
 
-        <div class="top-info">
-
-            <div class="top-label">
-                7 Under / Over • 10 - 500,000
-            </div>
-
-            <div class="top-id">
-                ID: DEMO-18306139307
-            </div>
-
-        </div>
 
         <div class="place-bet">
-            <span id="place-bet-text">Place a bet</span>
+
+            <span id="place-bet-text">
+                Place a bet
+            </span>
+
         </div>
+
 
         <div class="dice-area">
 
+
             <div class="dice-ring">
 
-                <div id="dice-1" class="dice">
+                <div
+                    id="dice-1"
+                    class="dice"
+                >
 
                     <span></span>
                     <span></span>
@@ -802,9 +1182,13 @@
 
             </div>
 
+
             <div class="dice-ring">
 
-                <div id="dice-2" class="dice">
+                <div
+                    id="dice-2"
+                    class="dice"
+                >
 
                     <span></span>
                     <span></span>
@@ -813,20 +1197,30 @@
                 </div>
 
             </div>
+
 
         </div>
 
     </section>
 
 
-    <div id="sum-result-text" class="result-text">
+    <div
+        id="sum-result-text"
+        class="result-text"
+    >
         DEMO ROUND • NO REAL MONEY
     </div>
 
 
+    <!-- =========================================================
+         BET PANEL
+    ========================================================== -->
+
     <section class="bet-panel">
 
+
         <div class="bet-options">
+
 
             <button
                 onclick="placeUserBet('over')"
@@ -893,10 +1287,16 @@
 
             </button>
 
+
         </div>
 
 
+        <!-- =====================================================
+             AMOUNT CONTROLS
+        ====================================================== -->
+
         <div class="amount-controls">
+
 
             <button
                 class="amount-btn"
@@ -905,12 +1305,14 @@
                 MIN
             </button>
 
+
             <button
                 class="amount-btn"
                 onclick="setBetAmount('double')"
             >
                 X2
             </button>
+
 
             <button
                 class="amount-btn"
@@ -919,6 +1321,7 @@
                 X/2
             </button>
 
+
             <button
                 class="amount-btn"
                 onclick="setBetAmount('max')"
@@ -926,8 +1329,13 @@
                 MAX
             </button>
 
+
         </div>
 
+
+        <!-- =====================================================
+             BET AMOUNT
+        ====================================================== -->
 
         <div
             id="amount-display"
@@ -937,14 +1345,21 @@
         </div>
 
 
+        <!-- =====================================================
+             MAIN CONTROLS
+        ====================================================== -->
+
         <div class="main-controls">
+
 
             <button
                 onclick="setChip(selectedChipValue)"
                 class="control-btn"
                 title="Coins"
             >
+
                 <i class="fa-solid fa-coins"></i>
+
             </button>
 
 
@@ -953,7 +1368,9 @@
                 class="play-btn"
                 title="Play"
             >
+
                 <i class="fa-solid fa-play"></i>
+
             </button>
 
 
@@ -962,51 +1379,26 @@
                 class="control-btn"
                 title="Refresh"
             >
+
                 <i class="fa-solid fa-rotate"></i>
+
             </button>
 
+
         </div>
+
 
     </section>
 
 
-    <footer class="bottom-bar">
-
-        <div class="demo-balance">
-
-            <span class="demo-label">
-                DEMO
-            </span>
-
-            <div class="demo-money">
-                € <span id="demo-balance">99.5</span>
-            </div>
-
-        </div>
+    <!-- =========================================================
+         BOTTOM DEMO / REGISTRATION BAR REMOVED COMPLETELY
+    ========================================================== -->
 
 
-        <button
-            class="registration-btn"
-            onclick="demoRegistration()"
-        >
-            REGISTRATION
-        </button>
-
-
-        <button
-            class="login-btn"
-            onclick="demoLogin()"
-        >
-            <i class="fa-solid fa-right-to-bracket"></i>
-        </button>
-
-
-        <div class="demo-btn">
-            DEMO
-        </div>
-
-    </footer>
-
+    <!-- =========================================================
+         RESULT OVERLAY
+    ========================================================== -->
 
     <div
         id="result-overlay"
@@ -1015,6 +1407,7 @@
 
         <div class="result-card">
 
+
             <div
                 id="overlay-text"
                 class="text-2xl font-black"
@@ -1022,85 +1415,161 @@
                 YOU WIN
             </div>
 
+
         </div>
 
     </div>
+
 
 </main>
 
 
 <script>
 
+
     let currentUserId = null;
+
 
     let userBalance = 0.00;
 
+
     let selectedChipValue = 10;
 
-    let selectedChipColor = 'bg-red-600';
 
-    let currentRoundState = 'betting';
+    let selectedChipColor =
+        'bg-red-600';
+
+
+    let currentRoundState =
+        'betting';
+
 
     const ROUND_DURATION = 10;
 
+
     let activeBets = {
+
         under: 0,
+
         over: 0,
+
         exact: 0
+
     };
+
 
     let activeBetChipColors = {
+
         under: '',
+
         over: '',
+
         exact: ''
+
     };
 
+
+    /* =========================================================
+       SUPABASE CLIENT
+    ========================================================== */
 
     function getClient() {
 
-        if (typeof supabaseClient !== 'undefined')
+
+        if (
+            typeof supabaseClient !==
+            'undefined'
+        )
+
             return supabaseClient;
 
-        if (typeof supabase !== 'undefined')
+
+        if (
+            typeof supabase !==
+            'undefined'
+        )
+
             return supabase;
 
-        if (window.supabaseClient)
+
+        if (
+            window.supabaseClient
+        )
+
             return window.supabaseClient;
 
-        if (window.supabase)
+
+        if (
+            window.supabase
+        )
+
             return window.supabase;
 
+
         return null;
+
     }
 
 
+    /* =========================================================
+       INIT GAME
+    ========================================================== */
+
     async function initGame() {
 
-        const client = getClient();
+
+        const client =
+            getClient();
+
 
         try {
 
+
             let user = null;
 
-            if (typeof requireAuth === 'function') {
 
-                user = await requireAuth();
+            if (
+                typeof requireAuth ===
+                'function'
+            ) {
 
-            } else if (typeof getCurrentUser === 'function') {
 
-                user = await getCurrentUser();
+                user =
+                    await requireAuth();
+
+
+            } else if (
+                typeof getCurrentUser ===
+                'function'
+            ) {
+
+
+                user =
+                    await getCurrentUser();
+
 
             } else if (client) {
 
-                const { data } = await client.auth.getUser();
 
-                user = data?.user;
+                const { data } =
+                    await client.auth.getUser();
+
+
+                user =
+                    data?.user;
+
             }
 
 
-            if (user && client) {
+            if (
+                user &&
+                client
+            ) {
 
-                currentUserId = user.id;
+
+                currentUserId =
+                    user.id;
+
 
                 await fetchUserProfile(
                     client,
@@ -1108,48 +1577,68 @@
                 );
 
 
-                client.channel('public:profiles')
+                client.channel(
+                    'public:profiles'
+                )
 
-                    .on(
-                        'postgres_changes',
-                        {
-                            event: 'UPDATE',
-                            schema: 'public',
-                            table: 'profiles',
-                            filter: `id=eq.${currentUserId}`
-                        },
+                .on(
 
-                        payload => {
+                    'postgres_changes',
 
-                            if (
-                                payload.new &&
-                                payload.new.balance !== undefined
-                            ) {
+                    {
 
-                                userBalance =
-                                    parseFloat(
-                                        payload.new.balance
-                                    ) || 0.00;
+                        event: 'UPDATE',
 
-                                updateBalanceUI();
-                            }
+                        schema: 'public',
+
+                        table: 'profiles',
+
+                        filter:
+                            `id=eq.${currentUserId}`
+
+                    },
+
+                    payload => {
+
+
+                        if (
+                            payload.new &&
+                            payload.new.balance !==
+                            undefined
+                        ) {
+
+
+                            userBalance =
+                                parseFloat(
+                                    payload.new.balance
+                                ) || 0.00;
+
+
+                            updateBalanceUI();
 
                         }
 
-                    )
+                    }
 
-                    .subscribe();
+                )
+
+                .subscribe();
 
 
             } else {
 
-                userBalance = 0;
+
+                userBalance =
+                    0;
+
 
                 updateBalanceUI();
+
             }
 
 
         } catch (err) {
+
 
             console.error(
                 "Auth init error:",
@@ -1161,24 +1650,33 @@
 
         syncAndStartTimer();
 
+
         loadHistoryFromStorage();
+
 
         renderDiceDots(
             'dice-1',
             6
         );
 
+
         renderDiceDots(
             'dice-2',
             1
         );
+
     }
 
+
+    /* =========================================================
+       FETCH PROFILE
+    ========================================================== */
 
     async function fetchUserProfile(
         client,
         userId
     ) {
+
 
         const { data: profile } =
             await client
@@ -1190,60 +1688,102 @@
 
         if (profile) {
 
+
             userBalance =
                 parseFloat(
                     profile.balance
                 ) || 0.00;
 
+
             updateBalanceUI();
+
         }
+
     }
 
+
+    /* =========================================================
+       CHIP
+    ========================================================== */
 
     function setChip(
         val,
         colorClass = 'bg-red-600'
     ) {
 
+
         selectedChipValue =
             Number(val) || 10;
+
 
         selectedChipColor =
             colorClass;
 
+
         updateAmountDisplay();
+
     }
 
-    window.setChip = setChip;
 
+    window.setChip =
+        setChip;
+
+
+    /* =========================================================
+       BET AMOUNT
+    ========================================================== */
 
     function setBetAmount(type) {
 
+
         let value =
-            Number(selectedChipValue) || 10;
+            Number(
+                selectedChipValue
+            ) || 10;
 
 
-        if (type === 'min') {
+        if (
+            type === 'min'
+        ) {
+
 
             value = 10;
 
-        } else if (type === 'double') {
+
+        } else if (
+            type === 'double'
+        ) {
+
 
             value *= 2;
 
-        } else if (type === 'half') {
 
-            value = Math.max(
-                10,
-                Math.floor(value / 2)
-            );
+        } else if (
+            type === 'half'
+        ) {
 
-        } else if (type === 'max') {
 
-            value = Math.max(
-                10,
-                Math.floor(userBalance)
-            );
+            value =
+                Math.max(
+                    10,
+                    Math.floor(
+                        value / 2
+                    )
+                );
+
+
+        } else if (
+            type === 'max'
+        ) {
+
+
+            value =
+                Math.max(
+                    10,
+                    Math.floor(
+                        userBalance
+                    )
+                );
 
         }
 
@@ -1251,36 +1791,54 @@
         selectedChipValue =
             value;
 
+
         updateAmountDisplay();
+
     }
 
 
+    /* =========================================================
+       AMOUNT DISPLAY
+    ========================================================== */
+
     function updateAmountDisplay() {
+
 
         const el =
             document.getElementById(
                 'amount-display'
             );
 
+
         if (el) {
+
 
             el.innerText =
                 '৳ ' +
                 Number(
                     selectedChipValue
                 ).toLocaleString();
+
         }
+
     }
 
 
+    /* =========================================================
+       BALANCE UI
+    ========================================================== */
+
     function updateBalanceUI() {
 
+
         const total =
-            Object.values(activeBets)
-                .reduce(
-                    (a, b) => a + b,
-                    0
-                );
+            Object.values(
+                activeBets
+            ).reduce(
+                (a, b) =>
+                    a + b,
+                0
+            );
 
 
         const totalEl =
@@ -1288,32 +1846,30 @@
                 'total-bet-display'
             );
 
+
         if (totalEl) {
+
 
             totalEl.innerText =
                 total.toFixed(2);
+
         }
 
-
-        const demo =
-            document.getElementById(
-                'demo-balance'
-            );
-
-        if (demo) {
-
-            demo.innerText =
-                userBalance.toFixed(2);
-        }
     }
 
 
+    /* =========================================================
+       TIMER
+    ========================================================== */
+
     function syncAndStartTimer() {
+
 
         let roundStartTime =
             localStorage.getItem(
                 'dice_round_start_time'
             );
+
 
         let now =
             Date.now();
@@ -1321,24 +1877,29 @@
 
         if (!roundStartTime) {
 
+
             roundStartTime =
                 now;
+
 
             localStorage.setItem(
                 'dice_round_start_time',
                 roundStartTime
             );
+
         }
 
 
         let elapsedSeconds =
             Math.floor(
+
                 (
                     now -
                     parseInt(
                         roundStartTime
                     )
                 ) / 1000
+
             );
 
 
@@ -1350,13 +1911,18 @@
             );
 
 
-        if (timeLeft <= 0)
-            timeLeft = ROUND_DURATION;
+        if (
+            timeLeft <= 0
+        )
+
+            timeLeft =
+                ROUND_DURATION;
 
 
         runTimerCountdown(
             timeLeft
         );
+
     }
 
 
@@ -1364,11 +1930,15 @@
         initialTime
     ) {
 
+
         let timeLeft =
             initialTime;
 
 
-        if (window.globalTimerInterval)
+        if (
+            window.globalTimerInterval
+        )
+
             clearInterval(
                 window.globalTimerInterval
             );
@@ -1376,31 +1946,41 @@
 
         window.globalTimerInterval =
             setInterval(
+
                 () => {
 
-                    if (timeLeft <= 3) {
 
-                        document
-                            .getElementById(
-                                'place-bet-text'
-                            )
-                            .innerText =
+                    const placeBetText =
+                        document.getElementById(
+                            'place-bet-text'
+                        );
+
+
+                    if (
+                        timeLeft <= 3
+                    ) {
+
+
+                        placeBetText.innerText =
                             timeLeft > 0
                                 ? `Rolling in ${timeLeft}...`
                                 : 'Rolling...';
 
+
                     } else {
 
-                        document
-                            .getElementById(
-                                'place-bet-text'
-                            )
-                            .innerText =
+
+                        placeBetText.innerText =
                             'Place a bet';
+
                     }
 
 
-                    if (timeLeft <= 3 && timeLeft > 0) {
+                    if (
+                        timeLeft <= 3 &&
+                        timeLeft > 0
+                    ) {
+
 
                         document
                             .getElementById(
@@ -1411,6 +1991,7 @@
                                 'rolling-anim'
                             );
 
+
                         document
                             .getElementById(
                                 'dice-2'
@@ -1420,39 +2001,57 @@
                                 'rolling-anim'
                             );
 
+
                         currentRoundState =
                             'rolling_soon';
+
                     }
 
 
-                    if (timeLeft <= 0) {
+                    if (
+                        timeLeft <= 0
+                    ) {
+
 
                         clearInterval(
                             window.globalTimerInterval
                         );
+
 
                         localStorage.setItem(
                             'dice_round_start_time',
                             Date.now()
                         );
 
+
                         lockBetsAndRollDice();
 
+
                         return;
+
                     }
 
 
                     timeLeft--;
 
+
                 },
+
                 1000
+
             );
+
     }
 
+
+    /* =========================================================
+       PLACE BET
+    ========================================================== */
 
     async function placeUserBet(
         spot
     ) {
+
 
         if (
             currentRoundState ===
@@ -1460,24 +2059,29 @@
         ) {
 
             return;
+
         }
 
 
         let roundStartTime =
             parseInt(
+
                 localStorage.getItem(
                     'dice_round_start_time'
                 ) ||
                 Date.now()
+
             );
 
 
         let elapsed =
             Math.floor(
+
                 (
                     Date.now() -
                     roundStartTime
                 ) / 1000
+
             );
 
 
@@ -1489,13 +2093,18 @@
             );
 
 
-        if (timeLeft <= 3) {
+        if (
+            timeLeft <= 3
+        ) {
+
 
             showMessage(
                 'এই রাউন্ডের বেটিং সময় শেষ!'
             );
 
+
             return;
+
         }
 
 
@@ -1504,6 +2113,7 @@
         ) {
 
             return;
+
         }
 
 
@@ -1513,18 +2123,25 @@
             selectedChipValue
         ) {
 
+
             showMessage(
                 'পর্যাপ্ত ব্যালেন্স নেই!'
             );
 
+
             return;
+
         }
 
 
-        if (userBalance > 0) {
+        if (
+            userBalance > 0
+        ) {
+
 
             userBalance -=
                 selectedChipValue;
+
         }
 
 
@@ -1538,6 +2155,7 @@
 
         updateBalanceUI();
 
+
         updateChipsDisplay();
 
 
@@ -1549,20 +2167,28 @@
 
         if (spotEl) {
 
+
             spotEl.classList.add(
                 'selected'
             );
 
+
             setTimeout(
+
                 () => {
+
 
                     spotEl.classList.remove(
                         'selected'
                     );
 
+
                 },
+
                 300
+
             );
+
         }
 
 
@@ -1575,17 +2201,22 @@
             currentUserId
         ) {
 
+
             await client
                 .from('profiles')
                 .update({
+
                     balance:
                         userBalance
+
                 })
                 .eq(
                     'id',
                     currentUserId
                 );
+
         }
+
     }
 
 
@@ -1593,12 +2224,19 @@
         placeUserBet;
 
 
+    /* =========================================================
+       CHIPS DISPLAY
+    ========================================================== */
+
     function updateChipsDisplay() {
+
 
         Object.keys(
             activeBets
         ).forEach(
+
             spot => {
+
 
                 const chip =
                     document.getElementById(
@@ -1607,6 +2245,7 @@
 
 
                 if (!chip)
+
                     return;
 
 
@@ -1614,8 +2253,10 @@
                     activeBets[spot] > 0
                 ) {
 
+
                     chip.innerText =
                         `৳${activeBets[spot]}`;
+
 
                     chip.className =
                         `
@@ -1632,26 +2273,37 @@
                         shadow-lg
                         `;
 
+
                     chip.classList.remove(
                         'hidden'
                     );
 
+
                 } else {
+
 
                     chip.classList.add(
                         'hidden'
                     );
+
                 }
 
             }
+
         );
+
     }
 
+
+    /* =========================================================
+       DICE DOTS
+    ========================================================== */
 
     function renderDiceDots(
         diceElementId,
         value
     ) {
+
 
         const diceEl =
             document.getElementById(
@@ -1660,18 +2312,26 @@
 
 
         if (!diceEl)
+
             return;
 
 
-        let dotPositions = '';
+        let dotPositions =
+            '';
 
 
         switch (value) {
 
+
             case 1:
 
+
                 dotPositions = `
-                    <span class="dice-dot col-start-2 row-start-2"></span>
+
+                    <span
+                        class="dice-dot col-start-2 row-start-2"
+                    ></span>
+
                 `;
 
                 break;
@@ -1679,9 +2339,17 @@
 
             case 2:
 
+
                 dotPositions = `
-                    <span class="dice-dot col-start-1 row-start-1"></span>
-                    <span class="dice-dot col-start-3 row-start-3"></span>
+
+                    <span
+                        class="dice-dot col-start-1 row-start-1"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-3 row-start-3"
+                    ></span>
+
                 `;
 
                 break;
@@ -1689,10 +2357,21 @@
 
             case 3:
 
+
                 dotPositions = `
-                    <span class="dice-dot col-start-1 row-start-1"></span>
-                    <span class="dice-dot col-start-2 row-start-2"></span>
-                    <span class="dice-dot col-start-3 row-start-3"></span>
+
+                    <span
+                        class="dice-dot col-start-1 row-start-1"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-2 row-start-2"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-3 row-start-3"
+                    ></span>
+
                 `;
 
                 break;
@@ -1700,11 +2379,25 @@
 
             case 4:
 
+
                 dotPositions = `
-                    <span class="dice-dot col-start-1 row-start-1"></span>
-                    <span class="dice-dot col-start-3 row-start-1"></span>
-                    <span class="dice-dot col-start-1 row-start-3"></span>
-                    <span class="dice-dot col-start-3 row-start-3"></span>
+
+                    <span
+                        class="dice-dot col-start-1 row-start-1"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-3 row-start-1"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-1 row-start-3"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-3 row-start-3"
+                    ></span>
+
                 `;
 
                 break;
@@ -1712,12 +2405,29 @@
 
             case 5:
 
+
                 dotPositions = `
-                    <span class="dice-dot col-start-1 row-start-1"></span>
-                    <span class="dice-dot col-start-3 row-start-1"></span>
-                    <span class="dice-dot col-start-2 row-start-2"></span>
-                    <span class="dice-dot col-start-1 row-start-3"></span>
-                    <span class="dice-dot col-start-3 row-start-3"></span>
+
+                    <span
+                        class="dice-dot col-start-1 row-start-1"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-3 row-start-1"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-2 row-start-2"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-1 row-start-3"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-3 row-start-3"
+                    ></span>
+
                 `;
 
                 break;
@@ -1725,27 +2435,52 @@
 
             case 6:
 
+
                 dotPositions = `
-                    <span class="dice-dot col-start-1 row-start-1"></span>
-                    <span class="dice-dot col-start-3 row-start-1"></span>
 
-                    <span class="dice-dot col-start-1 row-start-2"></span>
-                    <span class="dice-dot col-start-3 row-start-2"></span>
+                    <span
+                        class="dice-dot col-start-1 row-start-1"
+                    ></span>
 
-                    <span class="dice-dot col-start-1 row-start-3"></span>
-                    <span class="dice-dot col-start-3 row-start-3"></span>
+                    <span
+                        class="dice-dot col-start-3 row-start-1"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-1 row-start-2"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-3 row-start-2"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-1 row-start-3"
+                    ></span>
+
+                    <span
+                        class="dice-dot col-start-3 row-start-3"
+                    ></span>
+
                 `;
 
                 break;
+
         }
 
 
         diceEl.innerHTML =
             dotPositions;
+
     }
 
 
+    /* =========================================================
+       ROLL DICE
+    ========================================================== */
+
     async function lockBetsAndRollDice() {
+
 
         currentRoundState =
             'rolling';
@@ -1764,6 +2499,7 @@
                 'dice-1'
             );
 
+
         const dice2 =
             document.getElementById(
                 'dice-2'
@@ -1773,6 +2509,7 @@
         dice1.classList.add(
             'rolling-anim'
         );
+
 
         dice2.classList.add(
             'rolling-anim'
@@ -1796,17 +2533,20 @@
 
 
         await new Promise(
+
             resolve =>
                 setTimeout(
                     resolve,
                     1500
                 )
+
         );
 
 
         dice1.classList.remove(
             'rolling-anim'
         );
+
 
         dice2.classList.remove(
             'rolling-anim'
@@ -1818,23 +2558,35 @@
             d1
         );
 
+
         renderDiceDots(
             'dice-2',
             d2
         );
 
 
-        let winner = '';
+        let winner =
+            '';
 
 
-        if (sum < 7)
-            winner = 'under';
+        if (
+            sum < 7
+        )
 
-        else if (sum > 7)
-            winner = 'over';
+            winner =
+                'under';
+
+        else if (
+            sum > 7
+        )
+
+            winner =
+                'over';
 
         else
-            winner = 'exact';
+
+            winner =
+                'exact';
 
 
         let userWonAny =
@@ -1853,6 +2605,7 @@
             let spot in activeBets
         ) {
 
+
             let bAmount =
                 activeBets[spot];
 
@@ -1860,6 +2613,7 @@
             if (
                 bAmount > 0
             ) {
+
 
                 let isWinner =
                     spot === winner;
@@ -1882,14 +2636,18 @@
                     itemPayout > 0
                 ) {
 
+
                     userBalance +=
                         itemPayout;
+
 
                     totalPayoutEarned +=
                         itemPayout;
 
+
                     userWonAny =
                         true;
+
                 }
 
 
@@ -1897,6 +2655,7 @@
                     client &&
                     currentUserId
                 ) {
+
 
                     await client
                         .from('bets')
@@ -1923,9 +2682,13 @@
 
                             is_bool:
                                 isWinner
+
                         });
+
                 }
+
             }
+
         }
 
 
@@ -1934,16 +2697,20 @@
             currentUserId
         ) {
 
+
             await client
                 .from('profiles')
                 .update({
+
                     balance:
                         userBalance
+
                 })
                 .eq(
                     'id',
                     currentUserId
                 );
+
         }
 
 
@@ -1982,27 +2749,37 @@
             hasActiveBets
         ) {
 
-            if (userWonAny) {
+
+            if (
+                userWonAny
+            ) {
+
 
                 overlayText.innerText =
                     `YOU WIN! ৳${totalPayoutEarned.toFixed(2)}`;
 
+
                 overlayText.className =
                     'text-emerald-400 text-2xl font-black';
 
+
             } else {
+
 
                 overlayText.innerText =
                     'YOU LOST';
 
+
                 overlayText.className =
                     'text-red-500 text-2xl font-black';
+
             }
 
 
             overlay.classList.remove(
                 'hidden'
             );
+
         }
 
 
@@ -2012,9 +2789,13 @@
 
 
         activeBets = {
+
             under: 0,
+
             over: 0,
+
             exact: 0
+
         };
 
 
@@ -2022,14 +2803,18 @@
 
 
         setTimeout(
+
             () => {
+
 
                 overlay.classList.add(
                     'hidden'
                 );
 
+
                 currentRoundState =
                     'betting';
+
 
                 document
                     .getElementById(
@@ -2038,37 +2823,57 @@
                     .innerText =
                     'Place a bet';
 
+
                 syncAndStartTimer();
 
+
             },
+
             2500
+
         );
+
     }
 
 
+    /* =========================================================
+       MANUAL ROLL
+    ========================================================== */
+
     function manualRoll() {
+
 
         if (
             currentRoundState ===
             'rolling'
         ) {
+
             return;
+
         }
 
 
         lockBetsAndRollDice();
+
     }
 
+
+    /* =========================================================
+       HISTORY
+    ========================================================== */
 
     function updateHistoryLog(
         sum
     ) {
 
+
         let histories =
             JSON.parse(
+
                 localStorage.getItem(
                     'dice_game_histories'
                 ) || '[]'
+
             );
 
 
@@ -2082,15 +2887,20 @@
         ) {
 
             histories.pop();
+
         }
 
 
         localStorage.setItem(
+
             'dice_game_histories',
+
             JSON.stringify(
                 histories
             )
+
         );
+
     }
 
 
@@ -2099,12 +2909,21 @@
     }
 
 
+    /* =========================================================
+       RESET GAME
+    ========================================================== */
+
     function resetGame() {
 
+
         activeBets = {
+
             under: 0,
+
             over: 0,
+
             exact: 0
+
         };
 
 
@@ -2151,12 +2970,18 @@
 
 
         syncAndStartTimer();
+
     }
 
+
+    /* =========================================================
+       MESSAGE
+    ========================================================== */
 
     function showMessage(
         message
     ) {
+
 
         const overlay =
             document.getElementById(
@@ -2184,46 +3009,47 @@
 
 
         setTimeout(
+
             () => {
+
 
                 overlay.classList.add(
                     'hidden'
                 );
 
+
             },
+
             1500
+
         );
+
     }
 
 
-    function demoRegistration() {
-
-        showMessage(
-            'Registration Demo'
-        );
-    }
-
-
-    function demoLogin() {
-
-        showMessage(
-            'Login Demo'
-        );
-    }
-
+    /* =========================================================
+       DOM READY
+    ========================================================== */
 
     document.addEventListener(
+
         'DOMContentLoaded',
+
         () => {
+
 
             initGame();
 
+
             updateAmountDisplay();
 
+
         }
+
     );
 
 </script>
+
 
 </body>
 </html>
