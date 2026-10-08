@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7 Under Over Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Supabase JS Client & Config -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bgDark: '#070a0f',
+                        cardDark: '#18181b',
+                        gameGreen: '#065f46',
+                        gameRed: '#b91c1c',
+                        gameYellow: '#d97706',
+                        textGray: '#cbd5e1'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #070a0f;
+            color: #f3f4f6;
+            touch-action: manipulation;
+        }
+        .dice-box {
+            perspective: 1000px;
+        }
+        .bet-spot-selected {
+            border-color: #24ee89 !important;
+            box-shadow: 0 0 15px rgba(36, 238, 137, 0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-0 select-none selection:bg-yellow-500 selection:text-black">
+
+    <!-- Main Game Wrapper -->
+    <main class="w-full max-w-md flex flex-col bg-cardDark shadow-2xl overflow-hidden relative pb-16">
+        
+        <!-- Top Display Section (Dice Roll Area) -->
+        <div class="relative w-full h-56 bg-gradient-to-b from-[#111827] to-[#1f2937] border-b border-gray-800 flex flex-col justify-between p-3 overflow-hidden">
+            <div class="flex items-center justify-between w-full text-[11px] text-gray-400">
+                <span class="bg-black/40 px-2.5 py-1 rounded border border-gray-700 font-medium text-yellow-400">7 Under / Over</span>
+                <div class="flex items-center space-x-1 bg-black/40 px-2.5 py-1 rounded border border-gray-700 font-bold text-white">
+                    <i class="fa-solid fa-clock text-yellow-400"></i>
+                    <span id="timer-display">10s</span>
+                </div>
+            </div>
+
+            <!-- Dice Rolling Animation Area -->
+            <div class="flex items-center justify-center space-x-6 my-auto">
+                <div id="dice-1" class="w-16 h-16 bg-white text-gray-900 rounded-xl shadow-2xl flex items-center justify-center text-3xl font-black border-4 border-gray-300">
+                    🎲
+                </div>
+                <div id="dice-2" class="w-16 h-16 bg-white text-gray-900 rounded-xl shadow-2xl flex items-center justify-center text-3xl font-black border-4 border-gray-300">
+                    🎲
+                </div>
+            </div>
+
+            <!-- Total Sum Result Display -->
+            <div class="text-center">
+                <span id="sum-result-text" class="text-xs font-bold text-gray-300 tracking-wider">ROLL THE DICE</span>
+            </div>
+
+            <div id="result-overlay" class="absolute inset-0 bg-black/80 z-20 flex items-center justify-center text-yellow-400 font-black text-lg tracking-widest uppercase hidden backdrop-blur-[2px]">
+                Under 7 Wins!
+            </div>
+        </div>
+
+        <!-- History Bar -->
+        <div class="w-full h-12 bg-[#111827] border-b border-gray-800 flex items-center px-3 space-x-2 overflow-x-auto">
+            <span class="text-[10px] text-gray-400 font-bold">HISTORY:</span>
+            <div id="history-container" class="flex items-center space-x-1.5">
+                <!-- History badges will load here -->
+            </div>
+        </div>
+
+        <!-- Betting Options Layout (Under 7, Exactly 7, Over 7) -->
+        <div class="p-3 flex flex-col space-y-3 bg-cardDark">
+            
+            <!-- Under 7 & Over 7 (Main Bets) -->
+            <div class="grid grid-cols-2 gap-3">
+                <!-- Under 7 -->
+                <button onclick="placeUserBet('under')" id="spot-under" class="relative p-5 bg-gameRed hover:bg-red-700 rounded-2xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
+                    <span class="text-xs font-bold text-white/80 uppercase tracking-widest">Under 2 - 6</span>
+                    <span class="text-xl font-black text-white my-1">UNDER 7</span>
+                    <span class="text-xs font-bold text-yellow-300">Payout 1:1</span>
+                    <div id="chip-under" class="absolute bottom-2 right-3 bg-white text-gameRed text-[11px] font-black px-2 py-0.5 rounded-full shadow hidden">৳0</div>
+                </button>
+
+                <!-- Over 7 -->
+                <button onclick="placeUserBet('over')" id="spot-over" class="relative p-5 bg-gameYellow hover:bg-amber-600 rounded-2xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
+                    <span class="text-xs font-bold text-white/80 uppercase tracking-widest">Over 8 - 12</span>
+                    <span class="text-xl font-black text-white my-1">OVER 7</span>
+                    <span class="text-xs font-bold text-yellow-200">Payout 1:1</span>
+                    <div id="chip-over" class="absolute bottom-2 right-3 bg-white text-gameYellow text-[11px] font-black px-2 py-0.5 rounded-full shadow hidden">৳0</div>
+                </button>
+            </div>
+
+            <!-- Exactly 7 (High Payout) -->
+            <button onclick="placeUserBet('exact')" id="spot-exact" class="relative p-4 bg-gameGreen hover:bg-emerald-700 rounded-2xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
+                <span class="text-xs font-bold text-white/80 uppercase tracking-widest">Lucky Number</span>
+                <span class="text-2xl font-black text-white">EXACTLY 7</span>
+                <span class="text-xs font-bold text-yellow-300">Payout 5:1</span>
+                <div id="chip-exact" class="absolute bottom-2 right-3 bg-white text-gameGreen text-[11px] font-black px-2 py-0.5 rounded-full shadow hidden">৳0</div>
+            </button>
+
+        </div>
+
+    </main>
+
+    <!-- Fixed Bottom Footer (Balance & Chips Bar) -->
+    <footer class="w-full max-w-md fixed bottom-0 z-50 bg-[#111827] border-t border-gray-800 flex flex-col">
+        <div class="flex items-center justify-between px-3 py-2.5 text-xs bg-[#18181b]">
+            <div class="flex flex-col">
+                <span class="text-gray-400 text-[10px]">BALANCE</span>
+                <span class="text-white font-mono font-bold text-sm">৳<span id="user-balance-display">100.00</span></span>
+            </div>
+            
+            <!-- Chip Selector Buttons -->
+            <div class="flex items-center space-x-1.5">
+                <button onclick="setChip(10)" class="w-8 h-8 rounded-full bg-red-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="10">10</button>
+                <button onclick="setChip(50)" class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="50">50</button>
+                <button onclick="setChip(100)" class="w-8 h-8 rounded-full bg-green-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn ring-2 ring-yellow-400" data-val="100">100</button>
+                <button onclick="setChip(500)" class="w-8 h-8 rounded-full bg-purple-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 chip-btn" data-val="500">500</button>
+            </div>
+
+            <div class="flex flex-col text-right">
+                <span class="text-gray-400 text-[10px]">TOTAL BET</span>
+                <span class="text-yellow-400 font-mono font-bold text-sm">৳<span id="total-bet-display">0.00</span></span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let currentUserId = null;
+        let userBalance = 100.00;
+        let selectedChipValue = 100;
+        let currentRoundState = 'betting';
+        let timeLeft = 10;
+        let globalTimerInterval = null;
+        let gameHistory = [];
+
+        let activeBets = {
+            under: 0,
+            over: 0,
+            exact: 0
+        };
+
+        function getClient() {
+            if (typeof supabaseClient !== 'undefined') return supabaseClient;
+            if (typeof supabase !== 'undefined') return supabase;
+            if (window.supabaseClient) return window.supabaseClient;
+            if (window.supabase) return window.supabase;
+            return null;
+        }
+
+        async function initGame() {
+            const client = getClient();
+            try {
+                let user = null;
+                if (typeof requireAuth === 'function') user = await requireAuth();
+                else if (typeof getCurrentUser === 'function') user = await getCurrentUser();
+                else if (client) {
+                    const { data } = await client.auth.getUser();
+                    user = data?.user;
+                }
+
+                if (user && client) {
+                    currentUserId = user.id;
+                    const { data: profile } = await client.from('profiles').select('balance').eq('id', user.id).single();
+                    if (profile) {
+                        userBalance = parseFloat(profile.balance) || 100.00;
+                        updateBalanceUI();
+                    }
+                }
+            } catch (err) {
+                console.error("Auth init error:", err);
+            }
+
+            startGlobalTimer();
+        }
+
+        function setChip(val) {
+            selectedChipValue = val;
+            document.querySelectorAll('.chip-btn').forEach(btn => {
+                if(parseInt(btn.getAttribute('data-val')) === val) {
+                    btn.classList.add('ring-2', 'ring-yellow-400');
+                } else {
+                    btn.classList.remove('ring-2', 'ring-yellow-400');
+                }
+            });
+        }
+        window.setChip = setChip;
+
+        function updateBalanceUI() {
+            document.getElementById('user-balance-display').innerText = userBalance.toFixed(2);
+            let total = Object.values(activeBets).reduce((a, b) => a + b, 0);
+            document.getElementById('total-bet-display').innerText = total.toFixed(2);
+        }
+
+        function startGlobalTimer() {
+            timeLeft = 10;
+            currentRoundState = 'betting';
+            activeBets = { under: 0, over: 0, exact: 0 };
+            updateChipsDisplay();
+            updateBalanceUI();
+
+            document.getElementById('dice-1').innerText = '🎲';
+            document.getElementById('dice-2').innerText = '🎲';
+            document.getElementById('sum-result-text').innerText = 'BETTING OPEN';
+            document.getElementById('result-overlay').classList.add('hidden');
+
+            if (globalTimerInterval) clearInterval(globalTimerInterval);
+
+            globalTimerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-display').innerText = timeLeft + 's';
+
+                if (timeLeft <= 0) {
+                    clearInterval(globalTimerInterval);
+                    lockBetsAndRollDice();
+                }
+            }, 1000);
+        }
+
+        async function placeUserBet(spot) {
+            if (currentRoundState !== 'betting') {
+                alert('Wait For Next Round');
+                return;
+            }
+
+            if (userBalance < selectedChipValue) {
+                alert('Insufficient balance!');
+                return;
+            }
+
+            userBalance -= selectedChipValue;
+            activeBets[spot] += selectedChipValue;
+            updateBalanceUI();
+            updateChipsDisplay();
+
+            const spotEl = document.getElementById(`spot-${spot}`);
+            if(spotEl) {
+                spotEl.classList.add('bet-spot-selected');
+                setTimeout(() => spotEl.classList.remove('bet-spot-selected'), 300);
+            }
+
+            const client = getClient();
+            if (client && currentUserId) {
+                await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+            }
+        }
+        window.placeUserBet = placeUserBet;
+
+        function updateChipsDisplay() {
+            Object.keys(activeBets).forEach(spot => {
+                const chip = document.getElementById(`chip-${spot}`);
+                if (chip) {
+                    if (activeBets[spot] > 0) {
+                        chip.innerText = `৳${activeBets[spot]}`;
+                        chip.classList.remove('hidden');
+                    } else {
+                        chip.classList.add('hidden');
+                    }
+                }
+            });
+        }
+
+        async function lockBetsAndRollDice() {
+            currentRoundState = 'rolling';
+            document.getElementById('sum-result-text').innerText = 'ROLLING...';
+
+            // Random Dice Generation (1 to 6)
+            const d1 = Math.floor(Math.random() * 6) + 1;
+            const d2 = Math.floor(Math.random() * 6) + 1;
+            const sum = d1 + d2;
+
+            await new Promise(r => setTimeout(r, 800));
+            document.getElementById('dice-1').innerText = d1;
+            document.getElementById('dice-2').innerText = d2;
+
+            let winner = '';
+            if (sum < 7) winner = 'under';
+            else if (sum > 7) winner = 'over';
+            else winner = 'exact';
+
+            let totalPayout = 0;
+            if (winner === 'under') totalPayout += activeBets.under * 2;
+            if (winner === 'over') totalPayout += activeBets.over * 2;
+            if (winner === 'exact') totalPayout += activeBets.exact * 6;
+
+            if (totalPayout > 0) {
+                userBalance += totalPayout;
+                updateBalanceUI();
+                const client = getClient();
+                if (client && currentUserId) {
+                    await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+                }
+            }
+
+            document.getElementById('sum-result-text').innerText = `TOTAL SUM: ${sum} (${winner.toUpperCase()})`;
+            
+            const overlay = document.getElementById('result-overlay');
+            overlay.innerText = `SUM ${sum} - ${winner.toUpperCase()} WINS!`;
+            overlay.classList.remove('hidden');
+
+            // Update History
+            updateHistoryLog(sum);
+
+            setTimeout(() => {
+                startGlobalTimer();
+            }, 4000);
+        }
+
+        function updateHistoryLog(sum) {
+            const container = document.getElementById('history-container');
+            const span = document.createElement('span');
+            span.className = `w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black text-white ${sum < 7 ? 'bg-gameRed' : sum > 7 ? 'bg-gameYellow' : 'bg-gameGreen'}`;
+            span.innerText = sum;
+            container.prepend(span);
+            if(container.children.length > 6) {
+                container.lastChild.remove();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
