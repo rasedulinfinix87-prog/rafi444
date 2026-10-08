@@ -122,8 +122,8 @@
                 <span id="sum-result-text" class="text-xs font-bold text-gray-300 tracking-wider">ROLL THE DICE</span>
             </div>
 
-            <!-- ক্যাসিনো স্টাইল উইন/লস পপ-আপ ওভারলে -->
-            <div id="result-overlay" class="absolute inset-0 bg-black/70 z-20 flex items-center justify-center hidden backdrop-blur-[2px]">
+            <!-- ক্যাসিনো স্টাইল উইন/লস পপ-আপ ওভারলে (Smooth Transparent Center) -->
+            <div id="result-overlay" class="absolute inset-0 bg-black/60 z-20 flex items-center justify-center hidden backdrop-blur-[2px]">
                 <div id="popup-box" class="casino-popup px-6 py-3 rounded-2xl shadow-2xl border-4 text-center font-black text-2xl tracking-widest uppercase">
                     YOU WIN
                 </div>
@@ -210,7 +210,6 @@
             exact: 0
         };
 
-        // নির্দিষ্ট বেট স্পটে কোন কালারের চিপ কতবার বা কী পরিমাণে দেওয়া হয়েছে তার লগ
         let spotChipsData = {
             under: [],
             over: [],
@@ -289,7 +288,7 @@
             document.getElementById('total-bet-display').innerText = total.toFixed(2);
         }
 
-        // পেজ রিলোড বা রিফ্রেশ করলে টাইমার ও হিস্ট্রি ধরে রাখার জন্য লোকাল স্টোরেজ ব্যবহার
+        // লোকাল স্টোরেজ সিঙ্ক ও টাইমার সিকিউরিটি
         function saveStateToLocalStorage() {
             const historyHTML = document.getElementById('history-container').innerHTML;
             localStorage.setItem('game_history', historyHTML);
@@ -303,7 +302,10 @@
             }
             const savedTime = localStorage.getItem('game_time_left');
             if (savedTime && !isNaN(savedTime)) {
-                timeLeft = parseInt(savedTime);
+                let parsedTime = parseInt(savedTime);
+                if (parsedTime > 0 && parsedTime <= 10) {
+                    timeLeft = parsedTime;
+                }
             }
         }
 
@@ -365,7 +367,6 @@
         }
         window.placeUserBet = placeUserBet;
 
-        // ইউজারের দেওয়া নির্দিষ্ট চিপ কালার অনুযায়ী ডিসপ্লে আপডেট করা
         function updateChipsDisplay() {
             Object.keys(activeBets).forEach(spot => {
                 const container = document.getElementById(`chip-container-${spot}`);
@@ -376,7 +377,7 @@
                         let lastChip = chipsList[chipsList.length - 1];
                         
                         let chipBadge = document.createElement('div');
-                        chipBadge.className = `${lastChip ? lastChip.color : 'bg-green-600'} text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-lg border border-white/40 casino-chip flex items-center space-x-1`;
+                        chipBadge.className = `${lastChip ? lastChip.color : 'bg-green-600'} text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border border-white/40 casino-chip flex items-center space-x-1`;
                         chipBadge.innerHTML = `<span>৳${activeBets[spot]}</span>`;
                         container.appendChild(chipBadge);
                     }
@@ -384,7 +385,7 @@
             });
         }
 
-        // স্ট্যান্ডার্ড ডট বা ফোটা (১ থেকে ৬) রেন্ডমলি ফ্লিকার করার ফাংশন
+        // স্ট্যান্ডার্ড ডট (Dot Layout) রেন্ডার করার ফাংশন
         function renderDiceFace(diceElementId, number) {
             const diceEl = document.getElementById(diceElementId);
             let dotConfig = '';
@@ -438,7 +439,7 @@
             const diceBox = document.getElementById('dice-container-box');
             diceBox.classList.add('dice-shaking');
 
-            // ১ সেকেন্ড ধরে ডাইস ঘোরার সময় রেন্ডম ডট প্যাটার্ন ফ্লিকার করবে
+            // ১ সেকেন্ড ডাইস রোলিং অ্যানিমেশন
             let rollAnimTimer = setInterval(() => {
                 renderDiceFace('dice-1', Math.floor(Math.random() * 6) + 1);
                 renderDiceFace('dice-2', Math.floor(Math.random() * 6) + 1);
@@ -448,7 +449,7 @@
             clearInterval(rollAnimTimer);
             diceBox.classList.remove('dice-shaking');
 
-            // চূড়ান্ত ফলাফল নির্ধারণ
+            // ফাইনাল ফলাফল
             const d1 = Math.floor(Math.random() * 6) + 1;
             const d2 = Math.floor(Math.random() * 6) + 1;
             const sum = d1 + d2;
@@ -472,7 +473,6 @@
                     let isWinner = (spot === winner);
                     if (isWinner) hasUserWonAny = true;
 
-                    // সঠিক পেআউট বা ওডস (Under/Over এর জন্য 2.3 এবং Exact এর জন্য 5.8)
                     let payoutMultiplier = (spot === 'exact') ? 5.8 : 2.3; 
                     let itemPayout = isWinner ? (bAmount * payoutMultiplier) : 0;
                     let targetNum = (spot === 'under') ? 6 : (spot === 'over') ? 8 : 7;
@@ -505,16 +505,16 @@
             updateBalanceUI();
             document.getElementById('sum-result-text').innerText = `TOTAL SUM: ${sum} (${winner.toUpperCase()})`;
             
-            // ক্যাসিনো স্টাইল পপ-আপ মেসেজ (শুধু YOU WIN অথবা YOU LOST)
+            // ক্যাসিনো স্টাইল উইন/লস পপ-আপ মেসেজ
             const overlay = document.getElementById('result-overlay');
             const popupBox = document.getElementById('popup-box');
             
             if (hasUserBetAnything) {
                 if (hasUserWonAny) {
-                    popupBox.className = "casino-popup px-6 py-3 rounded-2xl shadow-2xl border-4 border-yellow-400 bg-emerald-900 text-yellow-300 text-center font-black text-xl tracking-widest uppercase";
+                    popupBox.className = "casino-popup px-6 py-3 rounded-2xl shadow-2xl border-4 border-yellow-400 bg-emerald-950/90 text-yellow-300 text-center font-black text-xl tracking-widest uppercase";
                     popupBox.innerText = "YOU WIN";
                 } else {
-                    popupBox.className = "casino-popup px-6 py-3 rounded-2xl shadow-2xl border-4 border-red-500 bg-red-950 text-red-400 text-center font-black text-xl tracking-widest uppercase";
+                    popupBox.className = "casino-popup px-6 py-3 rounded-2xl shadow-2xl border-4 border-red-500 bg-red-950/90 text-red-400 text-center font-black text-xl tracking-widest uppercase";
                     popupBox.innerText = "YOU LOST";
                 }
                 overlay.classList.remove('hidden');
