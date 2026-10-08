@@ -63,7 +63,7 @@
             animation: popUpScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        /* ক্যাসিনো চিপ ডিজাইন ஸ்டাইল */
+        /* ক্যাসিনো চিপ ডিজাইন স্টাইল */
         .casino-chip {
             border: 3px dashed rgba(255, 255, 255, 0.6);
             box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4);
@@ -289,7 +289,7 @@
             document.getElementById('total-bet-display').innerText = total.toFixed(2);
         }
 
-        // লোকাল স্টোরেজে টাইমার ও হিস্ট্রি সংরক্ষণ যাতে রিলোড করলে ক্লিয়ার না হয়
+        // পেজ রিলোড বা রিফ্রেশ করলে টাইমার ও হিস্ট্রি ধরে রাখার জন্য লোকাল স্টোরেজ ব্যবহার
         function saveStateToLocalStorage() {
             const historyHTML = document.getElementById('history-container').innerHTML;
             localStorage.setItem('game_history', historyHTML);
@@ -365,19 +365,18 @@
         }
         window.placeUserBet = placeUserBet;
 
-        // সুনির্দিষ্ট কালার অনুযায়ী চিপ রেন্ডার করার ফাংশন
+        // ইউজারের দেওয়া নির্দিষ্ট চিপ কালার অনুযায়ী ডিসপ্লে আপডেট করা
         function updateChipsDisplay() {
             Object.keys(activeBets).forEach(spot => {
                 const container = document.getElementById(`chip-container-${spot}`);
                 if (container) {
                     container.innerHTML = '';
                     if (activeBets[spot] > 0) {
-                        // সর্বশেষ ব্যবহৃত চিপের কালার ও অ্যামাউন্ট শো করবে
                         let chipsList = spotChipsData[spot];
                         let lastChip = chipsList[chipsList.length - 1];
                         
                         let chipBadge = document.createElement('div');
-                        chipBadge.className = `${lastChip ? lastChip.color : 'bg-green-600'} text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border border-white/40 casino-chip flex items-center space-x-1`;
+                        chipBadge.className = `${lastChip ? lastChip.color : 'bg-green-600'} text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-lg border border-white/40 casino-chip flex items-center space-x-1`;
                         chipBadge.innerHTML = `<span>৳${activeBets[spot]}</span>`;
                         container.appendChild(chipBadge);
                     }
@@ -385,12 +384,11 @@
             });
         }
 
-        // ডাইসের ফোটা (Dot layout) রেন্ডার করার ফাংশন যাতে ইউজার কোনো স্ক্যাম মনে না করে
+        // স্ট্যান্ডার্ড ডট বা ফোটা (১ থেকে ৬) রেন্ডমলি ফ্লিকার করার ফাংশন
         function renderDiceFace(diceElementId, number) {
             const diceEl = document.getElementById(diceElementId);
             let dotConfig = '';
 
-            // ১ থেকে ৬ এর স্ট্যান্ডার্ড ডট প্যাটার্ন
             if (number === 1) {
                 dotConfig = `<span class="col-start-2 row-start-2 bg-black rounded-full w-2.5 h-2.5 m-auto"></span>`;
             } else if (number === 2) {
@@ -440,7 +438,7 @@
             const diceBox = document.getElementById('dice-container-box');
             diceBox.classList.add('dice-shaking');
 
-            // ১ সেকেন্ড ধরে ডাইস ঘুরবে (রেন্ডম ফোটা ফ্লিকার করবে)
+            // ১ সেকেন্ড ধরে ডাইস ঘোরার সময় রেন্ডম ডট প্যাটার্ন ফ্লিকার করবে
             let rollAnimTimer = setInterval(() => {
                 renderDiceFace('dice-1', Math.floor(Math.random() * 6) + 1);
                 renderDiceFace('dice-2', Math.floor(Math.random() * 6) + 1);
@@ -450,7 +448,7 @@
             clearInterval(rollAnimTimer);
             diceBox.classList.remove('dice-shaking');
 
-            // ফাইনাল রেন্ডম ফলাফল নির্ধারণ
+            // চূড়ান্ত ফলাফল নির্ধারণ
             const d1 = Math.floor(Math.random() * 6) + 1;
             const d2 = Math.floor(Math.random() * 6) + 1;
             const sum = d1 + d2;
@@ -474,7 +472,7 @@
                     let isWinner = (spot === winner);
                     if (isWinner) hasUserWonAny = true;
 
-                    // আপডেটকৃত নতুন ওডস ও পেআউট (Under/Over এর জন্য 2.3 এবং Exact এর জন্য 5.8)
+                    // সঠিক পেআউট বা ওডস (Under/Over এর জন্য 2.3 এবং Exact এর জন্য 5.8)
                     let payoutMultiplier = (spot === 'exact') ? 5.8 : 2.3; 
                     let itemPayout = isWinner ? (bAmount * payoutMultiplier) : 0;
                     let targetNum = (spot === 'under') ? 6 : (spot === 'over') ? 8 : 7;
@@ -507,7 +505,7 @@
             updateBalanceUI();
             document.getElementById('sum-result-text').innerText = `TOTAL SUM: ${sum} (${winner.toUpperCase()})`;
             
-            // ক্যাসিনো স্টাইল পপ-আপ মেসেজ (YOU WIN / YOU LOST)
+            // ক্যাসিনো স্টাইল পপ-আপ মেসেজ (শুধু YOU WIN অথবা YOU LOST)
             const overlay = document.getElementById('result-overlay');
             const popupBox = document.getElementById('popup-box');
             
