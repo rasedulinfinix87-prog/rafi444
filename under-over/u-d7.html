@@ -36,37 +36,46 @@
             color: #f3f4f6;
             touch-action: manipulation;
         }
+        .dice-box {
+            perspective: 1000px;
+        }
         .bet-spot-selected {
             border-color: #24ee89 !important;
             box-shadow: 0 0 15px rgba(36, 238, 137, 0.6);
         }
-
-        @keyframes shakeDice {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-3px, 0px) rotate(-5deg); }
-            40% { transform: translate(3px, -2px) rotate(5deg); }
-            60% { transform: translate(-1px, 2px) rotate(0deg); }
-            80% { transform: translate(2px, 1px) rotate(-2deg); }
-            100% { transform: translate(0px, 0px) rotate(0deg); }
+        /* ডাইস রোলিং অ্যানিমেশন স্টাইল */
+        @keyframes diceShake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-3px, 3px) rotate(-10deg); }
+            40% { transform: translate(3px, -3px) rotate(10deg); }
+            60% { transform: translate(-3px, -3px) rotate(-5deg); }
+            80% { transform: translate(3px, 3px) rotate(5deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
         }
-        .dice-shaking {
-            animation: shakeDice 0.4s infinite ease-in-out;
+        .rolling-anim {
+            animation: diceShake 0.4s infinite ease-in-out;
         }
-
-        /* ক্যাসিনো স্টাইল পপ-আপ অ্যানিমেশন */
-        @keyframes popUpScale {
-            0% { transform: scale(0.5); opacity: 0; }
-            70% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
+        /* ক্যাসিনো স্টাইল ট্রান্সপারেন্ট ওভারলে */
+        .casino-overlay {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            animation: fadeInOut 3.5s ease forwards;
         }
-        .casino-popup {
-            animation: popUpScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.8); }
+            15% { opacity: 1; transform: scale(1); }
+            85% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.1); display: none; }
         }
-
-        /* ক্যাসিনো চিপ ডিজাইন স্টাইল */
-        .casino-chip {
-            border: 3px dashed rgba(255, 255, 255, 0.6);
+        /* পোকার চিপ ডিজাইন স্টাইল (দ্বিতীয় ছবির আদলে) */
+        .poker-chip {
+            border-radius: 50%;
+            border: 3px dashed rgba(255, 255, 255, 0.7);
             box-shadow: 0 4px 6px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
         }
     </style>
 </head>
@@ -85,34 +94,17 @@
                 </div>
             </div>
 
-            <!-- Dice Rolling Animation Area -->
-            <div id="dice-container-box" class="flex items-center justify-center space-x-6 my-auto">
-                <!-- Dice 1 (Standard Dot Face Representation) -->
-                <div id="dice-1" class="w-16 h-16 bg-white text-gray-900 rounded-xl shadow-2xl flex items-center justify-center border-4 border-gray-300">
-                    <div class="grid grid-cols-3 grid-rows-3 w-10 h-10 p-1">  
-                        <span class="dot-1 bg-black rounded-full m-auto w-2 h-2"></span>
-                        <span class="dot-2 bg-transparent"></span>
-                        <span class="dot-3 bg-black rounded-full m-auto w-2 h-2"></span>
-                        <span class="dot-4 bg-transparent"></span>
-                        <span class="dot-5 bg-black rounded-full m-auto w-2 h-2"></span>
-                        <span class="dot-6 bg-transparent"></span>
-                        <span class="dot-7 bg-black rounded-full m-auto w-2 h-2"></span>
-                        <span class="dot-8 bg-transparent"></span>
-                        <span class="dot-9 bg-black rounded-full m-auto w-2 h-2"></span>
+            <!-- Dice Rolling Animation Area (ছবি ১ অনুযায়ী ডাইস ডিজাইন ও ডট ডিসপ্লে) -->
+            <div class="flex items-center justify-center space-x-6 my-auto">
+                <div id="dice-1" class="w-16 h-16 bg-white text-gray-900 rounded-2xl shadow-2xl flex items-center justify-center border-4 border-gray-300">
+                    <!-- ডাইস ডট কনটেইনার -->
+                    <div class="w-full h-full p-2 grid grid-cols-3 grid-rows-3 items-center justify-items-center">
+                        <span class="dot-1 col-start-2 row-start-2 w-3.5 h-3.5 bg-black rounded-full"></span>
                     </div>
                 </div>
-                <!-- Dice 2 -->
-                <div id="dice-2" class="w-16 h-16 bg-white text-gray-900 rounded-xl shadow-2xl flex items-center justify-center border-4 border-gray-300">
-                    <div class="grid grid-cols-3 grid-rows-3 w-10 h-10 p-1">
-                        <span class="dot-1 bg-transparent"></span>
-                        <span class="dot-2 bg-transparent"></span>
-                        <span class="dot-3 bg-transparent"></span>
-                        <span class="dot-4 bg-transparent"></span>
-                        <span class="dot-5 bg-black rounded-full m-auto w-2 h-2"></span>
-                        <span class="dot-6 bg-transparent"></span>
-                        <span class="dot-7 bg-transparent"></span>
-                        <span class="dot-8 bg-transparent"></span>
-                        <span class="dot-9 bg-transparent"></span>
+                <div id="dice-2" class="w-16 h-16 bg-white text-gray-900 rounded-2xl shadow-2xl flex items-center justify-center border-4 border-gray-300">
+                    <div class="w-full h-full p-2 grid grid-cols-3 grid-rows-3 items-center justify-items-center">
+                        <span class="dot-2 col-start-2 row-start-2 w-3.5 h-3.5 bg-black rounded-full"></span>
                     </div>
                 </div>
             </div>
@@ -122,11 +114,9 @@
                 <span id="sum-result-text" class="text-xs font-bold text-gray-300 tracking-wider">ROLL THE DICE</span>
             </div>
 
-            <!-- ক্যাসিনো স্টাইল উইন/লস পপ-আপ ওভারলে (Smooth Transparent Center) -->
-            <div id="result-overlay" class="absolute inset-0 bg-black/60 z-20 flex items-center justify-center hidden backdrop-blur-[2px]">
-                <div id="popup-box" class="casino-popup px-6 py-3 rounded-2xl shadow-2xl border-4 text-center font-black text-2xl tracking-widest uppercase">
-                    YOU WIN
-                </div>
+            <!-- ক্যাসিনো স্টাইল উইন/লস ওভারলে মেসেজ -->
+            <div id="result-overlay" class="absolute inset-0 z-20 flex items-center justify-center font-black text-xl tracking-widest uppercase hidden casino-overlay">
+                <span id="overlay-text" class="text-white drop-shadow-lg">YOU WIN</span>
             </div>
         </div>
 
@@ -134,45 +124,39 @@
         <div class="w-full h-12 bg-[#111827] border-b border-gray-800 flex items-center px-3 space-x-2 overflow-x-auto">
             <span class="text-[10px] text-gray-400 font-bold">HISTORY:</span>
             <div id="history-container" class="flex items-center space-x-1.5">
-                <!-- History badges will load here -->
+                <!-- History badges -->
             </div>
         </div>
 
-        <!-- Betting Options Layout (Under 7, Exactly 7, Over 7) -->
-        <div class="p-3 flex flex-col space-y-3 bg-cardDark">
+        <!-- Betting Options Layout (Over 7, Equal 7, Under 7 with updated payouts) -->
+        <div class="p-3 grid grid-cols-3 gap-2.5 bg-cardDark">
             
-            <!-- Under 7 & Over 7 (Main Bets) -->
-            <div class="grid grid-cols-2 gap-3">
-                <!-- Under 7 (Payout 2.3) -->
-                <button onclick="placeUserBet('under')" id="spot-under" class="relative p-4 bg-gameRed hover:bg-red-700 rounded-2xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
-                    <span class="text-[11px] font-bold text-white/80 uppercase tracking-widest">Under 2 - 6</span>
-                    <span class="text-lg font-black text-white my-0.5">UNDER 7</span>
-                    <span class="text-xs font-bold text-yellow-300">x 2.3</span>
-                    <div id="chip-container-under" class="absolute bottom-2 right-2 flex items-center"></div>
-                </button>
+            <!-- Over 7 -->
+            <button onclick="placeUserBet('over')" id="spot-over" class="relative p-3 bg-[#1e293b] hover:bg-slate-800 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-gray-700 shadow-lg active:scale-95">
+                <span class="text-[11px] font-bold text-gray-300 uppercase">Over 7</span>
+                <span class="text-xs font-black text-yellow-400 my-1">x 2.3</span>
+                <div id="chip-over" class="absolute -top-2 -right-2 w-7 h-7 text-[10px] text-white shadow-md hidden"></div>
+            </button>
 
-                <!-- Over 7 (Payout 2.3) -->
-                <button onclick="placeUserBet('over')" id="spot-over" class="relative p-4 bg-gameYellow hover:bg-amber-600 rounded-2xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
-                    <span class="text-[11px] font-bold text-white/80 uppercase tracking-widest">Over 8 - 12</span>
-                    <span class="text-lg font-black text-white my-0.5">OVER 7</span>
-                    <span class="text-xs font-bold text-yellow-200">x 2.3</span>
-                    <div id="chip-container-over" class="absolute bottom-2 right-2 flex items-center"></div>
-                </button>
-            </div>
+            <!-- Equal 7 (5.8 Odds) -->
+            <button onclick="placeUserBet('exact')" id="spot-exact" class="relative p-3 bg-[#1e293b] hover:bg-slate-800 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-gray-700 shadow-lg active:scale-95">
+                <span class="text-[11px] font-bold text-gray-300 uppercase">Equal 7</span>
+                <span class="text-xs font-black text-yellow-400 my-1">x 5.8</span>
+                <div id="chip-exact" class="absolute -top-2 -right-2 w-7 h-7 text-[10px] text-white shadow-md hidden"></div>
+            </button>
 
-            <!-- Exactly 7 / Equal 7 (High Payout 5.8) -->
-            <button onclick="placeUserBet('exact')" id="spot-exact" class="relative p-3.5 bg-gameGreen hover:bg-emerald-700 rounded-2xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
-                <span class="text-[11px] font-bold text-white/80 uppercase tracking-widest">Lucky Number</span>
-                <span class="text-xl font-black text-white">7 EQUAL</span>
-                <span class="text-xs font-bold text-yellow-300">x 5.8</span>
-                <div id="chip-container-exact" class="absolute bottom-2 right-2 flex items-center"></div>
+            <!-- Under 7 -->
+            <button onclick="placeUserBet('under')" id="spot-under" class="relative p-3 bg-[#1e293b] hover:bg-slate-800 rounded-xl flex flex-col items-center justify-center transition-all border-2 border-gray-700 shadow-lg active:scale-95">
+                <span class="text-[11px] font-bold text-gray-300 uppercase">Under 7</span>
+                <span class="text-xs font-black text-yellow-400 my-1">x 2.3</span>
+                <div id="chip-under" class="absolute -top-2 -right-2 w-7 h-7 text-[10px] text-white shadow-md hidden"></div>
             </button>
 
         </div>
 
     </main>
 
-    <!-- Fixed Bottom Footer (Balance & Chips Bar) -->
+    <!-- Fixed Bottom Footer (Balance & Chips Bar - ছবির কালার অনুযায়ী চিপস) -->
     <footer class="w-full max-w-md fixed bottom-0 z-50 bg-[#111827] border-t border-gray-800 flex flex-col">
         <div class="flex items-center justify-between px-3 py-2.5 text-xs bg-[#18181b]">
             <div class="flex flex-col">
@@ -180,12 +164,12 @@
                 <span class="text-white font-mono font-bold text-sm">৳<span id="user-balance-display">0.00</span></span>
             </div>
             
-            <!-- Chip Selector Buttons (Different Colors) -->
-            <div class="flex items-center space-x-1.5">
-                <button onclick="setChip(10, 'bg-red-600')" class="w-8 h-8 rounded-full bg-red-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 casino-chip chip-btn" data-val="10">10</button>
-                <button onclick="setChip(50, 'bg-blue-600')" class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-xs shadow flex items-center justify-center border border-white/20 casino-chip chip-btn" data-val="50">50</button>
-                <button onclick="setChip(100, 'bg-emerald-600')" class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 casino-chip chip-btn ring-2 ring-yellow-400" data-val="100">100</button>
-                <button onclick="setChip(500, 'bg-purple-600')" class="w-8 h-8 rounded-full bg-purple-600 text-white font-bold text-[10px] shadow flex items-center justify-center border border-white/20 casino-chip chip-btn" data-val="500">500</button>
+            <!-- Chip Selector Buttons (Different Colors based on second image) -->
+            <div class="flex items-center space-x-2">
+                <button onclick="setChip(10, 'bg-red-600')" class="w-8 h-8 rounded-full bg-red-600 text-white font-bold text-[10px] shadow flex items-center justify-center border-2 border-dashed border-white/70 chip-btn ring-2 ring-yellow-400" data-val="10" data-color="bg-red-600">10</button>
+                <button onclick="setChip(50, 'bg-blue-600')" class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-[10px] shadow flex items-center justify-center border-2 border-dashed border-white/70 chip-btn" data-val="50" data-color="bg-blue-600">50</button>
+                <button onclick="setChip(100, 'bg-emerald-600')" class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold text-[10px] shadow flex items-center justify-center border-2 border-dashed border-white/70 chip-btn" data-val="100" data-color="bg-emerald-600">100</button>
+                <button onclick="setChip(500, 'bg-neutral-900')" class="w-8 h-8 rounded-full bg-neutral-900 text-white font-bold text-[10px] shadow flex items-center justify-center border-2 border-dashed border-white/70 chip-btn" data-val="500" data-color="bg-neutral-900">500</button>
             </div>
 
             <div class="flex flex-col text-right">
@@ -198,22 +182,24 @@
     <script>
         let currentUserId = null;
         let userBalance = 0.00;
-        let selectedChipValue = 100;
-        let selectedChipColor = 'bg-emerald-600';
+        let selectedChipValue = 10;
+        let selectedChipColor = 'bg-red-600';
         let currentRoundState = 'betting';
-        let timeLeft = 10;
-        let globalTimerInterval = null;
-
+        
+        // লোকাল স্টোরেজ ব্যবহার করে রাউন্ড ও টাইমার সিঙ্ক রাখা যাতে স্ক্রিন রিফ্রেশ করলে টাইম বা রাউন্ড রিসেট না হয়
+        const ROUND_DURATION = 10; // ১০ সেকেন্ড
+        
         let activeBets = {
             under: 0,
             over: 0,
             exact: 0
         };
 
-        let spotChipsData = {
-            under: [],
-            over: [],
-            exact: []
+        // নির্দিষ্ট চিপের কালার সেভ রাখার জন্য অবজেক্ট
+        let activeBetChipColors = {
+            under: '',
+            over: '',
+            exact: ''
         };
 
         function getClient() {
@@ -255,17 +241,15 @@
                 console.error("Auth init error:", err);
             }
 
-            loadStateFromLocalStorage();
-            startGlobalTimer();
+            syncAndStartTimer();
+            loadHistoryFromStorage();
         }
 
         async function fetchUserProfile(client, userId) {
-            const { data: profile, error } = await client.from('profiles').select('balance').eq('id', userId).single();
+            const { data: profile } = await client.from('profiles').select('balance').eq('id', userId).single();
             if (profile) {
                 userBalance = parseFloat(profile.balance) || 0.00;
                 updateBalanceUI();
-            } else if (error) {
-                console.error("Error fetching profile:", error);
             }
         }
 
@@ -288,57 +272,54 @@
             document.getElementById('total-bet-display').innerText = total.toFixed(2);
         }
 
-        // লোকাল স্টোরেজ সিঙ্ক ও টাইমার সিকিউরিটি
-        function saveStateToLocalStorage() {
-            const historyHTML = document.getElementById('history-container').innerHTML;
-            localStorage.setItem('game_history', historyHTML);
-            localStorage.setItem('game_time_left', timeLeft);
+        // গ্লোবাল টাইমার সিঙ্ক (লোকালস্টোরেজ ভিত্তিক যেন পেজ রিফ্রেশে টাইম রিসেট না হয়)
+        function syncAndStartTimer() {
+            let roundStartTime = localStorage.getItem('dice_round_start_time');
+            let now = Date.now();
+
+            if (!roundStartTime) {
+                roundStartTime = now;
+                localStorage.setItem('dice_round_start_time', roundStartTime);
+            }
+
+            let elapsedSeconds = Math.floor((now - parseInt(roundStartTime)) / 1000);
+            let timeLeft = ROUND_DURATION - (elapsedSeconds % ROUND_DURATION);
+            
+            if (timeLeft <= 0) timeLeft = ROUND_DURATION;
+
+            runTimerCountdown(timeLeft);
         }
 
-        function loadStateFromLocalStorage() {
-            const savedHistory = localStorage.getItem('game_history');
-            if (savedHistory) {
-                document.getElementById('history-container').innerHTML = savedHistory;
-            }
-            const savedTime = localStorage.getItem('game_time_left');
-            if (savedTime && !isNaN(savedTime)) {
-                let parsedTime = parseInt(savedTime);
-                if (parsedTime > 0 && parsedTime <= 10) {
-                    timeLeft = parsedTime;
+        function runTimerCountdown(initialTime) {
+            let timeLeft = initialTime;
+            const timerDisplay = document.getElementById('timer-display');
+            
+            if (window.globalTimerInterval) clearInterval(window.globalTimerInterval);
+
+            window.globalTimerInterval = setInterval(() => {
+                timerDisplay.innerText = timeLeft + 's';
+
+                if (timeLeft <= 3 && timeLeft > 0) {
+                    currentRoundState = 'rolling_soon';
                 }
-            }
-        }
 
-        function startGlobalTimer() {
-            currentRoundState = 'betting';
-            activeBets = { under: 0, over: 0, exact: 0 };
-            spotChipsData = { under: [], over: [], exact: [] };
-            updateChipsDisplay();
-            updateBalanceUI();
-
-            document.getElementById('sum-result-text').innerText = 'BETTING OPEN';
-            document.getElementById('result-overlay').classList.add('hidden');
-
-            if (globalTimerInterval) clearInterval(globalTimerInterval);
-
-            globalTimerInterval = setInterval(() => {
-                if (currentRoundState === 'betting') {
-                    timeLeft--;
-                    if (timeLeft < 0) timeLeft = 0;
-                    document.getElementById('timer-display').innerText = timeLeft + 's';
-                    saveStateToLocalStorage();
-
-                    if (timeLeft <= 0) {
-                        clearInterval(globalTimerInterval);
-                        lockBetsAndRollDice();
-                    }
+                if (timeLeft <= 0) {
+                    clearInterval(window.globalTimerInterval);
+                    localStorage.setItem('dice_round_start_time', Date.now()); // নতুন রাউন্ডের সময় সেট
+                    lockBetsAndRollDice();
                 }
+                timeLeft--;
             }, 1000);
         }
 
         async function placeUserBet(spot) {
-            if (currentRoundState !== 'betting') {
-                alert('পরবর্তী রাউন্ডের জন্য অপেক্ষা করুন!');
+            let roundStartTime = parseInt(localStorage.getItem('dice_round_start_time') || Date.now());
+            let elapsed = Math.floor((Date.now() - roundStartTime) / 1000);
+            let timeLeft = ROUND_DURATION - (elapsed % ROUND_DURATION);
+
+            // শেষ ৩ সেকেন্ডে বেট নেওয়া বন্ধ থাকবে
+            if (timeLeft <= 2) {
+                alert('এই রাউন্ডের বেটিং সময় শেষ!');
                 return;
             }
 
@@ -349,7 +330,7 @@
 
             userBalance -= selectedChipValue;
             activeBets[spot] += selectedChipValue;
-            spotChipsData[spot].push({ value: selectedChipValue, color: selectedChipColor });
+            activeBetChipColors[spot] = selectedChipColor; // নির্দিষ্ট চিপ কালার সেভ করা
             
             updateBalanceUI();
             updateChipsDisplay();
@@ -369,116 +350,114 @@
 
         function updateChipsDisplay() {
             Object.keys(activeBets).forEach(spot => {
-                const container = document.getElementById(`chip-container-${spot}`);
-                if (container) {
-                    container.innerHTML = '';
+                const chip = document.getElementById(`chip-${spot}`);
+                if (chip) {
                     if (activeBets[spot] > 0) {
-                        let chipsList = spotChipsData[spot];
-                        let lastChip = chipsList[chipsList.length - 1];
-                        
-                        let chipBadge = document.createElement('div');
-                        chipBadge.className = `${lastChip ? lastChip.color : 'bg-green-600'} text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg border border-white/40 casino-chip flex items-center space-x-1`;
-                        chipBadge.innerHTML = `<span>৳${activeBets[spot]}</span>`;
-                        container.appendChild(chipBadge);
+                        chip.className = `absolute -top-2 -right-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white shadow-lg poker-chip ${activeBetChipColors[spot] || 'bg-red-600'}`;
+                        chip.innerText = `৳${activeBets[spot]}`;
+                        chip.classList.remove('hidden');
+                    } else {
+                        chip.classList.add('hidden');
                     }
                 }
             });
         }
 
-        // স্ট্যান্ডার্ড ডট (Dot Layout) রেন্ডার করার ফাংশন
-        function renderDiceFace(diceElementId, number) {
+        // ডাইসের সঠিক ডট প্যাটার্ন রেন্ডার করার ফাংশন (১ থেকে ৬ ফোটা)
+        function renderDiceDots(diceElementId, value) {
             const diceEl = document.getElementById(diceElementId);
-            let dotConfig = '';
+            let dotPositions = '';
 
-            if (number === 1) {
-                dotConfig = `<span class="col-start-2 row-start-2 bg-black rounded-full w-2.5 h-2.5 m-auto"></span>`;
-            } else if (number === 2) {
-                dotConfig = `
-                    <span class="col-start-1 row-start-1 bg-black rounded-full w-2.5 h-2.5 m-auto"></span>
-                    <span class="col-start-3 row-start-3 bg-black rounded-full w-2.5 h-2.5 m-auto"></span>
-                `;
-            } else if (number === 3) {
-                dotConfig = `
-                    <span class="col-start-1 row-start-1 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-2 row-start-2 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-3 row-start-3 bg-black rounded-full w-2 h-2 m-auto"></span>
-                `;
-            } else if (number === 4) {
-                dotConfig = `
-                    <span class="col-start-1 row-start-1 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-3 row-start-1 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-1 row-start-3 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-3 row-start-3 bg-black rounded-full w-2 h-2 m-auto"></span>
-                `;
-            } else if (number === 5) {
-                dotConfig = `
-                    <span class="col-start-1 row-start-1 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-3 row-start-1 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-2 row-start-2 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-1 row-start-3 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-3 row-start-3 bg-black rounded-full w-2 h-2 m-auto"></span>
-                `;
-            } else if (number === 6) {
-                dotConfig = `
-                    <span class="col-start-1 row-start-1 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-3 row-start-1 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-1 row-start-2 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-3 row-start-2 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-1 row-start-3 bg-black rounded-full w-2 h-2 m-auto"></span>
-                    <span class="col-start-3 row-start-3 bg-black rounded-full w-2 h-2 m-auto"></span>
-                `;
+            switch(value) {
+                case 1:
+                    dotPositions = '<span class="col-start-2 row-start-2 w-3.5 h-3.5 bg-black rounded-full"></span>';
+                    break;
+                case 2:
+                    dotPositions = `
+                        <span class="col-start-1 row-start-1 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                    `;
+                    break;
+                case 3:
+                    dotPositions = `
+                        <span class="col-start-1 row-start-1 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-2 row-start-2 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                    `;
+                    break;
+                case 4:
+                    dotPositions = `
+                        <span class="col-start-1 row-start-1 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-1 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                    `;
+                    break;
+                case 5:
+                    dotPositions = `
+                        <span class="col-start-1 row-start-1 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-1 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-2 row-start-2 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                    `;
+                    break;
+                case 6:
+                    dotPositions = `
+                        <span class="col-start-1 row-start-1 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-1 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-2 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-2 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-1 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                        <span class="col-start-3 row-start-3 w-3 h-3 bg-black rounded-full"></span>
+                    `;
+                    break;
             }
 
-            diceEl.innerHTML = `<div class="grid grid-cols-3 grid-rows-3 w-10 h-10 p-0.5">${dotConfig}</div>`;
+            diceEl.innerHTML = `<div class="w-full h-full p-2 grid grid-cols-3 grid-rows-3 items-center justify-items-center">${dotPositions}</div>`;
         }
 
         async function lockBetsAndRollDice() {
             currentRoundState = 'rolling';
             document.getElementById('sum-result-text').innerText = 'ROLLING...';
 
-            const diceBox = document.getElementById('dice-container-box');
-            diceBox.classList.add('dice-shaking');
+            document.getElementById('dice-1').classList.add('rolling-anim');
+            document.getElementById('dice-2').classList.add('rolling-anim');
 
-            // ১ সেকেন্ড ডাইস রোলিং অ্যানিমেশন
-            let rollAnimTimer = setInterval(() => {
-                renderDiceFace('dice-1', Math.floor(Math.random() * 6) + 1);
-                renderDiceFace('dice-2', Math.floor(Math.random() * 6) + 1);
-            }, 100);
-
-            await new Promise(r => setTimeout(r, 1000));
-            clearInterval(rollAnimTimer);
-            diceBox.classList.remove('dice-shaking');
-
-            // ফাইনাল ফলাফল
+            // দুটি ডাইসের রেন্ডম রোল (১ থেকে ৬)
             const d1 = Math.floor(Math.random() * 6) + 1;
             const d2 = Math.floor(Math.random() * 6) + 1;
             const sum = d1 + d2;
 
-            renderDiceFace('dice-1', d1);
-            renderDiceFace('dice-2', d2);
+            await new Promise(r => setTimeout(r, 1200));
+
+            document.getElementById('dice-1').classList.remove('rolling-anim');
+            document.getElementById('dice-2').classList.remove('rolling-anim');
+
+            renderDiceDots('dice-1', d1);
+            renderDiceDots('dice-2', d2);
 
             let winner = '';
             if (sum < 7) winner = 'under';
             else if (sum > 7) winner = 'over';
             else winner = 'exact';
 
+            let userWonAny = false;
+            let totalPayoutEarned = 0;
             const client = getClient();
-            let totalRoundPayout = 0;
-            let hasUserWonAny = false;
-            let hasUserBetAnything = Object.values(activeBets).some(val => val > 0);
 
             for (let spot in activeBets) {
                 let bAmount = activeBets[spot];
                 if (bAmount > 0) {
                     let isWinner = (spot === winner);
-                    if (isWinner) hasUserWonAny = true;
-
-                    let payoutMultiplier = (spot === 'exact') ? 5.8 : 2.3; 
+                    let payoutMultiplier = (spot === 'exact') ? 5.8 : 2.3; // পেআউট আপডেট করা হয়েছে
                     let itemPayout = isWinner ? (bAmount * payoutMultiplier) : 0;
                     let targetNum = (spot === 'under') ? 6 : (spot === 'over') ? 8 : 7;
 
                     if (itemPayout > 0) {
-                        totalRoundPayout += itemPayout;
+                        userBalance += itemPayout;
+                        totalPayoutEarned += itemPayout;
+                        userWonAny = true;
                     }
 
                     if (client && currentUserId) {
@@ -494,38 +473,40 @@
                 }
             }
 
-            if (totalRoundPayout > 0) {
-                userBalance += totalRoundPayout;
-            }
-
             if (client && currentUserId) {
                 await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
             }
 
             updateBalanceUI();
+
             document.getElementById('sum-result-text').innerText = `TOTAL SUM: ${sum} (${winner.toUpperCase()})`;
             
-            // ক্যাসিনো স্টাইল উইন/লস পপ-আপ মেসেজ
+            // ক্যাসিনো স্টাইল উইন/লস ট্রান্সপারেন্ট ওভারলে মেসেজ
             const overlay = document.getElementById('result-overlay');
-            const popupBox = document.getElementById('popup-box');
+            const overlayText = document.getElementById('overlay-text');
             
-            if (hasUserBetAnything) {
-                if (hasUserWonAny) {
-                    popupBox.className = "casino-popup px-6 py-3 rounded-2xl shadow-2xl border-4 border-yellow-400 bg-emerald-950/90 text-yellow-300 text-center font-black text-xl tracking-widest uppercase";
-                    popupBox.innerText = "YOU WIN";
+            let hasActiveBets = Object.values(activeBets).some(val => val > 0);
+
+            if (hasActiveBets) {
+                if (userWonAny) {
+                    overlayText.innerText = `YOU WIN! ৳${totalPayoutEarned.toFixed(1)}`;
+                    overlayText.className = "text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.8)] text-xl font-black";
                 } else {
-                    popupBox.className = "casino-popup px-6 py-3 rounded-2xl shadow-2xl border-4 border-red-500 bg-red-950/90 text-red-400 text-center font-black text-xl tracking-widest uppercase";
-                    popupBox.innerText = "YOU LOST";
+                    overlayText.innerText = "YOU LOST";
+                    overlayText.className = "text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)] text-xl font-black";
                 }
                 overlay.classList.remove('hidden');
             }
 
             updateHistoryLog(sum);
 
+            // রাউন্ড শেষে বেট ক্লিয়ার করা
+            activeBets = { under: 0, over: 0, exact: 0 };
+            updateChipsDisplay();
+
             setTimeout(() => {
                 overlay.classList.add('hidden');
-                timeLeft = 10;
-                startGlobalTimer();
+                syncAndStartTimer();
             }, 3500);
         }
 
@@ -535,10 +516,28 @@
             span.className = `w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black text-white ${sum < 7 ? 'bg-gameRed' : sum > 7 ? 'bg-gameYellow' : 'bg-gameGreen'}`;
             span.innerText = sum;
             container.prepend(span);
+            
+            // লোকালস্টোরেজে হিস্ট্রি সেভ রাখা যাতে রিফ্রেশে না হারায়
+            let histories = JSON.parse(localStorage.getItem('dice_game_histories') || '[]');
+            histories.unshift(sum);
+            if(histories.length > 10) histories.pop();
+            localStorage.setItem('dice_game_histories', JSON.stringify(histories));
+
             if(container.children.length > 6) {
                 container.lastChild.remove();
             }
-            saveStateToLocalStorage();
+        }
+
+        function loadHistoryFromStorage() {
+            let histories = JSON.parse(localStorage.getItem('dice_game_histories') || '[]');
+            const container = document.getElementById('history-container');
+            container.innerHTML = '';
+            histories.forEach(sum => {
+                const span = document.createElement('span');
+                span.className = `w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black text-white ${sum < 7 ? 'bg-gameRed' : sum > 7 ? 'bg-gameYellow' : 'bg-gameGreen'}`;
+                span.innerText = sum;
+                container.appendChild(span);
+            });
         }
 
         document.addEventListener('DOMContentLoaded', initGame);
