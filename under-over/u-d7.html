@@ -36,9 +36,6 @@
             color: #f3f4f6;
             touch-action: manipulation;
         }
-        .dice-box {
-            perspective: 1000px;
-        }
         .bet-spot-selected {
             border-color: #24ee89 !important;
             box-shadow: 0 0 15px rgba(36, 238, 137, 0.6);
@@ -47,11 +44,14 @@
 </head>
 <body class="min-h-screen flex flex-col items-center justify-between p-0 select-none selection:bg-yellow-500 selection:text-black">
 
+    <!-- Top Bar Inclusion Container -->
+    <div id="top-bar-container" class="w-full flex justify-center"></div>
+
     <!-- Main Game Wrapper -->
     <main class="w-full max-w-md flex flex-col bg-cardDark shadow-2xl overflow-hidden relative pb-16">
         
         <!-- Top Display Section (Dice Roll Area) -->
-        <div class="relative w-full h-56 bg-gradient-to-b from-[#111827] to-[#1f2937] border-b border-gray-800 flex flex-col justify-between p-3 overflow-hidden">
+        <div class="relative w-full h-52 bg-gradient-to-b from-[#111827] to-[#1f2937] border-b border-gray-800 flex flex-col justify-between p-3 overflow-hidden">
             <div class="flex items-center justify-between w-full text-[11px] text-gray-400">
                 <span class="bg-black/40 px-2.5 py-1 rounded border border-gray-700 font-medium text-yellow-400">7 Under / Over</span>
                 <div class="flex items-center space-x-1 bg-black/40 px-2.5 py-1 rounded border border-gray-700 font-bold text-white">
@@ -84,14 +84,13 @@
         <div class="w-full h-12 bg-[#111827] border-b border-gray-800 flex items-center px-3 space-x-2 overflow-x-auto">
             <span class="text-[10px] text-gray-400 font-bold">HISTORY:</span>
             <div id="history-container" class="flex items-center space-x-1.5">
-                <!-- History badges will load here -->
+                <!-- History badges -->
             </div>
         </div>
 
-        <!-- Betting Options Layout (Under 7, Exactly 7, Over 7) -->
+        <!-- Betting Options Layout -->
         <div class="p-3 flex flex-col space-y-3 bg-cardDark">
             
-            <!-- Under 7 & Over 7 (Main Bets) -->
             <div class="grid grid-cols-2 gap-3">
                 <!-- Under 7 -->
                 <button onclick="placeUserBet('under')" id="spot-under" class="relative p-5 bg-gameRed hover:bg-red-700 rounded-2xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
@@ -110,7 +109,7 @@
                 </button>
             </div>
 
-            <!-- Exactly 7 (High Payout) -->
+            <!-- Exactly 7 -->
             <button onclick="placeUserBet('exact')" id="spot-exact" class="relative p-4 bg-gameGreen hover:bg-emerald-700 rounded-2xl flex flex-col items-center justify-center transition-all border-2 border-transparent shadow-lg active:scale-95">
                 <span class="text-xs font-bold text-white/80 uppercase tracking-widest">Lucky Number</span>
                 <span class="text-2xl font-black text-white">EXACTLY 7</span>
@@ -127,7 +126,7 @@
         <div class="flex items-center justify-between px-3 py-2.5 text-xs bg-[#18181b]">
             <div class="flex flex-col">
                 <span class="text-gray-400 text-[10px]">BALANCE</span>
-                <span class="text-white font-mono font-bold text-sm">৳<span id="user-balance-display">100.00</span></span>
+                <span class="text-white font-mono font-bold text-sm">৳<span id="user-balance-display">0.00</span></span>
             </div>
             
             <!-- Chip Selector Buttons -->
@@ -147,12 +146,11 @@
 
     <script>
         let currentUserId = null;
-        let userBalance = 100.00;
+        let userBalance = 0.00;
         let selectedChipValue = 100;
         let currentRoundState = 'betting';
         let timeLeft = 10;
         let globalTimerInterval = null;
-        let gameHistory = [];
 
         let activeBets = {
             under: 0,
@@ -161,37 +159,67 @@
         };
 
         function getClient() {
-            if (typeof supabaseClient !== 'undefined') return supabaseClient;
-            if (typeof supabase !== 'undefined') return supabase;
-            if (window.supabaseClient) return window.supabaseClient;
-            if (window.supabase) return window.supabase;
-            return null;
+            return window.supabaseClient || null;
+        }
+
+        async function loadTopBar() {
+            try {
+                const response = await fetch('bar/top.html');
+                const html = await response.text();
+                document.getElementById('top-bar-container').innerHTML = html;
+            } catch (e) {
+                console.error("Top bar load error:", e);
+            }
         }
 
         async function initGame() {
+            await loadTopBar();
             const client = getClient();
-            try {
-                let user = null;
-                if (typeof requireAuth === 'function') user = await requireAuth();
-                else if (typeof getCurrentUser === 'function') user = await getCurrentUser();
-                else if (client) {
-                    const { data } = await client.auth.getUser();
-                    user = data?.user;
-                }
+            if (!client) {
+                alert('Supabase client connection failed!');
+                return;
+            }
 
-                if (user && client) {
+            try {
+                const { data: { user } } = await client.auth.getUser();
+                if (user) {
                     currentUserId = user.id;
-                    const { data: profile } = await client.from('profiles').select('balance').eq('id', user.id).single();
-                    if (profile) {
-                        userBalance = parseFloat(profile.balance) || 100.00;
-                        updateBalanceUI();
-                    }
+                    await fetchUserProfile(currentUserId);
+                    setupRealtimeProfileSync(currentUserId);
+                } else {
+                    // ডেমো বা টেস্ট ইউজার আইডি যদি সেশন না থাকে
+                    console.warn("No active auth session found.");
                 }
             } catch (err) {
                 console.error("Auth init error:", err);
             }
 
             startGlobalTimer();
+        }
+
+        async function fetchUserProfile(userId) {
+            const client = getClient();
+            const { data, error } = await client.from('profiles').select('*').eq('id', userId).single();
+            if (data && !error) {
+                userBalance = parseFloat(data.balance) || 0;
+                updateBalanceUI();
+                if(document.getElementById('top-user-name')) {
+                    document.getElementById('top-user-name').innerText = data.full_name || 'User';
+                    document.getElementById('user-initials').innerText = (data.full_name || 'U').charAt(0).toUpperCase();
+                }
+            }
+        }
+
+        function setupRealtimeProfileSync(userId) {
+            const client = getClient();
+            client.channel('public:profiles')
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${userId}` }, payload => {
+                    if (payload.new) {
+                        userBalance = parseFloat(payload.new.balance) || 0;
+                        updateBalanceUI();
+                    }
+                })
+                .subscribe();
         }
 
         function setChip(val) {
@@ -208,6 +236,9 @@
 
         function updateBalanceUI() {
             document.getElementById('user-balance-display').innerText = userBalance.toFixed(2);
+            if(document.getElementById('top-user-balance')) {
+                document.getElementById('top-user-balance').innerText = userBalance.toFixed(2);
+            }
             let total = Object.values(activeBets).reduce((a, b) => a + b, 0);
             document.getElementById('total-bet-display').innerText = total.toFixed(2);
         }
@@ -261,6 +292,7 @@
 
             const client = getClient();
             if (client && currentUserId) {
+                // ডাটাবেসে ব্যালেন্স আপডেট
                 await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
             }
         }
@@ -284,7 +316,6 @@
             currentRoundState = 'rolling';
             document.getElementById('sum-result-text').innerText = 'ROLLING...';
 
-            // Random Dice Generation (1 to 6)
             const d1 = Math.floor(Math.random() * 6) + 1;
             const d2 = Math.floor(Math.random() * 6) + 1;
             const sum = d1 + d2;
@@ -299,9 +330,24 @@
             else winner = 'exact';
 
             let totalPayout = 0;
-            if (winner === 'under') totalPayout += activeBets.under * 2;
-            if (winner === 'over') totalPayout += activeBets.over * 2;
-            if (winner === 'exact') totalPayout += activeBets.exact * 6;
+            let targetNumVal = (winner === 'under') ? 6 : (winner === 'over') ? 8 : 7;
+
+            // প্রতিটা বেটের হিসাব ও পেআউট নির্ধারণ
+            if (activeBets.under > 0) {
+                let payoutAmt = (winner === 'under') ? activeBets.under * 2 : 0;
+                totalPayout += payoutAmt;
+                await recordBetToDatabase('under', activeBets.under, sum, payoutAmt, winner === 'under');
+            }
+            if (activeBets.over > 0) {
+                let payoutAmt = (winner === 'over') ? activeBets.over * 2 : 0;
+                totalPayout += payoutAmt;
+                await recordBetToDatabase('over', activeBets.over, sum, payoutAmt, winner === 'over');
+            }
+            if (activeBets.exact > 0) {
+                let payoutAmt = (winner === 'exact') ? activeBets.exact * 6 : 0;
+                totalPayout += payoutAmt;
+                await recordBetToDatabase('exact', activeBets.exact, sum, payoutAmt, winner === 'exact');
+            }
 
             if (totalPayout > 0) {
                 userBalance += totalPayout;
@@ -318,12 +364,27 @@
             overlay.innerText = `SUM ${sum} - ${winner.toUpperCase()} WINS!`;
             overlay.classList.remove('hidden');
 
-            // Update History
             updateHistoryLog(sum);
 
             setTimeout(() => {
                 startGlobalTimer();
             }, 4000);
+        }
+
+        async function recordBetToDatabase(targetType, betAmt, rollSum, payoutAmt, isWin) {
+            const client = getClient();
+            if (!client || !currentUserId || betAmt <= 0) return;
+
+            let targetNum = targetType === 'under' ? 6 : targetType === 'over' ? 8 : 7;
+
+            await client.from('bets').insert({
+                user_id: currentUserId,
+                target_number: targetNum,
+                roll_result: rollSum,
+                bet_amount: betAmt,
+                payout: payoutAmt,
+                is_bool: isWin
+            });
         }
 
         function updateHistoryLog(sum) {
@@ -332,7 +393,7 @@
             span.className = `w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black text-white ${sum < 7 ? 'bg-gameRed' : sum > 7 ? 'bg-gameYellow' : 'bg-gameGreen'}`;
             span.innerText = sum;
             container.prepend(span);
-            if(container.children.length > 6) {
+            if(container.children.length > 8) {
                 container.lastChild.remove();
             }
         }
