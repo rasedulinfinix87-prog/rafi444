@@ -49,15 +49,15 @@
 
     /* Custom Scrollbar */
     ::-webkit-scrollbar {
-      height: 6px;
-      width: 6px;
+      height: 4px;
+      width: 4px;
     }
     ::-webkit-scrollbar-track {
       background: #080B10;
     }
     ::-webkit-scrollbar-thumb {
       background: rgba(245, 207, 102, 0.25);
-      border-radius: 3px;
+      border-radius: 2px;
     }
 
     /* Range Input Styling */
@@ -96,10 +96,10 @@
 
       <!-- Plinko Board Canvas Area -->
       <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-3 shadow-xl">
-        <canvas id="plinkoCanvas" width="360" height="280" class="w-full h-auto rounded-xl"></canvas>
+        <canvas id="plinkoCanvas" width="360" height="260" class="w-full h-auto rounded-xl"></canvas>
         
-        <!-- Multiplier Sinks Bar -->
-        <div id="multiplierSinks" class="flex items-center justify-center gap-1 w-full mt-2 overflow-x-auto no-scrollbar py-1">
+        <!-- Multiplier Sinks Bar (Fixed to fit screen without forcing horizontal scroll) -->
+        <div id="multiplierSinks" class="grid w-full mt-2 gap-0.5 py-1">
           <!-- Dynamically generated multiplier boxes -->
         </div>
       </div>
@@ -239,6 +239,9 @@
     function renderMultipliers(highlightIndex = null) {
       const container = document.getElementById('multiplierSinks');
       container.innerHTML = '';
+      
+      // Dynamic grid columns based on number of multipliers to fit screen perfectly
+      container.style.gridTemplateColumns = `repeat(${currentMultipliers.length}, minmax(0, 1fr))`;
 
       currentMultipliers.forEach((mult, idx) => {
         const isHighlight = highlightIndex === idx;
@@ -249,7 +252,7 @@
         else if (mult >= 5) bgColor = 'bg-orange-500';
         else if (mult < 1) bgColor = 'bg-yellow-500';
 
-        box.className = `${bgColor} text-[#080B10] font-extrabold text-[9px] sm:text-xs py-1 px-1 rounded flex-1 text-center shadow transition-all ${isHighlight ? 'ring-2 ring-white scale-110 z-10' : ''}`;
+        box.className = `${bgColor} text-[#080B10] font-extrabold text-[8px] sm:text-[10px] py-1 px-0.5 rounded text-center shadow transition-all ${isHighlight ? 'ring-2 ring-white scale-110 z-10' : ''}`;
         box.innerText = mult + '×';
         container.appendChild(box);
       });
@@ -267,9 +270,8 @@
       const totalRows = rows + 2; 
       const rowHeight = (height - 30) / totalRows;
       const bottomPinsCount = totalRows + 2;
-      const spacingX = width / (bottomPinsCount + 1);
+      const spacingX = width / bottomPinsCount;
 
-      // Draw Perfect Straight-Slope Pyramid Pins
       for (let r = 0; r < totalRows; r++) {
         const pinsInRow = r + 3;
         const rowWidth = (pinsInRow - 1) * spacingX;
@@ -280,19 +282,18 @@
           const y = startY + (r * rowHeight);
 
           ctx.beginPath();
-          ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+          ctx.arc(x, y, 2.2, 0, Math.PI * 2);
           ctx.fillStyle = '#ffffff';
           ctx.fill();
         }
       }
 
-      // Draw Ball if active
       if (ballPos) {
         ctx.beginPath();
-        ctx.arc(ballPos.x, ballPos.y, 5, 0, Math.PI * 2);
+        ctx.arc(ballPos.x, ballPos.y, 4.5, 0, Math.PI * 2);
         ctx.fillStyle = '#24ee89';
         ctx.shadowColor = '#24ee89';
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 8;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -335,7 +336,7 @@
       const totalRows = rows + 2;
       const rowHeight = (height - 30) / totalRows;
       const bottomPinsCount = totalRows + 2;
-      const spacingX = width / (bottomPinsCount + 1);
+      const spacingX = width / bottomPinsCount;
 
       let currentPinRow = 0;
       let currentPinCol = 0;
