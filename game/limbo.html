@@ -20,11 +20,8 @@
 </head>
 <body class="min-h-screen flex flex-col items-center">
 
-    <!-- Top Bar Connection -->
-    <div class="w-full max-w-md">
-        <!-- top.html ফাইলটি যেখানে আছে সেই পাথ এখানে দিতে হবে -->
-        <iframe src="../bar/top.html" class="w-full h-16 border-0 overflow-hidden" scrolling="no"></iframe>
-    </div>
+    <!-- Top Bar Connection Container -->
+    <div id="topBarContainer" class="w-full max-w-md sticky top-0 z-50 mb-3"></div>
 
     <!-- Game Container -->
     <div class="w-full max-w-md p-4 flex flex-col gap-4">
@@ -95,11 +92,98 @@
     </div>
 
     <script>
+        let currentUserId = null;
+        let userBalance = 0.00;
+
+        // সুপাবেস ক্লায়েন্ট পাওয়ার হেল্পার ফাংশন
+        function getClient() {
+            if (typeof supabaseClient !== 'undefined') return supabaseClient;
+            if (typeof supabase !== 'undefined') return supabase;
+            if (window.supabaseClient) return window.supabaseClient;
+            if (window.supabase) return window.supabase;
+            return null;
+        }
+
+        // টপ বার ডাইনামিক লোড করার ফাংশন
+        async function loadTopBar() {
+            try {
+                const res = await fetch('../bar/top.html');
+                if (res.ok) {
+                    document.getElementById('topBarContainer').innerHTML = await res.text();
+                    // পাথ ঠিক করার জন্য লিংকগুলো অ্যাডজাস্ট করা
+                    document.querySelectorAll('a[href*="deposit"]').forEach(a => a.href = '../account/deposit.html');
+                    document.querySelectorAll('a[href*="member"]').forEach(a => {
+                        if (a.href.includes('admin/mem/member.html')) {
+                            a.href = a.href.replace('admin/mem/member.html', 'mem/member.html');
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Top bar fetch error:", e);
+            }
+        }
+
+        // ব্যালেন্স টপ বারে আপডেট করার ফাংশন
+        function updateUIBalance(bal) {
+            const topBal = document.getElementById('topBarBalance');
+            if (topBal) topBal.innerText = parseFloat(bal).toFixed(2);
+        }
+
+        // ইনিট ফাংশন যা পেজ লোড হওয়ার সাথে সাথে রান হবে
+        async function init() {
+            await loadTopBar();
+            const client = getClient();
+
+            try {
+                let user = null;
+                if (typeof requireAuth === 'function') user = await requireAuth();
+                else if (typeof getCurrentUser === 'function') user = await getCurrentUser();
+                else if (client) {
+                    const { data } = await client.auth.getUser();
+                    user = data?.user;
+                }
+
+                if (user && client) {
+                    currentUserId = user.id;
+
+                    const { data: profile } = await client
+                        .from('profiles')
+                        .select('balance')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (profile) {
+                        userBalance = parseFloat(profile.balance) || 0;
+                        updateUIBalance(userBalance);
+                    }
+
+                    // রিয়েল-টাইম ব্যালেন্স সিংক
+                    client
+                        .channel('limbo-balance-channel')
+                        .on('postgres_changes', {
+                            event: 'UPDATE',
+                            schema: 'public',
+                            table: 'profiles',
+                            filter: `id=eq.${user.id}`
+                        }, (payload) => {
+                            if (payload.new && payload.new.balance !== undefined) {
+                                userBalance = parseFloat(payload.new.balance) || 0;
+                                updateUIBalance(userBalance);
+                            }
+                        })
+                        .subscribe();
+                }
+            } catch (err) {
+                console.error("Init Error:", err);
+            }
+
+            updateChance();
+        }
+
         // বাটনে ক্লিক করলে চান্স ক্যালকুলেশন আপডেট করার ফাংশন
         function updateChance() {
             let target = parseFloat(document.getElementById('targetMultiplier').value) || 1.01;
             if (target < 1.01) target = 1.01;
-            // Limbo chance formula: (99 / target)
             let chance = (99 / target).toFixed(2);
             document.getElementById('chanceDisplay').innerText = chance + '%';
         }
@@ -122,65 +206,65 @@
             const targetMultiplier = parseFloat(document.getElementById('targetMultiplier').value) || 2.00;
             const resultDisplay = document.getElementById('resultMultiplier');
             const btn = document.getElementById('betBtn');
+            const client = getClient();
 
-            // রেন্ডম রোল রেজাল্ট জেনারেট (1.00x থেকে বড় বা সমান)
-            // হাউজ এজ ৯৯% ধরে হিসাব করা হয়েছে
+            if (betAmount > 0 && userBalance < betAmount) {
+                alert('অপর্যাপ্ত ব্যালেন্স!');
+                return;
+            }
+
+            // ডেমো মোড না হলে ব্যালেন্স কেটে নেওয়া
+            if (betAmount > 0 && client && currentUserId) {
+                userBalance -= betAmount;
+                updateUIBalance(userBalance);
+                await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+            }
+
+            // রেন্ডম রোল রেজাল্ট জেনারেট
             let randomRoll = parseFloat((99 / (Math.random() * 98 + 1)).toFixed(2));
             if (randomRoll < 1.00) randomRoll = 1.00;
 
             resultDisplay.innerText = randomRoll.toFixed(2) + 'x';
 
-            // উইিনং চেক (roll_result >= target_number হলে জয়ী)
             let isWin = randomRoll >= targetMultiplier;
             let payoutAmount = isWin ? betAmount * targetMultiplier : 0;
 
             if (isWin) {
                 resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#2fbf71]";
+                if (betAmount > 0) {
+                    userBalance += payoutAmount;
+                    updateUIBalance(userBalance);
+                }
             } else {
                 resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#eb4e3d]";
             }
 
-            // যদি ডেমো মোড না হয় (betAmount > 0) এবং Supabase কানেক্টেড থাকে তবে ডাটা সেভ হবে
-            if (betAmount > 0 && typeof supabase !== 'undefined') {
+            // Supabase ডাটাবেসে bets এবং profiles আপডেট
+            if (betAmount > 0 && client && currentUserId) {
                 try {
-                    // লোকালস্টোরেজ বা সেশন থেকে বর্তমান ইউজারের ID নিতে হবে (আপনার প্রজেক্টের নিয়ম অনুযায়ী)
-                    // ধরে নিচ্ছি ইউজার আইডি কোনো লোকাল ভ্যারিয়েবলে বা localStorage-এ সংরক্ষিত আছে
-                    const userId = localStorage.getItem('current_user_id'); 
-
-                    if (userId) {
-                        // ১. bets টেবিলে রেকর্ড ইনসার্ট
-                        await supabase.from('bets').insert([
-                            {
-                                user_id: userId,
-                                target_number: targetMultiplier,
-                                roll_result: randomRoll,
-                                bet_amount: betAmount,
-                                payout: payoutAmount,
-                                is_bool: isWin
-                            }
-                        ]);
-
-                        // ২. profiles টেবিল থেকে বর্তমান ব্যালেন্স এনে আপডেট করা
-                        let { data: profile, error } = await supabase
-                            .from('profiles')
-                            .select('balance')
-                            .eq('id', userId)
-                            .single();
-
-                        if (profile) {
-                            let newBalance = parseFloat(profile.balance) - betAmount + payoutAmount;
-                            await supabase
-                               .from('profiles')
-                               .update({ balance: newBalance })
-                               .eq('id', userId);
+                    await client.from('bets').insert([
+                        {
+                            user_id: currentUserId,
+                            target_number: targetMultiplier,
+                            roll_result: randomRoll,
+                            bet_amount: betAmount,
+                            payout: payoutAmount,
+                            is_bool: isWin
                         }
-                    }
+                    ]);
+
+                    await client
+                        .from('profiles')
+                        .update({ balance: userBalance })
+                        .eq('id', currentUserId);
+
                 } catch (err) {
                     console.error('Database error:', err);
                 }
             }
         }
+
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
-
