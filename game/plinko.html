@@ -96,7 +96,7 @@
 
       <!-- Plinko Board Canvas Area -->
       <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-3 shadow-xl">
-        <canvas id="plinkoCanvas" width="340" height="280" class="w-full h-auto rounded-xl"></canvas>
+        <canvas id="plinkoCanvas" width="360" height="280" class="w-full h-auto rounded-xl"></canvas>
         
         <!-- Multiplier Sinks Bar -->
         <div id="multiplierSinks" class="flex items-center justify-center gap-1 w-full mt-2 overflow-x-auto no-scrollbar py-1">
@@ -163,7 +163,6 @@
     let currentRows = 8;
     let currentMultipliers = [];
 
-    // Multiplier datasets based on Plinko rows (8 to 16)
     const multipliersTable = {
       8:  [24.4, 3.0, 1.5, 0.5, 0.2, 0.5, 1.5, 3.0, 24.4],
       9:  [45.3, 7.0, 2.1, 0.5, 0.2, 0.2, 0.5, 2.1, 7.0, 45.3],
@@ -245,13 +244,12 @@
         const isHighlight = highlightIndex === idx;
         const box = document.createElement('div');
         
-        // Color coding based on risk/multiplier value
         let bgColor = 'bg-amber-500';
         if (mult > 20) bgColor = 'bg-rose-500';
         else if (mult >= 5) bgColor = 'bg-orange-500';
         else if (mult < 1) bgColor = 'bg-yellow-500';
 
-        box.className = `${bgColor} text-[#080B10] font-extrabold text-[10px] sm:text-xs py-1 px-1.5 rounded flex-1 text-center shadow transition-all ${isHighlight ? 'ring-2 ring-white scale-110 z-10' : ''}`;
+        box.className = `${bgColor} text-[#080B10] font-extrabold text-[9px] sm:text-xs py-1 px-1 rounded flex-1 text-center shadow transition-all ${isHighlight ? 'ring-2 ring-white scale-110 z-10' : ''}`;
         box.innerText = mult + '×';
         container.appendChild(box);
       });
@@ -265,19 +263,24 @@
       const rows = currentRows;
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 25;
-      const rowHeight = (height - 50) / rows;
+      const startY = 15;
+      const totalRows = rows + 2; 
+      const rowHeight = (height - 30) / totalRows;
+      const bottomPinsCount = totalRows + 2;
+      const spacingX = width / (bottomPinsCount + 1);
 
-      // Draw Pins
-      for (let r = 0; r < rows; r++) {
-        const pinsInRow = r + 1;
-        const spacing = width / (pinsInRow + 1);
+      // Draw Perfect Straight-Slope Pyramid Pins
+      for (let r = 0; r < totalRows; r++) {
+        const pinsInRow = r + 3;
+        const rowWidth = (pinsInRow - 1) * spacingX;
+        const startX = (width - rowWidth) / 2;
+
         for (let p = 0; p < pinsInRow; p++) {
-          const x = spacing * (p + 1);
+          const x = startX + (p * spacingX);
           const y = startY + (r * rowHeight);
 
           ctx.beginPath();
-          ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+          ctx.arc(x, y, 2.5, 0, Math.PI * 2);
           ctx.fillStyle = '#ffffff';
           ctx.fill();
         }
@@ -286,12 +289,12 @@
       // Draw Ball if active
       if (ballPos) {
         ctx.beginPath();
-        ctx.arc(ballPos.x, ballPos.y, 6, 0, Math.PI * 2);
+        ctx.arc(ballPos.x, ballPos.y, 5, 0, Math.PI * 2);
         ctx.fillStyle = '#24ee89';
         ctx.shadowColor = '#24ee89';
         ctx.shadowBlur = 10;
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset shadow
+        ctx.shadowBlur = 0;
       }
     }
 
@@ -318,7 +321,6 @@
         updateBalanceUI();
       }
 
-      // Simulate ball path calculation
       const rows = currentRows;
       let pathIndex = 0;
       for (let i = 0; i < rows; i++) {
@@ -326,38 +328,43 @@
       }
       const winningMultiplier = currentMultipliers[pathIndex];
 
-      // Ball Animation Drop
       const canvas = document.getElementById('plinkoCanvas');
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 25;
-      const rowHeight = (height - 50) / rows;
+      const startY = 15;
+      const totalRows = rows + 2;
+      const rowHeight = (height - 30) / totalRows;
+      const bottomPinsCount = totalRows + 2;
+      const spacingX = width / (bottomPinsCount + 1);
 
       let currentPinRow = 0;
       let currentPinCol = 0;
       let ballX = width / 2;
-      let ballY = 10;
+      let ballY = 5;
 
       const dropInterval = setInterval(() => {
-        if (currentPinRow <= rows) {
-          const targetX = (width / (currentPinRow + 2)) * (currentPinCol + 1);
+        if (currentPinRow <= totalRows) {
+          const pinsInRow = currentPinRow + 3;
+          const rowWidth = (pinsInRow - 1) * spacingX;
+          const startX = (width - rowWidth) / 2;
+          const targetX = startX + (currentPinCol * spacingX);
           const targetY = startY + (currentPinRow * rowHeight);
 
-          ballX += (targetX - ballX) * 0.3;
-          ballY += (targetY - ballY) * 0.3;
+          ballX += (targetX - ballX) * 0.35;
+          ballY += (targetY - ballY) * 0.35;
 
           drawBoard({ x: ballX, y: ballY });
 
-          if (currentPinRow < rows) {
+          if (currentPinRow < totalRows) {
             const goRight = Math.random() < 0.5;
-            if (goRight) currentPinCol++;
+            if (goRight && currentPinCol < pinsInRow - 1) currentPinCol++;
           }
           currentPinRow++;
         } else {
           clearInterval(dropInterval);
           finishDrop(winningMultiplier, pathIndex, betVal);
         }
-      }, 120);
+      }, 90);
     }
 
     async function finishDrop(multiplier, sinkIndex, betVal) {
