@@ -288,17 +288,17 @@
       const rows = currentRows;
       const startY = 12;
       const rowHeight = (height - 15) / (rows + 1);
-      const baseSpacing = width / (rows + 3);
+      const spacingX = width / (rows + 3);
 
       let pins = [];
       for (let r = 0; r <= rows; r++) {
         let pinsInRow = r + 1;
-        let rowWidth = (pinsInRow - 1) * baseSpacing;
+        let rowWidth = (pinsInRow - 1) * spacingX;
         let startX = (width - rowWidth) / 2;
 
         for (let p = 0; p < pinsInRow; p++) {
           pins.push({
-            x: startX + (p * baseSpacing),
+            x: startX + (p * spacingX),
             y: startY + (r * rowHeight),
             row: r,
             col: p
@@ -318,7 +318,7 @@
 
       const pins = getPinCoordinates();
 
-      // Draw Perfectly Aligned Sharp White Pins
+      // Draw Perfectly Centered Sharp White Pins
       pins.forEach(pin => {
         ctx.beginPath();
         ctx.arc(pin.x, pin.y, 2.5, 0, Math.PI * 2);
@@ -371,20 +371,18 @@
       }
       const winningMultiplier = currentMultipliers[pathIndex];
 
-      // Realistic Physics Bounce Waypoints Generation
+      // Realistic Physics Bounce Waypoints Generation centered perfectly
       const pins = getPinCoordinates();
       let waypoints = [];
       
-      let currX = 190; // Center top start
+      let currX = 190; // Exact center of 380 width
       let currY = 2;
       waypoints.push({ x: currX, y: currY });
 
-      let currentPinIndex = 0; // Starts at top pin (row 0, col 0)
+      let currentPinIndex = 0; 
 
       for (let r = 1; r <= rows; r++) {
-        // Find pins in row r
         let rowPins = pins.filter(p => p.row === r);
-        // Choose left or right bounce realistically
         let bounceRight = Math.random() < 0.5;
         if (currentPinIndex < rowPins.length - 1 && bounceRight) {
           currentPinIndex++;
@@ -392,7 +390,6 @@
 
         let targetPin = rowPins[currentPinIndex];
         
-        // Add curve arc hitting the pin
         waypoints.push({ x: (currX + targetPin.x) / 2, y: (currY + targetPin.y) / 2 - 4 });
         waypoints.push({ x: targetPin.x, y: targetPin.y });
 
@@ -400,19 +397,17 @@
         currY = targetPin.y;
       }
 
-      // Final drop to the corresponding multiplier slot
       const width = 380;
       const finalSlotWidth = width / currentMultipliers.length;
       let finalX = (pathIndex * finalSlotWidth) + (finalSlotWidth / 2);
-      let finalY = 230; // Right at the multiplier container top
+      let finalY = 230; 
 
       waypoints.push({ x: (currX + finalX) / 2, y: (currY + finalY) / 2 });
       waypoints.push({ x: finalX, y: finalY });
 
-      // Smooth Animation Loop using Waypoints
       let wpIdx = 0;
       let t = 0;
-      const speed = 0.08; // Ultra-smooth realistic speed
+      const speed = 0.08; 
 
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
 
