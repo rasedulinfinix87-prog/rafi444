@@ -13,19 +13,10 @@
     <script src="../supabase-config.js"></script>
     <style>
         body {
-            background-color: #1a2c38;
+            background-color: #080B10;
             color: #ffffff;
             font-family: sans-serif;
         }
-        /* Hide scrollbar for history bar */
-        #historyBar::-webkit-scrollbar {
-            display: none;
-        }
-        #historyBar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
         .glass-card {
             background: rgba(245, 207, 102, 0.06);
             border: 1px solid rgba(245, 207, 102, 0.25);
@@ -34,7 +25,6 @@
             border-radius: 18px;
             box-shadow: 0 0 18px rgba(255, 184, 0, 0.08);
         }
-
         .gold-button {
             background: linear-gradient(
                 135deg,
@@ -45,6 +35,17 @@
             color: #080B10;
             border: 1px solid #FFDF85;
             box-shadow: 0 0 14px rgba(255, 184, 0, 0.25);
+        }
+        .gold-button:hover {
+            opacity: 0.9;
+        }
+        /* Hide scrollbar for history bar */
+        #historyBar::-webkit-scrollbar {
+            display: none;
+        }
+        #historyBar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
@@ -63,8 +64,8 @@
 
         <!-- Main Display Box -->
         <div class="glass-card rounded-xl h-56 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
-            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            <div id="resultMultiplier" class="text-5xl font-black tracking-wider z-10 text-white transition-all duration-150">1.00x</div>
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#F5CF66_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            <div id="resultMultiplier" class="text-5xl font-black tracking-wider z-10 text-[#F5CF66] transition-all duration-150">1.00x</div>
         </div>
 
         <!-- Bet / Start Auto Button -->
@@ -77,27 +78,27 @@
             
             <!-- Amount Input -->
             <div>
-                <label class="text-xs text-gray-300 block mb-1">Amount</label>
-                <div id="amountBoxContainer" class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
-                    <span class="text-amber-400 font-bold mr-2">৳</span>
+                <label class="text-xs text-gray-400 block mb-1">Amount</label>
+                <div id="amountBoxContainer" class="flex items-center bg-[#080B10] rounded-lg border border-[rgba(245,207,102,0.25)] px-3 py-2">
+                    <span class="text-[#F5CF66] font-bold mr-2">৳</span>
                     <input type="number" id="betAmount" value="1" step="0.01" oninput="validateAmount()" class="bg-transparent w-full focus:outline-none text-white font-semibold">
                     <div class="flex gap-1 ml-2">
-                        <button onclick="halveAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-[11px] rounded font-medium">1/2</button>
-                        <button onclick="doubleAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-[11px] rounded font-medium">2x</button>
-                        <button onclick="maxAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-[11px] rounded font-medium text-amber-400">Max</button>
+                        <button onclick="halveAmount()" class="bg-[#1a212d] hover:bg-[#2a3546] px-2 py-1 text-[11px] rounded font-medium text-gray-300">1/2</button>
+                        <button onclick="doubleAmount()" class="bg-[#1a212d] hover:bg-[#2a3546] px-2 py-1 text-[11px] rounded font-medium text-gray-300">2x</button>
+                        <button onclick="maxAmount()" class="bg-[#1a212d] hover:bg-[#2a3546] px-2 py-1 text-[11px] rounded font-medium text-[#F5CF66]">Max</button>
                     </div>
                 </div>
             </div>
 
             <!-- Auto Bet Extra Settings Panel (Appears only on Auto Tab) -->
-            <div id="autoSettingsPanel" class="flex flex-col gap-3 hidden border-t border-amber-500/20 pt-3">
+            <div id="autoSettingsPanel" class="flex flex-col gap-3 hidden border-t border-[rgba(245,207,102,0.25)] pt-3">
                 <!-- On Win -->
                 <div class="flex flex-col gap-1">
-                    <span class="text-xs text-gray-300 font-medium">On Win</span>
+                    <span class="text-xs text-gray-400 font-medium">On Win</span>
                     <div class="flex gap-2 items-center">
-                        <button id="winResetBtn" onclick="setWinMode('reset')" class="flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold">Reset</button>
-                        <button id="winIncBtn" onclick="setWinMode('increase')" class="flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium">Increase by:</button>
-                        <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-2 py-1 w-20">
+                        <button id="winResetBtn" onclick="setWinMode('reset')" class="flex-1 py-1.5 bg-[#1a212d] text-white text-xs rounded-lg font-bold border border-[rgba(245,207,102,0.25)]">Reset</button>
+                        <button id="winIncBtn" onclick="setWinMode('increase')" class="flex-1 py-1.5 bg-[#080B10] text-gray-400 text-xs rounded-lg font-medium border border-[rgba(245,207,102,0.25)]">Increase by:</button>
+                        <div class="flex items-center bg-[#080B10] rounded-lg border border-[rgba(245,207,102,0.25)] px-2 py-1 w-20">
                             <input type="number" id="winIncValue" value="0" class="bg-transparent w-full text-xs text-white focus:outline-none">
                             <span class="text-gray-400 text-xs ml-1">%</span>
                         </div>
@@ -106,11 +107,11 @@
 
                 <!-- On Loss -->
                 <div class="flex flex-col gap-1">
-                    <span class="text-xs text-gray-300 font-medium">On Loss</span>
+                    <span class="text-xs text-gray-400 font-medium">On Loss</span>
                     <div class="flex gap-2 items-center">
-                        <button id="lossResetBtn" onclick="setLossMode('reset')" class="flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold">Reset</button>
-                        <button id="lossIncBtn" onclick="setLossMode('increase')" class="flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium">Increase by:</button>
-                        <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-2 py-1 w-20">
+                        <button id="lossResetBtn" onclick="setLossMode('reset')" class="flex-1 py-1.5 bg-[#1a212d] text-white text-xs rounded-lg font-bold border border-[rgba(245,207,102,0.25)]">Reset</button>
+                        <button id="lossIncBtn" onclick="setLossMode('increase')" class="flex-1 py-1.5 bg-[#080B10] text-gray-400 text-xs rounded-lg font-medium border border-[rgba(245,207,102,0.25)]">Increase by:</button>
+                        <div class="flex items-center bg-[#080B10] rounded-lg border border-[rgba(245,207,102,0.25)] px-2 py-1 w-20">
                             <input type="number" id="lossIncValue" value="0" class="bg-transparent w-full text-xs text-white focus:outline-none">
                             <span class="text-gray-400 text-xs ml-1">%</span>
                         </div>
@@ -121,15 +122,15 @@
             <!-- Payout & Chance Input -->
             <div class="flex gap-4">
                 <div class="flex-1">
-                    <label class="text-xs text-gray-300 block mb-1">Payout</label>
-                    <div id="payoutBox" class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                    <label class="text-xs text-gray-400 block mb-1">Payout</label>
+                    <div id="payoutBox" class="flex items-center bg-[#080B10] rounded-lg border border-[rgba(245,207,102,0.25)] px-3 py-2">
                         <input type="number" id="targetMultiplier" value="2.00" step="0.001" min="1.001" oninput="updateChance()" class="bg-transparent w-full focus:outline-none text-white font-semibold">
                         <span class="text-gray-400 ml-1">×</span>
                     </div>
                 </div>
                 <div class="w-1/3">
-                    <label id="chanceLabel" class="text-xs text-gray-300 block mb-1 text-right">Chance 49.00%</label>
-                    <div id="chanceBox" class="flex items-center justify-between bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                    <label id="chanceLabel" class="text-xs text-gray-400 block mb-1 text-right">Chance 49.00%</label>
+                    <div id="chanceBox" class="flex items-center justify-between bg-[#080B10] rounded-lg border border-[rgba(245,207,102,0.25)] px-3 py-2">
                         <span id="chanceDisplay" class="text-white font-semibold text-sm w-full text-center">49.00%</span>
                     </div>
                 </div>
@@ -138,83 +139,79 @@
         </div>
 
         <!-- Tabs (Manual / Auto) -->
-        <div class="glass-card p-1 rounded-xl flex justify-around text-sm font-medium text-gray-300">
+        <div class="glass-card p-1 rounded-xl flex justify-around text-sm font-medium text-gray-400">
             <button id="manualTab" onclick="switchTab('manual')" class="py-2 px-10 rounded-lg gold-button shadow">Manual</button>
             <button id="autoTab" onclick="switchTab('auto')" class="py-2 px-10 rounded-lg hover:text-white">Auto</button>
         </div>
 
-        <!-- Bottom Action Bar (Settings, Rating, Turn Off/On, Live Stats) -->
+        <!-- Bottom Action Bar -->
         <div class="flex items-center justify-between px-2 py-1 text-gray-400 text-sm">
-            <!-- Setting Icon -->
-            <button onclick="toggleSettingsModal()" class="hover:text-white p-2">
+            <button onclick="toggleSettingsModal()" class="hover:text-[#F5CF66] p-2">
                 <i class="fa-solid fa-gear"></i>
             </button>
-            <!-- Rating -->
-            <button class="flex items-center gap-1 hover:text-white p-2">
-                <i class="fa-solid fa-star text-xs text-yellow-500"></i>
+            <button class="flex items-center gap-1 hover:text-[#F5CF66] p-2">
+                <i class="fa-solid fa-star text-xs text-[#F5CF66]"></i>
                 <span class="text-xs">12543</span>
             </button>
-            <!-- Turn Off/On Turbo Mode -->
-            <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-white p-2 flex items-center gap-1" title="Turbo Mode">
+            <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-[#F5CF66] p-2 flex items-center gap-1" title="Turbo Mode">
                 <i id="turboIcon" class="fa-solid fa-bolt text-gray-400"></i>
                 <span id="turboText" class="text-[10px] font-bold">OFF</span>
             </button>
-            <!-- Live Stats -->
-            <button onclick="toggleLiveStatsModal()" class="hover:text-white p-2">
+            <button onclick="toggleLiveStatsModal()" class="hover:text-[#F5CF66] p-2">
                 <i class="fa-solid fa-chart-simple"></i>
             </button>
         </div>
 
     </div>
 
-    <!-- Settings Bottom Sheet Modal -->
+    <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end justify-center">
-        <div class="bg-[#1a2c38] w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 border-t border-amber-500/30 animate-slide-up">
-            <div class="flex justify-between items-center pb-2 border-b border-[#2f4553]">
+        <div class="glass-card w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 animate-slide-up">
+            <div class="flex justify-between items-center pb-2 border-b border-[rgba(245,207,102,0.25)]">
                 <span class="font-bold text-white">Settings</span>
                 <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
-                <i class="fa-regular fa-circle-question w-5"></i> Help
+            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-left text-sm text-gray-300">
+                <i class="fa-regular fa-circle-question w-5 text-[#F5CF66]"></i> Help
             </button>
-            <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[#213743] rounded-lg text-sm text-amber-400">
+            <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-sm text-[#F5CF66]">
                 <span class="flex items-center gap-3"><i class="fa-solid fa-volume-high w-5"></i> Sound Effects</span>
                 <span id="soundStatusText" class="text-xs font-bold">ON</span>
             </button>
-            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
-                <i class="fa-solid fa-seedling w-5"></i> Seed
+            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-left text-sm text-gray-300">
+                <i class="fa-solid fa-seedling w-5 text-[#F5CF66]"></i> Seed
             </button>
-            <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
-                <i class="fa-solid fa-share-nodes w-5"></i> Share
+            <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-left text-sm text-gray-300">
+                <i class="fa-solid fa-share-nodes w-5 text-[#F5CF66]"></i> Share
             </button>
         </div>
     </div>
 
     <!-- Live Stats Modal -->
     <div id="liveStatsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 shadow-2xl bg-[#1a2c38]">
-            <div class="flex justify-between items-center pb-2 border-b border-[#2f4553]">
+        <div class="glass-card w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 shadow-2xl">
+            <div class="flex justify-between items-center pb-2 border-b border-[rgba(245,207,102,0.25)]">
                 <span class="font-bold text-white text-base">Live Stats</span>
                 <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div class="bg-[#0f212e] p-3 rounded-xl flex flex-col gap-3">
+            <div class="bg-[#080B10] p-3 rounded-xl flex flex-col gap-3 border border-[rgba(245,207,102,0.15)]">
                 <div class="flex justify-between items-center text-sm">
                     <span class="text-gray-400">Profit</span>
-                    <span id="statsProfit" class="text-[#2fbf71] font-bold">৳ 0.00</span>
+                    <span id="statsProfit" class="text-[#F5CF66] font-bold">৳ 0.00</span>
                 </div>
                 <div class="flex justify-between items-center text-sm">
                     <span class="text-gray-400">Wagered</span>
                     <span id="statsWagered" class="text-white font-bold">৳ 0.00</span>
                 </div>
-                <div class="flex justify-between items-center text-sm border-t border-[#213743] pt-2">
+                <div class="flex justify-between items-center text-sm border-t border-[rgba(245,207,102,0.15)] pt-2">
                     <span class="text-gray-400">WIN: <strong id="statsWin" class="text-white">0</strong></span>
                     <span class="text-gray-400">LOSE: <strong id="statsLose" class="text-white">0</strong></span>
                 </div>
             </div>
 
             <!-- Live Stats Graph Box -->
-            <div class="bg-[#0f212e] p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden border border-[#2f4553]">
+            <div class="bg-[#080B10] p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden border border-[rgba(245,207,102,0.15)]">
                 <span class="text-[11px] text-gray-400">Profit/Loss Graph</span>
                 <div class="flex-1 w-full flex items-end gap-1 overflow-x-auto pt-4" id="statsGraphContainer">
                     <div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>
@@ -288,11 +285,11 @@
             const resetBtn = document.getElementById('winResetBtn');
             const incBtn = document.getElementById('winIncBtn');
             if (mode === 'reset') {
-                resetBtn.className = "flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold";
-                incBtn.className = "flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium";
+                resetBtn.className = "flex-1 py-1.5 bg-[#1a212d] text-white text-xs rounded-lg font-bold border border-[rgba(245,207,102,0.25)]";
+                incBtn.className = "flex-1 py-1.5 bg-[#080B10] text-gray-400 text-xs rounded-lg font-medium border border-[rgba(245,207,102,0.25)]";
             } else {
-                resetBtn.className = "flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium";
-                incBtn.className = "flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold";
+                resetBtn.className = "flex-1 py-1.5 bg-[#080B10] text-gray-400 text-xs rounded-lg font-medium border border-[rgba(245,207,102,0.25)]";
+                incBtn.className = "flex-1 py-1.5 bg-[#1a212d] text-white text-xs rounded-lg font-bold border border-[rgba(245,207,102,0.25)]";
             }
         }
 
@@ -301,11 +298,11 @@
             const resetBtn = document.getElementById('lossResetBtn');
             const incBtn = document.getElementById('lossIncBtn');
             if (mode === 'reset') {
-                resetBtn.className = "flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold";
-                incBtn.className = "flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium";
+                resetBtn.className = "flex-1 py-1.5 bg-[#1a212d] text-white text-xs rounded-lg font-bold border border-[rgba(245,207,102,0.25)]";
+                incBtn.className = "flex-1 py-1.5 bg-[#080B10] text-gray-400 text-xs rounded-lg font-medium border border-[rgba(245,207,102,0.25)]";
             } else {
-                resetBtn.className = "flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium";
-                incBtn.className = "flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold";
+                resetBtn.className = "flex-1 py-1.5 bg-[#080B10] text-gray-400 text-xs rounded-lg font-medium border border-[rgba(245,207,102,0.25)]";
+                incBtn.className = "flex-1 py-1.5 bg-[#1a212d] text-white text-xs rounded-lg font-bold border border-[rgba(245,207,102,0.25)]";
             }
         }
 
@@ -315,13 +312,11 @@
             let val = parseFloat(input.value) || 0;
 
             if (val < 0.59) {
-                box.className = "flex items-center bg-[#0f212e] rounded-lg border border-red-500 px-3 py-2";
+                box.className = "flex items-center bg-[#080B10] rounded-lg border border-red-500 px-3 py-2";
                 input.className = "bg-transparent w-full focus:outline-none text-red-500 font-semibold";
-                return false;
             } else {
-                box.className = "flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2";
+                box.className = "flex items-center bg-[#080B10] rounded-lg border border-[rgba(245,207,102,0.25)] px-3 py-2";
                 input.className = "bg-transparent w-full focus:outline-none text-white font-semibold";
-                return true;
             }
         }
 
@@ -330,9 +325,9 @@
             const icon = document.getElementById('turboIcon');
             const txt = document.getElementById('turboText');
             if (isTurboOn) {
-                icon.className = "fa-solid fa-bolt text-amber-400";
+                icon.className = "fa-solid fa-bolt text-[#F5CF66]";
                 txt.innerText = "ON";
-                txt.className = "text-[10px] font-bold text-amber-400";
+                txt.className = "text-[10px] font-bold text-[#F5CF66]";
             } else {
                 icon.className = "fa-solid fa-bolt text-gray-400";
                 txt.innerText = "OFF";
@@ -345,11 +340,11 @@
             const btn = document.getElementById('soundSettingBtn');
             const txt = document.getElementById('soundStatusText');
             if (isSoundOn) {
-                btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#213743] rounded-lg text-sm text-amber-400";
+                btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-sm text-[#F5CF66]";
                 txt.innerText = "ON";
                 horrorBgMusic.play().catch(e => console.log(e));
             } else {
-                btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#213743] rounded-lg text-sm text-gray-400";
+                btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-sm text-gray-400";
                 txt.innerText = "OFF";
                 horrorBgMusic.pause();
             }
@@ -478,13 +473,13 @@
             let chance = (99 / target);
 
             if (target < 1.001 || chance > 98.02) {
-                payoutBox.className = "flex items-center bg-[#0f212e] rounded-lg border border-red-500 px-3 py-2";
-                chanceBox.className = "flex items-center justify-between bg-[#0f212e] rounded-lg border border-red-500 px-3 py-2";
+                payoutBox.className = "flex items-center bg-[#080B10] rounded-lg border border-red-500 px-3 py-2";
+                chanceBox.className = "flex items-center justify-between bg-[#080B10] rounded-lg border border-red-500 px-3 py-2";
                 chanceDisplay.className = "text-red-500 font-semibold text-sm w-full text-center";
                 chanceDisplay.innerText = chance.toFixed(2) + '%';
             } else {
-                payoutBox.className = "flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2";
-                chanceBox.className = "flex items-center justify-between bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2";
+                payoutBox.className = "flex items-center bg-[#080B10] rounded-lg border border-[rgba(245,207,102,0.25)] px-3 py-2";
+                chanceBox.className = "flex items-center justify-between bg-[#080B10] rounded-lg border border-[rgba(245,207,102,0.25)] px-3 py-2";
                 chanceDisplay.className = "text-white font-semibold text-sm w-full text-center";
                 chanceDisplay.innerText = chance.toFixed(2) + '%';
             }
@@ -527,7 +522,7 @@
                 const isProfit = val >= 0;
                 const heightPercent = Math.min(Math.max((Math.abs(val) / maxVal) * 45, 10), 100);
                 
-                bar.className = `w-3 rounded-sm transition-all ${isProfit ? 'bg-[#2fbf71]' : 'bg-[#eb4e3d]'}`;
+                bar.className = `w-3 rounded-sm transition-all ${isProfit ? 'bg-[#F5CF66]' : 'bg-[#eb4e3d]'}`;
                 bar.style.height = heightPercent + '%';
                 bar.title = `Profit: ৳${val.toFixed(2)}`;
                 container.appendChild(bar);
@@ -536,10 +531,6 @@
         }
 
         function handleMainButton() {
-            if (!validateAmount()) {
-                alert('অ্যামাউন্ট ০.৫৯ এর কম হতে পারবে না!');
-                return;
-            }
             if (currentMode === 'manual') {
                 playLimbo();
             } else {
@@ -682,7 +673,7 @@
 
             const historyBar = document.getElementById('historyBar');
             const historySpan = document.createElement('span');
-            historySpan.className = `px-3 py-1 bg-[#213743] rounded-md font-bold shrink-0 ${isWin ? 'text-[#2fbf71]' : 'text-[#eb4e3d]'}`;
+            historySpan.className = `px-3 py-1 bg-[#1a212d] rounded-md font-bold shrink-0 ${isWin ? 'text-[#F5CF66]' : 'text-[#eb4e3d]'}`;
             historySpan.innerText = randomRoll.toFixed(2) + 'x';
             historyBar.prepend(historySpan);
             if (historyBar.children.length > 10) {
@@ -690,7 +681,7 @@
             }
 
             if (isWin) {
-                resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#2fbf71]";
+                resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#F5CF66]";
                 userBalance += payoutAmount;
                 updateUIBalance(userBalance);
             } else {
