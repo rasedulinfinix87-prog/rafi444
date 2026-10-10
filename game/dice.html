@@ -240,8 +240,9 @@
         <div class="grid grid-cols-2 gap-3">
           <div class="flex flex-col gap-1">
             <label class="text-xs text-gray-400 font-medium">Payout</label>
-            <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl overflow-hidden px-3 py-2 focus-within:border-[#F5CF66]">
+            <div id="payoutBoxWrapper" class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl overflow-hidden px-3 py-2 focus-within:border-[#F5CF66]">
               <input type="number" id="payoutInput" step="0.01" value="1.98" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+              <span id="payoutWarningIcon" class="text-red-500 text-xs mr-1 hidden" title="Payout is too low"><i class="fa-solid fa-triangle-exclamation"></i></span>
               <span class="text-xs text-gray-400 ml-1">X</span>
               <button onclick="toggleDirection()" id="dirToggleBtn" title="Toggle Roll Direction" class="ml-2 w-7 h-7 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] border border-[rgba(245,207,102,0.25)] flex items-center justify-center text-xs text-gray-400 hover:text-white transition">
                 <i class="fa-solid fa-right-left text-xs"></i>
@@ -470,6 +471,7 @@
     let consecutiveWins = 0;
     let consecutiveLosses = 0;
     let baseBetAmount = 10;
+    let autoTimeoutId = null;
 
     let isTurboOn = false;
     let isSoundOn = true;
@@ -668,6 +670,20 @@
       }
     }
 
+    function checkPayoutWarning(payout) {
+      const wrapper = document.getElementById('payoutBoxWrapper');
+      const warningIcon = document.getElementById('payoutWarningIcon');
+      if (payout <= 1.001) {
+        payoutInput.style.color = '#ed4245';
+        warningIcon.classList.remove('hidden');
+        wrapper.style.borderColor = '#ed4245';
+      } else {
+        payoutInput.style.color = '#ffffff';
+        warningIcon.classList.add('hidden');
+        wrapper.style.borderColor = 'rgba(245,207,102,0.25)';
+      }
+    }
+
     function syncCalculations(source) {
       let val = parseFloat(diceRange.value);
 
@@ -699,6 +715,7 @@
         diceRange.value = val.toFixed(2);
       }
 
+      checkPayoutWarning(parseFloat(payoutInput.value));
       updateSliderVisuals();
     }
 
@@ -720,31 +737,37 @@
     function modifyBet(type) {
       let current = parseFloat(betAmount.value) || 0;
       if (type === 'half') {
-        betAmount.value = Math.max(0, (current / 2)).toFixed(2);
+        betAmount.value = Math.max(1, Math.floor(current / 2));
       } else if (type === 'double') {
-        betAmount.value = (current * 2).toFixed(2);
+        betAmount.value = Math.floor(current * 2);
       } else if (type === 'max') {
-        betAmount.value = balance.toFixed(2);
+        betAmount.value = Math.floor(balance);
       }
     }
 
     function triggerBet() {
-      if (isRolling) return;
-
-      if (activeTab === 'auto' && !isAutoRunning) {
-        startAutoBet();
-        return;
-      } else if (activeTab === 'auto' && isAutoRunning) {
-        stopAutoBet();
+      if (activeTab === 'auto') {
+        if (!isAutoRunning) {
+          startAutoBet();
+        } else {
+          stopAutoBet();
+        }
         return;
       }
 
+      if (isRolling) return;
       executeRoll();
     }
 
     async function executeRoll() {
       const currentBet = parseFloat(betAmount.value) || 0;
       
+      if (currentBet > 0 && currentBet < 1) {
+        alert("সর্বনিম্ন বেট ১ টাকা হতে হবে!");
+        stopAutoBet();
+        return;
+      }
+
       if (currentBet > 0 && currentBet > balance) {
         alert("Insufficient balance for this bet!");
         stopAutoBet();
@@ -752,8 +775,10 @@
       }
 
       isRolling = true;
-      btnBet.disabled = true;
-      btnBet.innerText = "Rolling...";
+      if (activeTab === 'manual') {
+        btnBet.disabled = true;
+        btnBet.innerText = "Rolling...";
+      }
 
       if (currentBet > 0) {
         balance -= currentBet;
@@ -768,96 +793,97 @@
 
       const delayTime = isTurboOn ? 50 : 400;
 
-      setTimeout(async () => {
-        let isWin = false;
-        if (rollDirection === 'over' && rollResult > targetVal) {
-          isWin = true;
-        } else if (rollDirection === 'under' && rollResult < targetVal) {
-          isWin = true;
-        }
-
-        const multiplier = parseFloat(payoutInput.value);
-        let winAmount = 0;
-
-        playSound(isWin);
-
-        totalWagered += currentBet;
-        if (isWin) {
-          winAmount = currentBet > 0 ? (currentBet * multiplier) : 0;
-          balance += winAmount;
-          updateBalanceUI();
-          consecutiveWins++;
-          consecutiveLosses = 0;
-          totalWins++;
-          totalProfit += (winAmount - currentBet);
-        } else {
-          consecutiveLosses++;
-          consecutiveWins = 0;
-          totalLosses++;
-          totalProfit -= currentBet;
-        }
-
-        profitHistory.push(totalProfit);
-        document.getElementById('statsProfit').innerText = '৳ ' + totalProfit.toFixed(2);
-        document.getElementById('statsWagered').innerText = '৳ ' + totalWagered.toFixed(2);
-        document.getElementById('statsWin').innerText = totalWins;
-        document.getElementById('statsLose').innerText = totalLosses;
-        updateGraph();
-
-        if (currentUserId && currentBet > 0 && typeof supabaseClient !== 'undefined') {
-          await supabaseClient.from('bets').insert([
-            {
-              user_id: currentUserId,
-              target_number: targetVal,
-              roll_result: rollResult,
-              bet_amount: currentBet,
-              payout: multiplier,
-              is_bool: isWin
-            }
-          ]);
-
-          await supabaseClient
-            .from('profiles')
-            .update({ balance: balance })
-            .eq('id', currentUserId);
-        }
-
-        hexagonText.innerText = rollResult.toFixed(2);
-        if (isWin) {
-          hexagonWrapper.className = "hexagon border-4 bg-[#080B10] border-[#F5CF66] shadow-2xl transition-all duration-300";
-          hexagonText.className = "text-xl font-extrabold tracking-wider text-[#F5CF66]";
-          rollMarkLine.style.background = "#F5CF66";
-        } else {
-          hexagonWrapper.className = "hexagon border-4 bg-[#080B10] border-red-500 shadow-2xl transition-all duration-300";
-          hexagonText.className = "text-xl font-extrabold tracking-wider text-red-500";
-          rollMarkLine.style.background = "#ed4245";
-        }
-
-        addHistoryPill(rollResult.toFixed(2), isWin);
-
-        if (isAutoRunning) {
-          if (isWin && autoWinStrategy === 'increase') {
-            const inc = parseFloat(document.getElementById('winIncPercent').value) || 0;
-            betAmount.value = (parseFloat(betAmount.value) * (1 + inc / 100)).toFixed(2);
-          } else if (isWin && autoWinStrategy === 'reset') {
-            betAmount.value = baseBetAmount;
-          } else if (!isWin && autoLossStrategy === 'increase') {
-            const inc = parseFloat(document.getElementById('lossIncPercent').value) || 0;
-            betAmount.value = (parseFloat(betAmount.value) * (1 + inc / 100)).toFixed(2);
-          } else if (!isWin && autoLossStrategy === 'reset') {
-            betAmount.value = baseBetAmount;
+      return new Promise((resolve) => {
+        setTimeout(async () => {
+          let isWin = false;
+          if (rollDirection === 'over' && rollResult > targetVal) {
+            isWin = true;
+          } else if (rollDirection === 'under' && rollResult < targetVal) {
+            isWin = true;
           }
-        }
 
-        isRolling = false;
-        if (!isAutoRunning) {
-          btnBet.disabled = false;
-          btnBet.innerText = "Bet";
-        } else {
-          setTimeout(executeAutoStep, isTurboOn ? 100 : 300);
-        }
+          const multiplier = parseFloat(payoutInput.value);
+          let winAmount = 0;
 
-      }, delayTime);
+          playSound(isWin);
+
+          totalWagered += currentBet;
+          if (isWin) {
+            winAmount = currentBet > 0 ? (currentBet * multiplier) : 0;
+            balance += winAmount;
+            updateBalanceUI();
+            consecutiveWins++;
+            consecutiveLosses = 0;
+            totalWins++;
+            totalProfit += (winAmount - currentBet);
+          } else {
+            consecutiveLosses++;
+            consecutiveWins = 0;
+            totalLosses++;
+            totalProfit -= currentBet;
+          }
+
+          profitHistory.push(totalProfit);
+          document.getElementById('statsProfit').innerText = '৳ ' + totalProfit.toFixed(2);
+          document.getElementById('statsWagered').innerText = '৳ ' + totalWagered.toFixed(2);
+          document.getElementById('statsWin').innerText = totalWins;
+          document.getElementById('statsLose').innerText = totalLosses;
+          updateGraph();
+
+          if (currentUserId && currentBet > 0 && typeof supabaseClient !== 'undefined') {
+            await supabaseClient.from('bets').insert([
+              {
+                user_id: currentUserId,
+                target_number: targetVal,
+                roll_result: rollResult,
+                bet_amount: currentBet,
+                payout: multiplier,
+                is_bool: isWin
+              }
+            ]);
+
+            await supabaseClient
+              .from('profiles')
+              .update({ balance: balance })
+              .eq('id', currentUserId);
+          }
+
+          hexagonText.innerText = rollResult.toFixed(2);
+          if (isWin) {
+            hexagonWrapper.className = "hexagon border-4 bg-[#080B10] border-[#F5CF66] shadow-2xl transition-all duration-300";
+            hexagonText.className = "text-xl font-extrabold tracking-wider text-[#F5CF66]";
+            rollMarkLine.style.background = "#F5CF66";
+          } else {
+            hexagonWrapper.className = "hexagon border-4 bg-[#080B10] border-red-500 shadow-2xl transition-all duration-300";
+            hexagonText.className = "text-xl font-extrabold tracking-wider text-red-500";
+            rollMarkLine.style.background = "#ed4245";
+          }
+
+          addHistoryPill(rollResult.toFixed(2), isWin);
+
+          if (isAutoRunning) {
+            if (isWin && autoWinStrategy === 'increase') {
+              const inc = parseFloat(document.getElementById('winIncPercent').value) || 0;
+              betAmount.value = Math.max(1, Math.floor(parseFloat(betAmount.value) * (1 + inc / 100)));
+            } else if (isWin && autoWinStrategy === 'reset') {
+              betAmount.value = baseBetAmount;
+            } else if (!isWin && autoLossStrategy === 'increase') {
+              const inc = parseFloat(document.getElementById('lossIncPercent').value) || 0;
+              betAmount.value = Math.max(1, Math.floor(parseFloat(betAmount.value) * (1 + inc / 100)));
+            } else if (!isWin && autoLossStrategy === 'reset') {
+              betAmount.value = baseBetAmount;
+            }
+          }
+
+          isRolling = false;
+          if (activeTab === 'manual') {
+            btnBet.disabled = false;
+            btnBet.innerText = "Bet";
+          }
+
+          resolve();
+        }, delayTime);
+      });
     }
 
     function addHistoryPill(result, isWin) {
@@ -875,6 +901,7 @@
     }
 
     function switchTab(tab) {
+      if (isAutoRunning) stopAutoBet();
       activeTab = tab;
       ['Manual', 'Auto', 'Advanced'].forEach(t => {
         const tabEl = document.getElementById('tab' + t);
@@ -894,8 +921,8 @@
         btnBet.innerText = "Start Auto Bet";
         btnBet.className = "w-full py-3 gold-button font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
       } else {
-        stopAutoBet();
         btnBet.innerText = "Bet";
+        btnBet.className = "w-full py-3 gold-button font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
       }
     }
 
@@ -911,34 +938,49 @@
       }
     }
 
-    function startAutoBet() {
+    async function startAutoBet() {
+      const currentBet = parseFloat(betAmount.value) || 0;
+      if (currentBet > 0 && currentBet < 1) {
+        alert("সর্বনিম্ন বেট ১ টাকা হতে হবে!");
+        return;
+      }
+
       isAutoRunning = true;
-      baseBetAmount = parseFloat(betAmount.value) || 0;
+      baseBetAmount = currentBet;
       btnBet.innerText = "Stop Auto Bet";
       btnBet.className = "w-full py-3 bg-[#eb4e3d] hover:bg-red-600 text-white font-extrabold text-base rounded-xl transition shadow-lg flex items-center justify-center gap-2";
-      executeAutoStep();
+      
+      runAutoLoop();
+    }
+
+    async function runAutoLoop() {
+      while (isAutoRunning) {
+        const autoCount = parseInt(document.getElementById('autoBetCount').value);
+        if (autoCount > 0) {
+          document.getElementById('autoBetCount').value = autoCount - 1;
+        }
+
+        await executeRoll();
+
+        if (!isAutoRunning) break;
+
+        const currentCount = parseInt(document.getElementById('autoBetCount').value);
+        if (autoCount > 0 && currentCount <= 0) {
+          stopAutoBet();
+          break;
+        }
+
+        // ছোট বিরতি
+        await new Promise(r => setTimeout(r, isTurboOn ? 100 : 300));
+      }
     }
 
     function stopAutoBet() {
       isAutoRunning = false;
+      if (autoTimeoutId) clearTimeout(autoTimeoutId);
       btnBet.disabled = false;
       btnBet.innerText = activeTab === 'auto' ? "Start Auto Bet" : "Bet";
       btnBet.className = "w-full py-3 gold-button font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
-    }
-
-    function executeAutoStep() {
-      if (!isAutoRunning) return;
-
-      const autoCount = parseInt(document.getElementById('autoBetCount').value);
-      if (autoCount > 0) {
-        document.getElementById('autoBetCount').value = autoCount - 1;
-      }
-
-      executeRoll();
-
-      if (autoCount === 1) {
-        stopAutoBet();
-      }
     }
 
     window.onload = initRealtimeGame;
