@@ -251,7 +251,8 @@
         else if (mult >= 5) bgColor = 'bg-orange-500';
         else if (mult < 1) bgColor = 'bg-yellow-500';
 
-        box.className = `${bgColor} text-[#080B10] font-extrabold text-[7px] sm:text-[9px] py-1 px-0 rounded text-center shadow transition-all ${isHighlight ? 'ring-2 ring-white scale-110 z-10' : ''}`;
+        // Optimized font size for long numbers like 1000x and 162x to prevent overflow
+        box.className = `${bgColor} text-[#080B10] font-black text-[6px] sm:text-[8.5px] py-1 px-0.2 rounded text-center shadow transition-all truncate ${isHighlight ? 'ring-2 ring-white scale-110 z-10' : ''}`;
         box.innerText = mult + '×';
         container.appendChild(box);
       });
