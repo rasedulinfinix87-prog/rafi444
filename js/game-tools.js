@@ -7,6 +7,9 @@
         user: null,
         balance: 0,
         soundEnabled: true,
+        turboEnabled: false,
+        rating: 0,
+
         stats: {
             profit: 0,
             wagered: 0,
@@ -14,19 +17,17 @@
             losses: 0,
             history: []
         },
+
         balanceChannel: null,
         boundContainer: null,
 
-        // Get Supabase client
         getClient() {
             if (typeof supabaseClient !== "undefined") {
                 return supabaseClient;
             }
-
             return window.supabaseClient || null;
         },
 
-        // Initialize user and balance
         async init(options = {}) {
             this.client = this.getClient();
 
@@ -53,7 +54,6 @@
                         window.location.href =
                             options.loginUrl || "../login-signup.html";
                     }
-
                     return null;
                 }
 
@@ -75,14 +75,12 @@
                     user: this.user,
                     balance: this.balance
                 };
-
             } catch (error) {
                 console.error("GameTools init error:", error);
                 return null;
             }
         },
 
-        // Load shared HTML component
         async loadComponents(
             url = "../components/game-tools.html",
             containerId = "gameToolsContainer"
@@ -98,15 +96,13 @@
                 }
 
                 const html = await response.text();
-
                 const parsed = new DOMParser().parseFromString(
                     html,
                     "text/html"
                 );
 
-                const template = parsed.getElementById(
-                    "gameToolsTemplate"
-                );
+                const template =
+                    parsed.getElementById("gameToolsTemplate");
 
                 if (!template) {
                     throw new Error("gameToolsTemplate not found.");
@@ -125,18 +121,17 @@
                     document.importNode(template.content, true)
                 );
 
+                this.boundContainer = null;
                 this.bindComponentEvents(container);
                 this.updateStatsDisplay();
 
                 return true;
-
             } catch (error) {
                 console.error("GameTools component error:", error);
                 return false;
             }
         },
 
-        // Load existing top bar when needed
         async loadTopBar(
             url = "../bar/top.html",
             containerId = "topBarContainer"
@@ -150,9 +145,7 @@
                 const response = await fetch(url);
 
                 if (!response.ok) {
-                    throw new Error(
-                        "Top bar HTTP " + response.status
-                    );
+                    throw new Error("Top bar HTTP " + response.status);
                 }
 
                 container.innerHTML = await response.text();
@@ -175,16 +168,13 @@
                     });
 
                 this.updateBalanceDisplay();
-
                 return true;
-
             } catch (error) {
                 console.error("GameTools top bar error:", error);
                 return false;
             }
         },
 
-        // Update balance labels
         updateBalanceDisplay() {
             const formatted = "৳ " + this.formatMoney(this.balance);
 
@@ -194,10 +184,7 @@
                 "balanceText"
             ].forEach(id => {
                 const element = document.getElementById(id);
-
-                if (element) {
-                    element.textContent = formatted;
-                }
+                if (element) element.textContent = formatted;
             });
         },
 
@@ -205,7 +192,6 @@
             return (Number(value) || 0).toFixed(2);
         },
 
-        // Subscribe to profile balance updates
         subscribeBalance() {
             if (!this.client || !this.user) return;
 
@@ -227,7 +213,6 @@
                         if (payload.new?.balance !== undefined) {
                             this.balance =
                                 Number(payload.new.balance) || 0;
-
                             this.updateBalanceDisplay();
                         }
                     }
@@ -235,7 +220,6 @@
                 .subscribe();
         },
 
-        // Refresh balance
         async refreshBalance() {
             if (!this.client || !this.user) return null;
 
@@ -249,11 +233,9 @@
 
             this.balance = Number(data.balance) || 0;
             this.updateBalanceDisplay();
-
             return this.balance;
         },
 
-        // Save a bet using existing database columns
         async saveBet({
             target_number,
             roll_result,
@@ -281,15 +263,10 @@
                 .single();
 
             if (error) throw error;
-
             return data;
         },
 
-        /*
-         * This function writes directly to profiles.balance.
-         * Do not use it for real-money balance changes in production.
-         * Use a trusted server-side function or secure database RPC.
-         */
+        // Local display only. Do not use for real-money transactions.
         async setBalance(newBalance) {
             if (!this.client || !this.user) {
                 throw new Error("User is not initialized.");
@@ -310,11 +287,9 @@
 
             this.balance = amount;
             this.updateBalanceDisplay();
-
             return this.balance;
         },
 
-        // Record one completed game round in local stats
         recordRound({ betAmount, payout = 0, isWin }) {
             const bet = Number(betAmount) || 0;
             const winAmount = Number(payout) || 0;
@@ -341,28 +316,19 @@
             };
         },
 
-        // Update Live Stats modal
         updateStatsDisplay() {
             const values = {
                 gameToolsProfit:
                     "৳ " + this.formatMoney(this.stats.profit),
-
                 gameToolsWagered:
                     "৳ " + this.formatMoney(this.stats.wagered),
-
-                gameToolsWins:
-                    String(this.stats.wins),
-
-                gameToolsLosses:
-                    String(this.stats.losses)
+                gameToolsWins: String(this.stats.wins),
+                gameToolsLosses: String(this.stats.losses)
             };
 
             Object.entries(values).forEach(([id, value]) => {
                 const element = document.getElementById(id);
-
-                if (element) {
-                    element.textContent = value;
-                }
+                if (element) element.textContent = value;
             });
 
             const graph = document.getElementById(
@@ -370,11 +336,9 @@
             );
 
             if (!graph) return;
-
             graph.replaceChildren();
 
             const history = this.stats.history;
-
             if (!history.length) return;
 
             const max = Math.max(
@@ -387,13 +351,10 @@
 
                 bar.style.height =
                     Math.max(8, Math.abs(value) / max * 100) + "%";
-
                 bar.style.minWidth = "8px";
                 bar.style.borderRadius = "3px";
-
                 bar.style.background =
                     value >= 0 ? "#F5CF66" : "#eb4e3d";
-
                 bar.title =
                     "Profit/Loss: ৳" + this.formatMoney(value);
 
@@ -401,27 +362,21 @@
             });
         },
 
-        // Toggle a modal
         toggleModal(id) {
             const modal = document.getElementById(id);
-
             if (!modal) return;
 
             const opening = modal.classList.contains("hidden");
-
             modal.classList.toggle("hidden", !opening);
             modal.classList.toggle("flex", opening);
         },
 
-        // Bind events only inside the Game Tools container
         bindComponentEvents(container) {
             const root = container ||
                 document.getElementById("gameToolsContainer") ||
                 document;
 
-            // Prevent duplicate event handlers on the same container
             if (this.boundContainer === root) return;
-
             this.boundContainer = root;
 
             root.querySelectorAll("[data-game-tools-open]")
@@ -436,8 +391,9 @@
             root.querySelectorAll("[data-game-tools-close]")
                 .forEach(button => {
                     button.addEventListener("click", () => {
-                        const id = button.dataset.gameToolsClose;
-                        const modal = document.getElementById(id);
+                        const modal = document.getElementById(
+                            button.dataset.gameToolsClose
+                        );
 
                         if (modal) {
                             modal.classList.add("hidden");
@@ -456,14 +412,12 @@
                     });
                 });
 
-            const soundButton = root.querySelector(
-                "#gameToolsSoundToggle"
-            );
+            const soundButton =
+                root.querySelector("#gameToolsSoundToggle");
 
             if (soundButton) {
                 soundButton.addEventListener("click", () => {
                     this.soundEnabled = !this.soundEnabled;
-
                     const status = root.querySelector(
                         "#gameToolsSoundStatus"
                     );
@@ -475,9 +429,56 @@
                 });
             }
 
-            const shareButton = root.querySelector(
-                "#gameToolsShare"
-            );
+            const turboButton =
+                root.querySelector("#gameToolsTurboToggle");
+
+            if (turboButton) {
+                turboButton.addEventListener("click", () => {
+                    this.turboEnabled = !this.turboEnabled;
+
+                    const status = root.querySelector(
+                        "#gameToolsTurboStatus"
+                    );
+
+                    if (status) {
+                        status.textContent =
+                            this.turboEnabled ? "ON" : "OFF";
+                    }
+                });
+            }
+
+            const ratingButtons =
+                root.querySelectorAll("[data-game-tools-rating]");
+
+            ratingButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    this.rating = Number(
+                        button.dataset.gameToolsRating
+                    ) || 0;
+
+                    ratingButtons.forEach(item => {
+                        const active =
+                            Number(item.dataset.gameToolsRating) <=
+                            this.rating;
+
+                        item.classList.toggle("text-[#F5CF66]", active);
+                        item.classList.toggle("text-gray-500", !active);
+                    });
+
+                    const message =
+                        root.querySelector("#gameToolsRatingMessage");
+
+                    if (message) {
+                        message.textContent =
+                            this.rating
+                                ? "আপনার রেটিং: " + this.rating + "/5"
+                                : "গেমটি রেটিং দিন";
+                    }
+                });
+            });
+
+            const shareButton =
+                root.querySelector("#gameToolsShare");
 
             if (shareButton) {
                 shareButton.addEventListener("click", async () => {
@@ -487,21 +488,17 @@
                                 title: document.title,
                                 url: window.location.href
                             });
-
                         } else if (navigator.clipboard?.writeText) {
                             await navigator.clipboard.writeText(
                                 window.location.href
                             );
-
                             alert("গেমের লিংক কপি করা হয়েছে!");
-
                         } else {
                             window.prompt(
                                 "গেমের লিংক কপি করুন:",
                                 window.location.href
                             );
                         }
-
                     } catch (error) {
                         if (error.name !== "AbortError") {
                             console.error("Share error:", error);
@@ -511,13 +508,11 @@
             }
         },
 
-        // Play sound only when enabled
         playSound(audio, enabled = true) {
             if (!this.soundEnabled || !enabled || !audio) return;
 
             try {
                 audio.currentTime = 0;
-
                 const result = audio.play();
 
                 if (result?.catch) {
@@ -525,13 +520,11 @@
                         console.error("Sound error:", error);
                     });
                 }
-
             } catch (error) {
                 console.error("Sound error:", error);
             }
         },
 
-        // Remove the realtime balance subscription
         destroy() {
             if (this.client && this.balanceChannel) {
                 this.client.removeChannel(this.balanceChannel);
