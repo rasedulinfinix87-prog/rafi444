@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limbo Game</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Config -->
+    <script src="../supabase-config.js"></script>
+    <style>
+        body {
+            background-color: #1a2c38;
+            color: #ffffff;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center">
+
+    <!-- Top Bar Connection -->
+    <div class="w-full max-w-md">
+        <!-- top.html ফাইলটি যেখানে আছে সেই পাথ এখানে দিতে হবে -->
+        <iframe src="../bar/top.html" class="w-full h-16 border-0 overflow-hidden" scrolling="no"></iframe>
+    </div>
+
+    <!-- Game Container -->
+    <div class="w-full max-w-md p-4 flex flex-col gap-4">
+        
+        <!-- Recent Multipliers History Bar -->
+        <div class="flex gap-2 overflow-x-auto py-1 text-xs">
+            <span class="px-3 py-1 bg-[#213743] rounded-md text-[#2fbf71]">1.71x</span>
+            <span class="px-3 py-1 bg-[#213743] rounded-md text-[#2fbf71]">1.86x</span>
+            <span class="px-3 py-1 bg-[#213743] rounded-md text-[#eb4e3d]">1.01x</span>
+            <span class="px-3 py-1 bg-[#213743] rounded-md text-[#2fbf71]">1.60x</span>
+            <span class="px-3 py-1 bg-[#213743] rounded-md text-[#2fbf71]">2.33x</span>
+        </div>
+
+        <!-- Main Display Box -->
+        <div class="bg-[#0f212e] rounded-xl h-56 flex flex-col items-center justify-center relative overflow-hidden shadow-inner border border-[#213743]">
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            <div id="resultMultiplier" class="text-5xl font-black tracking-wider z-10 text-white">1.00x</div>
+        </div>
+
+        <!-- Bet Button -->
+        <button id="betBtn" onclick="playLimbo()" class="w-full bg-[#00e701] hover:bg-[#00c701] text-black font-bold py-3.5 rounded-xl transition duration-200 text-lg shadow-lg">
+            Bet
+        </button>
+        <p class="text-center text-xs text-gray-400">Betting with 0 will enter demo mode.</p>
+
+        <!-- Controls Section -->
+        <div class="bg-[#213743] p-4 rounded-xl flex flex-col gap-4">
+            
+            <!-- Amount Input -->
+            <div>
+                <label class="text-xs text-gray-400 block mb-1">Amount</label>
+                <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                    <span class="text-emerald-400 font-bold mr-2">৳</span>
+                    <input type="number" id="betAmount" value="0" class="bg-transparent w-full focus:outline-none text-white font-semibold">
+                    <div class="flex gap-1 ml-2">
+                        <button onclick="halveAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2.5 py-1 text-xs rounded font-medium">1/2</button>
+                        <button onclick="doubleAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2.5 py-1 text-xs rounded font-medium">2x</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payout & Chance Input -->
+            <div class="flex gap-4">
+                <div class="flex-1">
+                    <label class="text-xs text-gray-400 block mb-1">Payout</label>
+                    <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                        <input type="number" id="targetMultiplier" value="2.00" step="0.01" min="1.01" oninput="updateChance()" class="bg-transparent w-full focus:outline-none text-white font-semibold">
+                        <span class="text-gray-400 ml-1">×</span>
+                    </div>
+                </div>
+                <div class="w-1/3">
+                    <label id="chanceLabel" class="text-xs text-gray-400 block mb-1 text-right">Chance 49%</label>
+                    <div class="flex items-center justify-between bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                        <span id="chanceDisplay" class="text-white font-semibold text-sm w-full text-center">49%</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Tabs (Manual / Auto / Advanced) -->
+        <div class="flex bg-[#0f212e] p-1 rounded-xl justify-around text-sm font-medium text-gray-400">
+            <button class="py-2 px-6 rounded-lg bg-[#213743] text-white shadow">Manual</button>
+            <button class="py-2 px-6 rounded-lg hover:text-white">Auto</button>
+            <button class="py-2 px-6 rounded-lg hover:text-white">Advanced</button>
+        </div>
+
+    </div>
+
+    <script>
+        // বাটনে ক্লিক করলে চান্স ক্যালকুলেশন আপডেট করার ফাংশন
+        function updateChance() {
+            let target = parseFloat(document.getElementById('targetMultiplier').value) || 1.01;
+            if (target < 1.01) target = 1.01;
+            // Limbo chance formula: (99 / target)
+            let chance = (99 / target).toFixed(2);
+            document.getElementById('chanceDisplay').innerText = chance + '%';
+        }
+
+        function halveAmount() {
+            let input = document.getElementById('betAmount');
+            let val = parseFloat(input.value) || 0;
+            input.value = Math.max(0, val / 2).toFixed(2);
+        }
+
+        function doubleAmount() {
+            let input = document.getElementById('betAmount');
+            let val = parseFloat(input.value) || 0;
+            input.value = (val * 2).toFixed(2);
+        }
+
+        // গেম লজিক এবং ডাটাবেস অপারেশন
+        async function playLimbo() {
+            const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
+            const targetMultiplier = parseFloat(document.getElementById('targetMultiplier').value) || 2.00;
+            const resultDisplay = document.getElementById('resultMultiplier');
+            const btn = document.getElementById('betBtn');
+
+            // রেন্ডম রোল রেজাল্ট জেনারেট (1.00x থেকে বড় বা সমান)
+            // হাউজ এজ ৯৯% ধরে হিসাব করা হয়েছে
+            let randomRoll = parseFloat((99 / (Math.random() * 98 + 1)).toFixed(2));
+            if (randomRoll < 1.00) randomRoll = 1.00;
+
+            resultDisplay.innerText = randomRoll.toFixed(2) + 'x';
+
+            // উইিনং চেক (roll_result >= target_number হলে জয়ী)
+            let isWin = randomRoll >= targetMultiplier;
+            let payoutAmount = isWin ? betAmount * targetMultiplier : 0;
+
+            if (isWin) {
+                resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#2fbf71]";
+            } else {
+                resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#eb4e3d]";
+            }
+
+            // যদি ডেমো মোড না হয় (betAmount > 0) এবং Supabase কানেক্টেড থাকে তবে ডাটা সেভ হবে
+            if (betAmount > 0 && typeof supabase !== 'undefined') {
+                try {
+                    // লোকালস্টোরেজ বা সেশন থেকে বর্তমান ইউজারের ID নিতে হবে (আপনার প্রজেক্টের নিয়ম অনুযায়ী)
+                    // ধরে নিচ্ছি ইউজার আইডি কোনো লোকাল ভ্যারিয়েবলে বা localStorage-এ সংরক্ষিত আছে
+                    const userId = localStorage.getItem('current_user_id'); 
+
+                    if (userId) {
+                        // ১. bets টেবিলে রেকর্ড ইনসার্ট
+                        await supabase.from('bets').insert([
+                            {
+                                user_id: userId,
+                                target_number: targetMultiplier,
+                                roll_result: randomRoll,
+                                bet_amount: betAmount,
+                                payout: payoutAmount,
+                                is_bool: isWin
+                            }
+                        ]);
+
+                        // ২. profiles টেবিল থেকে বর্তমান ব্যালেন্স এনে আপডেট করা
+                        let { data: profile, error } = await supabase
+                            .from('profiles')
+                            .select('balance')
+                            .eq('id', userId)
+                            .single();
+
+                        if (profile) {
+                            let newBalance = parseFloat(profile.balance) - betAmount + payoutAmount;
+                            await supabase
+                               .from('profiles')
+                               .update({ balance: newBalance })
+                               .eq('id', userId);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Database error:', err);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
