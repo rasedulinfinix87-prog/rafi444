@@ -1,62 +1,120 @@
 <!-- components/game-tools.html -->
 
 <template id="gameToolsTemplate">
+
+    <!-- Floating Game Tools Buttons -->
+    <div class="fixed right-3 bottom-24 z-[9998] flex flex-col gap-2">
+
+        <button
+            type="button"
+            data-game-tools-open="gameToolsStatsModal"
+            aria-label="Live Stats"
+            class="flex h-11 w-11 items-center justify-center rounded-full
+                   border border-yellow-500/30 bg-[#10151d] text-[#F5CF66]
+                   shadow-lg">
+            <i class="fa-solid fa-chart-line"></i>
+        </button>
+
+        <button
+            type="button"
+            data-game-tools-open="gameToolsSettingsModal"
+            aria-label="Game Settings"
+            class="flex h-11 w-11 items-center justify-center rounded-full
+                   border border-yellow-500/30 bg-[#10151d] text-[#F5CF66]
+                   shadow-lg">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+
+    </div>
+
     <!-- Settings Modal -->
-    <div id="gameToolsSettingsModal"
-         class="fixed inset-0 z-[10000] hidden items-end justify-center bg-black/60">
+    <div
+        id="gameToolsSettingsModal"
+        class="fixed inset-0 z-[10000] hidden items-end justify-center bg-black/60">
+
         <div class="w-full max-w-md rounded-t-2xl border border-yellow-500/20
                     bg-[#10151d] p-4 text-white">
+
             <div class="mb-4 flex items-center justify-between">
                 <strong>Settings</strong>
-                <button type="button" data-game-tools-close="gameToolsSettingsModal"
-                        class="px-3 py-1 text-gray-300">✕</button>
+
+                <button
+                    type="button"
+                    data-game-tools-close="gameToolsSettingsModal"
+                    class="px-3 py-1 text-gray-300">
+                    ✕
+                </button>
             </div>
 
-            <button type="button" id="gameToolsSoundToggle"
-                    class="flex w-full items-center justify-between rounded-lg p-3 text-sm">
+            <button
+                type="button"
+                id="gameToolsSoundToggle"
+                class="flex w-full items-center justify-between rounded-lg p-3 text-sm">
+
                 <span>Sound Effects</span>
+
                 <span id="gameToolsSoundStatus">ON</span>
             </button>
 
-            <button type="button" id="gameToolsShare"
-                    class="w-full rounded-lg p-3 text-left text-sm">
+            <button
+                type="button"
+                id="gameToolsShare"
+                class="w-full rounded-lg p-3 text-left text-sm">
                 Share Game
             </button>
+
         </div>
     </div>
 
-    <!-- Shared Live Stats Modal -->
-    <div id="gameToolsStatsModal"
-         class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/60 p-4">
+    <!-- Live Stats Modal -->
+    <div
+        id="gameToolsStatsModal"
+        class="fixed inset-0 z-[10000] hidden items-center justify-center bg-black/60 p-4">
+
         <div class="w-full max-w-sm rounded-2xl border border-yellow-500/20
                     bg-[#10151d] p-4 text-white">
+
             <div class="mb-4 flex items-center justify-between">
                 <strong>Live Stats</strong>
-                <button type="button" data-game-tools-close="gameToolsStatsModal"
-                        class="px-3 py-1 text-gray-300">✕</button>
+
+                <button
+                    type="button"
+                    data-game-tools-close="gameToolsStatsModal"
+                    class="px-3 py-1 text-gray-300">
+                    ✕
+                </button>
             </div>
 
             <div class="space-y-3 text-sm">
+
                 <div class="flex justify-between">
                     <span class="text-gray-400">Profit / Loss</span>
                     <strong id="gameToolsProfit">৳ 0.00</strong>
                 </div>
+
                 <div class="flex justify-between">
                     <span class="text-gray-400">Wagered</span>
                     <strong id="gameToolsWagered">৳ 0.00</strong>
                 </div>
+
                 <div class="flex justify-between">
                     <span class="text-gray-400">Wins</span>
                     <strong id="gameToolsWins">0</strong>
                 </div>
+
                 <div class="flex justify-between">
                     <span class="text-gray-400">Losses</span>
                     <strong id="gameToolsLosses">0</strong>
                 </div>
+
             </div>
 
-            <div id="gameToolsStatsGraph"
-                 class="mt-4 flex h-24 items-end gap-1 overflow-x-auto"></div>
+            <div
+                id="gameToolsStatsGraph"
+                class="mt-4 flex h-24 items-end gap-1 overflow-x-auto">
+            </div>
+
         </div>
     </div>
+
 </template>
