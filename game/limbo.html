@@ -17,6 +17,13 @@
             color: #ffffff;
             font-family: sans-serif;
         }
+        /* Custom scrollbar for history bar (Right to Left flow simulation) */
+        #historyBar {
+            direction: rtl;
+        }
+        #historyBar > * {
+            direction: ltr;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
@@ -27,13 +34,9 @@
     <!-- Game Container -->
     <div class="w-full max-w-md p-4 flex flex-col gap-4 relative">
         
-        <!-- Recent Multipliers History Bar -->
-        <div id="historyBar" class="flex gap-2 overflow-x-auto py-1 text-xs">
-            <span class="px-3 py-1 bg-[#213743] rounded-md text-[#2fbf71]">1.71x</span>
-            <span class="px-3 py-1 bg-[#213743] rounded-md text-[#2fbf71]">1.86x</span>
-            <span class="px-3 py-1 bg-[#213743] rounded-md text-[#eb4e3d]">1.01x</span>
-            <span class="px-3 py-1 bg-[#213743] rounded-md text-[#2fbf71]">1.60x</span>
-            <span class="px-3 py-1 bg-[#213743] rounded-md text-[#2fbf71]">2.33x</span>
+        <!-- Recent Multipliers History Bar (Empty initially, scrolls right to left, bold text) -->
+        <div id="historyBar" class="flex gap-2 overflow-x-auto py-1 text-xs no-scrollbar">
+            <!-- Dynamic items will append here -->
         </div>
 
         <!-- Main Display Box -->
@@ -56,10 +59,11 @@
                 <label class="text-xs text-gray-400 block mb-1">Amount</label>
                 <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
                     <span class="text-emerald-400 font-bold mr-2">৳</span>
-                    <input type="number" id="betAmount" value="0" class="bg-transparent w-full focus:outline-none text-white font-semibold">
+                    <input type="number" id="betAmount" value="0" step="any" min="0" class="bg-transparent w-full focus:outline-none text-white font-semibold">
                     <div class="flex gap-1 ml-2">
-                        <button onclick="halveAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2.5 py-1 text-xs rounded font-medium">1/2</button>
-                        <button onclick="doubleAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2.5 py-1 text-xs rounded font-medium">2x</button>
+                        <button onclick="halveAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-xs rounded font-medium">1/2</button>
+                        <button onclick="doubleAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-xs rounded font-medium">2x</button>
+                        <button onclick="maxAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-xs rounded font-medium text-emerald-400">Max</button>
                     </div>
                 </div>
             </div>
@@ -68,14 +72,14 @@
             <div class="flex gap-4">
                 <div class="flex-1">
                     <label class="text-xs text-gray-400 block mb-1">Payout</label>
-                    <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
-                        <input type="number" id="targetMultiplier" value="2.00" step="0.01" min="1.01" oninput="updateChance()" class="bg-transparent w-full focus:outline-none text-white font-semibold">
+                    <div id="payoutBox" class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2 transition-colors">
+                        <input type="number" id="targetMultiplier" value="2.00" step="0.01" oninput="updateChance()" class="bg-transparent w-full focus:outline-none text-white font-semibold">
                         <span class="text-gray-400 ml-1">×</span>
                     </div>
                 </div>
                 <div class="w-1/3">
                     <label id="chanceLabel" class="text-xs text-gray-400 block mb-1 text-right">Chance 49%</label>
-                    <div class="flex items-center justify-between bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                    <div id="chanceBox" class="flex items-center justify-between bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2 transition-colors">
                         <span id="chanceDisplay" class="text-white font-semibold text-sm w-full text-center">49%</span>
                     </div>
                 </div>
@@ -161,7 +165,7 @@
             </div>
 
             <!-- Live Stats Graph Box -->
-            <div class="bg-[#0f212e] p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden border border-[#213743]">
+            <div class="bg-[#0f212e] p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden border border-[#2f4553]">
                 <span class="text-[11px] text-gray-400">Profit/Loss Graph</span>
                 <div class="flex-1 w-full flex items-end gap-1 overflow-x-auto pt-4" id="statsGraphContainer">
                     <div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>
@@ -176,19 +180,16 @@
         let isTurboOn = false;
         let isSoundOn = true;
 
-        // Live Stats Tracking Variables
         let totalProfit = 0;
         let totalWagered = 0;
         let totalWins = 0;
         let totalLosses = 0;
-        let profitHistory = [0]; // Graph data array
+        let profitHistory = [0];
 
-        // Horror Type Smooth Background Music (Looping)
         const horrorBgMusic = new Audio('https://freesound.org/data/previews/515/515843_6142149-lq.mp3');
         horrorBgMusic.loop = true;
         horrorBgMusic.volume = 0.4;
 
-        // Sound Effects
         const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
         const loseSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3');
 
@@ -326,7 +327,6 @@
                 console.error("Init Error:", err);
             }
 
-            // Start Horror Background Music automatically on first interaction or load
             document.addEventListener('click', () => {
                 if (isSoundOn && horrorBgMusic.paused) {
                     horrorBgMusic.play().catch(e => console.log(e));
@@ -346,11 +346,28 @@
             modal.classList.toggle('hidden');
         }
 
+        // Payout validation & Red coloration logic
         function updateChance() {
-            let target = parseFloat(document.getElementById('targetMultiplier').value) || 1.01;
-            if (target < 1.01) target = 1.01;
+            let targetInput = document.getElementById('targetMultiplier');
+            let payoutBox = document.getElementById('payoutBox');
+            let chanceBox = document.getElementById('chanceBox');
+            let betBtn = document.getElementById('betBtn');
+
+            let target = parseFloat(targetInput.value) || 1.01;
             let chance = (99 / target).toFixed(2);
             document.getElementById('chanceDisplay').innerText = chance + '%';
+
+            let isInvalid = target < 1.01 || chance < 98.02;
+
+            if (isInvalid) {
+                payoutBox.classList.add('border-red-500');
+                chanceBox.classList.add('border-red-500');
+                betBtn.style.display = 'none'; // Hide bet button
+            } else {
+                payoutBox.classList.remove('border-red-500');
+                chanceBox.classList.remove('border-red-500');
+                betBtn.style.display = 'block'; // Show bet button
+            }
         }
 
         function halveAmount() {
@@ -365,6 +382,11 @@
             input.value = (val * 2).toFixed(2);
         }
 
+        function maxAmount() {
+            let input = document.getElementById('betAmount');
+            input.value = userBalance.toFixed(2);
+        }
+
         function updateGraph() {
             const container = document.getElementById('statsGraphContainer');
             container.innerHTML = '';
@@ -377,7 +399,7 @@
             const maxVal = Math.max(...profitHistory.map(Math.abs), 1);
 
             profitHistory.forEach((val, idx) => {
-                if (idx === 0) return; // skip initial zero
+                if (idx === 0) return;
                 const bar = document.createElement('div');
                 const isProfit = val >= 0;
                 const heightPercent = Math.min(Math.max((Math.abs(val) / maxVal) * 45, 10), 100);
@@ -396,6 +418,11 @@
             const resultDisplay = document.getElementById('resultMultiplier');
             const client = getClient();
 
+            if (targetMultiplier < 1.01) {
+                alert('পেইআউট কম পক্ষে ১.০১ হওয়া আবশ্যক!');
+                return;
+            }
+
             if (betAmount > 0 && userBalance < betAmount) {
                 alert('অপর্যাপ্ত ব্যালেন্স!');
                 return;
@@ -410,7 +437,6 @@
             let randomRoll = parseFloat((99 / (Math.random() * 98 + 1)).toFixed(2));
             if (randomRoll < 1.00) randomRoll = 1.00;
 
-            // Turbo Mode Check
             if (!isTurboOn) {
                 resultDisplay.innerText = "1.00x";
                 let counter = 1.00;
@@ -432,7 +458,6 @@
 
             playSound(isWin);
 
-            // Update Live Stats & Graph Data
             if (betAmount > 0) {
                 totalWagered += betAmount;
                 if (isWin) {
@@ -452,15 +477,13 @@
                 updateGraph();
             }
 
-            // Recent History Bar Update
+            // Recent History Bar Update (Appends on right, scrolls to left with bold text)
             const historyBar = document.getElementById('historyBar');
             const historySpan = document.createElement('span');
-            historySpan.className = `px-3 py-1 bg-[#213743] rounded-md ${isWin ? 'text-[#2fbf71]' : 'text-[#eb4e3d]'}`;
+            historySpan.className = `px-3 py-1 bg-[#213743] rounded-md font-bold shrink-0 ${isWin ? 'text-[#2fbf71]' : 'text-[#eb4e3d]'}`;
             historySpan.innerText = randomRoll.toFixed(2) + 'x';
-            historyBar.prepend(historySpan);
-            if (historyBar.children.length > 8) {
-                historyBar.lastChild.remove();
-            }
+            historyBar.appendChild(historySpan);
+            historyBar.scrollLeft = historyBar.scrollWidth;
 
             if (isWin) {
                 resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#2fbf71]";
