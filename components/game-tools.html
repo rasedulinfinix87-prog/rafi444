@@ -1,112 +1,100 @@
+
 <!-- components/game-tools.html -->
 
 <template id="gameToolsTemplate">
 
-    <!-- Normal bottom tools: scrolls with page -->
-    <section
-        id="gameToolsBottom"
-        class="relative z-10 mx-auto mt-6 mb-6 w-full max-w-3xl
-               px-3">
+    <!-- Compact Game Tools Card: Normal Page Flow -->
+    <section id="gameToolsCard"
+        class="mx-auto my-3 w-full max-w-xl px-3">
 
-        <div class="grid grid-cols-4 gap-2">
+        <div class="grid grid-cols-4 items-center gap-1 rounded-xl
+                    border border-[#F5CF66]/25 bg-[#10151d]
+                    px-1.5 py-2 shadow-lg">
 
-            <button
-                type="button"
+            <!-- Live Stats -->
+            <button type="button"
                 data-game-tools-open="gameToolsStatsModal"
-                class="flex min-w-0 flex-col items-center justify-center gap-2
-                       rounded-xl border border-[#F5CF66]/30
-                       bg-[#10151d] px-1 py-3 text-[#F5CF66]
-                       active:scale-95">
-
-                <i class="fa-solid fa-chart-line text-xl"></i>
-                <span class="text-xs font-semibold">Live Stats</span>
+                class="flex min-w-0 flex-col items-center justify-center
+                       gap-1 rounded-lg py-2 text-[#F5CF66]
+                       active:bg-white/10">
+                <i class="fa-solid fa-chart-line text-lg"></i>
+                <span class="text-[10px] font-semibold sm:text-xs">
+                    Live Stats
+                </span>
             </button>
 
-            <button
-                type="button"
+            <!-- Rating -->
+            <button type="button"
                 data-game-tools-open="gameToolsRatingModal"
-                class="flex min-w-0 flex-col items-center justify-center gap-2
-                       rounded-xl border border-[#F5CF66]/30
-                       bg-[#10151d] px-1 py-3 text-[#F5CF66]
-                       active:scale-95">
-
-                <i class="fa-solid fa-star text-xl"></i>
-                <span class="text-xs font-semibold">Rating</span>
+                class="flex min-w-0 flex-col items-center justify-center
+                       gap-1 rounded-lg py-2 text-[#F5CF66]
+                       active:bg-white/10">
+                <i class="fa-solid fa-star text-lg"></i>
+                <span class="text-[10px] font-semibold sm:text-xs">
+                    Rating
+                </span>
             </button>
 
-            <button
-                type="button"
-                data-game-tools-open="gameToolsTurboModal"
-                class="flex min-w-0 flex-col items-center justify-center gap-2
-                       rounded-xl border border-[#F5CF66]/30
-                       bg-[#10151d] px-1 py-3 text-[#F5CF66]
-                       active:scale-95">
-
-                <i class="fa-solid fa-bolt text-xl"></i>
-                <span class="text-xs font-semibold">Turbo</span>
+            <!-- Turbo -->
+            <button type="button"
+                id="gameToolsTurboToggle"
+                aria-pressed="false"
+                class="flex min-w-0 flex-col items-center justify-center
+                       gap-1 rounded-lg py-2 text-[#F5CF66]
+                       active:bg-white/10">
+                <i class="fa-solid fa-bolt text-lg"></i>
+                <span class="text-[10px] font-semibold sm:text-xs">
+                    Turbo
+                </span>
+                <span id="gameToolsTurboStatus"
+                    class="text-[9px] text-gray-400">OFF</span>
             </button>
 
-            <button
-                type="button"
+            <!-- Settings -->
+            <button type="button"
                 data-game-tools-open="gameToolsSettingsModal"
-                class="flex min-w-0 flex-col items-center justify-center gap-2
-                       rounded-xl border border-[#F5CF66]/30
-                       bg-[#10151d] px-1 py-3 text-[#F5CF66]
-                       active:scale-95">
-
-                <i class="fa-solid fa-gear text-xl"></i>
-                <span class="text-xs font-semibold">Setting</span>
+                class="flex min-w-0 flex-col items-center justify-center
+                       gap-1 rounded-lg py-2 text-[#F5CF66]
+                       active:bg-white/10">
+                <i class="fa-solid fa-gear text-lg"></i>
+                <span class="text-[10px] font-semibold sm:text-xs">
+                    Setting
+                </span>
             </button>
 
         </div>
     </section>
 
     <!-- Settings Modal -->
-    <div
-        id="gameToolsSettingsModal"
+    <div id="gameToolsSettingsModal"
         class="fixed inset-0 z-[10000] hidden items-end
                justify-center bg-black/70 p-3">
 
-        <div
-            class="w-full max-w-md rounded-2xl
-                   border border-[#F5CF66]/30
-                   bg-[#10151d] p-4 text-white">
+        <div class="w-full max-w-md rounded-2xl
+                    border border-[#F5CF66]/25 bg-[#10151d]
+                    p-4 text-white">
 
             <div class="mb-4 flex items-center justify-between">
-                <strong class="text-lg">Settings</strong>
-
-                <button
-                    type="button"
+                <strong>Settings</strong>
+                <button type="button"
                     data-game-tools-close="gameToolsSettingsModal"
                     aria-label="Close settings"
-                    class="px-3 py-1 text-gray-300">
-                    ✕
-                </button>
+                    class="px-3 py-1 text-gray-300">✕</button>
             </div>
 
-            <button
-                type="button"
+            <button type="button"
                 id="gameToolsSoundToggle"
                 class="flex w-full items-center justify-between
-                       rounded-xl border border-white/10 p-3 text-sm">
-
-                <span>
-                    <i class="fa-solid fa-volume-high mr-2"></i>
-                    Sound Effects
-                </span>
-
-                <span id="gameToolsSoundStatus" class="text-[#F5CF66]">
-                    ON
-                </span>
+                       rounded-lg border border-white/10 p-3 text-sm">
+                <span>Sound Effects</span>
+                <span id="gameToolsSoundStatus"
+                    class="font-semibold text-[#F5CF66]">ON</span>
             </button>
 
-            <button
-                type="button"
+            <button type="button"
                 id="gameToolsShare"
-                class="mt-2 w-full rounded-xl border
-                       border-white/10 p-3 text-left text-sm">
-
-                <i class="fa-solid fa-share-nodes mr-2"></i>
+                class="mt-2 w-full rounded-lg border border-white/10
+                       p-3 text-left text-sm">
                 Share Game
             </button>
 
@@ -114,54 +102,42 @@
     </div>
 
     <!-- Live Stats Modal -->
-    <div
-        id="gameToolsStatsModal"
+    <div id="gameToolsStatsModal"
         class="fixed inset-0 z-[10000] hidden items-center
                justify-center bg-black/70 p-4">
 
-        <div
-            class="w-full max-w-sm rounded-2xl
-                   border border-[#F5CF66]/30
-                   bg-[#10151d] p-4 text-white">
+        <div class="w-full max-w-sm rounded-2xl
+                    border border-[#F5CF66]/25 bg-[#10151d]
+                    p-4 text-white">
 
             <div class="mb-4 flex items-center justify-between">
-                <strong class="text-lg">Live Stats</strong>
-
-                <button
-                    type="button"
+                <strong>Live Stats</strong>
+                <button type="button"
                     data-game-tools-close="gameToolsStatsModal"
                     aria-label="Close stats"
-                    class="px-3 py-1 text-gray-300">
-                    ✕
-                </button>
+                    class="px-3 py-1 text-gray-300">✕</button>
             </div>
 
             <div class="space-y-3 text-sm">
-
                 <div class="flex justify-between">
                     <span class="text-gray-400">Profit / Loss</span>
                     <strong id="gameToolsProfit">৳ 0.00</strong>
                 </div>
-
                 <div class="flex justify-between">
                     <span class="text-gray-400">Wagered</span>
                     <strong id="gameToolsWagered">৳ 0.00</strong>
                 </div>
-
                 <div class="flex justify-between">
                     <span class="text-gray-400">Wins</span>
                     <strong id="gameToolsWins">0</strong>
                 </div>
-
                 <div class="flex justify-between">
                     <span class="text-gray-400">Losses</span>
                     <strong id="gameToolsLosses">0</strong>
                 </div>
-
             </div>
 
-            <div
-                id="gameToolsStatsGraph"
+            <div id="gameToolsStatsGraph"
                 class="mt-4 flex h-24 items-end gap-1 overflow-x-auto">
             </div>
 
@@ -169,33 +145,28 @@
     </div>
 
     <!-- Rating Modal -->
-    <div
-        id="gameToolsRatingModal"
+    <div id="gameToolsRatingModal"
         class="fixed inset-0 z-[10000] hidden items-center
                justify-center bg-black/70 p-4">
 
-        <div
-            class="w-full max-w-sm rounded-2xl
-                   border border-[#F5CF66]/30
-                   bg-[#10151d] p-5 text-center text-white">
+        <div class="w-full max-w-sm rounded-2xl
+                    border border-[#F5CF66]/25 bg-[#10151d]
+                    p-4 text-center text-white">
 
             <div class="mb-4 flex items-center justify-between">
-                <strong class="text-lg">Rate This Game</strong>
-
-                <button
-                    type="button"
+                <strong>Rate This Game</strong>
+                <button type="button"
                     data-game-tools-close="gameToolsRatingModal"
                     aria-label="Close rating"
-                    class="px-3 py-1 text-gray-300">
-                    ✕
-                </button>
+                    class="px-3 py-1 text-gray-300">✕</button>
             </div>
 
             <p class="mb-4 text-sm text-gray-400">
-                আপনার অভিজ্ঞতা অনুযায়ী রেটিং দিন
+                আপনার রেটিং নির্বাচন করুন
             </p>
 
-            <div class="flex justify-center gap-3">
+            <div id="gameToolsRatingStars"
+                class="flex justify-center gap-2">
                 <button type="button" data-game-tools-rating="1"
                     aria-label="1 star" class="text-2xl text-gray-500">★</button>
                 <button type="button" data-game-tools-rating="2"
@@ -209,56 +180,9 @@
             </div>
 
             <p id="gameToolsRatingMessage"
-               class="mt-4 text-sm text-[#F5CF66]">
-                গেমটি রেটিং দিন
+                class="mt-3 text-xs text-gray-400">
+                এখনও কোনো রেটিং নির্বাচন করা হয়নি
             </p>
-
-        </div>
-    </div>
-
-    <!-- Turbo Modal -->
-    <div
-        id="gameToolsTurboModal"
-        class="fixed inset-0 z-[10000] hidden items-center
-               justify-center bg-black/70 p-4">
-
-        <div
-            class="w-full max-w-sm rounded-2xl
-                   border border-[#F5CF66]/30
-                   bg-[#10151d] p-5 text-white">
-
-            <div class="mb-4 flex items-center justify-between">
-                <strong class="text-lg">Turbo Mode</strong>
-
-                <button
-                    type="button"
-                    data-game-tools-close="gameToolsTurboModal"
-                    aria-label="Close turbo"
-                    class="px-3 py-1 text-gray-300">
-                    ✕
-                </button>
-            </div>
-
-            <p class="mb-4 text-sm text-gray-400">
-                Turbo চালু বা বন্ধ করুন।
-                গেমের গতি বদলাতে গেমের মূল কোডে Turbo সমর্থন থাকতে হবে।
-            </p>
-
-            <button
-                type="button"
-                id="gameToolsTurboToggle"
-                class="flex w-full items-center justify-between
-                       rounded-xl border border-white/10 p-3 text-sm">
-
-                <span>
-                    <i class="fa-solid fa-bolt mr-2"></i>
-                    Turbo Mode
-                </span>
-
-                <span id="gameToolsTurboStatus" class="text-[#F5CF66]">
-                    OFF
-                </span>
-            </button>
 
         </div>
     </div>
