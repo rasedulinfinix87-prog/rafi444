@@ -263,15 +263,15 @@
       const rows = currentRows;
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 20;
-      const totalRows = rows + 2; // Exact pyramid alignment rows
-      const rowHeight = (height - 40) / totalRows;
-      const maxPinsInBottomRow = totalRows;
-      const spacingX = width / (maxPinsInBottomRow + 1);
+      const startY = 18;
+      const totalRows = rows + 2; 
+      const rowHeight = (height - 35) / totalRows;
+      const maxPins = totalRows + 1;
+      const spacingX = width / maxPins;
 
-      // Draw Proper Pyramid Pins
+      // Draw True Pyramid Pins (Centered and Properly Expanded)
       for (let r = 0; r < totalRows; r++) {
-        const pinsInRow = r + 1;
+        const pinsInRow = r + 3; // Starts with a small cluster at top and widens cleanly like a pyramid
         const rowWidth = (pinsInRow - 1) * spacingX;
         const startX = (width - rowWidth) / 2;
 
@@ -280,7 +280,7 @@
           const y = startY + (r * rowHeight);
 
           ctx.beginPath();
-          ctx.arc(x, y, 3, 0, Math.PI * 2);
+          ctx.arc(x, y, 2.5, 0, Math.PI * 2);
           ctx.fillStyle = '#ffffff';
           ctx.fill();
         }
@@ -289,7 +289,7 @@
       // Draw Ball if active
       if (ballPos) {
         ctx.beginPath();
-        ctx.arc(ballPos.x, ballPos.y, 5.5, 0, Math.PI * 2);
+        ctx.arc(ballPos.x, ballPos.y, 5, 0, Math.PI * 2);
         ctx.fillStyle = '#24ee89';
         ctx.shadowColor = '#24ee89';
         ctx.shadowBlur = 10;
@@ -331,10 +331,11 @@
       const canvas = document.getElementById('plinkoCanvas');
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 20;
+      const startY = 18;
       const totalRows = rows + 2;
-      const rowHeight = (height - 40) / totalRows;
-      const spacingX = width / (totalRows + 1);
+      const rowHeight = (height - 35) / totalRows;
+      const maxPins = totalRows + 1;
+      const spacingX = width / maxPins;
 
       let currentPinRow = 0;
       let currentPinCol = 0;
@@ -343,7 +344,8 @@
 
       const dropInterval = setInterval(() => {
         if (currentPinRow <= totalRows) {
-          const rowWidth = ((currentPinRow + 1) - 1) * spacingX;
+          const pinsInRow = currentPinRow + 3;
+          const rowWidth = (pinsInRow - 1) * spacingX;
           const startX = (width - rowWidth) / 2;
           const targetX = startX + (currentPinCol * spacingX);
           const targetY = startY + (currentPinRow * rowHeight);
@@ -355,14 +357,14 @@
 
           if (currentPinRow < totalRows) {
             const goRight = Math.random() < 0.5;
-            if (goRight && currentPinCol < currentPinRow) currentPinCol++;
+            if (goRight && currentPinCol < pinsInRow - 1) currentPinCol++;
           }
           currentPinRow++;
         } else {
           clearInterval(dropInterval);
           finishDrop(winningMultiplier, pathIndex, betVal);
         }
-      }, 100);
+      }, 90);
     }
 
     async function finishDrop(multiplier, sinkIndex, betVal) {
