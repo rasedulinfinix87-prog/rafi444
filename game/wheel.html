@@ -1,26 +1,35 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>BC Game Style Wheel</title>
-  
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Supabase Client & App Config -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: #080B10;
+    }
+
     body {
+      margin: 0;
+      min-height: 100vh;
       background: #080B10;
       color: #ffffff;
       font-family: sans-serif;
+      overflow-x: hidden;
       overflow-y: auto;
+      padding-bottom: calc(90px + env(safe-area-inset-bottom));
     }
 
     .glass-card {
@@ -33,12 +42,7 @@
     }
 
     .gold-button {
-      background: linear-gradient(
-          135deg,
-          #FFDF85,
-          #F5CF66,
-          #D9A441
-      );
+      background: linear-gradient(135deg, #FFDF85, #F5CF66, #D9A441);
       color: #080B10;
       border: 1px solid #FFDF85;
       box-shadow: 0 0 14px rgba(255, 184, 0, 0.25);
@@ -48,7 +52,65 @@
       opacity: 0.9;
     }
 
-    /* Custom Scrollbar */
+    #topBarContainer {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      width: 100%;
+    }
+
+    /*
+      Bottom navigation stays at the bottom.
+      Its stacking level is lower than Game Tools.
+    */
+    #bottomBarContainer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 5000;
+      isolation: isolate;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /*
+      Game Tools is placed above the bottom navigation.
+      The inner component remains interactive.
+    */
+    #gameToolsContainer {
+      position: fixed !important;
+      left: 50% !important;
+      right: auto !important;
+      bottom: calc(76px + env(safe-area-inset-bottom)) !important;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 42rem;
+      max-height: calc(100vh - 120px);
+      overflow: visible;
+      z-index: 10000 !important;
+      isolation: isolate;
+      visibility: visible !important;
+      opacity: 1 !important;
+      filter: none !important;
+      pointer-events: none;
+    }
+
+    #gameToolsContainer > *,
+    #gameToolsContainer button,
+    #gameToolsContainer a,
+    #gameToolsContainer input,
+    #gameToolsContainer select {
+      pointer-events: auto;
+    }
+
+    #gameToolsContainer > * {
+      position: relative;
+      z-index: 10001;
+      visibility: visible;
+      opacity: 1;
+    }
+
     ::-webkit-scrollbar {
       height: 6px;
       width: 6px;
@@ -63,9 +125,9 @@
       border-radius: 3px;
     }
 
-    /* Range Input Styling */
     input[type=range] {
       -webkit-appearance: none;
+      appearance: none;
       width: 100%;
       background: transparent;
     }
@@ -81,7 +143,14 @@
       border-radius: 50%;
       background: #F5CF66;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(245,207,102,0.5);
+      box-shadow: 0 0 10px rgba(245, 207, 102, 0.5);
+    }
+
+    @media (max-width: 480px) {
+      #gameToolsContainer {
+        width: calc(100% - 16px);
+        bottom: calc(72px + env(safe-area-inset-bottom)) !important;
+      }
     }
   </style>
 </head>
@@ -89,16 +158,15 @@
 <body class="bg-[#080B10] text-white font-sans min-h-screen flex flex-col items-center justify-between p-0 select-none">
 
   <!-- Top Bar Container -->
-  <div id="topBarContainer" class="w-full max-w-2xl sticky top-0 z-50"></div>
+  <div id="topBarContainer" class="w-full max-w-2xl"></div>
 
   <div class="w-full max-w-2xl glass-card flex flex-col justify-between overflow-x-hidden shadow-2xl my-2 pb-24">
-    
+
     <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#080B10] flex-1">
-      
+
       <!-- Wheel Canvas Area -->
       <div class="relative flex flex-col items-center justify-center my-3">
 
-        <!-- Top Pointer -->
         <div class="absolute -top-3 z-20 text-[#ed4245] text-2xl filter drop-shadow">
           <i class="fa-solid fa-location-pin"></i>
         </div>
@@ -106,8 +174,7 @@
         <div class="relative w-72 h-72 sm:w-80 sm:h-80 rounded-full border-4 border-[rgba(245,207,102,0.25)] p-1 bg-[#151a23] shadow-2xl flex items-center justify-center">
 
           <canvas id="wheelCanvas" width="340" height="340" class="w-full h-full rounded-full"></canvas>
-          
-          <!-- Center Hub -->
+
           <div class="absolute w-20 h-20 rounded-full bg-[#080B10] border-2 border-[rgba(245,207,102,0.3)] flex flex-col items-center justify-center shadow-inner">
             <span class="text-[10px] text-gray-400 font-medium">Result</span>
             <span class="text-sm font-black text-[#F5CF66]" id="centerMultiplierText">0×</span>
@@ -117,14 +184,11 @@
       </div>
 
       <!-- Color Hit Payout Cards Bar -->
-      <div id="payoutCardsBar" class="grid grid-cols-5 gap-2 my-1">
-        <!-- Dynamically rendered color payout cards -->
-      </div>
+      <div id="payoutCardsBar" class="grid grid-cols-5 gap-2 my-1"></div>
 
       <!-- Game Controls Section -->
       <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-3.5">
-        
-        <!-- Bet Amount Controls -->
+
         <div class="flex flex-col gap-1">
           <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
             <span>Amount (৳)</span>
@@ -143,7 +207,7 @@
               step="1"
               class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1"
             >
-            
+
             <div class="flex items-center gap-1">
               <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">1/2</button>
               <button onclick="modifyBet('double')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">2x</button>
@@ -163,8 +227,7 @@
 
       <!-- Settings & Configuration -->
       <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-3">
-        
-        <!-- Segments Slider -->
+
         <div class="flex flex-col gap-1.5">
           <div class="flex justify-between items-center text-xs text-gray-400 font-semibold">
             <span>Segments</span>
@@ -178,7 +241,6 @@
           </div>
         </div>
 
-        <!-- Risk Level Selectors -->
         <div class="flex flex-col gap-1.5 pt-1">
           <span class="text-xs text-gray-400 font-semibold">Risk Level</span>
 
@@ -195,7 +257,7 @@
   </div>
 
   <!-- Bottom Bar Container -->
-  <div id="bottomBarContainer" class="w-full max-w-2xl fixed bottom-0 z-50"></div>
+  <div id="bottomBarContainer"></div>
 
   <!-- Game Tools Component Container -->
   <div id="gameToolsContainer"></div>
@@ -220,20 +282,97 @@
     ];
 
     async function loadBars() {
+      const topContainer = document.getElementById('topBarContainer');
+      const bottomContainer = document.getElementById('bottomBarContainer');
+
       try {
-        const topRes = await fetch('../bar/top.html');
+        const [topRes, bottomRes] = await Promise.all([
+          fetch('../bar/top.html'),
+          fetch('../bar/bottom.html')
+        ]);
 
         if (topRes.ok) {
-          document.getElementById('topBarContainer').innerHTML = await topRes.text();
+          topContainer.innerHTML = await topRes.text();
+        } else {
+          console.error('Top bar load failed:', topRes.status);
         }
 
-        const botRes = await fetch('../bar/bottom.html');
-
-        if (botRes.ok) {
-          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+        if (bottomRes.ok) {
+          bottomContainer.innerHTML = await bottomRes.text();
+        } else {
+          console.error('Bottom bar load failed:', bottomRes.status);
         }
-      } catch (e) {
-        console.error('Bar load error:', e);
+      } catch (error) {
+        console.error('Bar loading error:', error);
+      }
+    }
+
+    async function loadGameToolsScript() {
+      if (
+        window.GameTools &&
+        typeof window.GameTools.bindComponentEvents === 'function'
+      ) {
+        window.GameTools.bindComponentEvents();
+        return;
+      }
+
+      if (document.getElementById('gameToolsScript')) {
+        return;
+      }
+
+      return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.id = 'gameToolsScript';
+        script.src = '../js/game-tools.js';
+        script.onload = () => {
+          if (
+            window.GameTools &&
+            typeof window.GameTools.bindComponentEvents === 'function'
+          ) {
+            window.GameTools.bindComponentEvents();
+          }
+          resolve();
+        };
+        script.onerror = () => {
+          console.warn('Optional game-tools.js was not loaded.');
+          resolve();
+        };
+        document.body.appendChild(script);
+      });
+    }
+
+    async function loadGameToolsComponent() {
+      const container = document.getElementById('gameToolsContainer');
+      if (!container) return;
+
+      try {
+        const response = await fetch('../components/game-tools.html');
+
+        if (!response.ok) {
+          throw new Error('Game Tools component load failed: ' + response.status);
+        }
+
+        const html = await response.text();
+        const parsedDocument = new DOMParser().parseFromString(html, 'text/html');
+        const template = parsedDocument.querySelector('#gameToolsTemplate');
+
+        if (template) {
+          container.replaceChildren(
+            document.importNode(template.content, true)
+          );
+        } else {
+          container.innerHTML = parsedDocument.body.innerHTML;
+        }
+
+        container.style.visibility = 'visible';
+        container.style.opacity = '1';
+        container.style.zIndex = '10000';
+
+        await loadGameToolsScript();
+
+        console.log('Game Tools component loaded successfully.');
+      } catch (error) {
+        console.error('Game Tools loading error:', error);
       }
     }
 
@@ -247,43 +386,51 @@
         typeof supabaseClient !== 'undefined' &&
         typeof getCurrentUser === 'function'
       ) {
-        const user = await getCurrentUser();
+        try {
+          const user = await getCurrentUser();
 
-        if (user) {
-          currentUserId = user.id;
+          if (user) {
+            currentUserId = user.id;
 
-          const { data: profile } = await supabaseClient
-            .from('profiles')
-            .select('balance')
-            .eq('id', user.id)
-            .single();
+            const { data: profile, error } = await supabaseClient
+              .from('profiles')
+              .select('balance')
+              .eq('id', user.id)
+              .single();
 
-          if (profile) {
-            balance = parseFloat(profile.balance);
-            updateBalanceUI();
-          }
+            if (error) {
+              console.error('Profile balance load error:', error);
+            }
 
-          supabaseClient
-            .channel('wheel-profile-channel')
-            .on(
-              'postgres_changes',
-              {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'profiles',
-                filter: `id=eq.${user.id}`
-              },
-              (payload) => {
-                if (
-                  payload.new &&
-                  payload.new.balance !== undefined
-                ) {
-                  balance = parseFloat(payload.new.balance);
-                  updateBalanceUI();
+            if (profile) {
+              balance = parseFloat(profile.balance) || 0;
+              updateBalanceUI();
+            }
+
+            supabaseClient
+              .channel('wheel-profile-channel')
+              .on(
+                'postgres_changes',
+                {
+                  event: 'UPDATE',
+                  schema: 'public',
+                  table: 'profiles',
+                  filter: `id=eq.${user.id}`
+                },
+                (payload) => {
+                  if (
+                    payload.new &&
+                    payload.new.balance !== undefined
+                  ) {
+                    balance = parseFloat(payload.new.balance) || 0;
+                    updateBalanceUI();
+                  }
                 }
-              }
-            )
-            .subscribe();
+              )
+              .subscribe();
+          }
+        } catch (error) {
+          console.error('Wheel initialization error:', error);
         }
       }
     }
@@ -297,31 +444,23 @@
     }
 
     function modifyBet(type) {
-      let current = parseFloat(
-        document.getElementById('betAmount').value
-      ) || 0;
+      const input = document.getElementById('betAmount');
+      const current = parseFloat(input.value) || 0;
 
       if (type === 'half') {
-        document.getElementById('betAmount').value =
-          Math.max(0, Math.floor(current / 2));
-
+        input.value = Math.max(0, Math.floor(current / 2));
       } else if (type === 'double') {
-        document.getElementById('betAmount').value =
-          Math.floor(current * 2);
-
+        input.value = Math.floor(current * 2);
       } else if (type === 'max') {
-        document.getElementById('betAmount').value =
-          Math.floor(balance);
+        input.value = Math.floor(balance);
       }
     }
 
     function updateSegments(val) {
       if (isSpinning) return;
 
-      segmentsCount = parseInt(val);
-
-      document.getElementById('segmentsVal').innerText =
-        segmentsCount;
+      segmentsCount = parseInt(val, 10);
+      document.getElementById('segmentsVal').innerText = segmentsCount;
 
       generateWheelSegments();
       drawWheel(0);
@@ -332,17 +471,19 @@
 
       riskLevel = level;
 
-      ['low', 'medium', 'high'].forEach(l => {
+      ['low', 'medium', 'high'].forEach((item) => {
         const btn = document.getElementById(
-          'btnRisk' + l.charAt(0).toUpperCase() + l.slice(1)
+          'btnRisk' + item.charAt(0).toUpperCase() + item.slice(1)
         );
 
-        if (l === level) {
+        if (!btn) return;
+
+        if (item === level) {
           btn.className =
-            "py-2 rounded-lg text-xs font-bold transition gold-button shadow";
+            'py-2 rounded-lg text-xs font-bold transition gold-button shadow';
         } else {
           btn.className =
-            "py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
+            'py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white';
         }
       });
 
@@ -353,16 +494,14 @@
     function generateWheelSegments() {
       wheelSegments = [];
 
-      let zeroRatio =
+      const zeroRatio =
         riskLevel === 'low'
           ? 0.2
           : riskLevel === 'medium'
             ? 0.4
             : 0.55;
 
-      let zeroCount = Math.floor(
-        segmentsCount * zeroRatio
-      );
+      const zeroCount = Math.floor(segmentsCount * zeroRatio);
 
       for (let i = 0; i < zeroCount; i++) {
         wheelSegments.push({
@@ -373,7 +512,7 @@
 
       const remaining = segmentsCount - zeroCount;
 
-      let maxMult =
+      const maxMult =
         riskLevel === 'low'
           ? 3.5
           : riskLevel === 'medium'
@@ -388,17 +527,15 @@
 
         if (val < 1.1) val = 1.2;
 
-        const color =
-          availableColors[i % availableColors.length];
+        const color = availableColors[i % availableColors.length];
 
         wheelSegments.push({
           multiplier: parseFloat(val.toFixed(2)),
-          color: color
+          color
         });
       }
 
       wheelSegments.sort(() => Math.random() - 0.5);
-
       renderColorPayoutCards();
     }
 
@@ -408,13 +545,13 @@
 
       const colorMap = new Map();
 
-      wheelSegments.forEach(seg => {
-        if (!colorMap.has(seg.color)) {
-          colorMap.set(seg.color, seg.multiplier);
+      wheelSegments.forEach((segment) => {
+        if (!colorMap.has(segment.color)) {
+          colorMap.set(segment.color, segment.multiplier);
         }
       });
 
-      let items = Array.from(colorMap.entries()).slice(0, 5);
+      const items = Array.from(colorMap.entries()).slice(0, 5);
 
       items.forEach(([color, mult]) => {
         const isHit = highlightColor === color;
@@ -428,9 +565,7 @@
             class="w-5 h-5 rounded-full mb-1 border border-white/20 shadow-sm"
             style="background-color: ${color};">
           </div>
-
           <span class="text-[10px] text-gray-400">Payout</span>
-
           <span class="text-xs font-extrabold text-[#F5CF66]">
             ${mult.toFixed(2)}×
           </span>
@@ -443,7 +578,6 @@
     function drawWheel(rotationAngle) {
       const canvas = document.getElementById('wheelCanvas');
       const ctx = canvas.getContext('2d');
-
       const count = wheelSegments.length;
 
       if (!count) return;
@@ -451,34 +585,19 @@
       const arc = (2 * Math.PI) / count;
       const radius = canvas.width / 2;
 
-      ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
-
       ctx.translate(radius, radius);
       ctx.rotate(rotationAngle);
       ctx.translate(-radius, -radius);
 
-      wheelSegments.forEach((seg, i) => {
+      wheelSegments.forEach((segment, i) => {
         const angle = i * arc;
 
         ctx.beginPath();
-        ctx.fillStyle = seg.color;
+        ctx.fillStyle = segment.color;
         ctx.moveTo(radius, radius);
-
-        ctx.arc(
-          radius,
-          radius,
-          radius,
-          angle,
-          angle + arc
-        );
-
+        ctx.arc(radius, radius, radius, angle, angle + arc);
         ctx.lineTo(radius, radius);
         ctx.fill();
 
@@ -496,22 +615,26 @@
       const betVal =
         parseFloat(document.getElementById('betAmount').value) || 0;
 
+      if (betVal < 0) {
+        alert('বেটের পরিমাণ ০ বা তার বেশি হতে হবে!');
+        return;
+      }
+
       if (betVal > 0 && betVal < 1) {
-        alert("সর্বনিম্ন বেট ১ টাকা হতে হবে!");
+        alert('সর্বনিম্ন বেট ১ টাকা হতে হবে!');
         return;
       }
 
       if (betVal > balance) {
-        alert("আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!");
+        alert('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
         return;
       }
 
       isSpinning = true;
 
       const btn = document.getElementById('btnBet');
-
       btn.disabled = true;
-      btn.innerText = "Spinning...";
+      btn.innerText = 'Spinning...';
 
       if (betVal > 0) {
         balance -= betVal;
@@ -523,7 +646,6 @@
       );
 
       const winningSegment = wheelSegments[winningIndex];
-
       const count = wheelSegments.length;
       const arcRad = (2 * Math.PI) / count;
 
@@ -539,17 +661,9 @@
         if (!startTime) startTime = timestamp;
 
         const elapsed = timestamp - startTime;
-
-        const progress = Math.min(
-          elapsed / duration,
-          1
-        );
-
-        const easeProgress =
-          1 - (1 - progress) * (1 - progress);
-
-        const currentAngle =
-          targetAngle * easeProgress;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeProgress = 1 - (1 - progress) * (1 - progress);
+        const currentAngle = targetAngle * easeProgress;
 
         drawWheel(currentAngle);
 
@@ -565,12 +679,7 @@
 
     async function finishSpin(winningSegment, betVal) {
       const multiplier = winningSegment.multiplier;
-
-      const winAmount =
-        betVal > 0
-          ? (betVal * multiplier)
-          : 0;
-
+      const winAmount = betVal > 0 ? betVal * multiplier : 0;
       const isWin = multiplier > 0;
 
       if (isWin && betVal > 0) {
@@ -588,98 +697,47 @@
         betVal > 0 &&
         typeof supabaseClient !== 'undefined'
       ) {
-        await supabaseClient.from('bets').insert([{
-          user_id: currentUserId,
-          target_number: segmentsCount,
-          roll_result: multiplier,
-          bet_amount: betVal,
-          payout: multiplier,
-          is_bool: isWin
-        }]);
+        const { error: betError } = await supabaseClient
+          .from('bets')
+          .insert([{
+            user_id: currentUserId,
+            target_number: segmentsCount,
+            roll_result: multiplier,
+            bet_amount: betVal,
+            payout: winAmount,
+            is_bool: isWin
+          }]);
 
-        await supabaseClient
+        if (betError) {
+          console.error('Bet record save error:', betError);
+        }
+
+        const { error: balanceError } = await supabaseClient
           .from('profiles')
-          .update({ balance: balance })
+          .update({ balance })
           .eq('id', currentUserId);
+
+        if (balanceError) {
+          console.error('Balance update error:', balanceError);
+        }
       }
 
       isSpinning = false;
 
       const btn = document.getElementById('btnBet');
-
       btn.disabled = false;
-      btn.innerText = "Bet";
-    }
-
-    window.onload = initWheelGame;
-  </script>
-
-  <!-- ==========================================
-       GAME TOOLS COMPONENT CONNECTION
-       File: components/game-tools.html
-       Current page: game/wheel.html
-       ========================================== -->
-
-  <script>
-    async function loadGameToolsComponent() {
-      const container = document.getElementById('gameToolsContainer');
-
-      if (!container) return;
-
-      try {
-        const response = await fetch('../components/game-tools.html');
-
-        if (!response.ok) {
-          throw new Error(
-            'Game Tools component load failed: ' + response.status
-          );
-        }
-
-        const html = await response.text();
-
-        const parsedDocument = new DOMParser().parseFromString(
-          html,
-          'text/html'
-        );
-
-        const template = parsedDocument.querySelector(
-          '#gameToolsTemplate'
-        );
-
-        if (template) {
-          container.replaceChildren(
-            document.importNode(template.content, true)
-          );
-        } else {
-          container.innerHTML = parsedDocument.body.innerHTML;
-        }
-
-        console.log('Game Tools component loaded successfully.');
-
-        /*
-         * game-tools.js is optional.
-         * If the file exists, load it after the HTML component.
-         */
-        if (window.GameTools) {
-          if (typeof window.GameTools.bindComponentEvents === 'function') {
-            window.GameTools.bindComponentEvents();
-          }
-        }
-
-      } catch (error) {
-        console.error('Game Tools loading error:', error);
-      }
+      btn.innerText = 'Bet';
     }
 
     /*
-     * Load the component independently.
-     * This does not replace the existing wheel initialization.
-     */
-    loadGameToolsComponent();
+      Load bars and game tools independently.
+      Game Tools is placed above the bottom navigation.
+    */
+    window.addEventListener('DOMContentLoaded', () => {
+      initWheelGame();
+      loadGameToolsComponent();
+    });
   </script>
-
-  <!-- Game Tools JavaScript (optional helper file) -->
-  <script src="../js/game-tools.js" defer></script>
 
 </body>
 </html>
