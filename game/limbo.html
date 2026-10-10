@@ -28,7 +28,7 @@
     <div class="w-full max-w-md p-4 flex flex-col gap-4 relative">
         
         <!-- Recent Multipliers History Bar -->
-        <div class="flex gap-2 overflow-x-auto py-1 text-xs">
+        <div id="historyBar" class="flex gap-2 overflow-x-auto py-1 text-xs">
             <span class="px-3 py-1 bg-[#213743] rounded-md text-[#2fbf71]">1.71x</span>
             <span class="px-3 py-1 bg-[#213743] rounded-md text-[#2fbf71]">1.86x</span>
             <span class="px-3 py-1 bg-[#213743] rounded-md text-[#eb4e3d]">1.01x</span>
@@ -39,7 +39,7 @@
         <!-- Main Display Box -->
         <div class="bg-[#0f212e] rounded-xl h-56 flex flex-col items-center justify-center relative overflow-hidden shadow-inner border border-[#213743]">
             <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            <div id="resultMultiplier" class="text-5xl font-black tracking-wider z-10 text-white">1.00x</div>
+            <div id="resultMultiplier" class="text-5xl font-black tracking-wider z-10 text-white transition-all duration-150">1.00x</div>
         </div>
 
         <!-- Bet Button -->
@@ -101,9 +101,10 @@
                 <i class="fa-solid fa-star text-xs text-yellow-500"></i>
                 <span class="text-xs">12543</span>
             </button>
-            <!-- Turn Off/On Animation/Sound -->
-            <button onclick="toggleAnimSound()" class="hover:text-white p-2">
-                <i class="fa-solid fa-bolt"></i>
+            <!-- Turn Off/On Turbo Mode -->
+            <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-white p-2 flex items-center gap-1" title="Turbo Mode">
+                <i id="turboIcon" class="fa-solid fa-bolt text-gray-400"></i>
+                <span id="turboText" class="text-[10px] font-bold">OFF</span>
             </button>
             <!-- Live Stats -->
             <button onclick="toggleLiveStatsModal()" class="hover:text-white p-2">
@@ -123,16 +124,14 @@
             <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
                 <i class="fa-regular fa-circle-question w-5"></i> Help
             </button>
-            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
-                <i class="fa-solid fa-music w-5"></i> Background Music
-            </button>
-            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-[#2fbf71]">
-                <i class="fa-solid fa-volume-high w-5"></i> Sound Effects
+            <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[#213743] rounded-lg text-sm text-[#2fbf71]">
+                <span class="flex items-center gap-3"><i class="fa-solid fa-volume-high w-5"></i> Sound Effects</span>
+                <span id="soundStatusText" class="text-xs font-bold">ON</span>
             </button>
             <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
                 <i class="fa-solid fa-seedling w-5"></i> Seed
             </button>
-            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
+            <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
                 <i class="fa-solid fa-share-nodes w-5"></i> Share
             </button>
         </div>
@@ -148,15 +147,15 @@
             <div class="bg-[#0f212e] p-3 rounded-xl flex flex-col gap-3">
                 <div class="flex justify-between items-center text-sm">
                     <span class="text-gray-400">Profit</span>
-                    <span class="text-[#2fbf71] font-bold">৳ 0.00</span>
+                    <span id="statsProfit" class="text-[#2fbf71] font-bold">৳ 0.00</span>
                 </div>
                 <div class="flex justify-between items-center text-sm">
                     <span class="text-gray-400">Wagered</span>
-                    <span class="text-white font-bold">৳ 0.00</span>
+                    <span id="statsWagered" class="text-white font-bold">৳ 0.00</span>
                 </div>
                 <div class="flex justify-between items-center text-sm border-t border-[#213743] pt-2">
-                    <span class="text-gray-400">WIN: <strong class="text-white">0</strong></span>
-                    <span class="text-gray-400">LOSE: <strong class="text-white">0</strong></span>
+                    <span class="text-gray-400">WIN: <strong id="statsWin" class="text-white">0</strong></span>
+                    <span class="text-gray-400">LOSE: <strong id="statsLose" class="text-white">0</strong></span>
                 </div>
             </div>
         </div>
@@ -165,6 +164,74 @@
     <script>
         let currentUserId = null;
         let userBalance = 0.00;
+        let isTurboOn = false;
+        let isSoundOn = true;
+
+        // Live Stats Tracking Variables
+        let totalProfit = 0;
+        let totalWagered = 0;
+        let totalWins = 0;
+        let totalLosses = 0;
+
+        // Sound Effects (Web Audio API / Audio Objects)
+        const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        const loseSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3');
+
+        function playSound(isWin) {
+            if (!isSoundOn) return;
+            if (isWin) {
+                winSound.currentTime = 0;
+                winSound.play().catch(e => console.log(e));
+            } else {
+                loseSound.currentTime = 0;
+                loseSound.play().catch(e => console.log(e));
+            }
+        }
+
+        function toggleTurbo() {
+            isTurboOn = !isTurboOn;
+            const icon = document.getElementById('turboIcon');
+            const txt = document.getElementById('turboText');
+            if (isTurboOn) {
+                icon.className = "fa-solid fa-bolt text-[#2fbf71]";
+                txt.innerText = "ON";
+                txt.className = "text-[10px] font-bold text-[#2fbf71]";
+            } else {
+                icon.className = "fa-solid fa-bolt text-gray-400";
+                txt.innerText = "OFF";
+                txt.className = "text-[10px] font-bold text-gray-400";
+            }
+        }
+
+        function toggleSoundEffect() {
+            isSoundOn = !isSoundOn;
+            const btn = document.getElementById('soundSettingBtn');
+            const txt = document.getElementById('soundStatusText');
+            if (isSoundOn) {
+                btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#213743] rounded-lg text-sm text-[#2fbf71]";
+                txt.innerText = "ON";
+            } else {
+                btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#213743] rounded-lg text-sm text-gray-400";
+                txt.innerText = "OFF";
+            }
+        }
+
+        async function shareGame() {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Limbo Game',
+                        text: 'Play this amazing Limbo game!',
+                        url: window.location.href
+                    });
+                } catch (err) {
+                    console.log('Share error:', err);
+                }
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('লিংক কপি করা হয়েছে!');
+            }
+        }
 
         function getClient() {
             if (typeof supabaseClient !== 'undefined') return supabaseClient;
@@ -255,10 +322,6 @@
             modal.classList.toggle('hidden');
         }
 
-        function toggleAnimSound() {
-            alert('Animation / Sound toggled!');
-        }
-
         function updateChance() {
             let target = parseFloat(document.getElementById('targetMultiplier').value) || 1.01;
             if (target < 1.01) target = 1.01;
@@ -298,10 +361,54 @@
             let randomRoll = parseFloat((99 / (Math.random() * 98 + 1)).toFixed(2));
             if (randomRoll < 1.00) randomRoll = 1.00;
 
+            // Turbo Mode Check
+            if (!isTurboOn) {
+                // Animation Simulation Effect
+                resultDisplay.innerText = "1.00x";
+                let counter = 1.00;
+                let stepInterval = setInterval(() => {
+                    counter += 0.15;
+                    if (counter >= randomRoll) {
+                        counter = randomRoll;
+                        clearInterval(stepInterval);
+                    }
+                    resultDisplay.innerText = counter.toFixed(2) + 'x';
+                }, 30);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
             resultDisplay.innerText = randomRoll.toFixed(2) + 'x';
 
             let isWin = randomRoll >= targetMultiplier;
             let payoutAmount = isWin ? betAmount * targetMultiplier : 0;
+
+            playSound(isWin);
+
+            // Update Live Stats
+            if (betAmount > 0) {
+                totalWagered += betAmount;
+                if (isWin) {
+                    totalWins++;
+                    totalProfit += (payoutAmount - betAmount);
+                } else {
+                    totalLosses++;
+                    totalProfit -= betAmount;
+                }
+                document.getElementById('statsProfit').innerText = '৳ ' + totalProfit.toFixed(2);
+                document.getElementById('statsWagered').innerText = '৳ ' + totalWagered.toFixed(2);
+                document.getElementById('statsWin').innerText = totalWins;
+                document.getElementById('statsLose').innerText = totalLosses;
+            }
+
+            // Recent History Bar Update
+            const historyBar = document.getElementById('historyBar');
+            const historySpan = document.createElement('span');
+            historySpan.className = `px-3 py-1 bg-[#213743] rounded-md ${isWin ? 'text-[#2fbf71]' : 'text-[#eb4e3d]'}`;
+            historySpan.innerText = randomRoll.toFixed(2) + 'x';
+            historyBar.prepend(historySpan);
+            if (historyBar.children.length > 8) {
+                historyBar.lastChild.remove();
+            }
 
             if (isWin) {
                 resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#2fbf71]";
