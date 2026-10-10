@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Wheel Game</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bgDark: '#080B10',
+                        cardDark: '#111820',
+                        panelDark: '#1C242B',
+                        gold: '#F5CF66',
+                        goldLight: '#FFDF85',
+                        goldDark: '#D9A441',
+                        textGray: '#9CA6AE',
+                        borderDark: '#303940'
+                    }
+                }
+            }
+        };
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            background: #080B10;
+            color: #F3F4F6;
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(245, 207, 102, 0.06);
+            border: 1px solid rgba(245, 207, 102, 0.25);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 18px;
+            box-shadow: 0 0 18px rgba(255, 184, 0, 0.08);
+        }
+
+        .gold-button {
+            background: linear-gradient(
+                135deg,
+                #FFDF85,
+                #F5CF66,
+                #D9A441
+            );
+            color: #080B10;
+            border: 1px solid #FFDF85;
+            box-shadow: 0 0 14px rgba(255, 184, 0, 0.25);
+        }
+
+        .gold-button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .game-panel {
+            background: #252D32;
+            border: 1px solid rgba(255,255,255,0.035);
+        }
+
+        .wheel-area {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            display: block;
+            transform: rotate(0deg);
+            transition: transform 5s cubic-bezier(0.12, 0.72, 0.08, 1);
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.28));
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            z-index: 5;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 48px;
+            height: 58px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+
+        .pointer-body {
+            position: relative;
+            width: 46px;
+            height: 58px;
+            background: #EF476F;
+            clip-path: polygon(0 0, 100% 0, 100% 44%, 50% 100%, 0 44%);
+            filter: drop-shadow(0 3px 5px rgba(0,0,0,0.5));
+        }
+
+        .pointer-eyes {
+            position: absolute;
+            top: 11px;
+            left: 7px;
+            right: 7px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .pointer-eye {
+            width: 14px;
+            height: 17px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pointer-eye::after {
+            content: "";
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #111827;
+        }
+
+        .multiplier-card {
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.045);
+            border-radius: 12px;
+            min-width: 0;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .multiplier-value {
+            padding: 12px 2px 10px;
+            font-size: clamp(12px, 3.8vw, 19px);
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .multiplier-line {
+            height: 5px;
+            width: 100%;
+        }
+
+        .amount-box {
+            background: #171D22;
+            border: 1px solid #3A4247;
+            border-radius: 13px;
+            min-height: 76px;
+        }
+
+        .small-control {
+            background: #30383D;
+            border: 1px solid rgba(255,255,255,0.035);
+            border-radius: 10px;
+            min-width: 60px;
+            min-height: 62px;
+            font-weight: 700;
+        }
+
+        .small-control:active,
+        .risk-button:active {
+            transform: scale(0.98);
+        }
+
+        .gold-range {
+            width: 100%;
+            accent-color: #F5CF66;
+            cursor: pointer;
+        }
+
+        .risk-button {
+            flex: 1;
+            min-width: 0;
+            padding: 14px 4px;
+            border-radius: 10px;
+            color: #AAB2B8;
+            font-weight: 600;
+            background: transparent;
+            border: 1px solid transparent;
+        }
+
+        .risk-button.active {
+            background: #343D42;
+            color: #FFDF85;
+            border-color: rgba(245,207,102,0.65);
+            box-shadow: 0 0 12px rgba(255,184,0,0.09);
+        }
+
+        .history-item {
+            flex: 1;
+            min-width: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #30383D;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .history-item .history-number {
+            padding: 12px 1px 9px;
+            font-weight: 800;
+            font-size: clamp(12px, 3.5vw, 18px);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .history-item .history-color {
+            height: 5px;
+        }
+
+        .status-message {
+            background: rgba(245,207,102,0.07);
+            border: 1px solid rgba(245,207,102,0.12);
+            border-radius: 12px;
+            color: #B8C0C5;
+        }
+
+        .section-label {
+            color: #AEB7BD;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        #bottomBarContainer {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        #bottomBarContainer:empty {
+            display: none;
+        }
+
+        #topBarContainer {
+            width: 100%;
+            position: relative;
+            z-index: 100;
+        }
+
+        #topBarContainer:empty {
+            display: none;
+        }
+
+        .spin-result {
+            position: absolute;
+            inset: 0;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .result-badge {
+            background: rgba(8,11,16,0.9);
+            border: 1px solid rgba(245,207,102,0.55);
+            border-radius: 14px;
+            padding: 10px 18px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: 0.25s ease;
+        }
+
+        .result-badge.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        @media (max-width: 380px) {
+            .wheel-area {
+                max-width: 350px;
+            }
+
+            .small-control {
+                min-width: 48px;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+
+            .multiplier-value {
+                padding-top: 10px;
+                padding-bottom: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- TOP BAR -->
+    <div id="topBarContainer"></div>
+
+    <main class="w-full max-w-2xl mx-auto px-3 pt-3 pb-28">
+
+        <!-- BALANCE BAR -->
+        <div class="flex items-center justify-between gap-3 mb-3 rounded-xl p-2 glass-card">
+            <button id="backButton"
+                    class="w-10 h-10 rounded-lg bg-white/5 text-gray-300"
+                    type="button"
+                    aria-label="Back">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="flex items-center gap-2 rounded-xl bg-black/20 border border-white/10 px-3 py-2 min-w-0">
+                <span class="w-9 h-9 rounded-full bg-emerald-500 text-black flex items-center justify-center">
+                    <i class="fa-solid fa-coins"></i>
+                </span>
+                <span class="font-extrabold whitespace-nowrap text-sm sm:text-base">
+                    ৳ <span id="balanceDisplay">0.00</span>
+                </span>
+                <button id="refreshBalance"
+                        class="text-gray-400 px-1"
+                        type="button"
+                        aria-label="Refresh balance">
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+            </div>
+
+            <button id="depositButton"
+                    type="button"
+                    class="gold-button w-12 h-12 rounded-xl text-xl font-bold">
+                +
+            </button>
+        </div>
+
+        <!-- WHEEL -->
+        <section class="game-panel rounded-2xl px-3 pt-5 pb-4">
+            <div class="wheel-area">
+                <svg id="wheel"
+                     viewBox="0 0 500 500"
+                     role="img"
+                     aria-label="Wheel game">
+                </svg>
+
+                <div class="wheel-pointer">
+                    <div class="pointer-body">
+                        <div class="pointer-eyes">
+                            <span class="pointer-eye"></span>
+                            <span class="pointer-eye"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spin-result">
+                    <div id="resultBadge" class="result-badge">
+                        <div class="text-xs text-gray-400 mb-1">RESULT</div>
+                        <div id="resultMultiplier" class="text-2xl font-extrabold text-yellow-300">0.00×</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MULTIPLIER HISTORY -->
+            <div id="multiplierHistory" class="flex gap-2 mt-4"></div>
+        </section>
+
+        <!-- BETTING PANEL -->
+        <section class="game-panel rounded-2xl p-3 sm:p-4 mt-3">
+
+            <!-- AMOUNT -->
+            <div class="flex justify-between items-center mb-2">
+                <div class="section-label">
+                    Amount
+                    <i class="fa-regular fa-circle-question text-yellow-400 ml-1"></i>
+                </div>
+                <div class="text-sm text-gray-400">
+                    ≈<span id="amountUsd">0.00</span> BDT
+                </div>
+            </div>
+
+            <div class="amount-box flex items-center gap-2 p-1.5 mb-4">
+                <div class="flex items-center gap-2 flex-1 min-w-0 px-2">
+                    <span class="w-9 h-9 flex-shrink-0 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold">
+                        ৳
+                    </span>
+
+                    <input id="betAmount"
+                           type="number"
+                           min="0"
+                           step="any"
+                           value="10"
+                           inputmode="decimal"
+                           class="w-full min-w-0 bg-transparent outline-none text-white font-extrabold text-xl"
+                           aria-label="Bet amount">
+                </div>
+
+                <button id="halfButton" class="small-control px-3" type="button">½</button>
+                <button id="doubleButton" class="small-control px-3" type="button">2×</button>
+                <button id="amountStepButton" class="small-control px-3" type="button" aria-label="Change amount">
+                    <i class="fa-solid fa-chevron-up"></i>
+                    <i class="fa-solid fa-chevron-down ml-1"></i>
+                </button>
+            </div>
+
+            <!-- BET BUTTON -->
+            <button id="betButton"
+                    type="button"
+                    class="gold-button w-full rounded-xl py-5 font-extrabold text-lg">
+                Bet
+            </button>
+
+            <div id="statusMessage" class="status-message mt-3 px-3 py-3 text-center text-sm">
+                <i class="fa-regular fa-circle-info mr-2"></i>
+                Betting with 0 will enter demo mode.
+            </div>
+
+            <!-- SEGMENTS -->
+            <div class="mt-5">
+                <div class="section-label mb-3">Segments</div>
+
+                <div class="rounded-xl bg-black/20 border border-white/5 px-3 py-4 flex items-center gap-3">
+                    <span id="segmentMin" class="text-sm font-semibold w-7 text-center">1</span>
+
+                    <input id="segmentRange"
+                           class="gold-range"
+                           type="range"
+                           min="1"
+                           max="50"
+                           value="50"
+                           step="1"
+                           aria-label="Number of segments">
+
+                    <span id="segmentValue" class="text-sm font-semibold w-7 text-center">50</span>
+                </div>
+            </div>
+
+            <!-- RISK -->
+            <div class="mt-5">
+                <div class="section-label mb-3">Risk Level</div>
+
+                <div class="flex gap-1 rounded-xl bg-black/20 border border-white/5 p-1">
+                    <button class="risk-button" data-risk="low" type="button">Low</button>
+                    <button class="risk-button" data-risk="medium" type="button">Medium</button>
+                    <button class="risk-button active" data-risk="high" type="button">High</button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- RECENT RESULTS -->
+        <section class="glass-card mt-3 p-3">
+            <div class="flex justify-between items-center mb-3">
+                <div class="section-label">Recent Results</div>
+                <button id="clearHistory" type="button" class="text-xs text-gray-400">
+                    Clear
+                </button>
+            </div>
+            <div id="recentResults" class="flex flex-wrap gap-2"></div>
+        </section>
+
+    </main>
+
+    <!-- BOTTOM BAR -->
+    <div id="bottomBarContainer"></div>
+
+    <script>
+    (() => {
+        "use strict";
+
+        const $ = (id) => document.getElementById(id);
+
+        const COLORS = [
+            "#F5CF66",
+            "#348ED0",
+            "#20D58A",
+            "#F5F5F5",
+            "#8A4DE8",
+            "#F2A900",
+            "#EF476F"
+        ];
+
+        const RISK_MULTIPLIERS = {
+            low:    [0.00, 1.05, 1.10, 1.15, 1.20, 1.30],
+            medium: [0.00, 1.18, 1.48, 1.97, 2.96, 3.50],
+            high:   [0.00, 1.48, 1.97, 2.96, 4.94, 9.88]
+        };
+
+        let segmentCount = 50;
+        let riskLevel = "high";
+        let isSpinning = false;
+        let wheelRotation = 0;
+        let currentBalance = 0;
+        let currentUser = null;
+        let supabaseClient = null;
+        let recentResults = [];
+        let multiplierHistory = [];
+        let lastResult = null;
+
+        function getSupabaseClient() {
+            return window.supabaseClient ||
+                   window.supabase ||
+                   window.client ||
+                   null;
+        }
+
+        function money(value) {
+            const number = Number(value);
+            return Number.isFinite(number)
+                ? number.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })
+                : "0.00";
+        }
+
+        function getBetAmount() {
+            const value = Number($("betAmount").value);
+            return Number.isFinite(value) && value > 0 ? value : 0;
+        }
+
+        function getMultipliers() {
+            return RISK_MULTIPLIERS[riskLevel];
+        }
+
+        function getSegmentMultiplier(index) {
+            const multipliers = getMultipliers();
+
+            // Distribute multiplier groups across the available segments.
+            const group = Math.floor(index * multipliers.length / segmentCount);
+            return multipliers[Math.min(group, multipliers.length - 1)];
+        }
+
+        function colorForMultiplier(multiplier, index) {
+            if (multiplier === 0) return "#F1F3F5";
+            return COLORS[(index + 1) % COLORS.length];
+        }
+
+        function polarToCartesian(cx, cy, radius, angleDegrees) {
+            const angle = (angleDegrees - 90) * Math.PI / 180;
+            return {
+                x: cx + radius * Math.cos(angle),
+                y: cy + radius * Math.sin(angle)
+            };
+        }
+
+        function describeSector(cx, cy, outerRadius, innerRadius, startAngle, endAngle) {
+            const outerStart = polarToCartesian(cx, cy, outerRadius, endAngle);
+            const outerEnd = polarToCartesian(cx, cy, outerRadius, startAngle);
+            const innerStart = polarToCartesian(cx, cy, innerRadius, startAngle);
+            const innerEnd = polarToCartesian(cx, cy, innerRadius, endAngle);
+            const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
+
+            return [
+                "M", outerStart.x, outerStart.y,
+                "A", outerRadius, outerRadius, 0, largeArc, 0, outerEnd.x, outerEnd.y,
+                "L", innerStart.x, innerStart.y,
+                "A", innerRadius, innerRadius, 0, largeArc, 1, innerEnd.x, innerEnd.y,
+                "Z"
+            ].join(" ");
+        }
+
+        function renderWheel() {
+            const svg = $("wheel");
+            const cx = 250;
+            const cy = 250;
+            const outerRadius = 226;
+            const innerRadius = 66;
+            const step = 360 / segmentCount;
+
+            svg.innerHTML = "";
+
+            const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+            const gradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+            gradient.setAttribute("id", "wheelCenterGradient");
+            gradient.setAttribute("x1", "0%");
+            gradient.setAttribute("y1", "0%");
+            gradient.setAttribute("x2", "100%");
+            gradient.setAttribute("y2", "100%");
+
+            const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+            stop1.setAttribute("offset", "0%");
+            stop1.setAttribute("stop-color", "#182027");
+
+            const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+            stop2.setAttribute("offset", "100%");
+            stop2.setAttribute("stop-color", "#10161C");
+
+            gradient.append(stop1, stop2);
+            defs.appendChild(gradient);
+            svg.appendChild(defs);
+
+            // Outer rim
+            const rim = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            rim.setAttribute("cx", cx);
+            rim.setAttribute("cy", cy);
+            rim.setAttribute("r", outerRadius);
+            rim.setAttribute("fill", "#F5F5F5");
+            rim.setAttribute("stroke", "#D8DDE0");
+            rim.setAttribute("stroke-width", "2");
+            svg.appendChild(rim);
+
+            // Colored segments on the outer ring
+            for (let i = 0; i < segmentCount; i++) {
+                const startAngle = i * step + 0.3;
+                const endAngle = (i + 1) * step - 0.3;
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute(
+                    "d",
+                    describeSector(cx, cy, outerRadius - 2, outerRadius - 19, startAngle, endAngle)
+                );
+                path.setAttribute("fill", colorForMultiplier(getSegmentMultiplier(i), i));
+                path.setAttribute("stroke", "rgba(255,255,255,0.18)");
+                path.setAttribute("stroke-width", "0.5");
+                svg.appendChild(path);
+            }
+
+            // Dark inner wheel with radial divisions
+            for (let i = 0; i < segmentCount; i++) {
+                const startAngle = i * step + 0.35;
+                const endAngle = (i + 1) * step - 0.35;
+
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute(
+                    "d",
+                    describeSector(cx, cy, outerRadius - 20, innerRadius, startAngle, endAngle)
+                );
+                path.setAttribute("fill", i % 2 === 0 ? "#252D32" : "#20282D");
+                path.setAttribute("stroke", "#2B3338");
+                path.setAttribute("stroke-width", "1");
+                svg.appendChild(path);
+            }
+
+            // Center
+            const center = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            center.setAttribute("cx", cx);
+            center.setAttribute("cy", cy);
+            center.setAttribute("r", innerRadius);
+            center.setAttribute("fill", "url(#wheelCenterGradient)");
+            center.setAttribute("stroke", "#30383D");
+            center.setAttribute("stroke-width", "3");
+            svg.appendChild(center);
+        }
+
+        function renderMultiplierHistory() {
+            const container = $("multiplierHistory");
+            const multipliers = getMultipliers();
+
+            // Show up to six multipliers, matching the reference layout.
+            const visible = multipliers.slice(0, 6);
+            container.innerHTML = "";
+
+            visible.forEach((value, index) => {
+                const card = document.createElement("div");
+                card.className = "multiplier-card flex-1";
+
+                const number = document.createElement("div");
+                number.className = "multiplier-value";
+                number.textContent = value.toFixed(2) + "×";
+
+                const line = document.createElement("div");
+                line.className = "multiplier-line";
+                line.style.background = colorForMultiplier(value, index);
+
+                card.append(number, line);
+                container.appendChild(card);
+            });
+        }
+
+        function renderRecentResults() {
+            const container = $("recentResults");
+            container.innerHTML = "";
+
+            if (!recentResults.length) {
+                const empty = document.createElement("div");
+                empty.className = "text-sm text-gray-500";
+                empty.textContent = "No results yet";
+                container.appendChild(empty);
+                return;
+            }
+
+            recentResults.slice(0, 20).forEach((item) => {
+                const pill = document.createElement("div");
+                pill.className = "rounded-lg px-3 py-2 text-sm font-bold border border-white/10";
+                pill.style.background = "rgba(255,255,255,0.05)";
+                pill.style.borderBottom = "3px solid " + colorForMultiplier(item.multiplier, item.index);
+                pill.textContent = item.multiplier.toFixed(2) + "×";
+                container.appendChild(pill);
+            });
+        }
+
+        function updateBalanceUI() {
+            $("balanceDisplay").textContent = money(currentBalance);
+        }
+
+        function setStatus(message, isError = false) {
+            $("statusMessage").innerHTML = "";
+            const icon = document.createElement("i");
+            icon.className = isError
+                ? "fa-solid fa-circle-exclamation mr-2 text-red-400"
+                : "fa-regular fa-circle-info mr-2 text-yellow-400";
+
+            $("statusMessage").appendChild(icon);
+            $("statusMessage").appendChild(document.createTextNode(message));
+        }
+
+        function updateAmountDisplay() {
+            const amount = getBetAmount();
+            $("amountUsd").textContent = money(amount);
+        }
+
+        async function loadTopBar() {
+            const container = $("topBarContainer");
+
+            try {
+                const response = await fetch("../bar/top.html", { cache: "no-cache" });
+                if (!response.ok) throw new Error("Top bar could not load");
+
+                container.innerHTML = await response.text();
+
+                // Update common balance placeholders if present.
+                const possibleBalanceElements = [
+                    "topBarBalance",
+                    "user-balance-display",
+                    "balance-display"
+                ];
+
+                possibleBalanceElements.forEach((id) => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = money(currentBalance);
+                });
+            } catch (error) {
+                console.warn("Top bar:", error.message);
+            }
+        }
+
+        async function loadBottomBar() {
+            const container = $("bottomBarContainer");
+
+            try {
+                const response = await fetch("../bar/bottom.html", { cache: "no-cache" });
+                if (!response.ok) throw new Error("Bottom bar could not load");
+
+                container.innerHTML = await response.text();
+
+                // Keep page content above the bottom navigation.
+                document.body.style.paddingBottom = Math.max(
+                    container.offsetHeight || 76,
+                    76
+                ) + "px";
+            } catch (error) {
+                console.warn("Bottom bar:", error.message);
+            }
+        }
+
+        async function loadUser() {
+            supabaseClient = getSupabaseClient();
+
+            if (!supabaseClient || !supabaseClient.auth) {
+                setStatus("Supabase client পাওয়া যায়নি। config ফাইল চেক করুন।", true);
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient.auth.getUser();
+
+                if (error || !data || !data.user) {
+                    setStatus("লগইন করে গেম খেলুন।", true);
+                    return;
+                }
+
+                currentUser = data.user;
+
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from("profiles")
+                    .select("balance")
+                    .eq("id", currentUser.id)
+                    .single();
+
+                if (profileError) {
+                    console.error(profileError);
+                    setStatus("Balance লোড করা যায়নি।", true);
+                    return;
+                }
+
+                currentBalance = Number(profile.balance || 0);
+                updateBalanceUI();
+                await loadTopBar();
+
+            } catch (error) {
+                console.error(error);
+                setStatus("অ্যাকাউন্ট লোড করতে সমস্যা হয়েছে।", true);
+            }
+        }
+
+        async function refreshBalance() {
+            if (!supabaseClient || !currentUser) return;
+
+            const { data, error } = await supabaseClient
+                .from("profiles")
+                .select("balance")
+                .eq("id", currentUser.id)
+                .single();
+
+            if (!error && data) {
+                currentBalance = Number(data.balance || 0);
+                updateBalanceUI();
+                await loadTopBar();
+            }
+        }
+
+        async function updateProfileBalance(newBalance) {
+            const { data, error } = await supabaseClient
+                .from("profiles")
+                .update({ balance: newBalance })
+                .eq("id", currentUser.id)
+                .select("balance")
+                .single();
+
+            if (error) throw error;
+
+            currentBalance = Number(data.balance || 0);
+            updateBalanceUI();
+            await loadTopBar();
+        }
+
+        function getRandomIndex() {
+            // Random selection for this client-side demo.
+            return Math.floor(Math.random() * segmentCount);
+        }
+
+        function getSpinTargetRotation(index) {
+            const step = 360 / segmentCount;
+
+            // Pointer is at 12 o'clock. Aim at the middle of the selected segment.
+            const segmentCenter = index * step + step / 2;
+            const targetAngle = (360 - segmentCenter) % 360;
+
+            const currentNormalized = ((wheelRotation % 360) + 360) % 360;
+            const extraTurns = 360 * (5 + Math.floor(Math.random() * 3));
+
+            let delta = targetAngle - currentNormalized;
+            if (delta < 0) delta += 360;
+
+            return wheelRotation + extraTurns + delta;
+        }
+
+        async function saveBetRecord(index, multiplier, amount, payout) {
+            if (!supabaseClient || !currentUser) return;
+
+            const { error } = await supabaseClient
+                .from("bets")
+                .insert({
+                    user_id: currentUser.id,
+                    target_number: index + 1,
+                    roll_result: multiplier,
+                    bet_amount: amount,
+                    payout: payout,
+                    is_bool: payout > 0
+                });
+
+            if (error) {
+                console.error("Bet record error:", error);
+                throw error;
+            }
+        }
+
+        async function placeBet() {
+            if (isSpinning) return;
+
+            const amount = getBetAmount();
+
+            if (!supabaseClient || !currentUser) {
+                setStatus("গেম খেলতে আগে লগইন করুন।", true);
+                return;
+            }
+
+            if (amount <= 0) {
+                setStatus("সঠিক Bet Amount লিখুন।", true);
+                return;
+            }
+
+            if (amount > currentBalance) {
+                setStatus("আপনার Balance পর্যাপ্ত নয়।", true);
+                return;
+            }
+
+            isSpinning = true;
+            $("betButton").disabled = true;
+            $("betButton").textContent = "Spinning...";
+            $("resultBadge").classList.remove("show");
+
+            try {
+                // Deduct the stake before spinning.
+                await updateProfileBalance(currentBalance - amount);
+
+                const index = getRandomIndex();
+                const multiplier = getSegmentMultiplier(index);
+                const payout = amount * multiplier;
+
+                wheelRotation = getSpinTargetRotation(index);
+                $("wheel").style.transform = `rotate(${wheelRotation}deg)`;
+
+                await new Promise((resolve) => {
+                    $("wheel").addEventListener("transitionend", resolve, { once: true });
+
+                    // Fallback in case transitionend does not fire.
+                    setTimeout(resolve, 5500);
+                });
+
+                // Add payout to the current balance.
+                if (payout > 0) {
+                    await updateProfileBalance(currentBalance + payout);
+                }
+
+                await saveBetRecord(index, multiplier, amount, payout);
+
+                lastResult = {
+                    index,
+                    multiplier,
+                    amount,
+                    payout
+                };
+
+                recentResults.unshift(lastResult);
+                recentResults = recentResults.slice(0, 20);
+
+                multiplierHistory.unshift(multiplier);
+                multiplierHistory = multiplierHistory.slice(0, 20);
+
+                $("resultMultiplier").textContent = multiplier.toFixed(2) + "×";
+                $("resultBadge").classList.add("show");
+
+                if (payout > amount) {
+                    setStatus(
+                        "আপনি " + multiplier.toFixed(2) + "× পেয়েছেন! Payout: ৳" + money(payout)
+                    );
+                } else if (payout > 0) {
+                    setStatus(
+                        "Result: " + multiplier.toFixed(2) + "× | Payout: ৳" + money(payout)
+                    );
+                } else {
+                    setStatus("এই রাউন্ডে 0.00× এসেছে।");
+                }
+
+                renderRecentResults();
+
+            } catch (error) {
+                console.error(error);
+                setStatus(
+                    "Bet সম্পন্ন করতে সমস্যা হয়েছে। Balance যাচাই করুন।",
+                    true
+                );
+                await refreshBalance();
+            } finally {
+                isSpinning = false;
+                $("betButton").disabled = false;
+                $("betButton").textContent = "Bet";
+            }
+        }
+
+        function changeRisk(risk) {
+            if (!RISK_MULTIPLIERS[risk]) return;
+
+            riskLevel = risk;
+
+            document.querySelectorAll(".risk-button").forEach((button) => {
+                button.classList.toggle("active", button.dataset.risk === risk);
+            });
+
+            renderWheel();
+            renderMultiplierHistory();
+        }
+
+        function changeSegments(value) {
+            const parsed = Math.max(1, Math.min(50, Number(value) || 50));
+            segmentCount = parsed;
+
+            $("segmentRange").value = parsed;
+            $("segmentValue").textContent = parsed;
+
+            renderWheel();
+        }
+
+        function setupEvents() {
+            $("segmentRange").addEventListener("input", (event) => {
+                if (!isSpinning) changeSegments(event.target.value);
+            });
+
+            document.querySelectorAll(".risk-button").forEach((button) => {
+                button.addEventListener("click", () => {
+                    if (!isSpinning) changeRisk(button.dataset.risk);
+                });
+            });
+
+            $("betAmount").addEventListener("input", updateAmountDisplay);
+
+            $("halfButton").addEventListener("click", () => {
+                const amount = getBetAmount();
+                $("betAmount").value = Math.max(0, amount / 2);
+                updateAmountDisplay();
+            });
+
+            $("doubleButton").addEventListener("click", () => {
+                const amount = getBetAmount();
+                $("betAmount").value = amount * 2;
+                updateAmountDisplay();
+            });
+
+            $("amountStepButton").addEventListener("click", () => {
+                const amount = getBetAmount();
+                $("betAmount").value = amount + 1;
+                updateAmountDisplay();
+            });
+
+            $("betButton").addEventListener("click", placeBet);
+            $("refreshBalance").addEventListener("click", refreshBalance);
+
+            $("depositButton").addEventListener("click", () => {
+                window.location.href = "../deposit.html";
+            });
+
+            $("backButton").addEventListener("click", () => {
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.location.href = "../index.html";
+                }
+            });
+
+            $("clearHistory").addEventListener("click", () => {
+                recentResults = [];
+                renderRecentResults();
+            });
+        }
+
+        async function init() {
+            renderWheel();
+            renderMultiplierHistory();
+            renderRecentResults();
+            updateAmountDisplay();
+            setupEvents();
+
+            await loadBottomBar();
+            await loadUser();
+        }
+
+        document.addEventListener("DOMContentLoaded", init);
+    })();
+    </script>
+
+</body>
+</html>
