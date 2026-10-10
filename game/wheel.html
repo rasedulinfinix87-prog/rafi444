@@ -20,6 +20,7 @@
       background: #080B10;
       color: #ffffff;
       font-family: sans-serif;
+      overflow-y: auto;
     }
 
     .glass-card {
@@ -84,24 +85,24 @@
   <!-- Top Bar Container -->
   <div id="topBarContainer" class="w-full max-w-2xl sticky top-0 z-50"></div>
 
-  <div class="w-full max-w-2xl min-h-[calc(100vh-120px)] glass-card flex flex-col justify-between overflow-x-hidden shadow-2xl my-2">
+  <div class="w-full max-w-2xl glass-card flex flex-col justify-between overflow-x-hidden shadow-2xl my-2 pb-24">
     
     <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#080B10] flex-1">
       
-      <!-- Wheel Canvas Area (30% Larger Size) -->
+      <!-- Wheel Canvas Area (Proper BC.Game Pie Style & Larger Size) -->
       <div class="relative flex flex-col items-center justify-center my-3">
         <!-- Top Pointer -->
         <div class="absolute -top-3 z-20 text-[#ed4245] text-2xl filter drop-shadow">
           <i class="fa-solid fa-location-pin"></i>
         </div>
 
-        <div class="relative w-80 h-80 sm:w-96 sm:h-96 rounded-full border-4 border-[rgba(245,207,102,0.25)] p-1 bg-[#151a23] shadow-2xl flex items-center justify-center">
-          <canvas id="wheelCanvas" width="360" height="360" class="w-full h-full rounded-full"></canvas>
+        <div class="relative w-72 h-72 sm:w-80 sm:h-80 rounded-full border-4 border-[rgba(245,207,102,0.25)] p-1 bg-[#151a23] shadow-2xl flex items-center justify-center">
+          <canvas id="wheelCanvas" width="340" height="340" class="w-full h-full rounded-full"></canvas>
           
           <!-- Center Hub -->
-          <div class="absolute w-24 h-24 rounded-full bg-[#080B10] border-2 border-[rgba(245,207,102,0.3)] flex flex-col items-center justify-center shadow-inner">
+          <div class="absolute w-20 h-20 rounded-full bg-[#080B10] border-2 border-[rgba(245,207,102,0.3)] flex flex-col items-center justify-center shadow-inner">
             <span class="text-[10px] text-gray-400 font-medium">Result</span>
-            <span class="text-base font-black text-[#F5CF66]" id="centerMultiplierText">0×</span>
+            <span class="text-sm font-black text-[#F5CF66]" id="centerMultiplierText">0×</span>
           </div>
         </div>
       </div>
@@ -171,7 +172,7 @@
   </div>
 
   <!-- Bottom Bar Container -->
-  <div id="bottomBarContainer" class="w-full max-w-2xl mt-auto"></div>
+  <div id="bottomBarContainer" class="w-full max-w-2xl fixed bottom-0 z-50"></div>
 
   <script>
     let currentUserId = null;
@@ -179,9 +180,9 @@
     let isSpinning = false;
     let segmentsCount = 10;
     let riskLevel = 'medium';
-    let wheelSegments = []; // Stores {multiplier, color}
+    let wheelSegments = [];
 
-    const availableColors = ['#24ee89', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#64748b', '#ef4444', '#06b6d4'];
+    const availableColors = ['#24ee89', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#06b6d4', '#ef4444', '#a855f7'];
 
     async function loadBars() {
       try {
@@ -260,10 +261,9 @@
       drawWheel(0);
     }
 
-    // Generate Wheel Segments with Colors and Multipliers (No text on wheel itself)
     function generateWheelSegments() {
       wheelSegments = [];
-      let zeroRatio = riskLevel === 'low' ? 0.2 : riskLevel === 'medium' ? 0.4 : 0.6;
+      let zeroRatio = riskLevel === 'low' ? 0.2 : riskLevel === 'medium' ? 0.4 : 0.55;
       let zeroCount = Math.floor(segmentsCount * zeroRatio);
 
       for (let i = 0; i < zeroCount; i++) {
@@ -288,27 +288,25 @@
       const bar = document.getElementById('payoutCardsBar');
       bar.innerHTML = '';
       
-      // Get unique color and multiplier pairings
-      const uniqueMap = new Map();
+      const colorMap = new Map();
       wheelSegments.forEach(seg => {
-        if (!uniqueMap.has(seg.color)) {
-          uniqueMap.set(seg.color, seg.multiplier);
+        if (!colorMap.has(seg.color)) {
+          colorMap.set(seg.color, seg.multiplier);
         }
       });
 
-      let count = 0;
-      uniqueMap.forEach((mult, color) => {
-        if (count >= 5) return;
+      let items = Array.from(colorMap.entries()).slice(0, 5);
+
+      items.forEach(([color, mult]) => {
         const isHit = highlightColor === color;
         const card = document.createElement('div');
-        card.className = `glass-card p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isHit ? 'border-2 border-white shadow-lg scale-105' : ''}`;
+        card.className = `glass-card p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isHit ? 'border-2 border-white shadow-xl scale-105 bg-[rgba(245,207,102,0.15)]' : ''}`;
         card.innerHTML = `
-          <div class="w-4 h-4 rounded-full mb-1 border border-black/30" style="background-color: ${color};"></div>
+          <div class="w-5 h-5 rounded-full mb-1 border border-white/20 shadow-sm" style="background-color: ${color};"></div>
           <span class="text-[10px] text-gray-400">Payout</span>
           <span class="text-xs font-extrabold text-[#F5CF66]">${mult.toFixed(2)}×</span>
         `;
         bar.appendChild(card);
-        count++;
       });
     }
 
@@ -331,11 +329,11 @@
         ctx.beginPath();
         ctx.fillStyle = seg.color;
         ctx.moveTo(radius, radius);
-        ctx.arc(radius, radius, radius - 4, angle, angle + arc);
+        ctx.arc(radius, radius, radius, angle, angle + arc); // Filled completely from center (Pie style)
         ctx.lineTo(radius, radius);
         ctx.fill();
         ctx.lineWidth = 1;
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.strokeStyle = '#080B10'; // Dark border between slices for clean BC.Game look
         ctx.stroke();
       });
 
