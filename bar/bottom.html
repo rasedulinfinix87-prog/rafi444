@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Bottom Navigation</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #0f141c;
+        }
+
+        .bottom-navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 9999;
+
+            background: rgba(15, 20, 28, 0.96);
+            border-top: 1px solid #2a3546;
+
+            padding: 9px 8px;
+            padding-bottom: calc(9px + env(safe-area-inset-bottom));
+
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            align-items: center;
+
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .bottom-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+
+            min-height: 49px;
+            color: #8596a6;
+            text-decoration: none;
+
+            font-size: 11px;
+            font-weight: 600;
+
+            border: none;
+            background: transparent;
+            cursor: pointer;
+
+            -webkit-tap-highlight-color: transparent;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .bottom-item i {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .bottom-item:hover,
+        .bottom-item:active {
+            color: #24ee89;
+        }
+
+        .bottom-item:active {
+            transform: scale(0.94);
+        }
+
+        .bottom-item.active {
+            color: #24ee89;
+        }
+
+        .bottom-item.active i {
+            filter: drop-shadow(0 0 5px rgba(36, 238, 137, 0.35));
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="bottom-navigation" aria-label="Bottom Navigation">
+
+        <!-- Menu: আপাতত কোনো কাজ করবে না -->
+        <button
+            type="button"
+            class="bottom-item"
+            aria-label="Menu"
+        >
+            <i class="fa-solid fa-bars"></i>
+            <span>Menu</span>
+        </button>
+
+        <!-- Search -->
+        <a
+            href="../search/findgame.html"
+            class="bottom-item"
+            aria-label="Search"
+        >
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Search</span>
+        </a>
+
+        <!-- Reward -->
+        <a
+            href="../reward/claims.html"
+            class="bottom-item"
+            aria-label="Reward"
+        >
+            <i class="fa-solid fa-gift"></i>
+            <span>Reward</span>
+        </a>
+
+        <!-- Sports -->
+        <a
+            href="../sport/sports.html"
+            class="bottom-item"
+            aria-label="Sports"
+        >
+            <i class="fa-solid fa-trophy"></i>
+            <span>Sports</span>
+        </a>
+
+    </nav>
+
+</body>
+</html>
