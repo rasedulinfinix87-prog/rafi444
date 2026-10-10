@@ -47,6 +47,14 @@
       opacity: 0.9;
     }
 
+    /* Glass Gold Sink Highlight Effect */
+    .glass-gold-hit {
+      border: 2px solid #F5CF66 !important;
+      box-shadow: 0 0 15px rgba(245, 207, 102, 0.8), inset 0 0 10px rgba(245, 207, 102, 0.5) !important;
+      transform: scale(1.12);
+      z-index: 20;
+    }
+
     /* Custom Scrollbar */
     ::-webkit-scrollbar {
       height: 4px;
@@ -96,7 +104,7 @@
 
       <!-- Plinko Board Canvas Area -->
       <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-3 shadow-xl">
-        <canvas id="plinkoCanvas" width="360" height="260" class="w-full h-auto rounded-xl"></canvas>
+        <canvas id="plinkoCanvas" class="w-full h-auto rounded-xl"></canvas>
         
         <!-- Multiplier Sinks Bar -->
         <div id="multiplierSinks" class="grid w-full mt-2 gap-0.5 py-1">
@@ -187,6 +195,7 @@
 
     async function initPlinkoGame() {
       await loadBars();
+      setupCanvasResolution();
       updateRows(8);
 
       if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
@@ -210,6 +219,17 @@
             .subscribe();
         }
       }
+    }
+
+    function setupCanvasResolution() {
+      const canvas = document.getElementById('plinkoCanvas');
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = 380 * dpr;
+      canvas.height = 280 * dpr;
+      canvas.style.width = '380px';
+      canvas.style.height = '280px';
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
     }
 
     function updateBalanceUI() {
@@ -251,8 +271,7 @@
         else if (mult >= 5) bgColor = 'bg-orange-500';
         else if (mult < 1) bgColor = 'bg-yellow-500';
 
-        // Optimized font size for long numbers like 1000x and 162x to prevent overflow
-        box.className = `${bgColor} text-[#080B10] font-black text-[6px] sm:text-[8.5px] py-1 px-0.2 rounded text-center shadow transition-all truncate ${isHighlight ? 'ring-2 ring-white scale-110 z-10' : ''}`;
+        box.className = `${bgColor} text-[#080B10] font-black text-[6px] sm:text-[8px] py-1 px-0.5 rounded text-center shadow transition-all truncate ${isHighlight ? 'glass-gold-hit' : ''}`;
         box.innerText = mult + '×';
         container.appendChild(box);
       });
@@ -261,17 +280,18 @@
     function drawBoard(ballPos = null) {
       const canvas = document.getElementById('plinkoCanvas');
       const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, 380, 280);
 
       const rows = currentRows;
-      const width = canvas.width;
-      const height = canvas.height;
+      const width = 380;
+      const height = 280;
       const startY = 15;
       const totalRows = rows + 2; 
       const rowHeight = (height - 30) / totalRows;
       const bottomPinsCount = totalRows + 2;
       const spacingX = width / bottomPinsCount;
 
+      // Draw Crisp White Pins with subtle glow
       for (let r = 0; r < totalRows; r++) {
         const pinsInRow = r + 3;
         const rowWidth = (pinsInRow - 1) * spacingX;
@@ -282,18 +302,22 @@
           const y = startY + (r * rowHeight);
 
           ctx.beginPath();
-          ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+          ctx.arc(x, y, 2.5, 0, Math.PI * 2);
           ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+          ctx.shadowBlur = 4;
           ctx.fill();
+          ctx.shadowBlur = 0;
         }
       }
 
+      // Draw Smooth Sharp Green Ball with Glow
       if (ballPos) {
         ctx.beginPath();
-        ctx.arc(ballPos.x, ballPos.y, 4.5, 0, Math.PI * 2);
+        ctx.arc(ballPos.x, ballPos.y, 6, 0, Math.PI * 2);
         ctx.fillStyle = '#24ee89';
         ctx.shadowColor = '#24ee89';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 12;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -329,43 +353,66 @@
       }
       const winningMultiplier = currentMultipliers[pathIndex];
 
-      const canvas = document.getElementById('plinkoCanvas');
-      const width = canvas.width;
-      const height = canvas.height;
+      const width = 380;
+      const height = 280;
       const startY = 15;
       const totalRows = rows + 2;
       const rowHeight = (height - 30) / totalRows;
       const bottomPinsCount = totalRows + 2;
       const spacingX = width / bottomPinsCount;
 
-      let currentPinRow = 0;
-      let currentPinCol = 0;
-      let ballX = width / 2;
-      let ballY = 5;
+      // Precompute smooth path waypoints for animation
+      let waypoints = [];
+      let curRow = 0;
+      let curCol = 0;
+      let curX = width / 2;
+      let curY = 5;
+      waypoints.push({x: curX, y: curY});
 
-      const dropInterval = setInterval(() => {
-        if (currentPinRow <= totalRows) {
-          const pinsInRow = currentPinRow + 3;
-          const rowWidth = (pinsInRow - 1) * spacingX;
-          const startX = (width - rowWidth) / 2;
-          const targetX = startX + (currentPinCol * spacingX);
-          const targetY = startY + (currentPinRow * rowHeight);
+      while (curRow <= totalRows) {
+        const pinsInRow = curRow + 3;
+        const rowWidth = (pinsInRow - 1) * spacingX;
+        const startX = (width - rowWidth) / 2;
+        const targetX = startX + (curCol * spacingX);
+        const targetY = startY + (curRow * rowHeight);
+        waypoints.push({x: targetX, y: targetY});
 
-          ballX += (targetX - ballX) * 0.35;
-          ballY += (targetY - ballY) * 0.35;
+        if (curRow < totalRows) {
+          if (curCol < pathIndex) curCol++;
+        }
+        curRow++;
+      }
 
-          drawBoard({ x: ballX, y: ballY });
+      // Smooth requestAnimationFrame animation loop
+      let waypointIndex = 0;
+      let progress = 0;
+      const speed = 0.08; // Adjust for smoothness
 
-          if (currentPinRow < totalRows) {
-            const goRight = Math.random() < 0.5;
-            if (goRight && currentPinCol < pinsInRow - 1) currentPinCol++;
+      function animateBall() {
+        if (waypointIndex < waypoints.length - 1) {
+          progress += speed;
+          if (progress >= 1) {
+            progress = 0;
+            waypointIndex++;
           }
-          currentPinRow++;
+
+          if (waypointIndex < waypoints.length - 1) {
+            let p1 = waypoints[waypointIndex];
+            let p2 = waypoints[waypointIndex + 1];
+            let currentX = p1.x + (p2.x - p1.x) * progress;
+            let currentY = p1.y + (p2.y - p1.y) * progress;
+
+            drawBoard({ x: currentX, y: currentY });
+            requestAnimationFrame(animateBall);
+          } else {
+            finishDrop(winningMultiplier, pathIndex, betVal);
+          }
         } else {
-          clearInterval(dropInterval);
           finishDrop(winningMultiplier, pathIndex, betVal);
         }
-      }, 90);
+      }
+
+      requestAnimationFrame(animateBall);
     }
 
     async function finishDrop(multiplier, sinkIndex, betVal) {
