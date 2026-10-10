@@ -1,221 +1,446 @@
+// js/game-tools.js
 (function () {
-    const state = {
-        soundOn: true,
-        turboOn: false,
-        totalProfit: 0,
-        totalWagered: 0,
-        totalWins: 0,
-        totalLosses: 0,
-        profitHistory: [0]
-    };
+    "use strict";
 
-    const winSound = new Audio(
-        'https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'
-    );
+    const GameTools = {
+        client: null,
+        user: null,
+        balance: 0,
+        soundEnabled: true,
+        stats: {
+            profit: 0,
+            wagered: 0,
+            wins: 0,
+            losses: 0,
+            history: []
+        },
+        balanceChannel: null,
 
-    const loseSound = new Audio(
-        'https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3'
-    );
+        // Supabase client
+        getClient() {
+            if (typeof supabaseClient !== "undefined") {
+                return supabaseClient;
+            }
 
-    function byId(id) {
-        return document.getElementById(id);
-    }
+            if (window.supabaseClient) {
+                return window.supabaseClient;
+            }
 
-    function showModal(id, show) {
-        const modal = byId(id);
-        if (!modal) return;
-
-        modal.classList.toggle('hidden', !show);
-        modal.classList.toggle('flex', show);
-    }
-
-    function updateSoundUI() {
-        const button = byId('soundSettingBtn');
-        const text = byId('soundStatusText');
-
-        if (text) text.textContent = state.soundOn ? 'ON' : 'OFF';
-
-        if (button) {
-            button.className = state.soundOn
-                ? 'flex items-center justify-between py-2.5 px-3 rounded-lg text-sm text-[#F5CF66]'
-                : 'flex items-center justify-between py-2.5 px-3 rounded-lg text-sm text-gray-400';
-        }
-    }
-
-    function updateTurboUI() {
-        const icon = byId('turboIcon');
-        const text = byId('turboText');
-
-        if (icon) {
-            icon.className = state.turboOn
-                ? 'fa-solid fa-bolt text-[#F5CF66]'
-                : 'fa-solid fa-bolt text-gray-400';
-        }
-
-        if (text) {
-            text.textContent = state.turboOn ? 'ON' : 'OFF';
-            text.className = state.turboOn
-                ? 'text-[10px] font-bold text-[#F5CF66]'
-                : 'text-[10px] font-bold text-gray-400';
-        }
-    }
-
-    function updateStatsUI() {
-        if (byId('statsProfit')) {
-            byId('statsProfit').textContent =
-                '৳ ' + state.totalProfit.toFixed(2);
-        }
-
-        if (byId('statsWagered')) {
-            byId('statsWagered').textContent =
-                '৳ ' + state.totalWagered.toFixed(2);
-        }
-
-        if (byId('statsWin')) {
-            byId('statsWin').textContent = state.totalWins;
-        }
-
-        if (byId('statsLose')) {
-            byId('statsLose').textContent = state.totalLosses;
-        }
-
-        updateGraph();
-    }
-
-    function updateGraph() {
-        const container = byId('statsGraphContainer');
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        if (state.profitHistory.length <= 1) {
-            container.innerHTML =
-                '<div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>';
-            return;
-        }
-
-        const maxValue = Math.max(
-            ...state.profitHistory.map(value => Math.abs(value)),
-            1
-        );
-
-        state.profitHistory.slice(1).forEach(value => {
-            const bar = document.createElement('div');
-            const positive = value >= 0;
-            const height = Math.max(
-                10,
-                Math.min((Math.abs(value) / maxValue) * 100, 100)
-            );
-
-            bar.className =
-                `w-3 shrink-0 rounded-sm ${positive ? 'bg-[#F5CF66]' : 'bg-[#eb4e3d]'}`;
-
-            bar.style.height = height + '%';
-            bar.title = 'Profit/Loss: ৳' + value.toFixed(2);
-
-            container.appendChild(bar);
-        });
-
-        container.scrollLeft = container.scrollWidth;
-    }
-
-    window.GameTools = {
-        toggleSettings() {
-            const modal = byId('settingsModal');
-            if (modal) showModal('settingsModal', modal.classList.contains('hidden'));
+            return null;
         },
 
-        toggleStats() {
-            const modal = byId('liveStatsModal');
-            if (modal) showModal('liveStatsModal', modal.classList.contains('hidden'));
-        },
+        // Initialize user and balance
+        async init(options = {}) {
+            this.client = this.getClient();
 
-        toggleSound() {
-            state.soundOn = !state.soundOn;
-            updateSoundUI();
-        },
-
-        toggleTurbo() {
-            state.turboOn = !state.turboOn;
-            updateTurboUI();
-            return state.turboOn;
-        },
-
-        isTurboOn() {
-            return state.turboOn;
-        },
-
-        isSoundOn() {
-            return state.soundOn;
-        },
-
-        playSound(isWin) {
-            if (!state.soundOn) return;
-
-            const sound = isWin ? winSound : loseSound;
-            sound.currentTime = 0;
-            sound.play().catch(() => {});
-        },
-
-        async share() {
-            const shareData = {
-                title: document.title || 'Game',
-                text: 'Play this game!',
-                url: window.location.href
-            };
+            if (!this.client) {
+                console.error("GameTools: Supabase client not found.");
+                return null;
+            }
 
             try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else if (navigator.clipboard) {
-                    await navigator.clipboard.writeText(window.location.href);
-                    alert('লিংক কপি করা হয়েছে!');
+                let user = null;
+
+                if (typeof getCurrentUser === "function") {
+                    user = await getCurrentUser();
                 } else {
-                    prompt('গেমের লিংক কপি করুন:', window.location.href);
+                    const { data, error } =
+                        await this.client.auth.getUser();
+
+                    if (error) throw error;
+                    user = data?.user || null;
                 }
+
+                if (!user) {
+                    if (options.requireAuth === true) {
+                        window.location.href =
+                            options.loginUrl || "../login-signup.html";
+                    }
+                    return null;
+                }
+
+                this.user = user;
+
+                const { data: profile, error } = await this.client
+                    .from("profiles")
+                    .select("balance")
+                    .eq("id", user.id)
+                    .single();
+
+                if (error) throw error;
+
+                this.balance = Number(profile?.balance) || 0;
+                this.updateBalanceDisplay();
+
+                this.subscribeBalance();
+
+                return {
+                    user: this.user,
+                    balance: this.balance
+                };
             } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('Share error:', error);
-                }
+                console.error("GameTools init error:", error);
+                return null;
             }
         },
 
-        recordRound({ betAmount, payoutAmount, isWin }) {
-            const bet = Number(betAmount) || 0;
-            const payout = Number(payoutAmount) || 0;
+        // Load shared game-tools HTML
+        async loadComponents(
+            url = "../components/game-tools.html",
+            containerId = "gameToolsContainer"
+        ) {
+            try {
+                const response = await fetch(url);
 
-            state.totalWagered += bet;
+                if (!response.ok) {
+                    throw new Error(
+                        "Could not load game-tools.html: " +
+                        response.status
+                    );
+                }
+
+                const html = await response.text();
+                const parsed = new DOMParser().parseFromString(
+                    html,
+                    "text/html"
+                );
+
+                const template = parsed.getElementById(
+                    "gameToolsTemplate"
+                );
+
+                if (!template) {
+                    throw new Error("gameToolsTemplate not found.");
+                }
+
+                let container = document.getElementById(containerId);
+
+                if (!container) {
+                    container = document.createElement("div");
+                    container.id = containerId;
+                    document.body.appendChild(container);
+                }
+
+                container.replaceChildren(
+                    document.importNode(template.content, true)
+                );
+
+                this.bindComponentEvents();
+
+                return true;
+            } catch (error) {
+                console.error("GameTools component error:", error);
+                return false;
+            }
+        },
+
+        // Load existing top bar
+        async loadTopBar(
+            url = "../bar/top.html",
+            containerId = "topBarContainer"
+        ) {
+            const container = document.getElementById(containerId);
+            if (!container) return false;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error("Top bar HTTP " + response.status);
+                }
+
+                container.innerHTML = await response.text();
+
+                container.querySelectorAll('a[href*="deposit"]').forEach(a => {
+                    a.href = "../account/deposit.html";
+                });
+
+                container.querySelectorAll('a[href*="member"]').forEach(a => {
+                    if (a.href.includes("admin/mem/member.html")) {
+                        a.href = a.href.replace(
+                            "admin/mem/member.html",
+                            "mem/member.html"
+                        );
+                    }
+                });
+
+                this.updateBalanceDisplay();
+                return true;
+            } catch (error) {
+                console.error("GameTools top bar error:", error);
+                return false;
+            }
+        },
+
+        // Update balance labels
+        updateBalanceDisplay() {
+            const formatted = this.formatMoney(this.balance);
+
+            [
+                "topBarBalance",
+                "user-balance-display",
+                "balanceText"
+            ].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = formatted;
+            });
+        },
+
+        formatMoney(value) {
+            return (Number(value) || 0).toFixed(2);
+        },
+
+        // Listen for profile balance updates
+        subscribeBalance() {
+            if (!this.client || !this.user) return;
+
+            if (this.balanceChannel) {
+                this.client.removeChannel(this.balanceChannel);
+            }
+
+            this.balanceChannel = this.client
+                .channel("game-tools-balance-" + this.user.id)
+                .on(
+                    "postgres_changes",
+                    {
+                        event: "UPDATE",
+                        schema: "public",
+                        table: "profiles",
+                        filter: "id=eq." + this.user.id
+                    },
+                    payload => {
+                        if (payload.new?.balance !== undefined) {
+                            this.balance = Number(payload.new.balance) || 0;
+                            this.updateBalanceDisplay();
+                        }
+                    }
+                )
+                .subscribe();
+        },
+
+        // Refresh balance from database
+        async refreshBalance() {
+            if (!this.client || !this.user) return null;
+
+            const { data, error } = await this.client
+                .from("profiles")
+                .select("balance")
+                .eq("id", this.user.id)
+                .single();
+
+            if (error) throw error;
+
+            this.balance = Number(data.balance) || 0;
+            this.updateBalanceDisplay();
+
+            return this.balance;
+        },
+
+        // Save a game bet using the existing bets columns
+        async saveBet({
+            target_number,
+            roll_result,
+            bet_amount,
+            payout = 0,
+            is_bool = false
+        }) {
+            if (!this.client || !this.user) {
+                throw new Error("User is not initialized.");
+            }
+
+            const row = {
+                user_id: this.user.id,
+                target_number: Number(target_number),
+                roll_result: Number(roll_result),
+                bet_amount: Number(bet_amount),
+                payout: Number(payout),
+                is_bool: Boolean(is_bool)
+            };
+
+            const { data, error } = await this.client
+                .from("bets")
+                .insert(row)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        },
+
+        // Update profile balance (database RLS must permit this)
+        async setBalance(newBalance) {
+            if (!this.client || !this.user) {
+                throw new Error("User is not initialized.");
+            }
+
+            const amount = Number(newBalance);
+
+            if (!Number.isFinite(amount) || amount < 0) {
+                throw new Error("Invalid balance.");
+            }
+
+            const { error } = await this.client
+                .from("profiles")
+                .update({ balance: amount })
+                .eq("id", this.user.id);
+
+            if (error) throw error;
+
+            this.balance = amount;
+            this.updateBalanceDisplay();
+
+            return this.balance;
+        },
+
+        // Track stats locally for the current page
+        recordRound({ betAmount, payout = 0, isWin }) {
+            const bet = Number(betAmount) || 0;
+            const winAmount = Number(payout) || 0;
+
+            this.stats.wagered += bet;
 
             if (isWin) {
-                state.totalWins++;
-                state.totalProfit += payout - bet;
+                this.stats.wins++;
+                this.stats.profit += winAmount - bet;
             } else {
-                state.totalLosses++;
-                state.totalProfit -= bet;
+                this.stats.losses++;
+                this.stats.profit -= bet;
             }
 
-            state.profitHistory.push(state.totalProfit);
-            updateStatsUI();
-            this.playSound(isWin);
+            this.stats.history.push(this.stats.profit);
+            this.updateStatsDisplay();
+
+            return { ...this.stats };
         },
 
-        resetStats() {
-            state.totalProfit = 0;
-            state.totalWagered = 0;
-            state.totalWins = 0;
-            state.totalLosses = 0;
-            state.profitHistory = [0];
-            updateStatsUI();
+        updateStatsDisplay() {
+            const values = {
+                gameToolsProfit: "৳ " + this.formatMoney(this.stats.profit),
+                gameToolsWagered: "৳ " + this.formatMoney(this.stats.wagered),
+                gameToolsWins: String(this.stats.wins),
+                gameToolsLosses: String(this.stats.losses)
+            };
+
+            Object.entries(values).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            });
+
+            const graph = document.getElementById("gameToolsStatsGraph");
+            if (!graph) return;
+
+            graph.replaceChildren();
+
+            const history = this.stats.history;
+
+            if (!history.length) return;
+
+            const max = Math.max(1, ...history.map(v => Math.abs(v)));
+
+            history.forEach(value => {
+                const bar = document.createElement("div");
+                bar.style.height =
+                    Math.max(8, Math.abs(value) / max * 100) + "%";
+                bar.style.minWidth = "8px";
+                bar.style.borderRadius = "3px";
+                bar.style.background =
+                    value >= 0 ? "#F5CF66" : "#eb4e3d";
+                bar.title = "Profit/Loss: ৳" + this.formatMoney(value);
+                graph.appendChild(bar);
+            });
+        },
+
+        // Open or close shared modals
+        toggleModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+
+            const opening = modal.classList.contains("hidden");
+            modal.classList.toggle("hidden", !opening);
+            modal.classList.toggle("flex", opening);
+        },
+
+        bindComponentEvents() {
+            document.querySelectorAll("[data-game-tools-close]").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const modal = document.getElementById(
+                        btn.dataset.gameToolsClose
+                    );
+                    if (modal) {
+                        modal.classList.add("hidden");
+                        modal.classList.remove("flex");
+                    }
+                });
+            });
+
+            const soundButton =
+                document.getElementById("gameToolsSoundToggle");
+
+            if (soundButton) {
+                soundButton.addEventListener("click", () => {
+                    this.soundEnabled = !this.soundEnabled;
+
+                    const status = document.getElementById(
+                        "gameToolsSoundStatus"
+                    );
+
+                    if (status) {
+                        status.textContent = this.soundEnabled ? "ON" : "OFF";
+                    }
+                });
+            }
+
+            const shareButton = document.getElementById("gameToolsShare");
+
+            if (shareButton) {
+                shareButton.addEventListener("click", async () => {
+                    try {
+                        if (navigator.share) {
+                            await navigator.share({
+                                title: document.title,
+                                url: window.location.href
+                            });
+                        } else if (navigator.clipboard?.writeText) {
+                            await navigator.clipboard.writeText(
+                                window.location.href
+                            );
+                            alert("লিংক কপি করা হয়েছে!");
+                        } else {
+                            window.prompt(
+                                "গেমের লিংক কপি করুন:",
+                                window.location.href
+                            );
+                        }
+                    } catch (error) {
+                        if (error.name !== "AbortError") {
+                            console.error("Share error:", error);
+                        }
+                    }
+                });
+            }
+        },
+
+        // Sound toggle state for game-specific sound functions
+        playSound(audio, enabled = true) {
+            if (!this.soundEnabled || !enabled || !audio) return;
+
+            try {
+                audio.currentTime = 0;
+                const result = audio.play();
+                if (result?.catch) result.catch(console.error);
+            } catch (error) {
+                console.error("Sound error:", error);
+            }
+        },
+
+        // Clean up real-time listener when no longer needed
+        destroy() {
+            if (this.client && this.balanceChannel) {
+                this.client.removeChannel(this.balanceChannel);
+            }
+
+            this.balanceChannel = null;
         }
     };
 
-    document.addEventListener('keydown', event => {
-        if (event.key === 'Escape') {
-            showModal('settingsModal', false);
-            showModal('liveStatsModal', false);
-        }
-    });
-
-    updateSoundUI();
-    updateTurboUI();
+    window.GameTools = GameTools;
 })();
