@@ -743,8 +743,11 @@
         else startAuto();
         return;
       }
-      if (gameState === 'idle' || gameState === 'ended') await startGame();
-      else if (gameState === 'playing') await cashout();
+      if (gameState === 'idle' || gameState === 'ended') {
+        await startGame();
+      } else if (gameState === 'playing') {
+        await cashout();
+      }
     }
 
     async function startGame() {
