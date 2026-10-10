@@ -1,406 +1,543 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>BC Game Style Plinko</title>
-  
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Supabase Client & App Config -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-config.js"></script>
+// js/game-tools.js
+(function () {
+    "use strict";
 
-  <style>
-    body {
-      background: #080B10;
-      color: #ffffff;
-      font-family: sans-serif;
-      overflow-y: auto;
-    }
+    const GameTools = {
+        client: null,
+        user: null,
+        balance: 0,
+        soundEnabled: true,
+        turboEnabled: false,
+        rating: 0,
 
-    .glass-card {
-      background: rgba(245, 207, 102, 0.06);
-      border: 1px solid rgba(245, 207, 102, 0.25);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 18px;
-      box-shadow: 0 0 18px rgba(255, 184, 0, 0.08);
-    }
+        stats: {
+            profit: 0,
+            wagered: 0,
+            wins: 0,
+            losses: 0,
+            history: []
+        },
 
-    .gold-button {
-      background: linear-gradient(
-          135deg,
-          #FFDF85,
-          #F5CF66,
-          #D9A441
-      );
-      color: #080B10;
-      border: 1px solid #FFDF85;
-      box-shadow: 0 0 14px rgba(255, 184, 0, 0.25);
-    }
-    .gold-button:hover {
-      opacity: 0.9;
-    }
+        balanceChannel: null,
+        boundContainer: null,
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      height: 6px;
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #080B10;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(245, 207, 102, 0.25);
-      border-radius: 3px;
-    }
+        getClient() {
+            if (typeof supabaseClient !== "undefined") {
+                return supabaseClient;
+            }
+            return window.supabaseClient || null;
+        },
 
-    /* Range Input Styling */
-    input[type=range] {
-      -webkit-appearance: none;
-      width: 100%;
-      background: transparent;
-    }
-    input[type=range]:focus {
-      outline: none;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      height: 22px;
-      width: 22px;
-      border-radius: 50%;
-      background: #F5CF66;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(245,207,102,0.5);
-    }
-  </style>
-</head>
-<body class="bg-[#080B10] text-white font-sans min-h-screen flex flex-col items-center justify-between p-0 select-none">
+        async init(options = {}) {
+            this.client = this.getClient();
+            if (!this.client) {
+                console.error("GameTools: Supabase client not found.");
+                return null;
+            }
 
-  <!-- Top Bar Container -->
-  <div id="topBarContainer" class="w-full max-w-2xl sticky top-0 z-50"></div>
+            try {
+                let user = null;
 
-  <div class="w-full max-w-2xl glass-card flex flex-col justify-between overflow-x-hidden shadow-2xl my-2 pb-24">
-    
-    <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#080B10] flex-1">
-      
-      <!-- Game Result Display Banner -->
-      <div id="resultBanner" class="w-full bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-xl py-2 px-4 text-center text-sm font-semibold text-gray-300 shadow-inner">
-        Game result will be displayed
-      </div>
+                if (typeof getCurrentUser === "function") {
+                    user = await getCurrentUser();
+                } else {
+                    const { data, error } =
+                        await this.client.auth.getUser();
+                    if (error) throw error;
+                    user = data?.user || null;
+                }
 
-      <!-- Plinko Board Canvas Area -->
-      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-3 shadow-xl">
-        <canvas id="plinkoCanvas" width="360" height="280" class="w-full h-auto rounded-xl"></canvas>
-        
-        <!-- Multiplier Sinks Bar -->
-        <div id="multiplierSinks" class="flex items-center justify-center gap-1 w-full mt-2 overflow-x-auto no-scrollbar py-1">
-          <!-- Dynamically generated multiplier boxes -->
-        </div>
-      </div>
+                if (!user) {
+                    if (options.requireAuth === true) {
+                        window.location.href =
+                            options.loginUrl || "../login-signup.html";
+                    }
+                    return null;
+                }
 
-      <!-- Game Controls Section -->
-      <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-3.5">
-        
-        <!-- Bet Amount Controls -->
-        <div class="flex flex-col gap-1">
-          <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
-            <span>Amount (৳)</span>
-            <span class="text-[#F5CF66] text-[10px]">Min: 1 ৳</span>
-          </div>
-          <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl p-1 focus-within:border-[#F5CF66]">
-            <div class="flex items-center px-2 text-[#F5CF66] font-bold text-sm">৳</div>
-            <input type="number" id="betAmount" value="0" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
-            
-            <div class="flex items-center gap-1">
-              <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">1/2</button>
-              <button onclick="modifyBet('double')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">2x</button>
-              <button onclick="modifyBet('max')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-[#F5CF66] transition">Max</button>
-            </div>
-          </div>
-          <span class="text-[11px] text-gray-400 mt-0.5">ℹ Betting with 0 will enter demo mode.</span>
-        </div>
+                this.user = user;
 
-        <button id="btnBet" onclick="triggerBet()" class="w-full py-3.5 gold-button font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2">
-          <span>Bet</span>
-        </button>
+                const { data, error } = await this.client
+                    .from("profiles")
+                    .select("balance")
+                    .eq("id", user.id)
+                    .single();
 
-      </div>
+                if (error) throw error;
 
-      <!-- Settings & Configuration (Rows Slider) -->
-      <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-3">
-        
-        <!-- Rows Slider -->
-        <div class="flex flex-col gap-1.5">
-          <div class="flex justify-between items-center text-xs text-gray-400 font-semibold">
-            <span>Rows</span>
-            <span id="rowsVal" class="text-[#F5CF66] font-bold">8</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-xs text-gray-400">8</span>
-            <input type="range" id="rowsRange" min="8" max="16" step="1" value="8" oninput="updateRows(this.value)" class="w-full accent-[#F5CF66] cursor-pointer">
-            <span class="text-xs text-gray-400">16</span>
-          </div>
-        </div>
+                this.balance = Number(data?.balance) || 0;
+                this.updateBalanceDisplay();
+                this.subscribeBalance();
 
-      </div>
+                return { user: this.user, balance: this.balance };
+            } catch (error) {
+                console.error("GameTools init error:", error);
+                return null;
+            }
+        },
 
-    </main>
-  </div>
+        async loadComponents(
+            url = "../components/game-tools.html",
+            containerId = "gameToolsContainer"
+        ) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error("Could not load game-tools.html: " +
+                        response.status);
+                }
 
-  <!-- Bottom Bar Container -->
-  <div id="bottomBarContainer" class="w-full max-w-2xl fixed bottom-0 z-50"></div>
+                const html = await response.text();
+                const parsed = new DOMParser().parseFromString(
+                    html, "text/html"
+                );
+                const template =
+                    parsed.getElementById("gameToolsTemplate");
 
-  <script>
-    let currentUserId = null;
-    let balance = 0.00;
-    let isPlaying = false;
-    let currentRows = 8;
-    let currentMultipliers = [];
+                if (!template) {
+                    throw new Error("gameToolsTemplate not found.");
+                }
 
-    const multipliersTable = {
-      8:  [24.4, 3.0, 1.5, 0.5, 0.2, 0.5, 1.5, 3.0, 24.4],
-      9:  [45.3, 7.0, 2.1, 0.5, 0.2, 0.2, 0.5, 2.1, 7.0, 45.3],
-      10: [78.0, 9.0, 2.8, 1.0, 0.3, 0.2, 0.3, 1.0, 2.8, 9.0, 78.0],
-      11: [125, 12.0, 5.0, 1.5, 0.4, 0.2, 0.2, 0.4, 1.5, 5.0, 12.0, 125],
-      12: [178, 24.0, 8.0, 2.0, 0.7, 0.2, 0.1, 0.2, 0.7, 2.0, 8.0, 24.0, 178],
-      13: [271, 39.0, 10.0, 4.0, 1.0, 0.2, 0.2, 0.2, 0.2, 1.0, 4.0, 10.0, 39.0, 271],
-      14: [430, 50.0, 18.0, 5.0, 2.0, 0.2, 0.2, 0.2, 0.2, 0.2, 2.0, 5.0, 18.0, 50.0, 430],
-      15: [640, 89.0, 29.0, 8.0, 3.0, 0.4, 0.2, 0.1, 0.1, 0.2, 0.4, 3.0, 8.0, 29.0, 89.0, 640],
-      16: [1000, 162, 38.0, 9.0, 3.0, 1.5, 0.5, 0.2, 0.1, 0.2, 0.5, 1.5, 3.0, 9.0, 38.0, 162, 1000]
+                let container =
+                    document.getElementById(containerId);
+
+                if (!container) {
+                    container = document.createElement("div");
+                    container.id = containerId;
+                    document.body.appendChild(container);
+                }
+
+                container.replaceChildren(
+                    document.importNode(template.content, true)
+                );
+
+                this.boundContainer = null;
+                this.bindComponentEvents(container);
+                this.updateStatsDisplay();
+                this.updateTurboDisplay();
+
+                return true;
+            } catch (error) {
+                console.error("GameTools component error:", error);
+                return false;
+            }
+        },
+
+        async loadTopBar(
+            url = "../bar/top.html",
+            containerId = "topBarContainer"
+        ) {
+            const container =
+                document.getElementById(containerId);
+            if (!container) return false;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error("Top bar HTTP " + response.status);
+                }
+
+                container.innerHTML = await response.text();
+
+                container.querySelectorAll('a[href*="deposit"]')
+                    .forEach(a => {
+                        a.href = "../account/deposit.html";
+                    });
+
+                container.querySelectorAll('a[href*="member"]')
+                    .forEach(a => {
+                        if (a.href.includes("admin/mem/member.html")) {
+                            a.href = a.href.replace(
+                                "admin/mem/member.html",
+                                "mem/member.html"
+                            );
+                        }
+                    });
+
+                this.updateBalanceDisplay();
+                return true;
+            } catch (error) {
+                console.error("GameTools top bar error:", error);
+                return false;
+            }
+        },
+
+        formatMoney(value) {
+            return (Number(value) || 0).toFixed(2);
+        },
+
+        updateBalanceDisplay() {
+            const formatted = "৳ " + this.formatMoney(this.balance);
+
+            ["topBarBalance", "user-balance-display", "balanceText"]
+                .forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = formatted;
+                });
+        },
+
+        subscribeBalance() {
+            if (!this.client || !this.user) return;
+
+            if (this.balanceChannel) {
+                this.client.removeChannel(this.balanceChannel);
+            }
+
+            this.balanceChannel = this.client
+                .channel("game-tools-balance-" + this.user.id)
+                .on("postgres_changes", {
+                    event: "UPDATE",
+                    schema: "public",
+                    table: "profiles",
+                    filter: "id=eq." + this.user.id
+                }, payload => {
+                    if (payload.new?.balance !== undefined) {
+                        this.balance =
+                            Number(payload.new.balance) || 0;
+                        this.updateBalanceDisplay();
+                    }
+                })
+                .subscribe();
+        },
+
+        async refreshBalance() {
+            if (!this.client || !this.user) return null;
+
+            const { data, error } = await this.client
+                .from("profiles")
+                .select("balance")
+                .eq("id", this.user.id)
+                .single();
+
+            if (error) throw error;
+
+            this.balance = Number(data.balance) || 0;
+            this.updateBalanceDisplay();
+            return this.balance;
+        },
+
+        async saveBet({
+            target_number,
+            roll_result,
+            bet_amount,
+            payout = 0,
+            is_bool = false
+        }) {
+            if (!this.client || !this.user) {
+                throw new Error("User is not initialized.");
+            }
+
+            const row = {
+                user_id: this.user.id,
+                target_number: Number(target_number),
+                roll_result: Number(roll_result),
+                bet_amount: Number(bet_amount),
+                payout: Number(payout),
+                is_bool: Boolean(is_bool)
+            };
+
+            const { data, error } = await this.client
+                .from("bets")
+                .insert(row)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        },
+
+        // For production balance changes, use a secure server-side RPC.
+        async setBalance(newBalance) {
+            if (!this.client || !this.user) {
+                throw new Error("User is not initialized.");
+            }
+
+            const amount = Number(newBalance);
+            if (!Number.isFinite(amount) || amount < 0) {
+                throw new Error("Invalid balance.");
+            }
+
+            const { error } = await this.client
+                .from("profiles")
+                .update({ balance: amount })
+                .eq("id", this.user.id);
+
+            if (error) throw error;
+
+            this.balance = amount;
+            this.updateBalanceDisplay();
+            return this.balance;
+        },
+
+        recordRound({ betAmount, payout = 0, isWin }) {
+            const bet = Number(betAmount) || 0;
+            const winAmount = Number(payout) || 0;
+
+            this.stats.wagered += bet;
+
+            if (isWin) {
+                this.stats.wins++;
+                this.stats.profit += winAmount - bet;
+            } else {
+                this.stats.losses++;
+                this.stats.profit -= bet;
+            }
+
+            this.stats.history.push(this.stats.profit);
+            this.updateStatsDisplay();
+
+            return {
+                profit: this.stats.profit,
+                wagered: this.stats.wagered,
+                wins: this.stats.wins,
+                losses: this.stats.losses,
+                history: [...this.stats.history]
+            };
+        },
+
+        updateStatsDisplay() {
+            const values = {
+                gameToolsProfit:
+                    "৳ " + this.formatMoney(this.stats.profit),
+                gameToolsWagered:
+                    "৳ " + this.formatMoney(this.stats.wagered),
+                gameToolsWins: String(this.stats.wins),
+                gameToolsLosses: String(this.stats.losses)
+            };
+
+            Object.entries(values).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            });
+
+            const graph =
+                document.getElementById("gameToolsStatsGraph");
+            if (!graph) return;
+
+            graph.replaceChildren();
+            if (!this.stats.history.length) return;
+
+            const max = Math.max(
+                1,
+                ...this.stats.history.map(value => Math.abs(value))
+            );
+
+            this.stats.history.forEach(value => {
+                const bar = document.createElement("div");
+                bar.style.height =
+                    Math.max(8, Math.abs(value) / max * 100) + "%";
+                bar.style.minWidth = "8px";
+                bar.style.borderRadius = "3px";
+                bar.style.background =
+                    value >= 0 ? "#F5CF66" : "#eb4e3d";
+                bar.title =
+                    "Profit/Loss: ৳" + this.formatMoney(value);
+                graph.appendChild(bar);
+            });
+        },
+
+        toggleModal(id) {
+            const modal = document.getElementById(id);
+            if (!modal) return;
+
+            const opening = modal.classList.contains("hidden");
+            modal.classList.toggle("hidden", !opening);
+            modal.classList.toggle("flex", opening);
+        },
+
+        updateTurboDisplay() {
+            const button =
+                document.getElementById("gameToolsTurboToggle");
+            const status =
+                document.getElementById("gameToolsTurboStatus");
+
+            if (button) {
+                button.setAttribute(
+                    "aria-pressed", String(this.turboEnabled)
+                );
+                button.classList.toggle(
+                    "bg-[#F5CF66]/15", this.turboEnabled
+                );
+            }
+
+            if (status) {
+                status.textContent =
+                    this.turboEnabled ? "ON" : "OFF";
+                status.classList.toggle(
+                    "text-[#F5CF66]", this.turboEnabled
+                );
+            }
+        },
+
+        setRating(value) {
+            this.rating = Math.max(
+                1, Math.min(5, Number(value) || 1)
+            );
+
+            document.querySelectorAll(
+                "#gameToolsRatingStars [data-game-tools-rating]"
+            ).forEach(star => {
+                const active =
+                    Number(star.dataset.gameToolsRating) <= this.rating;
+                star.classList.toggle("text-[#F5CF66]", active);
+                star.classList.toggle("text-gray-500", !active);
+            });
+
+            const message =
+                document.getElementById("gameToolsRatingMessage");
+            if (message) {
+                message.textContent =
+                    "আপনার রেটিং: " + this.rating + "/5";
+            }
+        },
+
+        bindComponentEvents(container) {
+            const root = container ||
+                document.getElementById("gameToolsContainer") ||
+                document;
+
+            if (this.boundContainer === root) return;
+            this.boundContainer = root;
+
+            root.querySelectorAll("[data-game-tools-open]")
+                .forEach(button => {
+                    button.addEventListener("click", () => {
+                        this.toggleModal(
+                            button.dataset.gameToolsOpen
+                        );
+                    });
+                });
+
+            root.querySelectorAll("[data-game-tools-close]")
+                .forEach(button => {
+                    button.addEventListener("click", () => {
+                        const modal = document.getElementById(
+                            button.dataset.gameToolsClose
+                        );
+                        if (modal) {
+                            modal.classList.add("hidden");
+                            modal.classList.remove("flex");
+                        }
+                    });
+                });
+
+            [
+                "gameToolsSettingsModal",
+                "gameToolsStatsModal",
+                "gameToolsRatingModal"
+            ].forEach(id => {
+                const modal = root.querySelector("#" + id);
+                if (!modal) return;
+
+                modal.addEventListener("click", event => {
+                    if (event.target === modal) {
+                        modal.classList.add("hidden");
+                        modal.classList.remove("flex");
+                    }
+                });
+            });
+
+            const soundButton =
+                root.querySelector("#gameToolsSoundToggle");
+
+            if (soundButton) {
+                soundButton.addEventListener("click", () => {
+                    this.soundEnabled = !this.soundEnabled;
+
+                    const status =
+                        root.querySelector("#gameToolsSoundStatus");
+                    if (status) {
+                        status.textContent =
+                            this.soundEnabled ? "ON" : "OFF";
+                    }
+
+                    document.dispatchEvent(new CustomEvent(
+                        "game-tools-sound-change",
+                        { detail: { enabled: this.soundEnabled } }
+                    ));
+                });
+            }
+
+            const turboButton =
+                root.querySelector("#gameToolsTurboToggle");
+
+            if (turboButton) {
+                turboButton.addEventListener("click", () => {
+                    this.turboEnabled = !this.turboEnabled;
+                    this.updateTurboDisplay();
+
+                    document.dispatchEvent(new CustomEvent(
+                        "game-tools-turbo-change",
+                        { detail: { enabled: this.turboEnabled } }
+                    ));
+                });
+            }
+
+            root.querySelectorAll("[data-game-tools-rating]")
+                .forEach(button => {
+                    button.addEventListener("click", () => {
+                        this.setRating(
+                            button.dataset.gameToolsRating
+                        );
+                    });
+                });
+
+            const shareButton =
+                root.querySelector("#gameToolsShare");
+
+            if (shareButton) {
+                shareButton.addEventListener("click", async () => {
+                    try {
+                        if (navigator.share) {
+                            await navigator.share({
+                                title: document.title,
+                                url: window.location.href
+                            });
+                        } else if (navigator.clipboard?.writeText) {
+                            await navigator.clipboard.writeText(
+                                window.location.href
+                            );
+                            alert("গেমের লিংক কপি করা হয়েছে!");
+                        } else {
+                            window.prompt(
+                                "গেমের লিংক কপি করুন:",
+                                window.location.href
+                            );
+                        }
+                    } catch (error) {
+                        if (error.name !== "AbortError") {
+                            console.error("Share error:", error);
+                        }
+                    }
+                });
+            }
+        },
+
+        playSound(audio, enabled = true) {
+            if (!this.soundEnabled || !enabled || !audio) return;
+
+            try {
+                audio.currentTime = 0;
+                const result = audio.play();
+                if (result?.catch) {
+                    result.catch(error => {
+                        console.error("Sound error:", error);
+                    });
+                }
+            } catch (error) {
+                console.error("Sound error:", error);
+            }
+        },
+
+        destroy() {
+            if (this.client && this.balanceChannel) {
+                this.client.removeChannel(this.balanceChannel);
+            }
+            this.balanceChannel = null;
+            this.boundContainer = null;
+        }
     };
 
-    async function loadBars() {
-      try {
-        const topRes = await fetch('../bar/top.html');
-        if (topRes.ok) document.getElementById('topBarContainer').innerHTML = await topRes.text();
-
-        const botRes = await fetch('../bar/bottom.html');
-        if (botRes.ok) document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
-      } catch (e) { console.error('Bar load error:', e); }
-    }
-
-    async function initPlinkoGame() {
-      await loadBars();
-      updateRows(8);
-
-      if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
-        const user = await getCurrentUser();
-        if (user) {
-          currentUserId = user.id;
-          const { data: profile } = await supabaseClient.from('profiles').select('balance').eq('id', user.id).single();
-          if (profile) {
-            balance = parseFloat(profile.balance);
-            updateBalanceUI();
-          }
-
-          supabaseClient
-            .channel('plinko-profile-channel')
-            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` }, (payload) => {
-              if (payload.new && payload.new.balance !== undefined) {
-                balance = parseFloat(payload.new.balance);
-                updateBalanceUI();
-              }
-            })
-            .subscribe();
-        }
-      }
-    }
-
-    function updateBalanceUI() {
-      const topBal = document.getElementById('userBalance');
-      if (topBal) topBal.innerText = `৳ ${balance.toFixed(2)}`;
-    }
-
-    function modifyBet(type) {
-      let current = parseFloat(document.getElementById('betAmount').value) || 0;
-      if (type === 'half') {
-        document.getElementById('betAmount').value = Math.max(0, Math.floor(current / 2));
-      } else if (type === 'double') {
-        document.getElementById('betAmount').value = Math.floor(current * 2);
-      } else if (type === 'max') {
-        document.getElementById('betAmount').value = Math.floor(balance);
-      }
-    }
-
-    function updateRows(val) {
-      currentRows = parseInt(val);
-      document.getElementById('rowsVal').innerText = currentRows;
-      currentMultipliers = multipliersTable[currentRows];
-      renderMultipliers();
-      drawBoard();
-    }
-
-    function renderMultipliers(highlightIndex = null) {
-      const container = document.getElementById('multiplierSinks');
-      container.innerHTML = '';
-
-      currentMultipliers.forEach((mult, idx) => {
-        const isHighlight = highlightIndex === idx;
-        const box = document.createElement('div');
-        
-        let bgColor = 'bg-amber-500';
-        if (mult > 20) bgColor = 'bg-rose-500';
-        else if (mult >= 5) bgColor = 'bg-orange-500';
-        else if (mult < 1) bgColor = 'bg-yellow-500';
-
-        box.className = `${bgColor} text-[#080B10] font-extrabold text-[9px] sm:text-xs py-1 px-1 rounded flex-1 text-center shadow transition-all ${isHighlight ? 'ring-2 ring-white scale-110 z-10' : ''}`;
-        box.innerText = mult + '×';
-        container.appendChild(box);
-      });
-    }
-
-    function drawBoard(ballPos = null) {
-      const canvas = document.getElementById('plinkoCanvas');
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const rows = currentRows;
-      const width = canvas.width;
-      const height = canvas.height;
-      const startY = 18;
-      const totalRows = rows + 2; 
-      const rowHeight = (height - 35) / totalRows;
-      const maxPins = totalRows + 1;
-      const spacingX = width / maxPins;
-
-      // Draw True Pyramid Pins (Centered and Properly Expanded)
-      for (let r = 0; r < totalRows; r++) {
-        const pinsInRow = r + 3; // Starts with a small cluster at top and widens cleanly like a pyramid
-        const rowWidth = (pinsInRow - 1) * spacingX;
-        const startX = (width - rowWidth) / 2;
-
-        for (let p = 0; p < pinsInRow; p++) {
-          const x = startX + (p * spacingX);
-          const y = startY + (r * rowHeight);
-
-          ctx.beginPath();
-          ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.fill();
-        }
-      }
-
-      // Draw Ball if active
-      if (ballPos) {
-        ctx.beginPath();
-        ctx.arc(ballPos.x, ballPos.y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#24ee89';
-        ctx.shadowColor = '#24ee89';
-        ctx.shadowBlur = 10;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-    }
-
-    async function triggerBet() {
-      if (isPlaying) return;
-      const betVal = parseFloat(document.getElementById('betAmount').value) || 0;
-
-      if (betVal > 0 && betVal < 1) {
-        alert("সর্বনিম্ন বেট ১ টাকা হতে হবে!");
-        return;
-      }
-      if (betVal > balance) {
-        alert("আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!");
-        return;
-      }
-
-      isPlaying = true;
-      const btn = document.getElementById('btnBet');
-      btn.disabled = true;
-      btn.innerText = "Dropping...";
-
-      if (betVal > 0) {
-        balance -= betVal;
-        updateBalanceUI();
-      }
-
-      const rows = currentRows;
-      let pathIndex = 0;
-      for (let i = 0; i < rows; i++) {
-        pathIndex += Math.random() < 0.5 ? 0 : 1;
-      }
-      const winningMultiplier = currentMultipliers[pathIndex];
-
-      const canvas = document.getElementById('plinkoCanvas');
-      const width = canvas.width;
-      const height = canvas.height;
-      const startY = 18;
-      const totalRows = rows + 2;
-      const rowHeight = (height - 35) / totalRows;
-      const maxPins = totalRows + 1;
-      const spacingX = width / maxPins;
-
-      let currentPinRow = 0;
-      let currentPinCol = 0;
-      let ballX = width / 2;
-      let ballY = 5;
-
-      const dropInterval = setInterval(() => {
-        if (currentPinRow <= totalRows) {
-          const pinsInRow = currentPinRow + 3;
-          const rowWidth = (pinsInRow - 1) * spacingX;
-          const startX = (width - rowWidth) / 2;
-          const targetX = startX + (currentPinCol * spacingX);
-          const targetY = startY + (currentPinRow * rowHeight);
-
-          ballX += (targetX - ballX) * 0.35;
-          ballY += (targetY - ballY) * 0.35;
-
-          drawBoard({ x: ballX, y: ballY });
-
-          if (currentPinRow < totalRows) {
-            const goRight = Math.random() < 0.5;
-            if (goRight && currentPinCol < pinsInRow - 1) currentPinCol++;
-          }
-          currentPinRow++;
-        } else {
-          clearInterval(dropInterval);
-          finishDrop(winningMultiplier, pathIndex, betVal);
-        }
-      }, 90);
-    }
-
-    async function finishDrop(multiplier, sinkIndex, betVal) {
-      const winAmount = betVal > 0 ? (betVal * multiplier) : 0;
-      const isWin = multiplier > 0;
-
-      if (isWin && betVal > 0) {
-        balance += winAmount;
-        updateBalanceUI();
-      }
-
-      const banner = document.getElementById('resultBanner');
-      banner.innerText = `Result: ${multiplier}× (Win: ৳ ${winAmount.toFixed(2)})`;
-      renderMultipliers(sinkIndex);
-      drawBoard();
-
-      if (currentUserId && betVal > 0 && typeof supabaseClient !== 'undefined') {
-        await supabaseClient.from('bets').insert([{
-          user_id: currentUserId,
-          target_number: currentRows,
-          roll_result: multiplier,
-          bet_amount: betVal,
-          payout: multiplier,
-          is_bool: isWin
-        }]);
-
-        await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
-      }
-
-      isPlaying = false;
-      const btn = document.getElementById('btnBet');
-      btn.disabled = false;
-      btn.innerText = "Bet";
-    }
-
-    window.onload = initPlinkoGame;
-  </script>
-</body>
-</html>
+    window.GameTools = GameTools;
+})();
