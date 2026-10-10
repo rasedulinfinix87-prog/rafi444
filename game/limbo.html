@@ -6,6 +6,7 @@
     <title>Limbo Game</title>
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Supabase Config -->
@@ -24,7 +25,7 @@
     <div id="topBarContainer" class="w-full max-w-md sticky top-0 z-50 mb-3"></div>
 
     <!-- Game Container -->
-    <div class="w-full max-w-md p-4 flex flex-col gap-4">
+    <div class="w-full max-w-md p-4 flex flex-col gap-4 relative">
         
         <!-- Recent Multipliers History Bar -->
         <div class="flex gap-2 overflow-x-auto py-1 text-xs">
@@ -89,13 +90,82 @@
             <button class="py-2 px-6 rounded-lg hover:text-white">Advanced</button>
         </div>
 
+        <!-- Bottom Action Bar (Settings, Rating, Turn Off/On, Live Stats) -->
+        <div class="flex items-center justify-between px-2 py-1 text-gray-400 text-sm">
+            <!-- Setting Icon -->
+            <button onclick="toggleSettingsModal()" class="hover:text-white p-2">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+            <!-- Rating -->
+            <button class="flex items-center gap-1 hover:text-white p-2">
+                <i class="fa-solid fa-star text-xs text-yellow-500"></i>
+                <span class="text-xs">12543</span>
+            </button>
+            <!-- Turn Off/On Animation/Sound -->
+            <button onclick="toggleAnimSound()" class="hover:text-white p-2">
+                <i class="fa-solid fa-bolt"></i>
+            </button>
+            <!-- Live Stats -->
+            <button onclick="toggleLiveStatsModal()" class="hover:text-white p-2">
+                <i class="fa-solid fa-chart-simple"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Settings Bottom Sheet Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end justify-center">
+        <div class="bg-[#1a2c38] w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 border-t border-[#2f4553] animate-slide-up">
+            <div class="flex justify-between items-center pb-2 border-b border-[#2f4553]">
+                <span class="font-bold text-white">Settings</span>
+                <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
+                <i class="fa-regular fa-circle-question w-5"></i> Help
+            </button>
+            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
+                <i class="fa-solid fa-music w-5"></i> Background Music
+            </button>
+            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-[#2fbf71]">
+                <i class="fa-solid fa-volume-high w-5"></i> Sound Effects
+            </button>
+            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
+                <i class="fa-solid fa-seedling w-5"></i> Seed
+            </button>
+            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#213743] rounded-lg text-left text-sm text-gray-300">
+                <i class="fa-solid fa-share-nodes w-5"></i> Share
+            </button>
+        </div>
+    </div>
+
+    <!-- Live Stats Modal -->
+    <div id="liveStatsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#1a2c38] w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 border border-[#2f4553] shadow-2xl">
+            <div class="flex justify-between items-center pb-2 border-b border-[#2f4553]">
+                <span class="font-bold text-white text-base">Live Stats</span>
+                <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="bg-[#0f212e] p-3 rounded-xl flex flex-col gap-3">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-400">Profit</span>
+                    <span class="text-[#2fbf71] font-bold">৳ 0.00</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-400">Wagered</span>
+                    <span class="text-white font-bold">৳ 0.00</span>
+                </div>
+                <div class="flex justify-between items-center text-sm border-t border-[#213743] pt-2">
+                    <span class="text-gray-400">WIN: <strong class="text-white">0</strong></span>
+                    <span class="text-gray-400">LOSE: <strong class="text-white">0</strong></span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         let currentUserId = null;
         let userBalance = 0.00;
 
-        // সুপাবেস ক্লায়েন্ট পাওয়ার হেল্পার ফাংশন
         function getClient() {
             if (typeof supabaseClient !== 'undefined') return supabaseClient;
             if (typeof supabase !== 'undefined') return supabase;
@@ -104,13 +174,11 @@
             return null;
         }
 
-        // টপ বার ডাইনামিক লোড করার ফাংশন
         async function loadTopBar() {
             try {
                 const res = await fetch('../bar/top.html');
                 if (res.ok) {
                     document.getElementById('topBarContainer').innerHTML = await res.text();
-                    // পাথ ঠিক করার জন্য লিংকগুলো অ্যাডজাস্ট করা
                     document.querySelectorAll('a[href*="deposit"]').forEach(a => a.href = '../account/deposit.html');
                     document.querySelectorAll('a[href*="member"]').forEach(a => {
                         if (a.href.includes('admin/mem/member.html')) {
@@ -123,13 +191,11 @@
             }
         }
 
-        // ব্যালেন্স টপ বারে আপডেট করার ফাংশন
         function updateUIBalance(bal) {
             const topBal = document.getElementById('topBarBalance');
             if (topBal) topBal.innerText = parseFloat(bal).toFixed(2);
         }
 
-        // ইনিট ফাংশন যা পেজ লোড হওয়ার সাথে সাথে রান হবে
         async function init() {
             await loadTopBar();
             const client = getClient();
@@ -157,7 +223,6 @@
                         updateUIBalance(userBalance);
                     }
 
-                    // রিয়েল-টাইম ব্যালেন্স সিংক
                     client
                         .channel('limbo-balance-channel')
                         .on('postgres_changes', {
@@ -180,7 +245,20 @@
             updateChance();
         }
 
-        // বাটনে ক্লিক করলে চান্স ক্যালকুলেশন আপডেট করার ফাংশন
+        function toggleSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function toggleLiveStatsModal() {
+            const modal = document.getElementById('liveStatsModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function toggleAnimSound() {
+            alert('Animation / Sound toggled!');
+        }
+
         function updateChance() {
             let target = parseFloat(document.getElementById('targetMultiplier').value) || 1.01;
             if (target < 1.01) target = 1.01;
@@ -200,12 +278,10 @@
             input.value = (val * 2).toFixed(2);
         }
 
-        // গেম লজিক এবং ডাটাবেস অপারেশন
         async function playLimbo() {
             const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
             const targetMultiplier = parseFloat(document.getElementById('targetMultiplier').value) || 2.00;
             const resultDisplay = document.getElementById('resultMultiplier');
-            const btn = document.getElementById('betBtn');
             const client = getClient();
 
             if (betAmount > 0 && userBalance < betAmount) {
@@ -213,14 +289,12 @@
                 return;
             }
 
-            // ডেমো মোড না হলে ব্যালেন্স কেটে নেওয়া
             if (betAmount > 0 && client && currentUserId) {
                 userBalance -= betAmount;
                 updateUIBalance(userBalance);
                 await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
             }
 
-            // রেন্ডম রোল রেজাল্ট জেনারেট
             let randomRoll = parseFloat((99 / (Math.random() * 98 + 1)).toFixed(2));
             if (randomRoll < 1.00) randomRoll = 1.00;
 
@@ -239,7 +313,6 @@
                 resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#eb4e3d]";
             }
 
-            // Supabase ডাটাবেসে bets এবং profiles আপডেট
             if (betAmount > 0 && client && currentUserId) {
                 try {
                     await client.from('bets').insert([
