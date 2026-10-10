@@ -88,27 +88,27 @@
     
     <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#080B10] flex-1">
       
-      <!-- Wheel Canvas Area -->
-      <div class="relative flex flex-col items-center justify-center my-2">
+      <!-- Wheel Canvas Area (30% Larger Size) -->
+      <div class="relative flex flex-col items-center justify-center my-3">
         <!-- Top Pointer -->
         <div class="absolute -top-3 z-20 text-[#ed4245] text-2xl filter drop-shadow">
           <i class="fa-solid fa-location-pin"></i>
         </div>
 
-        <div class="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full border-4 border-[rgba(245,207,102,0.25)] p-1 bg-[#151a23] shadow-2xl flex items-center justify-center">
-          <canvas id="wheelCanvas" width="280" height="280" class="w-full h-full rounded-full"></canvas>
+        <div class="relative w-80 h-80 sm:w-96 sm:h-96 rounded-full border-4 border-[rgba(245,207,102,0.25)] p-1 bg-[#151a23] shadow-2xl flex items-center justify-center">
+          <canvas id="wheelCanvas" width="360" height="360" class="w-full h-full rounded-full"></canvas>
           
           <!-- Center Hub -->
-          <div class="absolute w-20 h-20 rounded-full bg-[#080B10] border-2 border-[rgba(245,207,102,0.3)] flex flex-col items-center justify-center shadow-inner">
-            <span class="text-[10px] text-gray-400 font-medium">Multiplier</span>
-            <span class="text-sm font-black text-[#F5CF66]" id="centerMultiplierText">0×</span>
+          <div class="absolute w-24 h-24 rounded-full bg-[#080B10] border-2 border-[rgba(245,207,102,0.3)] flex flex-col items-center justify-center shadow-inner">
+            <span class="text-[10px] text-gray-400 font-medium">Result</span>
+            <span class="text-base font-black text-[#F5CF66]" id="centerMultiplierText">0×</span>
           </div>
         </div>
       </div>
 
-      <!-- Multiplier Payout Cards Bar -->
+      <!-- Color Hit Payout Cards Bar -->
       <div id="payoutCardsBar" class="grid grid-cols-5 gap-2 my-1">
-        <!-- Dynamically rendered payout cards -->
+        <!-- Dynamically rendered color payout cards -->
       </div>
 
       <!-- Game Controls Section -->
@@ -179,8 +179,9 @@
     let isSpinning = false;
     let segmentsCount = 10;
     let riskLevel = 'medium';
-    let currentMultipliers = [];
-    let currentRotation = 0;
+    let wheelSegments = []; // Stores {multiplier, color}
+
+    const availableColors = ['#24ee89', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#64748b', '#ef4444', '#06b6d4'];
 
     async function loadBars() {
       try {
@@ -194,7 +195,7 @@
 
     async function initWheelGame() {
       await loadBars();
-      generateMultipliers();
+      generateWheelSegments();
       drawWheel(0);
 
       if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
@@ -240,7 +241,7 @@
       if (isSpinning) return;
       segmentsCount = parseInt(val);
       document.getElementById('segmentsVal').innerText = segmentsCount;
-      generateMultipliers();
+      generateWheelSegments();
       drawWheel(0);
     }
 
@@ -255,18 +256,18 @@
           btn.className = "py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
         }
       });
-      generateMultipliers();
+      generateWheelSegments();
       drawWheel(0);
     }
 
-    // Risk & Segment Based Multiplier Generator
-    function generateMultipliers() {
-      currentMultipliers = [];
+    // Generate Wheel Segments with Colors and Multipliers (No text on wheel itself)
+    function generateWheelSegments() {
+      wheelSegments = [];
       let zeroRatio = riskLevel === 'low' ? 0.2 : riskLevel === 'medium' ? 0.4 : 0.6;
       let zeroCount = Math.floor(segmentsCount * zeroRatio);
 
       for (let i = 0; i < zeroCount; i++) {
-        currentMultipliers.push(0.00);
+        wheelSegments.push({ multiplier: 0.00, color: '#1a212d' });
       }
 
       const remaining = segmentsCount - zeroCount;
@@ -275,32 +276,46 @@
       for (let i = 0; i < remaining; i++) {
         let val = Math.pow((i + 1) / remaining, riskLevel === 'high' ? 2.5 : 1.5) * maxMult;
         if (val < 1.1) val = 1.2;
-        currentMultipliers.push(parseFloat(val.toFixed(2)));
+        const color = availableColors[i % availableColors.length];
+        wheelSegments.push({ multiplier: parseFloat(val.toFixed(2)), color: color });
       }
 
-      currentMultipliers.sort(() => Math.random() - 0.5);
-      renderPayoutCards();
+      wheelSegments.sort(() => Math.random() - 0.5);
+      renderColorPayoutCards();
     }
 
-    function renderPayoutCards() {
+    function renderColorPayoutCards(highlightColor = null) {
       const bar = document.getElementById('payoutCardsBar');
       bar.innerHTML = '';
-      const uniqueMults = [...new Set(currentMultipliers)].sort((a, b) => a - b).slice(0, 5);
+      
+      // Get unique color and multiplier pairings
+      const uniqueMap = new Map();
+      wheelSegments.forEach(seg => {
+        if (!uniqueMap.has(seg.color)) {
+          uniqueMap.set(seg.color, seg.multiplier);
+        }
+      });
 
-      uniqueMults.forEach(m => {
+      let count = 0;
+      uniqueMap.forEach((mult, color) => {
+        if (count >= 5) return;
+        const isHit = highlightColor === color;
         const card = document.createElement('div');
-        card.className = "glass-card p-2 rounded-xl flex flex-col items-center justify-center text-center";
-        card.innerHTML = `<span class="text-[10px] text-gray-400">Payout</span><span class="text-xs font-extrabold text-[#F5CF66]">${m.toFixed(2)}×</span>`;
+        card.className = `glass-card p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isHit ? 'border-2 border-white shadow-lg scale-105' : ''}`;
+        card.innerHTML = `
+          <div class="w-4 h-4 rounded-full mb-1 border border-black/30" style="background-color: ${color};"></div>
+          <span class="text-[10px] text-gray-400">Payout</span>
+          <span class="text-xs font-extrabold text-[#F5CF66]">${mult.toFixed(2)}×</span>
+        `;
         bar.appendChild(card);
+        count++;
       });
     }
-
-    const segmentColors = ['#1a212d', '#253042', '#2f3d54', '#1f293a', '#32425c'];
 
     function drawWheel(rotationAngle) {
       const canvas = document.getElementById('wheelCanvas');
       const ctx = canvas.getContext('2d');
-      const count = currentMultipliers.length;
+      const count = wheelSegments.length;
       const arc = (2 * Math.PI) / count;
       const radius = canvas.width / 2;
 
@@ -311,27 +326,17 @@
       ctx.rotate(rotationAngle);
       ctx.translate(-radius, -radius);
 
-      currentMultipliers.forEach((mult, i) => {
+      wheelSegments.forEach((seg, i) => {
         const angle = i * arc;
         ctx.beginPath();
-        ctx.fillStyle = mult === 0 ? '#2a1a1a' : segmentColors[i % segmentColors.length];
+        ctx.fillStyle = seg.color;
         ctx.moveTo(radius, radius);
         ctx.arc(radius, radius, radius - 4, angle, angle + arc);
         ctx.lineTo(radius, radius);
         ctx.fill();
         ctx.lineWidth = 1;
-        ctx.strokeStyle = 'rgba(245, 207, 102, 0.15)';
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
         ctx.stroke();
-
-        // Text
-        ctx.save();
-        ctx.translate(radius, radius);
-        ctx.rotate(angle + arc / 2);
-        ctx.textAlign = "right";
-        ctx.fillStyle = mult === 0 ? "#ed4245" : "#ffffff";
-        ctx.font = "bold 11px sans-serif";
-        ctx.fillText(mult.toFixed(2) + "×", radius - 18, 4);
-        ctx.restore();
       });
 
       ctx.restore();
@@ -360,22 +365,20 @@
         updateBalanceUI();
       }
 
-      const winningIndex = Math.floor(Math.random() * currentMultipliers.length);
-      const multiplier = currentMultipliers[winningIndex];
+      const winningIndex = Math.floor(Math.random() * wheelSegments.length);
+      const winningSegment = wheelSegments[winningIndex];
 
-      const count = currentMultipliers.length;
+      const count = wheelSegments.length;
       const arcRad = (2 * Math.PI) / count;
-      // Target angle so winning segment aligns precisely with top pointer (-Math.PI / 2)
       const targetAngle = (2 * Math.PI * 5) + ((count - winningIndex) * arcRad - arcRad / 2) - (Math.PI / 2);
 
       let startTime = null;
-      const duration = 3000; // 3 seconds spin
+      const duration = 3000;
 
       function animateSpin(timestamp) {
         if (!startTime) startTime = timestamp;
         const elapsed = timestamp - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        // Ease out quad
         const easeProgress = 1 - (1 - progress) * (1 - progress);
         const currentAngle = targetAngle * easeProgress;
 
@@ -384,14 +387,15 @@
         if (progress < 1) {
           requestAnimationFrame(animateSpin);
         } else {
-          finishSpin(winningIndex, multiplier, betVal);
+          finishSpin(winningSegment, betVal);
         }
       }
 
       requestAnimationFrame(animateSpin);
     }
 
-    async function finishSpin(winningIndex, multiplier, betVal) {
+    async function finishSpin(winningSegment, betVal) {
+      const multiplier = winningSegment.multiplier;
       const winAmount = betVal > 0 ? (betVal * multiplier) : 0;
       const isWin = multiplier > 0;
 
@@ -401,6 +405,7 @@
       }
 
       document.getElementById('centerMultiplierText').innerText = multiplier.toFixed(2) + '×';
+      renderColorPayoutCards(winningSegment.color);
 
       if (currentUserId && betVal > 0 && typeof supabaseClient !== 'undefined') {
         await supabaseClient.from('bets').insert([{
