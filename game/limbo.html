@@ -46,11 +46,10 @@
             <div id="resultMultiplier" class="text-5xl font-black tracking-wider z-10 text-white transition-all duration-150">1.00x</div>
         </div>
 
-        <!-- Bet Button -->
-        <button id="betBtn" onclick="playLimbo()" class="w-full bg-[#00e701] hover:bg-[#00c701] text-black font-bold py-3.5 rounded-xl transition duration-200 text-lg shadow-lg">
+        <!-- Bet / Start Auto Button -->
+        <button id="betBtn" onclick="handleMainButton()" class="w-full bg-[#00e701] hover:bg-[#00c701] text-black font-bold py-3.5 rounded-xl transition duration-200 text-lg shadow-lg">
             Bet
         </button>
-        <p class="text-center text-xs text-gray-400">Minimum bet amount is ৳1.</p>
 
         <!-- Controls Section -->
         <div class="bg-[#213743] p-4 rounded-xl flex flex-col gap-4">
@@ -60,11 +59,40 @@
                 <label class="text-xs text-gray-400 block mb-1">Amount</label>
                 <div id="amountBoxContainer" class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
                     <span class="text-emerald-400 font-bold mr-2">৳</span>
-                    <input type="number" id="betAmount" value="1" min="1" class="bg-transparent w-full focus:outline-none text-white font-semibold">
+                    <input type="number" id="betAmount" value="1" step="0.01" oninput="validateAmount()" class="bg-transparent w-full focus:outline-none text-white font-semibold">
                     <div class="flex gap-1 ml-2">
                         <button onclick="halveAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-[11px] rounded font-medium">1/2</button>
                         <button onclick="doubleAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-[11px] rounded font-medium">2x</button>
                         <button onclick="maxAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-[11px] rounded font-medium text-[#2fbf71]">Max</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auto Bet Extra Settings Panel (Appears only on Auto Tab) -->
+            <div id="autoSettingsPanel" class="flex flex-col gap-3 hidden border-t border-[#2f4553] pt-3">
+                <!-- On Win -->
+                <div class="flex flex-col gap-1">
+                    <span class="text-xs text-gray-400 font-medium">On Win</span>
+                    <div class="flex gap-2 items-center">
+                        <button id="winResetBtn" onclick="setWinMode('reset')" class="flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold">Reset</button>
+                        <button id="winIncBtn" onclick="setWinMode('increase')" class="flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium">Increase by:</button>
+                        <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-2 py-1 w-20">
+                            <input type="number" id="winIncValue" value="0" class="bg-transparent w-full text-xs text-white focus:outline-none">
+                            <span class="text-gray-400 text-xs ml-1">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- On Loss -->
+                <div class="flex flex-col gap-1">
+                    <span class="text-xs text-gray-400 font-medium">On Loss</span>
+                    <div class="flex gap-2 items-center">
+                        <button id="lossResetBtn" onclick="setLossMode('reset')" class="flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold">Reset</button>
+                        <button id="lossIncBtn" onclick="setLossMode('increase')" class="flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium">Increase by:</button>
+                        <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-2 py-1 w-20">
+                            <input type="number" id="lossIncValue" value="0" class="bg-transparent w-full text-xs text-white focus:outline-none">
+                            <span class="text-gray-400 text-xs ml-1">%</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -86,50 +114,12 @@
                 </div>
             </div>
 
-            <!-- Dynamic Auto Controls (Appears only when Auto tab is selected) -->
-            <div id="autoControlsSection" class="flex flex-col gap-3 pt-2 border-t border-[#2f4553] hidden">
-                <div>
-                    <label class="text-xs text-gray-400 block mb-1">On Win</label>
-                    <div class="flex gap-2">
-                        <button class="flex-1 bg-[#0f212e] hover:bg-[#1a2c38] text-white py-2 rounded-lg text-xs font-semibold border border-[#2f4553]">Reset</button>
-                        <div class="flex-[2] flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-1.5">
-                            <input type="text" placeholder="Increase by:" class="bg-transparent w-full text-xs focus:outline-none text-gray-300" value="0">
-                            <span class="text-gray-400 text-xs">%</span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400 block mb-1">On Loss</label>
-                    <div class="flex gap-2">
-                        <button class="flex-1 bg-[#0f212e] hover:bg-[#1a2c38] text-white py-2 rounded-lg text-xs font-semibold border border-[#2f4553]">Reset</button>
-                        <div class="flex-[2] flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-1.5">
-                            <input type="text" placeholder="Increase by:" class="bg-transparent w-full text-xs focus:outline-none text-gray-300" value="0">
-                            <span class="text-gray-400 text-xs">%</span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400 block mb-1">Stop on Profit</label>
-                    <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
-                        <input type="number" value="0.00" class="bg-transparent w-full text-xs focus:outline-none text-white font-semibold">
-                        <span class="text-emerald-400 font-bold ml-1">৳</span>
-                    </div>
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400 block mb-1">Stop on Loss</label>
-                    <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
-                        <input type="number" value="0.00" class="bg-transparent w-full text-xs focus:outline-none text-white font-semibold">
-                        <span class="text-emerald-400 font-bold ml-1">৳</span>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
-        <!-- Tabs (Manual / Auto) -->
+        <!-- Tabs (Manual / Auto) - Advanced removed -->
         <div class="flex bg-[#0f212e] p-1 rounded-xl justify-around text-sm font-medium text-gray-400">
-            <button id="manualTabBtn" onclick="switchTab('manual')" class="py-2 px-10 rounded-lg bg-[#213743] text-white shadow transition-all">Manual</button>
-            <button id="autoTabBtn" onclick="switchTab('auto')" class="py-2 px-10 rounded-lg hover:text-white transition-all">Auto</button>
+            <button id="manualTab" onclick="switchTab('manual')" class="py-2 px-10 rounded-lg bg-[#213743] text-white shadow">Manual</button>
+            <button id="autoTab" onclick="switchTab('auto')" class="py-2 px-10 rounded-lg hover:text-white">Auto</button>
         </div>
 
         <!-- Bottom Action Bar (Settings, Rating, Turn Off/On, Live Stats) -->
@@ -217,6 +207,14 @@
         let userBalance = 0.00;
         let isTurboOn = false;
         let isSoundOn = true;
+        let currentMode = 'manual'; // 'manual' or 'auto'
+        let isAutoRunning = false;
+        let autoInterval = null;
+
+        // Auto Bet Configuration State
+        let winMode = 'reset'; // 'reset' or 'increase'
+        let lossMode = 'reset'; // 'reset' or 'increase'
+        let baseBetAmount = 1;
 
         // Live Stats Tracking Variables
         let totalProfit = 0;
@@ -245,20 +243,66 @@
             }
         }
 
-        // Tab Switching Logic (Manual / Auto)
-        function switchTab(tab) {
-            const manualBtn = document.getElementById('manualTabBtn');
-            const autoBtn = document.getElementById('autoTabBtn');
-            const autoSection = document.getElementById('autoControlsSection');
+        function switchTab(mode) {
+            currentMode = mode;
+            const manualTab = document.getElementById('manualTab');
+            const autoTab = document.getElementById('autoTab');
+            const autoSettings = document.getElementById('autoSettingsPanel');
+            const betBtn = document.getElementById('betBtn');
 
-            if (tab === 'manual') {
-                manualBtn.className = "py-2 px-10 rounded-lg bg-[#213743] text-white shadow transition-all";
-                autoBtn.className = "py-2 px-10 rounded-lg hover:text-white transition-all text-gray-400";
-                autoSection.classList.add('hidden');
+            if (mode === 'manual') {
+                if (isAutoRunning) stopAutoBet();
+                manualTab.className = "py-2 px-10 rounded-lg bg-[#213743] text-white shadow";
+                autoTab.className = "py-2 px-10 rounded-lg hover:text-white";
+                autoSettings.classList.add('hidden');
+                betBtn.innerText = "Bet";
+                betBtn.className = "w-full bg-[#00e701] hover:bg-[#00c701] text-black font-bold py-3.5 rounded-xl transition duration-200 text-lg shadow-lg";
             } else {
-                autoBtn.className = "py-2 px-10 rounded-lg bg-[#213743] text-white shadow transition-all";
-                manualBtn.className = "py-2 px-10 rounded-lg hover:text-white transition-all text-gray-400";
-                autoSection.classList.remove('hidden');
+                manualTab.className = "py-2 px-10 rounded-lg hover:text-white";
+                autoTab.className = "py-2 px-10 rounded-lg bg-[#213743] text-white shadow";
+                autoSettings.classList.remove('hidden');
+                betBtn.innerText = "Start Auto";
+                betBtn.className = "w-full bg-[#00e701] hover:bg-[#00c701] text-black font-bold py-3.5 rounded-xl transition duration-200 text-lg shadow-lg";
+            }
+        }
+
+        function setWinMode(mode) {
+            winMode = mode;
+            const resetBtn = document.getElementById('winResetBtn');
+            const incBtn = document.getElementById('winIncBtn');
+            if (mode === 'reset') {
+                resetBtn.className = "flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold";
+                incBtn.className = "flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium";
+            } else {
+                resetBtn.className = "flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium";
+                incBtn.className = "flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold";
+            }
+        }
+
+        function setLossMode(mode) {
+            lossMode = mode;
+            const resetBtn = document.getElementById('lossResetBtn');
+            const incBtn = document.getElementById('lossIncBtn');
+            if (mode === 'reset') {
+                resetBtn.className = "flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold";
+                incBtn.className = "flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium";
+            } else {
+                resetBtn.className = "flex-1 py-1.5 bg-[#0f212e] text-gray-400 text-xs rounded-lg font-medium";
+                incBtn.className = "flex-1 py-1.5 bg-[#2f4553] text-white text-xs rounded-lg font-bold";
+            }
+        }
+
+        function validateAmount() {
+            let input = document.getElementById('betAmount');
+            let box = document.getElementById('amountBoxContainer');
+            let val = parseFloat(input.value) || 0;
+
+            if (val < 0.59) {
+                box.className = "flex items-center bg-[#0f212e] rounded-lg border border-red-500 px-3 py-2";
+                input.className = "bg-transparent w-full focus:outline-none text-red-500 font-semibold";
+            } else {
+                box.className = "flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2";
+                input.className = "bg-transparent w-full focus:outline-none text-white font-semibold";
             }
         }
 
@@ -392,6 +436,7 @@
             }, { once: true });
 
             updateChance();
+            validateAmount();
         }
 
         function toggleSettingsModal() {
@@ -404,7 +449,6 @@
             modal.classList.toggle('hidden');
         }
 
-        // Payout & Chance Validation Logic (1.001 and 98.02 threshold)
         function updateChance() {
             let targetInput = document.getElementById('targetMultiplier');
             let payoutBox = document.getElementById('payoutBox');
@@ -429,19 +473,22 @@
 
         function halveAmount() {
             let input = document.getElementById('betAmount');
-            let val = parseFloat(input.value) || 1;
-            input.value = Math.max(1, Math.floor(val / 2));
+            let val = parseFloat(input.value) || 0.59;
+            input.value = Math.max(0.59, val / 2).toFixed(2);
+            validateAmount();
         }
 
         function doubleAmount() {
             let input = document.getElementById('betAmount');
-            let val = parseFloat(input.value) || 1;
-            input.value = Math.max(1, Math.floor(val * 2));
+            let val = parseFloat(input.value) || 0.59;
+            input.value = (val * 2).toFixed(2);
+            validateAmount();
         }
 
         function maxAmount() {
             let input = document.getElementById('betAmount');
-            input.value = Math.max(1, Math.floor(userBalance));
+            input.value = Math.max(0.59, userBalance).toFixed(2);
+            validateAmount();
         }
 
         function updateGraph() {
@@ -469,14 +516,82 @@
             container.scrollLeft = container.scrollWidth;
         }
 
+        function handleMainButton() {
+            if (currentMode === 'manual') {
+                playLimbo();
+            } else {
+                if (!isAutoRunning) {
+                    startAutoBet();
+                } else {
+                    stopAutoBet();
+                }
+            }
+        }
+
+        function startAutoBet() {
+            const betInput = document.getElementById('betAmount');
+            let betAmount = parseFloat(betInput.value) || 0;
+            const targetMultiplier = parseFloat(document.getElementById('targetMultiplier').value) || 1.001;
+            let chance = (99 / targetMultiplier);
+
+            if (betAmount < 0.59 || targetMultiplier < 1.001 || chance > 98.02) {
+                alert('সঠিক অ্যামাউন্ট বা পেআউট সীমা নির্ধারণ করুন!');
+                return;
+            }
+
+            isAutoRunning = true;
+            baseBetAmount = betAmount;
+            const betBtn = document.getElementById('betBtn');
+            betBtn.innerText = "Stop Auto";
+            betBtn.className = "w-full bg-[#eb4e3d] hover:bg-[#d93639] text-white font-bold py-3.5 rounded-xl transition duration-200 text-lg shadow-lg";
+
+            autoInterval = setInterval(async () => {
+                let currentBet = parseFloat(betInput.value) || 0;
+                if (userBalance < currentBet) {
+                    stopAutoBet();
+                    alert('অপর্যাপ্ত ব্যালেন্স!');
+                    return;
+                }
+
+                let isWin = await executeRound(currentBet, targetMultiplier);
+
+                // Auto Bet Logic On Win / On Loss
+                if (isWin) {
+                    if (winMode === 'reset') {
+                        betInput.value = baseBetAmount.toFixed(2);
+                    } else {
+                        let incPct = parseFloat(document.getElementById('winIncValue').value) || 0;
+                        let newAmt = currentBet + (currentBet * incPct / 100);
+                        betInput.value = newAmt.toFixed(2);
+                    }
+                } else {
+                    if (lossMode === 'reset') {
+                        betInput.value = baseBetAmount.toFixed(2);
+                    } else {
+                        let incPct = parseFloat(document.getElementById('lossIncValue').value) || 0;
+                        let newAmt = currentBet + (currentBet * incPct / 100);
+                        betInput.value = newAmt.toFixed(2);
+                    }
+                }
+                validateAmount();
+            }, 600);
+        }
+
+        function stopAutoBet() {
+            isAutoRunning = false;
+            clearInterval(autoInterval);
+            const betBtn = document.getElementById('betBtn');
+            betBtn.innerText = "Start Auto";
+            betBtn.className = "w-full bg-[#00e701] hover:bg-[#00c701] text-black font-bold py-3.5 rounded-xl transition duration-200 text-lg shadow-lg";
+        }
+
         async function playLimbo() {
             const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
             const targetMultiplier = parseFloat(document.getElementById('targetMultiplier').value) || 1.001;
             let chance = (99 / targetMultiplier);
 
-            // Validation check for minimum bet and invalid payout/chance limits
-            if (betAmount < 1) {
-                alert('সর্বনিম্ন ১ টাকা বেট করতে হবে!');
+            if (betAmount < 0.59) {
+                alert('অ্যামাউন্ট ০.৫৯ এর কম হতে পারবে না!');
                 return;
             }
 
@@ -485,12 +600,15 @@
                 return;
             }
 
+            await executeRound(betAmount, targetMultiplier);
+        }
+
+        async function executeRound(betAmount, targetMultiplier) {
             const resultDisplay = document.getElementById('resultMultiplier');
             const client = getClient();
 
             if (userBalance < betAmount) {
-                alert('অপর্যাপ্ত ব্যালেন্স!');
-                return;
+                return false;
             }
 
             if (client && currentUserId) {
@@ -502,7 +620,6 @@
             let randomRoll = parseFloat((99 / (Math.random() * 98 + 1)).toFixed(2));
             if (randomRoll < 1.00) randomRoll = 1.00;
 
-            // Turbo Mode Check
             if (!isTurboOn) {
                 resultDisplay.innerText = "1.00x";
                 let counter = 1.00;
@@ -514,7 +631,7 @@
                     }
                     resultDisplay.innerText = counter.toFixed(2) + 'x';
                 }, 30);
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 400));
             }
 
             resultDisplay.innerText = randomRoll.toFixed(2) + 'x';
@@ -524,7 +641,6 @@
 
             playSound(isWin);
 
-            // Update Live Stats & Graph Data
             totalWagered += betAmount;
             if (isWin) {
                 totalWins++;
@@ -542,7 +658,6 @@
 
             updateGraph();
 
-            // Recent History Bar Update (Right to Left flow, Bold text)
             const historyBar = document.getElementById('historyBar');
             const historySpan = document.createElement('span');
             historySpan.className = `px-3 py-1 bg-[#213743] rounded-md font-bold shrink-0 ${isWin ? 'text-[#2fbf71]' : 'text-[#eb4e3d]'}`;
@@ -582,6 +697,8 @@
                     console.error('Database error:', err);
                 }
             }
+
+            return isWin;
         }
 
         document.addEventListener('DOMContentLoaded', init);
