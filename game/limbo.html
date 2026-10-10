@@ -17,12 +17,13 @@
             color: #ffffff;
             font-family: sans-serif;
         }
-        /* Custom scrollbar for history bar (Right to Left flow simulation) */
-        #historyBar {
-            direction: rtl;
+        /* Hide scrollbar for history bar */
+        #historyBar::-webkit-scrollbar {
+            display: none;
         }
-        #historyBar > * {
-            direction: ltr;
+        #historyBar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
@@ -34,9 +35,9 @@
     <!-- Game Container -->
     <div class="w-full max-w-md p-4 flex flex-col gap-4 relative">
         
-        <!-- Recent Multipliers History Bar (Empty initially, scrolls right to left, bold text) -->
-        <div id="historyBar" class="flex gap-2 overflow-x-auto py-1 text-xs no-scrollbar">
-            <!-- Dynamic items will append here -->
+        <!-- Recent Multipliers History Bar (Right to Left flow, Bold Text) -->
+        <div id="historyBar" class="flex flex-row-reverse gap-2 overflow-x-auto py-1 text-xs justify-start scroll-smooth">
+            <!-- Dynamic history items will appear here -->
         </div>
 
         <!-- Main Display Box -->
@@ -49,7 +50,7 @@
         <button id="betBtn" onclick="playLimbo()" class="w-full bg-[#00e701] hover:bg-[#00c701] text-black font-bold py-3.5 rounded-xl transition duration-200 text-lg shadow-lg">
             Bet
         </button>
-        <p class="text-center text-xs text-gray-400">Betting with 0 will enter demo mode.</p>
+        <p class="text-center text-xs text-gray-400">Minimum bet amount is ৳1.</p>
 
         <!-- Controls Section -->
         <div class="bg-[#213743] p-4 rounded-xl flex flex-col gap-4">
@@ -57,13 +58,13 @@
             <!-- Amount Input -->
             <div>
                 <label class="text-xs text-gray-400 block mb-1">Amount</label>
-                <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                <div id="amountBoxContainer" class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
                     <span class="text-emerald-400 font-bold mr-2">৳</span>
-                    <input type="number" id="betAmount" value="0" step="any" min="0" class="bg-transparent w-full focus:outline-none text-white font-semibold">
+                    <input type="number" id="betAmount" value="1" min="1" class="bg-transparent w-full focus:outline-none text-white font-semibold">
                     <div class="flex gap-1 ml-2">
-                        <button onclick="halveAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-xs rounded font-medium">1/2</button>
-                        <button onclick="doubleAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-xs rounded font-medium">2x</button>
-                        <button onclick="maxAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-xs rounded font-medium text-emerald-400">Max</button>
+                        <button onclick="halveAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-[11px] rounded font-medium">1/2</button>
+                        <button onclick="doubleAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-[11px] rounded font-medium">2x</button>
+                        <button onclick="maxAmount()" class="bg-[#213743] hover:bg-[#2f4553] px-2 py-1 text-[11px] rounded font-medium text-[#2fbf71]">Max</button>
                     </div>
                 </div>
             </div>
@@ -72,15 +73,15 @@
             <div class="flex gap-4">
                 <div class="flex-1">
                     <label class="text-xs text-gray-400 block mb-1">Payout</label>
-                    <div id="payoutBox" class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2 transition-colors">
-                        <input type="number" id="targetMultiplier" value="2.00" step="0.01" oninput="updateChance()" class="bg-transparent w-full focus:outline-none text-white font-semibold">
+                    <div id="payoutBox" class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                        <input type="number" id="targetMultiplier" value="2.00" step="0.001" min="1.001" oninput="updateChance()" class="bg-transparent w-full focus:outline-none text-white font-semibold">
                         <span class="text-gray-400 ml-1">×</span>
                     </div>
                 </div>
                 <div class="w-1/3">
-                    <label id="chanceLabel" class="text-xs text-gray-400 block mb-1 text-right">Chance 49%</label>
-                    <div id="chanceBox" class="flex items-center justify-between bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2 transition-colors">
-                        <span id="chanceDisplay" class="text-white font-semibold text-sm w-full text-center">49%</span>
+                    <label id="chanceLabel" class="text-xs text-gray-400 block mb-1 text-right">Chance 49.00%</label>
+                    <div id="chanceBox" class="flex items-center justify-between bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                        <span id="chanceDisplay" class="text-white font-semibold text-sm w-full text-center">49.00%</span>
                     </div>
                 </div>
             </div>
@@ -180,16 +181,19 @@
         let isTurboOn = false;
         let isSoundOn = true;
 
+        // Live Stats Tracking Variables
         let totalProfit = 0;
         let totalWagered = 0;
         let totalWins = 0;
         let totalLosses = 0;
         let profitHistory = [0];
 
+        // Horror Type Smooth Background Music (Looping)
         const horrorBgMusic = new Audio('https://freesound.org/data/previews/515/515843_6142149-lq.mp3');
         horrorBgMusic.loop = true;
         horrorBgMusic.volume = 0.4;
 
+        // Sound Effects
         const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
         const loseSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3');
 
@@ -346,45 +350,44 @@
             modal.classList.toggle('hidden');
         }
 
-        // Payout validation & Red coloration logic
+        // Payout & Chance Validation Logic (1.001 and 98.02 threshold)
         function updateChance() {
             let targetInput = document.getElementById('targetMultiplier');
             let payoutBox = document.getElementById('payoutBox');
             let chanceBox = document.getElementById('chanceBox');
-            let betBtn = document.getElementById('betBtn');
+            let chanceDisplay = document.getElementById('chanceDisplay');
 
-            let target = parseFloat(targetInput.value) || 1.01;
-            let chance = (99 / target).toFixed(2);
-            document.getElementById('chanceDisplay').innerText = chance + '%';
+            let target = parseFloat(targetInput.value) || 1.001;
+            let chance = (99 / target);
 
-            let isInvalid = target < 1.01 || chance < 98.02;
-
-            if (isInvalid) {
-                payoutBox.classList.add('border-red-500');
-                chanceBox.classList.add('border-red-500');
-                betBtn.style.display = 'none'; // Hide bet button
+            if (target < 1.001 || chance > 98.02) {
+                payoutBox.className = "flex items-center bg-[#0f212e] rounded-lg border border-red-500 px-3 py-2";
+                chanceBox.className = "flex items-center justify-between bg-[#0f212e] rounded-lg border border-red-500 px-3 py-2";
+                chanceDisplay.className = "text-red-500 font-semibold text-sm w-full text-center";
+                chanceDisplay.innerText = chance.toFixed(2) + '%';
             } else {
-                payoutBox.classList.remove('border-red-500');
-                chanceBox.classList.remove('border-red-500');
-                betBtn.style.display = 'block'; // Show bet button
+                payoutBox.className = "flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2";
+                chanceBox.className = "flex items-center justify-between bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2";
+                chanceDisplay.className = "text-white font-semibold text-sm w-full text-center";
+                chanceDisplay.innerText = chance.toFixed(2) + '%';
             }
         }
 
         function halveAmount() {
             let input = document.getElementById('betAmount');
-            let val = parseFloat(input.value) || 0;
-            input.value = Math.max(0, val / 2).toFixed(2);
+            let val = parseFloat(input.value) || 1;
+            input.value = Math.max(1, Math.floor(val / 2));
         }
 
         function doubleAmount() {
             let input = document.getElementById('betAmount');
-            let val = parseFloat(input.value) || 0;
-            input.value = (val * 2).toFixed(2);
+            let val = parseFloat(input.value) || 1;
+            input.value = Math.max(1, Math.floor(val * 2));
         }
 
         function maxAmount() {
             let input = document.getElementById('betAmount');
-            input.value = userBalance.toFixed(2);
+            input.value = Math.max(1, Math.floor(userBalance));
         }
 
         function updateGraph() {
@@ -414,21 +417,29 @@
 
         async function playLimbo() {
             const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
-            const targetMultiplier = parseFloat(document.getElementById('targetMultiplier').value) || 2.00;
-            const resultDisplay = document.getElementById('resultMultiplier');
-            const client = getClient();
+            const targetMultiplier = parseFloat(document.getElementById('targetMultiplier').value) || 1.001;
+            let chance = (99 / targetMultiplier);
 
-            if (targetMultiplier < 1.01) {
-                alert('পেইআউট কম পক্ষে ১.০১ হওয়া আবশ্যক!');
+            // Validation check for minimum bet and invalid payout/chance limits
+            if (betAmount < 1) {
+                alert('সর্বনিম্ন ১ টাকা বেট করতে হবে!');
                 return;
             }
 
-            if (betAmount > 0 && userBalance < betAmount) {
+            if (targetMultiplier < 1.001 || chance > 98.02) {
+                alert('সঠিক পেআউট বা চান্স সীমা নির্ধারণ করুন!');
+                return;
+            }
+
+            const resultDisplay = document.getElementById('resultMultiplier');
+            const client = getClient();
+
+            if (userBalance < betAmount) {
                 alert('অপর্যাপ্ত ব্যালেন্স!');
                 return;
             }
 
-            if (betAmount > 0 && client && currentUserId) {
+            if (client && currentUserId) {
                 userBalance -= betAmount;
                 updateUIBalance(userBalance);
                 await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
@@ -437,6 +448,7 @@
             let randomRoll = parseFloat((99 / (Math.random() * 98 + 1)).toFixed(2));
             if (randomRoll < 1.00) randomRoll = 1.00;
 
+            // Turbo Mode Check
             if (!isTurboOn) {
                 resultDisplay.innerText = "1.00x";
                 let counter = 1.00;
@@ -458,44 +470,43 @@
 
             playSound(isWin);
 
-            if (betAmount > 0) {
-                totalWagered += betAmount;
-                if (isWin) {
-                    totalWins++;
-                    totalProfit += (payoutAmount - betAmount);
-                } else {
-                    totalLosses++;
-                    totalProfit -= betAmount;
-                }
-                profitHistory.push(totalProfit);
-
-                document.getElementById('statsProfit').innerText = '৳ ' + totalProfit.toFixed(2);
-                document.getElementById('statsWagered').innerText = '৳ ' + totalWagered.toFixed(2);
-                document.getElementById('statsWin').innerText = totalWins;
-                document.getElementById('statsLose').innerText = totalLosses;
-
-                updateGraph();
+            // Update Live Stats & Graph Data
+            totalWagered += betAmount;
+            if (isWin) {
+                totalWins++;
+                totalProfit += (payoutAmount - betAmount);
+            } else {
+                totalLosses++;
+                totalProfit -= betAmount;
             }
+            profitHistory.push(totalProfit);
 
-            // Recent History Bar Update (Appends on right, scrolls to left with bold text)
+            document.getElementById('statsProfit').innerText = '৳ ' + totalProfit.toFixed(2);
+            document.getElementById('statsWagered').innerText = '৳ ' + totalWagered.toFixed(2);
+            document.getElementById('statsWin').innerText = totalWins;
+            document.getElementById('statsLose').innerText = totalLosses;
+
+            updateGraph();
+
+            // Recent History Bar Update (Right to Left flow, Bold text)
             const historyBar = document.getElementById('historyBar');
             const historySpan = document.createElement('span');
             historySpan.className = `px-3 py-1 bg-[#213743] rounded-md font-bold shrink-0 ${isWin ? 'text-[#2fbf71]' : 'text-[#eb4e3d]'}`;
             historySpan.innerText = randomRoll.toFixed(2) + 'x';
-            historyBar.appendChild(historySpan);
-            historyBar.scrollLeft = historyBar.scrollWidth;
+            historyBar.prepend(historySpan);
+            if (historyBar.children.length > 10) {
+                historyBar.lastChild.remove();
+            }
 
             if (isWin) {
                 resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#2fbf71]";
-                if (betAmount > 0) {
-                    userBalance += payoutAmount;
-                    updateUIBalance(userBalance);
-                }
+                userBalance += payoutAmount;
+                updateUIBalance(userBalance);
             } else {
                 resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#eb4e3d]";
             }
 
-            if (betAmount > 0 && client && currentUserId) {
+            if (client && currentUserId) {
                 try {
                     await client.from('bets').insert([
                         {
