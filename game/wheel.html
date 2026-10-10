@@ -90,17 +90,17 @@
       
       <!-- Wheel Canvas Area -->
       <div class="relative flex flex-col items-center justify-center my-2">
-        <!-- Top Pointer / Owl Icon -->
+        <!-- Top Pointer -->
         <div class="absolute -top-3 z-20 text-[#ed4245] text-2xl filter drop-shadow">
           <i class="fa-solid fa-location-pin"></i>
         </div>
 
         <div class="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full border-4 border-[rgba(245,207,102,0.25)] p-1 bg-[#151a23] shadow-2xl flex items-center justify-center">
-          <canvas id="wheelCanvas" width="280" height="280" class="w-full h-full rounded-full transition-transform duration-3000 ease-out"></canvas>
+          <canvas id="wheelCanvas" width="280" height="280" class="w-full h-full rounded-full"></canvas>
           
           <!-- Center Hub -->
           <div class="absolute w-20 h-20 rounded-full bg-[#080B10] border-2 border-[rgba(245,207,102,0.3)] flex flex-col items-center justify-center shadow-inner">
-            <span class="text-xs text-gray-400 font-medium">Result</span>
+            <span class="text-[10px] text-gray-400 font-medium">Multiplier</span>
             <span class="text-sm font-black text-[#F5CF66]" id="centerMultiplierText">0×</span>
           </div>
         </div>
@@ -108,7 +108,7 @@
 
       <!-- Multiplier Payout Cards Bar -->
       <div id="payoutCardsBar" class="grid grid-cols-5 gap-2 my-1">
-        <!-- Dynamically rendered multiplier cards -->
+        <!-- Dynamically rendered payout cards -->
       </div>
 
       <!-- Game Controls Section -->
@@ -182,9 +182,7 @@
     let currentMultipliers = [];
     let currentRotation = 0;
 
-    const HOUSE_EDGE = 0.96; // 96% RTP
-
-    async::loadBars = async function() {
+    async function loadBars() {
       try {
         const topRes = await fetch('../bar/top.html');
         if (topRes.ok) document.getElementById('topBarContainer').innerHTML = await topRes.text();
@@ -192,12 +190,12 @@
         const botRes = await fetch('../bar/bottom.html');
         if (botRes.ok) document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
       } catch (e) { console.error('Bar load error:', e); }
-    };
+    }
 
     async function initWheelGame() {
       await loadBars();
       generateMultipliers();
-      drawWheel();
+      drawWheel(0);
 
       if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
         const user = await getCurrentUser();
@@ -243,7 +241,7 @@
       segmentsCount = parseInt(val);
       document.getElementById('segmentsVal').innerText = segmentsCount;
       generateMultipliers();
-      drawWheel();
+      drawWheel(0);
     }
 
     function setRiskLevel(level) {
@@ -258,31 +256,28 @@
         }
       });
       generateMultipliers();
-      drawWheel();
+      drawWheel(0);
     }
 
-    // BC.Game Style Multiplier Calculation Algorithm based on Risk & Segments
+    // Risk & Segment Based Multiplier Generator
     function generateMultipliers() {
       currentMultipliers = [];
-      const count = segmentsCount;
-      
-      // Zero probability or low multipliers based on risk
-      let zeroCount = Math.floor(count * (riskLevel === 'low' ? 0.2 : riskLevel === 'medium' ? 0.35 : 0.5));
-      
+      let zeroRatio = riskLevel === 'low' ? 0.2 : riskLevel === 'medium' ? 0.4 : 0.6;
+      let zeroCount = Math.floor(segmentsCount * zeroRatio);
+
       for (let i = 0; i < zeroCount; i++) {
         currentMultipliers.push(0.00);
       }
 
-      const remaining = count - zeroCount;
-      let maxMultiplier = riskLevel === 'low' ? 5.0 : riskLevel === 'medium' ? 25.0 : 99.0;
+      const remaining = segmentsCount - zeroCount;
+      let maxMult = riskLevel === 'low' ? 3.5 : riskLevel === 'medium' ? 19.6 : 98.0;
 
       for (let i = 0; i < remaining; i++) {
-        let mult = Math.pow((i + 1) / remaining, riskLevel === 'high' ? 3 : 1.5) * maxMultiplier;
-        if (mult < 1.1) mult = 1.15;
-        currentMultipliers.push(parseFloat(mult.toFixed(2)));
+        let val = Math.pow((i + 1) / remaining, riskLevel === 'high' ? 2.5 : 1.5) * maxMult;
+        if (val < 1.1) val = 1.2;
+        currentMultipliers.push(parseFloat(val.toFixed(2)));
       }
 
-      // Shuffle array for random segment distribution
       currentMultipliers.sort(() => Math.random() - 0.5);
       renderPayoutCards();
     }
@@ -290,7 +285,6 @@
     function renderPayoutCards() {
       const bar = document.getElementById('payoutCardsBar');
       bar.innerHTML = '';
-      // Unique sorted multipliers for display cards
       const uniqueMults = [...new Set(currentMultipliers)].sort((a, b) => a - b).slice(0, 5);
 
       uniqueMults.forEach(m => {
@@ -301,9 +295,9 @@
       });
     }
 
-    const wheelColors = ['#1a212d', '#253042', '#2f3d54', '#1f293a'];
+    const segmentColors = ['#1a212d', '#253042', '#2f3d54', '#1f293a', '#32425c'];
 
-    function drawWheel() {
+    function drawWheel(rotationAngle) {
       const canvas = document.getElementById('wheelCanvas');
       const ctx = canvas.getContext('2d');
       const count = currentMultipliers.length;
@@ -312,14 +306,21 @@
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      ctx.save();
+      ctx.translate(radius, radius);
+      ctx.rotate(rotationAngle);
+      ctx.translate(-radius, -radius);
+
       currentMultipliers.forEach((mult, i) => {
         const angle = i * arc;
         ctx.beginPath();
-        ctx.fillStyle = wheelColors[i % wheelColors.length];
+        ctx.fillStyle = mult === 0 ? '#2a1a1a' : segmentColors[i % segmentColors.length];
         ctx.moveTo(radius, radius);
         ctx.arc(radius, radius, radius - 4, angle, angle + arc);
         ctx.lineTo(radius, radius);
         ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(245, 207, 102, 0.15)';
         ctx.stroke();
 
         // Text
@@ -328,10 +329,12 @@
         ctx.rotate(angle + arc / 2);
         ctx.textAlign = "right";
         ctx.fillStyle = mult === 0 ? "#ed4245" : "#ffffff";
-        ctx.font = "bold 10px sans-serif";
-        ctx.fillText(mult.toFixed(2) + "×", radius - 16, 4);
+        ctx.font = "bold 11px sans-serif";
+        ctx.fillText(mult.toFixed(2) + "×", radius - 18, 4);
         ctx.restore();
       });
+
+      ctx.restore();
     }
 
     async function triggerBet() {
@@ -357,46 +360,65 @@
         updateBalanceUI();
       }
 
-      // Pick random winning index
       const winningIndex = Math.floor(Math.random() * currentMultipliers.length);
       const multiplier = currentMultipliers[winningIndex];
 
-      const arcDegree = 360 / currentMultipliers.length;
-      // Calculate target rotation to stop winning index at top pointer (0 deg)
-      const targetDegree = 360 * 5 + (360 - (winningIndex * arcDegree + arcDegree / 2));
-      currentRotation = targetDegree;
+      const count = currentMultipliers.length;
+      const arcRad = (2 * Math.PI) / count;
+      // Target angle so winning segment aligns precisely with top pointer (-Math.PI / 2)
+      const targetAngle = (2 * Math.PI * 5) + ((count - winningIndex) * arcRad - arcRad / 2) - (Math.PI / 2);
 
-      const canvas = document.getElementById('wheelCanvas');
-      canvas.style.transform = `rotate(${currentRotation}deg)`;
+      let startTime = null;
+      const duration = 3000; // 3 seconds spin
 
-      setTimeout(async () => {
-        const winAmount = betVal > 0 ? (betVal * multiplier) : 0;
-        const isWin = multiplier > 0;
+      function animateSpin(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease out quad
+        const easeProgress = 1 - (1 - progress) * (1 - progress);
+        const currentAngle = targetAngle * easeProgress;
 
-        if (isWin && betVal > 0) {
-          balance += winAmount;
-          updateBalanceUI();
+        drawWheel(currentAngle);
+
+        if (progress < 1) {
+          requestAnimationFrame(animateSpin);
+        } else {
+          finishSpin(winningIndex, multiplier, betVal);
         }
+      }
 
-        document.getElementById('centerMultiplierText').innerText = multiplier.toFixed(2) + '×';
+      requestAnimationFrame(animateSpin);
+    }
 
-        if (currentUserId && betVal > 0 && typeof supabaseClient !== 'undefined') {
-          await supabaseClient.from('bets').insert([{
-            user_id: currentUserId,
-            target_number: segmentsCount,
-            roll_result: multiplier,
-            bet_amount: betVal,
-            payout: multiplier,
-            is_bool: isWin
-          }]);
+    async function finishSpin(winningIndex, multiplier, betVal) {
+      const winAmount = betVal > 0 ? (betVal * multiplier) : 0;
+      const isWin = multiplier > 0;
 
-          await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
-        }
+      if (isWin && betVal > 0) {
+        balance += winAmount;
+        updateBalanceUI();
+      }
 
-        isSpinning = false;
-        btn.disabled = false;
-        btn.innerText = "Bet";
-      }, 3000);
+      document.getElementById('centerMultiplierText').innerText = multiplier.toFixed(2) + '×';
+
+      if (currentUserId && betVal > 0 && typeof supabaseClient !== 'undefined') {
+        await supabaseClient.from('bets').insert([{
+          user_id: currentUserId,
+          target_number: segmentsCount,
+          roll_result: multiplier,
+          bet_amount: betVal,
+          payout: multiplier,
+          is_bool: isWin
+        }]);
+
+        await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+      }
+
+      isSpinning = false;
+      const btn = document.getElementById('btnBet');
+      btn.disabled = false;
+      btn.innerText = "Bet";
     }
 
     window.onload = initWheelGame;
