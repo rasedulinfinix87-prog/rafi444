@@ -15,18 +15,15 @@
             history: []
         },
         balanceChannel: null,
+        boundContainer: null,
 
-        // Supabase client
+        // Get Supabase client
         getClient() {
             if (typeof supabaseClient !== "undefined") {
                 return supabaseClient;
             }
 
-            if (window.supabaseClient) {
-                return window.supabaseClient;
-            }
-
-            return null;
+            return window.supabaseClient || null;
         },
 
         // Initialize user and balance
@@ -56,6 +53,7 @@
                         window.location.href =
                             options.loginUrl || "../login-signup.html";
                     }
+
                     return null;
                 }
 
@@ -71,20 +69,20 @@
 
                 this.balance = Number(profile?.balance) || 0;
                 this.updateBalanceDisplay();
-
                 this.subscribeBalance();
 
                 return {
                     user: this.user,
                     balance: this.balance
                 };
+
             } catch (error) {
                 console.error("GameTools init error:", error);
                 return null;
             }
         },
 
-        // Load shared game-tools HTML
+        // Load shared HTML component
         async loadComponents(
             url = "../components/game-tools.html",
             containerId = "gameToolsContainer"
@@ -100,6 +98,7 @@
                 }
 
                 const html = await response.text();
+
                 const parsed = new DOMParser().parseFromString(
                     html,
                     "text/html"
@@ -113,7 +112,8 @@
                     throw new Error("gameToolsTemplate not found.");
                 }
 
-                let container = document.getElementById(containerId);
+                let container =
+                    document.getElementById(containerId);
 
                 if (!container) {
                     container = document.createElement("div");
@@ -125,46 +125,59 @@
                     document.importNode(template.content, true)
                 );
 
-                this.bindComponentEvents();
+                this.bindComponentEvents(container);
+                this.updateStatsDisplay();
 
                 return true;
+
             } catch (error) {
                 console.error("GameTools component error:", error);
                 return false;
             }
         },
 
-        // Load existing top bar
+        // Load existing top bar when needed
         async loadTopBar(
             url = "../bar/top.html",
             containerId = "topBarContainer"
         ) {
-            const container = document.getElementById(containerId);
+            const container =
+                document.getElementById(containerId);
+
             if (!container) return false;
 
             try {
                 const response = await fetch(url);
+
                 if (!response.ok) {
-                    throw new Error("Top bar HTTP " + response.status);
+                    throw new Error(
+                        "Top bar HTTP " + response.status
+                    );
                 }
 
                 container.innerHTML = await response.text();
 
-                container.querySelectorAll('a[href*="deposit"]').forEach(a => {
-                    a.href = "../account/deposit.html";
-                });
+                container
+                    .querySelectorAll('a[href*="deposit"]')
+                    .forEach(a => {
+                        a.href = "../account/deposit.html";
+                    });
 
-                container.querySelectorAll('a[href*="member"]').forEach(a => {
-                    if (a.href.includes("admin/mem/member.html")) {
-                        a.href = a.href.replace(
-                            "admin/mem/member.html",
-                            "mem/member.html"
-                        );
-                    }
-                });
+                container
+                    .querySelectorAll('a[href*="member"]')
+                    .forEach(a => {
+                        if (a.href.includes("admin/mem/member.html")) {
+                            a.href = a.href.replace(
+                                "admin/mem/member.html",
+                                "mem/member.html"
+                            );
+                        }
+                    });
 
                 this.updateBalanceDisplay();
+
                 return true;
+
             } catch (error) {
                 console.error("GameTools top bar error:", error);
                 return false;
@@ -173,7 +186,7 @@
 
         // Update balance labels
         updateBalanceDisplay() {
-            const formatted = this.formatMoney(this.balance);
+            const formatted = "৳ " + this.formatMoney(this.balance);
 
             [
                 "topBarBalance",
@@ -181,7 +194,10 @@
                 "balanceText"
             ].forEach(id => {
                 const element = document.getElementById(id);
-                if (element) element.textContent = formatted;
+
+                if (element) {
+                    element.textContent = formatted;
+                }
             });
         },
 
@@ -189,7 +205,7 @@
             return (Number(value) || 0).toFixed(2);
         },
 
-        // Listen for profile balance updates
+        // Subscribe to profile balance updates
         subscribeBalance() {
             if (!this.client || !this.user) return;
 
@@ -209,7 +225,9 @@
                     },
                     payload => {
                         if (payload.new?.balance !== undefined) {
-                            this.balance = Number(payload.new.balance) || 0;
+                            this.balance =
+                                Number(payload.new.balance) || 0;
+
                             this.updateBalanceDisplay();
                         }
                     }
@@ -217,7 +235,7 @@
                 .subscribe();
         },
 
-        // Refresh balance from database
+        // Refresh balance
         async refreshBalance() {
             if (!this.client || !this.user) return null;
 
@@ -235,7 +253,7 @@
             return this.balance;
         },
 
-        // Save a game bet using the existing bets columns
+        // Save a bet using existing database columns
         async saveBet({
             target_number,
             roll_result,
@@ -263,10 +281,15 @@
                 .single();
 
             if (error) throw error;
+
             return data;
         },
 
-        // Update profile balance (database RLS must permit this)
+        /*
+         * This function writes directly to profiles.balance.
+         * Do not use it for real-money balance changes in production.
+         * Use a trusted server-side function or secure database RPC.
+         */
         async setBalance(newBalance) {
             if (!this.client || !this.user) {
                 throw new Error("User is not initialized.");
@@ -291,7 +314,7 @@
             return this.balance;
         },
 
-        // Track stats locally for the current page
+        // Record one completed game round in local stats
         recordRound({ betAmount, payout = 0, isWin }) {
             const bet = Number(betAmount) || 0;
             const winAmount = Number(payout) || 0;
@@ -309,23 +332,43 @@
             this.stats.history.push(this.stats.profit);
             this.updateStatsDisplay();
 
-            return { ...this.stats };
+            return {
+                profit: this.stats.profit,
+                wagered: this.stats.wagered,
+                wins: this.stats.wins,
+                losses: this.stats.losses,
+                history: [...this.stats.history]
+            };
         },
 
+        // Update Live Stats modal
         updateStatsDisplay() {
             const values = {
-                gameToolsProfit: "৳ " + this.formatMoney(this.stats.profit),
-                gameToolsWagered: "৳ " + this.formatMoney(this.stats.wagered),
-                gameToolsWins: String(this.stats.wins),
-                gameToolsLosses: String(this.stats.losses)
+                gameToolsProfit:
+                    "৳ " + this.formatMoney(this.stats.profit),
+
+                gameToolsWagered:
+                    "৳ " + this.formatMoney(this.stats.wagered),
+
+                gameToolsWins:
+                    String(this.stats.wins),
+
+                gameToolsLosses:
+                    String(this.stats.losses)
             };
 
             Object.entries(values).forEach(([id, value]) => {
                 const element = document.getElementById(id);
-                if (element) element.textContent = value;
+
+                if (element) {
+                    element.textContent = value;
+                }
             });
 
-            const graph = document.getElementById("gameToolsStatsGraph");
+            const graph = document.getElementById(
+                "gameToolsStatsGraph"
+            );
+
             if (!graph) return;
 
             graph.replaceChildren();
@@ -334,62 +377,107 @@
 
             if (!history.length) return;
 
-            const max = Math.max(1, ...history.map(v => Math.abs(v)));
+            const max = Math.max(
+                1,
+                ...history.map(value => Math.abs(value))
+            );
 
             history.forEach(value => {
                 const bar = document.createElement("div");
+
                 bar.style.height =
                     Math.max(8, Math.abs(value) / max * 100) + "%";
+
                 bar.style.minWidth = "8px";
                 bar.style.borderRadius = "3px";
+
                 bar.style.background =
                     value >= 0 ? "#F5CF66" : "#eb4e3d";
-                bar.title = "Profit/Loss: ৳" + this.formatMoney(value);
+
+                bar.title =
+                    "Profit/Loss: ৳" + this.formatMoney(value);
+
                 graph.appendChild(bar);
             });
         },
 
-        // Open or close shared modals
+        // Toggle a modal
         toggleModal(id) {
             const modal = document.getElementById(id);
+
             if (!modal) return;
 
             const opening = modal.classList.contains("hidden");
+
             modal.classList.toggle("hidden", !opening);
             modal.classList.toggle("flex", opening);
         },
 
-        bindComponentEvents() {
-            document.querySelectorAll("[data-game-tools-close]").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const modal = document.getElementById(
-                        btn.dataset.gameToolsClose
-                    );
-                    if (modal) {
-                        modal.classList.add("hidden");
-                        modal.classList.remove("flex");
-                    }
-                });
-            });
+        // Bind events only inside the Game Tools container
+        bindComponentEvents(container) {
+            const root = container ||
+                document.getElementById("gameToolsContainer") ||
+                document;
 
-            const soundButton =
-                document.getElementById("gameToolsSoundToggle");
+            // Prevent duplicate event handlers on the same container
+            if (this.boundContainer === root) return;
+
+            this.boundContainer = root;
+
+            root.querySelectorAll("[data-game-tools-open]")
+                .forEach(button => {
+                    button.addEventListener("click", () => {
+                        this.toggleModal(
+                            button.dataset.gameToolsOpen
+                        );
+                    });
+                });
+
+            root.querySelectorAll("[data-game-tools-close]")
+                .forEach(button => {
+                    button.addEventListener("click", () => {
+                        const id = button.dataset.gameToolsClose;
+                        const modal = document.getElementById(id);
+
+                        if (modal) {
+                            modal.classList.add("hidden");
+                            modal.classList.remove("flex");
+                        }
+                    });
+                });
+
+            root.querySelectorAll("[id$='Modal']")
+                .forEach(modal => {
+                    modal.addEventListener("click", event => {
+                        if (event.target === modal) {
+                            modal.classList.add("hidden");
+                            modal.classList.remove("flex");
+                        }
+                    });
+                });
+
+            const soundButton = root.querySelector(
+                "#gameToolsSoundToggle"
+            );
 
             if (soundButton) {
                 soundButton.addEventListener("click", () => {
                     this.soundEnabled = !this.soundEnabled;
 
-                    const status = document.getElementById(
-                        "gameToolsSoundStatus"
+                    const status = root.querySelector(
+                        "#gameToolsSoundStatus"
                     );
 
                     if (status) {
-                        status.textContent = this.soundEnabled ? "ON" : "OFF";
+                        status.textContent =
+                            this.soundEnabled ? "ON" : "OFF";
                     }
                 });
             }
 
-            const shareButton = document.getElementById("gameToolsShare");
+            const shareButton = root.querySelector(
+                "#gameToolsShare"
+            );
 
             if (shareButton) {
                 shareButton.addEventListener("click", async () => {
@@ -399,17 +487,21 @@
                                 title: document.title,
                                 url: window.location.href
                             });
+
                         } else if (navigator.clipboard?.writeText) {
                             await navigator.clipboard.writeText(
                                 window.location.href
                             );
-                            alert("লিংক কপি করা হয়েছে!");
+
+                            alert("গেমের লিংক কপি করা হয়েছে!");
+
                         } else {
                             window.prompt(
                                 "গেমের লিংক কপি করুন:",
                                 window.location.href
                             );
                         }
+
                     } catch (error) {
                         if (error.name !== "AbortError") {
                             console.error("Share error:", error);
@@ -419,26 +511,34 @@
             }
         },
 
-        // Sound toggle state for game-specific sound functions
+        // Play sound only when enabled
         playSound(audio, enabled = true) {
             if (!this.soundEnabled || !enabled || !audio) return;
 
             try {
                 audio.currentTime = 0;
+
                 const result = audio.play();
-                if (result?.catch) result.catch(console.error);
+
+                if (result?.catch) {
+                    result.catch(error => {
+                        console.error("Sound error:", error);
+                    });
+                }
+
             } catch (error) {
                 console.error("Sound error:", error);
             }
         },
 
-        // Clean up real-time listener when no longer needed
+        // Remove the realtime balance subscription
         destroy() {
             if (this.client && this.balanceChannel) {
                 this.client.removeChannel(this.balanceChannel);
             }
 
             this.balanceChannel = null;
+            this.boundContainer = null;
         }
     };
 
