@@ -1,0 +1,95 @@
+<!-- Settings Modal -->
+<div id="settingsModal"
+     class="fixed inset-0 bg-black/60 z-[10000] hidden items-end justify-center">
+
+    <div class="glass-card w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3">
+
+        <div class="flex justify-between items-center pb-2 border-b border-[rgba(245,207,102,0.25)]">
+            <span class="font-bold text-white">Settings</span>
+            <button onclick="GameTools.toggleSettings()"
+                    class="text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <button class="flex items-center gap-3 py-2.5 px-3 text-left text-sm text-gray-300">
+            <i class="fa-regular fa-circle-question w-5 text-[#F5CF66]"></i>
+            Help
+        </button>
+
+        <button onclick="GameTools.toggleSound()"
+                id="soundSettingBtn"
+                class="flex items-center justify-between py-2.5 px-3 rounded-lg text-sm text-[#F5CF66]">
+
+            <span class="flex items-center gap-3">
+                <i class="fa-solid fa-volume-high w-5"></i>
+                Sound Effects
+            </span>
+
+            <span id="soundStatusText" class="text-xs font-bold">ON</span>
+        </button>
+
+        <button class="flex items-center gap-3 py-2.5 px-3 text-left text-sm text-gray-300">
+            <i class="fa-solid fa-seedling w-5 text-[#F5CF66]"></i>
+            Seed
+        </button>
+
+        <button onclick="GameTools.share()"
+                class="flex items-center gap-3 py-2.5 px-3 text-left text-sm text-gray-300">
+            <i class="fa-solid fa-share-nodes w-5 text-[#F5CF66]"></i>
+            Share
+        </button>
+    </div>
+</div>
+
+<!-- Live Stats Modal -->
+<div id="liveStatsModal"
+     class="fixed inset-0 bg-black/60 z-[10000] hidden items-center justify-center p-4">
+
+    <div class="glass-card w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 shadow-2xl">
+
+        <div class="flex justify-between items-center pb-2 border-b border-[rgba(245,207,102,0.25)]">
+            <span class="font-bold text-white text-base">Live Stats</span>
+
+            <button onclick="GameTools.toggleStats()"
+                    class="text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="bg-[#080B10] p-3 rounded-xl flex flex-col gap-3 border border-[rgba(245,207,102,0.15)]">
+
+            <div class="flex justify-between items-center text-sm">
+                <span class="text-gray-400">Profit</span>
+                <span id="statsProfit" class="text-[#F5CF66] font-bold">৳ 0.00</span>
+            </div>
+
+            <div class="flex justify-between items-center text-sm">
+                <span class="text-gray-400">Wagered</span>
+                <span id="statsWagered" class="text-white font-bold">৳ 0.00</span>
+            </div>
+
+            <div class="flex justify-between items-center text-sm border-t border-[rgba(245,207,102,0.15)] pt-2">
+                <span class="text-gray-400">
+                    WIN: <strong id="statsWin" class="text-white">0</strong>
+                </span>
+
+                <span class="text-gray-400">
+                    LOSE: <strong id="statsLose" class="text-white">0</strong>
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-[#080B10] p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden border border-[rgba(245,207,102,0.15)]">
+
+            <span class="text-[11px] text-gray-400">Profit/Loss Graph</span>
+
+            <div id="statsGraphContainer"
+                 class="flex-1 w-full flex items-end gap-1 overflow-x-auto pt-4">
+                <div class="w-full text-center text-xs text-gray-500 self-center">
+                    No bets yet
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
