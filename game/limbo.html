@@ -144,6 +144,7 @@
                 <span class="font-bold text-white text-base">Live Stats</span>
                 <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            
             <div class="bg-[#0f212e] p-3 rounded-xl flex flex-col gap-3">
                 <div class="flex justify-between items-center text-sm">
                     <span class="text-gray-400">Profit</span>
@@ -156,6 +157,14 @@
                 <div class="flex justify-between items-center text-sm border-t border-[#213743] pt-2">
                     <span class="text-gray-400">WIN: <strong id="statsWin" class="text-white">0</strong></span>
                     <span class="text-gray-400">LOSE: <strong id="statsLose" class="text-white">0</strong></span>
+                </div>
+            </div>
+
+            <!-- Live Stats Graph Box -->
+            <div class="bg-[#0f212e] p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden border border-[#213743]">
+                <span class="text-[11px] text-gray-400">Profit/Loss Graph</span>
+                <div class="flex-1 w-full flex items-end gap-1 overflow-x-auto pt-4" id="statsGraphContainer">
+                    <div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>
                 </div>
             </div>
         </div>
@@ -172,8 +181,14 @@
         let totalWagered = 0;
         let totalWins = 0;
         let totalLosses = 0;
+        let profitHistory = [0]; // Graph data array
 
-        // Sound Effects (Web Audio API / Audio Objects)
+        // Horror Type Smooth Background Music (Looping)
+        const horrorBgMusic = new Audio('https://freesound.org/data/previews/515/515843_6142149-lq.mp3');
+        horrorBgMusic.loop = true;
+        horrorBgMusic.volume = 0.4;
+
+        // Sound Effects
         const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
         const loseSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3');
 
@@ -210,9 +225,11 @@
             if (isSoundOn) {
                 btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#213743] rounded-lg text-sm text-[#2fbf71]";
                 txt.innerText = "ON";
+                horrorBgMusic.play().catch(e => console.log(e));
             } else {
                 btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#213743] rounded-lg text-sm text-gray-400";
                 txt.innerText = "OFF";
+                horrorBgMusic.pause();
             }
         }
 
@@ -309,6 +326,13 @@
                 console.error("Init Error:", err);
             }
 
+            // Start Horror Background Music automatically on first interaction or load
+            document.addEventListener('click', () => {
+                if (isSoundOn && horrorBgMusic.paused) {
+                    horrorBgMusic.play().catch(e => console.log(e));
+                }
+            }, { once: true });
+
             updateChance();
         }
 
@@ -341,6 +365,31 @@
             input.value = (val * 2).toFixed(2);
         }
 
+        function updateGraph() {
+            const container = document.getElementById('statsGraphContainer');
+            container.innerHTML = '';
+            
+            if (profitHistory.length <= 1) {
+                container.innerHTML = '<div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>';
+                return;
+            }
+
+            const maxVal = Math.max(...profitHistory.map(Math.abs), 1);
+
+            profitHistory.forEach((val, idx) => {
+                if (idx === 0) return; // skip initial zero
+                const bar = document.createElement('div');
+                const isProfit = val >= 0;
+                const heightPercent = Math.min(Math.max((Math.abs(val) / maxVal) * 45, 10), 100);
+                
+                bar.className = `w-3 rounded-sm transition-all ${isProfit ? 'bg-[#2fbf71]' : 'bg-[#eb4e3d]'}`;
+                bar.style.height = heightPercent + '%';
+                bar.title = `Profit: ৳${val.toFixed(2)}`;
+                container.appendChild(bar);
+            });
+            container.scrollLeft = container.scrollWidth;
+        }
+
         async function playLimbo() {
             const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
             const targetMultiplier = parseFloat(document.getElementById('targetMultiplier').value) || 2.00;
@@ -363,7 +412,6 @@
 
             // Turbo Mode Check
             if (!isTurboOn) {
-                // Animation Simulation Effect
                 resultDisplay.innerText = "1.00x";
                 let counter = 1.00;
                 let stepInterval = setInterval(() => {
@@ -384,7 +432,7 @@
 
             playSound(isWin);
 
-            // Update Live Stats
+            // Update Live Stats & Graph Data
             if (betAmount > 0) {
                 totalWagered += betAmount;
                 if (isWin) {
@@ -394,10 +442,14 @@
                     totalLosses++;
                     totalProfit -= betAmount;
                 }
+                profitHistory.push(totalProfit);
+
                 document.getElementById('statsProfit').innerText = '৳ ' + totalProfit.toFixed(2);
                 document.getElementById('statsWagered').innerText = '৳ ' + totalWagered.toFixed(2);
                 document.getElementById('statsWin').innerText = totalWins;
                 document.getElementById('statsLose').innerText = totalLosses;
+
+                updateGraph();
             }
 
             // Recent History Bar Update
