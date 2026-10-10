@@ -98,7 +98,7 @@
       <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-3 shadow-xl">
         <canvas id="plinkoCanvas" width="360" height="260" class="w-full h-auto rounded-xl"></canvas>
         
-        <!-- Multiplier Sinks Bar (Fixed to fit screen without forcing horizontal scroll) -->
+        <!-- Multiplier Sinks Bar -->
         <div id="multiplierSinks" class="grid w-full mt-2 gap-0.5 py-1">
           <!-- Dynamically generated multiplier boxes -->
         </div>
@@ -240,7 +240,6 @@
       const container = document.getElementById('multiplierSinks');
       container.innerHTML = '';
       
-      // Dynamic grid columns based on number of multipliers to fit screen perfectly
       container.style.gridTemplateColumns = `repeat(${currentMultipliers.length}, minmax(0, 1fr))`;
 
       currentMultipliers.forEach((mult, idx) => {
@@ -252,7 +251,7 @@
         else if (mult >= 5) bgColor = 'bg-orange-500';
         else if (mult < 1) bgColor = 'bg-yellow-500';
 
-        box.className = `${bgColor} text-[#080B10] font-extrabold text-[8px] sm:text-[10px] py-1 px-0.5 rounded text-center shadow transition-all ${isHighlight ? 'ring-2 ring-white scale-110 z-10' : ''}`;
+        box.className = `${bgColor} text-[#080B10] font-extrabold text-[7px] sm:text-[9px] py-1 px-0 rounded text-center shadow transition-all ${isHighlight ? 'ring-2 ring-white scale-110 z-10' : ''}`;
         box.innerText = mult + '×';
         container.appendChild(box);
       });
