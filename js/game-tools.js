@@ -1,3 +1,4 @@
+
 // js/game-tools.js
 (function () {
     "use strict";
@@ -25,6 +26,7 @@
             if (typeof supabaseClient !== "undefined") {
                 return supabaseClient;
             }
+
             return window.supabaseClient || null;
         },
 
@@ -59,7 +61,7 @@
 
                 this.user = user;
 
-                const { data: profile, error } = await this.client
+                const { data, error } = await this.client
                     .from("profiles")
                     .select("balance")
                     .eq("id", user.id)
@@ -67,7 +69,7 @@
 
                 if (error) throw error;
 
-                this.balance = Number(profile?.balance) || 0;
+                this.balance = Number(data?.balance) || 0;
                 this.updateBalanceDisplay();
                 this.subscribeBalance();
 
@@ -124,6 +126,7 @@
                 this.boundContainer = null;
                 this.bindComponentEvents(container);
                 this.updateStatsDisplay();
+                this.updateTurboDisplay();
 
                 return true;
             } catch (error) {
@@ -175,8 +178,13 @@
             }
         },
 
+        formatMoney(value) {
+            return (Number(value) || 0).toFixed(2);
+        },
+
         updateBalanceDisplay() {
-            const formatted = "৳ " + this.formatMoney(this.balance);
+            const formatted =
+                "৳ " + this.formatMoney(this.balance);
 
             [
                 "topBarBalance",
@@ -184,12 +192,11 @@
                 "balanceText"
             ].forEach(id => {
                 const element = document.getElementById(id);
-                if (element) element.textContent = formatted;
-            });
-        },
 
-        formatMoney(value) {
-            return (Number(value) || 0).toFixed(2);
+                if (element) {
+                    element.textContent = formatted;
+                }
+            });
         },
 
         subscribeBalance() {
@@ -213,6 +220,7 @@
                         if (payload.new?.balance !== undefined) {
                             this.balance =
                                 Number(payload.new.balance) || 0;
+
                             this.updateBalanceDisplay();
                         }
                     }
@@ -233,6 +241,7 @@
 
             this.balance = Number(data.balance) || 0;
             this.updateBalanceDisplay();
+
             return this.balance;
         },
 
@@ -266,7 +275,10 @@
             return data;
         },
 
-        // Local display only. Do not use for real-money transactions.
+        /*
+         * Not recommended for production real-money transactions.
+         * Use a secure server-side function or database RPC.
+         */
         async setBalance(newBalance) {
             if (!this.client || !this.user) {
                 throw new Error("User is not initialized.");
@@ -287,6 +299,7 @@
 
             this.balance = amount;
             this.updateBalanceDisplay();
+
             return this.balance;
         },
 
@@ -331,22 +344,21 @@
                 if (element) element.textContent = value;
             });
 
-            const graph = document.getElementById(
-                "gameToolsStatsGraph"
-            );
+            const graph =
+                document.getElementById("gameToolsStatsGraph");
 
             if (!graph) return;
+
             graph.replaceChildren();
 
-            const history = this.stats.history;
-            if (!history.length) return;
+            if (!this.stats.history.length) return;
 
             const max = Math.max(
                 1,
-                ...history.map(value => Math.abs(value))
+                ...this.stats.history.map(value => Math.abs(value))
             );
 
-            history.forEach(value => {
+            this.stats.history.forEach(value => {
                 const bar = document.createElement("div");
 
                 bar.style.height =
@@ -367,8 +379,61 @@
             if (!modal) return;
 
             const opening = modal.classList.contains("hidden");
+
             modal.classList.toggle("hidden", !opening);
             modal.classList.toggle("flex", opening);
+        },
+
+        updateTurboDisplay() {
+            const button =
+                document.getElementById("gameToolsTurboToggle");
+            const status =
+                document.getElementById("gameToolsTurboStatus");
+
+            if (button) {
+                button.setAttribute(
+                    "aria-pressed",
+                    String(this.turboEnabled)
+                );
+
+                button.classList.toggle(
+                    "bg-[#F5CF66]/15",
+                    this.turboEnabled
+                );
+            }
+
+            if (status) {
+                status.textContent =
+                    this.turboEnabled ? "ON" : "OFF";
+                status.classList.toggle(
+                    "text-[#F5CF66]",
+                    this.turboEnabled
+                );
+            }
+        },
+
+        setRating(value) {
+            this.rating = Math.max(1, Math.min(5, Number(value) || 1));
+
+            const stars = document.querySelectorAll(
+                "#gameToolsRatingStars [data-game-tools-rating]"
+            );
+
+            stars.forEach(star => {
+                const active =
+                    Number(star.dataset.gameToolsRating) <= this.rating;
+
+                star.classList.toggle("text-[#F5CF66]", active);
+                star.classList.toggle("text-gray-500", !active);
+            });
+
+            const message =
+                document.getElementById("gameToolsRatingMessage");
+
+            if (message) {
+                message.textContent =
+                    "আপনার রেটিং: " + this.rating + "/5";
+            }
         },
 
         bindComponentEvents(container) {
@@ -402,15 +467,18 @@
                     });
                 });
 
-            root.querySelectorAll("[id$='Modal']")
-                .forEach(modal => {
-                    modal.addEventListener("click", event => {
-                        if (event.target === modal) {
-                            modal.classList.add("hidden");
-                            modal.classList.remove("flex");
-                        }
-                    });
+            root.querySelectorAll(
+                "#gameToolsSettingsModal, " +
+                "#gameToolsStatsModal, " +
+                "#gameToolsRatingModal"
+            ).forEach(modal => {
+                modal.addEventListener("click", event => {
+                    if (event.target === modal) {
+                        modal.classList.add("hidden");
+                        modal.classList.remove("flex");
+                    }
                 });
+            });
 
             const soundButton =
                 root.querySelector("#gameToolsSoundToggle");
@@ -418,14 +486,22 @@
             if (soundButton) {
                 soundButton.addEventListener("click", () => {
                     this.soundEnabled = !this.soundEnabled;
-                    const status = root.querySelector(
-                        "#gameToolsSoundStatus"
-                    );
+
+                    const status =
+                        root.querySelector("#gameToolsSoundStatus");
 
                     if (status) {
                         status.textContent =
                             this.soundEnabled ? "ON" : "OFF";
                     }
+
+                    document.dispatchEvent(
+                        new CustomEvent("game-tools-sound-change", {
+                            detail: {
+                                enabled: this.soundEnabled
+                            }
+                        })
+                    );
                 });
             }
 
@@ -435,47 +511,26 @@
             if (turboButton) {
                 turboButton.addEventListener("click", () => {
                     this.turboEnabled = !this.turboEnabled;
+                    this.updateTurboDisplay();
 
-                    const status = root.querySelector(
-                        "#gameToolsTurboStatus"
+                    document.dispatchEvent(
+                        new CustomEvent("game-tools-turbo-change", {
+                            detail: {
+                                enabled: this.turboEnabled
+                            }
+                        })
                     );
-
-                    if (status) {
-                        status.textContent =
-                            this.turboEnabled ? "ON" : "OFF";
-                    }
                 });
             }
 
-            const ratingButtons =
-                root.querySelectorAll("[data-game-tools-rating]");
-
-            ratingButtons.forEach(button => {
-                button.addEventListener("click", () => {
-                    this.rating = Number(
-                        button.dataset.gameToolsRating
-                    ) || 0;
-
-                    ratingButtons.forEach(item => {
-                        const active =
-                            Number(item.dataset.gameToolsRating) <=
-                            this.rating;
-
-                        item.classList.toggle("text-[#F5CF66]", active);
-                        item.classList.toggle("text-gray-500", !active);
+            root.querySelectorAll("[data-game-tools-rating]")
+                .forEach(button => {
+                    button.addEventListener("click", () => {
+                        this.setRating(
+                            button.dataset.gameToolsRating
+                        );
                     });
-
-                    const message =
-                        root.querySelector("#gameToolsRatingMessage");
-
-                    if (message) {
-                        message.textContent =
-                            this.rating
-                                ? "আপনার রেটিং: " + this.rating + "/5"
-                                : "গেমটি রেটিং দিন";
-                    }
                 });
-            });
 
             const shareButton =
                 root.querySelector("#gameToolsShare");
