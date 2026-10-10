@@ -86,13 +86,50 @@
                 </div>
             </div>
 
+            <!-- Dynamic Auto Controls (Appears only when Auto tab is selected) -->
+            <div id="autoControlsSection" class="flex flex-col gap-3 pt-2 border-t border-[#2f4553] hidden">
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">On Win</label>
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-[#0f212e] hover:bg-[#1a2c38] text-white py-2 rounded-lg text-xs font-semibold border border-[#2f4553]">Reset</button>
+                        <div class="flex-[2] flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-1.5">
+                            <input type="text" placeholder="Increase by:" class="bg-transparent w-full text-xs focus:outline-none text-gray-300" value="0">
+                            <span class="text-gray-400 text-xs">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">On Loss</label>
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-[#0f212e] hover:bg-[#1a2c38] text-white py-2 rounded-lg text-xs font-semibold border border-[#2f4553]">Reset</button>
+                        <div class="flex-[2] flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-1.5">
+                            <input type="text" placeholder="Increase by:" class="bg-transparent w-full text-xs focus:outline-none text-gray-300" value="0">
+                            <span class="text-gray-400 text-xs">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Stop on Profit</label>
+                    <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                        <input type="number" value="0.00" class="bg-transparent w-full text-xs focus:outline-none text-white font-semibold">
+                        <span class="text-emerald-400 font-bold ml-1">৳</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400 block mb-1">Stop on Loss</label>
+                    <div class="flex items-center bg-[#0f212e] rounded-lg border border-[#2f4553] px-3 py-2">
+                        <input type="number" value="0.00" class="bg-transparent w-full text-xs focus:outline-none text-white font-semibold">
+                        <span class="text-emerald-400 font-bold ml-1">৳</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Tabs (Manual / Auto / Advanced) -->
+        <!-- Tabs (Manual / Auto) -->
         <div class="flex bg-[#0f212e] p-1 rounded-xl justify-around text-sm font-medium text-gray-400">
-            <button class="py-2 px-6 rounded-lg bg-[#213743] text-white shadow">Manual</button>
-            <button class="py-2 px-6 rounded-lg hover:text-white">Auto</button>
-            <button class="py-2 px-6 rounded-lg hover:text-white">Advanced</button>
+            <button id="manualTabBtn" onclick="switchTab('manual')" class="py-2 px-10 rounded-lg bg-[#213743] text-white shadow transition-all">Manual</button>
+            <button id="autoTabBtn" onclick="switchTab('auto')" class="py-2 px-10 rounded-lg hover:text-white transition-all">Auto</button>
         </div>
 
         <!-- Bottom Action Bar (Settings, Rating, Turn Off/On, Live Stats) -->
@@ -205,6 +242,23 @@
             } else {
                 loseSound.currentTime = 0;
                 loseSound.play().catch(e => console.log(e));
+            }
+        }
+
+        // Tab Switching Logic (Manual / Auto)
+        function switchTab(tab) {
+            const manualBtn = document.getElementById('manualTabBtn');
+            const autoBtn = document.getElementById('autoTabBtn');
+            const autoSection = document.getElementById('autoControlsSection');
+
+            if (tab === 'manual') {
+                manualBtn.className = "py-2 px-10 rounded-lg bg-[#213743] text-white shadow transition-all";
+                autoBtn.className = "py-2 px-10 rounded-lg hover:text-white transition-all text-gray-400";
+                autoSection.classList.add('hidden');
+            } else {
+                autoBtn.className = "py-2 px-10 rounded-lg bg-[#213743] text-white shadow transition-all";
+                manualBtn.className = "py-2 px-10 rounded-lg hover:text-white transition-all text-gray-400";
+                autoSection.classList.remove('hidden');
             }
         }
 
