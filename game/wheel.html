@@ -29,7 +29,7 @@
       font-family: sans-serif;
       overflow-x: hidden;
       overflow-y: auto;
-      padding-bottom: calc(90px + env(safe-area-inset-bottom));
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
     }
 
     .glass-card {
@@ -59,10 +59,7 @@
       width: 100%;
     }
 
-    /*
-      Bottom navigation stays at the bottom.
-      Its stacking level is lower than Game Tools.
-    */
+    /* Bottom navigation remains fixed */
     #bottomBarContainer {
       position: fixed;
       left: 0;
@@ -75,40 +72,39 @@
     }
 
     /*
-      Game Tools is placed above the bottom navigation.
-      The inner component remains interactive.
+      Game Tools is now in normal document flow.
+      It scrolls together with the game page.
     */
     #gameToolsContainer {
-      position: fixed !important;
-      left: 50% !important;
-      right: auto !important;
-      bottom: calc(76px + env(safe-area-inset-bottom)) !important;
-      transform: translateX(-50%);
+      position: relative;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      transform: none;
       width: 100%;
       max-width: 42rem;
-      max-height: calc(100vh - 120px);
+      margin: 12px auto 24px;
+      max-height: none;
       overflow: visible;
-      z-index: 10000 !important;
-      isolation: isolate;
-      visibility: visible !important;
-      opacity: 1 !important;
-      filter: none !important;
-      pointer-events: none;
-    }
-
-    #gameToolsContainer > *,
-    #gameToolsContainer button,
-    #gameToolsContainer a,
-    #gameToolsContainer input,
-    #gameToolsContainer select {
+      z-index: 1;
+      visibility: visible;
+      opacity: 1;
+      filter: none;
       pointer-events: auto;
     }
 
     #gameToolsContainer > * {
       position: relative;
-      z-index: 10001;
       visibility: visible;
       opacity: 1;
+      max-width: 100%;
+    }
+
+    #gameToolsContainer button,
+    #gameToolsContainer a,
+    #gameToolsContainer input,
+    #gameToolsContainer select {
+      pointer-events: auto;
     }
 
     ::-webkit-scrollbar {
@@ -148,8 +144,8 @@
 
     @media (max-width: 480px) {
       #gameToolsContainer {
-        width: calc(100% - 16px);
-        bottom: calc(72px + env(safe-area-inset-bottom)) !important;
+        width: 100%;
+        margin: 12px auto 24px;
       }
     }
   </style>
@@ -256,11 +252,11 @@
     </main>
   </div>
 
-  <!-- Bottom Bar Container -->
-  <div id="bottomBarContainer"></div>
+  <!-- Game Tools Component: normal flow, scrolls with page -->
+  <div id="gameToolsContainer" class="w-full max-w-2xl"></div>
 
-  <!-- Game Tools Component Container -->
-  <div id="gameToolsContainer"></div>
+  <!-- Bottom Bar Container: stays at screen bottom -->
+  <div id="bottomBarContainer"></div>
 
   <script>
     let currentUserId = null;
@@ -324,6 +320,7 @@
         const script = document.createElement('script');
         script.id = 'gameToolsScript';
         script.src = '../js/game-tools.js';
+
         script.onload = () => {
           if (
             window.GameTools &&
@@ -333,10 +330,12 @@
           }
           resolve();
         };
+
         script.onerror = () => {
           console.warn('Optional game-tools.js was not loaded.');
           resolve();
         };
+
         document.body.appendChild(script);
       });
     }
@@ -364,9 +363,20 @@
           container.innerHTML = parsedDocument.body.innerHTML;
         }
 
+        container.style.position = 'relative';
+        container.style.left = 'auto';
+        container.style.right = 'auto';
+        container.style.bottom = 'auto';
+        container.style.transform = 'none';
+        container.style.width = '100%';
+        container.style.maxWidth = '42rem';
+        container.style.margin = '12px auto 24px';
+        container.style.maxHeight = 'none';
+        container.style.overflow = 'visible';
+        container.style.zIndex = '1';
         container.style.visibility = 'visible';
         container.style.opacity = '1';
-        container.style.zIndex = '10000';
+        container.style.filter = 'none';
 
         await loadGameToolsScript();
 
@@ -729,10 +739,6 @@
       btn.innerText = 'Bet';
     }
 
-    /*
-      Load bars and game tools independently.
-      Game Tools is placed above the bottom navigation.
-    */
     window.addEventListener('DOMContentLoaded', () => {
       initWheelGame();
       loadGameToolsComponent();
