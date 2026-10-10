@@ -43,6 +43,7 @@
       border: 1px solid #FFDF85;
       box-shadow: 0 0 14px rgba(255, 184, 0, 0.25);
     }
+
     .gold-button:hover {
       opacity: 0.9;
     }
@@ -52,9 +53,11 @@
       height: 6px;
       width: 6px;
     }
+
     ::-webkit-scrollbar-track {
       background: #080B10;
     }
+
     ::-webkit-scrollbar-thumb {
       background: rgba(245, 207, 102, 0.25);
       border-radius: 3px;
@@ -66,9 +69,11 @@
       width: 100%;
       background: transparent;
     }
+
     input[type=range]:focus {
       outline: none;
     }
+
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
       height: 22px;
@@ -80,6 +85,7 @@
     }
   </style>
 </head>
+
 <body class="bg-[#080B10] text-white font-sans min-h-screen flex flex-col items-center justify-between p-0 select-none">
 
   <!-- Top Bar Container -->
@@ -89,14 +95,16 @@
     
     <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#080B10] flex-1">
       
-      <!-- Wheel Canvas Area (Proper BC.Game Pie Style & Larger Size) -->
+      <!-- Wheel Canvas Area -->
       <div class="relative flex flex-col items-center justify-center my-3">
+
         <!-- Top Pointer -->
         <div class="absolute -top-3 z-20 text-[#ed4245] text-2xl filter drop-shadow">
           <i class="fa-solid fa-location-pin"></i>
         </div>
 
         <div class="relative w-72 h-72 sm:w-80 sm:h-80 rounded-full border-4 border-[rgba(245,207,102,0.25)] p-1 bg-[#151a23] shadow-2xl flex items-center justify-center">
+
           <canvas id="wheelCanvas" width="340" height="340" class="w-full h-full rounded-full"></canvas>
           
           <!-- Center Hub -->
@@ -104,6 +112,7 @@
             <span class="text-[10px] text-gray-400 font-medium">Result</span>
             <span class="text-sm font-black text-[#F5CF66]" id="centerMultiplierText">0×</span>
           </div>
+
         </div>
       </div>
 
@@ -121,16 +130,28 @@
             <span>Amount (৳)</span>
             <span class="text-[#F5CF66] text-[10px]">Min: 1 ৳</span>
           </div>
+
           <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl p-1 focus-within:border-[#F5CF66]">
+
             <div class="flex items-center px-2 text-[#F5CF66] font-bold text-sm">৳</div>
-            <input type="number" id="betAmount" value="0" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
+
+            <input
+              type="number"
+              id="betAmount"
+              value="0"
+              min="0"
+              step="1"
+              class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1"
+            >
             
             <div class="flex items-center gap-1">
               <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">1/2</button>
               <button onclick="modifyBet('double')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">2x</button>
               <button onclick="modifyBet('max')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-[#F5CF66] transition">Max</button>
             </div>
+
           </div>
+
           <span class="text-[11px] text-gray-400 mt-0.5">ℹ Betting with 0 will enter demo mode.</span>
         </div>
 
@@ -140,7 +161,7 @@
 
       </div>
 
-      <!-- Settings & Configuration (Segments & Risk Level) -->
+      <!-- Settings & Configuration -->
       <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-3">
         
         <!-- Segments Slider -->
@@ -149,6 +170,7 @@
             <span>Segments</span>
             <span id="segmentsVal" class="text-[#F5CF66] font-bold">10</span>
           </div>
+
           <div class="flex items-center gap-3">
             <span class="text-xs text-gray-400">10</span>
             <input type="range" id="segmentsRange" min="10" max="50" step="5" value="10" oninput="updateSegments(this.value)" class="w-full accent-[#F5CF66] cursor-pointer">
@@ -159,6 +181,7 @@
         <!-- Risk Level Selectors -->
         <div class="flex flex-col gap-1.5 pt-1">
           <span class="text-xs text-gray-400 font-semibold">Risk Level</span>
+
           <div class="grid grid-cols-3 gap-2 bg-[#080B10] p-1 rounded-xl border border-[rgba(245,207,102,0.25)]">
             <button onclick="setRiskLevel('low')" id="btnRiskLow" class="py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white">Low</button>
             <button onclick="setRiskLevel('medium')" id="btnRiskMedium" class="py-2 rounded-lg text-xs font-bold transition gold-button shadow">Medium</button>
@@ -174,6 +197,9 @@
   <!-- Bottom Bar Container -->
   <div id="bottomBarContainer" class="w-full max-w-2xl fixed bottom-0 z-50"></div>
 
+  <!-- Game Tools Component Container -->
+  <div id="gameToolsContainer"></div>
+
   <script>
     let currentUserId = null;
     let balance = 0.00;
@@ -182,28 +208,56 @@
     let riskLevel = 'medium';
     let wheelSegments = [];
 
-    const availableColors = ['#24ee89', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#06b6d4', '#ef4444', '#a855f7'];
+    const availableColors = [
+      '#24ee89',
+      '#3b82f6',
+      '#8b5cf6',
+      '#ec4899',
+      '#f59e0b',
+      '#06b6d4',
+      '#ef4444',
+      '#a855f7'
+    ];
 
     async function loadBars() {
       try {
         const topRes = await fetch('../bar/top.html');
-        if (topRes.ok) document.getElementById('topBarContainer').innerHTML = await topRes.text();
+
+        if (topRes.ok) {
+          document.getElementById('topBarContainer').innerHTML = await topRes.text();
+        }
 
         const botRes = await fetch('../bar/bottom.html');
-        if (botRes.ok) document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
-      } catch (e) { console.error('Bar load error:', e); }
+
+        if (botRes.ok) {
+          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+        }
+      } catch (e) {
+        console.error('Bar load error:', e);
+      }
     }
 
     async function initWheelGame() {
       await loadBars();
+
       generateWheelSegments();
       drawWheel(0);
 
-      if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
+      if (
+        typeof supabaseClient !== 'undefined' &&
+        typeof getCurrentUser === 'function'
+      ) {
         const user = await getCurrentUser();
+
         if (user) {
           currentUserId = user.id;
-          const { data: profile } = await supabaseClient.from('profiles').select('balance').eq('id', user.id).single();
+
+          const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('balance')
+            .eq('id', user.id)
+            .single();
+
           if (profile) {
             balance = parseFloat(profile.balance);
             updateBalanceUI();
@@ -211,12 +265,24 @@
 
           supabaseClient
             .channel('wheel-profile-channel')
-            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` }, (payload) => {
-              if (payload.new && payload.new.balance !== undefined) {
-                balance = parseFloat(payload.new.balance);
-                updateBalanceUI();
+            .on(
+              'postgres_changes',
+              {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'profiles',
+                filter: `id=eq.${user.id}`
+              },
+              (payload) => {
+                if (
+                  payload.new &&
+                  payload.new.balance !== undefined
+                ) {
+                  balance = parseFloat(payload.new.balance);
+                  updateBalanceUI();
+                }
               }
-            })
+            )
             .subscribe();
         }
       }
@@ -224,71 +290,124 @@
 
     function updateBalanceUI() {
       const topBal = document.getElementById('userBalance');
-      if (topBal) topBal.innerText = `৳ ${balance.toFixed(2)}`;
+
+      if (topBal) {
+        topBal.innerText = `৳ ${balance.toFixed(2)}`;
+      }
     }
 
     function modifyBet(type) {
-      let current = parseFloat(document.getElementById('betAmount').value) || 0;
+      let current = parseFloat(
+        document.getElementById('betAmount').value
+      ) || 0;
+
       if (type === 'half') {
-        document.getElementById('betAmount').value = Math.max(0, Math.floor(current / 2));
+        document.getElementById('betAmount').value =
+          Math.max(0, Math.floor(current / 2));
+
       } else if (type === 'double') {
-        document.getElementById('betAmount').value = Math.floor(current * 2);
+        document.getElementById('betAmount').value =
+          Math.floor(current * 2);
+
       } else if (type === 'max') {
-        document.getElementById('betAmount').value = Math.floor(balance);
+        document.getElementById('betAmount').value =
+          Math.floor(balance);
       }
     }
 
     function updateSegments(val) {
       if (isSpinning) return;
+
       segmentsCount = parseInt(val);
-      document.getElementById('segmentsVal').innerText = segmentsCount;
+
+      document.getElementById('segmentsVal').innerText =
+        segmentsCount;
+
       generateWheelSegments();
       drawWheel(0);
     }
 
     function setRiskLevel(level) {
       if (isSpinning) return;
+
       riskLevel = level;
+
       ['low', 'medium', 'high'].forEach(l => {
-        const btn = document.getElementById('btnRisk' + l.charAt(0).toUpperCase() + l.slice(1));
+        const btn = document.getElementById(
+          'btnRisk' + l.charAt(0).toUpperCase() + l.slice(1)
+        );
+
         if (l === level) {
-          btn.className = "py-2 rounded-lg text-xs font-bold transition gold-button shadow";
+          btn.className =
+            "py-2 rounded-lg text-xs font-bold transition gold-button shadow";
         } else {
-          btn.className = "py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
+          btn.className =
+            "py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
         }
       });
+
       generateWheelSegments();
       drawWheel(0);
     }
 
     function generateWheelSegments() {
       wheelSegments = [];
-      let zeroRatio = riskLevel === 'low' ? 0.2 : riskLevel === 'medium' ? 0.4 : 0.55;
-      let zeroCount = Math.floor(segmentsCount * zeroRatio);
+
+      let zeroRatio =
+        riskLevel === 'low'
+          ? 0.2
+          : riskLevel === 'medium'
+            ? 0.4
+            : 0.55;
+
+      let zeroCount = Math.floor(
+        segmentsCount * zeroRatio
+      );
 
       for (let i = 0; i < zeroCount; i++) {
-        wheelSegments.push({ multiplier: 0.00, color: '#1a212d' });
+        wheelSegments.push({
+          multiplier: 0.00,
+          color: '#1a212d'
+        });
       }
 
       const remaining = segmentsCount - zeroCount;
-      let maxMult = riskLevel === 'low' ? 3.5 : riskLevel === 'medium' ? 19.6 : 98.0;
+
+      let maxMult =
+        riskLevel === 'low'
+          ? 3.5
+          : riskLevel === 'medium'
+            ? 19.6
+            : 98.0;
 
       for (let i = 0; i < remaining; i++) {
-        let val = Math.pow((i + 1) / remaining, riskLevel === 'high' ? 2.5 : 1.5) * maxMult;
+        let val = Math.pow(
+          (i + 1) / remaining,
+          riskLevel === 'high' ? 2.5 : 1.5
+        ) * maxMult;
+
         if (val < 1.1) val = 1.2;
-        const color = availableColors[i % availableColors.length];
-        wheelSegments.push({ multiplier: parseFloat(val.toFixed(2)), color: color });
+
+        const color =
+          availableColors[i % availableColors.length];
+
+        wheelSegments.push({
+          multiplier: parseFloat(val.toFixed(2)),
+          color: color
+        });
       }
 
       wheelSegments.sort(() => Math.random() - 0.5);
+
       renderColorPayoutCards();
     }
 
     function renderColorPayoutCards(highlightColor = null) {
       const bar = document.getElementById('payoutCardsBar');
       bar.innerHTML = '';
-      
+
       const colorMap = new Map();
+
       wheelSegments.forEach(seg => {
         if (!colorMap.has(seg.color)) {
           colorMap.set(seg.color, seg.multiplier);
@@ -300,12 +419,23 @@
       items.forEach(([color, mult]) => {
         const isHit = highlightColor === color;
         const card = document.createElement('div');
-        card.className = `glass-card p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isHit ? 'border-2 border-white shadow-xl scale-105 bg-[rgba(245,207,102,0.15)]' : ''}`;
+
+        card.className =
+          `glass-card p-2 rounded-xl flex flex-col items-center justify-center text-center transition-all ${isHit ? 'border-2 border-white shadow-xl scale-105 bg-[rgba(245,207,102,0.15)]' : ''}`;
+
         card.innerHTML = `
-          <div class="w-5 h-5 rounded-full mb-1 border border-white/20 shadow-sm" style="background-color: ${color};"></div>
+          <div
+            class="w-5 h-5 rounded-full mb-1 border border-white/20 shadow-sm"
+            style="background-color: ${color};">
+          </div>
+
           <span class="text-[10px] text-gray-400">Payout</span>
-          <span class="text-xs font-extrabold text-[#F5CF66]">${mult.toFixed(2)}×</span>
+
+          <span class="text-xs font-extrabold text-[#F5CF66]">
+            ${mult.toFixed(2)}×
+          </span>
         `;
+
         bar.appendChild(card);
       });
     }
@@ -313,27 +443,47 @@
     function drawWheel(rotationAngle) {
       const canvas = document.getElementById('wheelCanvas');
       const ctx = canvas.getContext('2d');
+
       const count = wheelSegments.length;
+
+      if (!count) return;
+
       const arc = (2 * Math.PI) / count;
       const radius = canvas.width / 2;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
 
       ctx.save();
+
       ctx.translate(radius, radius);
       ctx.rotate(rotationAngle);
       ctx.translate(-radius, -radius);
 
       wheelSegments.forEach((seg, i) => {
         const angle = i * arc;
+
         ctx.beginPath();
         ctx.fillStyle = seg.color;
         ctx.moveTo(radius, radius);
-        ctx.arc(radius, radius, radius, angle, angle + arc); // Filled completely from center (Pie style)
+
+        ctx.arc(
+          radius,
+          radius,
+          radius,
+          angle,
+          angle + arc
+        );
+
         ctx.lineTo(radius, radius);
         ctx.fill();
+
         ctx.lineWidth = 1;
-        ctx.strokeStyle = '#080B10'; // Dark border between slices for clean BC.Game look
+        ctx.strokeStyle = '#080B10';
         ctx.stroke();
       });
 
@@ -342,19 +492,24 @@
 
     async function triggerBet() {
       if (isSpinning) return;
-      const betVal = parseFloat(document.getElementById('betAmount').value) || 0;
+
+      const betVal =
+        parseFloat(document.getElementById('betAmount').value) || 0;
 
       if (betVal > 0 && betVal < 1) {
         alert("সর্বনিম্ন বেট ১ টাকা হতে হবে!");
         return;
       }
+
       if (betVal > balance) {
         alert("আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!");
         return;
       }
 
       isSpinning = true;
+
       const btn = document.getElementById('btnBet');
+
       btn.disabled = true;
       btn.innerText = "Spinning...";
 
@@ -363,22 +518,38 @@
         updateBalanceUI();
       }
 
-      const winningIndex = Math.floor(Math.random() * wheelSegments.length);
+      const winningIndex = Math.floor(
+        Math.random() * wheelSegments.length
+      );
+
       const winningSegment = wheelSegments[winningIndex];
 
       const count = wheelSegments.length;
       const arcRad = (2 * Math.PI) / count;
-      const targetAngle = (2 * Math.PI * 5) + ((count - winningIndex) * arcRad - arcRad / 2) - (Math.PI / 2);
+
+      const targetAngle =
+        (2 * Math.PI * 5) +
+        ((count - winningIndex) * arcRad - arcRad / 2) -
+        (Math.PI / 2);
 
       let startTime = null;
       const duration = 3000;
 
       function animateSpin(timestamp) {
         if (!startTime) startTime = timestamp;
+
         const elapsed = timestamp - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const easeProgress = 1 - (1 - progress) * (1 - progress);
-        const currentAngle = targetAngle * easeProgress;
+
+        const progress = Math.min(
+          elapsed / duration,
+          1
+        );
+
+        const easeProgress =
+          1 - (1 - progress) * (1 - progress);
+
+        const currentAngle =
+          targetAngle * easeProgress;
 
         drawWheel(currentAngle);
 
@@ -394,7 +565,12 @@
 
     async function finishSpin(winningSegment, betVal) {
       const multiplier = winningSegment.multiplier;
-      const winAmount = betVal > 0 ? (betVal * multiplier) : 0;
+
+      const winAmount =
+        betVal > 0
+          ? (betVal * multiplier)
+          : 0;
+
       const isWin = multiplier > 0;
 
       if (isWin && betVal > 0) {
@@ -402,10 +578,16 @@
         updateBalanceUI();
       }
 
-      document.getElementById('centerMultiplierText').innerText = multiplier.toFixed(2) + '×';
+      document.getElementById('centerMultiplierText').innerText =
+        multiplier.toFixed(2) + '×';
+
       renderColorPayoutCards(winningSegment.color);
 
-      if (currentUserId && betVal > 0 && typeof supabaseClient !== 'undefined') {
+      if (
+        currentUserId &&
+        betVal > 0 &&
+        typeof supabaseClient !== 'undefined'
+      ) {
         await supabaseClient.from('bets').insert([{
           user_id: currentUserId,
           target_number: segmentsCount,
@@ -415,16 +597,89 @@
           is_bool: isWin
         }]);
 
-        await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+        await supabaseClient
+          .from('profiles')
+          .update({ balance: balance })
+          .eq('id', currentUserId);
       }
 
       isSpinning = false;
+
       const btn = document.getElementById('btnBet');
+
       btn.disabled = false;
       btn.innerText = "Bet";
     }
 
     window.onload = initWheelGame;
   </script>
+
+  <!-- ==========================================
+       GAME TOOLS COMPONENT CONNECTION
+       File: components/game-tools.html
+       Current page: game/wheel.html
+       ========================================== -->
+
+  <script>
+    async function loadGameToolsComponent() {
+      const container = document.getElementById('gameToolsContainer');
+
+      if (!container) return;
+
+      try {
+        const response = await fetch('../components/game-tools.html');
+
+        if (!response.ok) {
+          throw new Error(
+            'Game Tools component load failed: ' + response.status
+          );
+        }
+
+        const html = await response.text();
+
+        const parsedDocument = new DOMParser().parseFromString(
+          html,
+          'text/html'
+        );
+
+        const template = parsedDocument.querySelector(
+          '#gameToolsTemplate'
+        );
+
+        if (template) {
+          container.replaceChildren(
+            document.importNode(template.content, true)
+          );
+        } else {
+          container.innerHTML = parsedDocument.body.innerHTML;
+        }
+
+        console.log('Game Tools component loaded successfully.');
+
+        /*
+         * game-tools.js is optional.
+         * If the file exists, load it after the HTML component.
+         */
+        if (window.GameTools) {
+          if (typeof window.GameTools.bindComponentEvents === 'function') {
+            window.GameTools.bindComponentEvents();
+          }
+        }
+
+      } catch (error) {
+        console.error('Game Tools loading error:', error);
+      }
+    }
+
+    /*
+     * Load the component independently.
+     * This does not replace the existing wheel initialization.
+     */
+    loadGameToolsComponent();
+  </script>
+
+  <!-- Game Tools JavaScript (optional helper file) -->
+  <script src="../js/game-tools.js" defer></script>
+
 </body>
 </html>
