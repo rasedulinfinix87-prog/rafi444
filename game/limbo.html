@@ -4,19 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Limbo Game</title>
+
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- Supabase Config -->
     <script src="../supabase-config.js"></script>
+
     <style>
         body {
             background-color: #080B10;
             color: #ffffff;
             font-family: sans-serif;
+            padding-bottom: 90px;
         }
+
         .glass-card {
             background: rgba(245, 207, 102, 0.06);
             border: 1px solid rgba(245, 207, 102, 0.25);
@@ -25,6 +31,7 @@
             border-radius: 18px;
             box-shadow: 0 0 18px rgba(255, 184, 0, 0.08);
         }
+
         .gold-button {
             background: linear-gradient(
                 135deg,
@@ -36,19 +43,35 @@
             border: 1px solid #FFDF85;
             box-shadow: 0 0 14px rgba(255, 184, 0, 0.25);
         }
+
         .gold-button:hover {
             opacity: 0.9;
         }
+
         /* Hide scrollbar for history bar */
         #historyBar::-webkit-scrollbar {
             display: none;
         }
+
         #historyBar {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        /* Bottom Navigation Connection */
+        #bottomBarFrame {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 85px;
+            border: none;
+            z-index: 9998;
+            background: #080B10;
+        }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col items-center">
 
     <!-- Top Bar Connection Container -->
@@ -56,8 +79,8 @@
 
     <!-- Game Container -->
     <div class="w-full max-w-md p-4 flex flex-col gap-4 relative">
-        
-        <!-- Recent Multipliers History Bar (Right to Left flow, Bold Text) -->
+
+        <!-- Recent Multipliers History Bar -->
         <div id="historyBar" class="flex flex-row-reverse gap-2 overflow-x-auto py-1 text-xs justify-start scroll-smooth">
             <!-- Dynamic history items will appear here -->
         </div>
@@ -75,7 +98,7 @@
 
         <!-- Controls Section -->
         <div class="glass-card p-4 rounded-xl flex flex-col gap-4">
-            
+
             <!-- Amount Input -->
             <div>
                 <label class="text-xs text-gray-400 block mb-1">Amount</label>
@@ -90,8 +113,9 @@
                 </div>
             </div>
 
-            <!-- Auto Bet Extra Settings Panel (Appears only on Auto Tab) -->
+            <!-- Auto Bet Extra Settings Panel -->
             <div id="autoSettingsPanel" class="flex flex-col gap-3 hidden border-t border-[rgba(245,207,102,0.25)] pt-3">
+
                 <!-- On Win -->
                 <div class="flex flex-col gap-1">
                     <span class="text-xs text-gray-400 font-medium">On Win</span>
@@ -128,6 +152,7 @@
                         <span class="text-gray-400 ml-1">×</span>
                     </div>
                 </div>
+
                 <div class="w-1/3">
                     <label id="chanceLabel" class="text-xs text-gray-400 block mb-1 text-right">Chance 49.00%</label>
                     <div id="chanceBox" class="flex items-center justify-between bg-[#080B10] rounded-lg border border-[rgba(245,207,102,0.25)] px-3 py-2">
@@ -135,7 +160,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Tabs (Manual / Auto) -->
@@ -149,19 +173,21 @@
             <button onclick="toggleSettingsModal()" class="hover:text-[#F5CF66] p-2">
                 <i class="fa-solid fa-gear"></i>
             </button>
+
             <button class="flex items-center gap-1 hover:text-[#F5CF66] p-2">
                 <i class="fa-solid fa-star text-xs text-[#F5CF66]"></i>
                 <span class="text-xs">12543</span>
             </button>
+
             <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-[#F5CF66] p-2 flex items-center gap-1" title="Turbo Mode">
                 <i id="turboIcon" class="fa-solid fa-bolt text-gray-400"></i>
                 <span id="turboText" class="text-[10px] font-bold">OFF</span>
             </button>
+
             <button onclick="toggleLiveStatsModal()" class="hover:text-[#F5CF66] p-2">
                 <i class="fa-solid fa-chart-simple"></i>
             </button>
         </div>
-
     </div>
 
     <!-- Settings Modal -->
@@ -171,16 +197,20 @@
                 <span class="font-bold text-white">Settings</span>
                 <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
+
             <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-left text-sm text-gray-300">
                 <i class="fa-regular fa-circle-question w-5 text-[#F5CF66]"></i> Help
             </button>
+
             <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-sm text-[#F5CF66]">
                 <span class="flex items-center gap-3"><i class="fa-solid fa-volume-high w-5"></i> Sound Effects</span>
                 <span id="soundStatusText" class="text-xs font-bold">ON</span>
             </button>
+
             <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-left text-sm text-gray-300">
                 <i class="fa-solid fa-seedling w-5 text-[#F5CF66]"></i> Seed
             </button>
+
             <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-left text-sm text-gray-300">
                 <i class="fa-solid fa-share-nodes w-5 text-[#F5CF66]"></i> Share
             </button>
@@ -194,16 +224,18 @@
                 <span class="font-bold text-white text-base">Live Stats</span>
                 <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
+
             <div class="bg-[#080B10] p-3 rounded-xl flex flex-col gap-3 border border-[rgba(245,207,102,0.15)]">
                 <div class="flex justify-between items-center text-sm">
                     <span class="text-gray-400">Profit</span>
                     <span id="statsProfit" class="text-[#F5CF66] font-bold">৳ 0.00</span>
                 </div>
+
                 <div class="flex justify-between items-center text-sm">
                     <span class="text-gray-400">Wagered</span>
                     <span id="statsWagered" class="text-white font-bold">৳ 0.00</span>
                 </div>
+
                 <div class="flex justify-between items-center text-sm border-t border-[rgba(245,207,102,0.15)] pt-2">
                     <span class="text-gray-400">WIN: <strong id="statsWin" class="text-white">0</strong></span>
                     <span class="text-gray-400">LOSE: <strong id="statsLose" class="text-white">0</strong></span>
@@ -248,6 +280,7 @@
 
         function playSound(isWin) {
             if (!isSoundOn) return;
+
             if (isWin) {
                 winSound.currentTime = 0;
                 winSound.play().catch(e => console.log(e));
@@ -259,6 +292,7 @@
 
         function switchTab(mode) {
             currentMode = mode;
+
             const manualTab = document.getElementById('manualTab');
             const autoTab = document.getElementById('autoTab');
             const autoSettings = document.getElementById('autoSettingsPanel');
@@ -266,6 +300,7 @@
 
             if (mode === 'manual') {
                 if (isAutoRunning) stopAutoBet();
+
                 manualTab.className = "py-2 px-10 rounded-lg gold-button shadow";
                 autoTab.className = "py-2 px-10 rounded-lg hover:text-white";
                 autoSettings.classList.add('hidden');
@@ -282,8 +317,10 @@
 
         function setWinMode(mode) {
             winMode = mode;
+
             const resetBtn = document.getElementById('winResetBtn');
             const incBtn = document.getElementById('winIncBtn');
+
             if (mode === 'reset') {
                 resetBtn.className = "flex-1 py-1.5 bg-[#1a212d] text-white text-xs rounded-lg font-bold border border-[rgba(245,207,102,0.25)]";
                 incBtn.className = "flex-1 py-1.5 bg-[#080B10] text-gray-400 text-xs rounded-lg font-medium border border-[rgba(245,207,102,0.25)]";
@@ -295,8 +332,10 @@
 
         function setLossMode(mode) {
             lossMode = mode;
+
             const resetBtn = document.getElementById('lossResetBtn');
             const incBtn = document.getElementById('lossIncBtn');
+
             if (mode === 'reset') {
                 resetBtn.className = "flex-1 py-1.5 bg-[#1a212d] text-white text-xs rounded-lg font-bold border border-[rgba(245,207,102,0.25)]";
                 incBtn.className = "flex-1 py-1.5 bg-[#080B10] text-gray-400 text-xs rounded-lg font-medium border border-[rgba(245,207,102,0.25)]";
@@ -322,8 +361,10 @@
 
         function toggleTurbo() {
             isTurboOn = !isTurboOn;
+
             const icon = document.getElementById('turboIcon');
             const txt = document.getElementById('turboText');
+
             if (isTurboOn) {
                 icon.className = "fa-solid fa-bolt text-[#F5CF66]";
                 txt.innerText = "ON";
@@ -337,8 +378,10 @@
 
         function toggleSoundEffect() {
             isSoundOn = !isSoundOn;
+
             const btn = document.getElementById('soundSettingBtn');
             const txt = document.getElementById('soundStatusText');
+
             if (isSoundOn) {
                 btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-sm text-[#F5CF66]";
                 txt.innerText = "ON";
@@ -378,9 +421,14 @@
         async function loadTopBar() {
             try {
                 const res = await fetch('../bar/top.html');
+
                 if (res.ok) {
                     document.getElementById('topBarContainer').innerHTML = await res.text();
-                    document.querySelectorAll('a[href*="deposit"]').forEach(a => a.href = '../account/deposit.html');
+
+                    document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+                        a.href = '../account/deposit.html';
+                    });
+
                     document.querySelectorAll('a[href*="member"]').forEach(a => {
                         if (a.href.includes('admin/mem/member.html')) {
                             a.href = a.href.replace('admin/mem/member.html', 'mem/member.html');
@@ -394,18 +442,25 @@
 
         function updateUIBalance(bal) {
             const topBal = document.getElementById('topBarBalance');
-            if (topBal) topBal.innerText = parseFloat(bal).toFixed(2);
+
+            if (topBal) {
+                topBal.innerText = parseFloat(bal).toFixed(2);
+            }
         }
 
         async function init() {
             await loadTopBar();
+
             const client = getClient();
 
             try {
                 let user = null;
-                if (typeof requireAuth === 'function') user = await requireAuth();
-                else if (typeof getCurrentUser === 'function') user = await getCurrentUser();
-                else if (client) {
+
+                if (typeof requireAuth === 'function') {
+                    user = await requireAuth();
+                } else if (typeof getCurrentUser === 'function') {
+                    user = await getCurrentUser();
+                } else if (client) {
                     const { data } = await client.auth.getUser();
                     user = data?.user;
                 }
@@ -488,6 +543,7 @@
         function halveAmount() {
             let input = document.getElementById('betAmount');
             let val = parseFloat(input.value) || 0.59;
+
             input.value = Math.max(0.59, val / 2).toFixed(2);
             validateAmount();
         }
@@ -495,12 +551,14 @@
         function doubleAmount() {
             let input = document.getElementById('betAmount');
             let val = parseFloat(input.value) || 0.59;
+
             input.value = (val * 2).toFixed(2);
             validateAmount();
         }
 
         function maxAmount() {
             let input = document.getElementById('betAmount');
+
             input.value = Math.max(0.59, userBalance).toFixed(2);
             validateAmount();
         }
@@ -508,7 +566,7 @@
         function updateGraph() {
             const container = document.getElementById('statsGraphContainer');
             container.innerHTML = '';
-            
+
             if (profitHistory.length <= 1) {
                 container.innerHTML = '<div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>';
                 return;
@@ -518,15 +576,18 @@
 
             profitHistory.forEach((val, idx) => {
                 if (idx === 0) return;
+
                 const bar = document.createElement('div');
                 const isProfit = val >= 0;
                 const heightPercent = Math.min(Math.max((Math.abs(val) / maxVal) * 45, 10), 100);
-                
+
                 bar.className = `w-3 rounded-sm transition-all ${isProfit ? 'bg-[#F5CF66]' : 'bg-[#eb4e3d]'}`;
                 bar.style.height = heightPercent + '%';
                 bar.title = `Profit: ৳${val.toFixed(2)}`;
+
                 container.appendChild(bar);
             });
+
             container.scrollLeft = container.scrollWidth;
         }
 
@@ -555,12 +616,14 @@
 
             isAutoRunning = true;
             baseBetAmount = betAmount;
+
             const betBtn = document.getElementById('betBtn');
             betBtn.innerText = "Stop Auto";
             betBtn.className = "w-full bg-[#eb4e3d] hover:bg-[#d93639] text-white font-bold py-3.5 rounded-xl transition duration-200 text-lg shadow-lg";
 
             autoInterval = setInterval(async () => {
                 let currentBet = parseFloat(betInput.value) || 0;
+
                 if (userBalance < currentBet) {
                     stopAutoBet();
                     alert('অপর্যাপ্ত ব্যালেন্স!');
@@ -586,6 +649,7 @@
                         betInput.value = newAmt.toFixed(2);
                     }
                 }
+
                 validateAmount();
             }, 600);
         }
@@ -593,6 +657,7 @@
         function stopAutoBet() {
             isAutoRunning = false;
             clearInterval(autoInterval);
+
             const betBtn = document.getElementById('betBtn');
             betBtn.innerText = "Start Auto";
             betBtn.className = "w-full gold-button font-bold py-3.5 rounded-xl transition duration-200 text-lg shadow-lg";
@@ -627,23 +692,35 @@
             if (client && currentUserId) {
                 userBalance -= betAmount;
                 updateUIBalance(userBalance);
-                await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+
+                await client
+                    .from('profiles')
+                    .update({ balance: userBalance })
+                    .eq('id', currentUserId);
             }
 
             let randomRoll = parseFloat((99 / (Math.random() * 98 + 1)).toFixed(2));
-            if (randomRoll < 1.00) randomRoll = 1.00;
+
+            if (randomRoll < 1.00) {
+                randomRoll = 1.00;
+            }
 
             if (!isTurboOn) {
                 resultDisplay.innerText = "1.00x";
+
                 let counter = 1.00;
+
                 let stepInterval = setInterval(() => {
                     counter += 0.15;
+
                     if (counter >= randomRoll) {
                         counter = randomRoll;
                         clearInterval(stepInterval);
                     }
+
                     resultDisplay.innerText = counter.toFixed(2) + 'x';
                 }, 30);
+
                 await new Promise(resolve => setTimeout(resolve, 400));
             }
 
@@ -655,6 +732,7 @@
             playSound(isWin);
 
             totalWagered += betAmount;
+
             if (isWin) {
                 totalWins++;
                 totalProfit += (payoutAmount - betAmount);
@@ -662,6 +740,7 @@
                 totalLosses++;
                 totalProfit -= betAmount;
             }
+
             profitHistory.push(totalProfit);
 
             document.getElementById('statsProfit').innerText = '৳ ' + totalProfit.toFixed(2);
@@ -673,9 +752,12 @@
 
             const historyBar = document.getElementById('historyBar');
             const historySpan = document.createElement('span');
+
             historySpan.className = `px-3 py-1 bg-[#1a212d] rounded-md font-bold shrink-0 ${isWin ? 'text-[#F5CF66]' : 'text-[#eb4e3d]'}`;
             historySpan.innerText = randomRoll.toFixed(2) + 'x';
+
             historyBar.prepend(historySpan);
+
             if (historyBar.children.length > 10) {
                 historyBar.lastChild.remove();
             }
@@ -716,5 +798,14 @@
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
+
+    <!-- Bottom Bar Connection: bar/bottom.html -->
+    <iframe
+        id="bottomBarFrame"
+        src="../bar/bottom.html"
+        title="Bottom Navigation"
+        loading="eager">
+    </iframe>
+
 </body>
 </html>
