@@ -6,7 +6,7 @@
     <title>Keno Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
+
     <!-- Supabase JS Client & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../supabase-config.js"></script>
@@ -17,12 +17,12 @@
             theme: {
                 extend: {
                     colors: {
-                        bgDark: '#0f141c',
+                        bgDark: '#080B10',
                         cardDark: '#1a212d',
                         panelDark: '#212936',
                         inputBg: '#151a23',
-                        bcGreen: '#24ee89',
-                        bcGreenHover: '#1fd879',
+                        bcGreen: '#F5CF66',
+                        bcGreenHover: '#D9A441',
                         bcRed: '#ed4245',
                         textGray: '#8596a6',
                         borderDark: '#2a3546',
@@ -35,13 +35,16 @@
             }
         }
     </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f141c;
+            background-color: #080B10;
             color: #f3f4f6;
             touch-action: manipulation;
+            padding-bottom: 95px;
         }
 
         /* Custom Scrollbar */
@@ -49,13 +52,16 @@
             width: 4px;
             height: 3px;
         }
+
         ::-webkit-scrollbar-track {
-            background: #0f141c;
+            background: #080B10;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #2a3546;
             border-radius: 4px;
         }
+
         ::-webkit-scrollbar-thumb:hover {
             background: #343d4a;
         }
@@ -66,9 +72,11 @@
             width: 100%;
             background: transparent;
         }
+
         input[type=range]:focus {
             outline: none;
         }
+
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
             height: 8px;
@@ -77,67 +85,119 @@
             border-radius: 4px;
             border: 1px solid #2a3546;
         }
+
         input[type=range]::-webkit-slider-thumb {
             height: 20px;
             width: 14px;
             border-radius: 6px;
-            background: #ffffff;
+            background: #F5CF66;
             cursor: pointer;
             -webkit-appearance: none;
             margin-top: -6px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         }
 
+        /* Gold Glass Card */
+        .glass-card {
+            background: rgba(245, 207, 102, 0.06);
+            border: 1px solid rgba(245, 207, 102, 0.25);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 18px;
+            box-shadow: 0 0 18px rgba(255, 184, 0, 0.08);
+        }
+
+        /* Gold Button */
+        .gold-button {
+            background: linear-gradient(
+                135deg,
+                #FFDF85,
+                #F5CF66,
+                #D9A441
+            );
+            color: #080B10;
+            border: 1px solid #FFDF85;
+            box-shadow: 0 0 14px rgba(255, 184, 0, 0.25);
+        }
+
+        .gold-button:hover {
+            opacity: 0.9;
+        }
+
         /* Tile Glow & Style Effects */
         .tile-selected {
-            background: rgba(36, 238, 137, 0.22) !important;
-            border: 2px solid #24ee89 !important;
-            box-shadow: 0 0 14px rgba(36, 238, 137, 0.4), inset 0 0 10px rgba(36, 238, 137, 0.15) !important;
+            background: rgba(245, 207, 102, 0.22) !important;
+            border: 2px solid #F5CF66 !important;
+            box-shadow:
+                0 0 14px rgba(245, 207, 102, 0.4),
+                inset 0 0 10px rgba(245, 207, 102, 0.15) !important;
         }
 
         .tile-hit {
-            background: linear-gradient(135deg, #1fd879 0%, #24ee89 100%) !important;
-            box-shadow: 0 0 18px rgba(36, 238, 137, 0.55) !important;
+            background: linear-gradient(
+                135deg,
+                #D9A441 0%,
+                #FFDF85 100%
+            ) !important;
+            color: #080B10 !important;
+            box-shadow: 0 0 18px rgba(245, 207, 102, 0.55) !important;
         }
 
         .tile-miss {
-            background: linear-gradient(135deg, #ed4245 0%, #b91c1c 100%) !important;
+            background: linear-gradient(
+                135deg,
+                #ed4245 0%,
+                #b91c1c 100%
+            ) !important;
             box-shadow: 0 0 20px rgba(237, 66, 69, 0.65) !important;
         }
 
         .keno-card-bg {
-            background: #1a212d;
-            border: 1px solid #2a3546;
+            background: rgba(245, 207, 102, 0.035);
+            border: 1px solid rgba(245, 207, 102, 0.18);
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Fixed Bottom Bar */
+        #bottomBarFrame {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 85px;
+            border: none;
+            z-index: 9998;
+            background: #080B10;
         }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 select-none selection:bg-bcGreen selection:text-bgDark">
 
-    <!-- Top Navigation Header / Dynamic Anchor -->
+    <!-- Top Navigation Header -->
     <div id="topBarContainer" class="w-full max-w-md sticky top-0 z-50 mb-3"></div>
 
-    <!-- Main Game Container matching design layout -->
+    <!-- Main Game Container -->
     <main class="w-full max-w-md keno-card-bg rounded-2xl p-3 sm:p-4 shadow-2xl flex flex-col space-y-3 mb-6">
-        
-        <!-- 8x5 Number Tiles Grid (1 to 40) -->
+
+        <!-- 8x5 Number Tiles Grid -->
         <div id="number-grid" class="grid grid-cols-8 gap-1.5 sm:gap-2 w-full pt-1">
             <!-- Dynamic JavaScript tiles inserted here -->
         </div>
 
-        <!-- Dynamic Multipliers Preview Bar (Strictly 1 horizontal line, reduced size to fit inside card boundary) -->
+        <!-- Multipliers Preview Bar -->
         <div id="multipliers-bar" class="flex items-center gap-1 w-full overflow-x-auto py-1 px-0.5">
             <div class="bg-panelDark border border-transparent text-textGray rounded-md py-1 px-2 text-center text-xs font-bold w-full">Select numbers</div>
         </div>
 
-        <!-- Main Actions: Bet & Auto Pick -->
+        <!-- Main Actions -->
         <div class="flex flex-col space-y-2 pt-1">
-            <button id="bet-btn" onclick="placeBet()" class="w-full py-3.5 bg-bcGreen hover:bg-bcGreenHover text-bgDark font-black text-base rounded-xl transition-all shadow-lg active:scale-[0.99] flex items-center justify-center space-x-2 uppercase tracking-wider">
+            <button id="bet-btn" onclick="placeBet()" class="w-full py-3.5 gold-button font-black text-base rounded-xl transition-all shadow-lg active:scale-[0.99] flex items-center justify-center space-x-2 uppercase tracking-wider">
                 <span>Bet</span>
             </button>
 
             <button onclick="autoPick()" class="w-full py-3 bg-panelDark hover:bg-borderDark text-white font-semibold text-sm rounded-xl transition-all flex items-center justify-center space-x-2 border border-borderDark shadow-md">
-                <i class="fa-solid fa-wand-magic-sparkles text-textGray text-xs"></i>
+                <i class="fa-solid fa-wand-magic-sparkles text-[#F5CF66] text-xs"></i>
                 <span>Auto Pick</span>
             </button>
         </div>
@@ -145,22 +205,31 @@
         <!-- Amount Control Box -->
         <div class="flex flex-col space-y-1">
             <div class="flex justify-between items-center text-xs text-textGray font-semibold px-1">
-                <span class="flex items-center gap-1">Amount <i class="fa-regular fa-circle-question text-[10px]" title="Betting amount per round"></i></span>
+                <span class="flex items-center gap-1">
+                    Amount
+                    <i class="fa-regular fa-circle-question text-[10px]" title="Betting amount per round"></i>
+                </span>
                 <span class="text-textGray font-mono text-[11px]">≈<span id="bcd-equivalent">0.00001</span>BCD</span>
             </div>
 
-            <div class="flex items-center bg-inputBg border border-borderDark rounded-xl p-1 focus-within:border-bcGreen transition-colors">
-                <div class="flex items-center pl-2 pr-1 text-bcGreen font-bold text-base">
+            <div class="flex items-center bg-inputBg border border-borderDark rounded-xl p-1 focus-within:border-[#F5CF66] transition-colors">
+                <div class="flex items-center pl-2 pr-1 text-[#F5CF66] font-bold text-base">
                     ৳
                 </div>
+
                 <input type="number" id="bet-amount-input" value="10" min="1" step="1" oninput="updateBcdValue()" class="w-full bg-transparent text-white font-bold text-sm focus:outline-none px-1">
-                
+
                 <div class="flex items-center space-x-1 pl-1">
                     <button onclick="halveBet()" class="bg-panelDark hover:bg-borderDark text-textGray text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors">1/2</button>
                     <button onclick="doubleBet()" class="bg-panelDark hover:bg-borderDark text-textGray text-xs font-bold px-2.5 py-1.5 rounded-lg transition-colors">2x</button>
+
                     <div class="flex flex-col space-y-0.5 bg-panelDark rounded-lg p-0.5 border border-borderDark">
-                        <button onclick="stepBet(5)" class="text-textGray hover:text-white text-[9px] px-1"><i class="fa-solid fa-chevron-up"></i></button>
-                        <button onclick="stepBet(-5)" class="text-textGray hover:text-white text-[9px] px-1"><i class="fa-solid fa-chevron-down"></i></button>
+                        <button onclick="stepBet(5)" class="text-textGray hover:text-[#F5CF66] text-[9px] px-1">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </button>
+                        <button onclick="stepBet(-5)" class="text-textGray hover:text-[#F5CF66] text-[9px] px-1">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -170,8 +239,9 @@
         <div class="flex flex-col space-y-1 pt-1">
             <div class="flex justify-between items-center text-xs text-textGray px-1 font-semibold">
                 <span>Risk Level</span>
-                <button onclick="clearTable()" class="text-textGray hover:text-bcGreen underline underline-offset-2 text-xs transition-colors" id="clear-btn">Clear Table</button>
+                <button onclick="clearTable()" class="text-textGray hover:text-[#F5CF66] underline underline-offset-2 text-xs transition-colors" id="clear-btn">Clear Table</button>
             </div>
+
             <div class="flex items-center bg-inputBg rounded-xl border border-borderDark p-1">
                 <select id="risk-select" onchange="changeRiskLevel(this.value)" class="w-full bg-transparent text-white font-bold text-xs p-2 focus:outline-none cursor-pointer">
                     <option value="classic" class="bg-cardDark text-white">Classic (Low)</option>
@@ -180,7 +250,6 @@
                 </select>
             </div>
         </div>
-
     </main>
 
     <script>
@@ -191,7 +260,7 @@
         let currentUserId = null;
         let userBalance = 0.00;
         let currentRisk = 'classic';
-        
+
         // Anti-win & House Edge Tracking Variables
         let initialSessionBalance = 0.00;
         let totalGamesPlayed = 0;
@@ -237,7 +306,7 @@
             }
         };
 
-        // Helper to get client matching mines.html
+        // Supabase Client
         function getClient() {
             if (typeof supabaseClient !== 'undefined') return supabaseClient;
             if (typeof supabase !== 'undefined') return supabase;
@@ -246,13 +315,18 @@
             return null;
         }
 
-        // Load Top Bar Component dynamically
+        // Load Top Bar Component
         async function loadTopBar() {
             try {
                 const res = await fetch('../bar/top.html');
+
                 if (res.ok) {
                     document.getElementById('topBarContainer').innerHTML = await res.text();
-                    document.querySelectorAll('a[href*="deposit"]').forEach(a => a.href = '../account/deposit.html');
+
+                    document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+                        a.href = '../account/deposit.html';
+                    });
+
                     document.querySelectorAll('a[href*="member"]').forEach(a => {
                         if (a.href.includes('admin/mem/member.html')) {
                             a.href = a.href.replace('admin/mem/member.html', 'mem/member.html');
@@ -264,23 +338,27 @@
             }
         }
 
-        // Init logic
+        // Init Logic
         async function init() {
             await loadTopBar();
+
             const client = getClient();
-            
+
             try {
                 let user = null;
-                if (typeof requireAuth === 'function') user = await requireAuth();
-                else if (typeof getCurrentUser === 'function') user = await getCurrentUser();
-                else if (client) {
+
+                if (typeof requireAuth === 'function') {
+                    user = await requireAuth();
+                } else if (typeof getCurrentUser === 'function') {
+                    user = await getCurrentUser();
+                } else if (client) {
                     const { data } = await client.auth.getUser();
                     user = data?.user;
                 }
 
                 if (user && client) {
                     currentUserId = user.id;
-                    
+
                     const { data: profile } = await client
                         .from('profiles')
                         .select('balance')
@@ -289,7 +367,7 @@
 
                     if (profile) {
                         userBalance = parseFloat(profile.balance) || 0;
-                        initialSessionBalance = userBalance; // Track initial session balance for House Edge checks
+                        initialSessionBalance = userBalance;
                         updateUIBalance(userBalance);
                     }
 
@@ -321,10 +399,10 @@
         function renderGrid() {
             const grid = document.getElementById('number-grid');
             grid.innerHTML = '';
+
             for (let i = 1; i <= 40; i++) {
                 const btn = document.createElement('button');
                 btn.id = `tile-${i}`;
-                // Added relative positioning to contain the popover popup accurately inside the grid box top area
                 btn.className = `relative aspect-square bg-[#2a313c] hover:bg-[#343d4a] border-none text-white font-extrabold text-sm sm:text-base rounded-lg transition-all flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.35)] active:scale-95`;
                 btn.innerText = i;
                 btn.onclick = () => toggleNumber(i);
@@ -350,17 +428,17 @@
                 }
                 selectedNumbers.add(num);
             }
+
             updateGridVisuals();
             updateMultiplierBarPreview();
         }
 
-        // Update Grid Tile Styles and clear previous win popups
+        // Update Grid Tile Styles
         function updateGridVisuals() {
             for (let i = 1; i <= 40; i++) {
                 const tile = document.getElementById(`tile-${i}`);
                 if (!tile) continue;
 
-                // Remove existing popup if any during grid reset/update
                 const existingPopup = tile.querySelector('.win-popup');
                 if (existingPopup) existingPopup.remove();
 
@@ -372,10 +450,11 @@
             }
         }
 
-        // Update Multipliers Preview Bar (Compact size and strictly 1 line without overflowing right side)
+        // Update Multipliers Preview Bar
         function updateMultiplierBarPreview() {
             const bar = document.getElementById('multipliers-bar');
             bar.innerHTML = '';
+
             const count = selectedNumbers.size;
 
             if (count === 0) {
@@ -384,11 +463,15 @@
             }
 
             const rates = kenoPayouts[currentRisk][count] || [];
+
             rates.forEach((rate, hits) => {
                 const item = document.createElement('div');
                 const isWinRate = rate > 0;
-                item.className = `${isWinRate ? 'bg-bcGreen/20 border-bcGreen text-bcGreen' : 'bg-panelDark border-transparent text-textGray'} border rounded-md py-0.5 px-1.5 text-center font-bold transition-all flex flex-col justify-center items-center shrink-0 min-w-[36px] max-w-[44px]`;
+
+                item.className = `${isWinRate ? 'bg-[rgba(245,207,102,0.15)] border-[#F5CF66] text-[#F5CF66]' : 'bg-panelDark border-transparent text-textGray'} border rounded-md py-0.5 px-1.5 text-center font-bold transition-all flex flex-col justify-center items-center shrink-0 min-w-[36px] max-w-[44px]`;
+
                 item.innerHTML = `<span class="text-[10px] leading-tight">${rate.toFixed(2)}x</span><span class="text-[7px] leading-none opacity-70">${hits}h</span>`;
+
                 bar.appendChild(item);
             });
         }
@@ -396,12 +479,16 @@
         // Auto Pick Function
         function autoPick() {
             if (isSpinning) return;
+
             selectedNumbers.clear();
+
             const count = Math.floor(Math.random() * 5) + 3;
+
             while (selectedNumbers.size < count) {
                 const randomNum = Math.floor(Math.random() * 40) + 1;
                 selectedNumbers.add(randomNum);
             }
+
             updateGridVisuals();
             updateMultiplierBarPreview();
         }
@@ -409,6 +496,7 @@
         // Clear Table
         function clearTable() {
             if (isSpinning) return;
+
             selectedNumbers.clear();
             updateGridVisuals();
             updateMultiplierBarPreview();
@@ -418,6 +506,7 @@
         function halveBet() {
             const input = document.getElementById('bet-amount-input');
             let val = parseFloat(input.value) || 0;
+
             input.value = Math.max(1, Math.floor(val / 2));
             updateBcdValue();
         }
@@ -425,6 +514,7 @@
         function doubleBet() {
             const input = document.getElementById('bet-amount-input');
             let val = parseFloat(input.value) || 0;
+
             input.value = Math.max(1, Math.floor(val * 2));
             updateBcdValue();
         }
@@ -432,6 +522,7 @@
         function stepBet(step) {
             const input = document.getElementById('bet-amount-input');
             let val = parseFloat(input.value) || 0;
+
             input.value = Math.max(1, val + step);
             updateBcdValue();
         }
@@ -440,16 +531,20 @@
             const input = document.getElementById('bet-amount-input');
             const val = parseFloat(input.value) || 0;
             const bcd = (val * 0.0000085).toFixed(6);
+
             document.getElementById('bcd-equivalent').innerText = bcd;
         }
 
-        // Update Balance on Top Bar Target
+        // Update Balance on Top Bar
         function updateUIBalance(bal) {
             const topBal = document.getElementById('topBarBalance');
-            if (topBal) topBal.innerText = parseFloat(bal).toFixed(2);
+
+            if (topBal) {
+                topBal.innerText = parseFloat(bal).toFixed(2);
+            }
         }
 
-        // Main Bet Logic with House Edge & Anti-Win Control System
+        // Main Bet Logic
         async function placeBet() {
             if (isSpinning) return;
 
@@ -475,16 +570,20 @@
             updateUIBalance(userBalance);
 
             if (client && currentUserId) {
-                await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+                await client
+                    .from('profiles')
+                    .update({ balance: userBalance })
+                    .eq('id', currentUserId);
             }
 
             isSpinning = true;
             document.getElementById('bet-btn').disabled = true;
             document.getElementById('bet-btn').classList.add('opacity-60');
 
-            // Clear previous popups before starting a new spin round
+            // Clear previous popups
             for (let i = 1; i <= 40; i++) {
                 const tile = document.getElementById(`tile-${i}`);
+
                 if (tile) {
                     const pop = tile.querySelector('.win-popup');
                     if (pop) pop.remove();
@@ -493,10 +592,10 @@
 
             totalGamesPlayed++;
 
-            // Intelligent House Edge / Risk Control Assessment
+            // Existing House Edge / Risk Control Assessment
             let forceLoss = false;
             let profitMultiplier = userBalance / (initialSessionBalance > 0 ? initialSessionBalance : userBalance);
-            
+
             if (profitMultiplier >= 3 || consecutiveWins >= 3 || totalGamesPlayed > 12) {
                 if (Math.random() < 0.78) {
                     forceLoss = true;
@@ -505,18 +604,25 @@
 
             // Draw 10 winning numbers
             const drawnNumbers = new Set();
-            
+
             if (forceLoss) {
                 let availablePool = [];
+
                 for (let i = 1; i <= 40; i++) {
                     if (!selectedNumbers.has(i)) availablePool.push(i);
                 }
+
                 availablePool.sort(() => Math.random() - 0.5);
-                
-                let nonSelectedCount = Math.min(Math.floor(Math.random() * 3) + 8, availablePool.length);
+
+                let nonSelectedCount = Math.min(
+                    Math.floor(Math.random() * 3) + 8,
+                    availablePool.length
+                );
+
                 for (let i = 0; i < nonSelectedCount; i++) {
                     drawnNumbers.add(availablePool[i]);
                 }
+
                 while (drawnNumbers.size < 10) {
                     const rand = Math.floor(Math.random() * 40) + 1;
                     drawnNumbers.add(rand);
@@ -529,14 +635,15 @@
 
             // Animate Drawing
             const drawnArray = Array.from(drawnNumbers);
+
             for (let i = 0; i < drawnArray.length; i++) {
                 const num = drawnArray[i];
                 const tile = document.getElementById(`tile-${num}`);
-                
+
                 await new Promise(r => setTimeout(r, 120));
 
                 if (selectedNumbers.has(num)) {
-                    tile.className = `relative aspect-square text-bgDark font-black text-base rounded-lg flex items-center justify-center tile-hit scale-110 z-10`;
+                    tile.className = `relative aspect-square text-[#080B10] font-black text-base rounded-lg flex items-center justify-center tile-hit scale-110 z-10`;
                 } else {
                     tile.className = `relative aspect-square text-white font-black text-base rounded-lg flex items-center justify-center tile-miss scale-100 opacity-90`;
                 }
@@ -544,17 +651,19 @@
 
             // Calculate Matches
             let matchCount = 0;
+
             selectedNumbers.forEach(n => {
                 if (drawnNumbers.has(n)) matchCount++;
             });
 
-            // Calculate Multiplier based on Risk Level & Pick Count
+            // Calculate Multiplier
             const selCount = selectedNumbers.size;
-            let table = kenoPayouts[currentRisk][selCount] || [0];
-            
+            let table = kenoPayouts[currentRisk][selCount] || [];
+
             let multiplier = table[matchCount] || 0;
+
             if (profitMultiplier >= 5 && multiplier > 5) {
-                multiplier = 0.00; 
+                multiplier = 0.00;
             }
 
             const payout = betAmount * multiplier;
@@ -566,29 +675,35 @@
                 updateUIBalance(userBalance);
 
                 if (client && currentUserId) {
-                    await client.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+                    await client
+                        .from('profiles')
+                        .update({ balance: userBalance })
+                        .eq('id', currentUserId);
                 }
 
-                // Find a hit tile to place the winning popup over it
+                // Find a hit tile for winning popup
                 let hitTile = null;
+
                 selectedNumbers.forEach(n => {
                     if (drawnNumbers.has(n) && !hitTile) {
                         hitTile = document.getElementById(`tile-${n}`);
                     }
                 });
 
-                // If a hit tile exists, display the small popup centered in the grid box and scaled up by ~30%
                 if (hitTile) {
                     const popup = document.createElement('div');
-                    popup.className = `win-popup absolute inset-0 m-auto bg-[#151a23] border border-bcGreen text-bcGreen px-2 py-1 rounded-md text-xs font-bold shadow-2xl z-30 flex flex-col items-center justify-center whitespace-nowrap animate-bounce w-max h-max`;
+
+                    popup.className = `win-popup absolute inset-0 m-auto bg-[#151a23] border border-[#F5CF66] text-[#F5CF66] px-2 py-1 rounded-md text-xs font-bold shadow-2xl z-30 flex flex-col items-center justify-center whitespace-nowrap animate-bounce w-max h-max`;
+
                     popup.innerHTML = `<span class="text-xs leading-tight">${multiplier.toFixed(2)}x</span><span class="text-white text-[11px] leading-tight">৳${payout.toFixed(2)}</span>`;
+
                     hitTile.appendChild(popup);
                 }
             } else {
                 consecutiveWins = 0;
             }
 
-            // Insert Record in `bets` table
+            // Insert Record in bets table
             if (client && currentUserId) {
                 await client.from('bets').insert([{
                     user_id: currentUserId,
@@ -602,7 +717,9 @@
 
             // Reset after delay
             await new Promise(r => setTimeout(r, 1500));
+
             updateGridVisuals();
+
             isSpinning = false;
             document.getElementById('bet-btn').disabled = false;
             document.getElementById('bet-btn').classList.remove('opacity-60');
@@ -610,5 +727,14 @@
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
+
+    <!-- Bottom Bar Connection: bar/bottom.html -->
+    <iframe
+        id="bottomBarFrame"
+        src="../bar/bottom.html"
+        title="Bottom Navigation"
+        loading="eager">
+    </iframe>
+
 </body>
 </html>
