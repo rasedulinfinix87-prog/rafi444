@@ -52,8 +52,8 @@
       background: linear-gradient(135deg, #FFDF85, #F5CF66) !important;
       color: #080B10 !important;
       border: 2px solid #ffffff !important;
-      box-shadow: 0 0 15px rgba(245, 207, 102, 0.8) !important;
-      transform: scale(1.12);
+      box-shadow: 0 0 18px rgba(245, 207, 102, 0.9) !important;
+      transform: scale(1.15);
       z-index: 20;
     }
 
@@ -108,8 +108,8 @@
       <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-2 shadow-xl">
         <canvas id="plinkoCanvas" width="380" height="250" class="w-full h-auto rounded-xl"></canvas>
         
-        <!-- Multiplier Sinks Bar (Attached right below the pins) -->
-        <div id="multiplierSinks" class="grid w-full mt-1 gap-0.5 px-1 pb-1">
+        <!-- Multiplier Sinks Bar (Attached seamlessly right below the pyramid) -->
+        <div id="multiplierSinks" class="grid w-full mt-0 gap-0.5 px-0.5 pb-0.5">
           <!-- Dynamically generated multiplier boxes -->
         </div>
       </div>
@@ -172,6 +172,7 @@
     let isPlaying = false;
     let currentRows = 8;
     let currentMultipliers = [];
+    let animationFrameId = null;
 
     const multipliersTable = {
       8:  [24.4, 3.0, 1.5, 0.5, 0.2, 0.5, 1.5, 3.0, 24.4],
@@ -275,10 +276,36 @@
         else if (mult >= 5) bgColor = 'bg-orange-500';
         else if (mult < 1) bgColor = 'bg-yellow-500';
 
-        box.className = `${bgColor} text-[#080B10] font-black text-[6.5px] sm:text-[9px] py-1 px-0.5 rounded text-center shadow transition-all truncate ${isHighlight ? 'glass-gold-hit' : ''}`;
+        box.className = `${bgColor} text-[#080B10] font-black text-[6.5px] sm:text-[9px] py-1.5 px-0.2 rounded text-center shadow transition-all truncate ${isHighlight ? 'glass-gold-hit' : ''}`;
         box.innerText = mult + '×';
         container.appendChild(box);
       });
+    }
+
+    function getPinCoordinates() {
+      const width = 380;
+      const height = 215;
+      const rows = currentRows;
+      const startY = 12;
+      const rowHeight = (height - 15) / (rows + 1);
+      const baseSpacing = width / (rows + 3);
+
+      let pins = [];
+      for (let r = 0; r <= rows; r++) {
+        let pinsInRow = r + 1;
+        let rowWidth = (pinsInRow - 1) * baseSpacing;
+        let startX = (width - rowWidth) / 2;
+
+        for (let p = 0; p < pinsInRow; p++) {
+          pins.push({
+            x: startX + (p * baseSpacing),
+            y: startY + (r * rowHeight),
+            row: r,
+            col: p
+          });
+        }
+      }
+      return pins;
     }
 
     function drawBoard(ballPos = null) {
@@ -289,40 +316,26 @@
 
       ctx.clearRect(0, 0, width, height);
 
-      const rows = currentRows;
-      const totalRows = rows + 2; 
-      const startY = 12;
-      const rowHeight = (height - 35) / totalRows;
-      const bottomPinsCount = totalRows + 2;
-      const spacingX = width / bottomPinsCount;
+      const pins = getPinCoordinates();
 
-      // Draw Sharp, Non-Blurry White Pins
-      for (let r = 0; r < totalRows; r++) {
-        const pinsInRow = r + 3;
-        const rowWidth = (pinsInRow - 1) * spacingX;
-        const startX = (width - rowWidth) / 2;
-
-        for (let p = 0; p < pinsInRow; p++) {
-          const x = startX + (p * spacingX);
-          const y = startY + (r * rowHeight);
-
-          ctx.beginPath();
-          ctx.arc(x, y, 2.2, 0, Math.PI * 2);
-          ctx.fillStyle = '#ffffff';
-          ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
-          ctx.shadowBlur = 4;
-          ctx.fill();
-          ctx.shadowBlur = 0; // Reset
-        }
-      }
+      // Draw Perfectly Aligned Sharp White Pins
+      pins.forEach(pin => {
+        ctx.beginPath();
+        ctx.arc(pin.x, pin.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.7)';
+        ctx.shadowBlur = 5;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
 
       // Draw Smooth Green Ball with Glow
       if (ballPos) {
         ctx.beginPath();
-        ctx.arc(ballPos.x, ballPos.y, 4.5, 0, Math.PI * 2);
+        ctx.arc(ballPos.x, ballPos.y, 5, 0, Math.PI * 2);
         ctx.fillStyle = '#24ee89';
         ctx.shadowColor = '#24ee89';
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 12;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -358,60 +371,73 @@
       }
       const winningMultiplier = currentMultipliers[pathIndex];
 
-      // Pre-calculate smooth drop waypoints based on pin coordinates
-      const width = 380;
-      const height = 250;
-      const totalRows = rows + 2;
-      const startY = 12;
-      const rowHeight = (height - 35) / totalRows;
-      const bottomPinsCount = totalRows + 2;
-      const spacingX = width / bottomPinsCount;
-
+      // Realistic Physics Bounce Waypoints Generation
+      const pins = getPinCoordinates();
       let waypoints = [];
-      let currCol = 0;
-      waypoints.push({ x: width / 2, y: 5 });
+      
+      let currX = 190; // Center top start
+      let currY = 2;
+      waypoints.push({ x: currX, y: currY });
 
-      for (let r = 0; r <= totalRows; r++) {
-        const pinsInRow = r + 3;
-        const rowWidth = (pinsInRow - 1) * spacingX;
-        const startX = (width - rowWidth) / 2;
-        
-        if (r < totalRows) {
-          if (Math.random() < 0.5 && currCol < pinsInRow - 1) currCol++;
-        } else {
-          // Map final landing to winning multiplier slot index
-          currCol = Math.floor((pathIndex / currentMultipliers.length) * pinsInRow);
+      let currentPinIndex = 0; // Starts at top pin (row 0, col 0)
+
+      for (let r = 1; r <= rows; r++) {
+        // Find pins in row r
+        let rowPins = pins.filter(p => p.row === r);
+        // Choose left or right bounce realistically
+        let bounceRight = Math.random() < 0.5;
+        if (currentPinIndex < rowPins.length - 1 && bounceRight) {
+          currentPinIndex++;
         }
 
-        const targetX = startX + (currCol * spacingX);
-        const targetY = startY + (r * rowHeight);
-        waypoints.push({ x: targetX, y: targetY });
+        let targetPin = rowPins[currentPinIndex];
+        
+        // Add curve arc hitting the pin
+        waypoints.push({ x: (currX + targetPin.x) / 2, y: (currY + targetPin.y) / 2 - 4 });
+        waypoints.push({ x: targetPin.x, y: targetPin.y });
+
+        currX = targetPin.x;
+        currY = targetPin.y;
       }
 
-      let wpIndex = 0;
-      let progress = 0;
-      const speed = 0.12; // Smooth movement speed factor
+      // Final drop to the corresponding multiplier slot
+      const width = 380;
+      const finalSlotWidth = width / currentMultipliers.length;
+      let finalX = (pathIndex * finalSlotWidth) + (finalSlotWidth / 2);
+      let finalY = 230; // Right at the multiplier container top
 
-      const dropInterval = setInterval(() => {
-        if (wpIndex < waypoints.length - 1) {
-          let p1 = waypoints[wpIndex];
-          let p2 = waypoints[wpIndex + 1];
+      waypoints.push({ x: (currX + finalX) / 2, y: (currY + finalY) / 2 });
+      waypoints.push({ x: finalX, y: finalY });
 
-          progress += speed;
-          if (progress >= 1) {
-            progress = 0;
-            wpIndex++;
+      // Smooth Animation Loop using Waypoints
+      let wpIdx = 0;
+      let t = 0;
+      const speed = 0.08; // Ultra-smooth realistic speed
+
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+
+      function animatePhysics() {
+        if (wpIdx < waypoints.length - 1) {
+          let p1 = waypoints[wpIdx];
+          let p2 = waypoints[wpIdx + 1];
+
+          t += speed;
+          if (t >= 1) {
+            t = 0;
+            wpIdx++;
           }
 
-          let currentX = p1.x + (p2.x - p1.x) * progress;
-          let currentY = p1.y + (p2.y - p1.y) * progress;
+          let x = p1.x + (p2.x - p1.x) * t;
+          let y = p1.y + (p2.y - p1.y) * t;
 
-          drawBoard({ x: currentX, y: currentY });
+          drawBoard({ x, y });
+          animationFrameId = requestAnimationFrame(animatePhysics);
         } else {
-          clearInterval(dropInterval);
           finishDrop(winningMultiplier, pathIndex, betVal);
         }
-      }, 25);
+      }
+
+      animationFrameId = requestAnimationFrame(animatePhysics);
     }
 
     async function finishDrop(multiplier, sinkIndex, betVal) {
