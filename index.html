@@ -1,13 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game Portal - Online Gaming Platform</title>
-  
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <!-- Supabase JS Client & App Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
@@ -18,19 +19,45 @@
       width: 6px;
       height: 6px;
     }
-    ::-webkit-scrollbar-track { background: #0b0f19; }
-    ::-webkit-scrollbar-thumb { background: #1b2438; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #283552; }
+
+    ::-webkit-scrollbar-track {
+      background: #0b0f19;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #1b2438;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #283552;
+    }
 
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
+
     .no-scrollbar {
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+
+    /* Mobile scrolling optimization */
+    html {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    img {
+      -webkit-user-drag: none;
+    }
   </style>
 </head>
+
 <body class="bg-[#0b0f19] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
 
   <!-- Top Navigation Bar Anchor Container -->
@@ -42,18 +69,23 @@
     <!-- Category Navigation Bar -->
     <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+
         <button onclick="filterCategory('original')" id="catOriginal" class="flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap">
           Original Games
         </button>
+
         <button onclick="filterCategory('roulette')" id="catRoulette" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
           Roulette
         </button>
+
         <button onclick="filterCategory('blackjack')" id="catBlackjack" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
           Blackjack
         </button>
+
         <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap">
           Live Casino
         </button>
+
       </div>
 
       <div class="hidden sm:flex items-center bg-[#111827] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-400">
@@ -84,85 +116,85 @@
   </footer>
 
   <script>
-    // Games List Configuration (Players count halved)
+    // Games List Configuration
     const gameList = [
-      { 
-        id: 'dice', 
-        name: 'Classic Dice', 
-        path: 'game/dice.html', 
-        category: 'original', 
+      {
+        id: 'dice',
+        name: 'Classic Dice',
+        path: 'game/dice.html',
+        category: 'original',
         players: 1077,
         image: 'assets/images/dice.png',
         fallbackBg: 'from-emerald-900 to-slate-950'
       },
-      { 
-        id: 'mines', 
-        name: 'Mines', 
-        path: 'game/mines.html', 
-        category: 'original', 
+      {
+        id: 'mines',
+        name: 'Mines',
+        path: 'game/mines.html',
+        category: 'original',
         players: 710,
         image: 'assets/images/mines.png',
         fallbackBg: 'from-indigo-900 to-slate-950'
       },
-      { 
-        id: 'limbo', 
-        name: 'Limbo', 
-        path: 'game/limbo.html', 
-        category: 'original', 
+      {
+        id: 'limbo',
+        name: 'Limbo',
+        path: 'game/limbo.html',
+        category: 'original',
         players: 415,
         image: 'assets/images/limbo.png',
         fallbackBg: 'from-emerald-950 to-slate-950'
       },
-      { 
-        id: 'plinko', 
-        name: 'Plinko', 
-        path: 'game/plinko.html', 
-        category: 'original', 
+      {
+        id: 'plinko',
+        name: 'Plinko',
+        path: 'game/plinko.html',
+        category: 'original',
         players: 305,
         image: 'assets/images/plinko.png',
         fallbackBg: 'from-cyan-950 to-slate-950'
       },
-      { 
-        id: 'crash', 
-        name: 'Crash', 
-        path: 'game/crash.html', 
-        category: 'original', 
+      {
+        id: 'crash',
+        name: 'Crash',
+        path: 'game/crash.html',
+        category: 'original',
         players: 1552,
         image: 'assets/images/crash.png',
         fallbackBg: 'from-purple-950 to-slate-950'
       },
-      { 
-        id: 'wheel', 
-        name: 'Wheel', 
-        path: 'game/wheel.html', 
-        category: 'original', 
+      {
+        id: 'wheel',
+        name: 'Wheel',
+        path: 'game/wheel.html',
+        category: 'original',
         players: 210,
         image: 'assets/images/wheel.png',
         fallbackBg: 'from-fuchsia-950 to-slate-950'
       },
-      { 
-        id: 'keno', 
-        name: 'Keno', 
-        path: 'game/keno.html', 
-        category: 'original', 
+      {
+        id: 'keno',
+        name: 'Keno',
+        path: 'game/keno.html',
+        category: 'original',
         players: 145,
         image: 'assets/images/keno.png',
         fallbackBg: 'from-amber-950 to-slate-950'
       },
-      { 
-        id: 'roulette', 
-        name: 'Roulette', 
-        path: 'roulette/roulette.html', 
-        category: 'roulette', 
+      {
+        id: 'roulette',
+        name: 'Roulette',
+        path: 'roulette/roulette.html',
+        category: 'roulette',
         players: 255,
         image: 'assets/images/roulette.png',
         fallbackBg: 'from-rose-950 to-slate-950'
       },
-      { 
-        id: 'blackjack', 
-        name: 'Blackjack', 
-        path: 'blackjack/blackjacktable.html', 
-        category: 'blackjack', 
+      {
+        id: 'blackjack',
+        name: 'Blackjack',
+        path: 'blackjack/blackjacktable.html',
+        category: 'blackjack',
         players: 470,
         image: 'assets/images/blackjack.png',
         fallbackBg: 'from-blue-950 to-slate-950'
@@ -171,12 +203,17 @@
 
     let currentCategory = 'original';
     let balanceSubscription = null;
+    let playerUpdateInterval = null;
 
     // Supabase Realtime User Balance Sync
     async function syncRealtimeUserBalance() {
       try {
-        if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
+        if (
+          typeof supabaseClient !== 'undefined' &&
+          typeof getCurrentUser === 'function'
+        ) {
           const user = await getCurrentUser();
+
           if (user) {
             const { data: profile } = await supabaseClient
               .from('profiles')
@@ -184,30 +221,45 @@
               .eq('id', user.id)
               .single();
 
-            if (profile && document.getElementById('topBarBalance')) {
-              document.getElementById('topBarBalance').innerText = parseFloat(profile.balance).toFixed(2);
+            const balanceElement = document.getElementById('topBarBalance');
+
+            if (profile && balanceElement) {
+              balanceElement.innerText =
+                parseFloat(profile.balance).toFixed(2);
             }
 
             if (!balanceSubscription) {
               balanceSubscription = supabaseClient
                 .channel('public:profiles:' + user.id)
-                .on('postgres_changes', {
-                  event: 'UPDATE',
-                  schema: 'public',
-                  table: 'profiles',
-                  filter: `id=eq.${user.id}`
-                }, (payload) => {
-                  if (payload.new && payload.new.balance !== undefined) {
-                    const topBal = document.getElementById('topBarBalance');
-                    if (topBal) topBal.innerText = parseFloat(payload.new.balance).toFixed(2);
+                .on(
+                  'postgres_changes',
+                  {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'profiles',
+                    filter: `id=eq.${user.id}`
+                  },
+                  (payload) => {
+                    if (
+                      payload.new &&
+                      payload.new.balance !== undefined
+                    ) {
+                      const topBal =
+                        document.getElementById('topBarBalance');
+
+                      if (topBal) {
+                        topBal.innerText =
+                          parseFloat(payload.new.balance).toFixed(2);
+                      }
+                    }
                   }
-                })
+                )
                 .subscribe();
             }
           }
         }
       } catch (err) {
-        console.error("Balance Sync Error:", err);
+        console.error('Balance Sync Error:', err);
       }
     }
 
@@ -215,39 +267,71 @@
     async function loadTopBar() {
       try {
         const response = await fetch('bar/top.html');
+
         if (response.ok) {
           const html = await response.text();
+
           document.getElementById('topBarContainer').innerHTML = html;
+
           syncRealtimeUserBalance();
         }
-      } catch (err) { 
-        console.error("Error loading top bar component:", err); 
+      } catch (err) {
+        console.error('Error loading top bar component:', err);
       }
     }
 
-    // Dynamic Live Players Fluctuation System
+    // Optimized Live Players Update
+    // Update visible player counts every 8 seconds
     function startLivePlayerUpdates() {
-      setInterval(() => {
-        gameList.forEach(game => {
+      if (playerUpdateInterval) {
+        clearInterval(playerUpdateInterval);
+      }
+
+      playerUpdateInterval = setInterval(() => {
+        const visibleCounts = document.querySelectorAll(
+          '[id^="player-count-"]'
+        );
+
+        visibleCounts.forEach((playerElem) => {
+          const gameId = playerElem.id.replace(
+            'player-count-',
+            ''
+          );
+
+          const game = gameList.find(
+            item => item.id === gameId
+          );
+
+          if (!game) return;
+
           const variation = Math.floor(Math.random() * 7) - 3;
-          game.players = Math.max(50, game.players + variation);
-          
-          const playerElem = document.getElementById(`player-count-${game.id}`);
-          if (playerElem) {
-            playerElem.innerText = game.players.toLocaleString();
-          }
+
+          game.players = Math.max(
+            50,
+            game.players + variation
+          );
+
+          playerElem.textContent =
+            game.players.toLocaleString();
         });
-      }, 4000);
+      }, 8000);
     }
 
-    // Render Game Cards (Shadow overlay removed for maximum clarity)
+    // Render Game Cards
     function renderGames(filter = 'original', searchQuery = '') {
       const grid = document.getElementById('gamesGrid');
+
       grid.innerHTML = '';
 
+      const normalizedQuery = searchQuery.toLowerCase();
+
       const filteredGames = gameList.filter(game => {
-        const matchesCategory = (filter === 'all') || (game.category === filter);
-        const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCategory =
+          filter === 'all' || game.category === filter;
+
+        const matchesSearch =
+          game.name.toLowerCase().includes(normalizedQuery);
+
         return matchesCategory && matchesSearch;
       });
 
@@ -264,25 +348,30 @@
 
       filteredGames.forEach((game) => {
         const card = document.createElement('a');
-        card.href = game.path;
-        card.className = "group relative bg-[#111827] border border-slate-800 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-52 md:h-56 transition-transform duration-100";
-        
-        card.innerHTML = `
-          <!-- Full Card Cover Local Image -->
-          <img src="${game.image}" 
-               onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" 
-               class="absolute inset-0 w-full h-full object-cover z-0" 
-               alt="${game.name}" />
 
-          <!-- Fallback Gradient -->
+        card.href = game.path;
+
+        card.className =
+          'group relative bg-[#111827] border border-slate-800 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-52 md:h-56 transition-transform duration-100';
+
+        card.innerHTML = `
+          <img
+            src="${game.image}"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+            class="absolute inset-0 w-full h-full object-cover z-0"
+            alt="${game.name}"
+            loading="lazy"
+            decoding="async"
+          />
+
           <div class="hidden absolute inset-0 bg-gradient-to-b ${game.fallbackBg} opacity-90"></div>
 
-          <!-- Top Bar Overlay: Only Player Count (Shadow overlay completely removed) -->
           <div class="relative z-20 flex justify-end items-center p-2.5">
-            <span class="text-[10px] font-bold text-slate-200 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
+            <span class="text-[10px] font-bold text-slate-200 bg-black/60 px-2 py-0.5 rounded-full border border-white/10">
               <span id="player-count-${game.id}">${game.players.toLocaleString()}</span>
             </span>
           </div>
+
           <div></div>
         `;
 
@@ -295,24 +384,35 @@
     // Category Filter Switcher
     function filterCategory(cat) {
       currentCategory = cat;
-      const categories = ['original', 'roulette', 'blackjack', 'live'];
-      
+
+      const categories = [
+        'original',
+        'roulette',
+        'blackjack',
+        'live'
+      ];
+
       categories.forEach(c => {
-        const btn = document.getElementById(`cat${c.charAt(0).toUpperCase() + c.slice(1)}`);
+        const btn = document.getElementById(
+          `cat${c.charAt(0).toUpperCase() + c.slice(1)}`
+        );
+
         if (btn) {
           if (c === cat) {
-            btn.className = "flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap";
+            btn.className =
+              'flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap';
           } else {
-            btn.className = "flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap";
+            btn.className =
+              'flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap';
           }
         }
       });
 
       const titles = {
-        'original': 'Original Games',
-        'roulette': 'Roulette Games',
-        'blackjack': 'Blackjack Games',
-        'live': 'Live Casino'
+        original: 'Original Games',
+        roulette: 'Roulette Games',
+        blackjack: 'Blackjack Games',
+        live: 'Live Casino'
       };
 
       document.getElementById('sectionTitle').innerHTML = `
@@ -325,8 +425,14 @@
 
     // Search Filter
     function searchGames() {
-      const query = document.getElementById('gameSearch').value;
-      renderGames(currentCategory, query);
+      const searchInput = document.getElementById('gameSearch');
+
+      if (!searchInput) return;
+
+      renderGames(
+        currentCategory,
+        searchInput.value
+      );
     }
 
     // Initialization Logic
