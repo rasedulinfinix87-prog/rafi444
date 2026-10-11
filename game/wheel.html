@@ -13,11 +13,13 @@
   <style>
     * {
       box-sizing: border-box;
+      touch-action: manipulation;
     }
 
     html {
       min-height: 100%;
       background: #0f141c;
+      touch-action: pan-x pan-y;
     }
 
     body {
@@ -29,6 +31,7 @@
       overflow-x: hidden;
       overflow-y: auto;
       padding-bottom: calc(180px + env(safe-area-inset-bottom));
+      -webkit-text-size-adjust: 100%;
     }
 
     /* BC Game Card Style */
@@ -220,7 +223,7 @@
                 class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1"
               >
 
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1" id="betModifiers">
                 <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
 
                 <button onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
@@ -338,7 +341,7 @@
 
             <span class="text-xs text-gray-400 font-semibold">Risk Level</span>
 
-            <div class="grid grid-cols-3 gap-2 bg-[#0f141c] p-1 rounded-xl border border-[#222b3a]">
+            <div class="grid grid-cols-3 gap-2 bg-[#0f141c] p-1 rounded-xl border border-[#222b3a]" id="riskLevelContainer">
 
               <button
                 onclick="setRiskLevel('low')"
@@ -403,6 +406,14 @@
       '#ef4444',
       '#a855f7'
     ];
+
+    // Prevent Pinch-to-Zoom / Double-tap Zoom
+    document.addEventListener('gesturestart', function(e) {
+      e.preventDefault();
+    });
+    document.addEventListener('dblclick', function(e) {
+      e.preventDefault();
+    }, { passive: false });
 
     async function loadBars() {
       const topContainer = document.getElementById('topBarContainer');
@@ -491,7 +502,30 @@
       if (topBal2) topBal2.innerText = `৳ ${balance.toFixed(2)}`;
     }
 
+    function updateInterfaceLockState() {
+      const isLocked = isSpinning || isAutoRunning;
+      
+      // Lock / Unlock inputs and configs
+      document.getElementById('betAmount').disabled = isLocked;
+      document.getElementById('segmentsRange').disabled = isLocked;
+      document.getElementById('autoRounds').disabled = isLocked;
+      document.getElementById('winIncVal').disabled = isLocked;
+      document.getElementById('lossIncVal').disabled = isLocked;
+
+      // Disable buttons if locked
+      const actionButtons = document.querySelectorAll('#betModifiers button, #riskLevelContainer button, #winResetBtn, #winIncBtn, #lossResetBtn, #lossIncBtn');
+      actionButtons.forEach(btn => {
+        btn.disabled = isLocked;
+        if (isLocked) {
+          btn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+          btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+      });
+    }
+
     function modifyBet(type) {
+      if (isSpinning || isAutoRunning) return;
       const input = document.getElementById('betAmount');
       const current = parseFloat(input.value) || 0;
 
@@ -505,6 +539,7 @@
     }
 
     function setAdvancedAction(type, action) {
+      if (isSpinning || isAutoRunning) return;
       if (type === 'win') {
         winAction = action;
         const resetBtn = document.getElementById('winResetBtn');
@@ -554,7 +589,7 @@
     }
 
     function updateSegments(val) {
-      if (isSpinning) return;
+      if (isSpinning || isAutoRunning) return;
 
       segmentsCount = parseInt(val, 10);
       document.getElementById('segmentsVal').innerText = segmentsCount;
@@ -564,7 +599,7 @@
     }
 
     function setRiskLevel(level) {
-      if (isSpinning) return;
+      if (isSpinning || isAutoRunning) return;
 
       riskLevel = level;
 
@@ -740,6 +775,11 @@
 
         initialAutoBetAmount = parseFloat(document.getElementById('betAmount').value) || 1;
         isAutoRunning = true;
+        updateInterfaceLockState();
+
+        const tabManualBtn = document.getElementById('tabManual');
+        tabManualBtn.disabled = true;
+        tabManualBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
         const btn = document.getElementById('btnBet');
         btn.className = "w-full py-3.5 bg-red-600 text-white font-bold text-sm rounded-xl transition shadow";
@@ -752,6 +792,12 @@
     function stopAutoBet() {
       isAutoRunning = false;
       isSpinning = false;
+      updateInterfaceLockState();
+
+      const tabManualBtn = document.getElementById('tabManual');
+      tabManualBtn.disabled = false;
+      tabManualBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
       const btn = document.getElementById('btnBet');
       btn.disabled = false;
       btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
@@ -831,6 +877,13 @@
         return;
       }
 
+      isSpinning = true;
+      updateInterfaceLockState();
+
+      const tabAutoBtn = document.getElementById('tabAuto');
+      tabAutoBtn.disabled = true;
+      tabAutoBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
       const btn = document.getElementById('btnBet');
       btn.disabled = true;
       btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
@@ -838,6 +891,11 @@
 
       executeSpin(betVal, () => {
         isSpinning = false;
+        updateInterfaceLockState();
+
+        tabAutoBtn.disabled = false;
+        tabAutoBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
         btn.disabled = false;
         btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
         btn.innerText = 'Bet';
@@ -845,8 +903,6 @@
     }
 
     function executeSpin(betVal, callback) {
-      isSpinning = true;
-
       if (betVal > 0) {
         balance -= betVal;
         updateBalanceUI();
