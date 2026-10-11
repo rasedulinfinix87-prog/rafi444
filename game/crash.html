@@ -88,19 +88,13 @@
     
     <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#080B10] flex-1">
       
-      <!-- History Multipliers Bar -->
-      <div id="historyBar" class="flex items-center gap-2 overflow-x-auto py-1 px-2 bg-[#151a23] border border-[rgba(245,207,102,0.15)] rounded-xl text-xs font-bold">
-        <span class="text-gray-500"><i class="fa-solid fa-history"></i></span>
-        <!-- Past multipliers appended dynamically -->
-      </div>
-
       <!-- Crash Game Screen Area -->
       <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl h-56 shadow-xl overflow-hidden">
         
         <!-- Status / Multiplier Display -->
         <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-10">
           <span id="multiplierText" class="text-4xl sm:text-5xl font-black tracking-wider text-white">1.00x</span>
-          <span id="subStatusText" class="text-xs text-gray-400 font-semibold mt-1">Starts in 5.0s</span>
+          <span id="subStatusText" class="text-xs text-gray-400 font-semibold mt-1">Starts in 10.0s</span>
         </div>
 
         <!-- Background Graph Curve Simulation -->
@@ -120,7 +114,7 @@
           </div>
           <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl p-1 focus-within:border-[#F5CF66]">
             <div class="flex items-center px-2 text-[#F5CF66] font-bold text-sm">৳</div>
-            <input type="number" id="betAmount" value="10" min="1" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
+            <input type="number" id="betAmount" value="10" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
             
             <div class="flex items-center gap-1">
               <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">1/2</button>
@@ -128,6 +122,7 @@
               <button onclick="modifyBet('max')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-[#F5CF66] transition">Max</button>
             </div>
           </div>
+          <span class="text-[11px] text-gray-400 mt-0.5">ℹ Betting with 0 will enter demo mode.</span>
         </div>
 
         <!-- Auto Cash Out Controls -->
@@ -147,6 +142,12 @@
           <span>Bet (Next Round)</span>
         </button>
 
+        <!-- Manual / Auto Tabs Switcher -->
+        <div class="glass-card p-1 rounded-xl flex justify-around text-sm font-medium text-gray-400 mt-1">
+          <button onclick="switchTab('manual')" id="tabManual" class="py-2 px-10 rounded-lg gold-button shadow text-xs font-bold">Manual</button>
+          <button onclick="switchTab('auto')" id="tabAuto" class="py-2 px-10 rounded-lg hover:text-white text-xs font-bold">Auto</button>
+        </div>
+
       </div>
 
     </main>
@@ -159,14 +160,15 @@
     let currentUserId = null;
     let balance = 0.00;
     let gameState = 'waiting'; // waiting, running, crashed
-    let countdownTime = 5.0;
+    let countdownTime = 10.0;
     let currentMultiplier = 1.00;
     let crashPoint = 1.00;
     let gameInterval = null;
     let isPlayingNext = false;
     let hasCashedOut = false;
     let activeBetAmount = 0;
-    let historyMultipliers = [1.50, 2.30, 1.12, 5.40, 1.05];
+    let activeTab = 'manual';
+    let autoRoundCount = 0;
 
     async function loadBars() {
       try {
@@ -187,7 +189,6 @@
 
     async function initCrashGame() {
       await loadBars();
-      renderHistory();
       startWaitingPhase();
 
       if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
@@ -224,7 +225,7 @@
     function modifyBet(type) {
       let current = parseFloat(document.getElementById('betAmount').value) || 0;
       if (type === 'half') {
-        document.getElementById('betAmount').value = Math.max(1, Math.floor(current / 2));
+        document.getElementById('betAmount').value = Math.max(0, Math.floor(current / 2));
       } else if (type === 'double') {
         document.getElementById('betAmount').value = Math.floor(current * 2);
       } else if (type === 'max') {
@@ -232,26 +233,23 @@
       }
     }
 
-    function renderHistory() {
-      const bar = document.getElementById('historyBar');
-      // Keep history icon
-      bar.innerHTML = '<span class="text-gray-500"><i class="fa-solid fa-history"></i></span>';
-      
-      historyMultipliers.slice(-6).forEach(m => {
-        const span = document.createElement('span');
-        let colorClass = 'text-green-400 bg-green-500/10 px-2 py-0.5 rounded';
-        if (m < 2.00) colorClass = 'text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded';
-        if (m >= 5.00) colorClass = 'text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded';
+    function switchTab(tab) {
+      activeTab = tab;
+      const tabManual = document.getElementById('tabManual');
+      const tabAuto = document.getElementById('tabAuto');
 
-        span.className = colorClass;
-        span.innerText = m.toFixed(2) + 'x';
-        bar.appendChild(span);
-      });
+      if (tab === 'manual') {
+        tabManual.className = 'py-2 px-10 rounded-lg gold-button shadow text-xs font-bold';
+        tabAuto.className = 'py-2 px-10 rounded-lg hover:text-white text-xs font-bold';
+      } else {
+        tabAuto.className = 'py-2 px-10 rounded-lg gold-button shadow text-xs font-bold';
+        tabManual.className = 'py-2 px-10 rounded-lg hover:text-white text-xs font-bold';
+      }
     }
 
     function startWaitingPhase() {
       gameState = 'waiting';
-      countdownTime = 5.0;
+      countdownTime = 10.0;
       hasCashedOut = false;
       
       const multText = document.getElementById('multiplierText');
@@ -260,6 +258,10 @@
 
       multText.className = "text-4xl sm:text-5xl font-black tracking-wider text-white";
       multText.innerText = "1.00x";
+
+      if (activeTab === 'auto' && autoRoundCount > 0) {
+        isPlayingNext = true;
+      }
 
       if (isPlayingNext) {
         btn.className = "w-full py-3.5 red-btn text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
@@ -286,11 +288,9 @@
       gameState = 'running';
       currentMultiplier = 1.00;
       
-      // Generate crash point (House edge standard formula)
       let r = Math.random();
       crashPoint = parseFloat((Math.max(1.00, 0.99 / (1 - r))).toFixed(2));
-      // Cap extremely high or make it frequent for fun
-      if (Math.random() < 0.05) crashPoint = 1.00; // instant crash sometimes
+      if (Math.random() < 0.04) crashPoint = 1.00;
 
       const multText = document.getElementById('multiplierText');
       const subText = document.getElementById('subStatusText');
@@ -300,15 +300,22 @@
 
       if (isPlayingNext) {
         activeBetAmount = parseFloat(document.getElementById('betAmount').value) || 0;
-        if (activeBetAmount > balance) {
-          alert("পর্যাপ্ত ব্যালেন্স নেই!");
-          isPlayingNext = false;
-        } else if (activeBetAmount > 0) {
+        
+        if (activeBetAmount > 0) {
+          if (activeBetAmount > balance) {
+            alert("পর্যাপ্ত ব্যালেন্স নেই!");
+            isPlayingNext = false;
+            startWaitingPhase();
+            return;
+          }
           balance -= activeBetAmount;
           updateBalanceUI();
           if (currentUserId && typeof supabaseClient !== 'undefined') {
             await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
           }
+        } else {
+          // Demo mode with 0 bet
+          activeBetAmount = 0;
         }
 
         btn.className = "w-full py-3.5 gold-button font-black text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
@@ -322,12 +329,10 @@
 
       gameInterval = setInterval(async () => {
         let elapsedTime = (Date.now() - startTime) / 1000;
-        // Growth curve formula
         currentMultiplier = parseFloat((Math.exp(0.08 * elapsedTime)).toFixed(2));
 
         multText.innerText = currentMultiplier.toFixed(2) + 'x';
 
-        // Check auto cash out if playing
         let autoCash = parseFloat(document.getElementById('autoCashOut').value) || 0;
         if (isPlayingNext && !hasCashedOut && autoCash > 1.00 && currentMultiplier >= autoCash) {
           if (currentMultiplier <= crashPoint) {
@@ -347,14 +352,16 @@
       hasCashedOut = true;
 
       let mult = multiplierToUse || currentMultiplier;
-      let winAmount = activeBetAmount * mult;
+      let winAmount = activeBetAmount > 0 ? (activeBetAmount * mult) : 0;
 
-      balance += winAmount;
-      updateBalanceUI();
+      if (activeBetAmount > 0) {
+        balance += winAmount;
+        updateBalanceUI();
+      }
 
       const btn = document.getElementById('btnAction');
       btn.className = "w-full py-3.5 bg-gray-700 text-gray-400 font-bold text-base rounded-xl cursor-not-allowed";
-      btn.innerText = `Cashed Out (৳ ${winAmount.toFixed(2)})`;
+      btn.innerText = activeBetAmount > 0 ? `Cashed Out (৳ ${winAmount.toFixed(2)})` : `Demo Win (${mult.toFixed(2)}x)`;
 
       if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
         await supabaseClient.from('bets').insert([{
@@ -380,11 +387,7 @@
       multText.innerText = crashPoint.toFixed(2) + 'x';
       subText.innerText = "Crashed!";
 
-      historyMultipliers.push(crashPoint);
-      renderHistory();
-
       if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
-        // Lost the bet
         if (currentUserId && typeof supabaseClient !== 'undefined') {
           await supabaseClient.from('bets').insert([{
             user_id: currentUserId,
@@ -397,7 +400,15 @@
         }
       }
 
-      isPlayingNext = false;
+      if (activeTab === 'manual') {
+        isPlayingNext = false;
+      } else {
+        if (autoRoundCount > 1) autoRoundCount--;
+        else if (autoRoundCount === 1) {
+          autoRoundCount = 0;
+          isPlayingNext = false;
+        }
+      }
 
       setTimeout(() => {
         startWaitingPhase();
@@ -406,6 +417,9 @@
 
     function handleMainAction() {
       if (gameState === 'waiting') {
+        if (activeTab === 'auto') {
+          autoRoundCount = 10; // Default auto rounds
+        }
         isPlayingNext = !isPlayingNext;
         const btn = document.getElementById('btnAction');
         if (isPlayingNext) {
