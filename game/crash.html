@@ -90,9 +90,15 @@
       <div class="bc-main-wrapper flex flex-col shadow-xl">
         
         <!-- Crash Game Screen Area (Top Section inside wrapper) -->
-        <div class="relative flex flex-col items-center justify-center h-60 w-full overflow-hidden bg-[#171d28]">
+        <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28]">
+          
+          <!-- Previous Multiplier History Bar (Top Border Inside Card) -->
+          <div id="historyBar" class="absolute top-2 left-2 right-2 flex items-center gap-1.5 overflow-x-auto z-30 pb-1 no-scrollbar">
+            <!-- Dynamically populated history badges -->
+          </div>
+
           <!-- Status / Multiplier Display -->
-          <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-20">
+          <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-20 mt-6">
             <span id="multiplierText" class="text-4xl sm:text-5xl font-black tracking-wider text-white">1.00x</span>
             <span id="subStatusText" class="text-xs text-gray-400 font-semibold mt-1">Starts in 10.0s</span>
           </div>
@@ -177,6 +183,7 @@
     let activeTab = 'manual';
     let autoRoundCount = 0;
     let sparkles = [];
+    let previousResults = [1.45, 2.10, 1.05, 5.30, 1.12];
 
     async function loadBars() {
       try {
@@ -197,7 +204,7 @@
 
     async function initCrashGame() {
       await loadBars();
-      startWaitingPhase();
+      renderHistoryBar();
       drawEmptyCanvas();
 
       if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
@@ -221,6 +228,8 @@
             .subscribe();
         }
       }
+
+      startWaitingPhase();
     }
 
     function updateBalanceUI() {
@@ -229,6 +238,20 @@
       
       if (topBal1) topBal1.innerText = balance.toFixed(2);
       if (topBal2) topBal2.innerText = `৳ ${balance.toFixed(2)}`;
+    }
+
+    function renderHistoryBar() {
+      const historyContainer = document.getElementById('historyBar');
+      if (!historyContainer) return;
+      historyContainer.innerHTML = '';
+
+      previousResults.slice(-8).reverse().forEach(res => {
+        let badge = document.createElement('span');
+        let colorClass = res >= 2.0 ? 'text-[#24ee89] bg-[#24ee89]/10 border-[#24ee89]/30' : 'text-gray-300 bg-gray-800 border-gray-700';
+        badge.className = `px-2 py-0.5 rounded-md text-[11px] font-bold border ${colorClass} whitespace-nowrap`;
+        badge.innerText = res.toFixed(2) + 'x';
+        historyContainer.appendChild(badge);
+      });
     }
 
     function modifyBet(type) {
@@ -258,6 +281,7 @@
 
     function drawEmptyCanvas() {
       const canvas = document.getElementById('crashCanvas');
+      if (!canvas) return;
       const ctx = canvas.getContext('2d');
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
@@ -265,7 +289,7 @@
       sparkles = [];
     }
 
-    function startWaitingPhase() {
+    async function startWaitingPhase() {
       gameState = 'waiting';
       countdownTime = 10.0;
       hasCashedOut = false;
@@ -292,6 +316,11 @@
 
       if (gameInterval) clearInterval(gameInterval);
 
+      // Deduct bet immediately when entering waiting phase if user opted in for next round
+      if (isPlayingNext) {
+        await processBetDeduction();
+      }
+
       gameInterval = setInterval(() => {
         countdownTime -= 0.1;
         subText.innerText = `Starts in ${Math.max(0, countdownTime).toFixed(1)}s`;
@@ -301,6 +330,23 @@
           startRunningPhase();
         }
       }, 100);
+    }
+
+    async function processBetDeduction() {
+      activeBetAmount = parseFloat(document.getElementById('betAmount').value) || 0;
+      if (activeBetAmount > 0) {
+        if (activeBetAmount > balance) {
+          alert("পর্যাপ্ত ব্যালেন্স নেই!");
+          isPlayingNext = false;
+          startWaitingPhase();
+          return;
+        }
+        balance -= activeBetAmount;
+        updateBalanceUI();
+        if (currentUserId && typeof supabaseClient !== 'undefined') {
+          await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+        }
+      }
     }
 
     async function startRunningPhase() {
@@ -319,24 +365,6 @@
       subText.innerText = "Rocket launching...";
 
       if (isPlayingNext) {
-        activeBetAmount = parseFloat(document.getElementById('betAmount').value) || 0;
-        
-        if (activeBetAmount > 0) {
-          if (activeBetAmount > balance) {
-            alert("পর্যাপ্ত ব্যালেন্স নেই!");
-            isPlayingNext = false;
-            startWaitingPhase();
-            return;
-          }
-          balance -= activeBetAmount;
-          updateBalanceUI();
-          if (currentUserId && typeof supabaseClient !== 'undefined') {
-            await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
-          }
-        } else {
-          activeBetAmount = 0;
-        }
-
         btn.className = "w-full py-3.5 bg-[#24ee89] text-[#0f141c] font-black text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
         btn.innerText = "Cash Out";
       } else {
@@ -474,6 +502,9 @@
       multText.innerText = crashPoint.toFixed(2) + 'x';
       subText.innerText = "Crashed!";
 
+      previousResults.push(crashPoint);
+      renderHistoryBar();
+
       if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
         if (currentUserId && typeof supabaseClient !== 'undefined') {
           await supabaseClient.from('bets').insert([{
@@ -502,7 +533,7 @@
       }, 2500);
     }
 
-    function handleMainAction() {
+    async function handleMainAction() {
       if (gameState === 'waiting') {
         if (activeTab === 'auto') {
           autoRoundCount = 10;
@@ -512,7 +543,16 @@
         if (isPlayingNext) {
           btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
           btn.innerText = "Cancel Bet";
+          await processBetDeduction();
         } else {
+          // If cancelled during waiting phase, refund the balance
+          if (activeBetAmount > 0) {
+            balance += activeBetAmount;
+            updateBalanceUI();
+            if (currentUserId && typeof supabaseClient !== 'undefined') {
+              await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+            }
+          }
           btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
           btn.innerText = "Bet (Next Round)";
         }
