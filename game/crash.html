@@ -509,6 +509,12 @@
         multText.className = `text-4xl sm:text-5xl font-black tracking-wider ${currentStyle.textColor}`;
         multText.innerText = currentMultiplier.toFixed(2) + 'x';
 
+        // Update button text to show live profit calculation when user placed a bet
+        if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
+          let liveWin = activeBetAmount * currentMultiplier;
+          btn.innerText = `Cash Out (৳ ${liveWin.toFixed(2)})`;
+        }
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         let progress = Math.min(1, elapsedTime / 10);
