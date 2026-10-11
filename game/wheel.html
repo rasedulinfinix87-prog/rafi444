@@ -204,7 +204,7 @@
 
             <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
               <span>Amount (৳)</span>
-              <span class="text-gray-400 text-[10px]">Min: 1 ৳</span>
+              <span class="text-gray-400 text-[10px]">Min: 0.1 ৳</span>
             </div>
 
             <div class="flex items-center bc-input-box p-1">
@@ -216,7 +216,7 @@
                 id="betAmount"
                 value="1"
                 min="0"
-                step="1"
+                step="any"
                 class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1"
               >
 
@@ -256,7 +256,7 @@
                     <button onclick="setAdvancedAction('win', 'increase')" id="winIncBtn" class="flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95">Increase by</button>
                   </div>
                   <div class="w-24 flex items-center bc-input-box px-2 py-1">
-                    <input type="number" id="winIncVal" value="0" step="1" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none text-right">
+                    <input type="number" id="winIncVal" value="0" step="any" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none text-right">
                     <span class="text-xs text-gray-400 ml-1">%</span>
                   </div>
                 </div>
@@ -271,7 +271,7 @@
                     <button onclick="setAdvancedAction('loss', 'increase')" id="lossIncBtn" class="flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95">Increase by</button>
                   </div>
                   <div class="w-24 flex items-center bc-input-box px-2 py-1">
-                    <input type="number" id="lossIncVal" value="0" step="1" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none text-right">
+                    <input type="number" id="lossIncVal" value="0" step="any" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none text-right">
                     <span class="text-xs text-gray-400 ml-1">%</span>
                   </div>
                 </div>
@@ -496,11 +496,11 @@
       const current = parseFloat(input.value) || 0;
 
       if (type === 'half') {
-        input.value = Math.max(0, Math.floor(current / 2));
+        input.value = Math.max(0, (current / 2)).toFixed(2);
       } else if (type === 'double') {
-        input.value = Math.floor(current * 2);
+        input.value = (current * 2).toFixed(2);
       } else if (type === 'max') {
-        input.value = Math.floor(balance);
+        input.value = balance.toFixed(2);
       }
     }
 
@@ -765,8 +765,8 @@
       }
 
       const betVal = parseFloat(document.getElementById('betAmount').value) || 0;
-      if (betVal > 0 && betVal < 1) {
-        alert('সর্বনিম্ন বেট ১ টাকা হতে হবে!');
+      if (betVal > 0 && betVal < 0.1) {
+        alert('সর্বনিম্ন বেট ০.১ টাকা হতে হবে!');
         stopAutoBet();
         return;
       }
@@ -787,7 +787,7 @@
           return;
         }
 
-        // Apply Advanced Options logic
+        // Apply Advanced Options logic with decimal support
         let currentBet = parseFloat(document.getElementById('betAmount').value) || 1;
         if (isWin) {
           if (winAction === 'reset') {
@@ -795,7 +795,7 @@
           } else {
             let incPct = parseFloat(document.getElementById('winIncVal').value) || 0;
             currentBet += currentBet * (incPct / 100);
-            document.getElementById('betAmount').value = Math.floor(currentBet);
+            document.getElementById('betAmount').value = currentBet.toFixed(2);
           }
         } else {
           if (lossAction === 'reset') {
@@ -803,7 +803,7 @@
           } else {
             let incPct = parseFloat(document.getElementById('lossIncVal').value) || 0;
             currentBet += currentBet * (incPct / 100);
-            document.getElementById('betAmount').value = Math.floor(currentBet);
+            document.getElementById('betAmount').value = currentBet.toFixed(2);
           }
         }
 
@@ -821,8 +821,8 @@
         return;
       }
 
-      if (betVal > 0 && betVal < 1) {
-        alert('সর্বনিম্ন বেট ১ টাকা হতে হবে!');
+      if (betVal > 0 && betVal < 0.1) {
+        alert('সর্বনিম্ন বেট ০.১ টাকা হতে হবে!');
         return;
       }
 
@@ -888,7 +888,7 @@
 
     async function finishSpin(winningSegment, betVal, callback) {
       const multiplier = winningSegment.multiplier;
-      const winAmount = betVal > 0 ? betVal * multiplier : 0;
+      const winAmount = betVal > 0 ? (betVal * multiplier) : 0;
       const isWin = multiplier > 0;
 
       if (isWin && betVal > 0) {
