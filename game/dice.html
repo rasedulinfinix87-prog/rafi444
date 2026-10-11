@@ -93,7 +93,7 @@
       width: 100%;
       height: 12px;
       border-radius: 6px;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .slider-thumb-custom {
@@ -113,10 +113,10 @@
       transition: left 0.1s ease-out;
     }
 
-    /* 3D Dice Result Floating Box on Track */
+    /* 3D Dice Result Floating Box directly above the track */
     .dice-result-box {
       position: absolute;
-      bottom: 24px;
+      top: -38px;
       transform: translateX(-50%);
       background: #ffffff;
       color: #0f141c;
@@ -125,7 +125,7 @@
       padding: 4px 10px;
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-      z-index: 30;
+      z-index: 40;
       display: none;
       white-space: nowrap;
       border: 2px solid #e5e7eb;
@@ -187,16 +187,16 @@
         </div>
 
         <!-- Main Interactive Dice Track Area -->
-        <div class="relative my-6 px-2">
-
-          <!-- Floating 3D Dice Result Box on Track -->
-          <div id="diceResultBox" class="dice-result-box">
-            <span id="diceResultText">00.00</span>
-          </div>
+        <div class="relative my-8 px-2">
 
           <!-- Outer Track Pill Container -->
-          <div class="slider-track-outer">
+          <div class="slider-track-outer relative">
             
+            <!-- Floating 3D Dice Result Box right above the track -->
+            <div id="diceResultBox" class="dice-result-box">
+              <span id="diceResultText">00.00</span>
+            </div>
+
             <!-- Inner Dual Color Track -->
             <div class="slider-track-bg" id="sliderContainer">
               <!-- Win Track -->
