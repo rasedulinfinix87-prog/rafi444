@@ -297,7 +297,7 @@
           <div class="p-3.5 text-xs text-gray-400 bg-[#0f141c]">
             <!-- Manual Tab -->
             <div id="contentManual" class="flex flex-col gap-1">
-              <p class="text-gray-400">Manual Mode: Set your bet amount and roll target above, then click Bet to play.</p>
+              <!-- Text removed completely as requested -->
             </div>
 
             <!-- Auto Tab -->
@@ -378,21 +378,28 @@
           </div>
         </div>
 
-        <!-- Bottom Action Bar (Settings, Rating, Turbo, Live Stats) Inside Wrapper -->
-        <div class="flex items-center justify-between px-3 py-2 text-gray-400 text-sm bg-[#0f141c] rounded-xl border border-[#222b3a]">
-            <button onclick="toggleSettingsModal()" class="hover:text-[#24ee89] p-2">
-                <i class="fa-solid fa-gear"></i>
+        <!-- Bottom Action Bar Styled Exactly Like Screenshot -->
+        <div class="flex items-center justify-between px-4 py-2.5 text-gray-400 text-sm bg-[#0f141c] rounded-xl border border-[#222b3a]">
+            <!-- Settings Icon -->
+            <button onclick="toggleSettingsModal()" class="hover:text-white p-1 transition flex items-center justify-center">
+                <i class="fa-solid fa-gear text-base"></i>
             </button>
-            <button class="flex items-center gap-1 hover:text-[#24ee89] p-2">
+            
+            <!-- Rating Star with count -->
+            <button class="flex items-center gap-1.5 hover:text-white p-1 transition">
                 <i class="fa-solid fa-star text-xs text-[#24ee89]"></i>
-                <span class="text-xs">12543</span>
+                <span class="text-xs font-bold text-gray-300">12543</span>
             </button>
-            <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-[#24ee89] p-2 flex items-center gap-1" title="Turbo Mode">
-                <i id="turboIcon" class="fa-solid fa-bolt text-gray-400"></i>
-                <span id="turboText" class="text-[10px] font-bold">OFF</span>
+            
+            <!-- Turbo Button -->
+            <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-white p-1 flex items-center gap-1 transition" title="Turbo Mode">
+                <i id="turboIcon" class="fa-solid fa-bolt text-gray-400 text-xs"></i>
+                <span id="turboText" class="text-xs font-bold">OFF</span>
             </button>
-            <button onclick="toggleLiveStatsModal()" class="hover:text-[#24ee89] p-2">
-                <i class="fa-solid fa-chart-simple"></i>
+            
+            <!-- Live Stats Graph Icon -->
+            <button onclick="toggleLiveStatsModal()" class="hover:text-white p-1 transition flex items-center justify-center">
+                <i class="fa-solid fa-chart-simple text-base"></i>
             </button>
         </div>
 
@@ -509,11 +516,11 @@
         if (isTurboOn) {
             icon.className = "fa-solid fa-bolt text-[#24ee89]";
             txt.innerText = "ON";
-            txt.className = "text-[10px] font-bold text-[#24ee89]";
+            txt.className = "text-xs font-bold text-[#24ee89]";
         } else {
             icon.className = "fa-solid fa-bolt text-gray-400";
             txt.innerText = "OFF";
-            txt.className = "text-[10px] font-bold text-gray-400";
+            txt.className = "text-xs font-bold text-gray-400";
         }
     }
 
