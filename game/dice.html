@@ -75,17 +75,6 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
 
-    /* Hexagon Shape CSS */
-    .hexagon {
-      width: 80px;
-      height: 88px;
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-    }
-
     /* Outer Wrapper for Rounded Slider Track */
     .slider-track-outer {
       position: relative;
@@ -113,8 +102,8 @@
       transform: translate(-50%, -50%);
       width: 38px;
       height: 38px;
-      border-radius: 50%;
-      background: #ffffff;
+      border-radius: 10px;
+      background: #3b82f6;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       display: flex;
       align-items: center;
@@ -124,18 +113,35 @@
       transition: left 0.1s ease-out;
     }
 
-    /* Vertical Result Line Indicator on Track */
-    .roll-mark-line {
+    /* 3D Dice Result Floating Box on Track */
+    .dice-result-box {
       position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: #ffffff;
-      border-radius: 2px;
-      z-index: 15;
+      bottom: 24px;
       transform: translateX(-50%);
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
-      transition: left 0.4s ease-out;
+      background: #ffffff;
+      color: #0f141c;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      z-index: 30;
+      display: none;
+      white-space: nowrap;
+      border: 2px solid #e5e7eb;
+      transition: left 0.4s cubic-bezier(0.1, 0.8, 0.3, 1);
+    }
+    .dice-result-box::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px 6px 0;
+      border-style: solid;
+      border-color: #ffffff transparent;
+      display: block;
+      width: 0;
     }
   </style>
 </head>
@@ -180,15 +186,13 @@
           <!-- Dynamic History Pills -->
         </div>
 
-        <!-- Top Result Display -->
-        <div class="flex flex-col items-center justify-center my-2 min-h-[96px]">
-          <div id="hexagonWrapper" class="hexagon border-4 bg-[#0f141c] border-red-500 shadow-2xl transition-all duration-300">
-            <span class="text-xl font-extrabold tracking-wider text-red-500" id="hexagonText">00.00</span>
-          </div>
-        </div>
-
         <!-- Main Interactive Dice Track Area -->
-        <div class="relative my-2 px-2">
+        <div class="relative my-6 px-2">
+
+          <!-- Floating 3D Dice Result Box on Track -->
+          <div id="diceResultBox" class="dice-result-box">
+            <span id="diceResultText">00.00</span>
+          </div>
 
           <!-- Outer Track Pill Container -->
           <div class="slider-track-outer">
@@ -199,19 +203,15 @@
               <div id="greenTrack" class="absolute top-0 bottom-0 bg-[#24ee89] transition-all" style="left: 0%; width: 50%;"></div>
               <!-- Loss Track -->
               <div id="redTrack" class="absolute top-0 bottom-0 bg-red-500 transition-all" style="left: 50%; width: 50%;"></div>
-              
-              <!-- Result Mark Indicator Line -->
-              <div id="rollMarkLine" class="roll-mark-line hidden" style="left: 50%;"></div>
             </div>
 
             <!-- Hidden Native Range Input -->
             <input type="range" min="2" max="98" step="0.01" value="50" id="diceRange" class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer z-30">
 
-            <!-- Center Slider Thumb Button -->
+            <!-- Center Slider Thumb Button with 3 lines -->
             <div id="sliderThumb" class="slider-thumb-custom shadow-xl pointer-events-none" style="left: 50%;">
-              <div class="flex items-center justify-center gap-0.5 text-[#0f141c] font-black text-xs">
-                <i class="fa-solid fa-caret-left"></i>
-                <i class="fa-solid fa-caret-right"></i>
+              <div class="flex items-center justify-center text-white font-black text-xs tracking-tighter">
+                <i class="fa-solid fa-grip-vertical"></i>
               </div>
             </div>
 
@@ -595,9 +595,8 @@
     const winChanceInput = document.getElementById('winChanceInput');
     const betAmount = document.getElementById('betAmount');
     const btnBet = document.getElementById('btnBet');
-    const hexagonWrapper = document.getElementById('hexagonWrapper');
-    const hexagonText = document.getElementById('hexagonText');
-    const rollMarkLine = document.getElementById('rollMarkLine');
+    const diceResultBox = document.getElementById('diceResultBox');
+    const diceResultText = document.getElementById('diceResultText');
     const userBalance = document.getElementById('userBalance');
     const historyContainer = document.getElementById('historyContainer');
     const dirToggleBtn = document.getElementById('dirToggleBtn');
@@ -789,8 +788,9 @@
       const rollResult = parseFloat((Math.random() * 99.99).toFixed(2));
       const targetVal = parseFloat(diceRange.value);
 
-      rollMarkLine.classList.remove('hidden');
-      rollMarkLine.style.left = rollResult + '%';
+      diceResultBox.style.display = 'block';
+      diceResultBox.style.left = rollResult + '%';
+      diceResultText.innerText = rollResult.toFixed(2);
 
       const delayTime = isTurboOn ? 50 : 400;
 
@@ -849,15 +849,10 @@
               .eq('id', currentUserId);
           }
 
-          hexagonText.innerText = rollResult.toFixed(2);
           if (isWin) {
-            hexagonWrapper.className = "hexagon border-4 bg-[#0f141c] border-[#24ee89] shadow-2xl transition-all duration-300";
-            hexagonText.className = "text-xl font-extrabold tracking-wider text-[#24ee89]";
-            rollMarkLine.style.background = "#24ee89";
+            diceResultText.className = "text-[#24ee89]";
           } else {
-            hexagonWrapper.className = "hexagon border-4 bg-[#0f141c] border-red-500 shadow-2xl transition-all duration-300";
-            hexagonText.className = "text-xl font-extrabold tracking-wider text-red-500";
-            rollMarkLine.style.background = "#ed4245";
+            diceResultText.className = "text-red-500";
           }
 
           addHistoryPill(rollResult.toFixed(2), isWin);
