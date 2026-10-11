@@ -1,1280 +1,898 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mines Original - Game Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Limbo Game</title>
 
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Supabase JS Client & Config -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-config.js"></script>
+    <!-- Supabase Config -->
+    <script src="../supabase-config.js"></script>
 
-  <style>
-    body {
-      background: #080B10;
-      color: #ffffff;
-      font-family: sans-serif;
-      padding-bottom: 90px;
-    }
+    <style>
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
 
-    .glass-card {
-      background: rgba(245, 207, 102, 0.06);
-      border: 1px solid rgba(245, 207, 102, 0.25);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 18px;
-      box-shadow: 0 0 18px rgba(255, 184, 0, 0.08);
-    }
+        html {
+            min-height: 100%;
+            background: #0f141c;
+            touch-action: pan-x pan-y;
+        }
 
-    .gold-button {
-      background: linear-gradient(
-          135deg,
-          #FFDF85,
-          #F5CF66,
-          #D9A441
-      );
-      color: #080B10;
-      border: 1px solid #FFDF85;
-      box-shadow: 0 0 14px rgba(255, 184, 0, 0.25);
-    }
+        body {
+            background: #0f141c;
+            color: #ffffff;
+            font-family: sans-serif;
+            padding-bottom: 90px;
+            overflow-y: auto;
+            -webkit-text-size-adjust: 100%;
+            user-select: none;
+        }
 
-    .gold-button:hover {
-      opacity: 0.9;
-    }
+        .bc-main-wrapper {
+            background: #171d28;
+            border: 1px solid #222b3a;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
 
-    #minesGrid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      grid-template-rows: repeat(5, 1fr);
-      gap: 6px;
-      aspect-ratio: 1 / 1;
-      width: 100%;
-    }
+        .bc-divider {
+            height: 1px;
+            background-color: #222b3a;
+            width: 100%;
+        }
 
-    .tile {
-      background: #1a212d;
-      border: 1px solid rgba(245, 207, 102, 0.15);
-      border-radius: 8px;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.06),
-        0 2px 4px rgba(0,0,0,0.35);
-      transition: all 0.15s ease;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      font-weight: 900;
-      aspect-ratio: 1 / 1;
-      cursor: pointer;
-    }
+        .bc-input-box {
+            background: #0f141c;
+            border: 1px solid #222b3a;
+            border-radius: 10px;
+        }
+        .bc-input-box:focus-within {
+            border-color: #24ee89;
+        }
 
-    .tile:hover:not(:disabled) {
-      background: #2a3546;
-      border-color: rgba(245, 207, 102, 0.4);
-    }
+        .green-btn {
+            background: #24ee89;
+            color: #0f141c;
+            font-weight: 800;
+        }
+        .green-btn:hover {
+            background: #1ed67a;
+        }
 
-    .tile:disabled {
-      cursor: default;
-    }
+        .red-btn {
+            background: #ed4245;
+            color: #ffffff;
+            font-weight: 800;
+        }
+        .red-btn:hover {
+            background: #d3383b;
+        }
 
-    .tile-selected {
-      background: rgba(245, 207, 102, 0.22) !important;
-      border: 2px solid #F5CF66 !important;
-      box-shadow: 0 0 14px rgba(255, 184, 0, 0.4), inset 0 0 10px rgba(245, 207, 102, 0.15) !important;
-    }
+        /* Hide scrollbar for history bar */
+        #historyBar::-webkit-scrollbar {
+            display: none;
+        }
 
-    .tile-gem {
-      background: linear-gradient(135deg, #FFDF85 0%, #F5CF66 100%) !important;
-      box-shadow: 0 0 18px rgba(245, 207, 102, 0.55) !important;
-      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
+        #historyBar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
 
-    .tile-bomb {
-      background: linear-gradient(135deg, #ed4245 0%, #b91c1c 100%) !important;
-      box-shadow: 0 0 20px rgba(237, 66, 69, 0.65) !important;
-      animation: shake 0.4s ease-in-out;
-    }
-
-    @keyframes popIn {
-      0% { transform: scale(0.5); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-4px); }
-      40%, 80% { transform: translateX(4px); }
-    }
-
-    /* Cashout Popup */
-    #cashoutPopup {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.65);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #cashoutPopup.show {
-      display: flex;
-    }
-
-    .popup-box {
-      background: #080B10;
-      border: 1px solid rgba(245, 207, 102, 0.25);
-      border-radius: 16px;
-      padding: 28px 36px;
-      text-align: center;
-      min-width: 220px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      animation: popIn 0.25s ease;
-    }
-
-    #minesLoader {
-      position: fixed;
-      inset: 0;
-      background: #080B10;
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.4s ease, visibility 0.4s ease;
-    }
-
-    #minesLoader.hide {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .loader-bomb {
-      font-size: 3.5rem;
-      color: #F5CF66;
-      animation: bombPulse 1.2s ease-in-out infinite;
-      filter: drop-shadow(0 0 18px rgba(245, 207, 102, 0.6));
-    }
-
-    .loader-text {
-      margin-top: 18px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      color: #8596a6;
-      text-transform: uppercase;
-      animation: textFade 1.4s ease-in-out infinite;
-    }
-
-    .loader-dots span {
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      margin: 0 3px;
-      background: #F5CF66;
-      border-radius: 50%;
-      animation: dotBounce 1.2s infinite ease-in-out;
-    }
-
-    .loader-dots span:nth-child(2) {
-      animation-delay: 0.15s;
-    }
-
-    .loader-dots span:nth-child(3) {
-      animation-delay: 0.3s;
-    }
-
-    @keyframes bombPulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.18); opacity: 0.85; }
-    }
-
-    @keyframes textFade {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
-    }
-
-    @keyframes dotBounce {
-      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-      40% { transform: scale(1.2); opacity: 1; }
-    }
-
-    /* Hide scrollbar for history bar */
-    #historyBar::-webkit-scrollbar {
-      display: none;
-    }
-
-    #historyBar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-  </style>
+        /* Bottom Navigation Connection */
+        #bottomBarFrame {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 85px;
+            border: none;
+            z-index: 9998;
+            background: #0f141c;
+        }
+    </style>
 </head>
 
-<body class="bg-[#080B10] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#F5CF66] selection:text-[#080B10]">
+<body class="min-h-screen flex flex-col items-center">
 
-  <!-- Mines Symbol Loader -->
-  <div id="minesLoader">
-    <div class="loader-bomb">
-      <i class="fa-solid fa-bomb"></i>
-    </div>
-    <div class="loader-text">Loading Mines</div>
-    <div class="loader-dots mt-3">
-      <span></span><span></span><span></span>
-    </div>
-  </div>
+    <!-- Top Bar Connection Container -->
+    <div id="topBarContainer" class="w-full max-w-md sticky top-0 z-50 mb-3"></div>
 
-  <!-- Top Bar Anchor -->
-  <div id="topBarContainer" class="sticky top-0 z-50"></div>
+    <!-- Game Container -->
+    <div class="w-full max-w-md p-4 flex flex-col gap-4 relative">
 
-  <!-- Cashout Result Popup -->
-  <div id="cashoutPopup">
-    <div class="popup-box">
-      <div id="popupMultiplier" class="text-3xl font-black text-[#F5CF66] mb-1">2.50x</div>
-      <div id="popupAmount" class="text-lg font-bold text-white">৳ 25.00</div>
-    </div>
-  </div>
-
-  <!-- Main Game Container -->
-  <main class="max-w-md w-full mx-auto p-3 sm:p-4 space-y-3 flex-1 pb-10">
-
-    <!-- 5x5 Mines Grid Board -->
-    <div class="glass-card rounded-2xl p-3 sm:p-3.5 shadow-2xl relative">
-      <div id="minesGrid"></div>
-    </div>
-
-    <!-- Multiplier + Profit -->
-    <div class="glass-card rounded-2xl p-3 flex justify-between items-center text-xs">
-      <div class="flex items-center gap-2">
-        <span class="text-gray-400 font-medium">Next Multiplier:</span>
-        <span id="nextMultiplier" class="font-extrabold text-[#F5CF66] text-sm">1.03x</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="text-gray-400 font-medium">Profit:</span>
-        <span id="profitAmount" class="font-extrabold text-[#F5CF66] text-sm">৳ 0.00</span>
-      </div>
-    </div>
-
-    <!-- Controls Panel -->
-    <div class="glass-card rounded-2xl p-4 space-y-3.5">
-
-      <!-- Bet Amount -->
-      <div class="space-y-1">
-        <div class="flex justify-between text-xs text-gray-400 font-semibold">
-          <span>Bet Amount</span>
-          <span class="text-xs text-gray-400">Min: 10 ৳</span>
+        <!-- Recent Multipliers History Bar -->
+        <div id="historyBar" class="flex flex-row-reverse gap-2 overflow-x-auto py-1 text-xs justify-start scroll-smooth">
+            <!-- Dynamic history items will appear here -->
         </div>
 
-        <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl p-1">
-          <input type="number" id="betAmount" value="10" min="0" class="w-full bg-transparent px-3 text-xs font-bold text-white focus:outline-none">
+        <!-- Unified Main Game Wrapper Card -->
+        <div class="bc-main-wrapper flex flex-col shadow-xl">
 
-          <button onclick="adjustBet(0.5)" class="bg-[#1a212d] hover:bg-[#2a3546] text-gray-300 hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">1/2</button>
-
-          <button onclick="adjustBet(2)" class="bg-[#1a212d] hover:bg-[#2a3546] text-gray-300 hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">2x</button>
-
-          <button onclick="setMaxBet()" class="bg-[#1a212d] hover:bg-[#2a3546] text-[#F5CF66] px-2.5 py-1 rounded-lg text-[10px] font-bold">MAX</button>
-        </div>
-      </div>
-
-      <!-- Mines Count Slider -->
-      <div class="space-y-1">
-        <div class="flex justify-between text-xs text-gray-400 font-semibold">
-          <span>Mines</span>
-          <span id="minesCountDisplay" class="font-bold text-[#F5CF66]">3</span>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <span class="text-xs text-gray-400">1</span>
-
-          <input type="range" id="minesRange" min="1" max="24" value="3" oninput="updateMinesCount(this.value)" class="w-full accent-[#F5CF66] cursor-pointer h-2 bg-[#080B10] rounded-lg">
-
-          <span class="text-xs text-gray-400">24</span>
-        </div>
-      </div>
-
-      <!-- Number of Bets (Auto) -->
-      <div id="autoBetsSection" class="space-y-1 hidden">
-        <div class="flex justify-between text-xs text-gray-400 font-semibold">
-          <span>Number of Bets</span>
-          <span class="text-xs text-gray-400">0 = ∞</span>
-        </div>
-
-        <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl p-1">
-          <input type="number" id="autoBetCount" value="0" min="0" class="w-full bg-transparent px-3 text-xs font-bold text-white focus:outline-none">
-
-          <button onclick="setAutoBets(0)" class="bg-[#1a212d] hover:bg-[#2a3546] text-gray-300 hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">∞</button>
-
-          <button onclick="setAutoBets(10)" class="bg-[#1a212d] hover:bg-[#2a3546] text-gray-300 hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold mr-1">10</button>
-
-          <button onclick="setAutoBets(100)" class="bg-[#1a212d] hover:bg-[#2a3546] text-gray-300 hover:text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">100</button>
-        </div>
-      </div>
-
-      <!-- Action Button -->
-      <button id="actionBtn" onclick="handleAction()" class="w-full gold-button font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg">
-        Bet
-      </button>
-
-      <!-- Manual / Auto Tabs -->
-      <div class="glass-card p-1 rounded-xl flex justify-around text-sm font-medium text-gray-400">
-        <button onclick="switchTab('manual')" id="tabManual" class="py-2 px-10 rounded-lg gold-button shadow">Manual</button>
-        <button onclick="switchTab('auto')" id="tabAuto" class="py-2 px-10 rounded-lg hover:text-white">Auto</button>
-      </div>
-
-      <!-- Advanced Options (Auto only) -->
-      <div id="advancedOptions" class="hidden space-y-3 pt-1 border-t border-[rgba(245,207,102,0.25)]">
-        <div class="text-xs font-bold text-white">Advanced Options</div>
-
-        <div class="space-y-1">
-          <label class="text-[11px] text-gray-400">On win</label>
-
-          <div class="grid grid-cols-2 gap-2">
-            <div class="flex bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-lg p-1">
-              <button onclick="setAutoStrategy('win', 'reset')" id="winResetBtn" class="flex-1 py-1 bg-[#1a212d] text-white font-bold rounded text-xs shadow border border-[rgba(245,207,102,0.25)]">Reset</button>
-              <button onclick="setAutoStrategy('win', 'increase')" id="winIncBtn" class="flex-1 py-1 text-gray-400 font-bold rounded text-xs">Increase by</button>
+            <!-- Main Display Box -->
+            <div class="relative h-56 flex flex-col items-center justify-center overflow-hidden bg-[#171d28] p-4">
+                <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#24ee89_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                <div id="resultMultiplier" class="text-5xl font-black tracking-wider z-10 text-[#24ee89] transition-all duration-150">1.00x</div>
             </div>
 
-            <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-lg px-2 py-1">
-              <input type="number" id="winIncPercent" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-right pr-1 text-xs">
-              <span class="text-gray-400 text-xs">%</span>
+            <!-- Thin Divider Line -->
+            <div class="bc-divider"></div>
+
+            <!-- Controls Section Inside Wrapper -->
+            <div class="p-4 flex flex-col gap-4 bg-[#171d28]">
+
+                <!-- Tabs (Manual / Auto) -->
+                <div class="bg-[#0f141c] p-1 rounded-xl flex justify-around text-sm font-medium text-gray-400 border border-[#222b3a]">
+                    <button id="manualTab" onclick="switchTab('manual')" class="py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition">Manual</button>
+                    <button id="autoTab" onclick="switchTab('auto')" class="py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition">Auto</button>
+                </div>
+
+                <!-- Amount Input -->
+                <div class="flex flex-col gap-1">
+                    <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+                        <span>Amount (৳)</span>
+                        <span class="text-gray-400 text-[10px]">Min: 0.1 ৳</span>
+                    </div>
+                    <div id="amountBoxContainer" class="flex items-center bc-input-box px-3 py-2">
+                        <span class="text-[#24ee89] font-bold mr-2">৳</span>
+                        <input type="number" id="betAmount" value="1" step="any" min="0.1" oninput="validateAmount()" class="bg-transparent w-full focus:outline-none text-white font-semibold text-sm">
+                        <div class="flex gap-1 ml-2">
+                            <button onclick="halveAmount()" class="bg-[#171d28] hover:bg-[#222b3a] px-2.5 py-1 text-[11px] rounded font-bold text-gray-300 border border-[#222b3a]">1/2</button>
+                            <button onclick="doubleAmount()" class="bg-[#171d28] hover:bg-[#222b3a] px-2.5 py-1 text-[11px] rounded font-bold text-gray-300 border border-[#222b3a]">2x</button>
+                            <button onclick="maxAmount()" class="bg-[#171d28] hover:bg-[#222b3a] px-2.5 py-1 text-[11px] rounded font-bold text-[#F5CF66] border border-[#222b3a]">Max</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payout & Chance Input -->
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="text-xs text-gray-400 block mb-1">Payout</label>
+                        <div id="payoutBox" class="flex items-center bc-input-box px-3 py-2">
+                            <input type="number" id="targetMultiplier" value="2.00" step="any" min="1.001" oninput="updateChance()" class="bg-transparent w-full focus:outline-none text-white font-semibold text-sm">
+                            <span class="text-gray-400 ml-1">×</span>
+                        </div>
+                    </div>
+
+                    <div class="w-1/3">
+                        <label id="chanceLabel" class="text-xs text-gray-400 block mb-1 text-right">Chance 49.00%</label>
+                        <div id="chanceBox" class="flex items-center justify-between bc-input-box px-3 py-2">
+                            <span id="chanceDisplay" class="text-white font-semibold text-sm w-full text-center">49.00%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auto Bet Extra Settings Panel -->
+                <div id="autoSettingsPanel" class="flex flex-col gap-3 hidden border-t border-[#222b3a] pt-3">
+
+                    <!-- Number of Bets (Rounds) -->
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs text-gray-400 font-medium">Number of Bets (Rounds)</span>
+                        <div class="flex items-center bc-input-box px-3 py-2">
+                            <input type="number" id="autoRounds" value="10" min="1" max="1000" class="bg-transparent w-full focus:outline-none text-white font-semibold text-xs">
+                        </div>
+                    </div>
+
+                    <!-- On Win -->
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs text-gray-400 font-medium">On Win</span>
+                        <div class="flex gap-2 items-center">
+                            <button id="winResetBtn" onclick="setWinMode('reset')" class="flex-1 py-1.5 bg-[#222b3a] text-white text-xs rounded-lg font-bold border border-[#222b3a]">Reset</button>
+                            <button id="winIncBtn" onclick="setWinMode('increase')" class="flex-1 py-1.5 bg-[#0f141c] text-gray-400 text-xs rounded-lg font-medium border border-[#222b3a]">Increase by:</button>
+                            <div class="flex items-center bc-input-box px-2 py-1 w-20">
+                                <input type="number" id="winIncValue" value="0" step="any" class="bg-transparent w-full text-xs text-white focus:outline-none">
+                                <span class="text-gray-400 text-xs ml-1">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- On Loss -->
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xs text-gray-400 font-medium">On Loss</span>
+                        <div class="flex gap-2 items-center">
+                            <button id="lossResetBtn" onclick="setLossMode('reset')" class="flex-1 py-1.5 bg-[#222b3a] text-white text-xs rounded-lg font-bold border border-[#222b3a]">Reset</button>
+                            <button id="lossIncBtn" onclick="setLossMode('increase')" class="flex-1 py-1.5 bg-[#0f141c] text-gray-400 text-xs rounded-lg font-medium border border-[#222b3a]">Increase by:</button>
+                            <div class="flex items-center bc-input-box px-2 py-1 w-20">
+                                <input type="number" id="lossIncValue" value="0" step="any" class="bg-transparent w-full text-xs text-white focus:outline-none">
+                                <span class="text-gray-400 text-xs ml-1">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bet / Start Auto Button -->
+                <button id="betBtn" onclick="handleMainButton()" class="w-full green-btn py-3.5 rounded-xl transition duration-200 text-sm shadow-lg">
+                    Bet
+                </button>
+
             </div>
-          </div>
+
         </div>
 
-        <div class="space-y-1">
-          <label class="text-[11px] text-gray-400">On loss</label>
+        <!-- Bottom Action Bar -->
+        <div class="flex items-center justify-between px-2 py-1 text-gray-400 text-sm">
+            <button onclick="toggleSettingsModal()" class="hover:text-[#24ee89] p-2">
+                <i class="fa-solid fa-gear"></i>
+            </button>
 
-          <div class="grid grid-cols-2 gap-2">
-            <div class="flex bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-lg p-1">
-              <button onclick="setAutoStrategy('loss', 'reset')" id="lossResetBtn" class="flex-1 py-1 bg-[#1a212d] text-white font-bold rounded text-xs shadow border border-[rgba(245,207,102,0.25)]">Reset</button>
-              <button onclick="setAutoStrategy('loss', 'increase')" id="lossIncBtn" class="flex-1 py-1 text-gray-400 font-bold rounded text-xs">Increase by</button>
+            <button class="flex items-center gap-1 hover:text-[#24ee89] p-2">
+                <i class="fa-solid fa-star text-xs text-[#24ee89]"></i>
+                <span class="text-xs">12543</span>
+            </button>
+
+            <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-[#24ee89] p-2 flex items-center gap-1" title="Turbo Mode">
+                <i id="turboIcon" class="fa-solid fa-bolt text-gray-400"></i>
+                <span id="turboText" class="text-[10px] font-bold">OFF</span>
+            </button>
+
+            <button onclick="toggleLiveStatsModal()" class="hover:text-[#24ee89] p-2">
+                <i class="fa-solid fa-chart-simple"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end justify-center backdrop-blur-sm">
+        <div class="bc-main-wrapper w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 bg-[#171d28] border-t border-[#222b3a]">
+            <div class="flex justify-between items-center pb-2 border-b border-[#222b3a]">
+                <span class="font-bold text-white">Settings</span>
+                <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-lg px-2 py-1">
-              <input type="number" id="lossIncPercent" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-right pr-1 text-xs">
-              <span class="text-gray-400 text-xs">%</span>
+            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
+                <i class="fa-regular fa-circle-question w-5 text-[#24ee89]"></i> Help
+            </button>
+
+            <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-sm text-[#24ee89]">
+                <span class="flex items-center gap-3"><i class="fa-solid fa-volume-high w-5"></i> Sound Effects</span>
+                <span id="soundStatusText" class="text-xs font-bold">ON</span>
+            </button>
+
+            <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
+                <i class="fa-solid fa-seedling w-5 text-[#24ee89]"></i> Seed
+            </button>
+
+            <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
+                <i class="fa-solid fa-share-nodes w-5 text-[#24ee89]"></i> Share
+            </button>
+        </div>
+    </div>
+
+    <!-- Live Stats Modal -->
+    <div id="liveStatsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bc-main-wrapper w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 shadow-2xl bg-[#171d28]">
+            <div class="flex justify-between items-center pb-2 border-b border-[#222b3a]">
+                <span class="font-bold text-white text-base">Live Stats</span>
+                <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
-          </div>
+
+            <div class="bc-input-box p-3 rounded-xl flex flex-col gap-3">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-400">Profit</span>
+                    <span id="statsProfit" class="text-[#24ee89] font-bold">৳ 0.00</span>
+                </div>
+
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-400">Wagered</span>
+                    <span id="statsWagered" class="text-white font-bold">৳ 0.00</span>
+                </div>
+
+                <div class="flex justify-between items-center text-sm border-t border-[#222b3a] pt-2">
+                    <span class="text-gray-400">WIN: <strong id="statsWin" class="text-white">0</strong></span>
+                    <span class="text-gray-400">LOSE: <strong id="statsLose" class="text-white">0</strong></span>
+                </div>
+            </div>
+
+            <!-- Live Stats Graph Box -->
+            <div class="bc-input-box p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden">
+                <span class="text-[11px] text-gray-400">Profit/Loss Graph</span>
+                <div class="flex-1 w-full flex items-end gap-1 overflow-x-auto pt-4" id="statsGraphContainer">
+                    <div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>
+                </div>
+            </div>
         </div>
-
-        <div class="space-y-1">
-          <div class="flex justify-between items-center text-[11px]">
-            <span class="text-gray-400">Stop on win</span>
-            <span class="text-gray-400 text-[10px]">≈0 ৳</span>
-          </div>
-
-          <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-lg px-3 py-1.5">
-            <span class="text-[#F5CF66] font-bold mr-2 text-xs">৳</span>
-            <input type="number" id="autoStopProfit" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-xs">
-          </div>
-        </div>
-
-        <div class="space-y-1">
-          <div class="flex justify-between items-center text-[11px]">
-            <span class="text-gray-400">Stop on loss</span>
-            <span class="text-gray-400 text-[10px]">≈0 ৳</span>
-          </div>
-
-          <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-lg px-3 py-1.5">
-            <span class="text-[#F5CF66] font-bold mr-2 text-xs">৳</span>
-            <input type="number" id="autoStopLoss" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-xs">
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Bottom Action Bar -->
-    <div class="flex items-center justify-between px-2 py-1 text-gray-400 text-sm glass-card">
-      <button onclick="toggleSettingsModal()" class="hover:text-[#F5CF66] p-2">
-        <i class="fa-solid fa-gear"></i>
-      </button>
+    <script>
+        let currentUserId = null;
+        let userBalance = 0.00;
+        let isTurboOn = false;
+        let isSoundOn = true;
+        let currentMode = 'manual';
+        let isAutoRunning = false;
+        let autoInterval = null;
 
-      <button class="flex items-center gap-1 hover:text-[#F5CF66] p-2">
-        <i class="fa-solid fa-star text-xs text-[#F5CF66]"></i>
-        <span class="text-xs">12543</span>
-      </button>
+        let winMode = 'reset';
+        let lossMode = 'reset';
+        let baseBetAmount = 1;
+        let remainingAutoRounds = 0;
 
-      <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-[#F5CF66] p-2 flex items-center gap-1" title="Turbo Mode">
-        <i id="turboIcon" class="fa-solid fa-bolt text-gray-400"></i>
-        <span id="turboText" class="text-[10px] font-bold">OFF</span>
-      </button>
+        let totalProfit = 0;
+        let totalWagered = 0;
+        let totalWins = 0;
+        let totalLosses = 0;
+        let profitHistory = [0];
 
-      <button onclick="toggleLiveStatsModal()" class="hover:text-[#F5CF66] p-2">
-        <i class="fa-solid fa-chart-simple"></i>
-      </button>
-    </div>
-  </main>
+        // Prevent Zoom In / Zoom Out
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+        document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
 
-  <!-- Settings Bottom Sheet Modal -->
-  <div id="settingsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end justify-center">
-    <div class="glass-card w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 animate-slide-up bg-[#080B10]">
-      <div class="flex justify-between items-center pb-2 border-b border-[rgba(245,207,102,0.25)]">
-        <span class="font-bold text-white">Settings</span>
-        <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
+        const horrorBgMusic = new Audio('https://freesound.org/data/previews/515/515843_6142149-lq.mp3');
+        horrorBgMusic.loop = true;
+        horrorBgMusic.volume = 0.4;
 
-      <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-left text-sm text-gray-300">
-        <i class="fa-regular fa-circle-question w-5 text-[#F5CF66]"></i> Help
-      </button>
+        const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        const loseSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3');
 
-      <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-sm text-[#F5CF66]">
-        <span class="flex items-center gap-3"><i class="fa-solid fa-volume-high w-5"></i> Sound Effects</span>
-        <span id="soundStatusText" class="text-xs font-bold">ON</span>
-      </button>
+        function playSound(isWin) {
+            if (!isSoundOn) return;
 
-      <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-left text-sm text-gray-300">
-        <i class="fa-solid fa-seedling w-5 text-[#F5CF66]"></i> Seed
-      </button>
-
-      <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-left text-sm text-gray-300">
-        <i class="fa-solid fa-share-nodes w-5 text-[#F5CF66]"></i> Share
-      </button>
-    </div>
-  </div>
-
-  <!-- Live Stats Modal -->
-  <div id="liveStatsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 shadow-2xl bg-[#080B10]">
-      <div class="flex justify-between items-center pb-2 border-b border-[rgba(245,207,102,0.25)]">
-        <span class="font-bold text-white text-base">Live Stats</span>
-        <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div class="bg-[#080B10] p-3 rounded-xl flex flex-col gap-3 border border-[rgba(245,207,102,0.15)]">
-        <div class="flex justify-between items-center text-sm">
-          <span class="text-gray-400">Profit</span>
-          <span id="statsProfit" class="text-[#F5CF66] font-bold">৳ 0.00</span>
-        </div>
-
-        <div class="flex justify-between items-center text-sm">
-          <span class="text-gray-400">Wagered</span>
-          <span id="statsWagered" class="text-white font-bold">৳ 0.00</span>
-        </div>
-
-        <div class="flex justify-between items-center text-sm border-t border-[rgba(245,207,102,0.15)] pt-2">
-          <span class="text-gray-400">WIN: <strong id="statsWin" class="text-white">0</strong></span>
-          <span class="text-gray-400">LOSE: <strong id="statsLose" class="text-white">0</strong></span>
-        </div>
-      </div>
-
-      <div class="bg-[#080B10] p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden border border-[rgba(245,207,102,0.15)]">
-        <span class="text-[11px] text-gray-400">Profit/Loss Graph</span>
-        <div class="flex-1 w-full flex items-end gap-1 overflow-x-auto pt-4" id="statsGraphContainer">
-          <div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let currentUserId = null;
-    let userBalance = 0;
-    let gameState = 'idle';
-    let minesPositions = [];
-    let openedTiles = [];
-    let selectedTiles = [];
-    let minesCount = 3;
-    let currentBet = 10;
-    let currentMultiplier = 1.0;
-    let activeTab = 'manual';
-    let isAutoRunning = false;
-    let autoWinStrategy = 'reset';
-    let autoLossStrategy = 'reset';
-    let baseBetAmount = 10;
-    let autoRemainingBets = 0;
-    let sessionProfit = 0;
-
-    let isTurboOn = false;
-    let isSoundOn = true;
-    let totalWagered = 0;
-    let totalWins = 0;
-    let totalLosses = 0;
-    let totalProfit = 0;
-    let profitHistory = [0];
-
-    const horrorBgMusic = new Audio('https://freesound.org/data/previews/515/515843_6142149-lq.mp3');
-    horrorBgMusic.loop = true;
-    horrorBgMusic.volume = 0.4;
-
-    const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-    const loseSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3');
-
-    function playSound(isWin) {
-      if (!isSoundOn) return;
-
-      if (isWin) {
-        winSound.currentTime = 0;
-        winSound.play().catch(e => console.log(e));
-      } else {
-        loseSound.currentTime = 0;
-        loseSound.play().catch(e => console.log(e));
-      }
-    }
-
-    function toggleTurbo() {
-      isTurboOn = !isTurboOn;
-
-      const icon = document.getElementById('turboIcon');
-      const txt = document.getElementById('turboText');
-
-      if (isTurboOn) {
-        icon.className = "fa-solid fa-bolt text-[#F5CF66]";
-        txt.innerText = "ON";
-        txt.className = "text-[10px] font-bold text-[#F5CF66]";
-      } else {
-        icon.className = "fa-solid fa-bolt text-gray-400";
-        txt.innerText = "OFF";
-        txt.className = "text-[10px] font-bold text-gray-400";
-      }
-    }
-
-    function toggleSoundEffect() {
-      isSoundOn = !isSoundOn;
-
-      const btn = document.getElementById('soundSettingBtn');
-      const txt = document.getElementById('soundStatusText');
-
-      if (isSoundOn) {
-        btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-sm text-[#F5CF66]";
-        txt.innerText = "ON";
-        horrorBgMusic.play().catch(e => console.log(e));
-      } else {
-        btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(245,207,102,0.1)] rounded-lg text-sm text-gray-400";
-        txt.innerText = "OFF";
-        horrorBgMusic.pause();
-      }
-    }
-
-    async function shareGame() {
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: 'Mines Game',
-            text: 'Play this amazing Mines game!',
-            url: window.location.href
-          });
-        } catch (err) {
-          console.log('Share error:', err);
-        }
-      } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert('লিংক কপি করা হয়েছে!');
-      }
-    }
-
-    function toggleSettingsModal() {
-      document.getElementById('settingsModal').classList.toggle('hidden');
-    }
-
-    function toggleLiveStatsModal() {
-      document.getElementById('liveStatsModal').classList.toggle('hidden');
-    }
-
-    function updateGraph() {
-      const container = document.getElementById('statsGraphContainer');
-      container.innerHTML = '';
-
-      if (profitHistory.length <= 1) {
-        container.innerHTML = '<div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>';
-        return;
-      }
-
-      const maxVal = Math.max(...profitHistory.map(Math.abs), 1);
-
-      profitHistory.forEach((val, idx) => {
-        if (idx === 0) return;
-
-        const bar = document.createElement('div');
-        const isProfit = val >= 0;
-        const heightPercent = Math.min(Math.max((Math.abs(val) / maxVal) * 45, 10), 100);
-
-        bar.className = `w-3 rounded-sm transition-all ${isProfit ? 'bg-[#F5CF66]' : 'bg-[#eb4e3d]'}`;
-        bar.style.height = heightPercent + '%';
-        bar.title = `Profit: ৳${val.toFixed(2)}`;
-        container.appendChild(bar);
-      });
-
-      container.scrollLeft = container.scrollWidth;
-    }
-
-    async function loadTopBar() {
-      try {
-        const res = await fetch('../bar/top.html');
-
-        if (res.ok) {
-          document.getElementById('topBarContainer').innerHTML = await res.text();
-
-          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-            a.href = '../account/deposit.html';
-          });
-
-          document.querySelectorAll('a[href*="member"]').forEach(a => {
-            if (a.href.includes('admin/mem/member.html')) {
-              a.href = a.href.replace('admin/mem/member.html', 'mem/member.html');
+            if (isWin) {
+                winSound.currentTime = 0;
+                winSound.play().catch(e => console.log(e));
+            } else {
+                loseSound.currentTime = 0;
+                loseSound.play().catch(e => console.log(e));
             }
-          });
-        }
-      } catch (e) {
-        console.error('Top bar load error:', e);
-      }
-    }
-
-    /* Load Bottom Navigation from ../bar/bottom.html */
-    async function loadBottomBar() {
-      try {
-        const response = await fetch('../bar/bottom.html');
-
-        if (!response.ok) {
-          throw new Error('bottom.html could not be loaded');
         }
 
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+        function switchTab(mode) {
+            if (isAutoRunning) return;
+            currentMode = mode;
 
-        /* Load bottom.html styles */
-        doc.querySelectorAll('style').forEach(oldStyle => {
-          const newStyle = document.createElement('style');
-          newStyle.textContent = oldStyle.textContent;
-          document.head.appendChild(newStyle);
-        });
+            const manualTab = document.getElementById('manualTab');
+            const autoTab = document.getElementById('autoTab');
+            const autoSettings = document.getElementById('autoSettingsPanel');
+            const betBtn = document.getElementById('betBtn');
 
-        /* Load any required stylesheet links */
-        doc.querySelectorAll('link[rel="stylesheet"]').forEach(oldLink => {
-          const href = oldLink.getAttribute('href');
-
-          if (
-            href &&
-            href.includes('font-awesome') &&
-            !document.querySelector('link[href*="font-awesome"]')
-          ) {
-            const newLink = document.createElement('link');
-            newLink.rel = 'stylesheet';
-            newLink.href = new URL(href, response.url || window.location.href).href;
-            document.head.appendChild(newLink);
-          }
-        });
-
-        const navigation = doc.querySelector('.bottom-navigation');
-
-        if (!navigation) {
-          throw new Error('bottom-navigation not found in bottom.html');
-        }
-
-        /* Avoid duplicate navigation */
-        const oldNavigation = document.querySelector('.bottom-navigation');
-        if (oldNavigation) oldNavigation.remove();
-
-        document.body.appendChild(navigation.cloneNode(true));
-
-      } catch (error) {
-        console.error('Bottom navigation load error:', error);
-      }
-    }
-
-    function hideLoader() {
-      const loader = document.getElementById('minesLoader');
-      loader.classList.add('hide');
-      setTimeout(() => {
-        loader.style.display = 'none';
-      }, 400);
-    }
-
-    async function init() {
-      await Promise.all([
-        loadTopBar(),
-        loadBottomBar()
-      ]);
-
-      try {
-        let user = null;
-
-        if (typeof requireAuth === 'function') {
-          user = await requireAuth();
-        } else if (typeof getCurrentUser === 'function') {
-          user = await getCurrentUser();
-        }
-
-        if (user) {
-          currentUserId = user.id;
-
-          const { data: profile } = await supabaseClient
-            .from('profiles')
-            .select('balance')
-            .eq('id', user.id)
-            .single();
-
-          if (profile) {
-            userBalance = parseFloat(profile.balance) || 0;
-
-            const topBal = document.getElementById('topBarBalance');
-            if (topBal) {
-              topBal.innerText = userBalance.toFixed(2);
+            if (mode === 'manual') {
+                manualTab.className = "py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition";
+                autoTab.className = "py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition";
+                autoSettings.classList.add('hidden');
+                betBtn.innerText = "Bet";
+                betBtn.className = "w-full green-btn py-3.5 rounded-xl transition duration-200 text-sm shadow-lg";
+            } else {
+                manualTab.className = "py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition";
+                autoTab.className = "py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition";
+                autoSettings.classList.remove('hidden');
+                betBtn.innerText = "Start Auto";
+                betBtn.className = "w-full green-btn py-3.5 rounded-xl transition duration-200 text-sm shadow-lg";
             }
-          }
-        }
-      } catch (err) {
-        console.error('Init Error:', err);
-      }
-
-      document.addEventListener('click', () => {
-        if (isSoundOn && horrorBgMusic.paused) {
-          horrorBgMusic.play().catch(e => console.log(e));
-        }
-      }, { once: true });
-
-      renderGrid();
-      calculateNextMultiplier();
-      hideLoader();
-    }
-
-    function renderGrid() {
-      const grid = document.getElementById('minesGrid');
-      grid.innerHTML = '';
-
-      for (let i = 0; i < 25; i++) {
-        const btn = document.createElement('button');
-        btn.dataset.index = i;
-        btn.className = 'tile';
-
-        if (activeTab === 'auto' && gameState === 'idle' && selectedTiles.includes(i)) {
-          btn.classList.add('tile-selected');
         }
 
-        btn.onclick = () => handleTileClick(i);
+        function setWinMode(mode) {
+            if (isAutoRunning) return;
+            winMode = mode;
 
-        if (activeTab === 'manual') {
-          btn.disabled = gameState !== 'playing';
-        } else {
-          btn.disabled = isAutoRunning || gameState === 'playing';
+            const resetBtn = document.getElementById('winResetBtn');
+            const incBtn = document.getElementById('winIncBtn');
+
+            if (mode === 'reset') {
+                resetBtn.className = "flex-1 py-1.5 bg-[#222b3a] text-white text-xs rounded-lg font-bold border border-[#222b3a]";
+                incBtn.className = "flex-1 py-1.5 bg-[#0f141c] text-gray-400 text-xs rounded-lg font-medium border border-[#222b3a]";
+            } else {
+                resetBtn.className = "flex-1 py-1.5 bg-[#0f141c] text-gray-400 text-xs rounded-lg font-medium border border-[#222b3a]";
+                incBtn.className = "flex-1 py-1.5 bg-[#222b3a] text-white text-xs rounded-lg font-bold border border-[#222b3a]";
+            }
         }
 
-        grid.appendChild(btn);
-      }
-    }
-
-    function handleTileClick(index) {
-      if (activeTab === 'auto' && gameState === 'idle' && !isAutoRunning) {
-        const idx = selectedTiles.indexOf(index);
-
-        if (idx > -1) selectedTiles.splice(idx, 1);
-        else selectedTiles.push(index);
-
-        renderGrid();
-        calculateNextMultiplier();
-        return;
-      }
-
-      if (activeTab === 'manual' && gameState === 'playing') {
-        revealTile(index);
-      }
-    }
-
-    function updateMinesCount(val) {
-      if (gameState === 'playing' || isAutoRunning) return;
-
-      minesCount = parseInt(val);
-      document.getElementById('minesCountDisplay').innerText = minesCount;
-      calculateNextMultiplier();
-    }
-
-    function adjustBet(factor) {
-      if (gameState === 'playing' || isAutoRunning) return;
-
-      const inp = document.getElementById('betAmount');
-      let val = (parseFloat(inp.value) || 0) * factor;
-
-      if (val < 0) val = 0;
-      inp.value = Math.floor(val);
-    }
-
-    function setMaxBet() {
-      if (gameState === 'playing' || isAutoRunning) return;
-
-      document.getElementById('betAmount').value = Math.floor(userBalance);
-    }
-
-    function setAutoBets(n) {
-      document.getElementById('autoBetCount').value = n;
-    }
-
-    function calculateNextMultiplier() {
-      const safeTiles = 25 - minesCount;
-      const count = (activeTab === 'auto' && gameState === 'idle')
-        ? selectedTiles.length
-        : openedTiles.length;
-
-      let mult = 1.0;
-
-      for (let i = 0; i < count; i++) {
-        mult *= (25 - i) / (safeTiles - i);
-      }
-
-      if (count < safeTiles) {
-        mult *= (25 - count) / (safeTiles - count);
-      }
-
-      currentMultiplier = parseFloat((mult * 0.97).toFixed(2));
-
-      if (isNaN(currentMultiplier) || currentMultiplier < 1) {
-        currentMultiplier = 1.0;
-      }
-
-      document.getElementById('nextMultiplier').innerText =
-        `${currentMultiplier.toFixed(2)}x`;
-
-      const profit = (currentBet * currentMultiplier) - currentBet;
-
-      document.getElementById('profitAmount').innerText =
-        `৳ ${Math.max(0, profit).toFixed(2)}`;
-    }
-
-    function switchTab(tab) {
-      if (gameState === 'playing' || isAutoRunning) return;
-
-      activeTab = tab;
-
-      const tabManual = document.getElementById('tabManual');
-      const tabAuto = document.getElementById('tabAuto');
-      const autoBetsSection = document.getElementById('autoBetsSection');
-      const advancedOptions = document.getElementById('advancedOptions');
-      const btn = document.getElementById('actionBtn');
-
-      if (tab === 'manual') {
-        tabManual.className = 'py-2 px-10 rounded-lg gold-button shadow';
-        tabAuto.className = 'py-2 px-10 rounded-lg hover:text-white';
-
-        autoBetsSection.classList.add('hidden');
-        advancedOptions.classList.add('hidden');
-
-        btn.innerText = 'Bet';
-        btn.className = 'w-full gold-button font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg';
-
-        selectedTiles = [];
-      } else {
-        tabAuto.className = 'py-2 px-10 rounded-lg gold-button shadow';
-        tabManual.className = 'py-2 px-10 rounded-lg hover:text-white';
-
-        autoBetsSection.classList.remove('hidden');
-        advancedOptions.classList.remove('hidden');
-
-        btn.innerText = 'Start Auto';
-        btn.className = 'w-full gold-button font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg';
-      }
-
-      renderGrid();
-      calculateNextMultiplier();
-    }
-
-    function setAutoStrategy(type, strategy) {
-      if (type === 'win') {
-        autoWinStrategy = strategy;
-
-        document.getElementById('winResetBtn').className =
-          strategy === 'reset'
-            ? 'flex-1 py-1 bg-[#1a212d] text-white font-bold rounded text-xs shadow border border-[rgba(245,207,102,0.25)]'
-            : 'flex-1 py-1 text-gray-400 font-bold rounded text-xs';
-
-        document.getElementById('winIncBtn').className =
-          strategy === 'increase'
-            ? 'flex-1 py-1 bg-[#1a212d] text-white font-bold rounded text-xs shadow border border-[rgba(245,207,102,0.25)]'
-            : 'flex-1 py-1 text-gray-400 font-bold rounded text-xs';
-      } else {
-        autoLossStrategy = strategy;
-
-        document.getElementById('lossResetBtn').className =
-          strategy === 'reset'
-            ? 'flex-1 py-1 bg-[#1a212d] text-white font-bold rounded text-xs shadow border border-[rgba(245,207,102,0.25)]'
-            : 'flex-1 py-1 text-gray-400 font-bold rounded text-xs';
-
-        document.getElementById('lossIncBtn').className =
-          strategy === 'increase'
-            ? 'flex-1 py-1 bg-[#1a212d] text-white font-bold rounded text-xs shadow border border-[rgba(245,207,102,0.25)]'
-            : 'flex-1 py-1 text-gray-400 font-bold rounded text-xs';
-      }
-    }
-
-    function showCashoutPopup(mult, amount) {
-      document.getElementById('popupMultiplier').innerText =
-        mult.toFixed(2) + 'x';
-
-      document.getElementById('popupAmount').innerText =
-        '৳ ' + amount.toFixed(2);
-
-      const popup = document.getElementById('cashoutPopup');
-      popup.classList.add('show');
-
-      setTimeout(() => popup.classList.remove('show'), 1800);
-    }
-
-    async function handleAction() {
-      if (activeTab === 'auto') {
-        if (isAutoRunning) stopAuto();
-        else startAuto();
-        return;
-      }
-
-      if (gameState === 'idle' || gameState === 'ended') {
-        await startGame();
-      } else if (gameState === 'playing') {
-        await cashout();
-      }
-    }
-
-    async function startGame() {
-      currentBet = parseFloat(document.getElementById('betAmount').value) || 0;
-
-      if (currentBet > 0 && currentBet < 10) {
-        alert('সর্বনিম্ন বেট ১০ ৳');
-        return false;
-      }
-
-      if (currentBet > userBalance) {
-        alert('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
-        return false;
-      }
-
-      if (currentBet > 0) {
-        userBalance -= currentBet;
-        updateUIBalance(userBalance);
-
-        await supabaseClient
-          .from('profiles')
-          .update({ balance: userBalance })
-          .eq('id', currentUserId);
-      }
-
-      minesPositions = [];
-
-      while (minesPositions.length < minesCount) {
-        const r = Math.floor(Math.random() * 25);
-
-        if (!minesPositions.includes(r)) {
-          minesPositions.push(r);
-        }
-      }
-
-      openedTiles = [];
-      gameState = 'playing';
-
-      renderGrid();
-
-      document.getElementById('minesRange').disabled = true;
-      document.getElementById('betAmount').disabled = true;
-
-      const btn = document.getElementById('actionBtn');
-
-      if (activeTab === 'manual') {
-        btn.className = 'w-full bg-amber-500 hover:bg-amber-400 text-[#080B10] font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg';
-        btn.innerText = `Cashout (৳ ${currentBet.toFixed(2)})`;
-      }
-
-      calculateNextMultiplier();
-      return true;
-    }
-
-    async function revealTile(index) {
-      if (gameState !== 'playing' || openedTiles.includes(index)) return;
-
-      openedTiles.push(index);
-
-      const tiles = document.getElementById('minesGrid').children;
-      const tileBtn = tiles[index];
-
-      if (minesPositions.includes(index)) {
-        tileBtn.classList.add('tile-bomb');
-        tileBtn.innerHTML = '<i class="fa-solid fa-bomb text-yellow-300"></i>';
-
-        playSound(false);
-        await gameOver(false);
-      } else {
-        tileBtn.classList.add('tile-gem');
-        tileBtn.innerHTML = '<i class="fa-solid fa-gem text-[#080B10]"></i>';
-
-        playSound(true);
-        calculateNextMultiplier();
-
-        const currentPayout = currentBet * currentMultiplier;
-
-        if (activeTab === 'manual') {
-          document.getElementById('actionBtn').innerText =
-            `Cashout (৳ ${currentPayout.toFixed(2)})`;
+        function setLossMode(mode) {
+            if (isAutoRunning) return;
+            lossMode = mode;
+
+            const resetBtn = document.getElementById('lossResetBtn');
+            const incBtn = document.getElementById('lossIncBtn');
+
+            if (mode === 'reset') {
+                resetBtn.className = "flex-1 py-1.5 bg-[#222b3a] text-white text-xs rounded-lg font-bold border border-[#222b3a]";
+                incBtn.className = "flex-1 py-1.5 bg-[#0f141c] text-gray-400 text-xs rounded-lg font-medium border border-[#222b3a]";
+            } else {
+                resetBtn.className = "flex-1 py-1.5 bg-[#0f141c] text-gray-400 text-xs rounded-lg font-medium border border-[#222b3a]";
+                incBtn.className = "flex-1 py-1.5 bg-[#222b3a] text-white text-xs rounded-lg font-bold border border-[#222b3a]";
+            }
         }
 
-        if (openedTiles.length === (25 - minesCount)) {
-          await cashout();
+        function validateAmount() {
+            let input = document.getElementById('betAmount');
+            let box = document.getElementById('amountBoxContainer');
+            let val = parseFloat(input.value) || 0;
+
+            if (val < 0.1) {
+                box.className = "flex items-center bc-input-box px-3 py-2 border-red-500";
+                input.className = "bg-transparent w-full focus:outline-none text-red-500 font-semibold";
+            } else {
+                box.className = "flex items-center bc-input-box px-3 py-2";
+                input.className = "bg-transparent w-full focus:outline-none text-white font-semibold";
+            }
         }
-      }
-    }
 
-    async function cashout() {
-      if (gameState !== 'playing' || openedTiles.length === 0) return;
+        function toggleTurbo() {
+            isTurboOn = !isTurboOn;
 
-      const payout = currentBet * currentMultiplier;
-      const profit = payout - currentBet;
+            const icon = document.getElementById('turboIcon');
+            const txt = document.getElementById('turboText');
 
-      sessionProfit += profit;
-      totalWagered += currentBet;
-      totalWins++;
-      totalProfit += profit;
-      profitHistory.push(totalProfit);
-
-      document.getElementById('statsProfit').innerText =
-        '৳ ' + totalProfit.toFixed(2);
-
-      document.getElementById('statsWagered').innerText =
-        '৳ ' + totalWagered.toFixed(2);
-
-      document.getElementById('statsWin').innerText = totalWins;
-      document.getElementById('statsLose').innerText = totalLosses;
-
-      updateGraph();
-
-      if (currentBet > 0) {
-        userBalance += payout;
-        updateUIBalance(userBalance);
-
-        await supabaseClient
-          .from('profiles')
-          .update({ balance: userBalance })
-          .eq('id', currentUserId);
-
-        await supabaseClient.from('bets').insert([{
-          user_id: currentUserId,
-          target_number: minesCount,
-          roll_result: openedTiles.length,
-          bet_amount: currentBet,
-          payout: currentMultiplier,
-          is_bool: true
-        }]);
-      }
-
-      showCashoutPopup(currentMultiplier, payout);
-      await gameOver(true);
-    }
-
-    async function gameOver(isWin) {
-      gameState = 'ended';
-
-      const tiles = document.getElementById('minesGrid').children;
-
-      for (let i = 0; i < 25; i++) {
-        tiles[i].disabled = true;
-
-        if (minesPositions.includes(i) && !openedTiles.includes(i)) {
-          tiles[i].classList.add('tile-bomb');
-          tiles[i].innerHTML = '<i class="fa-solid fa-bomb text-yellow-300"></i>';
+            if (isTurboOn) {
+                icon.className = "fa-solid fa-bolt text-[#24ee89]";
+                txt.innerText = "ON";
+                txt.className = "text-[10px] font-bold text-[#24ee89]";
+            } else {
+                icon.className = "fa-solid fa-bolt text-gray-400";
+                txt.innerText = "OFF";
+                txt.className = "text-[10px] font-bold text-gray-400";
+            }
         }
-      }
 
-      if (!isWin && currentBet > 0) {
-        sessionProfit -= currentBet;
-        totalWagered += currentBet;
-        totalLosses++;
-        totalProfit -= currentBet;
-        profitHistory.push(totalProfit);
+        function toggleSoundEffect() {
+            isSoundOn = !isSoundOn;
 
-        document.getElementById('statsProfit').innerText =
-          '৳ ' + totalProfit.toFixed(2);
+            const btn = document.getElementById('soundSettingBtn');
+            const txt = document.getElementById('soundStatusText');
 
-        document.getElementById('statsWagered').innerText =
-          '৳ ' + totalWagered.toFixed(2);
-
-        document.getElementById('statsWin').innerText = totalWins;
-        document.getElementById('statsLose').innerText = totalLosses;
-
-        updateGraph();
-
-        await supabaseClient.from('bets').insert([{
-          user_id: currentUserId,
-          target_number: minesCount,
-          roll_result: openedTiles.length,
-          bet_amount: currentBet,
-          payout: 0,
-          is_bool: false
-        }]);
-      }
-
-      document.getElementById('minesRange').disabled = false;
-      document.getElementById('betAmount').disabled = false;
-
-      if (isAutoRunning) {
-        applyAutoStrategy(isWin);
-
-        const shouldContinue = checkAutoStopConditions(isWin);
-
-        if (shouldContinue && isAutoRunning) {
-          setTimeout(() => {
-            if (isAutoRunning) runAutoRound();
-          }, 1000);
-
-          return;
+            if (isSoundOn) {
+                btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-sm text-[#24ee89]";
+                txt.innerText = "ON";
+                horrorBgMusic.play().catch(e => console.log(e));
+            } else {
+                btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-sm text-gray-400";
+                txt.innerText = "OFF";
+                horrorBgMusic.pause();
+            }
         }
-      }
 
-      const btn = document.getElementById('actionBtn');
-
-      if (activeTab === 'manual') {
-        setTimeout(() => {
-          btn.className = 'w-full gold-button font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg';
-          btn.innerText = 'Bet';
-          gameState = 'idle';
-          renderGrid();
-        }, 1600);
-      } else {
-        btn.innerText = 'Start Auto';
-        btn.className = 'w-full gold-button font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg';
-
-        gameState = 'idle';
-        isAutoRunning = false;
-        renderGrid();
-      }
-    }
-
-    function applyAutoStrategy(isWin) {
-      if (isWin) {
-        if (autoWinStrategy === 'increase') {
-          const inc = parseFloat(document.getElementById('winIncPercent').value) || 0;
-
-          let newBet =
-            (parseFloat(document.getElementById('betAmount').value) || 0) *
-            (1 + inc / 100);
-
-          document.getElementById('betAmount').value =
-            Math.max(0, Math.floor(newBet));
-        } else {
-          document.getElementById('betAmount').value = baseBetAmount;
+        async function shareGame() {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Limbo Game',
+                        text: 'Play this amazing Limbo game!',
+                        url: window.location.href
+                    });
+                } catch (err) {
+                    console.log('Share error:', err);
+                }
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('লিংক কপি করা হয়েছে!');
+            }
         }
-      } else {
-        if (autoLossStrategy === 'increase') {
-          const inc = parseFloat(document.getElementById('lossIncPercent').value) || 0;
 
-          let newBet =
-            (parseFloat(document.getElementById('betAmount').value) || 0) *
-            (1 + inc / 100);
-
-          document.getElementById('betAmount').value =
-            Math.max(0, Math.floor(newBet));
-        } else {
-          document.getElementById('betAmount').value = baseBetAmount;
+        function getClient() {
+            if (typeof supabaseClient !== 'undefined') return supabaseClient;
+            if (typeof supabase !== 'undefined') return supabase;
+            if (window.supabaseClient) return window.supabaseClient;
+            if (window.supabase) return window.supabase;
+            return null;
         }
-      }
-    }
 
-    function checkAutoStopConditions(isWin) {
-      const stopProfit =
-        parseFloat(document.getElementById('autoStopProfit').value) || 0;
+        async function loadTopBar() {
+            try {
+                const res = await fetch('../bar/top.html');
 
-      const stopLoss =
-        parseFloat(document.getElementById('autoStopLoss').value) || 0;
+                if (res.ok) {
+                    document.getElementById('topBarContainer').innerHTML = await res.text();
 
-      if (stopProfit > 0 && sessionProfit >= stopProfit) {
-        stopAuto();
-        return false;
-      }
+                    document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+                        a.href = '../account/deposit.html';
+                    });
 
-      if (stopLoss > 0 && sessionProfit <= -Math.abs(stopLoss)) {
-        stopAuto();
-        return false;
-      }
-
-      if (autoRemainingBets > 0) {
-        autoRemainingBets--;
-
-        document.getElementById('autoBetCount').value = autoRemainingBets;
-
-        if (autoRemainingBets <= 0) {
-          stopAuto();
-          return false;
+                    document.querySelectorAll('a[href*="member"]').forEach(a => {
+                        if (a.href.includes('admin/mem/member.html')) {
+                            a.href = a.href.replace('admin/mem/member.html', 'mem/member.html');
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Top bar fetch error:", e);
+            }
         }
-      }
 
-      return true;
-    }
+        function updateUIBalance(bal) {
+            const topBal1 = document.getElementById('topBarBalance');
+            const topBal2 = document.getElementById('userBalance');
 
-    async function startAuto() {
-      if (selectedTiles.length === 0) {
-        alert('অটো বেট শুরু করতে অন্তত একটি টাইল সিলেক্ট করুন!');
-        return;
-      }
+            if (topBal1) topBal1.innerText = parseFloat(bal).toFixed(2);
+            if (topBal2) topBal2.innerText = `৳ ${parseFloat(bal).toFixed(2)}`;
+        }
 
-      baseBetAmount =
-        parseFloat(document.getElementById('betAmount').value) || 0;
+        async function init() {
+            await loadTopBar();
 
-      autoRemainingBets =
-        parseInt(document.getElementById('autoBetCount').value) || 0;
+            const client = getClient();
 
-      sessionProfit = 0;
-      isAutoRunning = true;
+            try {
+                let user = null;
 
-      const btn = document.getElementById('actionBtn');
+                if (typeof requireAuth === 'function') {
+                    user = await requireAuth();
+                } else if (typeof getCurrentUser === 'function') {
+                    user = await getCurrentUser();
+                } else if (client) {
+                    const { data } = await client.auth.getUser();
+                    user = data?.user;
+                }
 
-      btn.innerText = 'Stop Auto';
-      btn.className = 'w-full bg-[#eb4e3d] hover:bg-red-600 text-white font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg';
+                if (user && client) {
+                    currentUserId = user.id;
 
-      document.getElementById('minesRange').disabled = true;
-      document.getElementById('betAmount').disabled = true;
+                    const { data: profile } = await client
+                        .from('profiles')
+                        .select('balance')
+                        .eq('id', user.id)
+                        .single();
 
-      runAutoRound();
-    }
+                    if (profile) {
+                        userBalance = parseFloat(profile.balance) || 0;
+                        updateUIBalance(userBalance);
+                    }
 
-    function stopAuto() {
-      isAutoRunning = false;
+                    client
+                        .channel('limbo-balance-channel')
+                        .on('postgres_changes', {
+                            event: 'UPDATE',
+                            schema: 'public',
+                            table: 'profiles',
+                            filter: `id=eq.${user.id}`
+                        }, (payload) => {
+                            if (payload.new && payload.new.balance !== undefined) {
+                                userBalance = parseFloat(payload.new.balance) || 0;
+                                updateUIBalance(userBalance);
+                            }
+                        })
+                        .subscribe();
+                }
+            } catch (err) {
+                console.error("Init Error:", err);
+            }
 
-      const btn = document.getElementById('actionBtn');
+            document.addEventListener('click', () => {
+                if (isSoundOn && horrorBgMusic.paused) {
+                    horrorBgMusic.play().catch(e => console.log(e));
+                }
+            }, { once: true });
 
-      btn.innerText = 'Start Auto';
-      btn.className = 'w-full gold-button font-black py-3.5 rounded-xl text-sm uppercase tracking-wider transition transform active:scale-95 shadow-lg';
+            updateChance();
+            validateAmount();
+        }
 
-      document.getElementById('minesRange').disabled = false;
-      document.getElementById('betAmount').disabled = false;
+        function toggleSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('hidden');
+        }
 
-      gameState = 'idle';
-      renderGrid();
-    }
+        function toggleLiveStatsModal() {
+            const modal = document.getElementById('liveStatsModal');
+            modal.classList.toggle('hidden');
+        }
 
-    async function runAutoRound() {
-      if (!isAutoRunning) return;
+        function updateChance() {
+            let targetInput = document.getElementById('targetMultiplier');
+            let payoutBox = document.getElementById('payoutBox');
+            let chanceBox = document.getElementById('chanceBox');
+            let chanceDisplay = document.getElementById('chanceDisplay');
 
-      const started = await startGame();
+            let target = parseFloat(targetInput.value) || 1.001;
+            let chance = (99 / target);
 
-      if (!started) {
-        stopAuto();
-        return;
-      }
+            if (target < 1.001 || chance > 98.02) {
+                payoutBox.className = "flex items-center bc-input-box px-3 py-2 border-red-500";
+                chanceBox.className = "flex items-center justify-between bc-input-box px-3 py-2 border-red-500";
+                chanceDisplay.className = "text-red-500 font-semibold text-sm w-full text-center";
+                chanceDisplay.innerText = chance.toFixed(2) + '%';
+            } else {
+                payoutBox.className = "flex items-center bc-input-box px-3 py-2";
+                chanceBox.className = "flex items-center justify-between bc-input-box px-3 py-2";
+                chanceDisplay.className = "text-white font-semibold text-sm w-full text-center";
+                chanceDisplay.innerText = chance.toFixed(2) + '%';
+            }
+        }
 
-      for (let i = 0; i < selectedTiles.length; i++) {
-        if (!isAutoRunning || gameState !== 'playing') break;
+        function halveAmount() {
+            if (isAutoRunning) return;
+            let input = document.getElementById('betAmount');
+            let val = parseFloat(input.value) || 0.1;
 
-        await new Promise(r => setTimeout(r, 280));
-        await revealTile(selectedTiles[i]);
+            input.value = Math.max(0.1, (val / 2)).toFixed(2);
+            validateAmount();
+        }
 
-        if (gameState !== 'playing') break;
-      }
+        function doubleAmount() {
+            if (isAutoRunning) return;
+            let input = document.getElementById('betAmount');
+            let val = parseFloat(input.value) || 0.1;
 
-      if (gameState === 'playing' && openedTiles.length > 0) {
-        await cashout();
-      }
-    }
+            input.value = (val * 2).toFixed(2);
+            validateAmount();
+        }
 
-    function updateUIBalance(bal) {
-      const topBal = document.getElementById('topBarBalance');
+        function maxAmount() {
+            if (isAutoRunning) return;
+            let input = document.getElementById('betAmount');
 
-      if (topBal) {
-        topBal.innerText = bal.toFixed(2);
-      }
-    }
+            input.value = Math.max(0.1, userBalance).toFixed(2);
+            validateAmount();
+        }
 
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
+        function updateGraph() {
+            const container = document.getElementById('statsGraphContainer');
+            container.innerHTML = '';
+
+            if (profitHistory.length <= 1) {
+                container.innerHTML = '<div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>';
+                return;
+            }
+
+            const maxVal = Math.max(...profitHistory.map(Math.abs), 1);
+
+            profitHistory.forEach((val, idx) => {
+                if (idx === 0) return;
+
+                const bar = document.createElement('div');
+                const isProfit = val >= 0;
+                const heightPercent = Math.min(Math.max((Math.abs(val) / maxVal) * 45, 10), 100);
+
+                bar.className = `w-3 rounded-sm transition-all ${isProfit ? 'bg-[#24ee89]' : 'bg-[#ed4245]'}`;
+                bar.style.height = heightPercent + '%';
+                bar.title = `Profit: ৳${val.toFixed(2)}`;
+
+                container.appendChild(bar);
+            });
+
+            container.scrollLeft = container.scrollWidth;
+        }
+
+        function handleMainButton() {
+            if (currentMode === 'manual') {
+                playLimbo();
+            } else {
+                if (!isAutoRunning) {
+                    startAutoBet();
+                } else {
+                    stopAutoBet();
+                }
+            }
+        }
+
+        function startAutoBet() {
+            const betInput = document.getElementById('betAmount');
+            let betAmount = parseFloat(betInput.value) || 0;
+            const targetMultiplier = parseFloat(document.getElementById('targetMultiplier').value) || 1.001;
+            let chance = (99 / targetMultiplier);
+
+            remainingAutoRounds = parseInt(document.getElementById('autoRounds').value) || 10;
+            if (remainingAutoRounds <= 0) {
+                alert('অনুগ্রহ করে সঠিক রাউন্ড সংখ্যা দিন!');
+                return;
+            }
+
+            if (betAmount < 0.1 || targetMultiplier < 1.001 || chance > 98.02) {
+                alert('সঠিক অ্যামাউন্ট বা পেআউট সীমা নির্ধারণ করুন!');
+                return;
+            }
+
+            isAutoRunning = true;
+            baseBetAmount = betAmount;
+
+            const manualTab = document.getElementById('manualTab');
+            manualTab.disabled = true;
+            manualTab.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const betBtn = document.getElementById('betBtn');
+            betBtn.innerText = `Stop Auto (${remainingAutoRounds})`;
+            betBtn.className = "w-full red-btn py-3.5 rounded-xl transition duration-200 text-sm shadow-lg";
+
+            autoInterval = setInterval(async () => {
+                if (!isAutoRunning || remainingAutoRounds <= 0) {
+                    stopAutoBet();
+                    return;
+                }
+
+                let currentBet = parseFloat(betInput.value) || 0;
+
+                if (userBalance < currentBet) {
+                    stopAutoBet();
+                    alert('অপর্যাপ্ত ব্যালেন্স!');
+                    return;
+                }
+
+                let isWin = await executeRound(currentBet, targetMultiplier);
+                remainingAutoRounds--;
+
+                if (remainingAutoRounds <= 0) {
+                    stopAutoBet();
+                    return;
+                }
+
+                betBtn.innerText = `Stop Auto (${remainingAutoRounds})`;
+
+                if (isWin) {
+                    if (winMode === 'reset') {
+                        betInput.value = baseBetAmount.toFixed(2);
+                    } else {
+                        let incPct = parseFloat(document.getElementById('winIncValue').value) || 0;
+                        let newAmt = currentBet + (currentBet * incPct / 100);
+                        betInput.value = newAmt.toFixed(2);
+                    }
+                } else {
+                    if (lossMode === 'reset') {
+                        betInput.value = baseBetAmount.toFixed(2);
+                    } else {
+                        let incPct = parseFloat(document.getElementById('lossIncValue').value) || 0;
+                        let newAmt = currentBet + (currentBet * incPct / 100);
+                        betInput.value = newAmt.toFixed(2);
+                    }
+                }
+
+                validateAmount();
+            }, isTurboOn ? 200 : 600);
+        }
+
+        function stopAutoBet() {
+            isAutoRunning = false;
+            clearInterval(autoInterval);
+            remainingAutoRounds = 0;
+
+            const manualTab = document.getElementById('manualTab');
+            manualTab.disabled = false;
+            manualTab.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            const betBtn = document.getElementById('betBtn');
+            betBtn.innerText = "Start Auto";
+            betBtn.className = "w-full green-btn py-3.5 rounded-xl transition duration-200 text-sm shadow-lg";
+        }
+
+        async function playLimbo() {
+            const betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
+            const targetMultiplier = parseFloat(document.getElementById('targetMultiplier').value) || 1.001;
+            let chance = (99 / targetMultiplier);
+
+            if (betAmount < 0.1) {
+                alert('অ্যামাউন্ট ০.১ এর কম হতে পারবে না!');
+                return;
+            }
+
+            if (targetMultiplier < 1.001 || chance > 98.02) {
+                alert('সঠিক পেআউট বা চান্স সীমা নির্ধারণ করুন!');
+                return;
+            }
+
+            await executeRound(betAmount, targetMultiplier);
+        }
+
+        async function executeRound(betAmount, targetMultiplier) {
+            const resultDisplay = document.getElementById('resultMultiplier');
+            const client = getClient();
+
+            if (userBalance < betAmount) {
+                return false;
+            }
+
+            if (client && currentUserId) {
+                userBalance -= betAmount;
+                updateUIBalance(userBalance);
+
+                await client
+                    .from('profiles')
+                    .update({ balance: userBalance })
+                    .eq('id', currentUserId);
+            }
+
+            let randomRoll = parseFloat((99 / (Math.random() * 98 + 1)).toFixed(2));
+
+            if (randomRoll < 1.00) {
+                randomRoll = 1.00;
+            }
+
+            if (!isTurboOn) {
+                resultDisplay.innerText = "1.00x";
+
+                let counter = 1.00;
+
+                let stepInterval = setInterval(() => {
+                    counter += 0.15;
+
+                    if (counter >= randomRoll) {
+                        counter = randomRoll;
+                        clearInterval(stepInterval);
+                    }
+
+                    resultDisplay.innerText = counter.toFixed(2) + 'x';
+                }, 30);
+
+                await new Promise(resolve => setTimeout(resolve, 400));
+            }
+
+            resultDisplay.innerText = randomRoll.toFixed(2) + 'x';
+
+            let isWin = randomRoll >= targetMultiplier;
+            let payoutAmount = isWin ? betAmount * targetMultiplier : 0;
+
+            playSound(isWin);
+
+            totalWagered += betAmount;
+
+            if (isWin) {
+                totalWins++;
+                totalProfit += (payoutAmount - betAmount);
+            } else {
+                totalLosses++;
+                totalProfit -= betAmount;
+            }
+
+            profitHistory.push(totalProfit);
+
+            document.getElementById('statsProfit').innerText = '৳ ' + totalProfit.toFixed(2);
+            document.getElementById('statsWagered').innerText = '৳ ' + totalWagered.toFixed(2);
+            document.getElementById('statsWin').innerText = totalWins;
+            document.getElementById('statsLose').innerText = totalLosses;
+
+            updateGraph();
+
+            const historyBar = document.getElementById('historyBar');
+            const historySpan = document.createElement('span');
+
+            historySpan.className = `px-3 py-1 bg-[#171d28] rounded-md font-bold shrink-0 border border-[#222b3a] ${isWin ? 'text-[#24ee89]' : 'text-[#ed4245]'}`;
+            historySpan.innerText = randomRoll.toFixed(2) + 'x';
+
+            historyBar.prepend(historySpan);
+
+            if (historyBar.children.length > 10) {
+                historyBar.lastChild.remove();
+            }
+
+            if (isWin) {
+                resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#24ee89]";
+                userBalance += payoutAmount;
+                updateUIBalance(userBalance);
+            } else {
+                resultDisplay.className = "text-5xl font-black tracking-wider z-10 text-[#ed4245]";
+            }
+
+            if (client && currentUserId) {
+                try {
+                    await client.from('bets').insert([
+                        {
+                            user_id: currentUserId,
+                            target_number: targetMultiplier,
+                            roll_result: randomRoll,
+                            bet_amount: betAmount,
+                            payout: payoutAmount,
+                            is_bool: isWin
+                        }
+                    ]);
+
+                    await client
+                        .from('profiles')
+                        .update({ balance: userBalance })
+                        .eq('id', currentUserId);
+
+                } catch (err) {
+                    console.error('Database error:', err);
+                }
+            }
+
+            return isWin;
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+
+    <!-- Bottom Bar Connection: bar/bottom.html -->
+    <iframe
+        id="bottomBarFrame"
+        src="../bar/bottom.html"
+        title="Bottom Navigation"
+        loading="eager">
+    </iframe>
+
 </body>
 </html>
