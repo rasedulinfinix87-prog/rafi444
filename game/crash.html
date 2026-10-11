@@ -104,12 +104,12 @@
         <!-- Crash Game Screen Area (Top Section inside wrapper) -->
         <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-12">
           
-          <!-- Previous Multiplier History Bar & Icon shifted further right -->
-          <div class="absolute top-1.5 left-3 right-6 flex items-center justify-between z-30 pb-1 pr-2">
-            <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-3">
+          <!-- Previous Multiplier History Bar & Icon shifted further right by 13% equivalent spacing -->
+          <div class="absolute top-1.5 left-3 right-2 flex items-center justify-between z-30 pb-1 pr-1">
+            <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-6">
               <!-- Dynamically populated history badges -->
             </div>
-            <button onclick="openHistoryModal()" class="bg-[#222b3a] hover:bg-[#2c3748] text-gray-300 hover:text-white px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1 transition shadow shrink-0 -mt-1 ml-2">
+            <button onclick="openHistoryModal()" class="bg-[#222b3a] hover:bg-[#2c3748] text-gray-300 hover:text-white px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1 transition shadow shrink-0 -mt-1 mr-4">
               <i class="fa-solid fa-clock-rotate-left"></i>
             </button>
           </div>
@@ -145,7 +145,7 @@
             </div>
             <div class="flex items-center bc-input-box p-1">
               <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
-              <input type="number" id="betAmount" value="10" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
+              <input type="number" id="betAmount" value="1" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
               
               <div class="flex items-center gap-1">
                 <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
@@ -159,10 +159,10 @@
           <div class="flex flex-col gap-1">
             <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
               <span>Auto Cash Out</span>
-              <span class="text-gray-400 text-[10px]">Optional</span>
+              <span id="chancePercentText" class="text-gray-400 text-[10px]">Chance: 95.00%</span>
             </div>
-            <div class="flex items-center bc-input-box p-1">
-              <input type="number" id="autoCashOut" value="2.00" min="1.01" step="0.1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-3">
+            <div id="autoCashBox" class="flex items-center bc-input-box p-1">
+              <input type="number" id="autoCashOut" value="2.00" min="1.001" step="0.1" oninput="validateAutoCashOut()" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-3">
               <span class="px-3 text-gray-400 font-bold text-xs">×</span>
             </div>
           </div>
@@ -241,6 +241,23 @@
       return fullHash.substring(0, 6) + " (...) " + fullHash.substring(26);
     }
 
+    function validateAutoCashOut() {
+      const val = parseFloat(document.getElementById('autoCashOut').value) || 0;
+      const box = document.getElementById('autoCashBox');
+      const chanceText = document.getElementById('chancePercentText');
+
+      if (val <= 1.001) {
+        box.style.borderColor = '#ed4245';
+        chanceText.innerText = "Invalid Multiplier";
+        chanceText.style.color = "#ed4245";
+      } else {
+        box.style.borderColor = '#222b3a';
+        let chance = Math.min(99, Math.max(1, (99 / val))).toFixed(2);
+        chanceText.innerText = `Chance: ${chance}%`;
+        chanceText.style.color = "#9ca3af";
+      }
+    }
+
     async function loadBars() {
       try {
         const topRes = await fetch('../bar/top.html');
@@ -262,6 +279,7 @@
       await loadBars();
       renderHistoryBar();
       drawEmptyCanvas();
+      validateAutoCashOut();
 
       if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
         const user = await getCurrentUser();
@@ -298,7 +316,6 @@
       let globalRoundStart = localStorage.getItem('bc_round_start_time');
       let now = Date.now();
       
-      // Fix refresh bug: Reset or initialize round timer cleanly if missing or expired
       if (!globalRoundStart || (now - parseInt(globalRoundStart)) > 25000) {
         globalRoundStart = now;
         localStorage.setItem('bc_round_start_time', globalRoundStart);
@@ -458,6 +475,14 @@
     }
 
     async function processBetDeduction() {
+      let autoVal = parseFloat(document.getElementById('autoCashOut').value) || 0;
+      if (autoVal <= 1.001) {
+        alert("অটো ক্যাশ আউট ভ্যালু ১.০০১ এর বেশি হতে হবে!");
+        isPlayingNext = false;
+        startWaitingPhase();
+        return;
+      }
+
       activeBetAmount = parseFloat(document.getElementById('betAmount').value) || 0;
       if (activeBetAmount > 0) {
         if (activeBetAmount > balance) {
@@ -527,11 +552,7 @@
 
         // Auto Cash Out Trigger Logic
         let autoCash = parseFloat(document.getElementById('autoCashOut').value) || 0;
-        if (activeTab === 'auto' && isPlayingNext && !hasCashedOut && autoCash > 1.00 && currentMultiplier >= autoCash) {
-          if (currentMultiplier <= crashPoint) {
-            cashOut(autoCash);
-          }
-        } else if (activeTab === 'manual' && isPlayingNext && !hasCashedOut && autoCash > 1.00 && currentMultiplier >= autoCash) {
+        if (isPlayingNext && !hasCashedOut && autoCash > 1.001 && currentMultiplier >= autoCash) {
           if (currentMultiplier <= crashPoint) {
             cashOut(autoCash);
           }
@@ -700,6 +721,12 @@
     }
 
     async function handleMainAction() {
+      let autoVal = parseFloat(document.getElementById('autoCashOut').value) || 0;
+      if (autoVal <= 1.001) {
+        alert("অটো ক্যাশ আউট ভ্যালু ১.০০১ এর বেশি হতে হবে!");
+        return;
+      }
+
       if (gameState === 'waiting') {
         if (activeTab === 'auto') {
           autoRoundCount = 10;
