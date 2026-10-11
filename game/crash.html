@@ -104,9 +104,14 @@
         <!-- Crash Game Screen Area (Top Section inside wrapper) -->
         <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-10">
           
-          <!-- Previous Multiplier History Bar -->
-          <div id="historyBar" class="absolute top-2.5 left-3 right-3 flex items-center gap-1.5 overflow-x-auto z-30 pb-1 no-scrollbar">
-            <!-- Dynamically populated history badges -->
+          <!-- Previous Multiplier History Bar with History Modal Trigger Symbol on Right Side -->
+          <div class="absolute top-2.5 left-3 right-3 flex items-center justify-between z-30 pb-1">
+            <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-2">
+              <!-- Dynamically populated history badges -->
+            </div>
+            <button onclick="openHistoryModal()" class="bg-[#222b3a] hover:bg-[#2c3748] text-gray-300 hover:text-white px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1 transition shadow shrink-0">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </button>
           </div>
 
           <!-- Status / Multiplier Display -->
@@ -178,11 +183,25 @@
     </main>
   </div>
 
+  <!-- History Popup Modal -->
+  <div id="historyModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3">
+    <div class="bg-[#171d28] border border-[#222b3a] w-full max-w-lg rounded-2xl p-4 flex flex-col max-h-[85vh] shadow-2xl">
+      <div class="flex justify-between items-center pb-3 border-b border-[#222b3a]">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-history text-[#24ee89]"></i> 30 Crash History & Details</h3>
+        <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-white px-2 py-1 text-sm font-bold"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="overflow-y-auto flex-1 mt-3 space-y-2 pr-1" id="modalHistoryList">
+        <!-- Dynamically populated 30 rows with Game ID, Multiplier and Masked Hash -->
+      </div>
+    </div>
+  </div>
+
   <!-- Bottom Bar Container -->
   <div id="bottomBarContainer" class="w-full max-w-2xl fixed bottom-0 z-50"></div>
 
   <script>
     let currentUserId = null;
+    let userRealGameId = "GID-784920"; // Fallback real game id
     let balance = 0.00;
     let gameState = 'waiting'; // waiting, running, crashed
     let countdownTime = 10.0;
@@ -195,7 +214,7 @@
     let activeTab = 'manual';
     let autoRoundCount = 0;
     let sparkles = [];
-    let previousResults = JSON.parse(localStorage.getItem('bc_crash_history')) || [1.45, 2.10, 1.05, 5.30, 1.12];
+    let previousResults = JSON.parse(localStorage.getItem('bc_crash_history')) || [1.45, 2.10, 1.05, 5.30, 1.12, 1.88, 3.40, 1.01, 2.22, 4.15];
 
     // 10 Distinct Color Tiers with Hex Codes for Multipliers & Opaque Trail Lines
     function getMultiplierStyle(val) {
@@ -209,6 +228,16 @@
       if (val <= 20.00) return { textColor: 'text-cyan-400', hex: '#22d3ee', bgClass: 'bg-cyan-400/10 border-cyan-400/30' };   // Tier 8: Cyan/Light Blue
       if (val <= 50.00) return { textColor: 'text-blue-500', hex: '#3b82f6', bgClass: 'bg-blue-500/10 border-blue-500/30' };   // Tier 9: Deep Blue
       return            { textColor: 'text-purple-400', hex: '#c084fc', bgClass: 'bg-purple-400/10 border-purple-400/30' }; // Tier 10: Purple/Neon
+    }
+
+    // Generate unique random masked hash (e.g. ab89...(...)72ef)
+    function generateMaskedHash(seed) {
+      const chars = "abcdef0123456789";
+      let fullHash = "";
+      for (let i = 0; i < 32; i++) {
+        fullHash += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return fullHash.substring(0, 6) + " (...) " + fullHash.substring(26);
     }
 
     async function loadBars() {
@@ -237,18 +266,28 @@
         const user = await getCurrentUser();
         if (user) {
           currentUserId = user.id;
-          const { data: profile } = await supabaseClient.from('profiles').select('balance').eq('id', user.id).single();
+          
+          // Fetch balance and user_game_id from profiles table
+          const { data: profile } = await supabaseClient.from('profiles').select('balance, user_game_id').eq('id', user.id).single();
           if (profile) {
             balance = parseFloat(profile.balance) || 0;
+            if (profile.user_game_id) {
+              userRealGameId = profile.user_game_id;
+            }
             updateBalanceUI();
           }
 
           supabaseClient
             .channel('crash-profile-channel')
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` }, (payload) => {
-              if (payload.new && payload.new.balance !== undefined) {
-                balance = parseFloat(payload.new.balance) || 0;
-                updateBalanceUI();
+              if (payload.new) {
+                if (payload.new.balance !== undefined) {
+                  balance = parseFloat(payload.new.balance) || 0;
+                  updateBalanceUI();
+                }
+                if (payload.new.user_game_id !== undefined && payload.new.user_game_id) {
+                  userRealGameId = payload.new.user_game_id;
+                }
               }
             })
             .subscribe();
@@ -294,6 +333,42 @@
         historyContainer.appendChild(badge);
       });
       localStorage.setItem('bc_crash_history', JSON.stringify(previousResults));
+    }
+
+    function openHistoryModal() {
+      const modal = document.getElementById('historyModal');
+      const listContainer = document.getElementById('modalHistoryList');
+      if (!modal || !listContainer) return;
+
+      listContainer.innerHTML = '';
+      let thirtyResults = previousResults.slice(-30).reverse();
+
+      thirtyResults.forEach((res, index) => {
+        let styleInfo = getMultiplierStyle(res);
+        let row = document.createElement('div');
+        row.className = "flex items-center justify-between bg-[#0f141c] border border-[#222b3a] px-3 py-2 rounded-xl text-xs";
+        
+        let uniqueHash = generateMaskedHash(index + res);
+        let gameIdDisplay = userRealGameId + "-" + (1000 + index);
+
+        row.innerHTML = `
+          <div class="flex flex-col gap-0.5">
+            <span class="text-gray-400 text-[10px]">Game ID: <b class="text-gray-200">${gameIdDisplay}</b></span>
+            <span class="text-gray-500 font-mono text-[10px]">Hash: ${uniqueHash}</span>
+          </div>
+          <div class="px-2.5 py-1 rounded-lg font-black border ${styleInfo.textColor} ${styleInfo.bgClass}">
+            ${res.toFixed(2)}x
+          </div>
+        `;
+        listContainer.appendChild(row);
+      });
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeHistoryModal() {
+      const modal = document.getElementById('historyModal');
+      if (modal) modal.classList.add('hidden');
     }
 
     function modifyBet(type) {
