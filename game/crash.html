@@ -63,6 +63,18 @@
       background: #d3383b;
     }
 
+    /* Smooth Color Shift Animation for Timer */
+    @keyframes colorShift {
+      0% { color: #ed4245; }   /* Red */
+      33% { color: #3b82f6; }  /* Blue */
+      66% { color: #ec4899; }  /* Pink */
+      100% { color: #24ee89; } /* Green */
+    }
+
+    .timer-colored {
+      animation: colorShift 10s linear infinite;
+    }
+
     /* Custom Scrollbar */
     ::-webkit-scrollbar {
       height: 4px;
@@ -99,8 +111,8 @@
 
           <!-- Status / Multiplier Display -->
           <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-20 mt-6">
-            <span id="multiplierText" class="text-4xl sm:text-5xl font-black tracking-wider text-white">1.00x</span>
-            <span id="subStatusText" class="text-xs text-gray-400 font-semibold mt-1">Starts in 10.0s</span>
+            <span id="multiplierText" class="text-4xl sm:text-5xl font-black tracking-wider text-white hidden">1.00x</span>
+            <span id="subStatusText" class="text-sm sm:text-base font-bold timer-colored mt-1">Starts in 10.0s</span>
           </div>
 
           <!-- Canvas for Vector Airplane, Sharp Trail and Star Sparkles -->
@@ -183,7 +195,7 @@
     let activeTab = 'manual';
     let autoRoundCount = 0;
     let sparkles = [];
-    let previousResults = [1.45, 2.10, 1.05, 5.30, 1.12];
+    let previousResults = JSON.parse(localStorage.getItem('bc_crash_history')) || [1.45, 2.10, 1.05, 5.30, 1.12];
 
     async function loadBars() {
       try {
@@ -229,7 +241,23 @@
         }
       }
 
-      startWaitingPhase();
+      // Sync Global Round Time using localStorage timestamp for smooth persistence across page reloads/switches
+      let globalRoundStart = localStorage.getItem('bc_round_start_time');
+      let now = Date.now();
+      if (!globalRoundStart) {
+        globalRoundStart = now;
+        localStorage.setItem('bc_round_start_time', globalRoundStart);
+      }
+
+      let elapsedSec = (now - parseInt(globalRoundStart)) / 1000;
+      let cycleTime = elapsedSec % 15; // 10s waiting + ~5s running approx cycle
+
+      if (cycleTime < 10) {
+        countdownTime = 10 - cycleTime;
+        startWaitingPhase(true);
+      } else {
+        startRunningPhase(cycleTime - 10);
+      }
     }
 
     function updateBalanceUI() {
@@ -245,13 +273,14 @@
       if (!historyContainer) return;
       historyContainer.innerHTML = '';
 
-      previousResults.slice(-8).reverse().forEach(res => {
+      previousResults.slice(-30).reverse().forEach(res => {
         let badge = document.createElement('span');
         let colorClass = res >= 2.0 ? 'text-[#24ee89] bg-[#24ee89]/10 border-[#24ee89]/30' : 'text-gray-300 bg-gray-800 border-gray-700';
         badge.className = `px-2 py-0.5 rounded-md text-[11px] font-bold border ${colorClass} whitespace-nowrap`;
         badge.innerText = res.toFixed(2) + 'x';
         historyContainer.appendChild(badge);
       });
+      localStorage.setItem('bc_crash_history', JSON.stringify(previousResults));
     }
 
     function modifyBet(type) {
@@ -289,9 +318,8 @@
       sparkles = [];
     }
 
-    async function startWaitingPhase() {
+    async function startWaitingPhase(isSynced = false) {
       gameState = 'waiting';
-      countdownTime = 10.0;
       hasCashedOut = false;
       drawEmptyCanvas();
       
@@ -299,8 +327,13 @@
       const subText = document.getElementById('subStatusText');
       const btn = document.getElementById('btnAction');
 
-      multText.className = "text-4xl sm:text-5xl font-black tracking-wider text-white";
-      multText.innerText = "1.00x";
+      multText.classList.add('hidden');
+      subText.className = "text-sm sm:text-base font-bold timer-colored mt-1";
+
+      if (!isSynced) {
+        localStorage.setItem('bc_round_start_time', Date.now());
+        countdownTime = 10.0;
+      }
 
       if (activeTab === 'auto' && autoRoundCount > 0) {
         isPlayingNext = true;
@@ -316,8 +349,7 @@
 
       if (gameInterval) clearInterval(gameInterval);
 
-      // Deduct bet immediately when entering waiting phase if user opted in for next round
-      if (isPlayingNext) {
+      if (isPlayingNext && !isSynced) {
         await processBetDeduction();
       }
 
@@ -327,7 +359,7 @@
 
         if (countdownTime <= 0) {
           clearInterval(gameInterval);
-          startRunningPhase();
+          startRunningPhase(0);
         }
       }, 100);
     }
@@ -349,7 +381,7 @@
       }
     }
 
-    async function startRunningPhase() {
+    async function startRunningPhase(initialElapsed = 0) {
       gameState = 'running';
       currentMultiplier = 1.00;
       sparkles = [];
@@ -362,6 +394,9 @@
       const subText = document.getElementById('subStatusText');
       const btn = document.getElementById('btnAction');
 
+      multText.classList.remove('hidden');
+      multText.className = "text-4xl sm:text-5xl font-black tracking-wider text-white";
+      subText.className = "text-xs text-gray-400 font-semibold mt-1";
       subText.innerText = "Rocket launching...";
 
       if (isPlayingNext) {
@@ -377,7 +412,7 @@
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
 
-      let startTime = Date.now();
+      let startTime = Date.now() - (initialElapsed * 1000);
 
       gameInterval = setInterval(async () => {
         let elapsedTime = (Date.now() - startTime) / 1000;
@@ -503,6 +538,7 @@
       subText.innerText = "Crashed!";
 
       previousResults.push(crashPoint);
+      if (previousResults.length > 30) previousResults.shift();
       renderHistoryBar();
 
       if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
@@ -529,7 +565,7 @@
       }
 
       setTimeout(() => {
-        startWaitingPhase();
+        startWaitingPhase(false);
       }, 2500);
     }
 
@@ -545,7 +581,6 @@
           btn.innerText = "Cancel Bet";
           await processBetDeduction();
         } else {
-          // If cancelled during waiting phase, refund the balance
           if (activeBetAmount > 0) {
             balance += activeBetAmount;
             updateBalanceUI();
