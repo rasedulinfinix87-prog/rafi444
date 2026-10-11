@@ -16,11 +16,24 @@
   <script src="../supabase-config.js"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+      touch-action: manipulation;
+    }
+
+    html {
+      min-height: 100%;
+      background: #0f141c;
+      touch-action: pan-x pan-y;
+    }
+
     body {
       background: #0f141c;
       color: #ffffff;
       font-family: sans-serif;
       overflow-y: auto;
+      -webkit-text-size-adjust: 100%;
+      user-select: none;
     }
 
     .bc-main-wrapper {
@@ -101,21 +114,19 @@
       <!-- Unified Main Game Wrapper Card -->
       <div class="bc-main-wrapper flex flex-col shadow-xl">
         
-        <!-- Crash Game Screen Area (Top Section inside wrapper) -->
+        <!-- Crash Game Screen Area -->
         <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-12">
           
-          <!-- Sky and Cloud Background Layer (Professional Effect under colors) -->
+          <!-- Sky and Cloud Background Layer -->
           <div class="absolute inset-0 pointer-events-none opacity-20 overflow-hidden z-0">
             <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-500 rounded-full blur-3xl"></div>
             <div class="absolute top-10 right-10 w-48 h-48 bg-indigo-600 rounded-full blur-3xl"></div>
             <div class="absolute bottom-5 left-1/3 w-36 h-36 bg-sky-400 rounded-full blur-2xl"></div>
           </div>
 
-          <!-- Previous Multiplier History Bar & Icon shifted further right by 13% equivalent spacing -->
+          <!-- History Bar & Icon -->
           <div class="absolute top-1.5 left-3 right-2 flex items-center justify-between z-30 pb-1 pr-1">
-            <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-6">
-              <!-- Dynamically populated history badges -->
-            </div>
+            <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-6"></div>
             <button onclick="openHistoryModal()" class="bg-[#222b3a] hover:bg-[#2c3748] text-gray-300 hover:text-white px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1 transition shadow shrink-0 -mt-1 mr-4">
               <i class="fa-solid fa-clock-rotate-left"></i>
             </button>
@@ -128,14 +139,13 @@
             <span id="subStatusText" class="text-sm sm:text-base font-bold timer-colored mt-1">Starts in 10.0s</span>
           </div>
 
-          <!-- Canvas for Vector Airplane, Sharp Trail and Star Sparkles -->
+          <!-- Canvas for Vector Airplane -->
           <canvas id="crashCanvas" class="absolute inset-0 w-full h-full z-10 pointer-events-none" style="top: 32px; height: calc(100% - 32px);"></canvas>
         </div>
 
-        <!-- Thin Divider Line between screen and controls -->
         <div class="bc-divider"></div>
 
-        <!-- Game Controls Section (Bottom Section inside wrapper) -->
+        <!-- Game Controls Section -->
         <div class="p-4 flex flex-col gap-3.5 bg-[#171d28]">
           
           <!-- Manual / Auto Tabs Switcher -->
@@ -148,13 +158,13 @@
           <div class="flex flex-col gap-1">
             <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
               <span>Amount (৳)</span>
-              <span class="text-gray-400 text-[10px]">Min: 1 ৳</span>
+              <span class="text-gray-400 text-[10px]">Min: 0.1 ৳</span>
             </div>
             <div class="flex items-center bc-input-box p-1">
               <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
-              <input type="number" id="betAmount" value="1" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
+              <input type="number" id="betAmount" value="1" min="0.1" step="any" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
               
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1" id="betModifiers">
                 <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
                 <button onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
                 <button onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-[#F5CF66] transition">Max</button>
@@ -174,15 +184,57 @@
             </div>
           </div>
 
+          <!-- Auto Bet Specific & Advanced Options Section -->
+          <div id="autoBetSettings" class="flex flex-col gap-3 hidden">
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+                <span>Number of Bets (Rounds)</span>
+              </div>
+              <div class="flex items-center bc-input-box p-1">
+                <input type="number" id="autoRounds" value="10" min="1" max="1000" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-3">
+              </div>
+            </div>
+
+            <!-- Advanced Options -->
+            <div class="flex flex-col gap-2.5 pt-1 border-t border-[#222b3a]">
+              <span class="text-xs font-bold text-gray-300">Advanced Options</span>
+
+              <!-- On Win -->
+              <div class="flex flex-col gap-1 bg-[#0f141c] p-2.5 rounded-xl border border-[#222b3a]">
+                <span class="text-[11px] text-gray-400">On win</span>
+                <div class="flex items-center gap-2">
+                  <div class="flex flex-1 bg-[#171d28] p-1 rounded-lg border border-[#222b3a]">
+                    <button onclick="setAdvancedAction('win', 'reset')" id="winResetBtn" class="flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95">Reset</button>
+                    <button onclick="setAdvancedAction('win', 'increase')" id="winIncBtn" class="flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95">Increase by</button>
+                  </div>
+                  <div class="w-24 flex items-center bc-input-box px-2 py-1">
+                    <input type="number" id="winIncVal" value="0" step="any" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none text-right">
+                    <span class="text-xs text-gray-400 ml-1">%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- On Loss -->
+              <div class="flex flex-col gap-1 bg-[#0f141c] p-2.5 rounded-xl border border-[#222b3a]">
+                <span class="text-[11px] text-gray-400">On loss</span>
+                <div class="flex items-center gap-2">
+                  <div class="flex flex-1 bg-[#171d28] p-1 rounded-lg border border-[#222b3a]">
+                    <button onclick="setAdvancedAction('loss', 'reset')" id="lossResetBtn" class="flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95">Reset</button>
+                    <button onclick="setAdvancedAction('loss', 'increase')" id="lossIncBtn" class="flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95">Increase by</button>
+                  </div>
+                  <div class="w-24 flex items-center bc-input-box px-2 py-1">
+                    <input type="number" id="lossIncVal" value="0" step="any" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none text-right">
+                    <span class="text-xs text-gray-400 ml-1">%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Action Button -->
           <button id="btnAction" onclick="handleMainAction()" class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
             <span>Bet (Next Round)</span>
           </button>
-
-          <!-- Demo Mode Info -->
-          <div class="text-center text-[11px] text-gray-400">
-            ℹ Betting with 0 will enter demo mode.
-          </div>
 
         </div>
 
@@ -198,9 +250,7 @@
         <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-history text-[#24ee89]"></i> 30 Crash History & Details</h3>
         <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-white px-2 py-1 text-sm font-bold"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div class="overflow-y-auto flex-1 mt-3 space-y-2 pr-1" id="modalHistoryList">
-        <!-- Dynamically populated 30 rows with Game ID, Multiplier and Masked Hash -->
-      </div>
+      <div class="overflow-y-auto flex-1 mt-3 space-y-2 pr-1" id="modalHistoryList"></div>
     </div>
   </div>
 
@@ -209,9 +259,9 @@
 
   <script>
     let currentUserId = null;
-    let userRealGameId = "GID-784920"; // Fallback real game id
+    let userRealGameId = "GID-784920";
     let balance = 0.00;
-    let gameState = 'waiting'; // waiting, running, crashed
+    let gameState = 'waiting'; 
     let countdownTime = 10.0;
     let currentMultiplier = 1.00;
     let crashPoint = 1.00;
@@ -220,11 +270,18 @@
     let hasCashedOut = false;
     let activeBetAmount = 0;
     let activeTab = 'manual';
-    let autoRoundCount = 0;
+    let isAutoRunning = false;
+    let remainingAutoRounds = 0;
+    let initialAutoBetAmount = 1;
+    let winAction = 'reset';
+    let lossAction = 'reset';
     let sparkles = [];
     let previousResults = JSON.parse(localStorage.getItem('bc_crash_history')) || [1.45, 2.10, 1.05, 5.30, 1.12, 1.88, 3.40, 1.01, 2.22, 4.15];
 
-    // Helper for generating standard UUID for mobile compatibility
+    // Prevent Zoom In / Zoom Out
+    document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+    document.addEventListener('dblclick', function(e) { e.preventDefault(); }, { passive: false });
+
     function generateUUID() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -232,21 +289,19 @@
       });
     }
 
-    // 10 Distinct Color Tiers with Hex Codes for Multipliers & Opaque Trail Lines
     function getMultiplierStyle(val) {
-      if (val <= 1.50)  return { textColor: 'text-red-500', hex: '#ef4444', bgClass: 'bg-red-500/10 border-red-500/30' };     // Tier 1: Dark Red
-      if (val <= 2.00)  return { textColor: 'text-rose-400', hex: '#fb7185', bgClass: 'bg-rose-400/10 border-rose-400/30' };   // Tier 2: Medium Red
-      if (val <= 3.00)  return { textColor: 'text-orange-400', hex: '#fb923c', bgClass: 'bg-orange-400/10 border-orange-400/30' }; // Tier 3: Orange
-      if (val <= 4.00)  return { textColor: 'text-amber-400', hex: '#fbbf24', bgClass: 'bg-amber-400/10 border-amber-400/30' };   // Tier 4: Amber/Yellow-Gold
-      if (val <= 5.00)  return { textColor: 'text-yellow-300', hex: '#fde047', bgClass: 'bg-yellow-300/10 border-yellow-300/30' }; // Tier 5: Yellow
-      if (val <= 7.00)  return { textColor: 'text-emerald-400', hex: '#34d399', bgClass: 'bg-emerald-400/10 border-emerald-400/30' }; // Tier 6: Emerald Green
-      if (val <= 10.00) return { textColor: 'text-[#24ee89]', hex: '#24ee89', bgClass: 'bg-[#24ee89]/10 border-[#24ee89]/30' }; // Tier 7: Bright Green
-      if (val <= 20.00) return { textColor: 'text-cyan-400', hex: '#22d3ee', bgClass: 'bg-cyan-400/10 border-cyan-400/30' };   // Tier 8: Cyan/Light Blue
-      if (val <= 50.00) return { textColor: 'text-blue-500', hex: '#3b82f6', bgClass: 'bg-blue-500/10 border-blue-500/30' };   // Tier 9: Deep Blue
-      return            { textColor: 'text-purple-400', hex: '#c084fc', bgClass: 'bg-purple-400/10 border-purple-400/30' }; // Tier 10: Purple/Neon
+      if (val <= 1.50)  return { textColor: 'text-red-500', hex: '#ef4444', bgClass: 'bg-red-500/10 border-red-500/30' };
+      if (val <= 2.00)  return { textColor: 'text-rose-400', hex: '#fb7185', bgClass: 'bg-rose-400/10 border-rose-400/30' };
+      if (val <= 3.00)  return { textColor: 'text-orange-400', hex: '#fb923c', bgClass: 'bg-orange-400/10 border-orange-400/30' };
+      if (val <= 4.00)  return { textColor: 'text-amber-400', hex: '#fbbf24', bgClass: 'bg-amber-400/10 border-amber-400/30' };
+      if (val <= 5.00)  return { textColor: 'text-yellow-300', hex: '#fde047', bgClass: 'bg-yellow-300/10 border-yellow-300/30' };
+      if (val <= 7.00)  return { textColor: 'text-emerald-400', hex: '#34d399', bgClass: 'bg-emerald-400/10 border-emerald-400/30' };
+      if (val <= 10.00) return { textColor: 'text-[#24ee89]', hex: '#24ee89', bgClass: 'bg-[#24ee89]/10 border-[#24ee89]/30' };
+      if (val <= 20.00) return { textColor: 'text-cyan-400', hex: '#22d3ee', bgClass: 'bg-cyan-400/10 border-cyan-400/30' };
+      if (val <= 50.00) return { textColor: 'text-blue-500', hex: '#3b82f6', bgClass: 'bg-blue-500/10 border-blue-500/30' };
+      return            { textColor: 'text-purple-400', hex: '#c084fc', bgClass: 'bg-purple-400/10 border-purple-400/30' };
     }
 
-    // Generate unique random masked hash (e.g. ab89...(...)72ef)
     function generateMaskedHash(seed) {
       const chars = "abcdef0123456789";
       let fullHash = "";
@@ -278,9 +333,6 @@
         const topRes = await fetch('../bar/top.html');
         if (topRes.ok) {
           document.getElementById('topBarContainer').innerHTML = await topRes.text();
-          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-            a.href = '../account/deposit.html';
-          });
         }
 
         const botRes = await fetch('../bar/bottom.html');
@@ -301,13 +353,10 @@
         if (user) {
           currentUserId = user.id;
           
-          // Fetch balance and user_game_id from profiles table
           const { data: profile } = await supabaseClient.from('profiles').select('balance, user_game_id').eq('id', user.id).single();
           if (profile) {
             balance = parseFloat(profile.balance) || 0;
-            if (profile.user_game_id) {
-              userRealGameId = profile.user_game_id;
-            }
+            if (profile.user_game_id) userRealGameId = profile.user_game_id;
             updateBalanceUI();
           }
 
@@ -407,27 +456,63 @@
     }
 
     function modifyBet(type) {
-      let current = parseFloat(document.getElementById('betAmount').value) || 0;
+      if (isAutoRunning || (gameState === 'running' && isPlayingNext)) return;
+      let input = document.getElementById('betAmount');
+      let current = parseFloat(input.value) || 0;
       if (type === 'half') {
-        document.getElementById('betAmount').value = Math.max(0, Math.floor(current / 2));
+        input.value = Math.max(0.1, (current / 2)).toFixed(2);
       } else if (type === 'double') {
-        document.getElementById('betAmount').value = Math.floor(current * 2);
+        input.value = (current * 2).toFixed(2);
       } else if (type === 'max') {
-        document.getElementById('betAmount').value = Math.floor(balance);
+        input.value = balance.toFixed(2);
+      }
+    }
+
+    function setAdvancedAction(type, action) {
+      if (isAutoRunning || (gameState === 'running' && isPlayingNext)) return;
+      if (type === 'win') {
+        winAction = action;
+        const resetBtn = document.getElementById('winResetBtn');
+        const incBtn = document.getElementById('winIncBtn');
+        if (action === 'reset') {
+          resetBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95';
+          incBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95';
+        } else {
+          incBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95';
+          resetBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95';
+        }
+      } else {
+        lossAction = action;
+        const resetBtn = document.getElementById('lossResetBtn');
+        const incBtn = document.getElementById('lossIncBtn');
+        if (action === 'reset') {
+          resetBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95';
+          incBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95';
+        } else {
+          incBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95';
+          resetBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95';
+        }
       }
     }
 
     function switchTab(tab) {
+      if (isAutoRunning || (gameState === 'running' && isPlayingNext)) return;
       activeTab = tab;
       const tabManual = document.getElementById('tabManual');
       const tabAuto = document.getElementById('tabAuto');
+      const autoSettings = document.getElementById('autoBetSettings');
+      const btn = document.getElementById('btnAction');
 
       if (tab === 'manual') {
         tabManual.className = 'py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition';
         tabAuto.className = 'py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition';
+        autoSettings.classList.add('hidden');
+        btn.innerText = "Bet (Next Round)";
       } else {
         tabAuto.className = 'py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition';
         tabManual.className = 'py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition';
+        autoSettings.classList.remove('hidden');
+        btn.innerText = "Start Auto Bet";
       }
     }
 
@@ -460,16 +545,21 @@
         countdownTime = 10.0;
       }
 
-      if (activeTab === 'auto' && autoRoundCount > 0) {
+      if (isAutoRunning && remainingAutoRounds > 0) {
         isPlayingNext = true;
       }
 
       if (isPlayingNext) {
-        btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
-        btn.innerText = "Cancel Bet";
+        if (isAutoRunning) {
+          btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+          btn.innerText = `Stop Auto (${remainingAutoRounds})`;
+        } else {
+          btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+          btn.innerText = "Cancel Bet";
+        }
       } else {
         btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
-        btn.innerText = "Bet (Next Round)";
+        btn.innerText = activeTab === 'auto' ? "Start Auto Bet" : "Bet (Next Round)";
       }
 
       if (gameInterval) clearInterval(gameInterval);
@@ -493,25 +583,39 @@
       let autoVal = parseFloat(document.getElementById('autoCashOut').value) || 0;
       if (autoVal <= 1.001) {
         alert("অটো ক্যাশ আউট ভ্যালু ১.০০১ এর বেশি হতে হবে!");
-        isPlayingNext = false;
+        stopAutoSequence();
         startWaitingPhase();
         return;
       }
 
       activeBetAmount = parseFloat(document.getElementById('betAmount').value) || 0;
-      if (activeBetAmount > 0) {
-        if (activeBetAmount > balance) {
-          alert("পর্যাপ্ত ব্যালেন্স নেই!");
-          isPlayingNext = false;
-          startWaitingPhase();
-          return;
-        }
-        balance -= activeBetAmount;
-        updateBalanceUI();
-        if (currentUserId && typeof supabaseClient !== 'undefined') {
-          await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
-        }
+      if (activeBetAmount < 0.1) {
+        alert("সর্বনিম্ন বেট ০.১ টাকা হতে হবে!");
+        stopAutoSequence();
+        startWaitingPhase();
+        return;
       }
+      if (activeBetAmount > balance) {
+        alert("পর্যাপ্ত ব্যালেন্স নেই!");
+        stopAutoSequence();
+        startWaitingPhase();
+        return;
+      }
+
+      balance -= activeBetAmount;
+      updateBalanceUI();
+      if (currentUserId && typeof supabaseClient !== 'undefined') {
+        await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+      }
+    }
+
+    function stopAutoSequence() {
+      isAutoRunning = false;
+      isPlayingNext = false;
+      remainingAutoRounds = 0;
+      const tabManual = document.getElementById('tabManual');
+      tabManual.disabled = false;
+      tabManual.classList.remove('opacity-50', 'cursor-not-allowed');
     }
 
     async function startRunningPhase(initialElapsed = 0) {
@@ -531,10 +635,10 @@
       subText.className = "text-xs text-gray-400 font-semibold mt-1 hidden";
 
       if (isPlayingNext) {
-        if (activeTab === 'auto') {
+        if (isAutoRunning) {
           btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
-          btn.innerText = "Auto Running...";
-        } else {
+          btn.innerText = `Auto Running... (${remainingAutoRounds})`;
+        } else if (activeTab === 'manual') {
           btn.className = "w-full py-3.5 bg-[#24ee89] text-[#0f141c] font-black text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
           btn.innerText = "Cash Out";
         }
@@ -560,16 +664,15 @@
 
         if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
           let liveWin = activeBetAmount * currentMultiplier;
-          if (activeTab === 'manual') {
+          if (activeTab === 'manual' && !isAutoRunning) {
             btn.innerText = `Cash Out (৳ ${liveWin.toFixed(2)})`;
           }
         }
 
-        // Auto Cash Out Trigger Logic
         let autoCash = parseFloat(document.getElementById('autoCashOut').value) || 0;
         if (isPlayingNext && !hasCashedOut && autoCash > 1.001 && currentMultiplier >= autoCash) {
           if (currentMultiplier <= crashPoint) {
-            cashOut(autoCash);
+            await cashOut(autoCash);
           }
         }
 
@@ -638,7 +741,7 @@
 
         if (currentMultiplier >= crashPoint) {
           clearInterval(gameInterval);
-          triggerCrash();
+          await triggerCrash();
         }
       }, 50);
     }
@@ -668,7 +771,7 @@
 
       const btn = document.getElementById('btnAction');
       btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
-      btn.innerText = activeBetAmount > 0 ? `Cashed Out (৳ ${winAmount.toFixed(2)})` : `Demo Win (${mult.toFixed(2)}x)`;
+      btn.innerText = `Cashed Out (৳ ${winAmount.toFixed(2)})`;
 
       if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
         const insertData = {
@@ -686,6 +789,18 @@
 
         await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
       }
+
+      // Apply Advanced Option on Win
+      if (isAutoRunning) {
+        let curBet = parseFloat(document.getElementById('betAmount').value) || 1;
+        if (winAction === 'reset') {
+          document.getElementById('betAmount').value = initialAutoBetAmount.toFixed(2);
+        } else {
+          let incPct = parseFloat(document.getElementById('winIncVal').value) || 0;
+          curBet += curBet * (incPct / 100);
+          document.getElementById('betAmount').value = curBet.toFixed(2);
+        }
+      }
     }
 
     async function triggerCrash() {
@@ -693,7 +808,6 @@
       const multText = document.getElementById('multiplierText');
       const subText = document.getElementById('subStatusText');
       const winLossText = document.getElementById('winLossSubText');
-      const btn = document.getElementById('btnAction');
 
       let crashStyle = getMultiplierStyle(crashPoint);
       multText.className = `text-4xl sm:text-5xl font-black tracking-wider ${crashStyle.textColor}`;
@@ -701,17 +815,13 @@
       subText.className = "text-xs text-gray-400 font-semibold mt-1";
       subText.innerText = "Crashed!";
 
+      let isWinRound = hasCashedOut;
+
       if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
         winLossText.className = "text-xs font-bold mt-1 text-red-500";
         winLossText.innerText = "Lost";
         winLossText.classList.remove('hidden');
-      }
 
-      previousResults.push(crashPoint);
-      if (previousResults.length > 30) previousResults.shift();
-      renderHistoryBar();
-
-      if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
         if (currentUserId && typeof supabaseClient !== 'undefined') {
           const insertData = {
             id: generateUUID(),
@@ -726,16 +836,31 @@
           const { error } = await supabaseClient.from('bets').insert([insertData]);
           if (error) console.error("Supabase Crash Insert Error:", error);
         }
+
+        // Apply Advanced Option on Loss
+        if (isAutoRunning) {
+          let curBet = parseFloat(document.getElementById('betAmount').value) || 1;
+          if (lossAction === 'reset') {
+            document.getElementById('betAmount').value = initialAutoBetAmount.toFixed(2);
+          } else {
+            let incPct = parseFloat(document.getElementById('lossIncVal').value) || 0;
+            curBet += curBet * (incPct / 100);
+            document.getElementById('betAmount').value = curBet.toFixed(2);
+          }
+        }
       }
 
-      if (activeTab === 'manual') {
-        isPlayingNext = false;
-      } else {
-        if (autoRoundCount > 1) autoRoundCount--;
-        else if (autoRoundCount === 1) {
-          autoRoundCount = 0;
-          isPlayingNext = false;
+      previousResults.push(crashPoint);
+      if (previousResults.length > 30) previousResults.shift();
+      renderHistoryBar();
+
+      if (isAutoRunning) {
+        remainingAutoRounds--;
+        if (remainingAutoRounds <= 0) {
+          stopAutoSequence();
         }
+      } else {
+        isPlayingNext = false;
       }
 
       setTimeout(() => {
@@ -752,27 +877,51 @@
 
       if (gameState === 'waiting') {
         if (activeTab === 'auto') {
-          autoRoundCount = 10;
-        }
-        isPlayingNext = !isPlayingNext;
-        const btn = document.getElementById('btnAction');
-        if (isPlayingNext) {
+          if (isAutoRunning) {
+            stopAutoSequence();
+            startWaitingPhase(true);
+            return;
+          }
+
+          remainingAutoRounds = parseInt(document.getElementById('autoRounds').value) || 10;
+          if (remainingAutoRounds <= 0) {
+            alert('অনুগ্রহ করে সঠিক রাউন্ড সংখ্যা দিন!');
+            return;
+          }
+
+          initialAutoBetAmount = parseFloat(document.getElementById('betAmount').value) || 1;
+          isAutoRunning = true;
+          isPlayingNext = true;
+
+          const tabManual = document.getElementById('tabManual');
+          tabManual.disabled = true;
+          tabManual.classList.add('opacity-50', 'cursor-not-allowed');
+
+          const btn = document.getElementById('btnAction');
           btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
-          btn.innerText = "Cancel Bet";
+          btn.innerText = `Stop Auto (${remainingAutoRounds})`;
           await processBetDeduction();
         } else {
-          if (activeBetAmount > 0) {
-            balance += activeBetAmount;
-            updateBalanceUI();
-            if (currentUserId && typeof supabaseClient !== 'undefined') {
-              await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+          isPlayingNext = !isPlayingNext;
+          const btn = document.getElementById('btnAction');
+          if (isPlayingNext) {
+            btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+            btn.innerText = "Cancel Bet";
+            await processBetDeduction();
+          } else {
+            if (activeBetAmount > 0) {
+              balance += activeBetAmount;
+              updateBalanceUI();
+              if (currentUserId && typeof supabaseClient !== 'undefined') {
+                await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+              }
             }
+            btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+            btn.innerText = "Bet (Next Round)";
           }
-          btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
-          btn.innerText = "Bet (Next Round)";
         }
-      } else if (gameState === 'running' && activeTab === 'manual' && isPlayingNext && !hasCashedOut) {
-        cashOut();
+      } else if (gameState === 'running' && activeTab === 'manual' && isPlayingNext && !hasCashedOut && !isAutoRunning) {
+        await cashOut();
       }
     }
 
