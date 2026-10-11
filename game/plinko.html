@@ -188,10 +188,18 @@
     async function loadBars() {
       try {
         const topRes = await fetch('../bar/top.html');
-        if (topRes.ok) document.getElementById('topBarContainer').innerHTML = await topRes.text();
+        if (topRes.ok) {
+          document.getElementById('topBarContainer').innerHTML = await topRes.text();
+          // Fix links inside top bar if needed
+          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+            a.href = '../account/deposit.html';
+          });
+        }
 
         const botRes = await fetch('../bar/bottom.html');
-        if (botRes.ok) document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+        if (botRes.ok) {
+          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+        }
       } catch (e) { console.error('Bar load error:', e); }
     }
 
@@ -205,7 +213,7 @@
           currentUserId = user.id;
           const { data: profile } = await supabaseClient.from('profiles').select('balance').eq('id', user.id).single();
           if (profile) {
-            balance = parseFloat(profile.balance);
+            balance = parseFloat(profile.balance) || 0;
             updateBalanceUI();
           }
 
@@ -213,7 +221,7 @@
             .channel('plinko-profile-channel')
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` }, (payload) => {
               if (payload.new && payload.new.balance !== undefined) {
-                balance = parseFloat(payload.new.balance);
+                balance = parseFloat(payload.new.balance) || 0;
                 updateBalanceUI();
               }
             })
@@ -223,8 +231,12 @@
     }
 
     function updateBalanceUI() {
-      const topBal = document.getElementById('userBalance');
-      if (topBal) topBal.innerText = `৳ ${balance.toFixed(2)}`;
+      // Supporting both topBarBalance and userBalance ids from top.html templates
+      const topBal1 = document.getElementById('topBarBalance');
+      const topBal2 = document.getElementById('userBalance');
+      
+      if (topBal1) topBal1.innerText = balance.toFixed(2);
+      if (topBal2) topBal2.innerText = `৳ ${balance.toFixed(2)}`;
     }
 
     function modifyBet(type) {
