@@ -99,12 +99,12 @@
     
     <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#080B10] flex-1">
 
-      <!-- Plinko Board Canvas Area with Integrated Sinks Inside -->
-      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-2 shadow-xl">
-        <canvas id="plinkoCanvas" width="360" height="230" class="w-full h-auto rounded-xl"></canvas>
+      <!-- Plinko Board Canvas Area with Perfectly Aligned Sinks Inside -->
+      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-3 shadow-xl">
+        <canvas id="plinkoCanvas" width="340" height="210" class="w-full h-auto rounded-xl"></canvas>
         
-        <!-- Multiplier Sinks Bar (Inside the board aligned precisely under the final row) -->
-        <div id="multiplierSinks" class="grid w-full mt-1 gap-1 px-1">
+        <!-- Multiplier Sinks Bar (Matched perfectly with the pyramid base width) -->
+        <div id="multiplierSinks" class="grid w-full mt-2 gap-1 px-3">
           <!-- Dynamically generated multiplier boxes -->
         </div>
       </div>
@@ -253,7 +253,7 @@
 
     function renderMultipliers(highlightIndex = null) {
       const container = document.getElementById('multiplierSinks');
-      container.innerHTML = '';
+      container.innerHTML = {};
       
       container.style.gridTemplateColumns = `repeat(${currentMultipliers.length}, minmax(0, 1fr))`;
 
@@ -266,7 +266,7 @@
         else if (mult >= 5) bgColor = 'bg-orange-500';
         else if (mult < 1) bgColor = 'bg-yellow-500';
 
-        box.className = `${bgColor} text-[#080B10] font-black text-[7px] sm:text-[9.5px] py-2 px-0.5 rounded text-center shadow transition-all truncate ${isHighlight ? 'glass-gold-hit' : ''}`;
+        box.className = `${bgColor} text-[#080B10] font-black text-[6.5px] sm:text-[9px] py-1.5 px-0.5 rounded text-center shadow transition-all truncate ${isHighlight ? 'glass-gold-hit' : ''}`;
         box.innerText = mult + '×';
         container.appendChild(box);
       });
@@ -280,14 +280,14 @@
       const rows = currentRows;
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 15; // Proper top padding so the apex pin is fully visible
+      const startY = 12;
       const totalRows = rows + 1; 
-      const rowHeight = (height - 30) / totalRows;
-      const maxPinsInRow = totalRows + 2;
+      const rowHeight = (height - 24) / totalRows;
+      const maxPinsInRow = totalRows + 1;
       const spacingX = width / maxPinsInRow;
 
       for (let r = 0; r < totalRows; r++) {
-        const pinsInRow = r + 1; // Standard proper pyramid starting from 1 pin at the top
+        const pinsInRow = r + 1;
         const rowWidth = (pinsInRow - 1) * spacingX;
         const startX = (width - rowWidth) / 2;
 
@@ -349,16 +349,16 @@
       const canvas = document.getElementById('plinkoCanvas');
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 15;
+      const startY = 12;
       const totalRows = rows + 1;
-      const rowHeight = (height - 30) / totalRows;
-      const maxPinsInRow = totalRows + 2;
+      const rowHeight = (height - 24) / totalRows;
+      const maxPinsInRow = totalRows + 1;
       const spacingX = width / maxPinsInRow;
 
       let currentPinRow = 0;
       let currentPinCol = 0; 
       let ballX = width / 2;
-      let ballY = 5;
+      let ballY = 4;
 
       const dropInterval = setInterval(() => {
         if (currentPinRow < totalRows) {
