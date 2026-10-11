@@ -97,7 +97,7 @@
           <span id="subStatusText" class="text-xs text-gray-400 font-semibold mt-1">Starts in 10.0s</span>
         </div>
 
-        <!-- Canvas for Airplane and Trail Animation -->
+        <!-- Canvas for Airplane and Sparkle Trail Animation -->
         <canvas id="crashCanvas" class="absolute inset-0 w-full h-full z-10 pointer-events-none"></canvas>
       </div>
 
@@ -167,6 +167,7 @@
     let activeBetAmount = 0;
     let activeTab = 'manual';
     let autoRoundCount = 0;
+    let sparkles = [];
 
     async function loadBars() {
       try {
@@ -252,6 +253,7 @@
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      sparkles = [];
     }
 
     function startWaitingPhase() {
@@ -295,6 +297,7 @@
     async function startRunningPhase() {
       gameState = 'running';
       currentMultiplier = 1.00;
+      sparkles = [];
       
       let r = Math.random();
       crashPoint = parseFloat((Math.max(1.00, 0.99 / (1 - r))).toFixed(2));
@@ -345,31 +348,60 @@
 
         multText.innerText = currentMultiplier.toFixed(2) + 'x';
 
-        // Draw Airplane and Curved Tail Trail Animation
+        // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         let progress = Math.min(1, elapsedTime / 10);
-        let startX = 20;
-        let startY = canvas.height - 20;
-        let currentX = startX + (canvas.width - 60) * progress;
-        let currentY = startY - (canvas.height - 50) * Math.pow(progress, 1.3);
+        let startX = 25;
+        let startY = canvas.height - 25;
+        let currentX = startX + (canvas.width - 70) * progress;
+        let currentY = startY - (canvas.height - 60) * Math.pow(progress, 1.3);
 
-        // Draw Curved Trail Line
+        // Draw Clean Sharp Curved Trail Line
         ctx.beginPath();
         ctx.moveTo(startX, startY);
         ctx.quadraticCurveTo(startX + (currentX - startX) * 0.4, startY - 10, currentX, currentY);
         ctx.strokeStyle = '#ed4245';
-        ctx.lineWidth = 3;
-        ctx.shadowColor = '#ed4245';
-        ctx.shadowBlur = 10;
+        ctx.lineWidth = 2.5;
         ctx.stroke();
-        ctx.shadowBlur = 0;
 
-        // Draw Airplane Icon (🛩️) at the tip
-        ctx.font = '22px sans-serif';
+        // Add Sky Star / Particle Sparkles falling down from behind the plane
+        sparkles.push({
+          x: currentX - (Math.random() * 15),
+          y: currentY + (Math.random() * 10),
+          vx: -1 - Math.random() * 1.5,
+          vy: 1 + Math.random() * 2,
+          size: Math.random() * 2.5 + 1,
+          alpha: 1.0
+        });
+
+        // Update and draw sparkles
+        for (let i = sparkles.length - 1; i >= 0; i--) {
+          let s = sparkles[i];
+          s.x += s.vx;
+          s.y += s.vy;
+          s.alpha -= 0.03;
+
+          if (s.alpha <= 0) {
+            sparkles.splice(i, 1);
+            continue;
+          }
+
+          ctx.fillStyle = `rgba(255, 220, 100, ${s.alpha})`;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Draw Airplane Correctly Oriented & Sized (Right side up, facing top-right)
+        ctx.save();
+        ctx.translate(currentX, currentY);
+        ctx.rotate(-Math.PI / 6); // Angle upwards correctly
+        ctx.font = '28px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('🛩️', currentX, currentY);
+        ctx.fillText('🛩️', 0, 0);
+        ctx.restore();
 
         let autoCash = parseFloat(document.getElementById('autoCashOut').value) || 0;
         if (isPlayingNext && !hasCashedOut && autoCash > 1.00 && currentMultiplier >= autoCash) {
