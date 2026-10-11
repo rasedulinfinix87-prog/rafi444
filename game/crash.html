@@ -23,10 +23,17 @@
       overflow-y: auto;
     }
 
-    .bc-card {
+    .bc-main-wrapper {
       background: #171d28;
       border: 1px solid #222b3a;
       border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .bc-divider {
+      height: 1px;
+      background-color: #222b3a;
+      width: 100%;
     }
 
     .bc-input-box {
@@ -79,66 +86,73 @@
     
     <main class="flex flex-col gap-3 flex-1">
       
-      <!-- Crash Game Screen Area -->
-      <div class="relative flex flex-col items-center justify-center bc-card h-60 shadow-lg overflow-hidden">
+      <!-- Unified Main Game Wrapper Card -->
+      <div class="bc-main-wrapper flex flex-col shadow-xl">
         
-        <!-- Status / Multiplier Display -->
-        <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-20">
-          <span id="multiplierText" class="text-4xl sm:text-5xl font-black tracking-wider text-white">1.00x</span>
-          <span id="subStatusText" class="text-xs text-gray-400 font-semibold mt-1">Starts in 10.0s</span>
-        </div>
-
-        <!-- Canvas for Vector Airplane, Sharp Trail and Star Sparkles -->
-        <canvas id="crashCanvas" class="absolute inset-0 w-full h-full z-10 pointer-events-none"></canvas>
-      </div>
-
-      <!-- Single Unified Game Controls Card -->
-      <div class="bc-card p-4 flex flex-col gap-3.5 shadow-xl">
-        
-        <!-- Manual / Auto Tabs Switcher -->
-        <div class="bg-[#0f141c] p-1 rounded-xl flex justify-around text-sm font-medium text-gray-400 border border-[#222b3a]">
-          <button onclick="switchTab('manual')" id="tabManual" class="py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition">Manual</button>
-          <button onclick="switchTab('auto')" id="tabAuto" class="py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition">Auto</button>
-        </div>
-
-        <!-- Bet Amount Controls -->
-        <div class="flex flex-col gap-1">
-          <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
-            <span>Amount (৳)</span>
-            <span class="text-gray-400 text-[10px]">Min: 1 ৳</span>
+        <!-- Crash Game Screen Area (Top Section inside wrapper) -->
+        <div class="relative flex flex-col items-center justify-center h-60 w-full overflow-hidden bg-[#171d28]">
+          <!-- Status / Multiplier Display -->
+          <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-20">
+            <span id="multiplierText" class="text-4xl sm:text-5xl font-black tracking-wider text-white">1.00x</span>
+            <span id="subStatusText" class="text-xs text-gray-400 font-semibold mt-1">Starts in 10.0s</span>
           </div>
-          <div class="flex items-center bc-input-box p-1">
-            <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
-            <input type="number" id="betAmount" value="10" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
-            
-            <div class="flex items-center gap-1">
-              <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
-              <button onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
-              <button onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">Max</button>
+
+          <!-- Canvas for Vector Airplane, Sharp Trail and Star Sparkles -->
+          <canvas id="crashCanvas" class="absolute inset-0 w-full h-full z-10 pointer-events-none"></canvas>
+        </div>
+
+        <!-- Thin Divider Line between screen and controls -->
+        <div class="bc-divider"></div>
+
+        <!-- Game Controls Section (Bottom Section inside wrapper) -->
+        <div class="p-4 flex flex-col gap-3.5 bg-[#171d28]">
+          
+          <!-- Manual / Auto Tabs Switcher -->
+          <div class="bg-[#0f141c] p-1 rounded-xl flex justify-around text-sm font-medium text-gray-400 border border-[#222b3a]">
+            <button onclick="switchTab('manual')" id="tabManual" class="py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition">Manual</button>
+            <button onclick="switchTab('auto')" id="tabAuto" class="py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition">Auto</button>
+          </div>
+
+          <!-- Bet Amount Controls -->
+          <div class="flex flex-col gap-1">
+            <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+              <span>Amount (৳)</span>
+              <span class="text-gray-400 text-[10px]">Min: 1 ৳</span>
+            </div>
+            <div class="flex items-center bc-input-box p-1">
+              <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
+              <input type="number" id="betAmount" value="10" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
+              
+              <div class="flex items-center gap-1">
+                <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
+                <button onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
+                <button onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">Max</button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Auto Cash Out Controls -->
-        <div class="flex flex-col gap-1">
-          <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
-            <span>Auto Cash Out</span>
-            <span class="text-gray-400 text-[10px]">Optional</span>
+          <!-- Auto Cash Out Controls -->
+          <div class="flex flex-col gap-1">
+            <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+              <span>Auto Cash Out</span>
+              <span class="text-gray-400 text-[10px]">Optional</span>
+            </div>
+            <div class="flex items-center bc-input-box p-1">
+              <input type="number" id="autoCashOut" value="2.00" min="1.01" step="0.1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-3">
+              <span class="px-3 text-gray-400 font-bold text-xs">×</span>
+            </div>
           </div>
-          <div class="flex items-center bc-input-box p-1">
-            <input type="number" id="autoCashOut" value="2.00" min="1.01" step="0.1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-3">
-            <span class="px-3 text-gray-400 font-bold text-xs">×</span>
+
+          <!-- Action Button -->
+          <button id="btnAction" onclick="handleMainAction()" class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
+            <span>Bet (Next Round)</span>
+          </button>
+
+          <!-- Demo Mode Info -->
+          <div class="text-center text-[11px] text-gray-400">
+            ℹ Betting with 0 will enter demo mode.
           </div>
-        </div>
 
-        <!-- Action Button -->
-        <button id="btnAction" onclick="handleMainAction()" class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
-          <span>Bet (Next Round)</span>
-        </button>
-
-        <!-- Demo Mode Info -->
-        <div class="text-center text-[11px] text-gray-400">
-          ℹ Betting with 0 will enter demo mode.
         </div>
 
       </div>
