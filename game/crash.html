@@ -663,14 +663,15 @@
       btn.innerText = activeBetAmount > 0 ? `Cashed Out (৳ ${winAmount.toFixed(2)})` : `Demo Win (${mult.toFixed(2)}x)`;
 
       if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
-        await supabaseClient.from('bets').insert([{
+        const { error } = await supabaseClient.from('bets').insert({
           user_id: currentUserId,
-          target_number: 0,
+          target_number: parseFloat(document.getElementById('autoCashOut').value) || 0,
           roll_result: mult,
           bet_amount: activeBetAmount,
           payout: winAmount,
           is_bool: true
-        }]);
+        });
+        if (error) console.error("Supabase Cashout Insert Error:", error);
 
         await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
       }
@@ -701,14 +702,15 @@
 
       if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
         if (currentUserId && typeof supabaseClient !== 'undefined') {
-          await supabaseClient.from('bets').insert([{
+          const { error } = await supabaseClient.from('bets').insert({
             user_id: currentUserId,
-            target_number: 0,
+            target_number: parseFloat(document.getElementById('autoCashOut').value) || 0,
             roll_result: crashPoint,
             bet_amount: activeBetAmount,
             payout: 0,
             is_bool: false
-          }]);
+          });
+          if (error) console.error("Supabase Crash Insert Error:", error);
         }
       }
 
