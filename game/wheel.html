@@ -17,13 +17,13 @@
 
     html {
       min-height: 100%;
-      background: #080B10;
+      background: #0f141c;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
-      background: #080B10;
+      background: #0f141c;
       color: #ffffff;
       font-family: sans-serif;
       overflow-x: hidden;
@@ -31,24 +31,37 @@
       padding-bottom: calc(100px + env(safe-area-inset-bottom));
     }
 
-    .glass-card {
-      background: rgba(245, 207, 102, 0.06);
-      border: 1px solid rgba(245, 207, 102, 0.25);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 18px;
-      box-shadow: 0 0 18px rgba(255, 184, 0, 0.08);
+    /* BC Game Card Style */
+    .bc-main-wrapper {
+      background: #171d28;
+      border: 1px solid #222b3a;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
     }
 
-    .gold-button {
-      background: linear-gradient(135deg, #FFDF85, #F5CF66, #D9A441);
-      color: #080B10;
-      border: 1px solid #FFDF85;
-      box-shadow: 0 0 14px rgba(255, 184, 0, 0.25);
+    .bc-divider {
+      height: 1px;
+      background-color: #222b3a;
+      width: 100%;
     }
 
-    .gold-button:hover {
-      opacity: 0.9;
+    .bc-input-box {
+      background: #0f141c;
+      border: 1px solid #222b3a;
+      border-radius: 10px;
+    }
+    .bc-input-box:focus-within {
+      border-color: #24ee89;
+    }
+
+    .green-btn {
+      background: #24ee89;
+      color: #0f141c;
+      font-weight: 800;
+    }
+    .green-btn:hover {
+      background: #1ed67a;
     }
 
     #topBarContainer {
@@ -114,17 +127,17 @@
     }
 
     ::-webkit-scrollbar {
-      height: 6px;
-      width: 6px;
+      height: 4px;
+      width: 4px;
     }
 
     ::-webkit-scrollbar-track {
-      background: #080B10;
+      background: #0f141c;
     }
 
     ::-webkit-scrollbar-thumb {
-      background: rgba(245, 207, 102, 0.25);
-      border-radius: 3px;
+      background: #222b3a;
+      border-radius: 2px;
     }
 
     input[type=range] {
@@ -141,168 +154,176 @@
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      height: 22px;
-      width: 22px;
+      height: 18px;
+      width: 18px;
       border-radius: 50%;
-      background: #F5CF66;
+      background: #24ee89;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(245, 207, 102, 0.5);
+      box-shadow: 0 0 8px rgba(36, 238, 137, 0.4);
     }
   </style>
 </head>
 
-<body class="bg-[#080B10] text-white font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none">
+<body class="bg-[#0f141c] text-white font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none">
 
   <!-- Top Bar Container -->
   <div id="topBarContainer" class="w-full max-w-2xl"></div>
 
-  <!-- Main Game Card -->
-  <div class="w-full max-w-2xl glass-card flex flex-col justify-between overflow-x-hidden shadow-2xl my-2">
+  <!-- Main Game Card Wrapper -->
+  <div class="w-full max-w-2xl flex flex-col justify-between overflow-x-hidden my-2 px-2 sm:px-4">
 
-    <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#080B10] flex-1">
+    <main class="flex flex-col gap-3 flex-1">
 
-      <!-- Wheel Canvas Area -->
-      <div class="relative flex flex-col items-center justify-center my-3">
+      <div class="bc-main-wrapper flex flex-col shadow-xl p-4 gap-4">
 
-        <!-- Wheel Pointer -->
-        <div class="absolute -top-3 z-20 text-[#ed4245] text-2xl filter drop-shadow">
-          <i class="fa-solid fa-location-pin"></i>
-        </div>
+        <!-- Wheel Canvas Area -->
+        <div class="relative flex flex-col items-center justify-center my-2">
 
-        <!-- Wheel -->
-        <div class="relative w-72 h-72 sm:w-80 sm:h-80 rounded-full border-4 border-[rgba(245,207,102,0.25)] p-1 bg-[#151a23] shadow-2xl flex items-center justify-center">
-
-          <canvas id="wheelCanvas" width="340" height="340" class="w-full h-full rounded-full"></canvas>
-
-          <!-- Center Result -->
-          <div class="absolute w-20 h-20 rounded-full bg-[#080B10] border-2 border-[rgba(245,207,102,0.3)] flex flex-col items-center justify-center shadow-inner">
-            <span class="text-[10px] text-gray-400 font-medium">Result</span>
-            <span class="text-sm font-black text-[#F5CF66]" id="centerMultiplierText">0×</span>
+          <!-- Wheel Pointer -->
+          <div class="absolute -top-3 z-20 text-[#ed4245] text-2xl filter drop-shadow">
+            <i class="fa-solid fa-location-pin"></i>
           </div>
 
+          <!-- Wheel -->
+          <div class="relative w-72 h-72 sm:w-80 sm:h-80 rounded-full border-4 border-[#222b3a] p-1 bg-[#171d28] shadow-2xl flex items-center justify-center">
+
+            <canvas id="wheelCanvas" width="340" height="340" class="w-full h-full rounded-full"></canvas>
+
+            <!-- Center Result -->
+            <div class="absolute w-20 h-20 rounded-full bg-[#0f141c] border-2 border-[#222b3a] flex flex-col items-center justify-center shadow-inner">
+              <span class="text-[10px] text-gray-400 font-medium">Result</span>
+              <span class="text-sm font-black text-[#24ee89]" id="centerMultiplierText">0×</span>
+            </div>
+
+          </div>
         </div>
-      </div>
 
-      <!-- Single Container for Payout Cards -->
-      <div class="glass-card p-2.5 rounded-xl flex items-center justify-between gap-2 overflow-x-auto">
-        <div id="payoutCardsBar" class="flex items-center justify-between w-full gap-2"></div>
-      </div>
+        <div class="bc-divider"></div>
 
-      <!-- Bet Controls -->
-      <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-3.5">
+        <!-- Single Container for Payout Cards -->
+        <div class="bc-input-box p-2.5 rounded-xl flex items-center justify-between gap-2 overflow-x-auto">
+          <div id="payoutCardsBar" class="flex items-center justify-between w-full gap-2"></div>
+        </div>
 
-        <div class="flex flex-col gap-1">
+        <!-- Bet Controls -->
+        <div class="flex flex-col gap-3.5">
 
-          <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
-            <span>Amount (৳)</span>
-            <span class="text-[#F5CF66] text-[10px]">Min: 1 ৳</span>
+          <div class="flex flex-col gap-1">
+
+            <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+              <span>Amount (৳)</span>
+              <span class="text-gray-400 text-[10px]">Min: 1 ৳</span>
+            </div>
+
+            <div class="flex items-center bc-input-box p-1">
+
+              <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
+
+              <input
+                type="number"
+                id="betAmount"
+                value="1"
+                min="0"
+                step="1"
+                class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1"
+              >
+
+              <div class="flex items-center gap-1">
+                <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
+
+                <button onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
+
+                <button onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-[#F5CF66] transition">Max</button>
+              </div>
+
+            </div>
+
+            <span class="text-[11px] text-gray-400 mt-1 text-center">
+              ℹ Betting with 0 will enter demo mode.
+            </span>
+
           </div>
 
-          <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl p-1 focus-within:border-[#F5CF66]">
+          <button
+            id="btnBet"
+            onclick="triggerBet()"
+            class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2"
+          >
+            <span>Bet</span>
+          </button>
 
-            <div class="flex items-center px-2 text-[#F5CF66] font-bold text-sm">৳</div>
+        </div>
 
-            <input
-              type="number"
-              id="betAmount"
-              value="0"
-              min="0"
-              step="1"
-              class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1"
-            >
+        <div class="bc-divider"></div>
 
-            <div class="flex items-center gap-1">
-              <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">1/2</button>
+        <!-- Settings & Configuration Section -->
+        <div class="flex flex-col gap-3">
 
-              <button onclick="modifyBet('double')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">2x</button>
+          <!-- Segments Slider -->
+          <div class="flex flex-col gap-1.5">
 
-              <button onclick="modifyBet('max')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-[#F5CF66] transition">Max</button>
+            <div class="flex justify-between items-center text-xs text-gray-400 font-semibold">
+              <span>Segments</span>
+              <span id="segmentsVal" class="text-white font-bold">10</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-400">10</span>
+
+              <input
+                type="range"
+                id="segmentsRange"
+                min="10"
+                max="50"
+                step="5"
+                value="10"
+                oninput="updateSegments(this.value)"
+                class="w-full accent-[#24ee89] cursor-pointer"
+              >
+
+              <span class="text-xs text-gray-400">50</span>
             </div>
 
           </div>
 
-          <span class="text-[11px] text-gray-400 mt-0.5">
-            ℹ Betting with 0 will enter demo mode.
-          </span>
+          <!-- Risk Level Selectors -->
+          <div class="flex flex-col gap-1.5 pt-1">
 
-        </div>
+            <span class="text-xs text-gray-400 font-semibold">Risk Level</span>
 
-        <button
-          id="btnBet"
-          onclick="triggerBet()"
-          class="w-full py-3.5 gold-button font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2"
-        >
-          <span>Bet</span>
-        </button>
+            <div class="grid grid-cols-3 gap-2 bg-[#0f141c] p-1 rounded-xl border border-[#222b3a]">
 
-      </div>
+              <button
+                onclick="setRiskLevel('low')"
+                id="btnRiskLow"
+                class="py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white"
+              >
+                Low
+              </button>
 
-      <!-- Settings & Configuration Card -->
-      <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-3">
+              <button
+                onclick="setRiskLevel('medium')"
+                id="btnRiskMedium"
+                class="py-2 rounded-lg text-xs font-bold transition bg-[#222b3a] text-white shadow"
+              >
+                Medium
+              </button>
 
-        <!-- Segments Slider -->
-        <div class="flex flex-col gap-1.5">
+              <button
+                onclick="setRiskLevel('high')"
+                id="btnRiskHigh"
+                class="py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white"
+              >
+                High
+              </button>
 
-          <div class="flex justify-between items-center text-xs text-gray-400 font-semibold">
-            <span>Segments</span>
-            <span id="segmentsVal" class="text-[#F5CF66] font-bold">10</span>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <span class="text-xs text-gray-400">10</span>
-
-            <input
-              type="range"
-              id="segmentsRange"
-              min="10"
-              max="50"
-              step="5"
-              value="10"
-              oninput="updateSegments(this.value)"
-              class="w-full accent-[#F5CF66] cursor-pointer"
-            >
-
-            <span class="text-xs text-gray-400">50</span>
-          </div>
-
-        </div>
-
-        <!-- Risk Level Selectors -->
-        <div class="flex flex-col gap-1.5 pt-1">
-
-          <span class="text-xs text-gray-400 font-semibold">Risk Level</span>
-
-          <div class="grid grid-cols-3 gap-2 bg-[#080B10] p-1 rounded-xl border border-[rgba(245,207,102,0.25)]">
-
-            <button
-              onclick="setRiskLevel('low')"
-              id="btnRiskLow"
-              class="py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white"
-            >
-              Low
-            </button>
-
-            <button
-              onclick="setRiskLevel('medium')"
-              id="btnRiskMedium"
-              class="py-2 rounded-lg text-xs font-bold transition gold-button shadow"
-            >
-              Medium
-            </button>
-
-            <button
-              onclick="setRiskLevel('high')"
-              id="btnRiskHigh"
-              class="py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white"
-            >
-              High
-            </button>
+            </div>
 
           </div>
 
-        </div>
+          <div id="gameToolsContainer"></div>
 
-        <div id="gameToolsContainer"></div>
+        </div>
 
       </div>
 
@@ -488,11 +509,11 @@
     }
 
     function updateBalanceUI() {
-      const topBal = document.getElementById('userBalance');
-
-      if (topBal) {
-        topBal.innerText = `৳ ${balance.toFixed(2)}`;
-      }
+      const topBal1 = document.getElementById('topBarBalance');
+      const topBal2 = document.getElementById('userBalance');
+      
+      if (topBal1) topBal1.innerText = balance.toFixed(2);
+      if (topBal2) topBal2.innerText = `৳ ${balance.toFixed(2)}`;
     }
 
     function modifyBet(type) {
@@ -532,7 +553,7 @@
 
         if (item === level) {
           btn.className =
-            'py-2 rounded-lg text-xs font-bold transition gold-button shadow';
+            'py-2 rounded-lg text-xs font-bold transition bg-[#222b3a] text-white shadow';
         } else {
           btn.className =
             'py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white';
@@ -558,7 +579,7 @@
       for (let i = 0; i < zeroCount; i++) {
         wheelSegments.push({
           multiplier: 0.00,
-          color: '#1a212d'
+          color: '#171d28'
         });
       }
 
@@ -611,7 +632,7 @@
         const subCard = document.createElement('div');
 
         subCard.className =
-          `flex-1 p-1.5 rounded-lg flex flex-col items-center justify-center text-center transition-all ${isHit ? 'border border-white bg-[rgba(245,207,102,0.15)] scale-105' : 'bg-[#080B10]/40 border border-white/5'}`;
+          `flex-1 p-1.5 rounded-lg flex flex-col items-center justify-center text-center transition-all ${isHit ? 'border border-[#24ee89] bg-[#24ee89]/10 scale-105' : 'bg-[#0f141c] border border-[#222b3a]'}`;
 
         subCard.innerHTML = `
           <div
@@ -619,7 +640,7 @@
             style="background-color: ${color};">
           </div>
           <span class="text-[9px] text-gray-400">Payout</span>
-          <span class="text-[11px] font-extrabold text-[#F5CF66]">
+          <span class="text-[11px] font-extrabold text-[#24ee89]">
             ${mult.toFixed(2)}×
           </span>
         `;
@@ -663,7 +684,7 @@
         ctx.fill();
 
         ctx.lineWidth = 1.5;
-        ctx.strokeStyle = '#080B10';
+        ctx.strokeStyle = '#0f141c';
         ctx.stroke();
       });
 
@@ -695,6 +716,7 @@
 
       const btn = document.getElementById('btnBet');
       btn.disabled = true;
+      btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
       btn.innerText = 'Spinning...';
 
       if (betVal > 0) {
@@ -788,6 +810,7 @@
 
       const btn = document.getElementById('btnBet');
       btn.disabled = false;
+      btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
       btn.innerText = 'Bet';
     }
 
