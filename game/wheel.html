@@ -83,49 +83,6 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    #gameToolsContainer {
-      position: static !important;
-      left: auto !important;
-      right: auto !important;
-      top: auto !important;
-      bottom: auto !important;
-      transform: none !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      max-height: none !important;
-      height: auto !important;
-      overflow: visible !important;
-      z-index: auto !important;
-      isolation: auto !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      filter: none !important;
-      pointer-events: auto !important;
-      margin-top: 4px;
-    }
-
-    #gameToolsContainer > * {
-      position: static !important;
-      top: auto !important;
-      bottom: auto !important;
-      left: auto !important;
-      right: auto !important;
-      transform: none !important;
-      max-width: 100% !important;
-      max-height: none !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      filter: none !important;
-      pointer-events: auto !important;
-    }
-
-    #gameToolsContainer button,
-    #gameToolsContainer a,
-    #gameToolsContainer input,
-    #gameToolsContainer select {
-      pointer-events: auto !important;
-    }
-
     ::-webkit-scrollbar {
       height: 4px;
       width: 4px;
@@ -151,6 +108,10 @@
       outline: none;
     }
 
+    input[type=range]::-webkit-scrollbar {
+      display: none;
+    }
+
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
@@ -160,6 +121,31 @@
       background: #24ee89;
       cursor: pointer;
       box-shadow: 0 0 8px rgba(36, 238, 137, 0.4);
+      position: relative;
+      z-index: 2;
+    }
+
+    .slider-track-container {
+      position: relative;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Visible Dags/Ticks for Slider */
+    .slider-ticks {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 6px;
+      margin-top: 4px;
+    }
+
+    .slider-tick {
+      width: 2px;
+      height: 6px;
+      background: #374151;
+      position: relative;
     }
   </style>
 </head>
@@ -205,6 +191,12 @@
           <div id="payoutCardsBar" class="flex items-center justify-between w-full gap-2"></div>
         </div>
 
+        <!-- Manual / Auto Tabs Switcher -->
+        <div class="bg-[#0f141c] p-1 rounded-xl flex justify-around text-sm font-medium text-gray-400 border border-[#222b3a]">
+          <button onclick="switchTab('manual')" id="tabManual" class="py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition">Manual</button>
+          <button onclick="switchTab('auto')" id="tabAuto" class="py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition">Auto</button>
+        </div>
+
         <!-- Bet Controls -->
         <div class="flex flex-col gap-3.5">
 
@@ -244,9 +236,21 @@
 
           </div>
 
+          <!-- Auto Bet Specific Settings (Conditionally Shown) -->
+          <div id="autoBetSettings" class="flex flex-col gap-2.5 hidden">
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+                <span>Number of Bets (Rounds)</span>
+              </div>
+              <div class="flex items-center bc-input-box p-1">
+                <input type="number" id="autoRounds" value="10" min="1" max="1000" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-3">
+              </div>
+            </div>
+          </div>
+
           <button
             id="btnBet"
-            onclick="triggerBet()"
+            onclick="handleMainAction()"
             class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2"
           >
             <span>Bet</span>
@@ -259,7 +263,7 @@
         <!-- Settings & Configuration Section -->
         <div class="flex flex-col gap-3">
 
-          <!-- Segments Slider -->
+          <!-- Segments Slider with Visible Dags -->
           <div class="flex flex-col gap-1.5">
 
             <div class="flex justify-between items-center text-xs text-gray-400 font-semibold">
@@ -267,9 +271,7 @@
               <span id="segmentsVal" class="text-white font-bold">10</span>
             </div>
 
-            <div class="flex items-center gap-3">
-              <span class="text-xs text-gray-400">10</span>
-
+            <div class="slider-track-container">
               <input
                 type="range"
                 id="segmentsRange"
@@ -279,9 +281,23 @@
                 value="10"
                 oninput="updateSegments(this.value)"
                 class="w-full accent-[#24ee89] cursor-pointer"
-              >
+              />
+              <!-- Visible Dags / Ticks -->
+              <div class="slider-ticks">
+                <div class="slider-tick" title="10"></div>
+                <div class="slider-tick" title="20"></div>
+                <div class="slider-tick" title="30"></div>
+                <div class="slider-tick" title="40"></div>
+                <div class="slider-tick" title="50"></div>
+              </div>
+            </div>
 
-              <span class="text-xs text-gray-400">50</span>
+            <div class="flex justify-between items-center text-[11px] text-gray-400 px-0.5">
+              <span>10</span>
+              <span>20</span>
+              <span>30</span>
+              <span>40</span>
+              <span>50</span>
             </div>
 
           </div>
@@ -321,8 +337,6 @@
 
           </div>
 
-          <div id="gameToolsContainer"></div>
-
         </div>
 
       </div>
@@ -340,6 +354,9 @@
     let segmentsCount = 10;
     let riskLevel = 'medium';
     let wheelSegments = [];
+    let activeTab = 'manual';
+    let autoPlayInterval = null;
+    let remainingAutoRounds = 0;
 
     const availableColors = [
       '#24ee89',
@@ -375,83 +392,6 @@
       }
     }
 
-    async function loadGameToolsScript() {
-      if (
-        window.GameTools &&
-        typeof window.GameTools.bindComponentEvents === 'function'
-      ) {
-        window.GameTools.bindComponentEvents();
-        return;
-      }
-
-      if (document.getElementById('gameToolsScript')) {
-        return;
-      }
-
-      return new Promise((resolve) => {
-        const script = document.createElement('script');
-
-        script.id = 'gameToolsScript';
-        script.src = '../js/game-tools.js';
-
-        script.onload = () => {
-          if (
-            window.GameTools &&
-            typeof window.GameTools.bindComponentEvents === 'function'
-          ) {
-            window.GameTools.bindComponentEvents();
-          }
-
-          resolve();
-        };
-
-        script.onerror = () => {
-          resolve();
-        };
-
-        document.body.appendChild(script);
-      });
-    }
-
-    async function loadGameToolsComponent() {
-      const container = document.getElementById('gameToolsContainer');
-
-      if (!container) return;
-
-      try {
-        const response = await fetch('../components/game-tools.html');
-
-        if (!response.ok) {
-          throw new Error('Game Tools component load failed');
-        }
-
-        const html = await response.text();
-        const parsedDocument = new DOMParser().parseFromString(html, 'text/html');
-        const template = parsedDocument.querySelector('#gameToolsTemplate');
-
-        if (template) {
-          container.replaceChildren(document.importNode(template.content, true));
-        } else {
-          container.innerHTML = parsedDocument.body.innerHTML;
-        }
-
-        container.style.position = 'static';
-        container.style.transform = 'none';
-        container.style.width = '100%';
-        container.style.maxWidth = '100%';
-        container.style.maxHeight = 'none';
-        container.style.overflow = 'visible';
-        container.style.visibility = 'visible';
-        container.style.opacity = '1';
-        container.style.zIndex = 'auto';
-
-        await loadGameToolsScript();
-
-      } catch (error) {
-        console.error('Game Tools loading error:', error);
-      }
-    }
-
     async function initWheelGame() {
       await loadBars();
 
@@ -468,7 +408,7 @@
           if (user) {
             currentUserId = user.id;
 
-            const { data: profile, error } = await supabaseClient
+            const { data: profile } = await supabaseClient
               .from('profiles')
               .select('balance')
               .eq('id', user.id)
@@ -529,6 +469,31 @@
       }
     }
 
+    function switchTab(tab) {
+      if (isSpinning) return;
+      activeTab = tab;
+      const tabManual = document.getElementById('tabManual');
+      const tabAuto = document.getElementById('tabAuto');
+      const autoSettings = document.getElementById('autoBetSettings');
+      const btn = document.getElementById('btnBet');
+
+      if (tab === 'manual') {
+        tabManual.className = 'py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition';
+        tabAuto.className = 'py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition';
+        autoSettings.classList.add('hidden');
+        btn.innerText = 'Bet';
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+        }
+      } else {
+        tabAuto.className = 'py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition';
+        tabManual.className = 'py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition';
+        autoSettings.classList.remove('hidden');
+        btn.innerText = 'Start Auto Bet';
+      }
+    }
+
     function updateSegments(val) {
       if (isSpinning) return;
 
@@ -567,10 +532,10 @@
     function generateWheelSegments() {
       wheelSegments = [];
 
-      // Segments অনুযায়ী জিতার সম্ভাবনা এবং লজিক (segments যত কম, zeroRatio তত কম অর্থাৎ জিতার সম্ভাবনা বেশি)
-      let segmentFactor = (segmentsCount - 10) / 40; // 0 থেকে 1 এর মধ্যে স্কেল
-      let baseZeroRatio = riskLevel === 'low' ? 0.15 : riskLevel === 'medium' ? 0.30 : 0.45;
-      let zeroRatio = Math.min(0.75, baseZeroRatio + (segmentFactor * 0.25));
+      // Segments যত কম, জিতার সম্ভাবনা তত বেশি (zeroRatio কম), segments যত বেশি, জিতার সম্ভাবনা তত কম (zeroRatio বেশি)
+      let segmentFactor = (segmentsCount - 10) / 40; // 0 থেকে 1
+      let baseZeroRatio = riskLevel === 'low' ? 0.10 : riskLevel === 'medium' ? 0.25 : 0.40;
+      let zeroRatio = Math.min(0.70, baseZeroRatio + (segmentFactor * 0.25));
 
       const zeroCount = Math.floor(segmentsCount * zeroRatio);
 
@@ -686,11 +651,75 @@
       ctx.restore();
     }
 
+    function handleMainAction() {
+      if (activeTab === 'manual') {
+        triggerBet();
+      } else {
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+          isSpinning = false;
+          const btn = document.getElementById('btnBet');
+          btn.disabled = false;
+          btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+          btn.innerText = 'Start Auto Bet';
+          return;
+        }
+
+        remainingAutoRounds = parseInt(document.getElementById('autoRounds').value) || 10;
+        if (remainingAutoRounds <= 0) {
+          alert('অনুগ্রহ করে সঠিক রাউন্ড সংখ্যা দিন!');
+          return;
+        }
+
+        const btn = document.getElementById('btnBet');
+        btn.className = "w-full py-3.5 bg-red-600 text-white font-bold text-sm rounded-xl transition shadow";
+        btn.innerText = `Stop Auto (${remainingAutoRounds})`;
+
+        runAutoSpinSequence();
+      }
+    }
+
+    function runAutoSpinSequence() {
+      if (remainingAutoRounds <= 0 || activeTab !== 'auto') {
+        if (autoPlayInterval) clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+        isSpinning = false;
+        const btn = document.getElementById('btnBet');
+        btn.disabled = false;
+        btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+        btn.innerText = 'Start Auto Bet';
+        return;
+      }
+
+      const betVal = parseFloat(document.getElementById('betAmount').value) || 0;
+      if (betVal > 0 && betVal < 1) {
+        alert('সর্বনিম্ন বেট ১ টাকা হতে হবে!');
+        handleMainAction();
+        return;
+      }
+      if (betVal > balance) {
+        alert('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
+        handleMainAction();
+        return;
+      }
+
+      executeSpin(betVal, () => {
+        remainingAutoRounds--;
+        const btn = document.getElementById('btnBet');
+        if (remainingAutoRounds > 0 && autoPlayInterval) {
+          btn.innerText = `Stop Auto (${remainingAutoRounds})`;
+          autoPlayInterval = setTimeout(runAutoSpinSequence, 600);
+        } else {
+          handleMainAction();
+        }
+      });
+    }
+
     async function triggerBet() {
       if (isSpinning) return;
 
-      const betVal =
-        parseFloat(document.getElementById('betAmount').value) || 0;
+      const betVal = parseFloat(document.getElementById('betAmount').value) || 0;
 
       if (betVal < 0) {
         alert('বেটের পরিমাণ ০ বা তার বেশি হতে হবে!');
@@ -707,22 +736,28 @@
         return;
       }
 
-      isSpinning = true;
-
       const btn = document.getElementById('btnBet');
       btn.disabled = true;
       btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
       btn.innerText = 'Spinning...';
+
+      executeSpin(betVal, () => {
+        isSpinning = false;
+        btn.disabled = false;
+        btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+        btn.innerText = 'Bet';
+      });
+    }
+
+    function executeSpin(betVal, callback) {
+      isSpinning = true;
 
       if (betVal > 0) {
         balance -= betVal;
         updateBalanceUI();
       }
 
-      const winningIndex = Math.floor(
-        Math.random() * wheelSegments.length
-      );
-
+      const winningIndex = Math.floor(Math.random() * wheelSegments.length);
       const winningSegment = wheelSegments[winningIndex];
       const count = wheelSegments.length;
       const arcRad = (2 * Math.PI) / count;
@@ -733,7 +768,7 @@
         (Math.PI / 2);
 
       let startTime = null;
-      const duration = 3000;
+      const duration = 2500;
 
       function animateSpin(timestamp) {
         if (!startTime) startTime = timestamp;
@@ -749,14 +784,14 @@
         if (progress < 1) {
           requestAnimationFrame(animateSpin);
         } else {
-          finishSpin(winningSegment, betVal);
+          finishSpin(winningSegment, betVal, callback);
         }
       }
 
       requestAnimationFrame(animateSpin);
     }
 
-    async function finishSpin(winningSegment, betVal) {
+    async function finishSpin(winningSegment, betVal, callback) {
       const multiplier = winningSegment.multiplier;
       const winAmount = betVal > 0 ? betVal * multiplier : 0;
       const isWin = multiplier > 0;
@@ -801,17 +836,13 @@
         }
       }
 
-      isSpinning = false;
-
-      const btn = document.getElementById('btnBet');
-      btn.disabled = false;
-      btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
-      btn.innerText = 'Bet';
+      if (typeof callback === 'function') {
+        callback();
+      }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
       initWheelGame();
-      loadGameToolsComponent();
     });
   </script>
 
