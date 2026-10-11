@@ -65,7 +65,7 @@
 
     /* Smooth Color Shift Animation for Timer */
     @keyframes colorShift {
-      0% { color: #ed4245; }   /* Red */
+      0% { color: #ef4444; }   /* Red */
       33% { color: #3b82f6; }  /* Blue */
       66% { color: #ec4899; }  /* Pink */
       100% { color: #24ee89; } /* Green */
@@ -104,7 +104,7 @@
         <!-- Crash Game Screen Area (Top Section inside wrapper) -->
         <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-10">
           
-          <!-- Previous Multiplier History Bar (Properly spaced below top border, so plane won't overlap) -->
+          <!-- Previous Multiplier History Bar -->
           <div id="historyBar" class="absolute top-2.5 left-3 right-3 flex items-center gap-1.5 overflow-x-auto z-30 pb-1 no-scrollbar">
             <!-- Dynamically populated history badges -->
           </div>
@@ -144,7 +144,7 @@
               <div class="flex items-center gap-1">
                 <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
                 <button onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
-                <button onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">Max</button>
+                <button onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-[#F5CF66] transition">Max</button>
               </div>
             </div>
           </div>
@@ -197,18 +197,18 @@
     let sparkles = [];
     let previousResults = JSON.parse(localStorage.getItem('bc_crash_history')) || [1.45, 2.10, 1.05, 5.30, 1.12];
 
-    // 10 Distinct Color Tiers based on Multiplier Range
+    // 10 Distinct Color Tiers with Hex Codes for Multipliers & Opaque Trail Lines
     function getMultiplierStyle(val) {
-      if (val <= 1.50)  return { textColor: 'text-red-500', bgClass: 'bg-red-500/10 border-red-500/30' };     // Tier 1: Dark Red
-      if (val <= 2.00)  return { textColor: 'text-rose-400', bgClass: 'bg-rose-400/10 border-rose-400/30' };   // Tier 2: Medium Red
-      if (val <= 3.00)  return { textColor: 'text-orange-400', bgClass: 'bg-orange-400/10 border-orange-400/30' }; // Tier 3: Orange
-      if (val <= 4.00)  return { textColor: 'text-amber-400', bgClass: 'bg-amber-400/10 border-amber-400/30' };   // Tier 4: Amber/Yellow-Gold
-      if (val <= 5.00)  return { textColor: 'text-yellow-300', bgClass: 'bg-yellow-300/10 border-yellow-300/30' }; // Tier 5: Yellow
-      if (val <= 7.00)  return { textColor: 'text-emerald-400', bgClass: 'bg-emerald-400/10 border-emerald-400/30' }; // Tier 6: Emerald Green
-      if (val <= 10.00) return { textColor: 'text-[#24ee89]', bgClass: 'bg-[#24ee89]/10 border-[#24ee89]/30' }; // Tier 7: Bright Green
-      if (val <= 20.00) return { textColor: 'text-cyan-400', bgClass: 'bg-cyan-400/10 border-cyan-400/30' };   // Tier 8: Cyan/Light Blue
-      if (val <= 50.00) return { textColor: 'text-blue-500', bgClass: 'bg-blue-500/10 border-blue-500/30' };   // Tier 9: Deep Blue
-      return            { textColor: 'text-purple-400', bgClass: 'bg-purple-400/10 border-purple-400/30' }; // Tier 10: Purple/Neon
+      if (val <= 1.50)  return { textColor: 'text-red-500', hex: '#ef4444', bgClass: 'bg-red-500/10 border-red-500/30' };     // Tier 1: Dark Red
+      if (val <= 2.00)  return { textColor: 'text-rose-400', hex: '#fb7185', bgClass: 'bg-rose-400/10 border-rose-400/30' };   // Tier 2: Medium Red
+      if (val <= 3.00)  return { textColor: 'text-orange-400', hex: '#fb923c', bgClass: 'bg-orange-400/10 border-orange-400/30' }; // Tier 3: Orange
+      if (val <= 4.00)  return { textColor: 'text-amber-400', hex: '#fbbf24', bgClass: 'bg-amber-400/10 border-amber-400/30' };   // Tier 4: Amber/Yellow-Gold
+      if (val <= 5.00)  return { textColor: 'text-yellow-300', hex: '#fde047', bgClass: 'bg-yellow-300/10 border-yellow-300/30' }; // Tier 5: Yellow
+      if (val <= 7.00)  return { textColor: 'text-emerald-400', hex: '#34d399', bgClass: 'bg-emerald-400/10 border-emerald-400/30' }; // Tier 6: Emerald Green
+      if (val <= 10.00) return { textColor: 'text-[#24ee89]', hex: '#24ee89', bgClass: 'bg-[#24ee89]/10 border-[#24ee89]/30' }; // Tier 7: Bright Green
+      if (val <= 20.00) return { textColor: 'text-cyan-400', hex: '#22d3ee', bgClass: 'bg-cyan-400/10 border-cyan-400/30' };   // Tier 8: Cyan/Light Blue
+      if (val <= 50.00) return { textColor: 'text-blue-500', hex: '#3b82f6', bgClass: 'bg-blue-500/10 border-blue-500/30' };   // Tier 9: Deep Blue
+      return            { textColor: 'text-purple-400', hex: '#c084fc', bgClass: 'bg-purple-400/10 border-purple-400/30' }; // Tier 10: Purple/Neon
     }
 
     async function loadBars() {
@@ -408,8 +408,7 @@
       const btn = document.getElementById('btnAction');
 
       multText.classList.remove('hidden');
-      multText.className = "text-4xl sm:text-5xl font-black tracking-wider text-white";
-      subText.className = "text-xs text-gray-400 font-semibold mt-1 hidden"; // Removed Rocket launching text
+      subText.className = "text-xs text-gray-400 font-semibold mt-1 hidden";
 
       if (isPlayingNext) {
         btn.className = "w-full py-3.5 bg-[#24ee89] text-[#0f141c] font-black text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
@@ -430,6 +429,9 @@
         let elapsedTime = (Date.now() - startTime) / 1000;
         currentMultiplier = parseFloat((Math.exp(0.08 * elapsedTime)).toFixed(2));
 
+        // Update Multiplier Text Color dynamically matching the 10-tier color scale
+        let currentStyle = getMultiplierStyle(currentMultiplier);
+        multText.className = `text-4xl sm:text-5xl font-black tracking-wider ${currentStyle.textColor}`;
         multText.innerText = currentMultiplier.toFixed(2) + 'x';
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -440,21 +442,24 @@
         let currentX = startX + (canvas.width - 70) * progress;
         let currentY = startY - (canvas.height - 50) * Math.pow(progress, 1.3);
 
-        // Draw Trail Line (Clamped below history bar)
+        // 100% Opaque & Clear Trail Line with Dynamic Color matching Multiplier tier
         ctx.beginPath();
         ctx.moveTo(startX, startY);
         ctx.quadraticCurveTo(startX + (currentX - startX) * 0.4, startY - 10, currentX, currentY);
-        ctx.strokeStyle = '#ed4245';
-        ctx.lineWidth = 3.5;
+        ctx.strokeStyle = currentStyle.hex;
+        ctx.lineWidth = 4.5;
+        ctx.shadowColor = currentStyle.hex;
+        ctx.shadowBlur = 8;
         ctx.stroke();
+        ctx.shadowBlur = 0; // Reset shadow
 
-        // Sparkles
+        // Sparkles (100% Opaque & Clear)
         sparkles.push({
           x: currentX - 10 - (Math.random() * 12),
           y: currentY + (Math.random() * 8),
           vx: -1.5 - Math.random() * 1.5,
           vy: 1.5 + Math.random() * 2,
-          size: Math.random() * 2 + 1,
+          size: Math.random() * 2 + 1.5,
           alpha: 1.0
         });
 
@@ -462,33 +467,33 @@
           let s = sparkles[i];
           s.x += s.vx;
           s.y += s.vy;
-          s.alpha -= 0.04;
+          s.alpha -= 0.05;
 
           if (s.alpha <= 0) {
             sparkles.splice(i, 1);
             continue;
           }
 
-          ctx.fillStyle = `rgba(255, 230, 120, ${s.alpha})`;
+          ctx.fillStyle = currentStyle.hex;
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        // Airplane
+        // 100% Opaque & Clear Airplane (Vector)
         ctx.save();
         ctx.translate(currentX, currentY);
         ctx.rotate(-Math.PI / 5);
 
         ctx.fillStyle = '#ffffff';
-        ctx.strokeStyle = '#24ee89';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = currentStyle.hex;
+        ctx.lineWidth = 2;
 
         ctx.beginPath();
-        ctx.moveTo(14, 0);
-        ctx.lineTo(-12, -6);
-        ctx.lineTo(-8, 0);
-        ctx.lineTo(-12, 6);
+        ctx.moveTo(16, 0);
+        ctx.lineTo(-14, -7);
+        ctx.lineTo(-9, 0);
+        ctx.lineTo(-14, 7);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
