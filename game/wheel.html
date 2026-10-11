@@ -386,12 +386,12 @@
     let riskLevel = 'medium';
     let wheelSegments = [];
     let activeTab = 'manual';
-    let autoPlayInterval = null;
+    let isAutoRunning = false;
     let remainingAutoRounds = 0;
     let initialAutoBetAmount = 1;
 
-    let winAction = 'reset'; // 'reset' or 'increase'
-    let lossAction = 'reset'; // 'reset' or 'increase'
+    let winAction = 'reset';
+    let lossAction = 'reset';
 
     const availableColors = [
       '#24ee89',
@@ -531,7 +531,7 @@
     }
 
     function switchTab(tab) {
-      if (isSpinning) return;
+      if (isAutoRunning || isSpinning) return;
       activeTab = tab;
       const tabManual = document.getElementById('tabManual');
       const tabAuto = document.getElementById('tabAuto');
@@ -542,15 +542,13 @@
         tabManual.className = 'py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition';
         tabAuto.className = 'py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition';
         autoSettings.classList.add('hidden');
+        btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
         btn.innerText = 'Bet';
-        if (autoPlayInterval) {
-          clearTimeout(autoPlayInterval);
-          autoPlayInterval = null;
-        }
       } else {
         tabAuto.className = 'py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition';
         tabManual.className = 'py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition';
         autoSettings.classList.remove('hidden');
+        btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
         btn.innerText = 'Start Auto Bet';
       }
     }
@@ -593,14 +591,12 @@
     function generateWheelSegments() {
       wheelSegments = [];
 
-      // High Risk & 50 Segments rule: exactly one multiplier at 50x, others 0.00x
       if (riskLevel === 'high' && segmentsCount === 50) {
         for (let i = 0; i < 49; i++) {
           wheelSegments.push({ multiplier: 0.00, color: '#171d28' });
         }
         wheelSegments.push({ multiplier: 50.00, color: '#24ee89' });
       }
-      // Medium Risk & 50 Segments rule: exactly two multipliers with max 25x, others 0.00x
       else if (riskLevel === 'medium' && segmentsCount === 50) {
         for (let i = 0; i < 48; i++) {
           wheelSegments.push({ multiplier: 0.00, color: '#171d28' });
@@ -731,14 +727,8 @@
       if (activeTab === 'manual') {
         triggerBet();
       } else {
-        if (autoPlayInterval) {
-          clearTimeout(autoPlayInterval);
-          autoPlayInterval = null;
-          isSpinning = false;
-          const btn = document.getElementById('btnBet');
-          btn.disabled = false;
-          btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
-          btn.innerText = 'Start Auto Bet';
+        if (isAutoRunning) {
+          stopAutoBet();
           return;
         }
 
@@ -749,42 +739,53 @@
         }
 
         initialAutoBetAmount = parseFloat(document.getElementById('betAmount').value) || 1;
+        isAutoRunning = true;
 
         const btn = document.getElementById('btnBet');
         btn.className = "w-full py-3.5 bg-red-600 text-white font-bold text-sm rounded-xl transition shadow";
         btn.innerText = `Stop Auto (${remainingAutoRounds})`;
 
-        runAutoSpinSequence();
+        runNextAutoRound();
       }
     }
 
-    function runAutoSpinSequence() {
-      if (remainingAutoRounds <= 0 || activeTab !== 'auto') {
-        if (autoPlayInterval) clearTimeout(autoPlayInterval);
-        autoPlayInterval = null;
-        isSpinning = false;
-        const btn = document.getElementById('btnBet');
-        btn.disabled = false;
-        btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
-        btn.innerText = 'Start Auto Bet';
+    function stopAutoBet() {
+      isAutoRunning = false;
+      isSpinning = false;
+      const btn = document.getElementById('btnBet');
+      btn.disabled = false;
+      btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+      btn.innerText = 'Start Auto Bet';
+    }
+
+    function runNextAutoRound() {
+      if (!isAutoRunning || remainingAutoRounds <= 0 || activeTab !== 'auto') {
+        stopAutoBet();
         return;
       }
 
       const betVal = parseFloat(document.getElementById('betAmount').value) || 0;
       if (betVal > 0 && betVal < 1) {
         alert('সর্বনিম্ন বেট ১ টাকা হতে হবে!');
-        handleMainAction();
+        stopAutoBet();
         return;
       }
       if (betVal > balance) {
         alert('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
-        handleMainAction();
+        stopAutoBet();
         return;
       }
 
+      const btn = document.getElementById('btnBet');
+      btn.innerText = `Stop Auto (${remainingAutoRounds})`;
+
       executeSpin(betVal, (isWin) => {
         remainingAutoRounds--;
-        const btn = document.getElementById('btnBet');
+
+        if (remainingAutoRounds <= 0 || !isAutoRunning) {
+          stopAutoBet();
+          return;
+        }
 
         // Apply Advanced Options logic
         let currentBet = parseFloat(document.getElementById('betAmount').value) || 1;
@@ -806,12 +807,7 @@
           }
         }
 
-        if (remainingAutoRounds > 0 && autoPlayInterval) {
-          btn.innerText = `Stop Auto (${remainingAutoRounds})`;
-          autoPlayInterval = setTimeout(runAutoSpinSequence, 600);
-        } else {
-          handleMainAction();
-        }
+        setTimeout(runNextAutoRound, 500);
       });
     }
 
