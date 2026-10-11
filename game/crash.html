@@ -197,6 +197,20 @@
     let sparkles = [];
     let previousResults = JSON.parse(localStorage.getItem('bc_crash_history')) || [1.45, 2.10, 1.05, 5.30, 1.12];
 
+    // 10 Distinct Color Tiers based on Multiplier Range
+    function getMultiplierStyle(val) {
+      if (val <= 1.50)  return { textColor: 'text-red-500', bgClass: 'bg-red-500/10 border-red-500/30' };     // Tier 1: Dark Red
+      if (val <= 2.00)  return { textColor: 'text-rose-400', bgClass: 'bg-rose-400/10 border-rose-400/30' };   // Tier 2: Medium Red
+      if (val <= 3.00)  return { textColor: 'text-orange-400', bgClass: 'bg-orange-400/10 border-orange-400/30' }; // Tier 3: Orange
+      if (val <= 4.00)  return { textColor: 'text-amber-400', bgClass: 'bg-amber-400/10 border-amber-400/30' };   // Tier 4: Amber/Yellow-Gold
+      if (val <= 5.00)  return { textColor: 'text-yellow-300', bgClass: 'bg-yellow-300/10 border-yellow-300/30' }; // Tier 5: Yellow
+      if (val <= 7.00)  return { textColor: 'text-emerald-400', bgClass: 'bg-emerald-400/10 border-emerald-400/30' }; // Tier 6: Emerald Green
+      if (val <= 10.00) return { textColor: 'text-[#24ee89]', bgClass: 'bg-[#24ee89]/10 border-[#24ee89]/30' }; // Tier 7: Bright Green
+      if (val <= 20.00) return { textColor: 'text-cyan-400', bgClass: 'bg-cyan-400/10 border-cyan-400/30' };   // Tier 8: Cyan/Light Blue
+      if (val <= 50.00) return { textColor: 'text-blue-500', bgClass: 'bg-blue-500/10 border-blue-500/30' };   // Tier 9: Deep Blue
+      return            { textColor: 'text-purple-400', bgClass: 'bg-purple-400/10 border-purple-400/30' }; // Tier 10: Purple/Neon
+    }
+
     async function loadBars() {
       try {
         const topRes = await fetch('../bar/top.html');
@@ -241,7 +255,6 @@
         }
       }
 
-      // Sync Global Round Time using localStorage timestamp for smooth persistence across page reloads/switches
       let globalRoundStart = localStorage.getItem('bc_round_start_time');
       let now = Date.now();
       if (!globalRoundStart) {
@@ -250,7 +263,7 @@
       }
 
       let elapsedSec = (now - parseInt(globalRoundStart)) / 1000;
-      let cycleTime = elapsedSec % 15; // 10s waiting + ~5s running approx cycle
+      let cycleTime = elapsedSec % 15;
 
       if (cycleTime < 10) {
         countdownTime = 10 - cycleTime;
@@ -275,8 +288,8 @@
 
       previousResults.slice(-30).reverse().forEach(res => {
         let badge = document.createElement('span');
-        let colorClass = res >= 2.0 ? 'text-[#24ee89] bg-[#24ee89]/10 border-[#24ee89]/30' : 'text-gray-300 bg-gray-800 border-gray-700';
-        badge.className = `px-2 py-0.5 rounded-md text-[11px] font-bold border ${colorClass} whitespace-nowrap`;
+        let styleInfo = getMultiplierStyle(res);
+        badge.className = `px-2 py-0.5 rounded-md text-[11px] font-bold border ${styleInfo.textColor} ${styleInfo.bgClass} whitespace-nowrap`;
         badge.innerText = res.toFixed(2) + 'x';
         historyContainer.appendChild(badge);
       });
@@ -396,8 +409,7 @@
 
       multText.classList.remove('hidden');
       multText.className = "text-4xl sm:text-5xl font-black tracking-wider text-white";
-      subText.className = "text-xs text-gray-400 font-semibold mt-1";
-      subText.innerText = "Rocket launching...";
+      subText.className = "text-xs text-gray-400 font-semibold mt-1 hidden"; // Removed Rocket launching text
 
       if (isPlayingNext) {
         btn.className = "w-full py-3.5 bg-[#24ee89] text-[#0f141c] font-black text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
@@ -533,8 +545,10 @@
       const subText = document.getElementById('subStatusText');
       const btn = document.getElementById('btnAction');
 
-      multText.className = "text-4xl sm:text-5xl font-black tracking-wider text-red-500";
+      let crashStyle = getMultiplierStyle(crashPoint);
+      multText.className = `text-4xl sm:text-5xl font-black tracking-wider ${crashStyle.textColor}`;
       multText.innerText = crashPoint.toFixed(2) + 'x';
+      subText.className = "text-xs text-gray-400 font-semibold mt-1";
       subText.innerText = "Crashed!";
 
       previousResults.push(crashPoint);
