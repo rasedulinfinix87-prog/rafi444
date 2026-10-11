@@ -28,7 +28,7 @@
       font-family: sans-serif;
       overflow-x: hidden;
       overflow-y: auto;
-      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+      padding-bottom: calc(140px + env(safe-area-inset-bottom));
     }
 
     /* BC Game Card Style */
@@ -158,7 +158,7 @@
   <!-- Main Game Card Wrapper -->
   <div class="w-full max-w-2xl flex flex-col justify-between overflow-x-hidden my-2 px-2 sm:px-4">
 
-    <main class="flex flex-col gap-3 flex-1">
+    <main class="flex flex-col gap-3 flex-1 pb-10">
 
       <div class="bc-main-wrapper flex flex-col shadow-xl p-4 gap-4">
 
@@ -236,14 +236,59 @@
 
           </div>
 
-          <!-- Auto Bet Specific Settings (Conditionally Shown) -->
-          <div id="autoBetSettings" class="flex flex-col gap-2.5 hidden">
+          <!-- Auto Bet Specific Settings & Advanced Options (Conditionally Shown) -->
+          <div id="autoBetSettings" class="flex flex-col gap-3 hidden">
             <div class="flex flex-col gap-1">
               <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
                 <span>Number of Bets (Rounds)</span>
               </div>
               <div class="flex items-center bc-input-box p-1">
                 <input type="number" id="autoRounds" value="10" min="1" max="1000" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-3">
+              </div>
+            </div>
+
+            <!-- Advanced Options Panel -->
+            <div class="bg-[#0f141c] border border-[#222b3a] rounded-xl p-3 flex flex-col gap-3">
+              <span class="text-xs font-bold text-gray-300">Advanced Options</span>
+
+              <div class="flex flex-col gap-1">
+                <span class="text-[11px] text-gray-400">On win</span>
+                <div class="flex gap-2">
+                  <button type="button" class="flex-1 py-1.5 rounded-lg bg-[#171d28] border border-[#222b3a] text-xs font-bold text-gray-300 hover:text-white">Reset</button>
+                  <button type="button" class="flex-1 py-1.5 rounded-lg bg-[#171d28] border border-[#222b3a] text-xs font-bold text-gray-300 hover:text-white">Increase by</button>
+                  <div class="flex items-center bc-input-box px-2 py-1 w-24">
+                    <input type="number" value="0" class="w-full bg-transparent text-xs font-bold text-white text-right focus:outline-none">
+                    <span class="text-xs text-gray-400 ml-1">%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <span class="text-[11px] text-gray-400">On loss</span>
+                <div class="flex gap-2">
+                  <button type="button" class="flex-1 py-1.5 rounded-lg bg-[#171d28] border border-[#222b3a] text-xs font-bold text-gray-300 hover:text-white">Reset</button>
+                  <button type="button" class="flex-1 py-1.5 rounded-lg bg-[#171d28] border border-[#222b3a] text-xs font-bold text-gray-300 hover:text-white">Increase by</button>
+                  <div class="flex items-center bc-input-box px-2 py-1 w-24">
+                    <input type="number" value="0" class="w-full bg-transparent text-xs font-bold text-white text-right focus:outline-none">
+                    <span class="text-xs text-gray-400 ml-1">%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <span class="text-[11px] text-gray-400">Stop on win</span>
+                <div class="flex items-center bc-input-box px-3 py-1.5">
+                  <span class="text-xs text-gray-400 font-bold mr-1">৳</span>
+                  <input type="number" value="0" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none">
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <span class="text-[11px] text-gray-400">Stop on loss</span>
+                <div class="flex items-center bc-input-box px-3 py-1.5">
+                  <span class="text-xs text-gray-400 font-bold mr-1">৳</span>
+                  <input type="number" value="0" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none">
+                </div>
               </div>
             </div>
           </div>
@@ -532,8 +577,19 @@
     function generateWheelSegments() {
       wheelSegments = [];
 
-      // Segments যত কম, জিতার সম্ভাবনা তত বেশি (zeroRatio কম), segments যত বেশি, জিতার সম্ভাবনা তত কম (zeroRatio বেশি)
-      let segmentFactor = (segmentsCount - 10) / 40; // 0 থেকে 1
+      // যদি segments 50 এবং risk high হয়, তবে শুধুমাত্র একটি কালার এবং 50x মাল্টিপ্লায়ার থাকবে
+      if (segmentsCount === 50 && riskLevel === 'high') {
+        for (let i = 0; i < 50; i++) {
+          wheelSegments.push({
+            multiplier: 50.00,
+            color: '#24ee89'
+          });
+        }
+        renderColorPayoutCards();
+        return;
+      }
+
+      let segmentFactor = (segmentsCount - 10) / 40;
       let baseZeroRatio = riskLevel === 'low' ? 0.10 : riskLevel === 'medium' ? 0.25 : 0.40;
       let zeroRatio = Math.min(0.70, baseZeroRatio + (segmentFactor * 0.25));
 
@@ -582,7 +638,6 @@
         }
       });
 
-      // বাম থেকে ডানে ছোট থেকে বড় মাল্টিপ্লায়ার ক্রমানুসারে সাজানো
       let items = Array.from(colorMap.entries());
       items.sort((a, b) => a[1] - b[1]);
       items = items.slice(0, 5);
