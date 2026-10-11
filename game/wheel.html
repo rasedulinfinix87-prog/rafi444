@@ -70,10 +70,6 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /*
-      Game Tools এখন Segments কার্ডের ভিতরে থাকবে।
-      এটি fixed নয়; পেজ স্ক্রল করলে এটিও স্ক্রল করবে।
-    */
     #gameToolsContainer {
       position: static !important;
       left: auto !important;
@@ -304,9 +300,6 @@
 
         </div>
 
-        <!-- Game Tools Component
-             Now inside the Settings/Segments card,
-             directly below Low / Medium / High. -->
         <div id="gameToolsContainer"></div>
 
       </div>
@@ -336,7 +329,6 @@
       '#a855f7'
     ];
 
-    /* Load top and bottom navigation */
     async function loadBars() {
       const topContainer = document.getElementById('topBarContainer');
       const bottomContainer = document.getElementById('bottomBarContainer');
@@ -349,14 +341,10 @@
 
         if (topRes.ok) {
           topContainer.innerHTML = await topRes.text();
-        } else {
-          console.error('Top bar load failed:', topRes.status);
         }
 
         if (bottomRes.ok) {
           bottomContainer.innerHTML = await bottomRes.text();
-        } else {
-          console.error('Bottom bar load failed:', bottomRes.status);
         }
 
       } catch (error) {
@@ -364,7 +352,6 @@
       }
     }
 
-    /* Load optional Game Tools JavaScript */
     async function loadGameToolsScript() {
       if (
         window.GameTools &&
@@ -396,7 +383,6 @@
         };
 
         script.onerror = () => {
-          console.warn('Optional game-tools.js was not loaded.');
           resolve();
         };
 
@@ -404,7 +390,6 @@
       });
     }
 
-    /* Load Game Tools HTML inside the Segments card */
     async function loadGameToolsComponent() {
       const container = document.getElementById('gameToolsContainer');
 
@@ -414,24 +399,15 @@
         const response = await fetch('../components/game-tools.html');
 
         if (!response.ok) {
-          throw new Error(
-            'Game Tools component load failed: ' + response.status
-          );
+          throw new Error('Game Tools component load failed');
         }
 
         const html = await response.text();
-
-        const parsedDocument = new DOMParser().parseFromString(
-          html,
-          'text/html'
-        );
-
+        const parsedDocument = new DOMParser().parseFromString(html, 'text/html');
         const template = parsedDocument.querySelector('#gameToolsTemplate');
 
         if (template) {
-          container.replaceChildren(
-            document.importNode(template.content, true)
-          );
+          container.replaceChildren(document.importNode(template.content, true));
         } else {
           container.innerHTML = parsedDocument.body.innerHTML;
         }
@@ -448,14 +424,11 @@
 
         await loadGameToolsScript();
 
-        console.log('Game Tools component loaded successfully.');
-
       } catch (error) {
         console.error('Game Tools loading error:', error);
       }
     }
 
-    /* Initialize wheel game */
     async function initWheelGame() {
       await loadBars();
 
@@ -477,10 +450,6 @@
               .select('balance')
               .eq('id', user.id)
               .single();
-
-            if (error) {
-              console.error('Profile balance load error:', error);
-            }
 
             if (profile) {
               balance = parseFloat(profile.balance) || 0;
@@ -516,7 +485,6 @@
       }
     }
 
-    /* Update balance shown in top bar */
     function updateBalanceUI() {
       const topBal = document.getElementById('userBalance');
 
@@ -525,35 +493,29 @@
       }
     }
 
-    /* Bet amount controls */
     function modifyBet(type) {
       const input = document.getElementById('betAmount');
       const current = parseFloat(input.value) || 0;
 
       if (type === 'half') {
         input.value = Math.max(0, Math.floor(current / 2));
-
       } else if (type === 'double') {
         input.value = Math.floor(current * 2);
-
       } else if (type === 'max') {
         input.value = Math.floor(balance);
       }
     }
 
-    /* Update wheel segment count */
     function updateSegments(val) {
       if (isSpinning) return;
 
       segmentsCount = parseInt(val, 10);
-
       document.getElementById('segmentsVal').innerText = segmentsCount;
 
       generateWheelSegments();
       drawWheel(0);
     }
 
-    /* Change risk level */
     function setRiskLevel(level) {
       if (isSpinning) return;
 
@@ -579,7 +541,6 @@
       drawWheel(0);
     }
 
-    /* Generate wheel segments */
     function generateWheelSegments() {
       wheelSegments = [];
 
@@ -629,10 +590,8 @@
       renderColorPayoutCards();
     }
 
-    /* Render payout cards */
     function renderColorPayoutCards(highlightColor = null) {
       const bar = document.getElementById('payoutCardsBar');
-
       bar.innerHTML = '';
 
       const colorMap = new Map();
@@ -657,9 +616,7 @@
             class="w-5 h-5 rounded-full mb-1 border border-white/20 shadow-sm"
             style="background-color: ${color};">
           </div>
-
           <span class="text-[10px] text-gray-400">Payout</span>
-
           <span class="text-xs font-extrabold text-[#F5CF66]">
             ${mult.toFixed(2)}×
           </span>
@@ -669,44 +626,43 @@
       });
     }
 
-    /* Draw wheel on canvas */
+    /* Updated Wheel Drawing Logic for thin outer ring indicator design */
     function drawWheel(rotationAngle) {
       const canvas = document.getElementById('wheelCanvas');
       const ctx = canvas.getContext('2d');
 
       const count = wheelSegments.length;
-
       if (!count) return;
 
       const arc = (2 * Math.PI) / count;
-      const radius = canvas.width / 2;
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      
+      const outerRadius = width / 2 - 4;
+      const innerRadius = width / 2 - 28; // Creates the thin outer ring strip format
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, width, height);
 
       ctx.save();
-      ctx.translate(radius, radius);
+      ctx.translate(centerX, centerY);
       ctx.rotate(rotationAngle);
-      ctx.translate(-radius, -radius);
+      ctx.translate(-centerX, -centerY);
 
       wheelSegments.forEach((segment, i) => {
         const angle = i * arc;
 
         ctx.beginPath();
         ctx.fillStyle = segment.color;
-        ctx.moveTo(radius, radius);
 
-        ctx.arc(
-          radius,
-          radius,
-          radius,
-          angle,
-          angle + arc
-        );
-
-        ctx.lineTo(radius, radius);
+        // Draw ring segment / arc slice
+        ctx.arc(centerX, centerY, outerRadius, angle, angle + arc);
+        ctx.arc(centerX, centerY, innerRadius, angle + arc, angle, true);
+        ctx.closePath();
         ctx.fill();
 
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 1.5;
         ctx.strokeStyle = '#080B10';
         ctx.stroke();
       });
@@ -714,7 +670,6 @@
       ctx.restore();
     }
 
-    /* Place bet and spin the wheel */
     async function triggerBet() {
       if (isSpinning) return;
 
@@ -739,7 +694,6 @@
       isSpinning = true;
 
       const btn = document.getElementById('btnBet');
-
       btn.disabled = true;
       btn.innerText = 'Spinning...';
 
@@ -785,10 +739,8 @@
       requestAnimationFrame(animateSpin);
     }
 
-    /* Finish spin and save bet */
     async function finishSpin(winningSegment, betVal) {
       const multiplier = winningSegment.multiplier;
-
       const winAmount = betVal > 0 ? betVal * multiplier : 0;
       const isWin = multiplier > 0;
 
@@ -835,12 +787,10 @@
       isSpinning = false;
 
       const btn = document.getElementById('btnBet');
-
       btn.disabled = false;
       btn.innerText = 'Bet';
     }
 
-    /* Initialize components */
     window.addEventListener('DOMContentLoaded', () => {
       initWheelGame();
       loadGameToolsComponent();
