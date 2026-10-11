@@ -105,10 +105,10 @@
       </div>
 
       <!-- Plinko Board Canvas Area -->
-      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-2 shadow-xl">
-        <canvas id="plinkoCanvas" width="360" height="220" class="w-full h-auto rounded-xl"></canvas>
+      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-1.5 shadow-xl">
+        <canvas id="plinkoCanvas" width="360" height="210" class="w-full h-auto rounded-xl"></canvas>
         
-        <!-- Multiplier Sinks Bar (Attached closely right below the pins) -->
+        <!-- Multiplier Sinks Bar (Attached tightly right below the pins) -->
         <div id="multiplierSinks" class="grid w-full mt-0 gap-0.5 px-0.5 pb-0.5">
           <!-- Dynamically generated multiplier boxes -->
         </div>
@@ -285,14 +285,14 @@
       const rows = currentRows;
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 12;
+      const startY = 8;
       const totalRows = rows; 
-      const rowHeight = (height - 20) / totalRows;
-      const maxPinsInRow = totalRows + 3;
+      const rowHeight = (height - 12) / totalRows;
+      const maxPinsInRow = totalRows + 5; // Expanded width by 2 lines (left and right)
       const spacingX = width / maxPinsInRow;
 
       for (let r = 0; r < totalRows; r++) {
-        const pinsInRow = r + 3;
+        const pinsInRow = r + 5; // Added 2 extra pins per row (1 left, 1 right)
         const rowWidth = (pinsInRow - 1) * spacingX;
         const startX = (width - rowWidth) / 2;
 
@@ -354,20 +354,20 @@
       const canvas = document.getElementById('plinkoCanvas');
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 12;
+      const startY = 8;
       const totalRows = rows;
-      const rowHeight = (height - 20) / totalRows;
-      const maxPinsInRow = totalRows + 3;
+      const rowHeight = (height - 12) / totalRows;
+      const maxPinsInRow = totalRows + 5;
       const spacingX = width / maxPinsInRow;
 
       let currentPinRow = 0;
-      let currentPinCol = 1; 
+      let currentPinCol = 2; 
       let ballX = width / 2;
-      let ballY = 5;
+      let ballY = 4;
 
       const dropInterval = setInterval(() => {
         if (currentPinRow < totalRows) {
-          const pinsInRow = currentPinRow + 3;
+          const pinsInRow = currentPinRow + 5;
           const rowWidth = (pinsInRow - 1) * spacingX;
           const startX = (width - rowWidth) / 2;
           
