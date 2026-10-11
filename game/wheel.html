@@ -183,124 +183,129 @@
         </div>
       </div>
 
-      <!-- Payout Cards -->
-      <div id="payoutCardsBar" class="grid grid-cols-5 gap-2 my-1"></div>
+      <!-- Single Unified Card Containing Payouts, Bet Controls and Settings -->
+      <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-4">
 
-      <!-- Bet Controls -->
-      <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-3.5">
+        <!-- Payout Cards Bar -->
+        <div id="payoutCardsBar" class="grid grid-cols-5 gap-2"></div>
 
-        <div class="flex flex-col gap-1">
+        <!-- Bet Controls Section -->
+        <div class="flex flex-col gap-3.5 pt-1 border-t border-[rgba(245,207,102,0.15)]">
 
-          <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
-            <span>Amount (৳)</span>
-            <span class="text-[#F5CF66] text-[10px]">Min: 1 ৳</span>
+          <div class="flex flex-col gap-1">
+
+            <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+              <span>Amount (৳)</span>
+              <span class="text-[#F5CF66] text-[10px]">Min: 1 ৳</span>
+            </div>
+
+            <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl p-1 focus-within:border-[#F5CF66]">
+
+              <div class="flex items-center px-2 text-[#F5CF66] font-bold text-sm">৳</div>
+
+              <input
+                type="number"
+                id="betAmount"
+                value="0"
+                min="0"
+                step="1"
+                class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1"
+              >
+
+              <div class="flex items-center gap-1">
+                <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">1/2</button>
+
+                <button onclick="modifyBet('double')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">2x</button>
+
+                <button onclick="modifyBet('max')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-[#F5CF66] transition">Max</button>
+              </div>
+
+            </div>
+
+            <span class="text-[11px] text-gray-400 mt-0.5">
+              ℹ Betting with 0 will enter demo mode.
+            </span>
+
           </div>
 
-          <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl p-1 focus-within:border-[#F5CF66]">
+          <button
+            id="btnBet"
+            onclick="triggerBet()"
+            class="w-full py-3.5 gold-button font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2"
+          >
+            <span>Bet</span>
+          </button>
 
-            <div class="flex items-center px-2 text-[#F5CF66] font-bold text-sm">৳</div>
+        </div>
 
-            <input
-              type="number"
-              id="betAmount"
-              value="0"
-              min="0"
-              step="1"
-              class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1"
-            >
+        <!-- Settings & Configuration Section -->
+        <div class="flex flex-col gap-3 pt-1 border-t border-[rgba(245,207,102,0.15)]">
 
-            <div class="flex items-center gap-1">
-              <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">1/2</button>
+          <!-- Segments Slider -->
+          <div class="flex flex-col gap-1.5">
 
-              <button onclick="modifyBet('double')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">2x</button>
+            <div class="flex justify-between items-center text-xs text-gray-400 font-semibold">
+              <span>Segments</span>
+              <span id="segmentsVal" class="text-[#F5CF66] font-bold">10</span>
+            </div>
 
-              <button onclick="modifyBet('max')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-[#F5CF66] transition">Max</button>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-400">10</span>
+
+              <input
+                type="range"
+                id="segmentsRange"
+                min="10"
+                max="50"
+                step="5"
+                value="10"
+                oninput="updateSegments(this.value)"
+                class="w-full accent-[#F5CF66] cursor-pointer"
+              >
+
+              <span class="text-xs text-gray-400">50</span>
             </div>
 
           </div>
 
-          <span class="text-[11px] text-gray-400 mt-0.5">
-            ℹ Betting with 0 will enter demo mode.
-          </span>
+          <!-- Risk Level Selectors -->
+          <div class="flex flex-col gap-1.5 pt-1">
 
-        </div>
+            <span class="text-xs text-gray-400 font-semibold">Risk Level</span>
 
-        <button
-          id="btnBet"
-          onclick="triggerBet()"
-          class="w-full py-3.5 gold-button font-extrabold text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2"
-        >
-          <span>Bet</span>
-        </button>
+            <div class="grid grid-cols-3 gap-2 bg-[#080B10] p-1 rounded-xl border border-[rgba(245,207,102,0.25)]">
 
-      </div>
+              <button
+                onclick="setRiskLevel('low')"
+                id="btnRiskLow"
+                class="py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white"
+              >
+                Low
+              </button>
 
-      <!-- Settings & Configuration Card -->
-      <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-3">
+              <button
+                onclick="setRiskLevel('medium')"
+                id="btnRiskMedium"
+                class="py-2 rounded-lg text-xs font-bold transition gold-button shadow"
+              >
+                Medium
+              </button>
 
-        <!-- Segments Slider -->
-        <div class="flex flex-col gap-1.5">
+              <button
+                onclick="setRiskLevel('high')"
+                id="btnRiskHigh"
+                class="py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white"
+              >
+                High
+              </button>
 
-          <div class="flex justify-between items-center text-xs text-gray-400 font-semibold">
-            <span>Segments</span>
-            <span id="segmentsVal" class="text-[#F5CF66] font-bold">10</span>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <span class="text-xs text-gray-400">10</span>
-
-            <input
-              type="range"
-              id="segmentsRange"
-              min="10"
-              max="50"
-              step="5"
-              value="10"
-              oninput="updateSegments(this.value)"
-              class="w-full accent-[#F5CF66] cursor-pointer"
-            >
-
-            <span class="text-xs text-gray-400">50</span>
-          </div>
-
-        </div>
-
-        <!-- Risk Level Selectors -->
-        <div class="flex flex-col gap-1.5 pt-1">
-
-          <span class="text-xs text-gray-400 font-semibold">Risk Level</span>
-
-          <div class="grid grid-cols-3 gap-2 bg-[#080B10] p-1 rounded-xl border border-[rgba(245,207,102,0.25)]">
-
-            <button
-              onclick="setRiskLevel('low')"
-              id="btnRiskLow"
-              class="py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white"
-            >
-              Low
-            </button>
-
-            <button
-              onclick="setRiskLevel('medium')"
-              id="btnRiskMedium"
-              class="py-2 rounded-lg text-xs font-bold transition gold-button shadow"
-            >
-              Medium
-            </button>
-
-            <button
-              onclick="setRiskLevel('high')"
-              id="btnRiskHigh"
-              class="py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white"
-            >
-              High
-            </button>
+            </div>
 
           </div>
 
-        </div>
+          <div id="gameToolsContainer"></div>
 
-        <div id="gameToolsContainer"></div>
+        </div>
 
       </div>
 
@@ -626,7 +631,6 @@
       });
     }
 
-    /* Updated Wheel Drawing Logic for thin outer ring indicator design */
     function drawWheel(rotationAngle) {
       const canvas = document.getElementById('wheelCanvas');
       const ctx = canvas.getContext('2d');
@@ -641,7 +645,7 @@
       const centerY = height / 2;
       
       const outerRadius = width / 2 - 4;
-      const innerRadius = width / 2 - 28; // Creates the thin outer ring strip format
+      const innerRadius = width / 2 - 28;
 
       ctx.clearRect(0, 0, width, height);
 
@@ -656,7 +660,6 @@
         ctx.beginPath();
         ctx.fillStyle = segment.color;
 
-        // Draw ring segment / arc slice
         ctx.arc(centerX, centerY, outerRadius, angle, angle + arc);
         ctx.arc(centerX, centerY, innerRadius, angle + arc, angle, true);
         ctx.closePath();
