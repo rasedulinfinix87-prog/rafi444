@@ -92,15 +92,13 @@
       <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl h-56 shadow-xl overflow-hidden">
         
         <!-- Status / Multiplier Display -->
-        <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-10">
+        <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-20">
           <span id="multiplierText" class="text-4xl sm:text-5xl font-black tracking-wider text-white">1.00x</span>
           <span id="subStatusText" class="text-xs text-gray-400 font-semibold mt-1">Starts in 10.0s</span>
         </div>
 
-        <!-- Background Graph Curve Simulation -->
-        <svg class="absolute inset-0 w-full h-full opacity-20 pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100">
-          <path id="graphCurve" d="M0,100 Q50,90 100,50" fill="none" stroke="#24ee89" stroke-width="2"/>
-        </svg>
+        <!-- Canvas for Airplane and Trail Animation -->
+        <canvas id="crashCanvas" class="absolute inset-0 w-full h-full z-10 pointer-events-none"></canvas>
       </div>
 
       <!-- Game Controls Section -->
@@ -190,6 +188,7 @@
     async function initCrashGame() {
       await loadBars();
       startWaitingPhase();
+      drawEmptyCanvas();
 
       if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
         const user = await getCurrentUser();
@@ -247,10 +246,19 @@
       }
     }
 
+    function drawEmptyCanvas() {
+      const canvas = document.getElementById('crashCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
     function startWaitingPhase() {
       gameState = 'waiting';
       countdownTime = 10.0;
       hasCashedOut = false;
+      drawEmptyCanvas();
       
       const multText = document.getElementById('multiplierText');
       const subText = document.getElementById('subStatusText');
@@ -314,7 +322,6 @@
             await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
           }
         } else {
-          // Demo mode with 0 bet
           activeBetAmount = 0;
         }
 
@@ -325,6 +332,11 @@
         btn.innerText = "Running...";
       }
 
+      const canvas = document.getElementById('crashCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+
       let startTime = Date.now();
 
       gameInterval = setInterval(async () => {
@@ -332,6 +344,32 @@
         currentMultiplier = parseFloat((Math.exp(0.08 * elapsedTime)).toFixed(2));
 
         multText.innerText = currentMultiplier.toFixed(2) + 'x';
+
+        // Draw Airplane and Curved Tail Trail Animation
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        let progress = Math.min(1, elapsedTime / 10);
+        let startX = 20;
+        let startY = canvas.height - 20;
+        let currentX = startX + (canvas.width - 60) * progress;
+        let currentY = startY - (canvas.height - 50) * Math.pow(progress, 1.3);
+
+        // Draw Curved Trail Line
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.quadraticCurveTo(startX + (currentX - startX) * 0.4, startY - 10, currentX, currentY);
+        ctx.strokeStyle = '#ed4245';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#ed4245';
+        ctx.shadowBlur = 10;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Draw Airplane Icon (🛩️) at the tip
+        ctx.font = '22px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🛩️', currentX, currentY);
 
         let autoCash = parseFloat(document.getElementById('autoCashOut').value) || 0;
         if (isPlayingNext && !hasCashedOut && autoCash > 1.00 && currentMultiplier >= autoCash) {
@@ -418,7 +456,7 @@
     function handleMainAction() {
       if (gameState === 'waiting') {
         if (activeTab === 'auto') {
-          autoRoundCount = 10; // Default auto rounds
+          autoRoundCount = 10;
         }
         isPlayingNext = !isPlayingNext;
         const btn = document.getElementById('btnAction');
