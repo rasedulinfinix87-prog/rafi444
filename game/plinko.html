@@ -104,12 +104,12 @@
         Game result will be displayed
       </div>
 
-      <!-- Plinko Board Canvas Area -->
-      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-1.5 shadow-xl">
-        <canvas id="plinkoCanvas" width="360" height="210" class="w-full h-auto rounded-xl"></canvas>
+      <!-- Plinko Board Canvas Area with Integrated Multipliers inside the container -->
+      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-2.5 shadow-xl">
+        <canvas id="plinkoCanvas" width="360" height="230" class="w-full h-auto rounded-xl"></canvas>
         
-        <!-- Multiplier Sinks Bar (Attached tightly right below the pins) -->
-        <div id="multiplierSinks" class="grid w-full mt-0 gap-0.5 px-0.5 pb-0.5">
+        <!-- Multiplier Sinks Bar placed tightly inside the bottom of the board container -->
+        <div id="multiplierSinks" class="grid w-full mt-1 gap-1 px-1 pb-1">
           <!-- Dynamically generated multiplier boxes -->
         </div>
       </div>
@@ -271,7 +271,7 @@
         else if (mult >= 5) bgColor = 'bg-orange-500';
         else if (mult < 1) bgColor = 'bg-yellow-500';
 
-        box.className = `${bgColor} text-[#080B10] font-black text-[6px] sm:text-[8.5px] py-1 px-0.2 rounded text-center shadow transition-all truncate ${isHighlight ? 'glass-gold-hit' : ''}`;
+        box.className = `${bgColor} text-[#080B10] font-black text-[6.5px] sm:text-[9px] py-1.5 px-0.5 rounded text-center shadow transition-all truncate ${isHighlight ? 'glass-gold-hit' : ''}`;
         box.innerText = mult + '×';
         container.appendChild(box);
       });
@@ -285,14 +285,16 @@
       const rows = currentRows;
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 8;
-      const totalRows = rows; 
-      const rowHeight = (height - 12) / totalRows;
-      const maxPinsInRow = totalRows + 5; // Expanded width by 2 lines (left and right)
-      const spacingX = width / maxPinsInRow;
-
+      
+      // Proper Pyramid Layout configuration (Apex starting with 1 pin)
+      const startY = 15;
+      const totalRows = rows + 2; // Including apex and structural rows
+      const rowHeight = (height - 25) / totalRows;
+      
       for (let r = 0; r < totalRows; r++) {
-        const pinsInRow = r + 5; // Added 2 extra pins per row (1 left, 1 right)
+        const pinsInRow = r + 1; // 1st row has 1 pin, increasing by 1 each row
+        const maxPinsInBottomRow = totalRows;
+        const spacingX = width / (maxPinsInRow + 2);
         const rowWidth = (pinsInRow - 1) * spacingX;
         const startX = (width - rowWidth) / 2;
 
@@ -301,7 +303,7 @@
           const y = startY + (r * rowHeight);
 
           ctx.beginPath();
-          ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+          ctx.arc(x, y, 2.3, 0, Math.PI * 2);
           ctx.fillStyle = '#ffffff';
           ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
           ctx.shadowBlur = 4;
@@ -312,7 +314,7 @@
 
       if (ballPos) {
         ctx.beginPath();
-        ctx.arc(ballPos.x, ballPos.y, 5, 0, Math.PI * 2);
+        ctx.arc(ballPos.x, ballPos.y, 4.5, 0, Math.PI * 2);
         ctx.fillStyle = '#24ee89';
         ctx.shadowColor = '#24ee89';
         ctx.shadowBlur = 10;
@@ -354,20 +356,20 @@
       const canvas = document.getElementById('plinkoCanvas');
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 8;
-      const totalRows = rows;
-      const rowHeight = (height - 12) / totalRows;
-      const maxPinsInRow = totalRows + 5;
-      const spacingX = width / maxPinsInRow;
+      const startY = 15;
+      const totalRows = rows + 2;
+      const rowHeight = (height - 25) / totalRows;
 
       let currentPinRow = 0;
-      let currentPinCol = 2; 
+      let currentPinCol = 0; 
       let ballX = width / 2;
-      let ballY = 4;
+      let ballY = 5;
 
       const dropInterval = setInterval(() => {
         if (currentPinRow < totalRows) {
-          const pinsInRow = currentPinRow + 5;
+          const pinsInRow = currentPinRow + 1;
+          const maxPinsInBottomRow = totalRows;
+          const spacingX = width / (maxPinsInRow + 2);
           const rowWidth = (pinsInRow - 1) * spacingX;
           const startX = (width - rowWidth) / 2;
           
