@@ -17,40 +17,31 @@
 
   <style>
     body {
-      background: #080B10;
+      background: #0f141c;
       color: #ffffff;
       font-family: sans-serif;
       overflow-y: auto;
     }
 
-    .glass-card {
-      background: rgba(245, 207, 102, 0.06);
-      border: 1px solid rgba(245, 207, 102, 0.25);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 18px;
-      box-shadow: 0 0 18px rgba(255, 184, 0, 0.08);
+    .bc-card {
+      background: #171d28;
+      border: 1px solid #222b3a;
+      border-radius: 14px;
     }
 
-    .gold-button {
-      background: linear-gradient(
-          135deg,
-          #FFDF85,
-          #F5CF66,
-          #D9A441
-      );
-      color: #080B10;
-      border: 1px solid #FFDF85;
-      box-shadow: 0 0 14px rgba(255, 184, 0, 0.25);
+    .bc-input-box {
+      background: #0f141c;
+      border: 1px solid #222b3a;
+      border-radius: 10px;
     }
-    .gold-button:hover {
-      opacity: 0.9;
+    .bc-input-box:focus-within {
+      border-color: #24ee89;
     }
 
     .green-btn {
       background: #24ee89;
-      color: #080B10;
-      font-weight: 900;
+      color: #0f141c;
+      font-weight: 800;
     }
     .green-btn:hover {
       background: #1ed67a;
@@ -59,7 +50,7 @@
     .red-btn {
       background: #ed4245;
       color: #ffffff;
-      font-weight: 900;
+      font-weight: 800;
     }
     .red-btn:hover {
       background: #d3383b;
@@ -71,25 +62,25 @@
       width: 4px;
     }
     ::-webkit-scrollbar-track {
-      background: #080B10;
+      background: #0f141c;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(245, 207, 102, 0.25);
+      background: #222b3a;
       border-radius: 2px;
     }
   </style>
 </head>
-<body class="bg-[#080B10] text-white font-sans min-h-screen flex flex-col items-center justify-between p-0 select-none">
+<body class="bg-[#0f141c] text-white font-sans min-h-screen flex flex-col items-center justify-between p-0 select-none">
 
   <!-- Top Bar Container -->
   <div id="topBarContainer" class="w-full max-w-2xl sticky top-0 z-50"></div>
 
-  <div class="w-full max-w-2xl glass-card flex flex-col justify-between overflow-x-hidden shadow-2xl my-2 pb-24">
+  <div class="w-full max-w-2xl flex flex-col justify-between overflow-x-hidden my-2 pb-24 px-2 sm:px-4">
     
-    <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#080B10] flex-1">
+    <main class="flex flex-col gap-3 flex-1">
       
       <!-- Crash Game Screen Area -->
-      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl h-56 shadow-xl overflow-hidden">
+      <div class="relative flex flex-col items-center justify-center bc-card h-60 shadow-lg overflow-hidden">
         
         <!-- Status / Multiplier Display -->
         <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-20">
@@ -101,26 +92,31 @@
         <canvas id="crashCanvas" class="absolute inset-0 w-full h-full z-10 pointer-events-none"></canvas>
       </div>
 
-      <!-- Game Controls Section -->
-      <div class="glass-card p-3.5 sm:p-4 rounded-xl flex flex-col gap-3.5">
+      <!-- Single Unified Game Controls Card -->
+      <div class="bc-card p-4 flex flex-col gap-3.5 shadow-xl">
         
+        <!-- Manual / Auto Tabs Switcher -->
+        <div class="bg-[#0f141c] p-1 rounded-xl flex justify-around text-sm font-medium text-gray-400 border border-[#222b3a]">
+          <button onclick="switchTab('manual')" id="tabManual" class="py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition">Manual</button>
+          <button onclick="switchTab('auto')" id="tabAuto" class="py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition">Auto</button>
+        </div>
+
         <!-- Bet Amount Controls -->
         <div class="flex flex-col gap-1">
           <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
             <span>Amount (৳)</span>
-            <span class="text-[#F5CF66] text-[10px]">Min: 1 ৳</span>
+            <span class="text-gray-400 text-[10px]">Min: 1 ৳</span>
           </div>
-          <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl p-1 focus-within:border-[#F5CF66]">
-            <div class="flex items-center px-2 text-[#F5CF66] font-bold text-sm">৳</div>
+          <div class="flex items-center bc-input-box p-1">
+            <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
             <input type="number" id="betAmount" value="10" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
             
             <div class="flex items-center gap-1">
-              <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">1/2</button>
-              <button onclick="modifyBet('double')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-gray-300 hover:text-white transition">2x</button>
-              <button onclick="modifyBet('max')" class="px-2 py-1 rounded-lg bg-[#1a212d] hover:bg-[#2a3546] text-xs font-bold text-[#F5CF66] transition">Max</button>
+              <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
+              <button onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
+              <button onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">Max</button>
             </div>
           </div>
-          <span class="text-[11px] text-gray-400 mt-0.5">ℹ Betting with 0 will enter demo mode.</span>
         </div>
 
         <!-- Auto Cash Out Controls -->
@@ -129,21 +125,20 @@
             <span>Auto Cash Out</span>
             <span class="text-gray-400 text-[10px]">Optional</span>
           </div>
-          <div class="flex items-center bg-[#080B10] border border-[rgba(245,207,102,0.25)] rounded-xl p-1 focus-within:border-[#F5CF66]">
+          <div class="flex items-center bc-input-box p-1">
             <input type="number" id="autoCashOut" value="2.00" min="1.01" step="0.1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-3">
-            <span class="px-2 text-gray-400 font-bold text-xs">×</span>
+            <span class="px-3 text-gray-400 font-bold text-xs">×</span>
           </div>
         </div>
 
         <!-- Action Button -->
-        <button id="btnAction" onclick="handleMainAction()" class="w-full py-3.5 green-btn text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2">
+        <button id="btnAction" onclick="handleMainAction()" class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
           <span>Bet (Next Round)</span>
         </button>
 
-        <!-- Manual / Auto Tabs Switcher -->
-        <div class="glass-card p-1 rounded-xl flex justify-around text-sm font-medium text-gray-400 mt-1">
-          <button onclick="switchTab('manual')" id="tabManual" class="py-2 px-10 rounded-lg gold-button shadow text-xs font-bold">Manual</button>
-          <button onclick="switchTab('auto')" id="tabAuto" class="py-2 px-10 rounded-lg hover:text-white text-xs font-bold">Auto</button>
+        <!-- Demo Mode Info -->
+        <div class="text-center text-[11px] text-gray-400">
+          ℹ Betting with 0 will enter demo mode.
         </div>
 
       </div>
@@ -239,11 +234,11 @@
       const tabAuto = document.getElementById('tabAuto');
 
       if (tab === 'manual') {
-        tabManual.className = 'py-2 px-10 rounded-lg gold-button shadow text-xs font-bold';
-        tabAuto.className = 'py-2 px-10 rounded-lg hover:text-white text-xs font-bold';
+        tabManual.className = 'py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition';
+        tabAuto.className = 'py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition';
       } else {
-        tabAuto.className = 'py-2 px-10 rounded-lg gold-button shadow text-xs font-bold';
-        tabManual.className = 'py-2 px-10 rounded-lg hover:text-white text-xs font-bold';
+        tabAuto.className = 'py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition';
+        tabManual.className = 'py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition';
       }
     }
 
@@ -274,10 +269,10 @@
       }
 
       if (isPlayingNext) {
-        btn.className = "w-full py-3.5 red-btn text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
+        btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
         btn.innerText = "Cancel Bet";
       } else {
-        btn.className = "w-full py-3.5 green-btn text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
+        btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
         btn.innerText = "Bet (Next Round)";
       }
 
@@ -328,10 +323,10 @@
           activeBetAmount = 0;
         }
 
-        btn.className = "w-full py-3.5 gold-button font-black text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
+        btn.className = "w-full py-3.5 bg-[#24ee89] text-[#0f141c] font-black text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
         btn.innerText = "Cash Out";
       } else {
-        btn.className = "w-full py-3.5 bg-gray-700 text-gray-400 font-bold text-base rounded-xl cursor-not-allowed";
+        btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
         btn.innerText = "Running...";
       }
 
@@ -348,7 +343,6 @@
 
         multText.innerText = currentMultiplier.toFixed(2) + 'x';
 
-        // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         let progress = Math.min(1, elapsedTime / 10);
@@ -357,7 +351,7 @@
         let currentX = startX + (canvas.width - 70) * progress;
         let currentY = startY - (canvas.height - 60) * Math.pow(progress, 1.3);
 
-        // Draw 100% Clear & Sharp Red Curved Trail Line
+        // Draw Trail Line
         ctx.beginPath();
         ctx.moveTo(startX, startY);
         ctx.quadraticCurveTo(startX + (currentX - startX) * 0.4, startY - 10, currentX, currentY);
@@ -365,7 +359,7 @@
         ctx.lineWidth = 3.5;
         ctx.stroke();
 
-        // Add Sky Star / Particle Sparkles falling down from behind the plane
+        // Sparkles
         sparkles.push({
           x: currentX - 10 - (Math.random() * 12),
           y: currentY + (Math.random() * 8),
@@ -375,7 +369,6 @@
           alpha: 1.0
         });
 
-        // Update and draw sparkles
         for (let i = sparkles.length - 1; i >= 0; i--) {
           let s = sparkles[i];
           s.x += s.vx;
@@ -393,22 +386,20 @@
           ctx.fill();
         }
 
-        // Draw Custom Code-Based Airplane (Correctly oriented, sharp & visible)
+        // Airplane
         ctx.save();
         ctx.translate(currentX, currentY);
-        let angle = -Math.PI / 5; // Proper upward tilt
-        ctx.rotate(angle);
+        ctx.rotate(-Math.PI / 5);
 
-        // Airplane body (Vector drawing)
         ctx.fillStyle = '#ffffff';
         ctx.strokeStyle = '#24ee89';
         ctx.lineWidth = 1.5;
 
         ctx.beginPath();
-        ctx.moveTo(14, 0);   // Nose
-        ctx.lineTo(-12, -6); // Top wing / tail
-        ctx.lineTo(-8, 0);   // Body back
-        ctx.lineTo(-12, 6);  // Bottom wing
+        ctx.moveTo(14, 0);
+        ctx.lineTo(-12, -6);
+        ctx.lineTo(-8, 0);
+        ctx.lineTo(-12, 6);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
@@ -442,7 +433,7 @@
       }
 
       const btn = document.getElementById('btnAction');
-      btn.className = "w-full py-3.5 bg-gray-700 text-gray-400 font-bold text-base rounded-xl cursor-not-allowed";
+      btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
       btn.innerText = activeBetAmount > 0 ? `Cashed Out (৳ ${winAmount.toFixed(2)})` : `Demo Win (${mult.toFixed(2)}x)`;
 
       if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
@@ -505,10 +496,10 @@
         isPlayingNext = !isPlayingNext;
         const btn = document.getElementById('btnAction');
         if (isPlayingNext) {
-          btn.className = "w-full py-3.5 red-btn text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
+          btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
           btn.innerText = "Cancel Bet";
         } else {
-          btn.className = "w-full py-3.5 green-btn text-base rounded-xl transition shadow-lg active:scale-[0.99] flex items-center justify-center gap-2";
+          btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
           btn.innerText = "Bet (Next Round)";
         }
       } else if (gameState === 'running' && isPlayingNext && !hasCashedOut) {
