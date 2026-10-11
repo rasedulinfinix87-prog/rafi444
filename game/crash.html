@@ -104,12 +104,12 @@
         <!-- Crash Game Screen Area (Top Section inside wrapper) -->
         <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-12">
           
-          <!-- Previous Multiplier History Bar & Icon shifted 5% right and 5% up -->
-          <div class="absolute top-2 left-3 right-1.5 flex items-center justify-between z-30 pb-1">
-            <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-2">
+          <!-- Previous Multiplier History Bar & Icon shifted right and up -->
+          <div class="absolute top-1.5 left-3 right-4 flex items-center justify-between z-30 pb-1">
+            <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-3">
               <!-- Dynamically populated history badges -->
             </div>
-            <button onclick="openHistoryModal()" style="transform: translate(5%, -5%);" class="bg-[#222b3a] hover:bg-[#2c3748] text-gray-300 hover:text-white px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1 transition shadow shrink-0">
+            <button onclick="openHistoryModal()" class="bg-[#222b3a] hover:bg-[#2c3748] text-gray-300 hover:text-white px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1 transition shadow shrink-0 -mt-1">
               <i class="fa-solid fa-clock-rotate-left"></i>
             </button>
           </div>
@@ -117,6 +117,7 @@
           <!-- Status / Multiplier Display -->
           <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-20 mt-8">
             <span id="multiplierText" class="text-4xl sm:text-5xl font-black tracking-wider text-white hidden">1.00x</span>
+            <span id="winLossSubText" class="text-xs font-bold mt-1 text-gray-400 hidden"></span>
             <span id="subStatusText" class="text-sm sm:text-base font-bold timer-colored mt-1">Starts in 10.0s</span>
           </div>
 
@@ -413,9 +414,11 @@
       
       const multText = document.getElementById('multiplierText');
       const subText = document.getElementById('subStatusText');
+      const winLossText = document.getElementById('winLossSubText');
       const btn = document.getElementById('btnAction');
 
       multText.classList.add('hidden');
+      winLossText.classList.add('hidden');
       subText.className = "text-sm sm:text-base font-bold timer-colored mt-1";
 
       if (!isSynced) {
@@ -486,8 +489,13 @@
       subText.className = "text-xs text-gray-400 font-semibold mt-1 hidden";
 
       if (isPlayingNext) {
-        btn.className = "w-full py-3.5 bg-[#24ee89] text-[#0f141c] font-black text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
-        btn.innerText = "Cash Out";
+        if (activeTab === 'auto') {
+          btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
+          btn.innerText = "Auto Running...";
+        } else {
+          btn.className = "w-full py-3.5 bg-[#24ee89] text-[#0f141c] font-black text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+          btn.innerText = "Cash Out";
+        }
       } else {
         btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
         btn.innerText = "Running...";
@@ -504,15 +512,27 @@
         let elapsedTime = (Date.now() - startTime) / 1000;
         currentMultiplier = parseFloat((Math.exp(0.08 * elapsedTime)).toFixed(2));
 
-        // Update Multiplier Text Color dynamically matching the 10-tier color scale
         let currentStyle = getMultiplierStyle(currentMultiplier);
         multText.className = `text-4xl sm:text-5xl font-black tracking-wider ${currentStyle.textColor}`;
         multText.innerText = currentMultiplier.toFixed(2) + 'x';
 
-        // Update button text to show live profit calculation when user placed a bet
         if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
           let liveWin = activeBetAmount * currentMultiplier;
-          btn.innerText = `Cash Out (৳ ${liveWin.toFixed(2)})`;
+          if (activeTab === 'manual') {
+            btn.innerText = `Cash Out (৳ ${liveWin.toFixed(2)})`;
+          }
+        }
+
+        // Auto Cash Out Trigger Logic
+        let autoCash = parseFloat(document.getElementById('autoCashOut').value) || 0;
+        if (activeTab === 'auto' && isPlayingNext && !hasCashedOut && autoCash > 1.00 && currentMultiplier >= autoCash) {
+          if (currentMultiplier <= crashPoint) {
+            cashOut(autoCash);
+          }
+        } else if (activeTab === 'manual' && isPlayingNext && !hasCashedOut && autoCash > 1.00 && currentMultiplier >= autoCash) {
+          if (currentMultiplier <= crashPoint) {
+            cashOut(autoCash);
+          }
         }
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -523,7 +543,6 @@
         let currentX = startX + (canvas.width - 70) * progress;
         let currentY = startY - (canvas.height - 50) * Math.pow(progress, 1.3);
 
-        // 100% Opaque & Clear Trail Line with Dynamic Color matching Multiplier tier
         ctx.beginPath();
         ctx.moveTo(startX, startY);
         ctx.quadraticCurveTo(startX + (currentX - startX) * 0.4, startY - 10, currentX, currentY);
@@ -532,9 +551,8 @@
         ctx.shadowColor = currentStyle.hex;
         ctx.shadowBlur = 8;
         ctx.stroke();
-        ctx.shadowBlur = 0; // Reset shadow
+        ctx.shadowBlur = 0;
 
-        // Sparkles (100% Opaque & Clear)
         sparkles.push({
           x: currentX - 10 - (Math.random() * 12),
           y: currentY + (Math.random() * 8),
@@ -561,7 +579,6 @@
           ctx.fill();
         }
 
-        // 100% Opaque & Clear Airplane (Vector)
         ctx.save();
         ctx.translate(currentX, currentY);
         ctx.rotate(-Math.PI / 5);
@@ -581,13 +598,6 @@
 
         ctx.restore();
 
-        let autoCash = parseFloat(document.getElementById('autoCashOut').value) || 0;
-        if (isPlayingNext && !hasCashedOut && autoCash > 1.00 && currentMultiplier >= autoCash) {
-          if (currentMultiplier <= crashPoint) {
-            cashOut(autoCash);
-          }
-        }
-
         if (currentMultiplier >= crashPoint) {
           clearInterval(gameInterval);
           triggerCrash();
@@ -605,6 +615,17 @@
       if (activeBetAmount > 0) {
         balance += winAmount;
         updateBalanceUI();
+      }
+
+      const multText = document.getElementById('multiplierText');
+      const winLossText = document.getElementById('winLossSubText');
+      multText.className = "text-4xl sm:text-5xl font-black tracking-wider text-[#24ee89]";
+      multText.innerText = mult.toFixed(2) + 'x';
+      
+      if (activeBetAmount > 0) {
+        winLossText.className = "text-xs font-bold mt-1 text-[#24ee89]";
+        winLossText.innerText = `Won ৳ ${winAmount.toFixed(2)}`;
+        winLossText.classList.remove('hidden');
       }
 
       const btn = document.getElementById('btnAction');
@@ -629,6 +650,7 @@
       gameState = 'crashed';
       const multText = document.getElementById('multiplierText');
       const subText = document.getElementById('subStatusText');
+      const winLossText = document.getElementById('winLossSubText');
       const btn = document.getElementById('btnAction');
 
       let crashStyle = getMultiplierStyle(crashPoint);
@@ -636,6 +658,12 @@
       multText.innerText = crashPoint.toFixed(2) + 'x';
       subText.className = "text-xs text-gray-400 font-semibold mt-1";
       subText.innerText = "Crashed!";
+
+      if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
+        winLossText.className = "text-xs font-bold mt-1 text-red-500";
+        winLossText.innerText = "Lost";
+        winLossText.classList.remove('hidden');
+      }
 
       previousResults.push(crashPoint);
       if (previousResults.length > 30) previousResults.shift();
@@ -691,7 +719,7 @@
           btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
           btn.innerText = "Bet (Next Round)";
         }
-      } else if (gameState === 'running' && isPlayingNext && !hasCashedOut) {
+      } else if (gameState === 'running' && activeTab === 'manual' && isPlayingNext && !hasCashedOut) {
         cashOut();
       }
     }
