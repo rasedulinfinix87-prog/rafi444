@@ -292,7 +292,7 @@
 
       let pins = [];
       for (let r = 0; r <= rows; r++) {
-        let pinsInRow = r + 1;
+        let pinsInRow = r + 3; // Corrected symmetric pyramid row expansion
         let rowWidth = (pinsInRow - 1) * spacingX;
         let startX = (width - rowWidth) / 2;
 
@@ -318,7 +318,7 @@
 
       const pins = getPinCoordinates();
 
-      // Draw Perfectly Centered Sharp White Pins
+      // Draw Perfectly Centered Symmetrical Sharp White Pins
       pins.forEach(pin => {
         ctx.beginPath();
         ctx.arc(pin.x, pin.y, 2.5, 0, Math.PI * 2);
@@ -371,7 +371,7 @@
       }
       const winningMultiplier = currentMultipliers[pathIndex];
 
-      // Realistic Physics Bounce Waypoints Generation centered perfectly
+      // Realistic Physics Bounce Waypoints Generation perfectly centered
       const pins = getPinCoordinates();
       let waypoints = [];
       
@@ -379,7 +379,7 @@
       let currY = 2;
       waypoints.push({ x: currX, y: currY });
 
-      let currentPinIndex = 0; 
+      let currentPinIndex = 1; 
 
       for (let r = 1; r <= rows; r++) {
         let rowPins = pins.filter(p => p.row === r);
