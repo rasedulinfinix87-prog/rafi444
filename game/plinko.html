@@ -104,7 +104,7 @@
         <canvas id="plinkoCanvas" width="340" height="210" class="w-full h-auto rounded-xl"></canvas>
         
         <!-- Multiplier Sinks Bar -->
-        <div id="multiplierSinks" class="grid w-full mt-2 gap-1 px-3">
+        <div id="multiplierSinks" class="grid w-full mt-2 gap-0.5 px-2">
           <!-- Dynamically generated multiplier boxes -->
         </div>
       </div>
@@ -179,6 +179,11 @@
       15: [640, 89.0, 29.0, 8.0, 3.0, 0.4, 0.2, 0.1, 0.1, 0.2, 0.4, 3.0, 8.0, 29.0, 89.0, 640],
       16: [1000, 162, 38.0, 9.0, 3.0, 1.5, 0.5, 0.2, 0.1, 0.2, 0.5, 1.5, 3.0, 9.0, 38.0, 162, 1000]
     };
+
+    function formatMultiplier(val) {
+      if (val >= 1000) return (val / 1000) + 'k';
+      return val;
+    }
 
     async function loadBars() {
       try {
@@ -266,8 +271,8 @@
         else if (mult >= 5) bgColor = 'bg-orange-500';
         else if (mult < 1) bgColor = 'bg-yellow-500';
 
-        box.className = `${bgColor} text-[#080B10] font-bold text-[8px] sm:text-[10px] py-1 px-1 rounded-sm text-center shadow transition-all truncate flex items-center justify-center ${isHighlight ? 'glass-gold-hit' : ''}`;
-        box.innerText = mult + '×';
+        box.className = `${bgColor} text-[#080B10] font-black text-[6px] sm:text-[7.5px] py-0.5 px-0.5 rounded-[3px] text-center shadow transition-all truncate flex items-center justify-center ${isHighlight ? 'glass-gold-hit' : ''}`;
+        box.innerText = formatMultiplier(mult) + '×';
         container.appendChild(box);
       });
     }
