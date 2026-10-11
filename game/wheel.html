@@ -275,7 +275,7 @@
                 id="segmentsRange"
                 min="10"
                 max="50"
-                step="5"
+                step="10"
                 value="10"
                 oninput="updateSegments(this.value)"
                 class="w-full accent-[#24ee89] cursor-pointer"
@@ -567,12 +567,10 @@
     function generateWheelSegments() {
       wheelSegments = [];
 
-      const zeroRatio =
-        riskLevel === 'low'
-          ? 0.2
-          : riskLevel === 'medium'
-            ? 0.4
-            : 0.55;
+      // Segments অনুযায়ী জিতার সম্ভাবনা এবং লজিক (segments যত কম, zeroRatio তত কম অর্থাৎ জিতার সম্ভাবনা বেশি)
+      let segmentFactor = (segmentsCount - 10) / 40; // 0 থেকে 1 এর মধ্যে স্কেল
+      let baseZeroRatio = riskLevel === 'low' ? 0.15 : riskLevel === 'medium' ? 0.30 : 0.45;
+      let zeroRatio = Math.min(0.75, baseZeroRatio + (segmentFactor * 0.25));
 
       const zeroCount = Math.floor(segmentsCount * zeroRatio);
 
@@ -584,13 +582,7 @@
       }
 
       const remaining = segmentsCount - zeroCount;
-
-      const maxMult =
-        riskLevel === 'low'
-          ? 3.5
-          : riskLevel === 'medium'
-            ? 19.6
-            : 98.0;
+      const maxMult = (riskLevel === 'low' ? 3.5 : riskLevel === 'medium' ? 19.6 : 98.0) * (1 + segmentFactor * 0.5);
 
       for (let i = 0; i < remaining; i++) {
         let val = Math.pow(
@@ -625,7 +617,10 @@
         }
       });
 
-      const items = Array.from(colorMap.entries()).slice(0, 5);
+      // বাম থেকে ডানে ছোট থেকে বড় মাল্টিপ্লায়ার ক্রমানুসারে সাজানো
+      let items = Array.from(colorMap.entries());
+      items.sort((a, b) => a[1] - b[1]);
+      items = items.slice(0, 5);
 
       items.forEach(([color, mult]) => {
         const isHit = highlightColor === color;
