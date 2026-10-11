@@ -105,11 +105,11 @@
       </div>
 
       <!-- Plinko Board Canvas Area -->
-      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-2 shadow-xl">
-        <canvas id="plinkoCanvas" width="380" height="250" class="w-full h-auto rounded-xl"></canvas>
+      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-3 shadow-xl">
+        <canvas id="plinkoCanvas" width="360" height="260" class="w-full h-auto rounded-xl"></canvas>
         
-        <!-- Multiplier Sinks Bar (Attached seamlessly right below the pyramid) -->
-        <div id="multiplierSinks" class="grid w-full mt-0 gap-0.5 px-0.5 pb-0.5">
+        <!-- Multiplier Sinks Bar -->
+        <div id="multiplierSinks" class="grid w-full mt-2 gap-0.5 py-1">
           <!-- Dynamically generated multiplier boxes -->
         </div>
       </div>
@@ -172,7 +172,6 @@
     let isPlaying = false;
     let currentRows = 8;
     let currentMultipliers = [];
-    let animationFrameId = null;
 
     const multipliersTable = {
       8:  [24.4, 3.0, 1.5, 0.5, 0.2, 0.5, 1.5, 3.0, 24.4],
@@ -198,7 +197,6 @@
 
     async function initPlinkoGame() {
       await loadBars();
-      setupCanvasHiDPI('plinkoCanvas');
       updateRows(8);
 
       if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
@@ -222,19 +220,6 @@
             .subscribe();
         }
       }
-    }
-
-    function setupCanvasHiDPI(canvasId) {
-      const canvas = document.getElementById(canvasId);
-      const ctx = canvas.getContext('2d');
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
-      canvas.style.width = rect.width + 'px';
-      canvas.style.height = rect.height + 'px';
     }
 
     function updateBalanceUI() {
@@ -276,66 +261,51 @@
         else if (mult >= 5) bgColor = 'bg-orange-500';
         else if (mult < 1) bgColor = 'bg-yellow-500';
 
-        box.className = `${bgColor} text-[#080B10] font-black text-[6.5px] sm:text-[9px] py-1.5 px-0.2 rounded text-center shadow transition-all truncate ${isHighlight ? 'glass-gold-hit' : ''}`;
+        box.className = `${bgColor} text-[#080B10] font-black text-[6px] sm:text-[8.5px] py-1 px-0.2 rounded text-center shadow transition-all truncate ${isHighlight ? 'glass-gold-hit' : ''}`;
         box.innerText = mult + '×';
         container.appendChild(box);
       });
     }
 
-    function getPinCoordinates() {
-      const width = 380;
-      const height = 215;
-      const rows = currentRows;
-      const startY = 12;
-      const rowHeight = (height - 15) / (rows + 1);
-      const spacingX = width / (rows + 3);
-
-      let pins = [];
-      for (let r = 0; r <= rows; r++) {
-        let pinsInRow = r + 3; // Corrected symmetric pyramid row expansion
-        let rowWidth = (pinsInRow - 1) * spacingX;
-        let startX = (width - rowWidth) / 2;
-
-        for (let p = 0; p < pinsInRow; p++) {
-          pins.push({
-            x: startX + (p * spacingX),
-            y: startY + (r * rowHeight),
-            row: r,
-            col: p
-          });
-        }
-      }
-      return pins;
-    }
-
     function drawBoard(ballPos = null) {
       const canvas = document.getElementById('plinkoCanvas');
       const ctx = canvas.getContext('2d');
-      const width = 380;
-      const height = 250;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.clearRect(0, 0, width, height);
+      const rows = currentRows;
+      const width = canvas.width;
+      const height = canvas.height;
+      const startY = 20;
+      const totalRows = rows; 
+      const rowHeight = (height - 50) / totalRows;
+      const maxPinsInRow = totalRows + 3;
+      const spacingX = width / maxPinsInRow;
 
-      const pins = getPinCoordinates();
+      for (let r = 0; r < totalRows; r++) {
+        const pinsInRow = r + 3;
+        const rowWidth = (pinsInRow - 1) * spacingX;
+        const startX = (width - rowWidth) / 2;
 
-      // Draw Perfectly Centered Symmetrical Sharp White Pins
-      pins.forEach(pin => {
-        ctx.beginPath();
-        ctx.arc(pin.x, pin.y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = 'rgba(255, 255, 255, 0.7)';
-        ctx.shadowBlur = 5;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      });
+        for (let p = 0; p < pinsInRow; p++) {
+          const x = startX + (p * spacingX);
+          const y = startY + (r * rowHeight);
 
-      // Draw Smooth Green Ball with Glow
+          ctx.beginPath();
+          ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+          ctx.shadowBlur = 4;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
+
       if (ballPos) {
         ctx.beginPath();
         ctx.arc(ballPos.x, ballPos.y, 5, 0, Math.PI * 2);
         ctx.fillStyle = '#24ee89';
         ctx.shadowColor = '#24ee89';
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 10;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -371,68 +341,44 @@
       }
       const winningMultiplier = currentMultipliers[pathIndex];
 
-      // Realistic Physics Bounce Waypoints Generation perfectly centered
-      const pins = getPinCoordinates();
-      let waypoints = [];
-      
-      let currX = 190; // Exact center of 380 width
-      let currY = 2;
-      waypoints.push({ x: currX, y: currY });
+      const canvas = document.getElementById('plinkoCanvas');
+      const width = canvas.width;
+      const height = canvas.height;
+      const startY = 20;
+      const totalRows = rows;
+      const rowHeight = (height - 50) / totalRows;
+      const maxPinsInRow = totalRows + 3;
+      const spacingX = width / maxPinsInRow;
 
-      let currentPinIndex = 1; 
+      let currentPinRow = 0;
+      let currentPinCol = 1; 
+      let ballX = width / 2;
+      let ballY = 5;
 
-      for (let r = 1; r <= rows; r++) {
-        let rowPins = pins.filter(p => p.row === r);
-        let bounceRight = Math.random() < 0.5;
-        if (currentPinIndex < rowPins.length - 1 && bounceRight) {
-          currentPinIndex++;
-        }
-
-        let targetPin = rowPins[currentPinIndex];
-        
-        waypoints.push({ x: (currX + targetPin.x) / 2, y: (currY + targetPin.y) / 2 - 4 });
-        waypoints.push({ x: targetPin.x, y: targetPin.y });
-
-        currX = targetPin.x;
-        currY = targetPin.y;
-      }
-
-      const width = 380;
-      const finalSlotWidth = width / currentMultipliers.length;
-      let finalX = (pathIndex * finalSlotWidth) + (finalSlotWidth / 2);
-      let finalY = 230; 
-
-      waypoints.push({ x: (currX + finalX) / 2, y: (currY + finalY) / 2 });
-      waypoints.push({ x: finalX, y: finalY });
-
-      let wpIdx = 0;
-      let t = 0;
-      const speed = 0.08; 
-
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-
-      function animatePhysics() {
-        if (wpIdx < waypoints.length - 1) {
-          let p1 = waypoints[wpIdx];
-          let p2 = waypoints[wpIdx + 1];
-
-          t += speed;
-          if (t >= 1) {
-            t = 0;
-            wpIdx++;
+      const dropInterval = setInterval(() => {
+        if (currentPinRow < totalRows) {
+          const pinsInRow = currentPinRow + 3;
+          const rowWidth = (pinsInRow - 1) * spacingX;
+          const startX = (width - rowWidth) / 2;
+          
+          if (currentPinRow > 0) {
+            const goRight = Math.random() < 0.5;
+            if (goRight && currentPinCol < pinsInRow - 1) currentPinCol++;
           }
 
-          let x = p1.x + (p2.x - p1.x) * t;
-          let y = p1.y + (p2.y - p1.y) * t;
+          const targetX = startX + (currentPinCol * spacingX);
+          const targetY = startY + (currentPinRow * rowHeight);
 
-          drawBoard({ x, y });
-          animationFrameId = requestAnimationFrame(animatePhysics);
+          ballX += (targetX - ballX) * 0.4;
+          ballY += (targetY - ballY) * 0.4;
+
+          drawBoard({ x: ballX, y: ballY });
+          currentPinRow++;
         } else {
+          clearInterval(dropInterval);
           finishDrop(winningMultiplier, pathIndex, betVal);
         }
-      }
-
-      animationFrameId = requestAnimationFrame(animatePhysics);
+      }, 70);
     }
 
     async function finishDrop(multiplier, sinkIndex, betVal) {
