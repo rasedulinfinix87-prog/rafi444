@@ -105,11 +105,11 @@
       </div>
 
       <!-- Plinko Board Canvas Area -->
-      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-3 shadow-xl">
-        <canvas id="plinkoCanvas" width="360" height="260" class="w-full h-auto rounded-xl"></canvas>
+      <div class="relative flex flex-col items-center justify-center bg-[#151a23] border border-[rgba(245,207,102,0.2)] rounded-2xl p-2 shadow-xl">
+        <canvas id="plinkoCanvas" width="360" height="220" class="w-full h-auto rounded-xl"></canvas>
         
-        <!-- Multiplier Sinks Bar -->
-        <div id="multiplierSinks" class="grid w-full mt-2 gap-0.5 py-1">
+        <!-- Multiplier Sinks Bar (Attached closely right below the pins) -->
+        <div id="multiplierSinks" class="grid w-full mt-0 gap-0.5 px-0.5 pb-0.5">
           <!-- Dynamically generated multiplier boxes -->
         </div>
       </div>
@@ -190,7 +190,6 @@
         const topRes = await fetch('../bar/top.html');
         if (topRes.ok) {
           document.getElementById('topBarContainer').innerHTML = await topRes.text();
-          // Fix links inside top bar if needed
           document.querySelectorAll('a[href*="deposit"]').forEach(a => {
             a.href = '../account/deposit.html';
           });
@@ -231,7 +230,6 @@
     }
 
     function updateBalanceUI() {
-      // Supporting both topBarBalance and userBalance ids from top.html templates
       const topBal1 = document.getElementById('topBarBalance');
       const topBal2 = document.getElementById('userBalance');
       
@@ -287,9 +285,9 @@
       const rows = currentRows;
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 20;
+      const startY = 12;
       const totalRows = rows; 
-      const rowHeight = (height - 50) / totalRows;
+      const rowHeight = (height - 20) / totalRows;
       const maxPinsInRow = totalRows + 3;
       const spacingX = width / maxPinsInRow;
 
@@ -356,9 +354,9 @@
       const canvas = document.getElementById('plinkoCanvas');
       const width = canvas.width;
       const height = canvas.height;
-      const startY = 20;
+      const startY = 12;
       const totalRows = rows;
-      const rowHeight = (height - 50) / totalRows;
+      const rowHeight = (height - 20) / totalRows;
       const maxPinsInRow = totalRows + 3;
       const spacingX = width / maxPinsInRow;
 
