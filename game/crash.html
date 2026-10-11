@@ -104,12 +104,12 @@
         <!-- Crash Game Screen Area (Top Section inside wrapper) -->
         <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-12">
           
-          <!-- Previous Multiplier History Bar & Icon shifted right and up -->
-          <div class="absolute top-1.5 left-3 right-4 flex items-center justify-between z-30 pb-1">
+          <!-- Previous Multiplier History Bar & Icon shifted further right -->
+          <div class="absolute top-1.5 left-3 right-6 flex items-center justify-between z-30 pb-1 pr-2">
             <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-3">
               <!-- Dynamically populated history badges -->
             </div>
-            <button onclick="openHistoryModal()" class="bg-[#222b3a] hover:bg-[#2c3748] text-gray-300 hover:text-white px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1 transition shadow shrink-0 -mt-1">
+            <button onclick="openHistoryModal()" class="bg-[#222b3a] hover:bg-[#2c3748] text-gray-300 hover:text-white px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1 transition shadow shrink-0 -mt-1 ml-2">
               <i class="fa-solid fa-clock-rotate-left"></i>
             </button>
           </div>
@@ -297,7 +297,9 @@
 
       let globalRoundStart = localStorage.getItem('bc_round_start_time');
       let now = Date.now();
-      if (!globalRoundStart) {
+      
+      // Fix refresh bug: Reset or initialize round timer cleanly if missing or expired
+      if (!globalRoundStart || (now - parseInt(globalRoundStart)) > 25000) {
         globalRoundStart = now;
         localStorage.setItem('bc_round_start_time', globalRoundStart);
       }
