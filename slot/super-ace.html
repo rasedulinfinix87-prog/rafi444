@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Super Ace Slot</title>
+  <title>Super Ace Slot - JILI Style</title>
 
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -43,6 +43,22 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
 
+    .mult-box {
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 900;
+      color: #78350f;
+      background: rgba(255,255,255,0.4);
+      transition: all 0.3s;
+    }
+    .mult-box.active {
+      background: #ffffff;
+      color: #b45309;
+      transform: scale(1.15);
+      box-shadow: 0 0 10px #fef08a;
+    }
+
     .slot-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -54,7 +70,7 @@
       border: 2px solid #334155;
     }
 
-    /* Slot Card Image Container */
+    /* Falling Card Animation */
     .slot-card {
       aspect-ratio: 3/4;
       background: #ffffff;
@@ -65,8 +81,13 @@
       overflow: hidden;
       box-shadow: 0 4px 8px rgba(0,0,0,0.5);
       border: 1.5px solid #cbd5e1;
-      transition: transform 0.2s;
+      animation: dropDown 0.3s ease-out;
     }
+    @keyframes dropDown {
+      0% { transform: translateY(-50px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
     .slot-card img {
       width: 100%;
       height: 100%;
@@ -111,11 +132,12 @@
         </div>
       </div>
 
-      <div class="multiplier-bar flex justify-around items-center py-1.5 px-2 text-black font-black text-sm">
-        <span class="bg-white/90 px-3 py-0.5 rounded-lg shadow scale-110 text-amber-700">×1</span>
-        <span>×2</span>
-        <span>×3</span>
-        <span>×5</span>
+      <!-- Multiplier Bar matching JILI (x1, x2, x3, x5) -->
+      <div class="multiplier-bar flex justify-around items-center py-1.5 px-2 text-sm">
+        <span id="m1" class="mult-box active">×1</span>
+        <span id="m2" class="mult-box">×2</span>
+        <span id="m3" class="mult-box">×3</span>
+        <span id="m5" class="mult-box">×5</span>
       </div>
     </div>
 
@@ -167,17 +189,15 @@
     let currentUserId = null;
     let userBalance = 1.750;
     let currentBet = 0.5;
+    let isSpinning = false;
 
-    // Real Playing Card Image CDN Links Array
+    // Standard Real Playing Card CDN Image Links
     const cardImages = [
-      "https://deckofcardsapi.com/static/img/AS.png", // Ace of Spades
-      "https://deckofcardsapi.com/static/img/KH.png", // King of Hearts
-      "https://deckofcardsapi.com/static/img/QD.png", // Queen of Diamonds
-      "https://deckofcardsapi.com/static/img/JC.png", // Jack of Clubs
-      "https://deckofcardsapi.com/static/img/10S.png", // 10 of Spades
-      "https://deckofcardsapi.com/static/img/AH.png", // Ace of Hearts
-      "https://deckofcardsapi.com/static/img/KS.png", // King of Spades
-      "https://deckofcardsapi.com/static/img/QC.png"  // Queen of Clubs
+      "https://deckofcardsapi.com/static/img/AS.png", // Ace
+      "https://deckofcardsapi.com/static/img/KH.png", // King
+      "https://deckofcardsapi.com/static/img/QD.png", // Queen
+      "https://deckofcardsapi.com/static/img/JC.png", // Jack
+      "https://deckofcardsapi.com/static/img/10S.png" // 10
     ];
 
     async function loadTopBar() {
@@ -214,35 +234,62 @@
     }
 
     function adjustBet(amount) {
+      if (isSpinning) return;
       currentBet = Math.max(0.5, currentBet + amount);
       updateBalances();
     }
 
+    // Super Ace Cascade & Payout Engine Logic
     function triggerSpin() {
+      if (isSpinning) return;
       if (userBalance < currentBet) {
         alert('অপর্যাপ্ত ব্যালেন্স!');
         return;
       }
 
+      isSpinning = true;
       userBalance -= currentBet;
       updateBalances();
+      document.getElementById('winAmount').innerText = '0.000';
 
-      const grid = document.getElementById('slotGrid');
-      grid.style.transform = 'scale(0.97)';
-      
+      // Reset Multiplier Bar to x1
+      updateMultiplier(1);
+
+      // Initial Drop from Top Animation
+      initGrid();
+
+      // Simulate Super Ace Cascade (Tumble & Payout Mechanism)
       setTimeout(() => {
-        initGrid();
-        grid.style.transform = 'scale(1)';
-        
-        let win = Math.random() > 0.6 ? currentBet * (Math.floor(Math.random() * 5) + 1) : 0;
-        if (win > 0) {
-          userBalance += win;
-          document.getElementById('winAmount').innerText = win.toFixed(3);
-          updateBalances();
+        let hasWon = Math.random() > 0.4; // 60% win chance
+        if (hasWon) {
+          let multiplierStage = 1;
+          let totalWin = currentBet * (Math.floor(Math.random() * 3) + 2);
+
+          // Progressive Multiplier Animation (x1 -> x2 -> x3 -> x5)
+          let interval = setInterval(() => {
+            if (multiplierStage < 5) {
+              multiplierStage = multiplierStage === 1 ? 2 : (multiplierStage === 2 ? 3 : 5);
+              updateMultiplier(multiplierStage);
+              totalWin *= 1.3;
+            } else {
+              clearInterval(interval);
+              userBalance += totalWin;
+              document.getElementById('winAmount').innerText = totalWin.toFixed(3);
+              updateBalances();
+              isSpinning = false;
+            }
+          }, 400);
         } else {
-          document.getElementById('winAmount').innerText = '0.000';
+          isSpinning = false;
         }
-      }, 250);
+      }, 500);
+    }
+
+    function updateMultiplier(stage) {
+      document.getElementById('m1').className = stage === 1 ? 'mult-box active' : 'mult-box';
+      document.getElementById('m2').className = stage === 2 ? 'mult-box active' : 'mult-box';
+      document.getElementById('m3').className = stage === 3 ? 'mult-box active' : 'mult-box';
+      document.getElementById('m5').className = stage === 5 ? 'mult-box active' : 'mult-box';
     }
 
     window.onload = async () => {
