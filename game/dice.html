@@ -149,10 +149,8 @@
 
   <div class="w-full max-w-2xl min-h-screen flex flex-col justify-between overflow-x-hidden my-auto">
     
-    <!-- Header with bar/top.html connected -->
-    <header class="w-full sticky top-0 z-40 bg-[#0f141c]">
-      <iframe src="../bar/top.html" class="w-full border-0" style="height: 60px;" scrolling="no"></iframe>
-    </header>
+    <!-- Top Bar Container loaded dynamically -->
+    <div id="topBarContainer" class="sticky top-0 z-50"></div>
 
     <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#0f141c] flex-1">
       
@@ -571,6 +569,29 @@
         container.scrollLeft = container.scrollWidth;
     }
 
+    // Load Top Bar from ../bar/top.html dynamically
+    async function loadTopBar() {
+      try {
+        const res = await fetch('../bar/top.html');
+        if (res.ok) {
+          document.getElementById('topBarContainer').innerHTML = await res.text();
+
+          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+            a.href = '../account/deposit.html';
+          });
+        }
+      } catch (e) {
+        console.error('Top bar load error:', e);
+      }
+    }
+
+    function updateUIBalance(bal) {
+      const topBal = document.getElementById('topBarBalance');
+      if (topBal) {
+        topBal.innerText = bal.toFixed(2);
+      }
+    }
+
     // DOM References
     const diceRange = document.getElementById('diceRange');
     const greenTrack = document.getElementById('greenTrack');
@@ -588,6 +609,7 @@
 
     // Init App & Supabase Realtime Connection
     async function initRealtimeGame() {
+      await loadTopBar();
       updateSliderVisuals();
       syncCalculations('chance');
 
@@ -609,7 +631,8 @@
             .single();
 
           if (profile) {
-            balance = parseFloat(profile.balance);
+            balance = parseFloat(profile.balance) || 0;
+            updateUIBalance(balance);
           }
 
           supabaseClient
@@ -620,6 +643,7 @@
               (payload) => {
                 if (payload.new && payload.new.balance !== undefined) {
                   balance = parseFloat(payload.new.balance);
+                  updateUIBalance(balance);
                 }
               }
             )
@@ -760,6 +784,14 @@
 
       if (currentBet > 0) {
         balance -= currentBet;
+        updateUIBalance(balance);
+
+        if (currentUserId && typeof supabaseClient !== 'undefined') {
+          await supabaseClient
+            .from('profiles')
+            .update({ balance: balance })
+            .eq('id', currentUserId);
+        }
       }
 
       const rollResult = parseFloat((Math.random() * 99.99).toFixed(2));
@@ -799,6 +831,8 @@
             totalLosses++;
             totalProfit -= currentBet;
           }
+
+          updateUIBalance(balance);
 
           profitHistory.push(totalProfit);
           document.getElementById('statsProfit').innerText = '৳ ' + totalProfit.toFixed(2);
