@@ -143,6 +143,24 @@
       display: block;
       width: 0;
     }
+
+    /* Updated Specific Font & Icon Sizes matching Mines style */
+    .tile {
+      font-size: 1.25rem;
+    }
+
+    .loader-bomb {
+      font-size: 3.5rem;
+      color: #24ee89;
+    }
+
+    #popupMultiplier {
+      font-size: 1.875rem; /* text-3xl */
+    }
+
+    #popupAmount {
+      font-size: 1.125rem; /* text-lg */
+    }
   </style>
 </head>
 <body class="bg-[#0f141c] text-white font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none">
@@ -216,21 +234,21 @@
           <!-- Payout Multiplier & Win Chance Inputs -->
           <div class="grid grid-cols-2 gap-3">
             <div class="flex flex-col gap-1">
-              <label class="text-xs text-gray-400 font-medium">Payout</label>
+              <label class="text-[11px] text-gray-400 font-medium">Payout</label>
               <div id="payoutBoxWrapper" class="flex items-center bg-[#0f141c] border border-[#222b3a] rounded-xl overflow-hidden px-3 py-2 focus-within:border-[#24ee89]">
-                <input type="number" id="payoutInput" step="0.01" value="1.98" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+                <input type="number" id="payoutInput" step="0.01" value="1.98" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none">
                 <span id="payoutWarningIcon" class="text-red-500 text-xs mr-1 hidden" title="Payout is too low"><i class="fa-solid fa-triangle-exclamation"></i></span>
                 <span class="text-xs text-gray-400 ml-1">X</span>
                 <button onclick="toggleDirection()" id="dirToggleBtn" title="Toggle Roll Direction" class="ml-2 w-7 h-7 rounded-lg bg-[#171d28] hover:bg-[#222b3a] border border-[#222b3a] flex items-center justify-center text-xs text-gray-400 hover:text-white transition">
-                  <i class="fa-solid fa-right-left text-xs"></i>
+                  <i class="fa-solid fa-right-left text-[10px]"></i>
                 </button>
               </div>
             </div>
 
             <div class="flex flex-col gap-1">
-              <label class="text-xs text-gray-400 font-medium">Win Chance</label>
+              <label class="text-[11px] text-gray-400 font-medium">Win Chance</label>
               <div class="flex items-center bg-[#0f141c] border border-[#222b3a] rounded-xl px-3 py-2 focus-within:border-[#24ee89]">
-                <input type="number" id="winChanceInput" step="0.01" value="50.00" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none">
+                <input type="number" id="winChanceInput" step="0.01" value="50.00" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none">
                 <span class="text-xs text-gray-400 ml-1">%</span>
               </div>
             </div>
@@ -238,18 +256,18 @@
 
           <!-- Bet Amount Controls -->
           <div class="flex flex-col gap-1">
-            <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+            <div class="flex justify-between items-center text-[11px] text-gray-400 font-medium">
               <span>Amount (৳)</span>
               <span id="demoModeNotice" class="text-gray-400 text-[10px]">Betting with 0 enters demo mode</span>
             </div>
             <div class="flex items-center bg-[#0f141c] border border-[#222b3a] rounded-xl p-1 focus-within:border-[#24ee89]">
-              <div class="flex items-center px-2 text-[#24ee89] font-bold text-sm">৳</div>
-              <input type="number" id="betAmount" value="10" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
+              <div class="flex items-center px-2 text-[#24ee89] font-bold text-xs">৳</div>
+              <input type="number" id="betAmount" value="10" min="0" step="1" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none px-1">
               
               <div class="flex items-center gap-1">
-                <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 hover:text-white transition">1/2</button>
-                <button onclick="modifyBet('double')" class="px-2 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 hover:text-white transition">2x</button>
-                <button onclick="modifyBet('max')" class="px-2 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-[#24ee89] transition">MAX</button>
+                <button onclick="modifyBet('half')" class="px-2 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-[10px] font-bold text-gray-300 hover:text-white transition border border-[#222b3a]">1/2</button>
+                <button onclick="modifyBet('double')" class="px-2 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-[10px] font-bold text-gray-300 hover:text-white transition border border-[#222b3a]">2x</button>
+                <button onclick="modifyBet('max')" class="px-2 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-[10px] font-bold text-[#F5CF66] transition border border-[#222b3a]">MAX</button>
               </div>
             </div>
           </div>
@@ -264,9 +282,9 @@
         <div class="rounded-xl overflow-hidden border border-[#222b3a] mt-1">
           <!-- Tab Headers -->
           <div class="flex border-b border-[#222b3a] bg-[#0f141c] text-xs font-bold">
-            <button onclick="switchTab('manual')" id="tabManual" class="flex-1 py-2.5 text-center green-button shadow transition">Manual</button>
-            <button onclick="switchTab('auto')" id="tabAuto" class="flex-1 py-2.5 text-center text-gray-400 hover:text-white transition">Auto</button>
-            <button onclick="switchTab('advanced')" id="tabAdvanced" class="flex-1 py-2.5 text-center text-gray-400 hover:text-white transition">
+            <button onclick="switchTab('manual')" id="tabManual" class="flex-1 py-2.5 text-center green-button shadow transition text-xs">Manual</button>
+            <button onclick="switchTab('auto')" id="tabAuto" class="flex-1 py-2.5 text-center text-gray-400 hover:text-white transition text-xs">Auto</button>
+            <button onclick="switchTab('advanced')" id="tabAdvanced" class="flex-1 py-2.5 text-center text-gray-400 hover:text-white transition text-xs">
               Advanced <span class="bg-[#24ee89] text-[#0f141c] text-[9px] px-1.5 py-0.5 rounded-full ml-1">New</span>
             </button>
           </div>
@@ -290,7 +308,7 @@
                     <button onclick="setAutoStrategy('win', 'increase')" id="winIncBtn" class="flex-1 py-1 text-gray-400 font-bold rounded text-xs">Increase by</button>
                   </div>
                   <div class="flex items-center bg-[#0f141c] border border-[#222b3a] rounded-lg px-2 py-1">
-                    <input type="number" id="winIncPercent" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-right pr-1">
+                    <input type="number" id="winIncPercent" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-right pr-1 text-xs">
                     <span class="text-gray-400 text-xs">%</span>
                   </div>
                 </div>
@@ -304,7 +322,7 @@
                     <button onclick="setAutoStrategy('loss', 'increase')" id="lossIncBtn" class="flex-1 py-1 text-gray-400 font-bold rounded text-xs">Increase by</button>
                   </div>
                   <div class="flex items-center bg-[#0f141c] border border-[#222b3a] rounded-lg px-2 py-1">
-                    <input type="number" id="lossIncPercent" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-right pr-1">
+                    <input type="number" id="lossIncPercent" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-right pr-1 text-xs">
                     <span class="text-gray-400 text-xs">%</span>
                   </div>
                 </div>
@@ -316,8 +334,8 @@
                   <span class="text-gray-400 text-[10px]">≈0 ৳</span>
                 </div>
                 <div class="flex items-center bg-[#0f141c] border border-[#222b3a] rounded-lg px-3 py-1.5">
-                  <span class="text-[#24ee89] font-bold mr-2">৳</span>
-                  <input type="number" id="autoStopProfit" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none">
+                  <span class="text-[#24ee89] font-bold mr-2 text-xs">৳</span>
+                  <input type="number" id="autoStopProfit" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-xs">
                 </div>
               </div>
 
@@ -327,28 +345,28 @@
                   <span class="text-gray-400 text-[10px]">≈0 ৳</span>
                 </div>
                 <div class="flex items-center bg-[#0f141c] border border-[#222b3a] rounded-lg px-3 py-1.5">
-                  <span class="text-[#24ee89] font-bold mr-2">৳</span>
-                  <input type="number" id="autoStopLoss" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none">
+                  <span class="text-[#24ee89] font-bold mr-2 text-xs">৳</span>
+                  <input type="number" id="autoStopLoss" value="0" class="w-full bg-transparent text-white font-bold focus:outline-none text-xs">
                 </div>
               </div>
 
               <div class="flex flex-col gap-1 pt-1">
                 <label class="text-[11px] text-gray-400">Number of Bets (0 = ∞)</label>
-                <input type="number" id="autoBetCount" value="0" min="0" class="bg-[#0f141c] border border-[#222b3a] rounded-lg px-3 py-1.5 text-white font-bold focus:outline-none">
+                <input type="number" id="autoBetCount" value="0" min="0" class="bg-[#0f141c] border border-[#222b3a] rounded-lg px-3 py-1.5 text-white font-bold focus:outline-none text-xs">
               </div>
             </div>
 
             <!-- Advanced Tab -->
             <div id="contentAdvanced" class="hidden flex-col gap-3">
               <div class="p-2.5 bg-[#0f141c] rounded-lg border border-[#222b3a] flex flex-col gap-2">
-                <span class="font-bold text-white">Condition Trigger Strategy</span>
-                <div class="flex items-center gap-2">
+                <span class="font-bold text-white text-xs">Condition Trigger Strategy</span>
+                <div class="flex items-center gap-2 text-xs">
                   <span>If</span>
-                  <select id="condEvent" class="bg-[#171d28] border border-[#222b3a] text-white rounded px-2 py-1 focus:outline-none">
+                  <select id="condEvent" class="bg-[#171d28] border border-[#222b3a] text-white rounded px-2 py-1 focus:outline-none text-xs">
                     <option value="consecutive_loss">Consecutive Loss ></option>
                     <option value="consecutive_win">Consecutive Win ></option>
                   </select>
-                  <input type="number" id="condStreak" value="3" class="w-12 bg-[#171d28] border border-[#222b3a] text-white rounded px-2 py-1 text-center font-bold">
+                  <input type="number" id="condStreak" value="3" class="w-12 bg-[#171d28] border border-[#222b3a] text-white rounded px-2 py-1 text-center font-bold text-xs">
                 </div>
               </div>
             </div>
@@ -390,20 +408,20 @@
   <div id="settingsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end justify-center">
       <div class="glass-card w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 animate-slide-up bg-[#171d28]">
           <div class="flex justify-between items-center pb-2 border-b border-[#222b3a]">
-              <span class="font-bold text-white">Settings</span>
+              <span class="font-bold text-white text-sm">Settings</span>
               <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
           </div>
-          <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-left text-sm text-gray-300">
+          <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-left text-xs text-gray-300">
               <i class="fa-regular fa-circle-question w-5 text-[#24ee89]"></i> Help
           </button>
-          <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-sm text-[#24ee89]">
+          <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-xs text-[#24ee89]">
               <span class="flex items-center gap-3"><i class="fa-solid fa-volume-high w-5"></i> Sound Effects</span>
               <span id="soundStatusText" class="text-xs font-bold">ON</span>
           </button>
-          <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-left text-sm text-gray-300">
+          <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-left text-xs text-gray-300">
               <i class="fa-solid fa-seedling w-5 text-[#24ee89]"></i> Seed
           </button>
-          <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-left text-sm text-gray-300">
+          <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-left text-xs text-gray-300">
               <i class="fa-solid fa-share-nodes w-5 text-[#24ee89]"></i> Share
           </button>
       </div>
@@ -413,20 +431,20 @@
   <div id="liveStatsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
       <div class="glass-card w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 shadow-2xl bg-[#171d28]">
           <div class="flex justify-between items-center pb-2 border-b border-[#222b3a]">
-              <span class="font-bold text-white text-base">Live Stats</span>
+              <span class="font-bold text-white text-sm">Live Stats</span>
               <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
           </div>
           
-          <div class="bg-[#0f141c] p-3 rounded-xl flex flex-col gap-3 border border-[#222b3a]">
-              <div class="flex justify-between items-center text-sm">
+          <div class="bg-[#0f141c] p-3 rounded-xl flex flex-col gap-3 border border-[#222b3a] text-xs">
+              <div class="flex justify-between items-center">
                   <span class="text-gray-400">Profit</span>
                   <span id="statsProfit" class="text-[#24ee89] font-bold">৳ 0.00</span>
               </div>
-              <div class="flex justify-between items-center text-sm">
+              <div class="flex justify-between items-center">
                   <span class="text-gray-400">Wagered</span>
                   <span id="statsWagered" class="text-white font-bold">৳ 0.00</span>
               </div>
-              <div class="flex justify-between items-center text-sm border-t border-[#222b3a] pt-2">
+              <div class="flex justify-between items-center border-t border-[#222b3a] pt-2">
                   <span class="text-gray-400">WIN: <strong id="statsWin" class="text-white">0</strong></span>
                   <span class="text-gray-400">LOSE: <strong id="statsLose" class="text-white">0</strong></span>
               </div>
@@ -442,8 +460,15 @@
       </div>
   </div>
 
+  <!-- Cashout Result Popup -->
+  <div id="cashoutPopup" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9999; align-items:center; justify-content:center;">
+    <div class="glass-card p-6 text-center">
+      <div id="popupMultiplier" class="font-black text-[#24ee89] mb-1">2.50x</div>
+      <div id="popupAmount" class="font-bold text-white">৳ 25.00</div>
+    </div>
+  </div>
+
   <script>
-    // State Variables
     let currentUserId = null;
     let balance = 0.00;
     let isRolling = false;
@@ -507,11 +532,11 @@
         const btn = document.getElementById('soundSettingBtn');
         const txt = document.getElementById('soundStatusText');
         if (isSoundOn) {
-            btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-sm text-[#24ee89]";
+            btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-xs text-[#24ee89]";
             txt.innerText = "ON";
             horrorBgMusic.play().catch(e => console.log(e));
         } else {
-            btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-sm text-gray-400";
+            btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[rgba(36,238,137,0.1)] rounded-lg text-xs text-gray-400";
             txt.innerText = "OFF";
             horrorBgMusic.pause();
         }
@@ -913,11 +938,11 @@
         const tabEl = document.getElementById('tab' + t);
         const contentEl = document.getElementById('content' + t);
         if (t.toLowerCase() === tab) {
-          tabEl.className = "flex-1 py-2.5 text-center green-button shadow transition";
+          tabEl.className = "flex-1 py-2.5 text-center green-button shadow transition text-xs";
           contentEl.classList.remove('hidden');
           contentEl.classList.add('flex');
         } else {
-          tabEl.className = "flex-1 py-2.5 text-center text-gray-400 hover:text-white transition";
+          tabEl.className = "flex-1 py-2.5 text-center text-gray-400 hover:text-white transition text-xs";
           contentEl.classList.add('hidden');
           contentEl.classList.remove('flex');
         }
