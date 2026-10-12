@@ -25,7 +25,7 @@ body{display:flex;justify-content:center}.game{width:100%;max-width:720px;min-he
 .shoe:after{content:"";position:absolute;inset:7px;background:repeating-linear-gradient(0deg,#ddd 0 3px,#fff 4px 7px);border:1px solid #aaa}.shoe.left{left:17%}.shoe.right{right:17%;transform:rotate(12deg)}
 .road-wrap{background:#f7f7f5;color:#222;margin:0 14px;border:4px solid #fff;border-radius:20px;overflow:hidden;display:flex;min-height:200px;box-shadow:0 3px 9px #5a3c28}
 .road-side{width:60px;flex-shrink:0;border-right:2px solid #ddd;background:repeating-linear-gradient(0deg,transparent 0 21px,#e2e2e2 22px 23px),repeating-linear-gradient(90deg,transparent 0 21px,#e2e2e2 22px 23px)}
-.road-grid{flex:1;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:repeat(6,28px);background:repeating-linear-gradient(0deg,transparent 0 26px,#e3e3e3 27px 28px),repeating-linear-gradient(90deg,transparent 0 calc(8.333% - 1px),#e3e3e3 calc(8.333% - 1px) 8.333%)}
+.road-grid{flex:1;min-width:0;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:repeat(6,28px);background:repeating-linear-gradient(0deg,transparent 0 26px,#e3e3e3 27px 28px),repeating-linear-gradient(90deg,transparent 0 calc(8.333% - 1px),#e3e3e3 calc(8.333% - 1px) 8.333%)}
 .road-dot{width:26px;height:26px;border-radius:50%;margin:auto;display:grid;place-items:center;color:white;font-size:15px;font-weight:900;box-shadow:inset 0 1px 2px #ffffff80}
 .P{background:#3679df}.B{background:#dc293c}.T{background:#259b5b}
 .summary{display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:auto;padding:10px 14px;font-size:13px;font-weight:bold}
@@ -48,6 +48,60 @@ body{display:flex;justify-content:center}.game{width:100%;max-width:720px;min-he
 .balance{display:flex;justify-content:space-between;padding:14px 15px 0;font-size:12px;color:#f2d8b1}.balance strong{display:block;font-size:21px;color:#fff;margin-top:4px}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#101827;border:1px solid #22d3ee;color:#fff;padding:12px 18px;border-radius:12px;display:none;z-index:9;box-shadow:0 0 18px #22d3ee55}
 @media(min-width:600px){.game{border-left:1px solid #8b6746;border-right:1px solid #8b6746}.table-scene{height:455px}.road-grid{grid-template-rows:repeat(6,30px)}.road-wrap{min-height:212px}}
+
+/* MOBILE FIT & RESPONSIVE REFINEMENT */
+html { scroll-behavior: smooth; }
+body { min-height: 100dvh; }
+.game { min-height: 100dvh; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
+@media (max-width: 480px) {
+  .topline { height: 25px; padding: 5px 12px; font-size: 11px; }
+  .table-scene { height: clamp(255px, 34svh, 310px); }
+  .wall:after { height: 118px; border-width: 7px; }
+  .dealer { top: 38px; transform: translateX(-50%) scale(.78); transform-origin: top center; }
+  .tabletop { height: 165px; bottom: -58px; }
+  .game-title { top: 172px; font-size: clamp(14px, 4vw, 18px); line-height: 1.05; }
+  .timer { top: 208px; width: 70px; height: 70px; font-size: 38px; }
+  .shoe { top: 190px; width: 32px; height: 40px; }
+  .road-wrap { margin: 0 10px; min-height: 0; border-width: 3px; border-radius: 17px; }
+  .road-side { width: 28px; }
+  .road-grid { grid-template-rows: repeat(6, 22px); }
+  .road-dot { width: min(21px, 5.5vw); height: min(21px, 5.5vw); font-size: 12px; }
+  .summary { gap: 6px; padding: 8px 10px; font-size: 11px; }
+  .badge .dot { width: 25px; height: 25px; font-size: 13px; }
+  .pair-row { gap: 3px; padding: 0 10px 7px; }
+  .pair { min-height: 48px; padding: 7px 1px; font-size: clamp(8px, 2.5vw, 11px); border-width: 2px; }
+  .betting { gap: 4px; padding: 0 10px; }
+  .bet { min-height: clamp(112px, 17svh, 142px); padding: 9px 7px 7px; border-radius: 0 0 16px 16px; }
+  .bet h2 { font-size: clamp(13px, 3.7vw, 18px); }
+  .odds { font-size: 12px; }
+  .bet-bottom { font-size: 10px; }
+  .bet-total { font-size: clamp(10px, 2.8vw, 13px); overflow-wrap: anywhere; }
+  .percent { height: 10px; margin-top: 4px; }
+  .bet.tie { margin-top: 7px; border-width: 4px; border-radius: 38px 38px 0 0; }
+  .controls { gap: 7px; padding: 12px 12px 7px; }
+  .circle-btn { width: clamp(42px, 12vw, 52px); height: clamp(42px, 12vw, 52px); border-radius: 14px; font-size: 23px; flex-shrink: 0; }
+  .chip { width: clamp(39px, 11.5vw, 49px); height: clamp(39px, 11.5vw, 49px); margin-left: -10px; border-width: 4px; font-size: 15px; }
+  .place-bet { margin: 7px 10px 0; width: calc(100% - 20px); padding: 12px; font-size: 14px; }
+  .notice { margin: 9px 10px 0; font-size: 10px; }
+  .balance { padding: 10px 11px 0; font-size: 10px; }
+  .balance strong { font-size: 17px; }
+}
+
+@media (max-height: 760px) and (max-width: 480px) {
+  .table-scene { height: 245px; }
+  .dealer { top: 24px; transform: translateX(-50%) scale(.66); }
+  .wall:after { height: 95px; }
+  .tabletop { height: 145px; bottom: -55px; }
+  .game-title { top: 143px; font-size: 14px; }
+  .timer { top: 177px; width: 62px; height: 62px; font-size: 34px; }
+  .shoe { top: 164px; }
+  .road-grid { grid-template-rows: repeat(6, 19px); }
+  .bet { min-height: 104px; }
+  .controls { padding-top: 9px; }
+}
+
 </style>
 </head>
 <body>
