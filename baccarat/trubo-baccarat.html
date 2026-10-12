@@ -47,13 +47,14 @@ body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-se
 .table-top{position:absolute;top:10px;left:10px;right:10px;z-index:5;display:flex;justify-content:space-between;align-items:flex-start}
 .shoe-area{display:flex;flex-direction:column;align-items:center;gap:3px}
 
-/* Updated Shoe Card Deck Design */
-.shoe{width:110px;height:55px;flex-shrink:0;position:relative;background:linear-gradient(135deg,rgba(255,255,255,0.25),rgba(255,255,255,0.05));border:1.5px solid rgba(255,255,255,0.5);border-radius:8px;box-shadow:0 6px 15px rgba(0,0,0,0.5),inset 0 0 10px rgba(255,255,255,0.2);backdrop-filter:blur(3px);overflow:visible;transform:perspective(150px) rotateY(-5deg)}
-.shoe:before{content:"";position:absolute;top:4px;left:6px;width:28px;height:43px;background:linear-gradient(145deg,#2b2b2b,#111);border:1px solid #444;border-radius:4px;box-shadow:inset 0 2px 4px #000;z-index:3}
-.shoe-card{position:absolute;top:6px;left:37px;width:66px;height:41px;background:repeating-linear-gradient(45deg,#203b68 0 3px,#e3d4b5 3px 4px);border:1.5px solid #e9dfc8;border-radius:4px;box-shadow:0 2px 5px #000b;transform-origin:top center;z-index:2;transition:transform .22s ease,top .22s ease,left .22s ease}
+/* Realistic Acrylic Shoe Deck Design */
+.shoe{width:115px;height:55px;flex-shrink:0;position:relative;background:linear-gradient(135deg,rgba(255,255,255,0.2) 0%,rgba(255,255,255,0.03) 100%);border:1.5px solid rgba(255,255,255,0.45);border-top:2px solid rgba(255,255,255,0.7);border-radius:4px 14px 4px 4px;box-shadow:0 8px 20px rgba(0,0,0,0.6),inset 0 1px 3px rgba(255,255,255,0.5);backdrop-filter:blur(2px);overflow:hidden;transform:perspective(200px) rotateY(-8deg) rotateX(3deg)}
+.shoe:before{content:"";position:absolute;top:0;left:0;width:24px;height:100%;background:linear-gradient(90deg,#1c1c1c,#0a0a0a);border-right:1px solid rgba(255,255,255,0.2);box-shadow:inset -2px 0 5px rgba(0,0,0,0.8);z-index:4}
+.shoe-card{position:absolute;top:5px;left:26px;width:84px;height:45px;background:linear-gradient(90deg,#f5f5f5 0%,#e0e0e0 100%);border:1px solid #ccc;border-radius:2px;box-shadow:2px 2px 6px rgba(0,0,0,0.4);transform-origin:top center;z-index:2;transition:transform .22s ease,top .22s ease,left .22s ease;background-image:repeating-linear-gradient(45deg,#e5dccb 0,#e5dccb 2px,#f5f0e6 2px,#f5f0e6 4px)}
+.shoe-card::after{content:"";position:absolute;right:4px;top:4px;bottom:4px;width:22px;background:radial-gradient(circle,#b91c1c 40%,#991b1b 100%);border-radius:2px;border:1px solid rgba(255,255,255,0.3);box-shadow:inset 0 0 3px rgba(0,0,0,0.5)}
 
 .shoe.dealing .shoe-card{animation:shoeEject .48s cubic-bezier(.22,.75,.2,1)}
-@keyframes shoeEject{0%{transform:translate(0,0) rotate(0deg);filter:brightness(1)}35%{transform:translate(3px,-9px) rotate(7deg);filter:brightness(1.2)}70%{transform:translate(7px,-5px) rotate(12deg);filter:brightness(1.1)}100%{transform:translate(0,0) rotate(0deg);filter:brightness(1)}}
+@keyframes shoeEject{0%{transform:translate(0,0) rotate(0deg);filter:brightness(1)}35%{transform:translate(4px,-10px) rotate(8deg);filter:brightness(1.2)}70%{transform:translate(8px,-6px) rotate(14deg);filter:brightness(1.1)}100%{transform:translate(0,0) rotate(0deg);filter:brightness(1)}}
 .card-areas{position:absolute;z-index:4;left:8px;right:8px;bottom:29px;display:grid;grid-template-columns:1fr 1fr;gap:8px;transition:transform .55s ease,opacity .45s ease}
 .card-areas.cards-sliding{opacity:0;transform:translateY(150px) scale(.88);pointer-events:none}
 .hand{min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -70,7 +71,7 @@ body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-se
 .deal-button:disabled{opacity:.45;filter:grayscale(.5)}
 .status-message{font-size:10px;font-weight:800;color:#d8c49c;text-align:center;min-height:14px;padding:0 4px}
 .payout-message{font-size:11px;font-weight:800;color:#facc15;text-align:center;line-height:1.5;overflow-wrap:anywhere;min-height:16px}
-@media(max-width:360px){.dealer-table{height:270px}.shoe{width:95px;height:50px}.shoe-card{left:32px;width:58px;height:36px}.playing-card{width:34px;height:55px;padding:3px}.card-suit{font-size:24px}.hand-cards{gap:2px}.chip-row{gap:2px;padding-left:2px;padding-right:2px}.chip-item{width:38px;height:38px;flex-basis:38px;font-size:9px}}
+@media(max-width:360px){.dealer-table{height:270px}.shoe{width:100px;height:50px}.shoe-card{left:22px;width:74px;height:40px}.playing-card{width:34px;height:55px;padding:3px}.card-suit{font-size:24px}.hand-cards{gap:2px}.chip-row{gap:2px;padding-left:2px;padding-right:2px}.chip-item{width:38px;height:38px;flex-basis:38px;font-size:9px}}
 </style>
 </head>
 <body class="min-h-screen flex flex-col pb-2">
