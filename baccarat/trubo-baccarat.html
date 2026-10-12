@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Turbo Baccarat</title>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Supabase Client & App Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      touch-action: manipulation;
+    }
+    body {
+      background: #111418;
+      color: #ffffff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    /* Baccarat Table Felt & Glass Styling */
+    .table-felt {
+      background: radial-gradient(circle at center, #c59b27 0%, #3e2e0a 100%);
+      border: 4px solid #5a4411;
+    }
+
+    .glass-panel {
+      background: rgba(23, 29, 40, 0.85);
+      border: 1px solid #222b3a;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Scoreboard Grid Styling */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+      gap: 2px;
+      background: #ffffff;
+      padding: 2px;
+      border-radius: 4px;
+    }
+    .score-cell {
+      aspect-ratio: 1/1;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    .score-p { color: #2563eb; background: rgba(37,99,235,0.1); border-color: rgba(37,99,235,0.3); border-radius: 50%; }
+    .score-b { color: #dc2626; background: rgba(220,38,38,0.1); border-color: rgba(220,38,38,0.3); border-radius: 50%; }
+    .score-t { color: #16a34a; background: rgba(22,163,74,0.1); border-color: rgba(22,163,74,0.3); border-radius: 50%; }
+
+    /* Chip Design */
+    .chip {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.4);
+      border: 3px dashed rgba(255,255,255,0.7);
+      transition: transform 0.1s;
+    }
+    .chip:active { transform: scale(0.92); }
+    .chip-orange { background: #d97706; color: #fff; }
+    .chip-red { background: #dc2626; color: #fff; border-color: #fca5a5; box-shadow: 0 0 15px rgba(220,38,38,0.7); transform: scale(1.1); z-index: 10; }
+    .chip-blue { background: #2563eb; color: #fff; }
+    .chip-green { background: #16a34a; color: #fff; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: #222b3a; border-radius: 2px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- Top Bar Container (Loaded dynamically from bar/top.html) -->
+  <div id="topBarContainer" class="sticky top-0 z-50"></div>
+
+  <main class="max-w-md w-full mx-auto flex flex-col flex-1 p-2 gap-2">
+
+    <!-- Dealer / Table Video Area Simulator -->
+    <div class="relative w-full h-40 rounded-xl overflow-hidden shadow-xl table-felt flex flex-col items-center justify-between p-2">
+      <div class="absolute inset-0 bg-black/30 backdrop-blur-[1px]"></div>
+      
+      <!-- Dealer Info & Shoe -->
+      <div class="relative z-10 w-full flex justify-between items-center text-[10px] text-amber-200 font-semibold px-2">
+        <span>Turbo Baccarat | Shoe #1</span>
+        <span class="bg-black/50 px-2 py-0.5 rounded">ID: 7789547126</span>
+      </div>
+
+      <!-- Center Countdown / Round Timer -->
+      <div id="timerContainer" class="relative z-10 w-12 h-12 rounded-full bg-black/70 border-2 border-red-500 flex items-center justify-center shadow-lg">
+        <span id="countdownTimer" class="text-lg font-black text-white">5</span>
+      </div>
+
+      <!-- Card Deal Preview Area -->
+      <div class="relative z-10 flex gap-4 text-xs font-bold text-white pb-1">
+        <div id="playerCardArea" class="flex gap-1">PLAYER: <span id="playerScore">-</span></div>
+        <div id="bankerCardArea" class="flex gap-1">BANKER: <span id="bankerScore">-</span></div>
+      </div>
+    </div>
+
+    <!-- Scoreboard (Roadmap) -->
+    <div class="glass-panel p-2 rounded-xl flex flex-col gap-1">
+      <div class="flex justify-between text-[10px] text-gray-400 px-1 font-bold">
+        <span>ROADMAP SCOREBOARD</span>
+        <div class="flex gap-2">
+          <span class="text-blue-400">P: <strong id="countP">0</strong></span>
+          <span class="text-red-400">B: <strong id="countB">0</strong></span>
+          <span class="text-green-400">T: <strong id="countT">0</strong></span>
+        </div>
+      </div>
+      <!-- Score Grid Matrix -->
+      <div class="score-grid" id="scoreGrid">
+        <!-- Generated via JS -->
+      </div>
+    </div>
+
+    <!-- Side Bets Bar -->
+    <div class="grid grid-cols-6 gap-1 text-[9px] font-bold text-center">
+      <div onclick="selectSideBet('player_pair')" class="bg-blue-600/30 border border-blue-500/50 rounded p-1 cursor-pointer hover:bg-blue-600/50">
+        PLAYER PAIR <br><span class="text-blue-400">11:1</span>
+      </div>
+      <div onclick="selectSideBet('player_bonus')" class="bg-blue-700/30 border border-blue-600/50 rounded p-1 cursor-pointer hover:bg-blue-700/50">
+        PLAYER BONUS <br><span class="text-blue-300">30:1</span>
+      </div>
+      <div onclick="selectSideBet('perfect_pair')" class="bg-amber-600/30 border border-amber-500/50 rounded p-1 cursor-pointer hover:bg-amber-600/50">
+        PERFECT PAIR <br><span class="text-amber-400">25:1</span>
+      </div>
+      <div onclick="selectSideBet('either_pair')" class="bg-orange-600/30 border border-orange-500/50 rounded p-1 cursor-pointer hover:bg-orange-600/50">
+        EITHER PAIR <br><span class="text-orange-400">5:1</span>
+      </div>
+      <div onclick="selectSideBet('banker_bonus')" class="bg-red-700/30 border border-red-600/50 rounded p-1 cursor-pointer hover:bg-red-700/50">
+        BANKER BONUS <br><span class="text-red-300">30:1</span>
+      </div>
+      <div onclick="selectSideBet('banker_pair')" class="bg-red-600/30 border border-red-500/50 rounded p-1 cursor-pointer hover:bg-red-600/50">
+        BANKER PAIR <br><span class="text-red-400">11:1</span>
+      </div>
+    </div>
+
+    <!-- Main Betting Options (Player, Tie, Banker) -->
+    <div class="grid grid-cols-3 gap-2">
+      <!-- Player Bet Box -->
+      <div onclick="placeMainBet('player')" class="bg-blue-700 hover:bg-blue-600 border-2 border-blue-400 rounded-xl p-3 flex flex-col items-center justify-between cursor-pointer shadow-lg transition active:scale-95 h-28">
+        <span class="font-black text-sm tracking-wide">PLAYER</span>
+        <span class="text-[10px] bg-blue-900/60 px-2 py-0.5 rounded">1 : 1</span>
+        <span id="betPlayerAmount" class="text-xs font-bold text-amber-300">৳ 0</span>
+      </div>
+
+      <!-- Tie Bet Box -->
+      <div onclick="placeMainBet('tie')" class="bg-green-700 hover:bg-green-600 border-2 border-green-400 rounded-xl p-3 flex flex-col items-center justify-between cursor-pointer shadow-lg transition active:scale-95 h-28">
+        <span class="font-black text-sm tracking-wide">TIE</span>
+        <span class="text-[10px] bg-green-900/60 px-2 py-0.5 rounded">8 : 1</span>
+        <span id="betTieAmount" class="text-xs font-bold text-amber-300">৳ 0</span>
+      </div>
+
+      <!-- Banker Bet Box -->
+      <div onclick="placeMainBet('banker')" class="bg-red-700 hover:bg-red-600 border-2 border-red-400 rounded-xl p-3 flex flex-col items-center justify-between cursor-pointer shadow-lg transition active:scale-95 h-28">
+        <span class="font-black text-sm tracking-wide">BANKER</span>
+        <span class="text-[10px] bg-red-900/60 px-2 py-0.5 rounded">0.95 : 1</span>
+        <span id="betBankerAmount" class="text-xs font-bold text-amber-300">৳ 0</span>
+      </div>
+    </div>
+
+    <!-- Chip Selection & Bottom Utility Bar -->
+    <div class="glass-panel p-2 rounded-xl flex items-center justify-between">
+      <!-- Chips -->
+      <div class="flex items-center gap-2">
+        <div class="chip chip-orange" onclick="selectChip(10)">10</div>
+        <div class="chip chip-red" onclick="selectChip(20)" id="activeChipIndicator">20</div>
+        <div class="chip chip-blue" onclick="selectChip(50)">50</div>
+        <div class="chip chip-green" onclick="selectChip(100)">100</div>
+      </div>
+
+      <!-- Utility Buttons (Undo / Rebet / Menu) -->
+      <div class="flex items-center gap-2">
+        <button onclick="clearBets()" class="w-10 h-10 rounded-lg bg-[#222b3a] hover:bg-[#323f56] flex items-center justify-center text-gray-300 transition" title="Clear Bets">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        <button onclick="openMenu()" class="w-10 h-10 rounded-lg bg-[#222b3a] hover:bg-[#323f56] flex items-center justify-center text-gray-300 transition" title="Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let currentUserId = null;
+    let userBalance = 0.00;
+    let selectedChipValue = 20;
+    let currentBets = { player: 0, banker: 0, tie: 0 };
+    let scoreHistory = [];
+
+    // Load Top Bar dynamically
+    async function loadTopBar() {
+      try {
+        const res = await fetch('../bar/top.html');
+        if (res.ok) {
+          document.getElementById('topBarContainer').innerHTML = await res.text();
+          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+            a.href = '../account/deposit.html';
+          });
+        }
+      } catch (e) {
+        console.error('Top bar load error:', e);
+      }
+    }
+
+    function updateUIBalance() {
+      const topBal = document.getElementById('topBarBalance');
+      if (topBal) topBal.innerText = userBalance.toFixed(2);
+    }
+
+    function selectChip(val) {
+      selectedChipValue = val;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('chip-red', 'transform', 'scale-110'));
+      event.currentTarget.classList.add('chip-red', 'transform', 'scale-110');
+    }
+
+    function placeMainBet(type) {
+      if (userBalance < selectedChipValue) {
+        alert('অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
+        return;
+      }
+      userBalance -= selectedChipValue;
+      currentBets[type] += selectedChipValue;
+      updateUIBalance();
+      renderBets();
+    }
+
+    function selectSideBet(type) {
+      if (userBalance < selectedChipValue) {
+        alert('অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
+        return;
+      }
+      userBalance -= selectedChipValue;
+      updateUIBalance();
+      alert(type.toUpperCase() + ' বেট সফলভাবে গৃহীত হয়েছে!');
+    }
+
+    function renderBets() {
+      document.getElementById('betPlayerAmount').innerText = '৳ ' + currentBets.player;
+      document.getElementById('betBankerAmount').innerText = '৳ ' + currentBets.tie; // placeholder alignment
+      document.getElementById('betTieAmount').innerText = '৳ ' + currentBets.tie;
+      document.getElementById('betBankerAmount').innerText = '৳ ' + currentBets.banker;
+    }
+
+    function clearBets() {
+      const refund = currentBets.player + currentBets.banker + currentBets.tie;
+      userBalance += refund;
+      currentBets = { player: 0, banker: 0, tie: 0 };
+      updateUIBalance();
+      renderBets();
+    }
+
+    function openMenu() {
+      alert('মেনু ও সেটিংস অপশন');
+    }
+
+    function initScoreGrid() {
+      const grid = document.getElementById('scoreGrid');
+      grid.innerHTML = '';
+      for (let i = 0; i < 120; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'score-cell';
+        if (i < scoreHistory.length) {
+          const res = scoreHistory[i];
+          cell.innerText = res;
+          cell.classList.add(res === 'P' ? 'score-p' : res === 'B' ? 'score-b' : 'score-t');
+        }
+        grid.appendChild(cell);
+      }
+    }
+
+    async function initBaccarat() {
+      await loadTopBar();
+      initScoreGrid();
+
+      if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
+        const user = await getCurrentUser();
+        if (user) {
+          currentUserId = user.id;
+          const { data: profile } = await supabaseClient.from('profiles').select('balance').eq('id', user.id).single();
+          if (profile) {
+            userBalance = parseFloat(profile.balance) || 0;
+            updateUIBalance();
+          }
+        }
+      }
+    }
+
+    window.onload = initBaccarat;
+  </script>
+</body>
+</html>
