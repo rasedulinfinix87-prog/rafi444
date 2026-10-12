@@ -1,391 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Turbo Baccarat</title>
-
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Supabase Client & App Config -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-config.js"></script>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      touch-action: manipulation;
-    }
-    body {
-      background: #111418;
-      color: #ffffff;
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-    }
-
-    .table-felt {
-      background: radial-gradient(circle at center, #d4af37 0%, #4a380e 100%);
-      border: 2px solid #6b5314;
-    }
-
-    .glass-panel {
-      background: #171d28;
-      border: 1px solid #222b3a;
-    }
-
-    /* Scoreboard Roadmap Grid */
-    .score-grid {
-      display: grid;
-      grid-template-columns: repeat(20, 1fr);
-      grid-template-rows: repeat(6, 1fr);
-      gap: 1px;
-      background: #e2e8f0;
-      padding: 1px;
-      border-radius: 4px;
-    }
-    .score-cell {
-      aspect-ratio: 1/1;
-      background: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      font-weight: 800;
-    }
-    .score-p { color: #2563eb; background: #eff6ff; border-radius: 50%; border: 1.5px solid #2563eb; width: 85%; height: 85%; margin: auto; }
-    .score-b { color: #dc2626; background: #fef2f2; border-radius: 50%; border: 1.5px solid #dc2626; width: 85%; height: 85%; margin: auto; }
-    .score-t { color: #16a34a; background: #f0fdf4; border-radius: 50%; border: 1.5px solid #16a34a; width: 85%; height: 85%; margin: auto; }
-
-    /* 100% Exact Matching Card Shapes & Colors from Screenshot */
-    .baccarat-card-player {
-      background: #0d47a1;
-      border: 2px solid #2196f3;
-      border-radius: 20px 20px 16px 16px;
-    }
-
-    .baccarat-card-banker {
-      background: #b71c1c;
-      border: 2px solid #f44336;
-      border-radius: 20px 20px 16px 16px;
-    }
-
-    .baccarat-card-tie {
-      background: #00c853;
-      border: 2px solid #69f0ae;
-      border-top-left-radius: 35px;
-      border-top-right-radius: 35px;
-      border-bottom-left-radius: 16px;
-      border-bottom-right-radius: 16px;
-    }
-
-    /* Overlapping Chip Stack Styling */
-    .chip-wrapper {
-      position: relative;
-      width: 90px;
-      height: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-    }
-    .stacked-chip {
-      position: absolute;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 11px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.6);
-      border: 2.5px dashed rgba(255,255,255,0.8);
-    }
-    .chip-orange { background: #d97706; color: #fff; left: 0px; z-index: 1; }
-    .chip-red-active { background: #ef4444; color: #fff; border: 3px solid #ffffff; z-index: 10; transform: scale(1.15); box-shadow: 0 0 15px rgba(239, 68, 68, 0.9); }
-    .chip-blue { background: #2563eb; color: #fff; right: 0px; z-index: 1; }
-
-    ::-webkit-scrollbar { width: 3px; height: 3px; }
-    ::-webkit-scrollbar-thumb { background: #222b3a; border-radius: 2px; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Baccarat Easily</title>
+  <link rel="stylesheet" href="baccarat.css">
 </head>
-<body class="min-h-screen flex flex-col justify-between pb-4">
 
-  <!-- Top Bar Container (Loaded dynamically from bar/top.html) -->
-  <div id="topBarContainer" class="sticky top-0 z-50"></div>
+<body>
 
-  <main class="max-w-md w-full mx-auto flex flex-col flex-1 p-2 gap-2">
+  <div>
+    <div id="decoration">
+      <h1 class="casinoName">
+        <span style="color:black">&spades;</span>
+        <span style="color:red">&hearts;</span>
+        <span style="color:black"> &clubs;</span>
+        <span style="color:red"> &diams;</span>
+        <span style="color:yellow"> Casino Royale </span>
+        <span style="color:black">&spades;</span>
+        <span style="color:red">&hearts;</span>
+        <span style="color:black"> &clubs;</span>
+        <span style="color:red"> &diams;</span>
+      </h1>
+    </div>
 
-    <!-- Dealer / Table Video Area -->
-    <div class="relative w-full h-32 rounded-xl overflow-hidden shadow-xl table-felt flex flex-col items-center justify-between p-2">
-      <div class="absolute inset-0 bg-black/25"></div>
-      
-      <div class="relative z-10 w-full flex justify-between items-center text-[10px] text-amber-200 font-bold px-1">
-        <span>Korean Turbo Baccarat | ৳20 - 500,000</span>
-        <span class="bg-black/60 px-2 py-0.5 rounded">ID: 7789547126</span>
+    <div class="horizontal-line">
+    </div>
+
+    <div class="flex-container" id="cardRow">
+      <div class="horizontal-card" id="bankerThird">
+        <span class="suit"></span>
+        <span class="image"></span>
       </div>
-
-      <!-- Countdown Timer Circle -->
-      <div class="relative z-10 w-11 h-11 rounded-full bg-black/85 border-[3px] border-red-500 flex items-center justify-center shadow-2xl">
-        <span id="countdownTimer" class="text-base font-black text-white">3</span>
+      <div class="vertical-card" id="bankerSecond">
+        <span class="suit"></span>
+        <span class="image"></span>
       </div>
-
-      <div class="relative z-10 flex gap-4 text-[10px] font-bold text-amber-100">
-        <span>PLAYER: -</span>
-        <span>BANKER: -</span>
+      <div class="vertical-card" id="bankerFirst">
+        <span class="suit"></span>
+        <span class="image"></span>
+      </div>
+      <div class="verical-line">
+      </div>
+      <div class="vertical-card" id="playerSecond">
+        <span class="suit"></span>
+        <span class="image"></span>
+      </div>
+      <div class="vertical-card" id="playerFirst">
+        <span class="suit"></span>
+        <span class="image"></span>
+      </div>
+      <div class="horizontal-card" id="playerThird">
+        <span class="suit"></span>
+        <span class="image"></span>
       </div>
     </div>
 
-    <!-- Scoreboard (Roadmap) Section -->
-    <div class="glass-panel p-2 rounded-xl flex flex-col gap-1.5 shadow-md">
-      <div class="flex justify-between items-center text-[10px] text-gray-400 font-bold px-1">
-        <span>ROADMAP SCOREBOARD</span>
-        <div class="flex gap-3">
-          <span class="text-blue-500">P: <strong id="countP">0</strong></span>
-          <span class="text-red-500">B: <strong id="countB">0</strong></span>
-          <span class="text-green-500">T: <strong id="countT">0</strong></span>
-        </div>
+    <div class="flex-container">
+      <div>
+        <h1>
+          <span style="color:red">Banker</span>
+        </h1>
       </div>
-      <div class="score-grid" id="scoreGrid"></div>
-    </div>
-
-    <!-- Round Stats & Side Bets Row -->
-    <div class="flex items-center justify-between text-[10px] bg-[#171d28] border border-[#222b3a] px-2 py-1 rounded-lg font-bold text-gray-300">
-      <span class="text-amber-400">#35</span>
-      <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span> P 15</div>
-      <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span> B 15</div>
-      <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span> T 5</div>
-      <div class="flex items-center gap-1"><span>⚪</span> 3</div>
-      <div class="flex items-center gap-1"><span class="text-red-500">🔴</span> 1</div>
-    </div>
-
-    <!-- Exact 6 Side Bets Grid (Player Pair, Player Bonus, Perfect Pair, Either Pair, Banker Bonus, Banker Pair) -->
-    <div class="grid grid-cols-6 gap-1 text-[8.5px] font-bold text-center">
-      <div onclick="selectSideBet('player_pair')" class="bg-[#1e40af] hover:bg-blue-700 border border-blue-400 rounded-lg py-2 px-1 cursor-pointer flex flex-col justify-center shadow">
-        <span class="text-white leading-tight">PLAYER<br>PAIR</span>
-        <span class="text-blue-200 text-[9px] mt-1 font-extrabold">11:1</span>
-      </div>
-      <div onclick="selectSideBet('player_bonus')" class="bg-[#1d4ed8] hover:bg-blue-600 border border-blue-400 rounded-lg py-2 px-1 cursor-pointer flex flex-col justify-center shadow">
-        <span class="text-white leading-tight">PLAYER<br>BONUS</span>
-        <span class="text-blue-200 text-[9px] mt-1 font-extrabold">30:1</span>
-      </div>
-      <div onclick="selectSideBet('perfect_pair')" class="bg-[#b45309] hover:bg-amber-600 border border-amber-400 rounded-lg py-2 px-1 cursor-pointer flex flex-col justify-center shadow">
-        <span class="text-white leading-tight">PERFECT<br>PAIR</span>
-        <span class="text-amber-200 text-[9px] mt-1 font-extrabold">25:1</span>
-      </div>
-      <div onclick="selectSideBet('either_pair')" class="bg-[#c2410c] hover:bg-orange-600 border border-orange-400 rounded-lg py-2 px-1 cursor-pointer flex flex-col justify-center shadow">
-        <span class="text-white leading-tight">EITHER<br>PAIR</span>
-        <span class="text-orange-200 text-[9px] mt-1 font-extrabold">5:1</span>
-      </div>
-      <div onclick="selectSideBet('banker_bonus')" class="bg-[#b91c1c] hover:bg-red-700 border border-red-400 rounded-lg py-2 px-1 cursor-pointer flex flex-col justify-center shadow">
-        <span class="text-white leading-tight">BANKER<br>BONUS</span>
-        <span class="text-red-200 text-[9px] mt-1 font-extrabold">30:1</span>
-      </div>
-      <div onclick="selectSideBet('banker_pair')" class="bg-[#dc2626] hover:bg-red-600 border border-red-400 rounded-lg py-2 px-1 cursor-pointer flex flex-col justify-center shadow">
-        <span class="text-white leading-tight">BANKER<br>PAIR</span>
-        <span class="text-red-200 text-[9px] mt-1 font-extrabold">11:1</span>
+      <div>
+        <h1>
+          <span style="color:lightblue">Player</span>
+        </h1>
       </div>
     </div>
 
-    <!-- Main Exact Shaped Baccarat Betting Cards (Player, Tie, Banker) -->
-    <div class="grid grid-cols-3 gap-2">
-      <!-- Player Card Box -->
-      <div onclick="placeMainBet('player')" class="baccarat-card-player p-3 flex flex-col items-center justify-between cursor-pointer shadow-xl h-36 transition active:scale-95">
-        <span class="font-black text-sm tracking-wider text-white">PLAYER</span>
-        <div class="text-[11px] font-bold text-white">1 : 1</div>
-        <div class="w-full flex flex-col items-center gap-0.5">
-          <div class="flex items-center gap-1 text-[10px] text-gray-200"><i class="fa-solid fa-user text-[9px]"></i> 55</div>
-          <span id="betPlayerAmount" class="text-xs font-black text-amber-300">৳ 0</span>
-        </div>
-      </div>
+    <div class="horizontal-line">
+    </div>
+    <br/>
 
-      <!-- Tie Card Box (Arch Shape at top) -->
-      <div onclick="placeMainBet('tie')" class="baccarat-card-tie p-3 flex flex-col items-center justify-between cursor-pointer shadow-xl h-36 transition active:scale-95">
-        <span class="font-black text-sm tracking-wider text-white">TIE</span>
-        <div class="text-[11px] font-bold text-white">8 : 1</div>
-        <div class="w-full flex flex-col items-center gap-0.5">
-          <div class="flex items-center gap-1 text-[10px] text-gray-100"><i class="fa-solid fa-user text-[9px]"></i> 6</div>
-          <span id="betTieAmount" class="text-xs font-black text-amber-300">৳ 0</span>
-        </div>
-      </div>
+    <div id="bonusBox" class="flex-container">
+      <form>
+        <span style="color:red">Dragon</span>
+        <input type="number" id="dragonBet" min="0" max="700" step="5" value="0">
+        <span style="color:yellow">Tie</span>
+        <input type="number" id="tieBet" min="0" max="700" step="5" value="0">
+        <span style="color:lightblue">Panda</span>
+        <input type="number" id="pandaBet" min="0" max="700" step="5" value="0">
+      </form>
+    </div>
 
-      <!-- Banker Card Box -->
-      <div onclick="placeMainBet('banker')" class="baccarat-card-banker p-3 flex flex-col items-center justify-between cursor-pointer shadow-xl h-36 transition active:scale-95">
-        <span class="font-black text-sm tracking-wider text-white">BANKER</span>
-        <div class="text-[11px] font-bold text-white">0.95 : 1</div>
-        <div class="w-full flex flex-col items-center gap-0.5">
-          <div class="flex items-center gap-1 text-[10px] text-gray-200"><i class="fa-solid fa-user text-[9px]"></i> 110</div>
-          <span id="betBankerAmount" class="text-xs font-black text-amber-300">৳ 0</span>
-        </div>
+    <div class="horizontal-line">
+    </div>
+    <br/>
+
+    <div id="betBox" class="flex-container">
+      <div>
+        <h1>
+          <span style="color:red">Banker</span>
+          <input type="number" id="bankerBet" min="0" max="14000" step="25" value="0">
+        </h1>
+      </div>
+      <div class="verical-line2">
+      </div>
+      <div>
+        <h1>
+          <span style="color:lightblue">Player</span>
+          <input type="number" id="playerBet" min="0" max="14000" step="25" value="0">
+        </h1>
       </div>
     </div>
 
-    <!-- Bottom Utility Bar & Stacked Chips matching screenshot -->
-    <div class="glass-panel p-2 rounded-xl flex items-center justify-between shadow-lg">
-      
-      <!-- Left History / Stack Icon -->
-      <button class="w-10 h-10 rounded-xl bg-[#222b3a] flex items-center justify-center text-gray-300 relative shadow">
-        <i class="fa-solid fa-layer-group text-sm"></i>
-        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">13</span>
+    <div class="horizontal-line">
+    </div>
+    <br/>
+
+    <div style="text-align:center">
+      <span style="color:yellow">My Total: </span>
+      <span style="color:yellow" id="myChipTotal"></span>
+    </div>
+
+    <div class="horizontal-line">
+    </div>
+    <br/>
+
+    <div id="theControls">
+      <button id="aboutTheGame">About the Game (open the console)</button>
+      <button id="shuffleButton">
+        Shuffle the deck
       </button>
-
-      <button onclick="clearBets()" class="w-10 h-10 rounded-xl bg-[#222b3a] hover:bg-[#323f56] flex items-center justify-center text-gray-300 shadow transition" title="Undo">
-        <i class="fa-solid fa-rotate-left"></i>
+      <button id="dealButton" disabled>
+        Deal a Hand
       </button>
-
-      <!-- Center Overlapping Chip Stack Selection -->
-      <div class="chip-wrapper" onclick="cycleChip()">
-        <div class="stacked-chip chip-orange">10</div>
-        <div class="stacked-chip chip-red-active" id="activeChipDisp">20</div>
-        <div class="stacked-chip chip-blue">50</div>
-      </div>
-
-      <button onclick="openMenu()" class="w-10 h-10 rounded-xl bg-[#222b3a] hover:bg-[#323f56] flex items-center justify-center text-gray-300 shadow transition" title="Refresh">
-        <i class="fa-solid fa-rotate"></i>
-      </button>
-
-      <button onclick="openMenu()" class="w-10 h-10 rounded-xl bg-[#222b3a] hover:bg-[#323f56] flex items-center justify-center text-gray-300 shadow transition" title="Menu">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-
     </div>
 
-    <!-- Total Bet Footer Bar -->
-    <div class="flex justify-between items-center text-xs px-2 text-gray-400 font-semibold">
-      <span>BALANCE: <strong id="footerBalance" class="text-white">৳ 18.90</strong></span>
-      <span>TOTAL BET: <strong id="totalBetAmount" class="text-amber-400">৳ 0.00</strong></span>
-    </div>
+  </div>
 
-  </main>
-
-  <script>
-    let currentUserId = null;
-    let userBalance = 18.90;
-    let selectedChipValue = 20;
-    let currentBets = { player: 0, banker: 0, tie: 0 };
-    let scoreHistory = ['P', 'B', 'P', 'P', 'P', 'P', 'B', 'B', 'B', 'P', 'B', 'P', 'B', 'P', 'T', 'P', 'B', 'P', 'B', 'T', 'P', 'T', 'B', 'P', 'B', 'P', 'B', 'P', 'B', 'P', 'B', 'P', 'B', 'P', 'B', 'P', 'B', 'P', 'B', 'T'];
-
-    async function loadTopBar() {
-      try {
-        const res = await fetch('../bar/top.html');
-        if (res.ok) {
-          document.getElementById('topBarContainer').innerHTML = await res.text();
-          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-            a.href = '../account/deposit.html';
-          });
-        }
-      } catch (e) {
-        console.error('Top bar load error:', e);
-      }
-    }
-
-    function updateUIBalance() {
-      const topBal = document.getElementById('topBarBalance');
-      if (topBal) topBal.innerText = userBalance.toFixed(2);
-      document.getElementById('footerBalance').innerText = '৳ ' + userBalance.toFixed(2);
-      
-      const totalBet = currentBets.player + currentBets.banker + currentBets.tie;
-      document.getElementById('totalBetAmount').innerText = '৳ ' + totalBet.toFixed(2);
-    }
-
-    function cycleChip() {
-      const chips = [10, 20, 50, 100];
-      let idx = chips.indexOf(selectedChipValue);
-      idx = (idx + 1) % chips.length;
-      selectedChipValue = chips[idx];
-      document.getElementById('activeChipDisp').innerText = selectedChipValue;
-    }
-
-    function placeMainBet(type) {
-      if (userBalance < selectedChipValue) {
-        alert('অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
-        return;
-      }
-      userBalance -= selectedChipValue;
-      currentBets[type] += selectedChipValue;
-      updateUIBalance();
-      renderBets();
-    }
-
-    function selectSideBet(type) {
-      if (userBalance < selectedChipValue) {
-        alert('অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
-        return;
-      }
-      userBalance -= selectedChipValue;
-      updateUIBalance();
-      alert(type.toUpperCase() + ' সাইড বেট সফলভাবে গৃহীত হয়েছে!');
-    }
-
-    function renderBets() {
-      document.getElementById('betPlayerAmount').innerText = '৳ ' + currentBets.player;
-      document.getElementById('betTieAmount').innerText = '৳ ' + currentBets.tie;
-      document.getElementById('betBankerAmount').innerText = '৳ ' + currentBets.banker;
-    }
-
-    function clearBets() {
-      const refund = currentBets.player + currentBets.banker + currentBets.tie;
-      userBalance += refund;
-      currentBets = { player: 0, banker: 0, tie: 0 };
-      updateUIBalance();
-      renderBets();
-    }
-
-    function openMenu() {
-      alert('মেনু ও সেটিংস অপشن');
-    }
-
-    function initScoreGrid() {
-      const grid = document.getElementById('scoreGrid');
-      grid.innerHTML = '';
-      let pCount = 0, bCount = 0, tCount = 0;
-
-      for (let i = 0; i < 120; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'score-cell';
-        if (i < scoreHistory.length) {
-          const res = scoreHistory[i];
-          const innerSpan = document.createElement('span');
-          innerSpan.innerText = res;
-          innerSpan.className = res === 'P' ? 'score-p flex items-center justify-center' : res === 'B' ? 'score-b flex items-center justify-center' : 'score-t flex items-center justify-center';
-          cell.appendChild(innerSpan);
-
-          if (res === 'P') pCount++;
-          else if (res === 'B') bCount++;
-          else if (res === 'T') tCount++;
-        }
-        grid.appendChild(cell);
-      }
-
-      document.getElementById('countP').innerText = pCount;
-      document.getElementById('countB').innerText = bCount;
-      document.getElementById('countT').innerText = tCount;
-    }
-
-    async function initBaccarat() {
-      await loadTopBar();
-      initScoreGrid();
-
-      if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
-        const user = await getCurrentUser();
-        if (user) {
-          currentUserId = user.id;
-          const { data: profile } = await supabaseClient.from('profiles').select('balance').eq('id', user.id).single();
-          if (profile) {
-            userBalance = parseFloat(profile.balance) || 18.90;
-            updateUIBalance();
-          }
-        }
-      }
-    }
-
-    window.onload = initBaccarat;
+  <script src=baccarat.js>
   </script>
 </body>
+
 </html>
