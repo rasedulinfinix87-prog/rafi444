@@ -29,7 +29,6 @@
       user-select: none;
     }
 
-    /* Slot Machine Felt & Gold Border Frame */
     .slot-frame {
       background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
       border: 3px solid #d4af37;
@@ -37,7 +36,6 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.8), inset 0 0 15px rgba(212,175,55,0.4);
     }
 
-    /* Multiplier Top Bar */
     .multiplier-bar {
       background: linear-gradient(90deg, #b45309 0%, #f59e0b 50%, #b45309 100%);
       border: 2px solid #fef08a;
@@ -45,39 +43,55 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
 
-    /* Slot Reels Card Grid (5x4) */
     .slot-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       grid-template-rows: repeat(4, 1fr);
-      gap: 4px;
+      gap: 5px;
       background: #020617;
       padding: 6px;
       border-radius: 12px;
       border: 2px solid #334155;
     }
 
+    /* Real Printed Playing Card CSS Styling */
     .slot-card {
       aspect-ratio: 3/4;
-      background: #ffffff;
-      border-radius: 8px;
+      background: #f8fafc;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4px;
+      font-weight: 900;
+      font-size: 14px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(0,0,0,0.1);
+      border: 1.5px solid #cbd5e1;
+      position: relative;
+      transition: transform 0.2s;
+    }
+
+    .card-ace { color: #0f172a; border-color: #f59e0b; background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%); }
+    .card-king { color: #b45309; border-color: #d97706; background: linear-gradient(135deg, #ffffff 0%, #fef9c3 100%); }
+    .card-queen { color: #dc2626; border-color: #ef4444; background: linear-gradient(135deg, #ffffff 0%, #fee2e2 100%); }
+    .card-jack { color: #2563eb; border-color: #3b82f6; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); }
+    .card-spade { color: #020617; background: #ffffff; }
+
+    .card-corner {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      font-size: 18px;
-      box-shadow: inset 0 2px 4px rgba(255,255,255,0.8), 0 4px 6px rgba(0,0,0,0.4);
-      border: 2px solid #cbd5e1;
-      transition: transform 0.2s;
+      line-height: 1;
+      font-size: 11px;
     }
-    .card-ace { color: #0f172a; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-color: #f59e0b; }
-    .card-king { color: #b45309; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #d97706; }
-    .card-queen { color: #dc2626; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-color: #ef4444; }
-    .card-jack { color: #2563eb; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-color: #3b82f6; }
-    .card-spade { color: #020617; background: #f8fafc; }
+    .card-center-symbol {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+    }
 
-    /* Golden Spin Button */
     .spin-btn {
       width: 75px;
       height: 75px;
@@ -93,7 +107,6 @@
     }
     .spin-btn:active { transform: scale(0.92); }
 
-    /* Bottom Utility Controls */
     .control-panel {
       background: #111827;
       border-top: 2px solid #1f2937;
@@ -102,7 +115,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
-  <!-- Top Bar Container (Loaded dynamically from bar/top.html) -->
+  <!-- Top Bar Container -->
   <div id="topBarContainer" class="sticky top-0 z-50"></div>
 
   <main class="max-w-md w-full mx-auto flex flex-col flex-1 p-2 gap-2 justify-between">
@@ -117,7 +130,6 @@
         </div>
       </div>
 
-      <!-- Multiplier Steps Bar (x1, x2, x3, x5) -->
       <div class="multiplier-bar flex justify-around items-center py-1.5 px-2 text-black font-black text-sm">
         <span class="bg-white/90 px-3 py-0.5 rounded-lg shadow scale-110 text-amber-700">×1</span>
         <span>×2</span>
@@ -131,7 +143,6 @@
       <div class="slot-grid" id="slotGrid">
         <!-- Rendered via JS -->
       </div>
-      <!-- Win Display Banner -->
       <div class="text-center py-1 font-bold text-xs text-amber-300 tracking-wider">
         WIN: <span id="winAmount" class="text-white">0.000</span>
       </div>
@@ -139,8 +150,6 @@
 
     <!-- Bottom Action Controls & Spin Panel -->
     <div class="control-panel p-3 rounded-2xl flex flex-col gap-3 shadow-2xl">
-      
-      <!-- Win / Balance / Bet Info Row -->
       <div class="flex justify-between items-center text-xs font-bold px-2">
         <div class="flex flex-col">
           <span class="text-gray-400 text-[10px]">BET</span>
@@ -152,29 +161,23 @@
         </div>
       </div>
 
-      <!-- Spin & Auto Spin Buttons -->
       <div class="flex items-center justify-between px-4">
-        <!-- Settings Button -->
-        <button class="w-11 h-11 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-gray-300 hover:text-white shadow">
+        <button class="w-11 h-11 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-gray-300 shadow">
           <i class="fa-solid fa-gear text-sm"></i>
         </button>
 
-        <!-- Bet Minus/Plus or Quick Bet -->
         <button onclick="adjustBet(-0.5)" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-amber-400 font-bold text-lg shadow">-</button>
 
-        <!-- Golden Spin Button -->
         <div class="spin-btn" onclick="triggerSpin()">
           <i class="fa-solid fa-rotate text-2xl text-white"></i>
         </div>
 
         <button onclick="adjustBet(0.5)" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-amber-400 font-bold text-lg shadow">+</button>
 
-        <!-- Auto Spin Button -->
         <button class="w-11 h-11 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-amber-400 shadow" title="Auto Spin">
           <i class="fa-solid fa-bolt text-sm"></i>
         </button>
       </div>
-
     </div>
 
   </main>
@@ -220,7 +223,11 @@
         const randomCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
         const cardDiv = document.createElement('div');
         cardDiv.className = `slot-card ${randomCard.class}`;
-        cardDiv.innerHTML = `<span>${randomCard.name}</span><span class="text-xs">${randomCard.symbol}</span>`;
+        cardDiv.innerHTML = `
+          <div class="card-corner"><span>${randomCard.name}</span><span style="font-size:9px">${randomCard.symbol}</span></div>
+          <div class="card-center-symbol">${randomCard.symbol}</div>
+          <div class="card-corner" style="transform: rotate(180deg)"><span>${randomCard.name}</span><span style="font-size:9px">${randomCard.symbol}</span></div>
+        `;
         grid.appendChild(cardDiv);
       }
     }
@@ -246,7 +253,6 @@
         initGrid();
         grid.style.transform = 'scale(1)';
         
-        // Random Win Simulator
         let win = Math.random() > 0.6 ? currentBet * (Math.floor(Math.random() * 5) + 1) : 0;
         if (win > 0) {
           userBalance += win;
