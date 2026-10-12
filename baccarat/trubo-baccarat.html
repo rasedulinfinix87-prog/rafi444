@@ -14,32 +14,75 @@
 *{box-sizing:border-box;touch-action:manipulation}
 body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-select:none}
 .top-icon-btn{width:30px;height:30px;background:#ffffff18;border:1px solid #ffffff30;border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:13px}
-.timer-ring{width:38px;height:38px;border-radius:50%;background:#080b10;border:3px solid #22c55e;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px}
+.timer-ring{width:38px;height:38px;border-radius:50%;background:#080b10;border:3px solid #22c55e;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;flex-shrink:0}
+.timer-ring.urgent{border-color:#ef4444;color:#fca5a5;animation:pulse .5s infinite alternate}
+@keyframes pulse{to{box-shadow:0 0 12px #ef4444}}
+
 .bet-box-player-pair{background:linear-gradient(135deg,#1e3a8a,#0f172a);border:1.5px solid #3b82f6;border-radius:12px}
 .bet-box-tie{background:linear-gradient(135deg,#065f46,#0f172a);border:1.5px solid #10b981;border-radius:12px}
 .bet-box-banker-pair{background:linear-gradient(135deg,#7f1d1d,#0f172a);border:1.5px solid #ef4444;border-radius:12px}
 .bet-box-player{background:linear-gradient(135deg,#172554,#090d16);border:2px solid #2563eb;border-radius:14px;cursor:pointer}
 .bet-box-banker{background:linear-gradient(135deg,#450a0a,#090d16);border:2px solid #dc2626;border-radius:14px;cursor:pointer}
-.chip-item{width:34px;height:34px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;cursor:pointer;border:2px dashed #ffffffb3;box-shadow:0 3px 6px #0008}
-.chip-item.active{border:3px solid #facc15;transform:scale(1.12);box-shadow:0 0 10px #facc1580}
-.c-5{background:#78716c}.c-10{background:#334155}.c-20{background:#1e3a8a}.c-25{background:#1e293b}.c-50{background:#991b1b}.c-100{background:#0f172a}.c-500{background:#b45309}
+.bet-choice{cursor:pointer;transition:transform .15s,filter .15s}
+.bet-choice:active{transform:scale(.97)}
+.bet-choice.disabled{opacity:.45;pointer-events:none}
+
 .scoreboard-panel{background:#111418;border:1px solid #26303e;border-radius:12px}
 
-/* Dealer table */
+/* Casino chips inspired by the reference image */
+.chip-row{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:9px 5px}
+.chip-item{
+ --chip:#64748b;
+ width:43px;height:43px;flex:0 0 43px;position:relative;
+ border-radius:50%;display:flex;align-items:center;justify-content:center;
+ cursor:pointer;color:white;font-weight:900;font-size:10px;
+ background:var(--chip);
+ border:3px dashed rgba(255,255,255,.9);
+ box-shadow:0 3px 7px #0009,inset 0 0 0 3px rgba(0,0,0,.13);
+ transition:transform .16s,box-shadow .16s;
+}
+.chip-item:before{
+ content:"";position:absolute;inset:4px;border-radius:50%;
+ border:1.5px solid rgba(255,255,255,.65);
+ pointer-events:none
+}
+.chip-item span{position:relative;z-index:1;text-shadow:0 1px 2px #0009}
+.chip-item.active{
+ transform:scale(1.12);
+ box-shadow:0 0 0 2px #facc15,0 0 13px var(--chip);
+ z-index:2
+}
+.chip-item.active:after{
+ content:"";position:absolute;inset:-5px;border-radius:50%;
+ border:2px solid #facc15
+}
+.chip-20{--chip:#f5f2e9;color:#172033}
+.chip-20 span{text-shadow:none}
+.chip-50{--chip:#dc2626}
+.chip-100{--chip:#2548ad}
+.chip-200{--chip:#07976b}
+.chip-500{--chip:#17191e}
+.chip-1k{--chip:#a855f7}
+.chip-10k{--chip:#d6a32f;color:#201605}
+.chip-10k span{text-shadow:none}
+
 .dealer-table{
- position:relative;height:260px;overflow:hidden;border-radius:20px;
+ position:relative;height:280px;overflow:hidden;border-radius:20px;
  border:1px solid #735b45;
  background:radial-gradient(ellipse at center,#183e38 0%,#09251f 55%,#070c10 100%);
  box-shadow:inset 0 0 35px #000b,0 5px 18px #0006
 }
 .table-glow{position:absolute;inset:0;background:linear-gradient(120deg,#ffffff0b,transparent 35%,#0004)}
-.dealer-image{
- position:absolute;inset:0;background-size:cover;background-position:center 35%;
- opacity:.45;filter:brightness(.65) saturate(.85)
-}
+.dealer-image{position:absolute;inset:0;background-size:cover;background-position:center 35%;opacity:.45;filter:brightness(.65) saturate(.85)}
 .dealer-shade{position:absolute;inset:0;background:linear-gradient(to bottom,#07100b33 0%,#07100b45 40%,#050907ef 100%)}
 .table-top{position:absolute;top:10px;left:10px;right:10px;z-index:5;display:flex;justify-content:space-between;align-items:center}
-.table-middle{position:absolute;top:58px;left:10px;right:10px;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:8px}
+
+/* Both shoe and dealer tag lowered */
+.table-middle{
+ position:absolute;top:91px;left:10px;right:10px;
+ z-index:5;display:flex;justify-content:space-between;
+ align-items:center;gap:8px
+}
 .shoe{
  width:100px;height:65px;flex-shrink:0;position:relative;
  background:linear-gradient(135deg,#777e84,#242a30 35%,#080c11 75%,#5b626a);
@@ -55,55 +98,54 @@ body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-se
  border:2px solid #f1dfb7;border-radius:3px;box-shadow:0 2px 4px #000
 }
 .dealer-tag{font-size:10px;font-weight:800;background:#100d20d9;border:1px solid #a855f766;color:#e9d5ff;padding:7px 9px;border-radius:20px}
-.card-areas{position:absolute;z-index:4;left:8px;right:8px;bottom:36px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.hand{min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px}
+
+.card-areas{position:absolute;z-index:4;left:8px;right:8px;bottom:29px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hand{min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
 .hand-title{font-size:10px;font-weight:900;letter-spacing:1px;padding:3px 8px;border-radius:5px;background:#050907c9}
-.hand-cards{min-height:77px;width:100%;display:flex;justify-content:center;align-items:center;gap:4px}
-.hand-score{font-size:12px;font-weight:900;min-height:15px}
+.hand-cards{min-height:67px;width:100%;display:flex;justify-content:center;align-items:center;gap:3px}
+.hand-score{font-size:11px;font-weight:900;min-height:14px}
 .play-score{color:#60a5fa}.bank-score{color:#f87171}
 .play-title{color:#60a5fa}.bank-title{color:#f87171}
 
-/* Cards */
 .playing-card{
- width:43px;height:65px;flex-shrink:0;background:linear-gradient(135deg,#fff,#e7e9ee);
+ width:39px;height:59px;flex-shrink:0;background:linear-gradient(135deg,#fff,#e7e9ee);
  color:#171717;border-radius:5px;border:1px solid #c9cbd1;
- box-shadow:0 4px 9px #0009;position:relative;
- padding:4px;display:flex;flex-direction:column;justify-content:space-between;
- font-family:Georgia,serif;font-weight:900;
- opacity:0;transform:translate(60px,-25px) rotate(25deg) scale(.65);
+ box-shadow:0 4px 9px #0009;position:relative;padding:3px;
+ display:flex;flex-direction:column;justify-content:space-between;
+ font-family:Georgia,serif;font-weight:900;opacity:0;
  animation:cardFly .42s cubic-bezier(.2,.8,.2,1) forwards
 }
 .playing-card.red{color:#dc2626}
-.card-corner{font-size:12px;line-height:11px}
-.card-corner small{display:block;font-size:11px}
-.card-suit{font-size:24px;line-height:1;text-align:center}
+.card-corner{font-size:11px;line-height:10px}
+.card-corner small{display:block;font-size:10px}
+.card-suit{font-size:22px;line-height:1;text-align:center}
 .card-bottom{align-self:flex-end;transform:rotate(180deg)}
-.card-back{
- background:repeating-linear-gradient(45deg,#152a50 0 4px,#f2d5a2 4px 5px);
- border:3px solid #fff;
-}
+.shoe.dealing .shoe-card{animation:shoePulse .35s ease-in-out}
+@keyframes shoePulse{50%{transform:translateX(8px) rotate(8deg)}}
 @keyframes cardFly{
  0%{opacity:0;transform:translate(65px,-25px) rotate(25deg) scale(.65)}
  70%{opacity:1;transform:translate(-4px,2px) rotate(-4deg) scale(1.04)}
  100%{opacity:1;transform:translate(0,0) rotate(0) scale(1)}
 }
-.shoe.dealing .shoe-card{animation:shoePulse .35s ease-in-out}
-@keyframes shoePulse{50%{transform:translateX(8px) rotate(8deg)}}
 .deal-button{
  width:100%;padding:11px 12px;border-radius:11px;
  color:#161006;font-size:13px;font-weight:1000;letter-spacing:1px;
  background:linear-gradient(135deg,#ffe6a1,#d9a441,#f6d68d);
- border:1px solid #ffe5a1;box-shadow:0 3px 12px #e4ae343b;
+ border:1px solid #ffe5a1;box-shadow:0 3px 12px #e4ae343b
 }
 .deal-button:disabled{opacity:.45;filter:grayscale(.5)}
-.status-message{font-size:10px;font-weight:800;color:#d8c49c;text-align:center;min-height:13px}
+.status-message{font-size:10px;font-weight:800;color:#d8c49c;text-align:center;min-height:14px;padding:0 4px}
+.payout-message{font-size:11px;font-weight:800;color:#facc15;text-align:center;line-height:1.5}
 @media(max-width:360px){
- .dealer-table{height:245px}
- .shoe{width:82px;height:59px}
- .playing-card{width:37px;height:59px;padding:3px}
+ .dealer-table{height:270px}
+ .shoe{width:84px;height:59px}
+ .shoe-card{left:20px}
+ .playing-card{width:34px;height:55px;padding:3px}
  .hand-cards{gap:2px}
  .dealer-tag{font-size:9px;padding:6px}
- .chip-item{width:31px;height:31px;font-size:9px}
+ .chip-row{gap:2px;padding-left:2px;padding-right:2px}
+ .chip-item{width:38px;height:38px;flex-basis:38px;font-size:9px}
+ .table-middle{top:89px}
 }
 </style>
 </head>
@@ -113,7 +155,6 @@ body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-se
 
 <main class="max-w-md w-full mx-auto flex flex-col flex-1 p-2 gap-2">
 
-<!-- Dealer table and card shoe -->
 <section class="dealer-table">
  <div class="dealer-image" style="background-image:url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=700&auto=format&fit=crop')"></div>
  <div class="dealer-shade"></div>
@@ -129,10 +170,8 @@ body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-se
 
  <div class="table-middle">
   <div class="flex flex-col items-center gap-1">
-   <div class="shoe" id="cardShoe">
-    <div class="shoe-card"></div>
-   </div>
-   <span class="text-[9px] font-extrabold text-amber-200">8 DECKS</span>
+   <div class="shoe" id="cardShoe"><div class="shoe-card"></div></div>
+   <span class="text-[9px] font-extrabold text-amber-200">CARD SHOE · 8 DECKS</span>
   </div>
   <div class="dealer-tag flex items-center gap-2">
    <span>Aria (3D Dealer)</span>
@@ -152,29 +191,31 @@ body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-se
    <div class="hand-score play-score" id="playerScore"></div>
   </div>
  </div>
-
- <div class="absolute bottom-2 left-0 right-0 z-10 status-message" id="dealStatus">Select a chip and place your bet</div>
+ <div class="absolute bottom-2 left-0 right-0 z-10 status-message" id="dealStatus">Place your bets · 10 seconds</div>
 </section>
 
-<!-- Pair bets -->
+<!-- Pair bets: clickable -->
 <div class="grid grid-cols-3 gap-1.5">
- <div class="bet-box-player-pair p-1.5 flex flex-col items-center justify-center text-center h-14">
+ <div onclick="makeBet('playerPair')" class="bet-choice bet-box-player-pair p-1.5 flex flex-col items-center justify-center text-center h-14">
   <span class="font-extrabold text-[10px] text-white">PLAYER<br>PAIR</span>
   <span class="text-[9px] text-blue-300 font-bold">11:1</span>
+  <span id="playerPairBet" class="text-[9px] text-amber-300">৳ 0</span>
  </div>
- <div class="bet-box-tie p-1.5 flex flex-col items-center justify-center text-center h-14">
+ <div onclick="makeBet('tie')" class="bet-choice bet-box-tie p-1.5 flex flex-col items-center justify-center text-center h-14">
   <span class="font-extrabold text-[10px] text-white">TIE</span>
   <span class="text-[9px] text-emerald-300 font-bold">8:1</span>
+  <span id="tieBet" class="text-[9px] text-amber-300">৳ 0</span>
  </div>
- <div class="bet-box-banker-pair p-1.5 flex flex-col items-center justify-center text-center h-14">
+ <div onclick="makeBet('bankerPair')" class="bet-choice bet-box-banker-pair p-1.5 flex flex-col items-center justify-center text-center h-14">
   <span class="font-extrabold text-[10px] text-white">BANKER<br>PAIR</span>
   <span class="text-[9px] text-red-300 font-bold">11:1</span>
+  <span id="bankerPairBet" class="text-[9px] text-amber-300">৳ 0</span>
  </div>
 </div>
 
 <!-- Main bets -->
 <div class="grid grid-cols-2 gap-1.5">
- <div onclick="makeBet('player')" class="bet-box-player p-2.5 flex flex-col justify-between h-20 shadow-xl active:scale-95 transition">
+ <div onclick="makeBet('player')" class="bet-choice bet-box-player p-2.5 flex flex-col justify-between h-20 shadow-xl">
   <div class="flex justify-between items-start">
    <span class="font-black text-xs text-white">PLAYER</span>
    <span class="text-[8px] font-bold text-blue-200 bg-blue-900 border border-blue-500 rounded-full px-1.5 py-1">42%</span>
@@ -185,7 +226,7 @@ body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-se
   </div>
  </div>
 
- <div onclick="makeBet('banker')" class="bet-box-banker p-2.5 flex flex-col justify-between h-20 shadow-xl active:scale-95 transition">
+ <div onclick="makeBet('banker')" class="bet-choice bet-box-banker p-2.5 flex flex-col justify-between h-20 shadow-xl">
   <div class="flex justify-between items-start">
    <span class="text-[8px] font-bold text-red-200 bg-red-900 border border-red-500 rounded-full px-1.5 py-1">51%</span>
    <span class="font-black text-xs text-white">BANKER</span>
@@ -197,29 +238,26 @@ body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-se
  </div>
 </div>
 
-<!-- Chips -->
-<div class="scoreboard-panel p-2 flex items-center justify-around shadow-md">
- <div class="chip-item c-5" onclick="selectChip(5,this)">5</div>
- <div class="chip-item c-10" onclick="selectChip(10,this)">10</div>
- <div class="chip-item c-20" onclick="selectChip(20,this)">20</div>
- <div class="chip-item c-25 active" onclick="selectChip(25,this)">25</div>
- <div class="chip-item c-50" onclick="selectChip(50,this)">50</div>
- <div class="chip-item c-100" onclick="selectChip(100,this)">100</div>
- <div class="chip-item c-500" onclick="selectChip(500,this)">500</div>
+<!-- Seven uniquely colored chips -->
+<div class="scoreboard-panel chip-row shadow-md">
+ <div class="chip-item chip-20" data-value="20" onclick="selectChip(20,this)"><span>20</span></div>
+ <div class="chip-item chip-50" data-value="50" onclick="selectChip(50,this)"><span>50</span></div>
+ <div class="chip-item chip-100" data-value="100" onclick="selectChip(100,this)"><span>100</span></div>
+ <div class="chip-item chip-200" data-value="200" onclick="selectChip(200,this)"><span>200</span></div>
+ <div class="chip-item chip-500" data-value="500" onclick="selectChip(500,this)"><span>500</span></div>
+ <div class="chip-item chip-1k" data-value="1000" onclick="selectChip(1000,this)"><span>1K</span></div>
+ <div class="chip-item chip-10k" data-value="10000" onclick="selectChip(10000,this)"><span>10K</span></div>
 </div>
 
-<!-- Deal button -->
 <button id="dealButton" class="deal-button" onclick="dealCards()">
  <i class="fa-solid fa-clone mr-2"></i> DEAL CARDS
 </button>
 
-<!-- History / prediction -->
+<div id="payoutMessage" class="payout-message"></div>
+
+<!-- History and statistics -->
 <div class="scoreboard-panel p-2.5 flex gap-3 justify-between items-center shadow-md">
- <div id="historyDots" class="flex flex-wrap gap-1 p-1 bg-black/40 rounded-lg min-w-[75px]">
-  <span class="bg-red-500 w-2.5 h-2.5 rounded-full"></span>
-  <span class="bg-blue-500 w-2.5 h-2.5 rounded-full"></span>
-  <span class="bg-emerald-500 w-2.5 h-2.5 rounded-full"></span>
- </div>
+ <div id="historyDots" class="flex flex-wrap gap-1 p-1 bg-black/40 rounded-lg min-w-[75px]"></div>
  <div class="flex flex-col gap-1.5 flex-1">
   <div class="flex justify-between items-center text-[10px] font-bold px-1">
    <div class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span><span id="bankerWins">0</span></div>
@@ -233,9 +271,8 @@ body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-se
  </div>
 </div>
 
-<!-- Balance -->
 <div class="flex justify-between items-center text-[10px] px-2 text-gray-400 font-semibold pt-1 gap-1">
- <span>Bet limit: 5-500</span>
+ <span>Bet limit: 20-10K</span>
  <span>Balance: <strong id="footerBalance" class="text-white">1.108.654৳</strong></span>
  <span>Total: <strong id="totalBet" class="text-amber-400">0</strong></span>
 </div>
@@ -243,20 +280,27 @@ body{background:#121417;color:#fff;font-family:Arial,sans-serif;margin:0;user-se
 </main>
 
 <script>
-let selectedChip = 25;
-let playerTotalBet = 0;
-let bankerTotalBet = 0;
-let dealing = false;
-let roundNumber = 0;
-let playerWins = 0;
-let bankerWins = 0;
-let tieWins = 0;
-let history = [];
+let selectedChip=20;
+let dealing=false;
+let bettingOpen=true;
+let secondsLeft=10;
+let timerInterval=null;
+let roundNumber=0;
 
-/* Load existing top bar */
+let bets={
+ player:0,
+ banker:0,
+ playerPair:0,
+ tie:0,
+ bankerPair:0
+};
+
+let playerWins=0,bankerWins=0,tieWins=0;
+let history=[];
+
 async function loadTopBar(){
  try{
-  const res = await fetch('../bar/top.html');
+  const res=await fetch('../bar/top.html');
   if(res.ok){
    document.getElementById('topBarContainer').innerHTML=await res.text();
    document.querySelectorAll('a[href*="deposit"]').forEach(a=>{
@@ -266,31 +310,81 @@ async function loadTopBar(){
  }catch(e){console.error('Top bar load error:',e)}
 }
 
-/* Chip selection */
 function selectChip(value,element){
- if(dealing)return;
+ if(!bettingOpen||dealing)return;
  selectedChip=value;
  document.querySelectorAll('.chip-item').forEach(c=>c.classList.remove('active'));
  element.classList.add('active');
 }
 
-/* Place bet; cards do NOT come out yet */
-function makeBet(type){
- if(dealing)return;
-
- if(type==='player'){
-  playerTotalBet+=selectedChip;
-  document.getElementById('playerBetAmount').textContent='৳ '+playerTotalBet;
- }else{
-  bankerTotalBet+=selectedChip;
-  document.getElementById('bankerBetAmount').textContent='৳ '+bankerTotalBet;
- }
-
- document.getElementById('totalBet').textContent=playerTotalBet+bankerTotalBet;
- document.getElementById('dealStatus').textContent='Bet placed. Press DEAL CARDS.';
+function totalBets(){
+ return Object.values(bets).reduce((a,b)=>a+b,0);
 }
 
-/* Baccarat card deck */
+function updateBetDisplay(){
+ document.getElementById('playerBetAmount').textContent='৳ '+bets.player;
+ document.getElementById('bankerBetAmount').textContent='৳ '+bets.banker;
+ document.getElementById('playerPairBet').textContent='৳ '+bets.playerPair;
+ document.getElementById('tieBet').textContent='৳ '+bets.tie;
+ document.getElementById('bankerPairBet').textContent='৳ '+bets.bankerPair;
+ document.getElementById('totalBet').textContent=totalBets();
+}
+
+function makeBet(type){
+ if(!bettingOpen||dealing){
+  document.getElementById('dealStatus').textContent='Betting is closed for this round.';
+  return;
+ }
+
+ bets[type]+=selectedChip;
+ updateBetDisplay();
+ document.getElementById('payoutMessage').textContent='';
+ document.getElementById('dealStatus').textContent=
+  'Bet ৳ '+selectedChip+' placed · '+secondsLeft+'s remaining';
+}
+
+function startTimer(){
+ clearInterval(timerInterval);
+ secondsLeft=10;
+ bettingOpen=true;
+ updateTimerDisplay();
+
+ document.getElementById('dealStatus').textContent='Place your bets · 10 seconds';
+ document.querySelectorAll('.bet-choice').forEach(el=>el.classList.remove('disabled'));
+ document.getElementById('dealButton').disabled=false;
+ document.getElementById('dealButton').innerHTML=
+  '<i class="fa-solid fa-clone mr-2"></i> DEAL CARDS';
+
+ timerInterval=setInterval(()=>{
+  if(!bettingOpen||dealing)return;
+  secondsLeft--;
+  updateTimerDisplay();
+
+  if(secondsLeft<=0){
+   clearInterval(timerInterval);
+   bettingOpen=false;
+   document.querySelectorAll('.bet-choice').forEach(el=>el.classList.add('disabled'));
+   document.getElementById('dealStatus').textContent='Betting closed. Dealing cards...';
+
+   if(totalBets()>0){
+    dealCards();
+   }else{
+    document.getElementById('dealStatus').textContent='No bets placed. Starting next round.';
+    setTimeout(()=>{
+     if(!dealing)startTimer();
+    },1200);
+   }
+  }
+ },1000);
+}
+
+function updateTimerDisplay(){
+ const el=document.getElementById('timerDisplay');
+ el.textContent=secondsLeft;
+ el.classList.toggle('urgent',secondsLeft<=3);
+}
+
+/* Eight shuffled decks */
 const SUITS=[
  {symbol:'♠',color:'black'},
  {symbol:'♥',color:'red'},
@@ -332,15 +426,17 @@ function handValue(cards){
  return cards.reduce((sum,card)=>sum+cardValue(card),0)%10;
 }
 
-/* Draw an actual playing-card element */
 function createCardElement(card,index){
  const el=document.createElement('div');
  el.className='playing-card '+(card.color==='red'?'red':'');
- el.style.animationDelay=(index*0.06)+'s';
+ el.style.animationDelay=(index*.06)+'s';
 
  const top=document.createElement('div');
  top.className='card-corner';
- top.innerHTML=card.rank+'<small>'+card.suit+'</small>';
+ top.textContent=card.rank;
+ const topSuit=document.createElement('small');
+ topSuit.textContent=card.suit;
+ top.appendChild(topSuit);
 
  const suit=document.createElement('div');
  suit.className='card-suit';
@@ -348,7 +444,10 @@ function createCardElement(card,index){
 
  const bottom=document.createElement('div');
  bottom.className='card-corner card-bottom';
- bottom.innerHTML=card.rank+'<small>'+card.suit+'</small>';
+ bottom.textContent=card.rank;
+ const bottomSuit=document.createElement('small');
+ bottomSuit.textContent=card.suit;
+ bottom.appendChild(bottomSuit);
 
  el.append(top,suit,bottom);
  return el;
@@ -358,35 +457,127 @@ function sleep(ms){
  return new Promise(resolve=>setTimeout(resolve,ms));
 }
 
-/* Deal cards from the shoe */
+/* Standard third-card decision for the Banker */
+function shouldBankerDraw(bankerScore,playerThird){
+ if(playerThird===null)return bankerScore<=5;
+
+ const third=cardValue(playerThird);
+
+ if(bankerScore<=2)return true;
+ if(bankerScore===3)return third!==8;
+ if(bankerScore===4)return third>=2&&third<=7;
+ if(bankerScore===5)return third>=4&&third<=7;
+ if(bankerScore===6)return third===6||third===7;
+
+ return false;
+}
+
+/* Resolve all main and side bets */
+function calculatePayout(winner,playerCards,bankerCards){
+ let returned=0;
+ let lines=[];
+
+ const pScore=handValue(playerCards);
+ const bScore=handValue(bankerCards);
+
+ const playerPair=playerCards[0].rank===playerCards[1].rank;
+ const bankerPair=bankerCards[0].rank===bankerCards[1].rank;
+
+ /* Main Player bet: 1:1; pushes on a tie */
+ if(bets.player>0){
+  if(winner==='player'){
+   returned+=bets.player*2;
+   lines.push('Player bet: +৳ '+bets.player+' profit');
+  }else if(winner==='tie'){
+   returned+=bets.player;
+   lines.push('Player bet: stake returned');
+  }else{
+   lines.push('Player bet lost: ৳ '+bets.player);
+  }
+ }
+
+ /* Main Banker bet: 0.95:1; pushes on a tie */
+ if(bets.banker>0){
+  if(winner==='banker'){
+   returned+=bets.banker*1.95;
+   lines.push('Banker bet: +৳ '+(bets.banker*.95)+' profit');
+  }else if(winner==='tie'){
+   returned+=bets.banker;
+   lines.push('Banker bet: stake returned');
+  }else{
+   lines.push('Banker bet lost: ৳ '+bets.banker);
+  }
+ }
+
+ /* Player Pair: 11:1 */
+ if(bets.playerPair>0){
+  if(playerPair){
+   returned+=bets.playerPair*12;
+   lines.push('Player Pair WON · 11:1 · Return ৳ '+(bets.playerPair*12));
+  }else{
+   lines.push('Player Pair lost: ৳ '+bets.playerPair);
+  }
+ }
+
+ /* Tie: 8:1 */
+ if(bets.tie>0){
+  if(winner==='tie'){
+   returned+=bets.tie*9;
+   lines.push('Tie WON · 8:1 · Return ৳ '+(bets.tie*9));
+  }else{
+   lines.push('Tie lost: ৳ '+bets.tie);
+  }
+ }
+
+ /* Banker Pair: 11:1 */
+ if(bets.bankerPair>0){
+  if(bankerPair){
+   returned+=bets.bankerPair*12;
+   lines.push('Banker Pair WON · 11:1 · Return ৳ '+(bets.bankerPair*12));
+  }else{
+   lines.push('Banker Pair lost: ৳ '+bets.bankerPair);
+  }
+ }
+
+ const result={
+  returned:Math.round(returned*100)/100,
+  lines,
+  playerPair,
+  bankerPair,
+  playerScore:pScore,
+  bankerScore:bScore
+ };
+
+ return result;
+}
+
 async function dealCards(){
  if(dealing)return;
 
- if(playerTotalBet+bankerTotalBet<=0){
-  document.getElementById('dealStatus').textContent='Please place a Player or Banker bet first.';
+ if(totalBets()<=0){
+  document.getElementById('dealStatus').textContent='Please place a bet first.';
   return;
  }
 
  dealing=true;
+ bettingOpen=false;
+ clearInterval(timerInterval);
+
  const button=document.getElementById('dealButton');
  button.disabled=true;
  button.innerHTML='<i class="fa-solid fa-spinner fa-spin mr-2"></i> DEALING...';
+
+ document.querySelectorAll('.bet-choice').forEach(el=>el.classList.add('disabled'));
 
  document.getElementById('playerCardSlot').innerHTML='';
  document.getElementById('bankerCardSlot').innerHTML='';
  document.getElementById('playerScore').textContent='';
  document.getElementById('bankerScore').textContent='';
- document.getElementById('dealStatus').textContent='Cards are coming from the shoe...';
+ document.getElementById('payoutMessage').textContent='';
 
  const shoe=document.getElementById('cardShoe');
- const playerCards=[];
- const bankerCards=[];
+ const playerCards=[],bankerCards=[];
 
- /*
-  Initial dealing order:
-  Player, Banker, Player, Banker.
-  Card values and results are generated in the browser.
- */
  const sequence=[
   {hand:playerCards,slot:'playerCardSlot'},
   {hand:bankerCards,slot:'bankerCardSlot'},
@@ -394,64 +585,57 @@ async function dealCards(){
   {hand:bankerCards,slot:'bankerCardSlot'}
  ];
 
- for(let i=0;i<sequence.length;i++){
+ for(const item of sequence){
   shoe.classList.remove('dealing');
   void shoe.offsetWidth;
   shoe.classList.add('dealing');
 
-  const item=sequence[i];
   const card=drawCard();
   item.hand.push(card);
-
   await sleep(330);
 
-  document.getElementById(item.slot)
-   .appendChild(createCardElement(card,item.hand.length-1));
+  document.getElementById(item.slot).appendChild(
+   createCardElement(card,item.hand.length-1)
+  );
 
-  document.getElementById(item.hand===playerCards?'playerScore':'bankerScore')
-   .textContent='Score: '+handValue(item.hand);
-
+  const scoreId=item.hand===playerCards?'playerScore':'bankerScore';
+  document.getElementById(scoreId).textContent='Score: '+handValue(item.hand);
   await sleep(180);
  }
 
  shoe.classList.remove('dealing');
 
- /*
-  Simplified Baccarat third-card rules.
-  Player draws on 0-5 and stands on 6-7.
-  Banker follows the standard third-card table.
- */
  const playerInitial=handValue(playerCards);
  const bankerInitial=handValue(bankerCards);
 
- let playerThird=null;
- let bankerThird=null;
+ /* Natural 8 or 9: both hands stand */
+ const natural=playerInitial>=8||bankerInitial>=8;
 
- if(playerInitial<=5){
+ let playerThird=null;
+
+ if(!natural&&playerInitial<=5){
   playerThird=drawCard();
   playerCards.push(playerThird);
   await sleep(350);
-  document.getElementById('playerCardSlot')
-   .appendChild(createCardElement(playerThird,playerCards.length-1));
+
+  document.getElementById('playerCardSlot').appendChild(
+   createCardElement(playerThird,playerCards.length-1)
+  );
   document.getElementById('playerScore').textContent='Score: '+handValue(playerCards);
  }
 
- const bankerShouldDraw=shouldBankerDraw(
-  bankerInitial,
-  playerInitial,
-  playerThird
- );
-
- if(bankerShouldDraw){
-  bankerThird=drawCard();
+ if(!natural&&shouldBankerDraw(bankerInitial,playerThird)){
+  const bankerThird=drawCard();
   bankerCards.push(bankerThird);
   await sleep(400);
-  document.getElementById('bankerCardSlot')
-   .appendChild(createCardElement(bankerThird,bankerCards.length-1));
+
+  document.getElementById('bankerCardSlot').appendChild(
+   createCardElement(bankerThird,bankerCards.length-1)
+  );
   document.getElementById('bankerScore').textContent='Score: '+handValue(bankerCards);
  }
 
- await sleep(350);
+ await sleep(250);
 
  const pScore=handValue(playerCards);
  const bScore=handValue(bankerCards);
@@ -465,38 +649,39 @@ async function dealCards(){
 
  roundNumber++;
 
+ const result=calculatePayout(winner,playerCards,bankerCards);
+
  document.getElementById('dealStatus').textContent=
-  winner==='tie'?'TIE! Both scores are equal.':
-  winner==='player'?'PLAYER WINS!':'BANKER WINS!';
+  winner==='tie'?'TIE · '+pScore+' - '+bScore:
+  winner==='player'?'PLAYER WINS · '+pScore+' - '+bScore:
+  'BANKER WINS · '+bScore+' - '+pScore;
+
+ document.getElementById('payoutMessage').textContent=
+  'Total returned: ৳ '+result.returned+
+  ' · Net: ৳ '+Math.round((result.returned-totalBets())*100)/100+
+  ' · '+(result.playerPair?'Player Pair! ':'')+
+  (result.bankerPair?'Banker Pair!':'');
 
  recordResult(winner);
+
+ /* Show individual side-bet results */
+ document.getElementById('predictionText').textContent=
+  result.lines.length?result.lines.join(' | '):'Round complete';
+
+ bets={player:0,banker:0,playerPair:0,tie:0,bankerPair:0};
+ updateBetDisplay();
 
  button.disabled=false;
  button.innerHTML='<i class="fa-solid fa-rotate-right mr-2"></i> NEXT ROUND';
 
  dealing=false;
+
+ /* Begin a fresh 10-second betting period */
+ setTimeout(()=>{
+  if(!dealing)startTimer();
+ },1800);
 }
 
-/* Banker drawing rules */
-function shouldBankerDraw(bankerScore,playerScore,playerThird){
- if(playerScore>=8&&bankerScore>=0)return false;
-
- if(!playerThird){
-  return bankerScore<=5;
- }
-
- const third=cardValue(playerThird);
-
- if(bankerScore<=2)return true;
- if(bankerScore===3)return third!==8;
- if(bankerScore===4)return third>=2&&third<=7;
- if(bankerScore===5)return third>=4&&third<=7;
- if(bankerScore===6)return third===6||third===7;
-
- return false;
-}
-
-/* Result history */
 function recordResult(winner){
  if(winner==='player')playerWins++;
  else if(winner==='banker')bankerWins++;
@@ -520,44 +705,32 @@ function recordResult(winner){
   );
   dots.appendChild(dot);
  });
-
- /*
-  Bets are displayed for the completed round.
-  No database balance changes are made by this demo.
- */
- playerTotalBet=0;
- bankerTotalBet=0;
- document.getElementById('playerBetAmount').textContent='৳ 0';
- document.getElementById('bankerBetAmount').textContent='৳ 0';
- document.getElementById('totalBet').textContent='0';
 }
 
-/* Clear bet amounts before dealing */
 function clearBets(){
- if(dealing)return;
+ if(dealing||!bettingOpen)return;
 
- playerTotalBet=0;
- bankerTotalBet=0;
-
- document.getElementById('playerBetAmount').textContent='৳ 0';
- document.getElementById('bankerBetAmount').textContent='৳ 0';
- document.getElementById('totalBet').textContent='0';
- document.getElementById('dealStatus').textContent='Bets cleared. Select a bet.';
+ bets={player:0,banker:0,playerPair:0,tie:0,bankerPair:0};
+ updateBetDisplay();
+ document.getElementById('payoutMessage').textContent='';
+ document.getElementById('dealStatus').textContent='Bets cleared.';
 }
 
 function clearRoundDisplay(){
- if(dealing)return;
- document.getElementById('dealStatus').textContent='Select a chip and place your bet.';
+ document.getElementById('dealStatus').textContent=
+  bettingOpen?'Place your bets · '+secondsLeft+' seconds':'Betting is closed';
 }
 
 function showPrediction(){
  document.getElementById('predictionText').textContent=
-  'History only — next result is random';
+  'Past results are not a reliable prediction';
 }
 
-/* Initial setup */
 window.addEventListener('load',async()=>{
  await loadTopBar();
+ document.querySelector('.chip-item[data-value="20"]').classList.add('active');
+ updateBetDisplay();
+ startTimer();
 });
 </script>
 </body>
