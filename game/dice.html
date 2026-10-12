@@ -149,31 +149,9 @@
 
   <div class="w-full max-w-2xl min-h-screen flex flex-col justify-between overflow-x-hidden my-auto">
     
-    <!-- Header -->
-    <header class="flex items-center justify-between p-3 sm:p-4 border-b border-[#222b3a] bg-[#0f141c] sticky top-0 z-40">
-      <!-- Left Home/Back Button -->
-      <a href="../index.html" class="w-10 h-10 rounded-xl bg-[#171d28] border border-[#222b3a] text-gray-400 hover:text-white transition flex items-center justify-center">
-        <i class="fa-solid fa-chevron-left"></i>
-      </a>
-
-      <!-- Right Balance and Deposit Controls -->
-      <div class="flex items-center gap-2">
-        <!-- Balance Display Dropdown -->
-        <div class="flex items-center bg-[#0f141c] border border-[#222b3a] rounded-xl px-3 py-1.5 gap-2">
-          <div class="w-5 h-5 rounded-full bg-[#24ee89] text-[#0f141c] flex items-center justify-center font-bold text-xs">
-            <i class="fa-solid fa-coins"></i>
-          </div>
-          <div class="flex flex-col">
-            <span class="text-[10px] text-gray-400 leading-tight">Balance</span>
-            <span class="text-sm font-bold text-white leading-tight" id="userBalance">৳ 0.00</span>
-          </div>
-        </div>
-
-        <!-- Deposit Button -->
-        <a href="../account/deposit.html" class="h-10 px-3.5 green-button font-bold rounded-xl flex items-center justify-center transition gap-1 text-sm">
-          <i class="fa-solid fa-plus font-bold"></i>
-        </a>
-      </div>
+    <!-- Header with bar/top.html connected -->
+    <header class="w-full sticky top-0 z-40 bg-[#0f141c]">
+      <iframe src="../bar/top.html" class="w-full border-0" style="height: 60px;" scrolling="no"></iframe>
     </header>
 
     <main class="p-3 sm:p-5 flex flex-col gap-4 bg-[#0f141c] flex-1">
@@ -605,7 +583,6 @@
     const btnBet = document.getElementById('btnBet');
     const diceResultBox = document.getElementById('diceResultBox');
     const diceResultText = document.getElementById('diceResultText');
-    const userBalance = document.getElementById('userBalance');
     const historyContainer = document.getElementById('historyContainer');
     const dirToggleBtn = document.getElementById('dirToggleBtn');
 
@@ -633,7 +610,6 @@
 
           if (profile) {
             balance = parseFloat(profile.balance);
-            updateBalanceUI();
           }
 
           supabaseClient
@@ -644,17 +620,12 @@
               (payload) => {
                 if (payload.new && payload.new.balance !== undefined) {
                   balance = parseFloat(payload.new.balance);
-                  updateBalanceUI();
                 }
               }
             )
             .subscribe();
         }
       }
-    }
-
-    function updateBalanceUI() {
-      userBalance.innerText = `৳ ${balance.toFixed(2)}`;
     }
 
     // Slider Bar UI Synchronization
@@ -789,7 +760,6 @@
 
       if (currentBet > 0) {
         balance -= currentBet;
-        updateBalanceUI();
       }
 
       const rollResult = parseFloat((Math.random() * 99.99).toFixed(2));
@@ -819,7 +789,6 @@
           if (isWin) {
             winAmount = currentBet > 0 ? (currentBet * multiplier) : 0;
             balance += winAmount;
-            updateBalanceUI();
             consecutiveWins++;
             consecutiveLosses = 0;
             totalWins++;
