@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Live Baccarat Casino</title>
+  <title>3D Cartoon Live Baccarat</title>
 
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -29,7 +29,6 @@
       user-select: none;
     }
 
-    /* Top Bar Header Buttons */
     .top-icon-btn {
       width: 32px;
       height: 32px;
@@ -44,7 +43,6 @@
       backdrop-filter: blur(4px);
     }
 
-    /* Circular Countdown Timer */
     .timer-ring {
       width: 42px;
       height: 42px;
@@ -60,34 +58,14 @@
       box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
     }
 
-    /* Baccarat Betting Boxes matching the image */
-    .bet-box-player-pair {
-      background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
-      border: 1.5px solid #3b82f6;
-      border-radius: 14px;
-    }
-    .bet-box-tie {
-      background: linear-gradient(135deg, #065f46 0%, #0f172a 100%);
-      border: 1.5px solid #10b981;
-      border-radius: 14px;
-    }
-    .bet-box-banker-pair {
-      background: linear-gradient(135deg, #7f1d1d 0%, #0f172a 100%);
-      border: 1.5px solid #ef4444;
-      border-radius: 14px;
-    }
-    .bet-box-player {
-      background: linear-gradient(135deg, #172554 0%, #090d16 100%);
-      border: 2px solid #2563eb;
-      border-radius: 16px;
-    }
-    .bet-box-banker {
-      background: linear-gradient(135deg, #450a0a 0%, #090d16 100%);
-      border: 2px solid #dc2626;
-      border-radius: 16px;
-    }
+    /* Betting Boxes */
+    .bet-box-player-pair { background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%); border: 1.5px solid #3b82f6; border-radius: 14px; }
+    .bet-box-tie { background: linear-gradient(135deg, #065f46 0%, #0f172a 100%); border: 1.5px solid #10b981; border-radius: 14px; }
+    .bet-box-banker-pair { background: linear-gradient(135deg, #7f1d1d 0%, #0f172a 100%); border: 1.5px solid #ef4444; border-radius: 14px; }
+    .bet-box-player { background: linear-gradient(135deg, #172554 0%, #090d16 100%); border: 2px solid #2563eb; border-radius: 16px; cursor: pointer; }
+    .bet-box-banker { background: linear-gradient(135deg, #450a0a 0%, #090d16 100%); border: 2px solid #dc2626; border-radius: 16px; cursor: pointer; }
 
-    /* Chips Row matching the image */
+    /* Chips Row */
     .chip-item {
       width: 36px;
       height: 36px;
@@ -116,32 +94,49 @@
     .c-100 { background: #0f172a; color: #fff; }
     .c-500 { background: #b45309; color: #fff; }
 
-    /* Scoreboard Roadmap Table */
-    .scoreboard-panel {
-      background: #111418;
-      border: 1px solid #1e293b;
-      border-radius: 10px;
+    .scoreboard-panel { background: #111418; border: 1px solid #1e293b; border-radius: 10px; }
+    
+    /* 3D Card Shoe Graphic */
+    .card-shoe {
+      width: 55px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 4px;
+      position: relative;
+      transform: perspective(100px) rotateX(10deg);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
-    .score-circle-p {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 2px solid #3b82f6;
-      display: inline-block;
+    .card-shoe::after {
+      content: '';
+      position: absolute;
+      right: -4px;
+      top: 6px;
+      width: 8px;
+      height: 18px;
+      background: #dc2626;
+      border-radius: 2px;
     }
-    .score-circle-b {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 2px solid #ef4444;
-      display: inline-block;
+
+    /* Playing Card Animation Box */
+    .dealt-card {
+      width: 32px;
+      height: 45px;
+      background: white;
+      color: black;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      animation: slideIn 0.4s ease-out forwards;
     }
-    .score-circle-t {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      border: 2px solid #10b981;
-      display: inline-block;
+    @keyframes slideIn {
+      0% { transform: translateY(-30px) scale(0.5); opacity: 0; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
     }
 
     ::-webkit-scrollbar { width: 3px; height: 3px; }
@@ -150,30 +145,56 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between pb-2">
 
-  <!-- Top Bar Container (Loaded dynamically from ../bar/top.html) -->
+  <!-- Top Bar Container -->
   <div id="topBarContainer" class="sticky top-0 z-50"></div>
 
   <main class="max-w-md w-full mx-auto flex flex-col flex-1 p-2 gap-2">
 
-    <!-- Dealer Header Section with Background Image & Top Buttons -->
-    <div class="relative w-full h-48 rounded-2xl overflow-hidden shadow-2xl border border-amber-900/40 flex flex-col justify-between p-3">
-      <!-- Background Dealer Image Simulator -->
-      <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop'); filter: brightness(0.85);"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40"></div>
-
-      <!-- Top Action Bar inside Dealer Frame -->
+    <!-- 3D Cartoon Avatar & Card Shoe Header Section -->
+    <div class="relative w-full h-44 rounded-2xl overflow-hidden shadow-2xl border border-amber-900/40 bg-gradient-to-b from-[#1e293b] to-[#0f172a] flex flex-col justify-between p-3">
+      
+      <!-- Top Action Bar -->
       <div class="relative z-10 w-full flex justify-between items-center">
         <button class="top-icon-btn"><i class="fa-solid fa-chevron-left"></i></button>
         <div class="flex items-center gap-2">
-          <!-- Countdown Timer -->
-          <div class="timer-ring">6</div>
+          <div class="timer-ring" id="timerDisplay">6</div>
           <button class="top-icon-btn"><i class="fa-solid fa-bars"></i></button>
         </div>
       </div>
 
-      <!-- Dealer Table Felt Bottom Line -->
+      <!-- Center: 3D Cartoon Avatar & Card Shoe Area -->
+      <div class="relative z-10 flex items-center justify-between px-2">
+        <!-- Left Side: Card Shoe & 3D Cartoon Female Avatar Simulator -->
+        <div class="flex items-center gap-3">
+          <div class="flex flex-col items-center">
+            <!-- 3D Cartoon Female Avatar Icon/Graphic -->
+            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-rose-500 border-2 border-amber-300 flex items-center justify-center shadow-lg">
+              <i class="fa-solid fa-user-ninja text-white text-xl"></i>
+            </div>
+            <span class="text-[9px] text-amber-200 font-bold mt-0.5">Dealer Lina</span>
+          </div>
+          <!-- Acrylic Card Shoe -->
+          <div class="card-shoe flex items-center px-1">
+            <div class="w-full h-1 bg-red-600 rounded"></div>
+          </div>
+        </div>
+
+        <!-- Right Side: Dealt Cards Display Area -->
+        <div class="flex gap-4">
+          <div class="flex flex-col items-center">
+            <span class="text-[9px] text-blue-300 font-bold mb-1">PLAYER (<span id="playerScore">0</span>)</span>
+            <div id="playerCardContainer" class="flex gap-1 min-h-[45px]"></div>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-[9px] text-red-300 font-bold mb-1">BANKER (<span id="bankerScore">0</span>)</span>
+            <div id="bankerCardContainer" class="flex gap-1 min-h-[45px]"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Felt Bottom Line -->
       <div class="relative z-10 text-center text-[10px] text-amber-300 font-bold uppercase tracking-wider">
-        Dealer Table Active
+        Evolution 3D Studio Active
       </div>
     </div>
 
@@ -195,7 +216,7 @@
 
     <!-- Main Betting Boxes (Player & Banker) -->
     <div class="grid grid-cols-2 gap-2">
-      <div class="bet-box-player p-3 flex flex-col justify-between h-24 shadow-xl relative cursor-pointer active:scale-95 transition">
+      <div onclick="placeBet('player')" class="bet-box-player p-3 flex flex-col justify-between h-24 shadow-xl relative active:scale-95 transition">
         <div class="flex justify-between items-start">
           <span class="font-black text-sm tracking-wider text-white">PLAYER</span>
           <div class="w-6 h-6 rounded-full bg-blue-900/80 border border-blue-500 flex items-center justify-center text-[9px] font-bold text-blue-200">42%</div>
@@ -206,7 +227,7 @@
         </div>
       </div>
 
-      <div class="bet-box-banker p-3 flex flex-col justify-between h-24 shadow-xl relative cursor-pointer active:scale-95 transition">
+      <div onclick="placeBet('banker')" class="bet-box-banker p-3 flex flex-col justify-between h-24 shadow-xl relative active:scale-95 transition">
         <div class="flex justify-between items-start">
           <div class="w-6 h-6 rounded-full bg-red-900/80 border border-red-500 flex items-center justify-center text-[9px] font-bold text-red-200">51%</div>
           <span class="font-black text-sm tracking-wider text-white">BANKER</span>
@@ -218,7 +239,7 @@
       </div>
     </div>
 
-    <!-- Chips Selection Row (7 Chips) -->
+    <!-- Chips Selection Row -->
     <div class="scoreboard-panel p-2 flex items-center justify-around shadow-md">
       <div class="chip-item c-5" onclick="selectChip(5, this)">5</div>
       <div class="chip-item c-10" onclick="selectChip(10, this)">10</div>
@@ -229,64 +250,20 @@
       <div class="chip-item c-500" onclick="selectChip(500, this)">500</div>
     </div>
 
-    <!-- Scoreboard and Prediction Section -->
-    <div class="scoreboard-panel p-3 flex gap-4 justify-between items-center shadow-md">
-      <!-- Roadmap Dots Grid Simulator -->
-      <div class="grid grid-cols-6 gap-1.5 p-1 bg-black/40 rounded-lg">
-        <span class="score-circle-r bg-red-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-r bg-red-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-b bg-blue-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-b bg-blue-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-r bg-red-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-r bg-red-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-b bg-blue-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-b bg-blue-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-t bg-emerald-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-r bg-red-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-r bg-red-500 w-3 h-3 rounded-full inline-block"></span>
-        <span class="score-circle-b bg-blue-500 w-3 h-3 rounded-full inline-block"></span>
-      </div>
-
-      <!-- Right Counts & Ask Buttons -->
-      <div class="flex flex-col gap-2 flex-1">
-        <div class="flex justify-between items-center text-[11px] font-bold px-1">
-          <div class="flex items-center gap-1.5"><span class="score-circle-r bg-red-500 w-2.5 h-2.5 rounded-full"></span> 8</div>
-          <div class="flex items-center gap-1.5"><span class="score-circle-b bg-blue-500 w-2.5 h-2.5 rounded-full"></span> 5</div>
-          <div class="flex items-center gap-1.5"><span class="score-circle-t bg-emerald-500 w-2.5 h-2.5 rounded-full"></span> 2</div>
-          <div class="flex items-center gap-1.5"><span>⚪</span> 4</div>
-          <div class="flex items-center gap-1.5"><span class="text-red-500">🔴</span> 6</div>
-        </div>
-
-        <!-- Ask Player & Ask Banker Buttons -->
-        <button class="bg-[#21262d] hover:bg-[#30363d] border border-slate-700 rounded-full py-1.5 px-3 flex justify-between items-center text-[11px] font-bold text-gray-200 shadow">
-          <span>Ask Player</span>
-          <div class="flex items-center gap-1">
-            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-          </div>
-        </button>
-
-        <button class="bg-[#21262d] hover:bg-[#30363d] border border-slate-700 rounded-full py-1.5 px-3 flex justify-between items-center text-[11px] font-bold text-gray-200 shadow">
-          <span>Ask Banker</span>
-          <div class="flex items-center gap-1">
-            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
-          </div>
-        </button>
-      </div>
-    </div>
-
     <!-- Bottom Limit & Balance Bar -->
     <div class="flex justify-between items-center text-[11px] px-2 text-gray-400 font-semibold pt-1">
-      <span>Bet limit: 10-100</span>
-      <span>Balance: <strong id="footerBalance" class="text-white">1.108.654$</strong></span>
-      <span>Total bet: <strong id="totalBet" class="text-amber-400">250</strong></span>
+      <span>Bet limit: 10-500</span>
+      <span>Balance: <strong id="footerBalance" class="text-white">1,108.65$</strong></span>
+      <span>Total bet: <strong id="totalBet" class="text-amber-400">0</strong></span>
     </div>
 
   </main>
 
   <script>
     let selectedChip = 25;
+    let totalBet = 0;
+    let playerBets = 0;
+    let bankerBets = 0;
 
     async function loadTopBar() {
       try {
@@ -306,6 +283,44 @@
       selectedChip = val;
       document.querySelectorAll('.chip-item').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
+    }
+
+    function placeBet(type) {
+      if (type === 'player') {
+        playerBets += selectedChip;
+        document.getElementById('playerBetAmount').innerText = '৳ ' + playerBets;
+      } else if (type === 'banker') {
+        bankerBets += selectedChip;
+        document.getElementById('bankerBetAmount').innerText = '৳ ' + bankerBets;
+      }
+      totalBet += selectedChip;
+      document.getElementById('totalBet').innerText = totalBet;
+
+      // Trigger Dealer Card Dealing Animation Simulation
+      simulateCardDeal();
+    }
+
+    function simulateCardDeal() {
+      const pContainer = document.getElementById('playerCardContainer');
+      const bContainer = document.getElementById('bankerCardContainer');
+      
+      pContainer.innerHTML = '';
+      bContainer.innerHTML = '';
+
+      // Create Player Card
+      const pCard = document.createElement('div');
+      pCard.className = 'dealt-card text-blue-600';
+      pCard.innerHTML = '<span>8</span><span class="text-[9px]">♠</span>';
+      pContainer.appendChild(pCard);
+
+      // Create Banker Card
+      const bCard = document.createElement('div');
+      bCard.className = 'dealt-card text-red-600';
+      bCard.innerHTML = '<span>9</span><span class="text-[9px]">♥</span>';
+      bContainer.appendChild(bCard);
+
+      document.getElementById('playerScore').innerText = '8';
+      document.getElementById('bankerScore').innerText = '9';
     }
 
     window.onload = async () => {
