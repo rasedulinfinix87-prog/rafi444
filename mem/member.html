@@ -3,287 +3,313 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>My Account - Recent Transactions</title>
+  <title>My Account</title>
 
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Supabase JS Client & App Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
 
   <style>
-    /* Custom Scrollbar Styling */
-    ::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-    ::-webkit-scrollbar-track { background: #0b0f19; }
-    ::-webkit-scrollbar-thumb { background: #1b2438; border-radius: 4px; }
-
-    /* Card Gradient Backdrop styling with deep navy blue touch */
-    .profile-card-bg {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    }
+    * { -webkit-tap-highlight-color: transparent; }
+    html { background: #202526; }
+    body { background: #202526; color: #f5f7f7; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #202526; }
+    ::-webkit-scrollbar-thumb { background: #485052; border-radius: 8px; }
+    .profile-card-bg { background: linear-gradient(135deg, #303738 0%, #282f30 100%); }
+    .menu-card { background: #303738; border: 1px solid rgba(255,255,255,.025); border-radius: 15px; overflow: hidden; }
+    .menu-row { min-height: 61px; display: flex; align-items: center; gap: 13px; padding: 12px 15px; width: 100%; text-align: left; }
+    .menu-row + .menu-row { border-top: 1px solid rgba(210,220,220,.075); }
+    .menu-icon { width: 24px; flex: 0 0 24px; color: #b5c0c2; text-align: center; font-size: 19px; }
+    .menu-label { color: #f4f6f6; font-size: 15px; font-weight: 650; flex: 1; }
+    .chevron-box { width: 35px; height: 35px; border-radius: 9px; background: #414a4c; color: #c9d1d2; display: flex; align-items: center; justify-content: center; font-size: 17px; }
+    .shortcut { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 78px; border-radius: 10px; color: #f4f6f6; font-size: 12px; font-weight: 650; }
+    .shortcut i { color: #b8c3c4; font-size: 23px; }
+    .shortcut:active, .menu-row:active { background: rgba(255,255,255,.045); }
+    .toggle { width: 58px; height: 34px; padding: 4px; border-radius: 20px; background: #252c2d; display: flex; align-items: center; transition: background .2s; }
+    .toggle-dot { width: 25px; height: 25px; border-radius: 50%; background: #818b8d; box-shadow: 0 1px 3px #1118; transition: transform .2s, background .2s; }
+    .toggle.active { background: #20d995; }
+    .toggle.active .toggle-dot { background: white; transform: translateX(24px); }
+    .theme-switch { display:flex; align-items:center; padding:3px; background:#252b2c; border-radius:12px; }
+    .theme-switch button { width:46px; height:42px; border-radius:10px; color:#899394; }
+    .theme-switch button.active { background:#41494a; color:#fff; box-shadow:0 1px 3px #1116; }
+    .ref-link { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; color:#20df98; }
+    body.light-mode { background:#edf1f1; color:#182020; }
+    body.light-mode .menu-card, body.light-mode .profile-card-bg { background:#fff; border-color:#dce3e3; }
+    body.light-mode .menu-label, body.light-mode .shortcut { color:#1c2525; }
+    body.light-mode .menu-row + .menu-row { border-color:#e6ebeb; }
+    body.light-mode .menu-icon, body.light-mode .shortcut i { color:#667273; }
+    body.light-mode .chevron-box { background:#edf1f1; color:#566162; }
+    body.light-mode .theme-switch { background:#e6ebeb; }
+    body.light-mode .theme-switch button.active { background:#fff; color:#263030; }
   </style>
 </head>
-<body class="bg-[#0b0f19] text-white font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none antialiased">
 
-  <!-- Main Container Wrapper -->
-  <div class="w-full max-w-md min-h-screen bg-[#0f172a] flex flex-col justify-between overflow-x-hidden shadow-2xl relative border-x border-slate-800/60">
+<body class="font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none antialiased">
+  <div class="w-full max-w-md min-h-screen flex flex-col overflow-x-hidden shadow-2xl relative">
 
-    <!-- Top Header Bar -->
-    <header class="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-800">
-      <a href="../index.html" class="p-2 text-gray-300 hover:text-white transition">
+    <!-- Top Header -->
+    <header class="flex items-center justify-between px-4 py-3 bg-[#292f30]/95 backdrop-blur-md sticky top-0 z-40 border-b border-white/5">
+      <a href="../index.html" class="p-2 text-gray-300 hover:text-white transition" aria-label="Back">
         <i class="fa-solid fa-chevron-left text-lg"></i>
       </a>
-      <h1 class="text-base font-bold text-white tracking-wide">My Account</h1>
-      <div class="w-6"></div> <!-- Spacer for center alignment -->
+      <h1 class="text-base font-bold text-white tracking-wide">User</h1>
+      <div class="w-8"></div>
     </header>
 
     <main class="px-3 py-3 flex-1 flex flex-col gap-4">
 
-      <!-- Profile & Account Status Card -->
-      <div class="profile-card-bg border border-slate-700/60 text-white rounded-3xl p-4 shadow-2xl relative overflow-hidden">
-        
-        <!-- Sign In Top Right Badge -->
-        <div class="absolute top-0 right-0 bg-red-600/90 text-white text-[11px] font-bold px-3 py-1 rounded-bl-xl flex items-center gap-1 cursor-pointer hover:bg-red-600 transition">
-          <i class="fa-solid fa-calendar-check text-xs"></i> Sign In <i class="fa-solid fa-chevron-right text-[9px]"></i>
-        </div>
-
-        <!-- Watermark Background Graphic -->
-        <div class="absolute -right-4 -bottom-4 text-slate-700/20 text-8xl pointer-events-none">
+      <!-- Profile & Account Status Card (kept from original file) -->
+      <div class="profile-card-bg border border-white/5 text-white rounded-2xl p-4 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-4 -bottom-4 text-white/5 text-8xl pointer-events-none">
           <i class="fa-solid fa-crown"></i>
         </div>
 
-        <div class="flex items-center gap-3 mt-2">
-          <!-- Avatar Frame with Profile Icon / Image -->
-          <div class="relative w-16 h-16 rounded-full overflow-hidden border-2 border-emerald-500 shadow-lg bg-slate-800 shrink-0 flex items-center justify-center">
+        <div class="flex items-center gap-3">
+          <div class="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#222a2b] shrink-0 flex items-center justify-center">
             <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=gameuser" alt="Profile" class="w-full h-full object-cover">
           </div>
-
-          <!-- User Details -->
-          <div class="flex flex-col gap-0.5">
-            <div class="flex items-center gap-2">
-              <!-- VIP Level Badge -->
-              <span class="bg-slate-900/90 text-amber-400 text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-400/30 shadow-sm">
-                <i class="fa-solid fa-crown text-[9px]"></i> VIP 1
-              </span>
-            </div>
-            
-            <!-- Full Name -->
-            <span id="userName" class="font-extrabold text-sm text-white mt-0.5">Loading...</span>
-
-            <!-- Game ID with Copy Button -->
+          <div class="flex flex-col gap-1 min-w-0">
+            <span class="bg-[#252c2d] text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/20 w-fit">
+              <i class="fa-solid fa-crown text-[9px] mr-1"></i> VIP 1
+            </span>
+            <span id="userName" class="font-extrabold text-sm text-white truncate">Loading...</span>
             <div class="flex items-center gap-1.5">
               <span class="text-[11px] text-slate-400 font-medium">ID: <span id="userGameId" class="text-emerald-400 font-bold">----</span></span>
-              <button onclick="copyGameId()" class="text-slate-400 hover:text-white text-xs">
+              <button onclick="copyGameId()" class="text-slate-400 hover:text-white text-xs" aria-label="Copy game ID">
                 <i class="fa-solid fa-copy"></i>
               </button>
             </div>
-
-            <!-- Joined Date -->
             <span id="userJoined" class="text-[10px] text-slate-400 font-semibold">Joined: ----</span>
           </div>
         </div>
 
-        <!-- Balance Row -->
-        <div class="flex items-center justify-between mt-4 border-t border-slate-700/70 pt-3">
+        <div class="flex items-center justify-between mt-4 border-t border-white/10 pt-3">
           <div class="flex items-baseline gap-1">
             <span class="text-lg font-bold text-emerald-400">৳</span>
             <span id="userBalance" class="text-2xl font-black text-emerald-400 tracking-tight">0.00</span>
           </div>
-          
-          <button onclick="syncMemberBalance()" class="text-slate-400 hover:text-white text-sm p-1 transition">
+          <button onclick="syncMemberBalance()" class="text-slate-400 hover:text-white text-sm p-2 transition" aria-label="Refresh balance">
             <i class="fa-solid fa-rotate-right" id="refreshIcon"></i>
           </button>
         </div>
 
-        <!-- Quick Action Buttons Row -->
         <div class="grid grid-cols-3 gap-2 mt-4">
-          <!-- Deposit Button -->
-          <a href="../account/deposit.html" class="bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs py-2 px-1 rounded-2xl shadow-md border border-slate-600/50 text-center flex items-center justify-center gap-1.5 transition active:scale-95">
-            <i class="fa-solid fa-wallet text-emerald-400 text-xs"></i> Deposit
+          <a href="../account/deposit.html" class="bg-[#252d2e] text-white font-extrabold text-xs py-3 px-1 rounded-xl border border-white/5 text-center flex items-center justify-center gap-1.5 active:scale-95">
+            <i class="fa-solid fa-wallet text-emerald-400"></i> Deposit
           </a>
-
-          <!-- Withdrawal Button -->
-          <a href="../account/withdraw.html" class="bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs py-2 px-1 rounded-2xl shadow-md border border-slate-600/50 text-center flex items-center justify-center gap-1.5 transition active:scale-95">
-            <i class="fa-solid fa-money-bill-transfer text-amber-400 text-xs"></i> Withdrawal
+          <a href="../account/withdraw.html" class="bg-[#252d2e] text-white font-extrabold text-xs py-3 px-1 rounded-xl border border-white/5 text-center flex items-center justify-center gap-1.5 active:scale-95">
+            <i class="fa-solid fa-money-bill-transfer text-amber-400"></i> Withdrawal
           </a>
-
-          <!-- Bank Account Button -->
-          <a href="../account/profile.html" class="bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-[11px] py-2 px-1 rounded-2xl shadow-md border border-slate-600/50 text-center flex items-center justify-center gap-1 leading-tight transition active:scale-95">
-            <i class="fa-solid fa-building-columns text-blue-400 text-xs"></i> Bank Account
+          <a href="../account/profile.html" class="bg-[#252d2e] text-white font-extrabold text-[11px] py-3 px-1 rounded-xl border border-white/5 text-center flex items-center justify-center gap-1 leading-tight active:scale-95">
+            <i class="fa-solid fa-building-columns text-sky-400"></i> Bank Account
           </a>
         </div>
-
       </div>
 
-      <!-- Recent Transactions Section -->
-      <div class="bg-[#111827] rounded-2xl p-4 border border-slate-800 shadow-xl flex flex-col gap-4">
-        
-        <!-- Section Header -->
-        <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-          <span class="bg-slate-800/90 text-blue-400 text-xs font-bold px-3 py-1 rounded-full border border-blue-500/20 flex items-center gap-1.5">
-            <i class="fa-solid fa-clock-rotate-left text-[11px]"></i> Recent Transactions
-          </span>
-          <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Latest Activity</span>
+      <!-- Shortcut card inspired by the supplied reference image -->
+      <section class="menu-card px-3 py-3">
+        <div class="grid grid-cols-4 gap-x-1 gap-y-2">
+          <a href="../account/deposit.html" class="shortcut"><i class="fa-brands fa-bitcoin"></i><span>Buy</span></a>
+          <a href="../account/swap.html" class="shortcut"><i class="fa-solid fa-arrows-rotate"></i><span>Swap</span></a>
+          <a href="../account/vault.html" class="shortcut"><i class="fa-solid fa-vault"></i><span>Vault Pro</span></a>
+          <a href="../account/transactions.html" class="shortcut"><i class="fa-solid fa-file-invoice-dollar"></i><span>Transaction</span></a>
+          <a href="../account/rollover.html" class="shortcut"><i class="fa-solid fa-chart-column"></i><span>Rollover</span></a>
+          <a href="../account/bet-history.html" class="shortcut"><i class="fa-regular fa-clock"></i><span>Bet History</span></a>
+          <a href="../account/free-plays.html" class="shortcut"><i class="fa-solid fa-coins"></i><span>Free Plays</span></a>
         </div>
+      </section>
 
-        <!-- Deposit History Container -->
-        <div>
-          <h3 class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1.5 uppercase tracking-wide">
-            <i class="fa-solid fa-arrow-down-left text-emerald-400"></i> Recent Deposits
-          </h3>
-          <div id="depositList" class="space-y-2 text-xs">
-            <div class="text-center py-3 text-slate-500 bg-[#0b0f19] rounded-xl border border-slate-800/60">
-              <i class="fa-solid fa-spinner fa-spin mr-1"></i> Loading deposits...
-            </div>
+      <!-- Notifications and referrals list -->
+      <section class="menu-card">
+        <button type="button" id="dndButton" class="menu-row" onclick="toggleDnd()" aria-pressed="false">
+          <i class="menu-icon fa-solid fa-volume-low"></i>
+          <span class="menu-label">Do Not Disturb</span>
+          <span id="dndToggle" class="toggle"><span class="toggle-dot"></span></span>
+        </button>
+        <a href="../account/notifications.html" class="menu-row">
+          <i class="menu-icon fa-solid fa-bell"></i>
+          <span class="menu-label">Notification</span>
+          <span class="bg-emerald-400 text-[#062018] text-xs font-black rounded-full px-2 py-0.5">10</span>
+          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
+        </a>
+        <a href="../account/refer-and-earn.html" class="menu-row">
+          <i class="menu-icon fa-solid fa-file-circle-plus"></i>
+          <span class="menu-label">Refer and Earn</span>
+          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
+        </a>
+        <a href="../account/referral.html" class="menu-row">
+          <i class="menu-icon fa-solid fa-atom"></i>
+          <span class="menu-label">Referral</span>
+          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
+        </a>
+      </section>
+
+      <!-- Global settings list -->
+      <section class="menu-card">
+        <a href="../account/settings.html" class="menu-row">
+          <i class="menu-icon fa-solid fa-gear"></i>
+          <span class="menu-label">Global Setting</span>
+          <i class="fa-solid fa-circle-exclamation text-amber-400 text-sm mr-1"></i>
+          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
+        </a>
+        <button type="button" class="menu-row" onclick="cycleLanguage()">
+          <i class="menu-icon fa-solid fa-globe"></i>
+          <span class="menu-label">Language</span>
+          <span id="languageValue" class="text-sm text-slate-300 mr-1">English</span>
+          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
+        </button>
+        <button type="button" class="menu-row" onclick="cycleCurrency()">
+          <i class="menu-icon fa-solid fa-circle-dollar-to-slot"></i>
+          <span class="menu-label">Currency</span>
+          <span id="currencyValue" class="text-sm text-slate-300 mr-1">BDT</span>
+          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
+        </button>
+        <div class="menu-row">
+          <i class="menu-icon fa-solid fa-arrow-right-arrow-left"></i>
+          <span class="menu-label">Theme</span>
+          <div class="theme-switch">
+            <button id="darkThemeBtn" type="button" class="active" onclick="setTheme('dark')" aria-label="Dark theme"><i class="fa-solid fa-moon"></i></button>
+            <button id="lightThemeBtn" type="button" onclick="setTheme('light')" aria-label="Light theme"><i class="fa-solid fa-sun"></i></button>
           </div>
         </div>
+      </section>
 
-        <!-- Withdrawal History Container -->
-        <div>
-          <h3 class="text-xs font-bold text-slate-400 mb-2 flex items-center gap-1.5 uppercase tracking-wide">
-            <i class="fa-solid fa-arrow-up-right text-amber-400"></i> Recent Withdrawals
-          </h3>
-          <div id="withdrawList" class="space-y-2 text-xs">
-            <div class="text-center py-3 text-slate-500 bg-[#0b0f19] rounded-xl border border-slate-800/60">
-              <i class="fa-solid fa-spinner fa-spin mr-1"></i> Loading withdrawals...
-            </div>
+      <!-- Referral link card -->
+      <section class="menu-card p-3 flex items-center gap-3">
+        <div class="w-16 h-16 shrink-0 flex items-center justify-center">
+          <div class="text-purple-300 text-5xl relative">
+            <i class="fa-solid fa-gift"></i>
+            <i class="fa-solid fa-dollar-sign absolute -right-1 bottom-0 text-emerald-400 text-lg"></i>
           </div>
         </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm text-slate-300 font-semibold leading-6">Referral &amp; get <span class="text-white font-extrabold">BDT 123,038.66 + 25% commission</span></p>
+          <div class="mt-2 flex items-center gap-2 bg-[#252c2d] border border-white/5 rounded-xl p-1.5">
+            <span id="referralLink" class="ref-link text-sm pl-2 flex-1">Loading referral link...</span>
+            <button type="button" onclick="copyReferralLink()" class="bg-[#3b4445] text-white rounded-lg px-3 py-2 text-sm font-semibold">Copy</button>
+          </div>
+        </div>
+      </section>
 
-      </div>
+      <!-- Support row -->
+      <section class="menu-card">
+        <a href="../account/support.html" class="menu-row">
+          <i class="menu-icon fa-regular fa-life-ring text-emerald-400"></i>
+          <span class="menu-label">Live Support</span>
+          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
+        </a>
+      </section>
 
     </main>
 
-    <!-- Footer Copyright -->
-    <footer class="py-4 text-center text-[11px] text-slate-500 border-t border-slate-800/80 bg-[#0b0f19]">
+    <footer class="py-4 text-center text-[11px] text-slate-500 border-t border-white/5">
       &copy; 2026 Gaming Portal. All Rights Reserved.
     </footer>
-
   </div>
 
   <script>
-    // Load Member Profile Data
+    // Load member profile and balance. Recent Transactions logic has been removed.
     async function syncMemberBalance() {
       const refreshIcon = document.getElementById('refreshIcon');
       if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
       try {
-        // Retrieve current logged-in user session from localStorage
         const storedUser = localStorage.getItem('current_user');
         if (!storedUser) {
           window.location.href = "../login-signup.html";
           return;
         }
+
         const currentUserObj = JSON.parse(storedUser);
 
         if (typeof supabaseClient !== 'undefined') {
-          // Fetch User Profile from Supabase
-          const { data: profile } = await supabaseClient
+          const { data: profile, error } = await supabaseClient
             .from('profiles')
             .select('*')
             .eq('id', currentUserObj.id)
             .single();
 
+          if (error) console.error('Profile load error:', error);
+
           if (profile) {
             if (profile.full_name) {
               document.getElementById('userName').innerText = profile.full_name;
-              // Dynamic avatar generator based on full name
-              document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile.full_name)}`;
+              document.getElementById('userAvatar').src =
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile.full_name)}`;
             }
             if (profile.user_game_id) {
               document.getElementById('userGameId').innerText = profile.user_game_id;
+            } else if (profile.id) {
+              document.getElementById('userGameId').innerText = String(profile.id).slice(0, 8).toUpperCase();
             }
-            if (profile.balance !== undefined) {
+            if (profile.balance !== undefined && profile.balance !== null) {
               document.getElementById('userBalance').innerText = parseFloat(profile.balance).toFixed(2);
             }
             if (profile.created_at) {
               const date = new Date(profile.created_at).toISOString().split('T')[0];
               document.getElementById('userJoined').innerText = `Joined: ${date}`;
             }
+            const referralCode = profile.user_game_id || profile.id || currentUserObj.id || '';
+            document.getElementById('referralLink').textContent =
+              `${window.location.origin}/i-${encodeURIComponent(String(referralCode))}`;
           }
-
-          // Load Transactions History
-          await loadTransactions(currentUserObj.id);
+        } else {
+          console.error('supabaseClient was not found. Check ../supabase-config.js');
         }
       } catch (err) {
-        console.error("Member sync error:", err);
+        console.error('Member sync error:', err);
       } finally {
         if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('fa-spin'), 600);
       }
     }
 
-    // Load Recent Deposits & Withdrawals
-    async function loadTransactions(userId) {
-      // 1. Fetch Recent Deposits
-      const { data: deposits } = await supabaseClient
-        .from('deposits')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      const depList = document.getElementById('depositList');
-      if (deposits && deposits.length > 0) {
-        depList.innerHTML = deposits.map(d => `
-          <div class="flex justify-between items-center bg-[#0b0f19] p-2.5 rounded-xl border border-slate-800/80">
-            <div>
-              <span class="font-bold text-slate-200">${d.payment_method || 'Deposit'}</span>
-              <span class="text-[10px] text-slate-500 block font-mono">TrxID: ${d.transection_id || 'N/A'}</span>
-            </div>
-            <div class="text-right">
-              <span class="font-black text-emerald-400">+${parseFloat(d.amount).toFixed(2)} ৳</span>
-              <span class="text-[10px] capitalize block font-semibold ${
-                d.status === 'approved' ? 'text-emerald-400' : d.status === 'rejected' ? 'text-red-400' : 'text-amber-400'
-              }">${d.status}</span>
-            </div>
-          </div>
-        `).join('');
-      } else {
-        depList.innerHTML = `<div class="text-center py-3 text-slate-500 bg-[#0b0f19] rounded-xl border border-slate-800/60">No deposit history found.</div>`;
-      }
-
-      // 2. Fetch Recent Withdrawals
-      const { data: withdrawals } = await supabaseClient
-        .from('withdrawals')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      const withList = document.getElementById('withdrawList');
-      if (withdrawals && withdrawals.length > 0) {
-        withList.innerHTML = withdrawals.map(w => `
-          <div class="flex justify-between items-center bg-[#0b0f19] p-2.5 rounded-xl border border-slate-800/80">
-            <div>
-              <span class="font-bold text-slate-200">${w.payment_method || 'Withdrawal'}</span>
-              <span class="text-[10px] text-slate-500 block font-mono">Acc: ${w.account_number || 'N/A'}</span>
-            </div>
-            <div class="text-right">
-              <span class="font-black text-amber-400">-${parseFloat(w.amount).toFixed(2)} ৳</span>
-              <span class="text-[10px] capitalize block font-semibold ${
-                w.status === 'approved' ? 'text-emerald-400' : w.status === 'rejected' ? 'text-red-400' : 'text-amber-400'
-              }">${w.status}</span>
-            </div>
-          </div>
-        `).join('');
-      } else {
-        withList.innerHTML = `<div class="text-center py-3 text-slate-500 bg-[#0b0f19] rounded-xl border border-slate-800/60">No withdrawal history found.</div>`;
+    async function copyGameId() {
+      const gameId = document.getElementById('userGameId').innerText;
+      if (!gameId || gameId === '----') return;
+      try {
+        await navigator.clipboard.writeText(gameId);
+        alert('Game ID copied to clipboard!');
+      } catch (err) {
+        prompt('Copy your Game ID:', gameId);
       }
     }
 
-    function copyGameId() {
-      const gameId = document.getElementById('userGameId').innerText;
-      if (gameId && gameId !== '----') {
-        navigator.clipboard.writeText(gameId);
-        alert("Game ID copied to clipboard!");
+    async function copyReferralLink() {
+      const link = document.getElementById('referralLink').textContent.trim();
+      if (!link || link === 'Loading referral link...') return;
+      try {
+        await navigator.clipboard.writeText(link);
+        alert('Referral link copied!');
+      } catch (err) {
+        prompt('Copy your referral link:', link);
       }
+    }
+
+    function toggleDnd() {
+      const button = document.getElementById('dndButton');
+      const toggle = document.getElementById('dndToggle');
+      const active = toggle.classList.toggle('active');
+      button.setAttribute('aria-pressed', String(active));
+    }
+
+    function setTheme(theme) {
+      const isLight = theme === 'light';
+      document.body.classList.toggle('light-mode', isLight);
+      document.getElementById('darkThemeBtn').classList.toggle('active', !isLight);
+      document.getElementById('lightThemeBtn').classList.toggle('active', isLight);
+    }
+
+    function cycleLanguage() {
+      const el = document.getElementById('languageValue');
+      el.textContent = el.textContent === 'English' ? 'বাংলা' : 'English';
+    }
+
+    function cycleCurrency() {
+      const el = document.getElementById('currencyValue');
+      const options = ['BDT', 'USD'];
+      el.textContent = options[(options.indexOf(el.textContent) + 1) % options.length];
     }
 
     document.addEventListener('DOMContentLoaded', syncMemberBalance);
