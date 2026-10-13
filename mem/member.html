@@ -60,9 +60,9 @@
         </div>
 
         <div class="flex items-center gap-3 mt-2">
-          <!-- Avatar Frame -->
-          <div class="relative w-16 h-16 rounded-full overflow-hidden border-2 border-slate-500 shadow-lg bg-slate-800 shrink-0">
-            <img id="userAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" alt="Profile" class="w-full h-full object-cover">
+          <!-- Avatar Frame with Profile Icon / Image -->
+          <div class="relative w-16 h-16 rounded-full overflow-hidden border-2 border-emerald-500 shadow-lg bg-slate-800 shrink-0 flex items-center justify-center">
+            <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=gameuser" alt="Profile" class="w-full h-full object-cover">
           </div>
 
           <!-- User Details -->
@@ -74,13 +74,18 @@
               </span>
             </div>
             
-            <div class="flex items-center gap-1.5 mt-1">
-              <span id="userName" class="font-extrabold text-sm text-white">Loading...</span>
-              <button onclick="copyUsername()" class="text-slate-400 hover:text-white text-xs">
+            <!-- Full Name -->
+            <span id="userName" class="font-extrabold text-sm text-white mt-0.5">Loading...</span>
+
+            <!-- Game ID with Copy Button -->
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-slate-400 font-medium">ID: <span id="userGameId" class="text-emerald-400 font-bold">----</span></span>
+              <button onclick="copyGameId()" class="text-slate-400 hover:text-white text-xs">
                 <i class="fa-solid fa-copy"></i>
               </button>
             </div>
 
+            <!-- Joined Date -->
             <span id="userJoined" class="text-[10px] text-slate-400 font-semibold">Joined: ----</span>
           </div>
         </div>
@@ -117,7 +122,7 @@
 
       </div>
 
-      <!-- Recent Transactions Section (Replacing Member Center) -->
+      <!-- Recent Transactions Section -->
       <div class="bg-[#111827] rounded-2xl p-4 border border-slate-800 shadow-xl flex flex-col gap-4">
         
         <!-- Section Header -->
@@ -170,28 +175,42 @@
       if (refreshIcon) refreshIcon.classList.add('fa-spin');
 
       try {
-        if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
-          const user = await getCurrentUser();
-          if (user) {
-            // Fetch User Profile
-            const { data: profile } = await supabaseClient
-              .from('profiles')
-              .select('*')
-              .eq('id', user.id)
-              .single();
+        // Retrieve current logged-in user session from localStorage
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) {
+          window.location.href = "../login-signup.html";
+          return;
+        }
+        const currentUserObj = JSON.parse(storedUser);
 
-            if (profile) {
-              if (profile.full_name) document.getElementById('userName').innerText = profile.full_name;
-              if (profile.balance !== undefined) document.getElementById('userBalance').innerText = parseFloat(profile.balance).toFixed(2);
-              if (profile.created_at) {
-                const date = new Date(profile.created_at).toISOString().split('T')[0];
-                document.getElementById('userJoined').innerText = `Joined: ${date}`;
-              }
+        if (typeof supabaseClient !== 'undefined') {
+          // Fetch User Profile from Supabase
+          const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('id', currentUserObj.id)
+            .single();
+
+          if (profile) {
+            if (profile.full_name) {
+              document.getElementById('userName').innerText = profile.full_name;
+              // Dynamic avatar generator based on full name
+              document.getElementById('userAvatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile.full_name)}`;
             }
-
-            // Load Transactions History
-            await loadTransactions(user.id);
+            if (profile.user_game_id) {
+              document.getElementById('userGameId').innerText = profile.user_game_id;
+            }
+            if (profile.balance !== undefined) {
+              document.getElementById('userBalance').innerText = parseFloat(profile.balance).toFixed(2);
+            }
+            if (profile.created_at) {
+              const date = new Date(profile.created_at).toISOString().split('T')[0];
+              document.getElementById('userJoined').innerText = `Joined: ${date}`;
+            }
           }
+
+          // Load Transactions History
+          await loadTransactions(currentUserObj.id);
         }
       } catch (err) {
         console.error("Member sync error:", err);
@@ -259,11 +278,11 @@
       }
     }
 
-    function copyUsername() {
-      const name = document.getElementById('userName').innerText;
-      if (name && name !== 'Loading...') {
-        navigator.clipboard.writeText(name);
-        alert("Username copied to clipboard!");
+    function copyGameId() {
+      const gameId = document.getElementById('userGameId').innerText;
+      if (gameId && gameId !== '----') {
+        navigator.clipboard.writeText(gameId);
+        alert("Game ID copied to clipboard!");
       }
     }
 
