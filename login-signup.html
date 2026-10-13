@@ -24,8 +24,8 @@
     <!-- LOGIN FORM -->
     <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
       <div>
-        <label class="block text-xs text-gray-400 mb-1">Email Address</label>
-        <input type="email" id="loginEmail" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+        <label class="block text-xs text-gray-400 mb-1">Phone Number or Game ID</label>
+        <input type="text" id="loginIdentifier" required placeholder="Enter Phone or Game ID" class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
       </div>
       <div>
         <label class="block text-xs text-gray-400 mb-1">Password</label>
@@ -45,12 +45,12 @@
         <input type="tel" id="signupPhone" required placeholder="017xxxxxxxx" class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
       </div>
       <div>
-        <label class="block text-xs text-gray-400 mb-1">Email Address</label>
-        <input type="email" id="signupEmail" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
-      </div>
-      <div>
         <label class="block text-xs text-gray-400 mb-1">Password</label>
         <input type="password" id="signupPassword" minlength="6" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-1">Confirm Password</label>
+        <input type="password" id="signupConfirmPassword" minlength="6" required class="w-full bg-[#0f141c] border border-gray-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#24ee89]">
       </div>
       <button type="submit" id="signupBtn" class="w-full bg-[#24ee89] text-black font-bold py-2.5 rounded-lg hover:bg-emerald-400 transition">Create Account</button>
     </form>
@@ -58,6 +58,9 @@
   </div>
 
   <script>
+    // Common/weak passwords list to restrict
+    const commonPasswords = ["123456", "password", "123456789", "123123", "qwerty", "111111", "admin", "12345"];
+
     function switchTab(type) {
       const alertBox = document.getElementById('alertBox');
       alertBox.classList.add('hidden');
@@ -81,55 +84,137 @@
       alertBox.classList.remove('hidden');
     }
 
+    // Unique Game ID generator helper
+    function generateGameId() {
+      const randomNum = Math.floor(100000 + Math.random() * 900000);
+      return `GAME${randomNum}`;
+    }
+
     async function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
+      const identifier = document.getElementById('loginIdentifier').value.trim();
       const password = document.getElementById('loginPassword').value;
       const btn = document.getElementById('loginBtn');
       btn.disabled = true;
       btn.innerText = "Logging in...";
 
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) {
-        showAlert(error.message);
+      try {
+        // Find user by phone number or game id from profiles table
+        const { data: profileData, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('id')
+          .or(`phone_number.eq.${identifier},user_game_id.eq.${identifier}`)
+          .maybeSingle();
+
+        if (profileError || !profileData) {
+          throw new Error("ভুল Game ID বা Phone Number দেওয়া হয়েছে!");
+        }
+
+        // Fetch corresponding auth email using user id or we can query profiles to link. 
+        // Note: Supabase sign-in usually requires email. Since user logs in with phone/game id, 
+        // we can store a pseudo-email like `phone@gameportal.local` during signup, or query it securely.
+        // Let's assume we map phone to a unique system email format during registration: `98xxxxxxxx@gameportal.com`
+        const systemEmail = `${identifier}@gameportal.local`;
+        
+        // Alternatively, fetch email from auth or query profiles if email is stored. 
+        // Let's query profiles table for the email if we store it, or construct the email format:
+        // Better approach: store email in profiles or query auth mapping. Let's look up profile with email column if available, 
+        // or sign in directly with constructed email if phone was used.
+        
+        let loginEmail = identifier;
+        if (!identifier.includes('@')) {
+          // It's a phone or game id, let's find the exact user email mapped to it
+          const { data: fullProfile } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .or(`phone_number.eq.${identifier},user_game_id.eq.${identifier}`)
+            .single();
+
+            if (fullProfile) {
+              loginEmail = fullProfile.email || `${fullProfile.phone_number}@gameportal.local`;
+            }
+        }
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ 
+          email: loginEmail, 
+          password 
+        });
+
+        if (error) throw new Error("ভুল Password অথবা অ্যাকাউন্ট পাওয়া যায়নি!");
+
+        window.location.href = "../index.html";
+      } catch (err) {
+        showAlert(err.message);
         btn.disabled = false;
         btn.innerText = "Log In";
-      } else {
-        window.location.href = "account/profile.html";
       }
     }
 
     async function handleSignup(e) {
       e.preventDefault();
-      const fullName = document.getElementById('signupFullName').value;
-      const phone = document.getElementById('signupPhone').value;
-      const email = document.getElementById('signupEmail').value;
+      const fullName = document.getElementById('signupFullName').value.trim();
+      const phone = document.getElementById('signupPhone').value.trim();
       const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('signupConfirmPassword').value;
       const btn = document.getElementById('signupBtn');
 
+      // Validation 1: Common password check
+      if (commonPasswords.includes(password.toLowerCase())) {
+        showAlert("এই পাসওয়ার্ডটি খুব সাধারণ (Common Password)। অনুগ্রহ করে অন্য একটি শক্তিশালী পাসওয়ার্ড দিন।");
+        return;
+      }
+
+      // Validation 2: Password matching check
+      if (password !== confirmPassword) {
+        showAlert("পাসওয়ার্ড এবং কনফার্ম পাসওয়ার্ড মিলছে না!");
+        return;
+      }
+
       btn.disabled = true;
-      btn.innerText = "Creating Account...";
+      btn.innerText = "Checking Phone Number...";
 
-      const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            phone_number: phone
-          }
+      try {
+        // Validation 3: Check if phone number already exists in profiles
+        const { data: existingUser, error: checkError } = await supabaseClient
+          .from('profiles')
+          .select('phone_number')
+          .eq('phone_number', phone)
+          .maybeSingle();
+
+        if (existingUser) {
+          throw new Error("এই মোবাইল নাম্বারটি ইতিমধ্যে ব্যবহার করা হয়েছে। অন্য নাম্বার দিয়ে চেষ্টা করুন।");
         }
-      });
 
-      if (error) {
-        showAlert(error.message);
-        btn.disabled = false;
-        btn.innerText = "Create Account";
-      } else {
+        btn.innerText = "Creating Account...";
+        
+        // Generate unique Game ID
+        const userGameId = generateGameId();
+        const systemEmail = `${phone}@gameportal.local`;
+
+        const { data, error } = await supabaseClient.auth.signUp({
+          email: systemEmail,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              phone_number: phone,
+              user_game_id: userGameId,
+              email: systemEmail
+            }
+          }
+        });
+
+        if (error) throw error;
+
         showAlert("Account created successfully! Redirecting...", true);
         setTimeout(() => {
-          window.location.href = "account/profile.html";
+          window.location.href = "../index.html";
         }, 1500);
+
+      } catch (err) {
+        showAlert(err.message);
+        btn.disabled = false;
+        btn.innerText = "Create Account";
       }
     }
   </script>
