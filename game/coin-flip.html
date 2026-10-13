@@ -48,7 +48,6 @@
       padding-bottom: env(safe-area-inset-bottom);
     }
 
-    /* Reduced empty space below top bar */
     .game-page {
       width: 100%;
       max-width: 672px;
@@ -125,33 +124,33 @@
         radial-gradient(circle at 20% 80%, rgba(255,255,255,.06) 1px, transparent 2px);
     }
 
-    /* Three-column layout: Series | Coin | Multiply */
+    /* Updated: narrower Series and Multiply cards */
     .game-stage {
       position: absolute;
-      left: 12px;
-      right: 12px;
+      left: 10px;
+      right: 10px;
       top: 51px;
       bottom: 32px;
       display: grid;
-      grid-template-columns: minmax(76px, 1fr) 150px minmax(76px, 1fr);
+      grid-template-columns: minmax(0, 0.72fr) minmax(108px, 140px) minmax(0, 0.72fr);
       align-items: center;
       justify-items: center;
-      gap: 5px;
+      gap: 8px;
     }
 
-    /* Transparent side cards */
+    /* Slim side cards */
     .stat-card {
       width: 100%;
-      max-width: 115px;
+      max-width: 92px;
       min-width: 0;
-      height: 132px;
+      height: 120px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 13px;
+      gap: 10px;
       text-align: center;
-      border-radius: 19px;
+      border-radius: 16px;
       border: 1px solid rgba(190, 210, 218, .17);
       background: rgba(180, 198, 205, .12);
       box-shadow:
@@ -164,7 +163,7 @@
 
     .stat-value {
       color: #fff;
-      font-size: clamp(21px, 5vw, 29px);
+      font-size: clamp(18px, 4.5vw, 26px);
       line-height: 1.1;
       font-weight: 900;
       letter-spacing: -.6px;
@@ -173,7 +172,7 @@
 
     .stat-label {
       color: #f0f3f5;
-      font-size: clamp(12px, 3.2vw, 16px);
+      font-size: clamp(11px, 2.8vw, 14px);
       line-height: 1.2;
       font-weight: 800;
     }
@@ -187,7 +186,7 @@
       color: #24ee89;
     }
 
-    /* Coin */
+    /* Coin remains centered */
     .coin-container {
       perspective: 1000px;
       width: 140px;
@@ -279,21 +278,22 @@
 
     .history-bar::-webkit-scrollbar { display: none; }
 
+    /* Small mobile screens */
     @media (max-width: 380px) {
       .game-screen { height: 245px; }
 
       .game-stage {
-        left: 8px;
-        right: 8px;
+        left: 7px;
+        right: 7px;
         top: 47px;
         bottom: 32px;
-        grid-template-columns: minmax(66px, 1fr) 112px minmax(66px, 1fr);
-        gap: 3px;
+        grid-template-columns: minmax(0, 0.72fr) 108px minmax(0, 0.72fr);
+        gap: 5px;
       }
 
       .coin-container {
-        width: 108px;
-        height: 108px;
+        width: 104px;
+        height: 104px;
       }
 
       .coin-face { border-width: 3px; }
@@ -304,26 +304,49 @@
       }
 
       .stat-card {
-        height: 112px;
-        border-radius: 15px;
-        gap: 11px;
+        width: 100%;
+        max-width: 76px;
+        height: 102px;
+        border-radius: 13px;
+        gap: 9px;
       }
 
-      .stat-value { font-size: 20px; }
-      .stat-label { font-size: 12px; }
+      .stat-value { font-size: 18px; }
+      .stat-label { font-size: 11px; }
     }
 
+    /* Standard mobile screens */
     @media (min-width: 381px) and (max-width: 480px) {
       .game-stage {
-        grid-template-columns: minmax(75px, 1fr) 132px minmax(75px, 1fr);
+        left: 9px;
+        right: 9px;
+        grid-template-columns: minmax(0, 0.72fr) 124px minmax(0, 0.72fr);
+        gap: 7px;
       }
 
       .coin-container {
-        width: 124px;
-        height: 124px;
+        width: 120px;
+        height: 120px;
       }
 
-      .stat-card { max-width: 112px; }
+      .stat-card {
+        max-width: 86px;
+        height: 114px;
+      }
+
+      .stat-value { font-size: 21px; }
+      .stat-label { font-size: 12px; }
+    }
+
+    /* Wider screens */
+    @media (min-width: 481px) {
+      .game-stage {
+        grid-template-columns: minmax(0, 0.72fr) 140px minmax(0, 0.72fr);
+      }
+
+      .stat-card {
+        max-width: 100px;
+      }
     }
 
     ::-webkit-scrollbar {
@@ -360,7 +383,7 @@
           <!-- Series, Coin and Multiply -->
           <div class="game-stage">
 
-            <!-- Left Transparent Card -->
+            <!-- Left Card -->
             <div id="seriesCard" class="stat-card">
               <div id="seriesValue" class="stat-value">0</div>
               <div class="stat-label">Series</div>
@@ -387,7 +410,7 @@
               </div>
             </div>
 
-            <!-- Right Transparent Card -->
+            <!-- Right Card -->
             <div id="multiplyCard" class="stat-card">
               <div id="multiplyValue" class="stat-value">×0.00</div>
               <div class="stat-label">Multiply</div>
@@ -481,7 +504,6 @@
     let activeBetAmount = 0;
     let currentMultiplier = 1.00;
 
-    // Number of consecutive successful flips in the current round.
     let currentSeries = 0;
 
     let previousResults = loadSavedHistory();
@@ -593,7 +615,6 @@
       if (topBal2) topBal2.innerText = `৳ ${balance.toFixed(2)}`;
     }
 
-    /* Update the two side cards */
     function updateStatsUI() {
       const seriesValue = document.getElementById('seriesValue');
       const multiplyValue = document.getElementById('multiplyValue');
@@ -619,7 +640,6 @@
       }
     }
 
-    /* Reset Series and Multiply after a completed round */
     function resetStats() {
       currentSeries = 0;
       currentMultiplier = 1.00;
@@ -648,7 +668,6 @@
           'py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition';
       }
 
-      // Choosing a side after a win starts the next flip.
       if (gameState === 'won_streak') {
         executeFlip(false);
       }
@@ -760,10 +779,8 @@
 
         activeBetAmount = enteredAmount;
 
-        // Clear the previous round's statistics at the start.
         resetStats();
 
-        // Deduct the stake once.
         if (activeBetAmount > 0) {
           balance -= activeBetAmount;
           updateBalanceUI();
@@ -835,8 +852,6 @@
         renderHistoryBar();
 
         if (isWin) {
-          // First successful flip = 1.96x.
-          // Every additional successful flip multiplies it by 1.96.
           if (isFirstBet) {
             currentMultiplier = 1.96;
             currentSeries = 1;
@@ -896,7 +911,6 @@
             }
           }
 
-          // Reset the statistics after a loss.
           resetGameUI();
         }
       }, 800);
@@ -972,12 +986,10 @@
         payoutAmount.toFixed(2) +
         '</span>';
 
-      // Reset side cards after Cash Out.
       resetGameUI();
     }
 
     function resetGameUI() {
-      // Invalidate any pending callback from the previous round.
       roundToken++;
 
       gameState = 'ready';
@@ -986,7 +998,6 @@
 
       activeBetAmount = 0;
 
-      // Reset Series and Multiply to zero.
       resetStats();
 
       const btn = document.getElementById('btnAction');
