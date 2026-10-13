@@ -97,27 +97,22 @@
       btn.innerText = "Logging in...";
 
       try {
-        // Find profile by phone number or game id to get the email
-        const { data: profile, error: profileErr } = await supabaseClient
+        const { data: user, error } = await supabaseClient
           .from('profiles')
           .select('*')
           .or(`phone_number.eq.${identifier},user_game_id.eq.${identifier}`)
           .maybeSingle();
 
-        if (profileErr || !profile) {
+        if (error || !user) {
           throw new Error("ভুল Game ID বা Phone Number দেওয়া হয়েছে!");
         }
 
-        const systemEmail = `${profile.phone_number}@gameportal.local`;
-
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ 
-          email: systemEmail, 
-          password 
-        });
-
-        if (error) {
+        if (user.password !== password) {
           throw new Error("ভুল Password দেওয়া হয়েছে!");
         }
+
+        // Save session in localStorage
+        localStorage.setItem('current_user', JSON.stringify(user));
 
         window.location.href = "index.html";
       } catch (err) {
@@ -162,36 +157,25 @@
 
         btn.innerText = "Creating Account...";
         const userGameId = generateGameId();
-        const systemEmail = `${phone}@gameportal.local`;
 
-        // 1. Sign up user in Supabase Auth
-        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-          email: systemEmail,
-          password: password
-        });
-
-        if (authError) throw authError;
-
-        const userId = authData.user ? authData.user.id : null;
-
-        if (!userId) {
-          throw new Error("অ্যাকাউন্ট তৈরি করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
-        }
-
-        // 2. Insert corresponding record into profiles table using the auth user id
-        const { error: profileError } = await supabaseClient
+        // Direct insert into profiles table (Bypassing Supabase Auth completely)
+        const { data, error } = await supabaseClient
           .from('profiles')
           .insert([
             {
-              id: userId,
               full_name: fullName,
               phone_number: phone,
               user_game_id: userGameId,
+              password: password,
               balance: 0
             }
-          ]);
+          ])
+          .select()
+          .single();
 
-        if (profileError) throw profileError;
+        if (error) throw error;
+
+        localStorage.setItem('current_user', JSON.stringify(data));
 
         showAlert("Account created successfully! Redirecting...", true);
         setTimeout(() => {
