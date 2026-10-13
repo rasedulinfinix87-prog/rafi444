@@ -185,11 +185,11 @@
       color: #24ee89;
     }
 
-    /* Coin */
+    /* Coin size reduced by 30% (from 140px to ~98px) */
     .coin-container {
       perspective: 1000px;
-      width: 140px;
-      height: 140px;
+      width: 98px;
+      height: 98px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -216,9 +216,9 @@
       align-items: center;
       justify-content: center;
       box-shadow:
-        0 0 20px rgba(0,0,0,.45),
-        inset 0 0 15px rgba(255,255,255,.3);
-      border: 4px solid #f59e0b;
+        0 0 15px rgba(0,0,0,.45),
+        inset 0 0 10px rgba(255,255,255,.3);
+      border: 3px solid #f59e0b;
     }
 
     .coin-heads {
@@ -381,14 +381,14 @@
               <div id="coinElement" class="coin">
 
                 <div class="coin-face coin-heads">
-                  <div class="w-20 h-20 rounded-full bg-red-600 flex items-center justify-center border-2 border-yellow-300 shadow-inner overflow-hidden">
-                    <i class="fa-solid fa-dragon text-3xl text-yellow-300"></i>
+                  <div class="w-14 h-14 rounded-full bg-red-600 flex items-center justify-center border-2 border-yellow-300 shadow-inner overflow-hidden">
+                    <i class="fa-solid fa-dragon text-2xl text-yellow-300"></i>
                   </div>
                 </div>
 
                 <div class="coin-face coin-tails">
-                  <div class="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center border-2 border-slate-300 shadow-inner overflow-hidden">
-                    <i class="fa-solid fa-coins text-3xl text-slate-300"></i>
+                  <div class="w-14 h-14 rounded-full bg-slate-700 flex items-center justify-center border-2 border-slate-300 shadow-inner overflow-hidden">
+                    <i class="fa-solid fa-coins text-2xl text-slate-300"></i>
                   </div>
                 </div>
 
@@ -516,13 +516,13 @@
 
     function loadSavedHistory() {
       try {
-        const saved = JSON.parse(localStorage.getItem('bc_coin_history'));
+        const saved = JSON.parse(localStorage.getItem('bc_coin_multiplier_history'));
 
         return Array.isArray(saved)
-          ? saved.filter(x => x === 'heads' || x === 'tails').slice(-40)
-          : ['heads', 'tails', 'heads', 'heads', 'tails'];
+          ? saved.slice(-40)
+          : ['1.96x', '0.00x', '3.84x', '1.96x', '0.00x'];
       } catch (e) {
-        return ['heads', 'tails', 'heads', 'heads', 'tails'];
+        return ['1.96x', '0.00x', '3.84x', '1.96x', '0.00x'];
       }
     }
 
@@ -695,24 +695,20 @@
       historyContainer.innerHTML = '';
 
       // Show exactly 20 results in the main bar
-      previousResults.slice(-20).reverse().forEach(res => {
+      previousResults.slice(-20).reverse().forEach(resStr => {
         const badge = document.createElement('span');
+        const isCrash = resStr === '0.00x';
 
-        if (res === 'heads') {
-          badge.className =
-            'px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 whitespace-nowrap';
-          badge.innerText = 'Heads';
-        } else {
-          badge.className =
-            'px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-500/20 text-slate-300 border border-slate-500/30 whitespace-nowrap';
-          badge.innerText = 'Tails';
-        }
+        badge.className = isCrash
+          ? 'px-2 py-1 rounded-md text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 whitespace-nowrap'
+          : 'px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-500/20 text-[#24ee89] border border-emerald-500/30 whitespace-nowrap';
 
+        badge.innerText = resStr;
         historyContainer.appendChild(badge);
       });
 
       try {
-        localStorage.setItem('bc_coin_history', JSON.stringify(previousResults));
+        localStorage.setItem('bc_coin_multiplier_history', JSON.stringify(previousResults));
       } catch (e) {
         console.warn('History save error:', e);
       }
@@ -742,17 +738,17 @@
 
       const itemsToDisplay = showAllHistoryModal ? [...previousResults].reverse() : [...previousResults].slice(-10).reverse();
 
-      itemsToDisplay.forEach((res, idx) => {
+      itemsToDisplay.forEach((resStr, idx) => {
         const row = document.createElement('div');
         row.className = 'flex items-center justify-between bg-[#0f141c] border border-[#222b3a] px-3 py-2 rounded-xl text-xs';
 
-        const isHeads = res === 'heads';
+        const isCrash = resStr === '0.00x';
         const serialNo = showAllHistoryModal ? previousResults.length - idx : Math.min(10, previousResults.length) - idx;
 
         row.innerHTML = `
           <span class="text-gray-400 text-xs">#${serialNo}</span>
-          <span class="font-bold px-2.5 py-0.5 rounded text-[10px] border ${isHeads ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-slate-500/20 text-slate-300 border-slate-500/30'}">
-            ${isHeads ? 'Heads' : 'Tails'}
+          <span class="font-bold px-2 py-0.5 rounded text-[10px] border ${isCrash ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-[#24ee89] border-emerald-500/30'}">
+            ${resStr}
           </span>
         `;
         listContainer.appendChild(row);
@@ -888,14 +884,6 @@
 
         const isWin = selectedChoice === outcome;
 
-        previousResults.push(outcome);
-
-        if (previousResults.length > 50) {
-          previousResults.shift();
-        }
-
-        renderHistoryBar();
-
         if (isWin) {
           if (isFirstBet) {
             currentMultiplier = 1.96;
@@ -929,8 +917,14 @@
           );
 
         } else {
+          // Crash occurred (Lost)
           statusText.innerHTML =
             '<span style="color:#ed4245;font-weight:800">LOST! Better luck next time.</span>';
+
+          // Record 0.00x in history for crash
+          previousResults.push('0.00x');
+          if (previousResults.length > 50) previousResults.shift();
+          renderHistoryBar();
 
           if (
             currentUserId &&
@@ -941,7 +935,7 @@
               id: generateUUID(),
               user_id: currentUserId,
               target_number: selectedChoice === 'heads' ? 1 : 2,
-              roll_result: outcome === 'heads' ? 1 : 2,
+              roll_result: 0.00,
               bet_amount: activeBetAmount,
               payout: 0,
               is_bool: false
@@ -978,6 +972,12 @@
 
       setActionButton('Processing Cash Out...', 'red-btn', true);
 
+      // Record multiplier string in history on manual cash out
+      const recordedMultiplierStr = currentMultiplier.toFixed(2) + 'x';
+      previousResults.push(recordedMultiplierStr);
+      if (previousResults.length > 50) previousResults.shift();
+      renderHistoryBar();
+
       if (activeBetAmount > 0) {
         balance += payoutAmount;
         updateBalanceUI();
@@ -1011,7 +1011,7 @@
           id: generateUUID(),
           user_id: currentUserId,
           target_number: selectedChoice === 'heads' ? 1 : 2,
-          roll_result: selectedChoice === 'heads' ? 1 : 2,
+          roll_result: currentMultiplier,
           bet_amount: activeBetAmount,
           payout: payoutAmount,
           is_bool: true
