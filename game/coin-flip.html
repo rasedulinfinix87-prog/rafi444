@@ -520,37 +520,63 @@
     </div>
   </div>
 
-  <!-- Live Stats Modal -->
+  <!-- Live Stats Modal (Updated to exact screenshot design) -->
   <div id="liveStatsModal" class="fixed inset-0 bg-black/60 z-[6000] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="main-wrapper w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 shadow-2xl bg-[#171d28]">
-      <div class="flex justify-between items-center pb-2 border-b border-[#222b3a]">
-        <span class="font-bold text-white text-base">Live Stats</span>
-        <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div class="input-box p-3 rounded-xl flex flex-col gap-3">
-        <div class="flex justify-between items-center text-sm">
-          <span class="text-gray-400">Profit</span>
-          <span id="statsProfit" class="text-[#24ee89] font-bold">৳ 0.00</span>
-        </div>
-
-        <div class="flex justify-between items-center text-sm">
-          <span class="text-gray-400">Wagered</span>
-          <span id="statsWagered" class="text-white font-bold">৳ 0.00</span>
-        </div>
-
-        <div class="flex justify-between items-center text-sm border-t border-[#222b3a] pt-2">
-          <span class="text-gray-400">WIN: <strong id="statsWin" class="text-white">0</strong></span>
-          <span class="text-gray-400">LOSE: <strong id="statsLose" class="text-white">0</strong></span>
+    <div class="main-wrapper w-full max-w-sm rounded-2xl p-4 flex flex-col gap-3 shadow-2xl bg-[#171d28] border border-[#222b3a]">
+      
+      <!-- Modal Header with Bet title and Reset Icon -->
+      <div class="flex justify-between items-center pb-2">
+        <span class="font-bold text-white text-base">Bet</span>
+        <div class="flex items-center gap-2">
+          <button onclick="resetLiveStats()" class="text-gray-400 hover:text-white text-sm" title="Reset Stats">
+            <i class="fa-solid fa-rotate-right"></i>
+          </button>
+          <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
         </div>
       </div>
 
-      <div class="input-box p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden">
-        <span class="text-[11px] text-gray-400">Profit/Loss Graph</span>
-        <div class="flex-1 w-full flex items-end gap-1 overflow-x-auto pt-4" id="statsGraphContainer">
-          <div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>
+      <!-- Stats Box Grid Container matching screenshot -->
+      <div class="bg-[#111620] border border-[#222b3a] rounded-xl p-3 grid grid-cols-2 gap-4 relative">
+        
+        <!-- Profit -->
+        <div class="flex flex-col gap-1">
+          <span class="text-xs text-gray-400 font-medium">Profit</span>
+          <div class="flex items-center gap-1.5 text-sm font-extrabold text-[#24ee89]">
+            <span class="w-4 h-4 rounded-full bg-[#24ee89] text-[#0f141c] flex items-center justify-center text-[9px] font-black">৳</span>
+            <span id="statsProfit">BDT 0.00</span>
+          </div>
         </div>
+
+        <!-- WIN -->
+        <div class="flex flex-col gap-1 pl-3 border-l border-[#222b3a]">
+          <span class="text-xs text-gray-400 font-medium">WIN</span>
+          <span id="statsWin" class="text-sm font-extrabold text-[#24ee89]">0</span>
+        </div>
+
+        <!-- Wagered -->
+        <div class="flex flex-col gap-1 pt-2 border-t border-[#222b3a]/50">
+          <span class="text-xs text-gray-400 font-medium">Wagered</span>
+          <div class="flex items-center gap-1.5 text-sm font-extrabold text-white">
+            <span class="w-4 h-4 rounded-full bg-[#24ee89] text-[#0f141c] flex items-center justify-center text-[9px] font-black">৳</span>
+            <span id="statsWagered">BDT 0.00</span>
+          </div>
+        </div>
+
+        <!-- LOSE -->
+        <div class="flex flex-col gap-1 pt-2 border-t border-[#222b3a]/50 pl-3 border-l border-[#222b3a]">
+          <span class="text-xs text-gray-400 font-medium">LOSE</span>
+          <span id="statsLose" class="text-sm font-extrabold text-[#ed4245]">0</span>
+        </div>
+
       </div>
+
+      <!-- Area Chart Graph Container -->
+      <div class="bg-[#111620] border border-[#222b3a] rounded-xl h-44 relative overflow-hidden flex items-end">
+        <svg id="statsAreaChart" class="w-full h-full" viewBox="0 0 320 140" preserveAspectRatio="none">
+          <!-- Dynamic SVG Path will be rendered here -->
+        </svg>
+      </div>
+
     </div>
   </div>
 
@@ -617,7 +643,7 @@
         const gain = audioCtx.createGain();
 
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
 
         gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
@@ -727,39 +753,101 @@
       document.getElementById('liveStatsModal').classList.toggle('hidden');
     }
 
-    function updateGraph() {
-      const container = document.getElementById('statsGraphContainer');
-      if (!container) return;
-      container.innerHTML = '';
+    function resetLiveStats() {
+      totalWagered = 0;
+      totalWins = 0;
+      totalLosses = 0;
+      totalProfit = 0;
+      profitHistory = [0];
+      updateLiveStatsUI(0, 0, true);
+      // Reset counter visually
+      document.getElementById('statsWin').innerText = '0';
+      document.getElementById('statsLose').innerText = '0';
+      document.getElementById('statsProfit').innerText = 'BDT 0.00';
+      document.getElementById('statsWagered').innerText = 'BDT 0.00';
+      updateAreaChart();
+    }
+
+    // Render Area Chart matching screenshot style
+    function updateAreaChart() {
+      const svg = document.getElementById('statsAreaChart');
+      if (!svg) return;
+      svg.innerHTML = '';
+
+      const width = 320;
+      const height = 140;
 
       if (profitHistory.length <= 1) {
-        container.innerHTML = '<div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>';
         return;
       }
 
-      const maxVal = Math.max(...profitHistory.map(Math.abs), 1);
+      const minVal = Math.min(0, ...profitHistory);
+      const maxVal = Math.max(...profitHistory, 1);
+      const range = maxVal - minVal || 1;
 
-      profitHistory.forEach((val, idx) => {
-        if (idx === 0) return;
-        const bar = document.createElement('div');
-        const isProfit = val >= 0;
-        const heightPercent = Math.min(Math.max((Math.abs(val) / maxVal) * 45, 10), 100);
-
-        bar.className = `w-3 rounded-sm transition-all ${isProfit ? 'bg-[#24ee89]' : 'bg-[#ed4245]'}`;
-        bar.style.height = heightPercent + '%';
-        bar.title = `Profit: ৳${val.toFixed(2)}`;
-        container.appendChild(bar);
+      const points = profitHistory.map((val, idx) => {
+        const x = (idx / (profitHistory.length - 1 || 1)) * width;
+        const y = height - ((val - minVal) / range) * (height - 20) - 10;
+        return { x, y };
       });
 
-      container.scrollLeft = container.scrollWidth;
+      // Construct SVG path for area fill
+      let pathD = `M 0 ${height} `;
+      points.forEach(p => {
+        pathD += `L ${p.x} ${p.y} `;
+      });
+      pathD += `L ${width} ${height} Z`;
+
+      // Gradient definition
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+      gradient.setAttribute('id', 'chartGradient');
+      gradient.setAttribute('x1', '0%');
+      gradient.setAttribute('y1', '0%');
+      gradient.setAttribute('x2', '0%');
+      gradient.setAttribute('y2', '100%');
+
+      const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      stop1.setAttribute('offset', '0%');
+      stop1.setAttribute('stop-color', '#24ee89');
+      stop1.setAttribute('stop-opacity', '0.5');
+
+      const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      stop2.setAttribute('offset', '100%');
+      stop2.setAttribute('stop-color', '#24ee89');
+      stop2.setAttribute('stop-opacity', '0.0');
+
+      gradient.appendChild(stop1);
+      gradient.appendChild(stop2);
+      defs.appendChild(gradient);
+      svg.appendChild(defs);
+
+      // Area Path
+      const areaPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      areaPath.setAttribute('d', pathD);
+      areaPath.setAttribute('fill', 'url(#chartGradient)');
+      svg.appendChild(areaPath);
+
+      // Line Path on top
+      let lineD = '';
+      points.forEach((p, idx) => {
+        lineD += (idx === 0 ? `M ${p.x} ${p.y} ` : `L ${p.x} ${p.y} `);
+      });
+
+      const linePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      linePath.setAttribute('d', lineD);
+      linePath.setAttribute('fill', 'none');
+      linePath.setAttribute('stroke', '#24ee89');
+      linePath.setAttribute('stroke-width', '2');
+      svg.appendChild(linePath);
     }
 
     function updateLiveStatsUI(profitChange, wagerChange, isWin) {
       totalWagered += wagerChange;
       totalProfit += profitChange;
-      if (isWin) {
+      if (isWin && wagerChange > 0) {
         totalWins++;
-      } else {
+      } else if (!isWin && wagerChange > 0) {
         totalLosses++;
       }
       profitHistory.push(totalProfit);
@@ -769,12 +857,12 @@
       const statsWin = document.getElementById('statsWin');
       const statsLose = document.getElementById('statsLose');
 
-      if (statsProfit) statsProfit.innerText = '৳ ' + totalProfit.toFixed(2);
-      if (statsWagered) statsWagered.innerText = '৳ ' + totalWagered.toFixed(2);
+      if (statsProfit) statsProfit.innerText = 'BDT ' + totalProfit.toFixed(2);
+      if (statsWagered) statsWagered.innerText = 'BDT ' + totalWagered.toFixed(2);
       if (statsWin) statsWin.innerText = totalWins;
       if (statsLose) statsLose.innerText = totalLosses;
 
-      updateGraph();
+      updateAreaChart();
     }
 
     function loadSavedHistory() {
@@ -838,6 +926,7 @@
       renderHistoryBar();
       updateStatsUI();
       selectChoice('heads');
+      updateAreaChart();
 
       if (
         typeof supabaseClient !== 'undefined' &&
@@ -1015,7 +1104,6 @@
 
       itemsToDisplay.forEach((resStr, idx) => {
         const row = document.createElement('div');
-        // Slim line layout without card box
         row.className = 'flex items-center justify-between border-b border-[#222b3a] py-2 px-1 text-xs';
 
         const isCrash = resStr === '0.00x';
@@ -1155,7 +1243,6 @@
       coin.classList.remove('flipping-heads', 'flipping-tails');
       void coin.offsetWidth;
 
-      // Turbo logic: fast (100ms) if turbo on, smooth/normal (800ms) if off
       const flipDelay = isTurboOn ? 100 : 800;
       if (isTurboOn) {
         coin.style.animationDuration = '0.1s';
