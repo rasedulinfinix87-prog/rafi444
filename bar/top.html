@@ -21,61 +21,44 @@
 
     <!-- Balance + Deposit -->
     <div class="flex items-center bg-[#0f141c] border border-[#222b3a] rounded-lg p-1 text-xs">
-
       <div class="flex items-center gap-1.5 px-2 py-1">
         <span class="w-2 h-2 rounded-full bg-[#24ee89] animate-pulse flex-shrink-0"></span>
         <span class="text-[#24ee89] font-bold text-sm">৳</span>
-        <span
-          id="topBarBalance"
+        <span id="topBarBalance"
           class="font-extrabold text-white text-sm whitespace-nowrap"
-          aria-live="polite"
-        >0.00</span>
+          aria-live="polite">0.00</span>
       </div>
 
-      <a
-        href="../account/deposit.html"
+      <a href="../account/deposit.html"
         id="depositLinkBtn"
         class="green-btn font-extrabold p-1.5 rounded-md transition flex items-center justify-center shadow-md"
-        aria-label="Deposit"
-      >
+        aria-label="Deposit">
         <svg class="w-4 h-4 text-[#0f141c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
         </svg>
       </a>
-
     </div>
 
     <!-- Notifications -->
     <div class="relative">
-      <button
-        id="notifBtn"
+      <button id="notifBtn"
         onclick="if(typeof toggleNotifications === 'function') toggleNotifications(); else document.getElementById('notifDropdown')?.classList.toggle('hidden')"
         class="relative p-2 text-gray-400 hover:text-white rounded-lg hover:bg-[#222b3a] transition focus:outline-none"
-        aria-label="Notifications"
-        type="button"
-      >
+        aria-label="Notifications" type="button">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
         </svg>
-
-        <span
-          id="notifBadge"
-          class="absolute top-1.5 right-1.5 w-2 h-2 bg-[#24ee89] rounded-full ring-2 ring-[#0f141c]"
-        ></span>
+        <span id="notifBadge"
+          class="absolute top-1.5 right-1.5 w-2 h-2 bg-[#24ee89] rounded-full ring-2 ring-[#0f141c]"></span>
       </button>
 
-      <!-- Notification Dropdown -->
-      <div
-        id="notifDropdown"
-        class="hidden absolute right-0 mt-2 w-72 max-w-[85vw] bg-[#171d28] border border-[#222b3a] rounded-xl shadow-2xl z-[100] overflow-hidden"
-      >
+      <div id="notifDropdown"
+        class="hidden absolute right-0 mt-2 w-72 max-w-[85vw] bg-[#171d28] border border-[#222b3a] rounded-xl shadow-2xl z-[100] overflow-hidden">
         <div class="p-3 border-b border-[#222b3a] flex justify-between items-center">
           <span class="text-xs font-bold text-gray-300">Notifications</span>
-          <button
-            type="button"
+          <button type="button"
             onclick="if(typeof clearNotifications === 'function') clearNotifications(); else document.getElementById('notifBadge')?.classList.add('hidden')"
-            class="text-[10px] text-gray-500 hover:text-gray-300"
-          >Mark as read</button>
+            class="text-[10px] text-gray-500 hover:text-gray-300">Mark as read</button>
         </div>
 
         <div id="notifList" class="max-h-60 overflow-y-auto p-2 text-xs space-y-2 text-gray-400">
@@ -88,238 +71,247 @@
     </div>
 
     <!-- Profile -->
-    <a
-      href="../mem/member.html"
+    <a href="../mem/member.html"
       id="profileLinkBtn"
       class="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-[#222b3a] transition border border-[#222b3a] flex items-center justify-center bg-[#0f141c]"
-      aria-label="My profile"
-    >
+      aria-label="My profile">
       <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
       </svg>
     </a>
-
   </div>
 </header>
 
-<!-- Supabase Balance Logic -->
 <script>
 (function () {
-  // Prevent duplicate initialization if the top bar is loaded again.
-  if (window.__topBarBalanceCleanup) {
-    try {
-      window.__topBarBalanceCleanup();
-    } catch (e) {
-      console.warn("Previous balance listener cleanup failed:", e);
-    }
-  }
+  // This function must be called after the top bar HTML is inserted.
+  // Calling it again refreshes the existing balance instead of duplicating listeners.
+  window.initTopBarBalance = function () {
+    const balanceElement = document.getElementById("topBarBalance");
 
-  let active = true;
-  let currentUserId = null;
-  let balanceChannel = null;
-  let authSubscription = null;
-  let refreshInProgress = false;
-  let refreshPending = false;
+    if (!balanceElement) return;
 
-  const balanceElement = document.getElementById("topBarBalance");
-
-  if (!balanceElement) return;
-
-  function showBalance(value) {
-    const amount = Number(value);
-
-    if (!Number.isFinite(amount)) return;
-
-    balanceElement.textContent = amount.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  }
-
-  function showUnavailable() {
-    balanceElement.textContent = "--";
-  }
-
-  function getClient() {
-    if (typeof supabaseClient === "undefined" || !supabaseClient) {
-      console.error(
-        "Supabase client not found. Load supabase-config.js before bar/top.html."
-      );
-      return null;
-    }
-
-    return supabaseClient;
-  }
-
-  function removeBalanceChannel(client) {
-    if (balanceChannel && client) {
-      client.removeChannel(balanceChannel);
-    }
-
-    balanceChannel = null;
-  }
-
-  async function refreshBalance() {
-    if (!active) return;
-
-    if (refreshInProgress) {
-      refreshPending = true;
+    if (window.__topBarBalanceState &&
+        window.__topBarBalanceState.element === balanceElement) {
+      window.__topBarBalanceState.refresh();
       return;
     }
 
-    refreshInProgress = true;
+    if (window.__topBarBalanceState &&
+        typeof window.__topBarBalanceState.cleanup === "function") {
+      window.__topBarBalanceState.cleanup();
+    }
 
-    try {
-      const client = getClient();
+    const state = {
+      element: balanceElement,
+      userId: null,
+      channel: null,
+      authSubscription: null,
+      timer: null,
+      active: true,
+      busy: false,
+      pending: false,
+      refresh: null,
+      cleanup: null
+    };
 
-      if (!client) {
-        showUnavailable();
+    window.__topBarBalanceState = state;
+
+    function showBalance(value) {
+      if (!state.active || !balanceElement.isConnected) return;
+
+      const amount = Number(value);
+
+      if (value === null || value === undefined || !Number.isFinite(amount)) {
+        balanceElement.textContent = "--";
         return;
       }
 
-      // Get the currently authenticated user.
-      const {
-        data: { user },
-        error: authError
-      } = await client.auth.getUser();
+      balanceElement.textContent = amount.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
 
-      if (!active) return;
+    function getClient() {
+      if (window.supabaseClient) return window.supabaseClient;
 
-      if (authError || !user) {
-        currentUserId = null;
-        removeBalanceChannel(client);
-        showBalance(0);
+      console.error(
+        "[TopBar] supabaseClient পাওয়া যায়নি। supabase-config.js আগে লোড হতে হবে।"
+      );
+
+      return null;
+    }
+
+    function removeChannel(client) {
+      if (state.channel && client) {
+        client.removeChannel(state.channel).catch(function (error) {
+          console.warn("[TopBar] Channel cleanup:", error);
+        });
+      }
+
+      state.channel = null;
+    }
+
+    async function refresh() {
+      if (!state.active) return;
+
+      if (state.busy) {
+        state.pending = true;
         return;
       }
 
-      // Subscribe only to the signed-in user's profile.
-      if (currentUserId !== user.id) {
-        removeBalanceChannel(client);
-        currentUserId = user.id;
+      state.busy = true;
 
-        balanceChannel = client
-          .channel("topbar-balance-" + user.id)
-          .on(
-            "postgres_changes",
-            {
-              event: "UPDATE",
-              schema: "public",
-              table: "profiles",
-              filter: "id=eq." + user.id
-            },
-            function (payload) {
-              if (!active || currentUserId !== user.id) return;
+      try {
+        const client = getClient();
 
-              if (
-                payload.new &&
-                Object.prototype.hasOwnProperty.call(payload.new, "balance")
-              ) {
-                showBalance(payload.new.balance);
-              } else {
-                refreshBalance();
+        if (!client) {
+          showBalance("--");
+          return;
+        }
+
+        const result = await client.auth.getUser();
+
+        if (!state.active) return;
+
+        const user = result.data && result.data.user;
+
+        if (result.error || !user) {
+          state.userId = null;
+          removeChannel(client);
+          showBalance(0);
+          return;
+        }
+
+        if (state.userId !== user.id) {
+          removeChannel(client);
+          state.userId = user.id;
+
+          state.channel = client
+            .channel("topbar-balance-" + user.id)
+            .on(
+              "postgres_changes",
+              {
+                event: "*",
+                schema: "public",
+                table: "profiles",
+                filter: "id=eq." + user.id
+              },
+              function (payload) {
+                if (!state.active || state.userId !== user.id) return;
+
+                if (payload.new &&
+                    payload.new.balance !== undefined) {
+                  showBalance(payload.new.balance);
+                } else {
+                  refresh();
+                }
               }
-            }
-          )
-          .subscribe(function (status) {
-            if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-              console.warn("Top bar balance realtime status:", status);
-            }
-          });
-      }
+            )
+            .subscribe(function (status) {
+              if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+                console.warn("[TopBar] Realtime status:", status);
+              }
+            });
+        }
 
-      // Fetch the real balance from profiles.
-      const { data, error } = await client
-        .from("profiles")
-        .select("balance")
-        .eq("id", user.id)
-        .single();
+        const profileResult = await client
+          .from("profiles")
+          .select("balance")
+          .eq("id", user.id)
+          .maybeSingle();
 
-      if (!active || currentUserId !== user.id) return;
+        if (!state.active || state.userId !== user.id) return;
 
-      if (error) {
-        console.error("Could not load profiles.balance:", error);
-        showUnavailable();
-        return;
-      }
+        if (profileResult.error) {
+          console.error("[TopBar] Balance query failed:", profileResult.error);
+          showBalance("--");
+          return;
+        }
 
-      if (!data || data.balance === null || data.balance === undefined) {
-        showBalance(0);
-        return;
-      }
+        if (!profileResult.data) {
+          console.error(
+            "[TopBar] profiles-এ এই লগইন ইউজারের ID পাওয়া যায়নি।",
+            user.id
+          );
+          showBalance("--");
+          return;
+        }
 
-      showBalance(data.balance);
+        showBalance(profileResult.data.balance);
+      } catch (error) {
+        console.error("[TopBar] Balance refresh failed:", error);
+        showBalance("--");
+      } finally {
+        state.busy = false;
 
-    } catch (error) {
-      console.error("Top bar balance loading failed:", error);
-      showUnavailable();
-    } finally {
-      refreshInProgress = false;
-
-      if (refreshPending && active) {
-        refreshPending = false;
-        refreshBalance();
+        if (state.pending && state.active) {
+          state.pending = false;
+          Promise.resolve().then(refresh);
+        }
       }
     }
-  }
 
-  // Refresh when other page code dispatches this event.
-  function onBalanceUpdated() {
-    refreshBalance();
-  }
-
-  // Refresh when the user returns to the page.
-  function onVisibilityChange() {
-    if (document.visibilityState === "visible") {
-      refreshBalance();
+    function onBalanceUpdated() {
+      refresh();
     }
-  }
 
-  window.addEventListener("balanceUpdated", onBalanceUpdated);
-  window.addEventListener("focus", onBalanceUpdated);
-  document.addEventListener("visibilitychange", onVisibilityChange);
+    function onVisibilityChange() {
+      if (document.visibilityState === "visible") refresh();
+    }
 
-  // React to login/logout changes.
-  const client = getClient();
+    window.addEventListener("balanceUpdated", onBalanceUpdated);
+    window.addEventListener("focus", onBalanceUpdated);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
-  if (client) {
-    const { data } = client.auth.onAuthStateChange(function (event, session) {
-      if (!active) return;
+    const client = getClient();
 
-      if (event === "SIGNED_OUT" || !session) {
-        currentUserId = null;
-        removeBalanceChannel(client);
-        showBalance(0);
-      } else if (
-        event === "SIGNED_IN" ||
-        event === "TOKEN_REFRESHED" ||
-        event === "USER_UPDATED"
-      ) {
-        // Avoid querying Supabase directly inside the auth callback.
-        Promise.resolve().then(refreshBalance);
+    if (client) {
+      const authResult = client.auth.onAuthStateChange(function (event, session) {
+        if (!state.active) return;
+
+        if (event === "SIGNED_OUT" || !session) {
+          state.userId = null;
+          removeChannel(client);
+          showBalance(0);
+        } else {
+          // Defer the Supabase request until the auth callback has completed.
+          Promise.resolve().then(refresh);
+        }
+      });
+
+      state.authSubscription = authResult.data.subscription;
+    }
+
+    state.refresh = refresh;
+
+    state.cleanup = function () {
+      if (!state.active) return;
+
+      state.active = false;
+      clearInterval(state.timer);
+
+      window.removeEventListener("balanceUpdated", onBalanceUpdated);
+      window.removeEventListener("focus", onBalanceUpdated);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+
+      if (state.authSubscription) {
+        state.authSubscription.unsubscribe();
+        state.authSubscription = null;
       }
-    });
 
-    authSubscription = data.subscription;
-  }
+      removeChannel(getClient());
+    };
 
-  // Initial load.
-  refreshBalance();
-
-  // Allow cleanup if this HTML is loaded again.
-  window.__topBarBalanceCleanup = function () {
-    active = false;
-
-    window.removeEventListener("balanceUpdated", onBalanceUpdated);
-    window.removeEventListener("focus", onBalanceUpdated);
-    document.removeEventListener("visibilitychange", onVisibilityChange);
-
-    if (authSubscription) {
-      authSubscription.unsubscribe();
-      authSubscription = null;
-    }
-
-    const existingClient = getClient();
-    if (existingClient) removeBalanceChannel(existingClient);
+    // First load and fallback refresh every 10 seconds.
+    refresh();
+    state.timer = setInterval(refresh, 10000);
   };
+
+  // Works when this script is loaded normally, not when injected with innerHTML.
+  if (document.getElementById("topBarBalance")) {
+    window.initTopBarBalance();
+  }
 })();
 </script>
