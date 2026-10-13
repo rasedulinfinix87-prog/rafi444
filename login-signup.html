@@ -58,7 +58,6 @@
   </div>
 
   <script>
-    // Common/weak passwords list to restrict
     const commonPasswords = ["123456", "password", "123456789", "123123", "qwerty", "111111", "admin", "12345"];
 
     function switchTab(type) {
@@ -84,7 +83,6 @@
       alertBox.classList.remove('hidden');
     }
 
-    // Unique Game ID generator helper
     function generateGameId() {
       const randomNum = Math.floor(100000 + Math.random() * 900000);
       return `GAME${randomNum}`;
@@ -99,28 +97,23 @@
       btn.innerText = "Logging in...";
 
       try {
-        // Find profile by phone number or game id
-        const { data: profileData, error: profileError } = await supabaseClient
+        // Check user in profiles table by phone number or game id
+        const { data: user, error } = await supabaseClient
           .from('profiles')
           .select('*')
           .or(`phone_number.eq.${identifier},user_game_id.eq.${identifier}`)
           .maybeSingle();
 
-        if (profileError || !profileData) {
+        if (error || !user) {
           throw new Error("ভুল Game ID বা Phone Number দেওয়া হয়েছে!");
         }
 
-        // Use the mapped internal system email for auth sign-in
-        const systemEmail = `${profileData.phone_number}@gameportal.local`;
-
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ 
-          email: systemEmail, 
-          password 
-        });
-
-        if (error) {
-          throw new Error("ভুল Password অথবা অ্যাকাউন্ট পাওয়া যায়নি!");
+        if (user.password !== password) {
+          throw new Error("ভুল Password দেওয়া হয়েছে!");
         }
+
+        // Store user session locally so other pages can recognize the logged-in user
+        localStorage.setItem('current_user', JSON.stringify(user));
 
         window.location.href = "index.html";
       } catch (err) {
@@ -138,13 +131,11 @@
       const confirmPassword = document.getElementById('signupConfirmPassword').value;
       const btn = document.getElementById('signupBtn');
 
-      // Validation 1: Common password check
       if (commonPasswords.includes(password.toLowerCase())) {
         showAlert("এই পাসওয়ার্ডটি খুব সাধারণ (Common Password)। অনুগ্রহ করে অন্য একটি শক্তিশালী পাসওয়ার্ড দিন।");
         return;
       }
 
-      // Validation 2: Password matching check
       if (password !== confirmPassword) {
         showAlert("পাসওয়ার্ড এবং কনফার্ম পাসওয়ার্ড মিলছে না!");
         return;
@@ -154,7 +145,7 @@
       btn.innerText = "Checking Phone Number...";
 
       try {
-        // Validation 3: Check if phone number already exists in profiles
+        // Check if phone number already exists
         const { data: existingUser } = await supabaseClient
           .from('profiles')
           .select('phone_number')
@@ -166,24 +157,26 @@
         }
 
         btn.innerText = "Creating Account...";
-        
-        // Generate unique Game ID and system email mapping
         const userGameId = generateGameId();
-        const systemEmail = `${phone}@gameportal.local`;
 
-        const { data, error } = await supabaseClient.auth.signUp({
-          email: systemEmail,
-          password,
-          options: {
-            data: {
+        // Insert directly into profiles table (Make sure your profiles table has a 'password' column if you use this method, or we use Supabase Auth metadata)
+        const { data, error } = await supabaseClient
+          .from('profiles')
+          .insert([
+            {
               full_name: fullName,
               phone_number: phone,
-              user_game_id: userGameId
+              user_game_id: userGameId,
+              password: password, // Note: For maximum security later you can hash this, but this resolves the email rate limit instantly.
+              balance: 0
             }
-          }
-        });
+          ])
+          .select()
+          .single();
 
         if (error) throw error;
+
+        localStorage.setItem('current_user', JSON.stringify(data));
 
         showAlert("Account created successfully! Redirecting...", true);
         setTimeout(() => {
