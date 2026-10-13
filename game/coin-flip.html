@@ -605,7 +605,7 @@
       }
     }
 
-    // Rating Logic with single count per account/browser session check
+    // Rating Logic with single count per account/browser session check (Silent without popup)
     function initRatingSystem() {
       const savedRatingData = JSON.parse(localStorage.getItem('game_rating_system'));
       const now = Date.now();
@@ -635,8 +635,7 @@
       let savedRatingData = JSON.parse(localStorage.getItem('game_rating_system')) || { count: 2635, timestamp: Date.now(), hasRated: false };
       
       if (savedRatingData.hasRated) {
-        alert('আপনি ইতিমধ্যে একবার রেটিং দিয়েছেন!');
-        return;
+        return; // Logic retained silently without popup alert
       }
 
       savedRatingData.count += 1;
@@ -764,7 +763,6 @@
         return { x, y };
       });
 
-      // Determine graph color based on current total profit (Red if negative/loss, Green if positive/profit)
       const isOverallLoss = totalProfit < 0;
       const themeColor = isOverallLoss ? '#ed4245' : '#24ee89';
       const opacityVal = isOverallLoss ? '0.4' : '0.5';
@@ -873,7 +871,12 @@
       try {
         const topRes = await fetch('../bar/top.html');
         if (topRes.ok) {
-          document.getElementById('topBarContainer').innerHTML = await topRes.text();
+          let topContent = await topRes.text();
+          // Updated profile link to mem/member.html as requested
+          topContent = topContent.replace(/game\/mem\/member\.html/g, 'mem/member.html');
+          topContent = topContent.replace(/href="mem\/member\.html"/g, 'href="mem/member.html"');
+          document.getElementById('topBarContainer').innerHTML = topContent;
+
           document.querySelectorAll('a[href*="deposit"]').forEach(a => {
             a.href = '../account/deposit.html';
           });
@@ -897,7 +900,6 @@
       selectChoice('heads');
       updateAreaChart();
 
-      // Initial validation check for default value
       const amountInput = document.getElementById('betAmount');
       if (amountInput) {
         validateBetInputStyle(amountInput);
@@ -1140,14 +1142,13 @@
         const enteredAmount = Number(amountInput.value);
 
         if (!Number.isFinite(enteredAmount) || enteredAmount < 1) {
-          alert('সর্বনিম্ন বেট ১ টাকা এবং ০.৯৯ বা তার নিচে বেট করা যাবে না।');
           isProcessingAction = false;
           setActionButton('Bet', 'green-btn');
           return;
         }
 
+        // Balance check logic retained completely without popup alert text
         if (enteredAmount > balance) {
-          alert('পর্যাপ্ত ব্যালেন্স নেই!');
           isProcessingAction = false;
           setActionButton('Bet', 'green-btn');
           return;
@@ -1170,12 +1171,10 @@
             isProcessingAction = false;
 
             setActionButton('Bet', 'green-btn');
-            alert('ব্যালেন্স আপডেট করা যায়নি। আবার চেষ্টা করুন।');
             return;
           }
         }
 
-        // Updated multiplier logic with 91% increase rate calculation
         currentMultiplier = 1.91;
         gameState = 'playing';
         isProcessingAction = false;
@@ -1231,7 +1230,6 @@
             currentMultiplier = 1.91;
             currentSeries = 1;
           } else {
-            // 91% increase logic applied consecutively
             currentMultiplier = Number(
               (currentMultiplier * 1.91).toFixed(2)
             );
@@ -1244,7 +1242,6 @@
             ? activeBetAmount * currentMultiplier
             : 0;
 
-          // Updated status message to display only (WIN)
           statusText.innerHTML =
             '<span style="color:#24ee89;font-weight:800">(WIN) · ৳ ' +
             potentialWin.toFixed(2) +
@@ -1374,7 +1371,6 @@
       }
 
       playClockBellSound();
-      // Updated message to display only (Won) as requested
       document.getElementById('gameStatusText').innerHTML =
         '<span style="color:#24ee89;font-weight:800">(Won): ৳ ' +
         payoutAmount.toFixed(2) +
