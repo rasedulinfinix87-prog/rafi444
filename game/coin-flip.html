@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,27 +124,26 @@
         radial-gradient(circle at 20% 80%, rgba(255,255,255,.06) 1px, transparent 2px);
     }
 
-    /* UPDATED: Slim side cards pushed toward the left and right edges */
+    /* UPDATED: narrower side cards, closer to screen edges */
     .game-stage {
       position: absolute;
-      left: 3px;
-      right: 3px;
+      left: 2px;
+      right: 2px;
       top: 51px;
       bottom: 32px;
       display: grid;
-      grid-template-columns: minmax(52px, 0.68fr) 140px minmax(52px, 0.68fr);
+      grid-template-columns: minmax(0, 1fr) 140px minmax(0, 1fr);
       align-items: center;
-      justify-items: stretch;
-      gap: 4px;
+      justify-items: center;
+      gap: 2px;
     }
 
-    /* UPDATED: Narrower Series and Multiply cards */
+    /* UPDATED: thinner Series and Multiply cards */
     .stat-card {
       width: 100%;
-      max-width: 100%;
+      max-width: 88px;
       min-width: 0;
-      height: 118px;
-      padding: 4px 2px;
+      height: 120px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -165,7 +163,7 @@
 
     .stat-value {
       color: #fff;
-      font-size: clamp(17px, 4.5vw, 25px);
+      font-size: clamp(18px, 4.5vw, 25px);
       line-height: 1.1;
       font-weight: 900;
       letter-spacing: -.6px;
@@ -174,10 +172,9 @@
 
     .stat-label {
       color: #f0f3f5;
-      font-size: clamp(10px, 2.8vw, 14px);
+      font-size: clamp(11px, 2.8vw, 14px);
       line-height: 1.2;
       font-weight: 800;
-      white-space: nowrap;
     }
 
     .stat-card.stat-active {
@@ -199,7 +196,6 @@
       justify-content: center;
       position: relative;
       z-index: 5;
-      justify-self: center;
     }
 
     .coin {
@@ -287,12 +283,12 @@
       .game-screen { height: 245px; }
 
       .game-stage {
-        left: 3px;
-        right: 3px;
+        left: 2px;
+        right: 2px;
         top: 47px;
         bottom: 32px;
-        grid-template-columns: minmax(48px, 0.68fr) 108px minmax(48px, 0.68fr);
-        gap: 3px;
+        grid-template-columns: minmax(0, 1fr) 108px minmax(0, 1fr);
+        gap: 1px;
       }
 
       .coin-container {
@@ -308,23 +304,23 @@
       }
 
       .stat-card {
-        height: 104px;
-        padding: 3px 1px;
-        border-radius: 12px;
+        max-width: 76px;
+        height: 105px;
+        border-radius: 13px;
         gap: 9px;
       }
 
-      .stat-value { font-size: 17px; }
-      .stat-label { font-size: 10px; }
+      .stat-value { font-size: 18px; }
+      .stat-label { font-size: 11px; }
     }
 
     /* Standard mobile screens */
     @media (min-width: 381px) and (max-width: 480px) {
       .game-stage {
-        left: 3px;
-        right: 3px;
-        grid-template-columns: minmax(52px, 0.68fr) 124px minmax(52px, 0.68fr);
-        gap: 4px;
+        left: 2px;
+        right: 2px;
+        grid-template-columns: minmax(0, 1fr) 124px minmax(0, 1fr);
+        gap: 2px;
       }
 
       .coin-container {
@@ -333,25 +329,8 @@
       }
 
       .stat-card {
-        max-width: 100%;
-        height: 112px;
-      }
-
-      .stat-value { font-size: 19px; }
-      .stat-label { font-size: 11px; }
-    }
-
-    /* Wider phones and tablets */
-    @media (min-width: 481px) {
-      .game-stage {
-        left: 5px;
-        right: 5px;
-        grid-template-columns: minmax(60px, 0.68fr) 140px minmax(60px, 0.68fr);
-        gap: 5px;
-      }
-
-      .stat-card {
-        max-width: 100%;
+        max-width: 84px;
+        height: 116px;
       }
     }
 
@@ -389,7 +368,7 @@
           <!-- Series, Coin and Multiply -->
           <div class="game-stage">
 
-            <!-- Left Transparent Card -->
+            <!-- Left Card -->
             <div id="seriesCard" class="stat-card">
               <div id="seriesValue" class="stat-value">0</div>
               <div class="stat-label">Series</div>
@@ -399,14 +378,12 @@
             <div class="coin-container">
               <div id="coinElement" class="coin">
 
-                <!-- Heads -->
                 <div class="coin-face coin-heads">
                   <div class="w-20 h-20 rounded-full bg-red-600 flex items-center justify-center border-2 border-yellow-300 shadow-inner overflow-hidden">
                     <i class="fa-solid fa-dragon text-3xl text-yellow-300"></i>
                   </div>
                 </div>
 
-                <!-- Tails -->
                 <div class="coin-face coin-tails">
                   <div class="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center border-2 border-slate-300 shadow-inner overflow-hidden">
                     <i class="fa-solid fa-coins text-3xl text-slate-300"></i>
@@ -416,7 +393,7 @@
               </div>
             </div>
 
-            <!-- Right Transparent Card -->
+            <!-- Right Card -->
             <div id="multiplyCard" class="stat-card">
               <div id="multiplyValue" class="stat-value">×0.00</div>
               <div class="stat-label">Multiply</div>
@@ -509,7 +486,6 @@
 
     let activeBetAmount = 0;
     let currentMultiplier = 1.00;
-
     let currentSeries = 0;
 
     let previousResults = loadSavedHistory();
@@ -596,10 +572,7 @@
                   filter: `id=eq.${user.id}`
                 },
                 payload => {
-                  if (
-                    payload.new &&
-                    payload.new.balance !== undefined
-                  ) {
+                  if (payload.new && payload.new.balance !== undefined) {
                     balance = Number(payload.new.balance) || 0;
                     updateBalanceUI();
                   }
@@ -627,9 +600,7 @@
       const seriesCard = document.getElementById('seriesCard');
       const multiplyCard = document.getElementById('multiplyCard');
 
-      if (seriesValue) {
-        seriesValue.innerText = currentSeries;
-      }
+      if (seriesValue) seriesValue.innerText = currentSeries;
 
       if (multiplyValue) {
         multiplyValue.innerText = currentSeries > 0
@@ -784,7 +755,6 @@
         }
 
         activeBetAmount = enteredAmount;
-
         resetStats();
 
         if (activeBetAmount > 0) {
