@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>BC Game Style Coin Flip</title>
+  <title>Game Style Coin Flip</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -55,26 +55,26 @@
       padding: 0 8px 100px;
     }
 
-    .bc-main-wrapper {
+    .main-wrapper {
       background: #171d28;
       border: 1px solid #222b3a;
       border-radius: 14px;
       overflow: hidden;
     }
 
-    .bc-divider {
+    .divider {
       height: 1px;
       background: #222b3a;
       width: 100%;
     }
 
-    .bc-input-box {
+    .input-box {
       background: #0f141c;
       border: 1px solid #222b3a;
       border-radius: 10px;
     }
 
-    .bc-input-box:focus-within {
+    .input-box:focus-within {
       border-color: #24ee89;
     }
 
@@ -354,7 +354,7 @@
     <main class="flex flex-col gap-3">
 
       <!-- Main Game Card -->
-      <div class="bc-main-wrapper flex flex-col shadow-xl">
+      <div class="main-wrapper flex flex-col shadow-xl">
 
         <!-- Game Screen -->
         <div class="game-screen">
@@ -409,7 +409,7 @@
           </div>
         </div>
 
-        <div class="bc-divider"></div>
+        <div class="divider"></div>
 
         <!-- Game Controls -->
         <div class="p-4 flex flex-col gap-3.5 bg-[#171d28]">
@@ -443,7 +443,7 @@
               <span class="text-gray-400 text-[10px]">Min: 1 ৳</span>
             </div>
 
-            <div class="flex items-center bc-input-box p-1">
+            <div class="flex items-center input-box p-1">
               <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
 
               <input type="number" id="betAmount" value="1" min="0" step="1"
@@ -466,7 +466,7 @@
 
         </div>
 
-        <div class="bc-divider"></div>
+        <div class="divider"></div>
 
         <!-- Bottom Action Bar Inside Wrapper -->
         <div class="flex items-center justify-between px-4 py-2.5 text-gray-400 text-sm bg-[#171d28]">
@@ -474,9 +474,9 @@
             <i class="fa-solid fa-gear"></i>
           </button>
 
-          <button class="flex items-center gap-1.5 hover:text-[#24ee89] p-1.5" title="Rating">
+          <button onclick="handleRatingClick()" class="flex items-center gap-1.5 hover:text-[#24ee89] p-1.5 cursor-pointer" title="Rating">
             <i class="fa-solid fa-star text-xs text-[#24ee89]"></i>
-            <span class="text-xs font-semibold">12543</span>
+            <span id="ratingDisplayCount" class="text-xs font-semibold">2635</span>
           </button>
 
           <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-[#24ee89] p-1.5 flex items-center gap-1" title="Turbo Mode">
@@ -495,13 +495,13 @@
 
   <!-- Settings Bottom Sheet Modal -->
   <div id="settingsModal" class="fixed inset-0 bg-black/60 z-[6000] hidden flex items-end justify-center backdrop-blur-sm">
-    <div class="bc-main-wrapper w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 bg-[#171d28] border-t border-[#222b3a]">
+    <div class="main-wrapper w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 bg-[#171d28] border-t border-[#222b3a]">
       <div class="flex justify-between items-center pb-2 border-b border-[#222b3a]">
         <span class="font-bold text-white">Settings</span>
         <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
+      <button onclick="goToHelpPage()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
         <i class="fa-regular fa-circle-question w-5 text-[#24ee89]"></i> Help
       </button>
 
@@ -522,13 +522,13 @@
 
   <!-- Live Stats Modal -->
   <div id="liveStatsModal" class="fixed inset-0 bg-black/60 z-[6000] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bc-main-wrapper w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 shadow-2xl bg-[#171d28]">
+    <div class="main-wrapper w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 shadow-2xl bg-[#171d28]">
       <div class="flex justify-between items-center pb-2 border-b border-[#222b3a]">
         <span class="font-bold text-white text-base">Live Stats</span>
         <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div class="bc-input-box p-3 rounded-xl flex flex-col gap-3">
+      <div class="input-box p-3 rounded-xl flex flex-col gap-3">
         <div class="flex justify-between items-center text-sm">
           <span class="text-gray-400">Profit</span>
           <span id="statsProfit" class="text-[#24ee89] font-bold">৳ 0.00</span>
@@ -545,7 +545,7 @@
         </div>
       </div>
 
-      <div class="bc-input-box p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden">
+      <div class="input-box p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden">
         <span class="text-[11px] text-gray-400">Profit/Loss Graph</span>
         <div class="flex-1 w-full flex items-end gap-1 overflow-x-auto pt-4" id="statsGraphContainer">
           <div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>
@@ -554,7 +554,7 @@
     </div>
   </div>
 
-  <!-- History Modal (More / Less) -->
+  <!-- History Modal (Slim Line Style without Card Box) -->
   <div id="historyModal" class="modal-overlay hidden">
     <div class="modal-content">
       <div class="flex items-center justify-between p-4 border-b border-[#222b3a]">
@@ -566,8 +566,8 @@
         </button>
       </div>
 
-      <div class="p-4 overflow-y-auto flex-1 space-y-2" id="modalHistoryList">
-        <!-- Populated dynamically -->
+      <div class="p-4 overflow-y-auto flex-1 space-y-3" id="modalHistoryList">
+        <!-- Populated dynamically as slim lines -->
       </div>
 
       <div class="p-3 border-t border-[#222b3a] flex justify-center bg-[#0f141c]">
@@ -607,6 +607,70 @@
     let totalLosses = 0;
     let totalProfit = 0;
     let profitHistory = [0];
+
+    // Smooth Clock Bell Tone Sound Effect using Web Audio API
+    function playClockBellSound() {
+      if (!isSoundOn) return;
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 1.2);
+      } catch (e) {
+        console.log('Audio error:', e);
+      }
+    }
+
+    // Rating Logic with 12/24 hour auto-increment & manual click
+    function initRatingSystem() {
+      const savedRatingData = JSON.parse(localStorage.getItem('game_rating_system'));
+      const now = Date.now();
+      const interval12Hours = 12 * 60 * 60 * 1000;
+
+      let ratingVal = 2635;
+      let lastTime = now;
+
+      if (savedRatingData) {
+        ratingVal = savedRatingData.count || 2635;
+        lastTime = savedRatingData.timestamp || now;
+
+        const timePassed = now - lastTime;
+        if (timePassed >= interval12Hours) {
+          const increments = Math.floor(timePassed / interval12Hours);
+          ratingVal += increments * 4;
+          lastTime = now - (timePassed % interval12Hours);
+        }
+      }
+
+      localStorage.setItem('game_rating_system', JSON.stringify({ count: ratingVal, timestamp: lastTime }));
+      const displayElem = document.getElementById('ratingDisplayCount');
+      if (displayElem) displayElem.innerText = ratingVal;
+    }
+
+    function handleRatingClick() {
+      let savedRatingData = JSON.parse(localStorage.getItem('game_rating_system')) || { count: 2635, timestamp: Date.now() };
+      savedRatingData.count += 1;
+      localStorage.setItem('game_rating_system', JSON.stringify(savedRatingData));
+
+      const displayElem = document.getElementById('ratingDisplayCount');
+      if (displayElem) displayElem.innerText = savedRatingData.count;
+      playClockBellSound();
+    }
+
+    function goToHelpPage() {
+      window.location.href = 'helf-desk.html';
+    }
 
     function toggleTurbo() {
       isTurboOn = !isTurboOn;
@@ -715,7 +779,7 @@
 
     function loadSavedHistory() {
       try {
-        const saved = JSON.parse(localStorage.getItem('bc_coin_multiplier_history'));
+        const saved = JSON.parse(localStorage.getItem('coin_multiplier_history'));
 
         return Array.isArray(saved)
           ? saved.slice(-40)
@@ -731,6 +795,18 @@
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
       });
+    }
+
+    // Generate random Hash with '***' in the middle
+    function generateMaskedHash() {
+      const chars = 'abcdef0123456789';
+      let part1 = '';
+      let part2 = '';
+      for (let i = 0; i < 6; i++) {
+        part1 += chars.charAt(Math.floor(Math.random() * chars.length));
+        part2 += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return `${part1}***${part2}`;
     }
 
     async function loadBars() {
@@ -757,6 +833,7 @@
 
     async function initCoinFlipGame() {
       await loadBars();
+      initRatingSystem();
 
       renderHistoryBar();
       updateStatsUI();
@@ -906,7 +983,7 @@
       });
 
       try {
-        localStorage.setItem('bc_coin_multiplier_history', JSON.stringify(previousResults));
+        localStorage.setItem('coin_multiplier_history', JSON.stringify(previousResults));
       } catch (e) {
         console.warn('History save error:', e);
       }
@@ -938,13 +1015,18 @@
 
       itemsToDisplay.forEach((resStr, idx) => {
         const row = document.createElement('div');
-        row.className = 'flex items-center justify-between bg-[#0f141c] border border-[#222b3a] px-3 py-2 rounded-xl text-xs';
+        // Slim line layout without card box
+        row.className = 'flex items-center justify-between border-b border-[#222b3a] py-2 px-1 text-xs';
 
         const isCrash = resStr === '0.00x';
-        const serialNo = showAllHistoryModal ? previousResults.length - idx : Math.min(10, previousResults.length) - idx;
+        const gameId = 'GID-' + Math.floor(100000 + Math.random() * 900000);
+        const hashStr = generateMaskedHash();
 
         row.innerHTML = `
-          <span class="text-gray-400 text-xs">#${serialNo}</span>
+          <div class="flex flex-col gap-0.5">
+            <span class="text-gray-300 font-bold text-[11px]">${gameId}</span>
+            <span class="text-gray-500 font-mono text-[10px]">Hash: ${hashStr}</span>
+          </div>
           <span class="font-bold px-2 py-0.5 rounded text-[10px] border ${isCrash ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-[#24ee89] border-emerald-500/30'}">
             ${resStr}
           </span>
@@ -1073,16 +1155,23 @@
       coin.classList.remove('flipping-heads', 'flipping-tails');
       void coin.offsetWidth;
 
+      // Turbo logic: fast (100ms) if turbo on, smooth/normal (800ms) if off
+      const flipDelay = isTurboOn ? 100 : 800;
+      if (isTurboOn) {
+        coin.style.animationDuration = '0.1s';
+      } else {
+        coin.style.animationDuration = '0.8s';
+      }
+
       coin.classList.add(
         outcome === 'heads' ? 'flipping-heads' : 'flipping-tails'
       );
-
-      const flipDelay = isTurboOn ? 300 : 800;
 
       setTimeout(async () => {
         if (thisRound !== roundToken) return;
 
         const isWin = selectedChoice === outcome;
+        playClockBellSound();
 
         if (isWin) {
           if (isFirstBet) {
@@ -1230,6 +1319,7 @@
         }
       }
 
+      playClockBellSound();
       document.getElementById('gameStatusText').innerHTML =
         '<span style="color:#24ee89;font-weight:800">Cashed Out Successfully: ৳ ' +
         payoutAmount.toFixed(2) +
