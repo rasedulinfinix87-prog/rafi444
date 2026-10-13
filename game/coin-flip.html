@@ -62,6 +62,15 @@
       background: #1ed67a;
     }
 
+    .red-btn {
+      background: #ed4245;
+      color: #ffffff;
+      font-weight: 800;
+    }
+    .red-btn:hover {
+      background: #d3383b;
+    }
+
     /* Coin 3D Flip Styles */
     .coin-container {
       perspective: 1000px;
@@ -74,7 +83,7 @@
       height: 100%;
       position: relative;
       transform-style: preserve-3d;
-      transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .coin-face {
@@ -100,22 +109,14 @@
       transform: rotateY(180deg);
     }
 
-    @keyframes flipHeads {
+    .flipping {
+      animation: flipAnim 0.6s ease-in-out;
+    }
+
+    @keyframes flipAnim {
       0% { transform: rotateY(0); }
-      100% { transform: rotateY(1800deg); }
-    }
-
-    @keyframes flipTails {
-      0% { transform: rotateY(0); }
-      100% { transform: rotateY(1980deg); }
-    }
-
-    .flipping-heads {
-      animation: flipHeads 1s forwards;
-    }
-
-    .flipping-tails {
-      animation: flipTails 1s forwards;
+      50% { transform: rotateY(720deg) scale(1.1); }
+      100% { transform: rotateY(1440deg); }
     }
 
     #topBarContainer {
@@ -163,15 +164,18 @@
         <!-- Game Screen Area -->
         <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-8">
           
-          <!-- Dynamic History Bar (Empty Initially, populated on bet) -->
+          <!-- History Bar (Initially Empty, updates on bets) -->
           <div class="absolute top-2 left-3 right-2 flex items-center justify-between z-30 pb-1 pr-1">
             <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-2">
-              <!-- Populated dynamically when user bets -->
+              <!-- Dynamically populated history badges -->
             </div>
           </div>
 
+          <!-- Multiplier Display -->
+          <div class="absolute top-10 text-3xl font-black text-[#24ee89]" id="multiplierDisplay">1.00x</div>
+
           <!-- Coin Container -->
-          <div class="coin-container my-auto z-20">
+          <div class="coin-container my-auto z-20 mt-6">
             <div id="coinElement" class="coin">
               <!-- Heads Face -->
               <div class="coin-face coin-heads">
@@ -188,10 +192,9 @@
             </div>
           </div>
 
-          <!-- Result Subtext & Multiplier info -->
-          <div class="absolute bottom-2 flex flex-col items-center gap-0.5">
-            <span class="text-xs text-gray-400 font-semibold" id="gameStatusText">Pick Coin or Flip and start betting!</span>
-            <span class="text-[11px] text-[#24ee89] font-bold" id="currentMultiplierText">Current Payout: 3.13x</span>
+          <!-- Result Subtext -->
+          <div class="absolute bottom-2 text-xs text-gray-400 font-semibold" id="gameStatusText">
+            Place your bet to start!
           </div>
         </div>
 
@@ -200,15 +203,15 @@
         <!-- Game Controls Section -->
         <div class="p-4 flex flex-col gap-3.5 bg-[#171d28]">
           
-          <!-- User Choice Selector: Coin vs Flip / Heads vs Tails -->
+          <!-- Choice Selector (Heads / Tails) -->
           <div class="grid grid-cols-2 gap-2">
-            <button onclick="selectUserMode('coin')" id="btnModeCoin" class="py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition" title="User chooses Coin">
-              <i class="fa-solid fa-coins text-[#F5CF66]"></i>
-              <span>Select: Coin</span>
+            <button onclick="selectChoice('heads')" id="btnHeads" class="py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition">
+              <div class="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-[10px]"><i class="fa-solid fa-dragon"></i></div>
+              <span>Heads (Coco)</span>
             </button>
-            <button onclick="selectUserMode('flip')" id="btnModeFlip" class="py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition" title="User chooses Flip">
-              <i class="fa-solid fa-rotate text-blue-400"></i>
-              <span>Select: Flip</span>
+            <button onclick="selectChoice('tails')" id="btnTails" class="py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition">
+              <div class="w-5 h-5 rounded-full bg-slate-500 flex items-center justify-center text-[10px]"><i class="fa-solid fa-coins"></i></div>
+              <span>Tails (Coin)</span>
             </button>
           </div>
 
@@ -230,10 +233,15 @@
             </div>
           </div>
 
-          <!-- Action Button -->
-          <button id="btnAction" onclick="handleBetAndFlip()" class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
-            <span>Bet & Flip</span>
-          </button>
+          <!-- Action Buttons (Bet / Flip / Cashout) -->
+          <div class="grid grid-cols-2 gap-2" id="actionButtonsContainer">
+            <button id="btnBet" onclick="handleBetAction()" class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
+              <span>Bet</span>
+            </button>
+            <button id="btnFlip" onclick="handleFlipAction()" disabled class="w-full py-3.5 bg-[#222b3a] text-gray-500 text-sm font-bold rounded-xl transition shadow cursor-not-allowed flex items-center justify-center gap-2">
+              <span>Coin / Flip</span>
+            </button>
+          </div>
 
           <!-- Demo Mode Info -->
           <div class="text-center text-[11px] text-gray-400">
@@ -253,10 +261,12 @@
   <script>
     let currentUserId = null;
     let balance = 0.00;
-    let userMode = 'coin'; // 'coin' or 'flip'
-    let isFlipping = false;
-    let currentMultiplier = 3.13; // Starts at 3.13x and increases by 3.13% on click/interaction
-    let historyResults = []; // Completely empty initially, populates upon betting
+    let selectedChoice = 'heads';
+    let gameState = 'idle'; // 'idle', 'betPlaced', 'playing', 'crashed'
+    let currentMultiplier = 1.00;
+    let betAmountValue = 0;
+    let crashPoint = 1.00;
+    let previousResults = [];
 
     function generateUUID() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -285,7 +295,6 @@
     async function initCoinFlipGame() {
       await loadBars();
       renderHistoryBar();
-      updateMultiplierUI();
 
       if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
         const user = await getCurrentUser();
@@ -319,31 +328,23 @@
       if (topBal2) topBal2.innerText = `৳ ${balance.toFixed(2)}`;
     }
 
-    function updateMultiplierUI() {
-      document.getElementById('currentMultiplierText').innerText = `Current Payout: ${currentMultiplier.toFixed(2)}x`;
-    }
+    function selectChoice(choice) {
+      if (gameState === 'playing') return;
+      selectedChoice = choice;
+      const btnHeads = document.getElementById('btnHeads');
+      const btnTails = document.getElementById('btnTails');
 
-    function selectUserMode(mode) {
-      if (isFlipping) return;
-      userMode = mode;
-      
-      // Each click/selection increases multiplier by 3.13%
-      currentMultiplier = parseFloat((currentMultiplier * 1.0313).toFixed(2));
-      updateMultiplierUI();
-
-      const btnCoin = document.getElementById('btnModeCoin');
-      const btnFlip = document.getElementById('btnModeFlip');
-
-      if (mode === 'coin') {
-        btnCoin.className = "py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition";
-        btnFlip.className = "py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition";
+      if (choice === 'heads') {
+        btnHeads.className = "py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition";
+        btnTails.className = "py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition";
       } else {
-        btnFlip.className = "py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition";
-        btnCoin.className = "py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition";
+        btnTails.className = "py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition";
+        btnHeads.className = "py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition";
       }
     }
 
     function modifyBet(type) {
+      if (gameState === 'playing') return;
       let current = parseFloat(document.getElementById('betAmount').value) || 0;
       if (type === 'half') {
         document.getElementById('betAmount').value = Math.max(0, Math.floor(current / 2));
@@ -359,96 +360,149 @@
       if (!historyContainer) return;
       historyContainer.innerHTML = '';
 
-      historyResults.slice(-10).reverse().forEach(res => {
+      if (previousResults.length === 0) {
+        historyContainer.innerHTML = `<span class="text-[10px] text-gray-500 italic">No history yet. Place a bet to see results.</span>`;
+        return;
+      }
+
+      previousResults.slice(-10).reverse().forEach(res => {
         let badge = document.createElement('span');
-        if (res.isWin) {
-          badge.className = "px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-500/25 text-[#24ee89] border border-emerald-500/40";
-          badge.innerText = `${res.choice.toUpperCase()} (${res.mult.toFixed(2)}x)`;
-        } else {
-          badge.className = "px-2.5 py-1 rounded-md text-[10px] font-bold bg-red-500/25 text-red-400 border border-red-500/40";
-          badge.innerText = `${res.choice.toUpperCase()} (${res.mult.toFixed(2)}x)`;
-        }
+        badge.className = "px-2.5 py-1 rounded-md text-[10px] font-bold bg-[#222b3a] text-emerald-400 border border-[#24ee89]/30";
+        badge.innerText = `${res.toFixed(2)}x`;
         historyContainer.appendChild(badge);
       });
     }
 
-    async function handleBetAndFlip() {
-      if (isFlipping) return;
-
-      let betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
-      if (betAmount > 0 && betAmount > balance) {
+    async function handleBetAction() {
+      betAmountValue = parseFloat(document.getElementById('betAmount').value) || 0;
+      if (betAmountValue > 0 && betAmountValue > balance) {
         alert("পর্যাপ্ত ব্যালেন্স নেই!");
         return;
       }
 
-      isFlipping = true;
-      const btn = document.getElementById('btnAction');
-      const statusText = document.getElementById('gameStatusText');
-      btn.disabled = true;
-      btn.innerText = "Flipping via RNG...";
-      statusText.innerText = "System RNG is processing...";
-
-      if (betAmount > 0) {
-        balance -= betAmount;
+      if (betAmountValue > 0) {
+        balance -= betAmountValue;
         updateBalanceUI();
         if (currentUserId && typeof supabaseClient !== 'undefined') {
-          await supabaseClient.from('profiles').update({ balance: balance }).eq('id', userMode === 'coin' ? currentUserId : currentUserId);
+          await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
         }
       }
 
-      // RNG System Logic for outcome determination
-      let rngOutcome = Math.random() < 0.5 ? 'coin' : 'flip';
+      gameState = 'playing';
+      currentMultiplier = 1.00;
+      
+      // RNG Crash Point Determination (Standard House Edge formula)
+      let r = Math.random();
+      crashPoint = parseFloat((Math.max(1.10, 0.99 / (1 - r))).toFixed(2));
+      if (Math.random() < 0.05) crashPoint = 1.00; // Immediate crash chance
+
+      document.getElementById('multiplierDisplay').innerText = "1.00x";
+      document.getElementById('gameStatusText').innerText = "Click 'Coin / Flip' to spin!";
+
+      const btnBet = document.getElementById('btnBet');
+      btnBet.className = "w-full py-3.5 bg-[#222b3a] text-gray-500 text-sm font-bold rounded-xl cursor-not-allowed";
+      btnBet.innerText = "Bet Placed";
+      btnBet.disabled = true;
+
+      const btnFlip = document.getElementById('btnFlip');
+      btnFlip.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+      btnFlip.innerText = "Coin / Flip";
+      btnFlip.disabled = false;
+    }
+
+    async function handleFlipAction() {
+      if (gameState !== 'playing') return;
+
       let coin = document.getElementById('coinElement');
-
-      coin.classList.remove('flipping-heads', 'flipping-tails');
+      coin.classList.remove('flipping');
       void coin.offsetWidth;
+      coin.classList.add('flipping');
 
-      if (rngOutcome === 'coin') {
-        coin.classList.add('flipping-heads');
-      } else {
-        coin.classList.add('flipping-tails');
-      }
+      // RNG Flip Outcome: Heads or Tails
+      let outcome = Math.random() < 0.5 ? 'heads' : 'tails';
+      let isMatch = (selectedChoice === outcome);
 
-      setTimeout(async () => {
-        let isWin = (userMode === rngOutcome);
-        let payoutAmount = isWin && betAmount > 0 ? (betAmount * currentMultiplier) : 0;
+      if (!isMatch || currentMultiplier >= crashPoint) {
+        // Crashed / Lost
+        gameState = 'crashed';
+        document.getElementById('multiplierDisplay').innerText = "Crashed!";
+        document.getElementById('gameStatusText').innerHTML = `<span class="text-red-500 font-bold">Crashed! You Lost.</span>`;
 
-        if (isWin && betAmount > 0) {
-          balance += payoutAmount;
-          updateBalanceUI();
-          statusText.innerHTML = `<span class="text-[#24ee89] font-bold">Won ৳ ${payoutAmount.toFixed(2)} (${currentMultiplier.toFixed(2)}x)!</span>`;
-        } else {
-          statusText.innerHTML = `<span class="text-red-500 font-bold">Lost! RNG resulted in ${rngOutcome.toUpperCase()}</span>`;
-        }
-
-        // Push to history only when user bets and plays
-        historyResults.push({ choice: userMode, outcome: rngOutcome, isWin: isWin, mult: currentMultiplier });
-        if (historyResults.length > 20) historyResults.shift();
+        previousResults.push(currentMultiplier);
         renderHistoryBar();
 
-        if (currentUserId && betAmount > 0 && typeof supabaseClient !== 'undefined') {
+        if (currentUserId && betAmountValue > 0 && typeof supabaseClient !== 'undefined') {
           const insertData = {
             id: generateUUID(),
             user_id: currentUserId,
-            target_number: userMode === 'coin' ? 1 : 2,
-            roll_result: rngOutcome === 'coin' ? 1 : 2,
-            bet_amount: betAmount,
-            payout: payoutAmount,
-            is_bool: isWin
+            target_number: selectedChoice === 'heads' ? 1 : 2,
+            roll_result: outcome === 'heads' ? 1 : 2,
+            bet_amount: betAmountValue,
+            payout: 0,
+            is_bool: false
           };
-
           await supabaseClient.from('bets').insert([insertData]);
-          await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
         }
 
-        // Increase multiplier by 3.13% for the next round action
-        currentMultiplier = parseFloat((currentMultiplier * 1.0313).toFixed(2));
-        updateMultiplierUI();
+        resetGameControls();
+        return;
+      }
 
-        isFlipping = false;
-        btn.disabled = false;
-        btn.innerText = "Bet & Flip";
-      }, 1000);
+      // Increase multiplier by 61.99% per click
+      currentMultiplier = parseFloat((currentMultiplier * 1.6199).toFixed(2));
+      document.getElementById('multiplierDisplay').innerText = `${currentMultiplier.toFixed(2)}x`;
+      document.getElementById('gameStatusText').innerHTML = `<span class="text-[#24ee89]">Multiplier increased! Click Flip again or Cashout.</span>`;
+
+      const btnFlip = document.getElementById('btnFlip');
+      btnFlip.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+      btnFlip.innerText = `Cash Out (৳ ${(betAmountValue * currentMultiplier).toFixed(2)})`;
+      btnFlip.setAttribute('onclick', 'handleCashout()');
+    }
+
+    async function handleCashout() {
+      if (gameState !== 'playing') return;
+
+      let payoutAmount = betAmountValue > 0 ? (betAmountValue * currentMultiplier) : 0;
+      if (betAmountValue > 0) {
+        balance += payoutAmount;
+        updateBalanceUI();
+      }
+
+      gameState = 'idle';
+      document.getElementById('gameStatusText').innerHTML = `<span class="text-[#24ee89] font-bold">Successfully Cashed Out ৳ ${payoutAmount.toFixed(2)}!</span>`;
+
+      previousResults.push(currentMultiplier);
+      renderHistoryBar();
+
+      if (currentUserId && betAmountValue > 0 && typeof supabaseClient !== 'undefined') {
+        const insertData = {
+          id: generateUUID(),
+          user_id: currentUserId,
+          target_number: selectedChoice === 'heads' ? 1 : 2,
+          roll_result: 1,
+          bet_amount: betAmountValue,
+          payout: payoutAmount,
+          is_bool: true
+        };
+        await supabaseClient.from('bets').insert([insertData]);
+        await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+      }
+
+      resetGameControls();
+    }
+
+    function resetGameControls() {
+      const btnBet = document.getElementById('btnBet');
+      btnBet.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+      btnBet.innerText = "Bet";
+      btnBet.disabled = false;
+
+      const btnFlip = document.getElementById('btnFlip');
+      btnFlip.className = "w-full py-3.5 bg-[#222b3a] text-gray-500 text-sm font-bold rounded-xl transition shadow cursor-not-allowed flex items-center justify-center gap-2";
+      btnFlip.innerText = "Coin / Flip";
+      btnFlip.disabled = true;
+      btnFlip.setAttribute('onclick', 'handleFlipAction()');
+      gameState = 'idle';
     }
 
     window.onload = initCoinFlipGame;
