@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -124,33 +125,34 @@
         radial-gradient(circle at 20% 80%, rgba(255,255,255,.06) 1px, transparent 2px);
     }
 
-    /* Updated: narrower Series and Multiply cards */
+    /* UPDATED: Slim side cards pushed toward the left and right edges */
     .game-stage {
       position: absolute;
-      left: 10px;
-      right: 10px;
+      left: 3px;
+      right: 3px;
       top: 51px;
       bottom: 32px;
       display: grid;
-      grid-template-columns: minmax(0, 0.72fr) minmax(108px, 140px) minmax(0, 0.72fr);
+      grid-template-columns: minmax(52px, 0.68fr) 140px minmax(52px, 0.68fr);
       align-items: center;
-      justify-items: center;
-      gap: 8px;
+      justify-items: stretch;
+      gap: 4px;
     }
 
-    /* Slim side cards */
+    /* UPDATED: Narrower Series and Multiply cards */
     .stat-card {
       width: 100%;
-      max-width: 92px;
+      max-width: 100%;
       min-width: 0;
-      height: 120px;
+      height: 118px;
+      padding: 4px 2px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       gap: 10px;
       text-align: center;
-      border-radius: 16px;
+      border-radius: 15px;
       border: 1px solid rgba(190, 210, 218, .17);
       background: rgba(180, 198, 205, .12);
       box-shadow:
@@ -163,7 +165,7 @@
 
     .stat-value {
       color: #fff;
-      font-size: clamp(18px, 4.5vw, 26px);
+      font-size: clamp(17px, 4.5vw, 25px);
       line-height: 1.1;
       font-weight: 900;
       letter-spacing: -.6px;
@@ -172,9 +174,10 @@
 
     .stat-label {
       color: #f0f3f5;
-      font-size: clamp(11px, 2.8vw, 14px);
+      font-size: clamp(10px, 2.8vw, 14px);
       line-height: 1.2;
       font-weight: 800;
+      white-space: nowrap;
     }
 
     .stat-card.stat-active {
@@ -186,7 +189,7 @@
       color: #24ee89;
     }
 
-    /* Coin remains centered */
+    /* Coin */
     .coin-container {
       perspective: 1000px;
       width: 140px;
@@ -196,6 +199,7 @@
       justify-content: center;
       position: relative;
       z-index: 5;
+      justify-self: center;
     }
 
     .coin {
@@ -283,12 +287,12 @@
       .game-screen { height: 245px; }
 
       .game-stage {
-        left: 7px;
-        right: 7px;
+        left: 3px;
+        right: 3px;
         top: 47px;
         bottom: 32px;
-        grid-template-columns: minmax(0, 0.72fr) 108px minmax(0, 0.72fr);
-        gap: 5px;
+        grid-template-columns: minmax(48px, 0.68fr) 108px minmax(48px, 0.68fr);
+        gap: 3px;
       }
 
       .coin-container {
@@ -304,24 +308,23 @@
       }
 
       .stat-card {
-        width: 100%;
-        max-width: 76px;
-        height: 102px;
-        border-radius: 13px;
+        height: 104px;
+        padding: 3px 1px;
+        border-radius: 12px;
         gap: 9px;
       }
 
-      .stat-value { font-size: 18px; }
-      .stat-label { font-size: 11px; }
+      .stat-value { font-size: 17px; }
+      .stat-label { font-size: 10px; }
     }
 
     /* Standard mobile screens */
     @media (min-width: 381px) and (max-width: 480px) {
       .game-stage {
-        left: 9px;
-        right: 9px;
-        grid-template-columns: minmax(0, 0.72fr) 124px minmax(0, 0.72fr);
-        gap: 7px;
+        left: 3px;
+        right: 3px;
+        grid-template-columns: minmax(52px, 0.68fr) 124px minmax(52px, 0.68fr);
+        gap: 4px;
       }
 
       .coin-container {
@@ -330,22 +333,25 @@
       }
 
       .stat-card {
-        max-width: 86px;
-        height: 114px;
+        max-width: 100%;
+        height: 112px;
       }
 
-      .stat-value { font-size: 21px; }
-      .stat-label { font-size: 12px; }
+      .stat-value { font-size: 19px; }
+      .stat-label { font-size: 11px; }
     }
 
-    /* Wider screens */
+    /* Wider phones and tablets */
     @media (min-width: 481px) {
       .game-stage {
-        grid-template-columns: minmax(0, 0.72fr) 140px minmax(0, 0.72fr);
+        left: 5px;
+        right: 5px;
+        grid-template-columns: minmax(60px, 0.68fr) 140px minmax(60px, 0.68fr);
+        gap: 5px;
       }
 
       .stat-card {
-        max-width: 100px;
+        max-width: 100%;
       }
     }
 
@@ -383,7 +389,7 @@
           <!-- Series, Coin and Multiply -->
           <div class="game-stage">
 
-            <!-- Left Card -->
+            <!-- Left Transparent Card -->
             <div id="seriesCard" class="stat-card">
               <div id="seriesValue" class="stat-value">0</div>
               <div class="stat-label">Series</div>
@@ -410,7 +416,7 @@
               </div>
             </div>
 
-            <!-- Right Card -->
+            <!-- Right Transparent Card -->
             <div id="multiplyCard" class="stat-card">
               <div id="multiplyValue" class="stat-value">×0.00</div>
               <div class="stat-label">Multiply</div>
