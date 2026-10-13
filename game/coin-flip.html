@@ -22,11 +22,38 @@
       margin: 0;
       min-height: 100vh;
       background: #0f141c;
-      color: #ffffff;
+      color: #fff;
       font-family: sans-serif;
       overflow-x: hidden;
       overflow-y: auto;
       padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    }
+
+    #topBarContainer {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    #bottomBarContainer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 5000;
+      isolation: isolate;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* Reduced empty space below top bar */
+    .game-page {
+      width: 100%;
+      max-width: 672px;
+      margin: 5px auto 0;
+      padding: 0 8px 100px;
     }
 
     .bc-main-wrapper {
@@ -38,7 +65,7 @@
 
     .bc-divider {
       height: 1px;
-      background-color: #222b3a;
+      background: #222b3a;
       width: 100%;
     }
 
@@ -62,7 +89,7 @@
 
     .red-btn {
       background: #ed4245;
-      color: #ffffff;
+      color: #fff;
       font-weight: 800;
     }
 
@@ -70,14 +97,106 @@
 
     .green-btn:disabled,
     .red-btn:disabled {
-      opacity: 0.65;
+      opacity: .65;
       cursor: not-allowed;
     }
 
+    /* Game screen */
+    .game-screen {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 270px;
+      width: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at center, #202a32 0%, #171d28 65%);
+    }
+
+    .game-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 25%, rgba(255,255,255,.09) 1px, transparent 2px),
+        radial-gradient(circle at 85% 20%, rgba(255,255,255,.08) 1px, transparent 2px),
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,.06) 1px, transparent 2px);
+    }
+
+    /* Three-column layout: Series | Coin | Multiply */
+    .game-stage {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: 51px;
+      bottom: 32px;
+      display: grid;
+      grid-template-columns: minmax(76px, 1fr) 150px minmax(76px, 1fr);
+      align-items: center;
+      justify-items: center;
+      gap: 5px;
+    }
+
+    /* Transparent side cards */
+    .stat-card {
+      width: 100%;
+      max-width: 115px;
+      min-width: 0;
+      height: 132px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 13px;
+      text-align: center;
+      border-radius: 19px;
+      border: 1px solid rgba(190, 210, 218, .17);
+      background: rgba(180, 198, 205, .12);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.04),
+        0 5px 18px rgba(0,0,0,.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      overflow: hidden;
+    }
+
+    .stat-value {
+      color: #fff;
+      font-size: clamp(21px, 5vw, 29px);
+      line-height: 1.1;
+      font-weight: 900;
+      letter-spacing: -.6px;
+      white-space: nowrap;
+    }
+
+    .stat-label {
+      color: #f0f3f5;
+      font-size: clamp(12px, 3.2vw, 16px);
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    .stat-card.stat-active {
+      border-color: rgba(36, 238, 137, .48);
+      box-shadow: 0 0 15px rgba(36, 238, 137, .08);
+    }
+
+    .stat-card.stat-active .stat-value {
+      color: #24ee89;
+    }
+
+    /* Coin */
     .coin-container {
       perspective: 1000px;
-      width: 130px;
-      height: 130px;
+      width: 140px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 5;
     }
 
     .coin {
@@ -85,20 +204,22 @@
       height: 100%;
       position: relative;
       transform-style: preserve-3d;
-      transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .coin-face {
       position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5),
-                  inset 0 0 15px rgba(255,255,255,0.3);
+      box-shadow:
+        0 0 20px rgba(0,0,0,.45),
+        inset 0 0 15px rgba(255,255,255,.3);
       border: 4px solid #f59e0b;
     }
 
@@ -123,29 +244,86 @@
     }
 
     .flipping-heads {
-      animation: flipHeads 0.8s forwards;
+      animation: flipHeads .8s forwards;
     }
 
     .flipping-tails {
-      animation: flipTails 0.8s forwards;
+      animation: flipTails .8s forwards;
     }
 
-    #topBarContainer {
-      position: sticky;
-      top: 0;
-      z-index: 500;
-      width: 100%;
+    .game-status {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      z-index: 10;
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.4;
+      font-weight: 600;
+      color: #a7b2bf;
     }
 
-    #bottomBarContainer {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      z-index: 5000;
-      isolation: isolate;
-      padding-bottom: env(safe-area-inset-bottom);
+    .history-bar {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      right: 10px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .history-bar::-webkit-scrollbar { display: none; }
+
+    @media (max-width: 380px) {
+      .game-screen { height: 245px; }
+
+      .game-stage {
+        left: 8px;
+        right: 8px;
+        top: 47px;
+        bottom: 32px;
+        grid-template-columns: minmax(66px, 1fr) 112px minmax(66px, 1fr);
+        gap: 3px;
+      }
+
+      .coin-container {
+        width: 108px;
+        height: 108px;
+      }
+
+      .coin-face { border-width: 3px; }
+
+      .coin-face > div {
+        width: 67px;
+        height: 67px;
+      }
+
+      .stat-card {
+        height: 112px;
+        border-radius: 15px;
+        gap: 11px;
+      }
+
+      .stat-value { font-size: 20px; }
+      .stat-label { font-size: 12px; }
+    }
+
+    @media (min-width: 381px) and (max-width: 480px) {
+      .game-stage {
+        grid-template-columns: minmax(75px, 1fr) 132px minmax(75px, 1fr);
+      }
+
+      .coin-container {
+        width: 124px;
+        height: 124px;
+      }
+
+      .stat-card { max-width: 112px; }
     }
 
     ::-webkit-scrollbar {
@@ -162,51 +340,63 @@
   </style>
 </head>
 
-<body class="bg-[#0f141c] text-white font-sans min-h-screen flex flex-col items-center justify-between p-0 select-none">
+<body class="bg-[#0f141c] text-white font-sans min-h-screen flex flex-col items-center p-0 select-none">
 
-  <!-- Top Bar Container -->
+  <!-- Top Bar -->
   <div id="topBarContainer" class="w-full max-w-2xl sticky top-0 z-50"></div>
 
-  <div class="w-full max-w-2xl flex flex-col justify-between overflow-x-hidden my-2 pb-24 px-2 sm:px-4">
-    <main class="flex flex-col gap-3 flex-1">
+  <div class="game-page">
+    <main class="flex flex-col gap-3">
 
-      <!-- Main Game Wrapper Card -->
+      <!-- Main Game Card -->
       <div class="bc-main-wrapper flex flex-col shadow-xl">
 
-        <!-- Game Screen Area -->
-        <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-8">
+        <!-- Game Screen -->
+        <div class="game-screen">
 
-          <!-- History Bar -->
-          <div class="absolute top-2 left-3 right-2 flex items-center justify-between z-30 pb-1 pr-1">
-            <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-2"></div>
-          </div>
+          <!-- History -->
+          <div id="historyBar" class="history-bar"></div>
 
-          <!-- Multiplier Display -->
-          <div class="absolute top-10 text-center z-20">
-            <span id="currentMultiplierText" class="text-2xl font-black text-[#24ee89] hidden">1.96x</span>
-          </div>
+          <!-- Series, Coin and Multiply -->
+          <div class="game-stage">
 
-          <!-- Coin -->
-          <div class="coin-container my-auto z-20 mt-6">
-            <div id="coinElement" class="coin">
-
-              <div class="coin-face coin-heads">
-                <div class="w-20 h-20 rounded-full bg-red-600 flex items-center justify-center border-2 border-yellow-300 shadow-inner overflow-hidden">
-                  <i class="fa-solid fa-dragon text-3xl text-yellow-300"></i>
-                </div>
-              </div>
-
-              <div class="coin-face coin-tails">
-                <div class="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center border-2 border-slate-300 shadow-inner overflow-hidden">
-                  <i class="fa-solid fa-coins text-3xl text-slate-300"></i>
-                </div>
-              </div>
-
+            <!-- Left Transparent Card -->
+            <div id="seriesCard" class="stat-card">
+              <div id="seriesValue" class="stat-value">0</div>
+              <div class="stat-label">Series</div>
             </div>
+
+            <!-- Coin -->
+            <div class="coin-container">
+              <div id="coinElement" class="coin">
+
+                <!-- Heads -->
+                <div class="coin-face coin-heads">
+                  <div class="w-20 h-20 rounded-full bg-red-600 flex items-center justify-center border-2 border-yellow-300 shadow-inner overflow-hidden">
+                    <i class="fa-solid fa-dragon text-3xl text-yellow-300"></i>
+                  </div>
+                </div>
+
+                <!-- Tails -->
+                <div class="coin-face coin-tails">
+                  <div class="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center border-2 border-slate-300 shadow-inner overflow-hidden">
+                    <i class="fa-solid fa-coins text-3xl text-slate-300"></i>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Right Transparent Card -->
+            <div id="multiplyCard" class="stat-card">
+              <div id="multiplyValue" class="stat-value">×0.00</div>
+              <div class="stat-label">Multiply</div>
+            </div>
+
           </div>
 
-          <!-- Result Subtext -->
-          <div class="absolute bottom-2 text-xs text-gray-400 font-semibold text-center px-2" id="gameStatusText">
+          <!-- Status -->
+          <div id="gameStatusText" class="game-status">
             Pick a side and place your bet!
           </div>
         </div>
@@ -258,10 +448,9 @@
                 <button type="button" onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-[#F5CF66] transition">Max</button>
               </div>
             </div>
-
           </div>
 
-          <!-- Main Action Button -->
+          <!-- Main Action -->
           <button type="button" id="btnAction" onclick="handleMainAction()"
             class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
             Bet
@@ -276,7 +465,7 @@
     </main>
   </div>
 
-  <!-- Bottom Bar Container -->
+  <!-- Bottom Bar -->
   <div id="bottomBarContainer" class="w-full max-w-2xl fixed bottom-0 z-50"></div>
 
   <script>
@@ -292,14 +481,16 @@
     let activeBetAmount = 0;
     let currentMultiplier = 1.00;
 
-    let previousResults = loadSavedHistory();
+    // Number of consecutive successful flips in the current round.
+    let currentSeries = 0;
 
-    // Prevent old animation callbacks from affecting a new round.
+    let previousResults = loadSavedHistory();
     let roundToken = 0;
 
     function loadSavedHistory() {
       try {
         const saved = JSON.parse(localStorage.getItem('bc_coin_history'));
+
         return Array.isArray(saved)
           ? saved.filter(x => x === 'heads' || x === 'tails').slice(-30)
           : ['heads', 'tails', 'heads', 'heads', 'tails'];
@@ -340,11 +531,15 @@
 
     async function initCoinFlipGame() {
       await loadBars();
+
       renderHistoryBar();
+      updateStatsUI();
       selectChoice('heads');
 
-      if (typeof supabaseClient !== 'undefined' &&
-          typeof getCurrentUser === 'function') {
+      if (
+        typeof supabaseClient !== 'undefined' &&
+        typeof getCurrentUser === 'function'
+      ) {
         try {
           const user = await getCurrentUser();
 
@@ -398,6 +593,39 @@
       if (topBal2) topBal2.innerText = `৳ ${balance.toFixed(2)}`;
     }
 
+    /* Update the two side cards */
+    function updateStatsUI() {
+      const seriesValue = document.getElementById('seriesValue');
+      const multiplyValue = document.getElementById('multiplyValue');
+      const seriesCard = document.getElementById('seriesCard');
+      const multiplyCard = document.getElementById('multiplyCard');
+
+      if (seriesValue) {
+        seriesValue.innerText = currentSeries;
+      }
+
+      if (multiplyValue) {
+        multiplyValue.innerText = currentSeries > 0
+          ? '×' + currentMultiplier.toFixed(2)
+          : '×0.00';
+      }
+
+      if (seriesCard) {
+        seriesCard.classList.toggle('stat-active', currentSeries > 0);
+      }
+
+      if (multiplyCard) {
+        multiplyCard.classList.toggle('stat-active', currentSeries > 0);
+      }
+    }
+
+    /* Reset Series and Multiply after a completed round */
+    function resetStats() {
+      currentSeries = 0;
+      currentMultiplier = 1.00;
+      updateStatsUI();
+    }
+
     function selectChoice(choice) {
       if (isFlipping || isProcessingAction) return;
 
@@ -420,8 +648,7 @@
           'py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition';
       }
 
-      // If the previous flip was won, selecting another side
-      // starts the next multiplier round automatically.
+      // Choosing a side after a win starts the next flip.
       if (gameState === 'won_streak') {
         executeFlip(false);
       }
@@ -467,7 +694,7 @@
       try {
         localStorage.setItem('bc_coin_history', JSON.stringify(previousResults));
       } catch (e) {
-        console.warn('Could not save history:', e);
+        console.warn('History save error:', e);
       }
     }
 
@@ -533,7 +760,10 @@
 
         activeBetAmount = enteredAmount;
 
-        // Deduct the bet once when the round starts.
+        // Clear the previous round's statistics at the start.
+        resetStats();
+
+        // Deduct the stake once.
         if (activeBetAmount > 0) {
           balance -= activeBetAmount;
           updateBalanceUI();
@@ -541,15 +771,14 @@
           const saved = await saveProfileBalance();
 
           if (!saved) {
-            // Restore the local amount if the deduction failed.
             balance += activeBetAmount;
             updateBalanceUI();
 
-            alert('ব্যালেন্স আপডেট করা যায়নি। আবার চেষ্টা করুন।');
-
             activeBetAmount = 0;
             isProcessingAction = false;
+
             setActionButton('Bet', 'green-btn');
+            alert('ব্যালেন্স আপডেট করা যায়নি। আবার চেষ্টা করুন।');
             return;
           }
         }
@@ -559,10 +788,7 @@
         isProcessingAction = false;
 
         executeFlip(true);
-        return;
-      }
-
-      if (gameState === 'won_streak') {
+      } else if (gameState === 'won_streak') {
         await cashOut();
       }
     }
@@ -577,7 +803,6 @@
       const thisRound = roundToken;
       const btn = document.getElementById('btnAction');
       const statusText = document.getElementById('gameStatusText');
-      const multText = document.getElementById('currentMultiplierText');
       const coin = document.getElementById('coinElement');
 
       btn.disabled = true;
@@ -589,48 +814,49 @@
 
       const outcome = Math.random() < 0.5 ? 'heads' : 'tails';
 
-      // Clear the previous animation before starting a new one.
       coin.classList.remove('flipping-heads', 'flipping-tails');
-      coin.style.transform = '';
       void coin.offsetWidth;
 
-      if (outcome === 'heads') {
-        coin.classList.add('flipping-heads');
-      } else {
-        coin.classList.add('flipping-tails');
-      }
+      coin.classList.add(
+        outcome === 'heads' ? 'flipping-heads' : 'flipping-tails'
+      );
 
       setTimeout(async () => {
-        // Ignore callbacks belonging to an old round.
         if (thisRound !== roundToken) return;
 
         const isWin = selectedChoice === outcome;
 
         previousResults.push(outcome);
+
         if (previousResults.length > 30) {
           previousResults.shift();
         }
+
         renderHistoryBar();
 
         if (isWin) {
-          if (!isFirstBet) {
+          // First successful flip = 1.96x.
+          // Every additional successful flip multiplies it by 1.96.
+          if (isFirstBet) {
+            currentMultiplier = 1.96;
+            currentSeries = 1;
+          } else {
             currentMultiplier = Number(
               (currentMultiplier * 1.96).toFixed(2)
             );
+            currentSeries++;
           }
 
-          multText.classList.remove('hidden');
-          multText.innerText = currentMultiplier.toFixed(2) + 'x';
+          updateStatsUI();
 
-          const potentialWin =
-            activeBetAmount > 0
-              ? activeBetAmount * currentMultiplier
-              : 0;
+          const potentialWin = activeBetAmount > 0
+            ? activeBetAmount * currentMultiplier
+            : 0;
 
           statusText.innerHTML =
-            '<span class="text-[#24ee89] font-bold">Won! Choose next side or Cashout (৳ ' +
+            '<span style="color:#24ee89;font-weight:800">WIN! Choose another side or Cash Out · ৳ ' +
             potentialWin.toFixed(2) +
-            ')</span>';
+            '</span>';
 
           gameState = 'won_streak';
           isFlipping = false;
@@ -643,12 +869,9 @@
           );
 
         } else {
-          multText.classList.add('hidden');
-
           statusText.innerHTML =
-            '<span class="text-red-500 font-bold">You Lost! Better luck next time.</span>';
+            '<span style="color:#ed4245;font-weight:800">LOST! Better luck next time.</span>';
 
-          // Record the completed losing bet.
           if (
             currentUserId &&
             activeBetAmount > 0 &&
@@ -673,8 +896,7 @@
             }
           }
 
-          // IMPORTANT: Reset after every loss so the next bet
-          // can start immediately without refreshing the page.
+          // Reset the statistics after a loss.
           resetGameUI();
         }
       }, 800);
@@ -691,14 +913,12 @@
 
       isProcessingAction = true;
 
-      const payoutAmount =
-        activeBetAmount > 0
-          ? Number((activeBetAmount * currentMultiplier).toFixed(2))
-          : 0;
+      const payoutAmount = activeBetAmount > 0
+        ? Number((activeBetAmount * currentMultiplier).toFixed(2))
+        : 0;
 
       setActionButton('Processing Cash Out...', 'red-btn', true);
 
-      // Add winnings to the local balance.
       if (activeBetAmount > 0) {
         balance += payoutAmount;
         updateBalanceUI();
@@ -706,7 +926,6 @@
         const saved = await saveProfileBalance();
 
         if (!saved) {
-          // Avoid pretending a failed database update succeeded.
           balance -= payoutAmount;
           updateBalanceUI();
 
@@ -718,13 +937,12 @@
           );
 
           document.getElementById('gameStatusText').innerHTML =
-            '<span class="text-red-400 font-bold">Balance update failed. Please try again.</span>';
+            '<span style="color:#ed4245;font-weight:800">Balance update failed. Please try again.</span>';
 
           return;
         }
       }
 
-      // Record the successful cashout.
       if (
         currentUserId &&
         activeBetAmount > 0 &&
@@ -750,15 +968,16 @@
       }
 
       document.getElementById('gameStatusText').innerHTML =
-        '<span class="text-[#24ee89] font-bold">Cashed Out Successfully: ৳ ' +
+        '<span style="color:#24ee89;font-weight:800">Cashed Out Successfully: ৳ ' +
         payoutAmount.toFixed(2) +
         '</span>';
 
+      // Reset side cards after Cash Out.
       resetGameUI();
     }
 
     function resetGameUI() {
-      // Invalidate any callback belonging to the previous round.
+      // Invalidate any pending callback from the previous round.
       roundToken++;
 
       gameState = 'ready';
@@ -766,28 +985,20 @@
       isProcessingAction = false;
 
       activeBetAmount = 0;
-      currentMultiplier = 1.00;
 
-      const multText = document.getElementById('currentMultiplierText');
+      // Reset Series and Multiply to zero.
+      resetStats();
+
       const btn = document.getElementById('btnAction');
       const coin = document.getElementById('coinElement');
 
-      multText.classList.add('hidden');
-      multText.innerText = '1.96x';
-
-      // Remove old animation classes so the next round can animate.
       coin.classList.remove('flipping-heads', 'flipping-tails');
-      coin.style.transform = '';
       void coin.offsetWidth;
 
-      // Re-enable controls and restore the original Bet button.
       btn.disabled = false;
       btn.className =
         'w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2';
       btn.innerText = 'Bet';
-
-      // Leave the result message visible until the next round starts.
-      // The next round will change it to "Coin is flipping..."
     }
 
     window.addEventListener('load', initCoinFlipGame);
