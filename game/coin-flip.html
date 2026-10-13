@@ -137,52 +137,9 @@
       gap: 2px;
     }
 
-    /* Series and Multiply cards reduced by ~30% */
+    /* Series and Multiply cards hidden as requested */
     .stat-card {
-      width: 100%;
-      max-width: 62px;
-      min-width: 0;
-      height: 84px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
-      text-align: center;
-      border-radius: 12px;
-      border: 1px solid rgba(190, 210, 218, .17);
-      background: rgba(180, 198, 205, .12);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.04),
-        0 4px 12px rgba(0,0,0,.08);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      overflow: hidden;
-    }
-
-    .stat-value {
-      color: #fff;
-      font-size: clamp(13px, 3.2vw, 18px);
-      line-height: 1.1;
-      font-weight: 900;
-      letter-spacing: -.5px;
-      white-space: nowrap;
-    }
-
-    .stat-label {
-      color: #f0f3f5;
-      font-size: clamp(9px, 2.2vw, 11px);
-      line-height: 1.2;
-      font-weight: 800;
-    }
-
-    .stat-card.stat-active {
-      border-color: rgba(36, 238, 137, .48);
-      box-shadow: 0 0 12px rgba(36, 238, 137, .08);
-    }
-
-    .stat-card.stat-active .stat-value {
-      color: #24ee89;
+      display: none !important;
     }
 
     /* Coin size reduced by 30% (from 140px to ~98px) */
@@ -195,6 +152,7 @@
       justify-content: center;
       position: relative;
       z-index: 5;
+      grid-column: 2 / 3;
     }
 
     .coin {
@@ -370,7 +328,7 @@
           <!-- Series, Coin and Multiply -->
           <div class="game-stage">
 
-            <!-- Left Card -->
+            <!-- Left Card (Hidden logic maintained) -->
             <div id="seriesCard" class="stat-card">
               <div id="seriesValue" class="stat-value">0</div>
               <div class="stat-label">Series</div>
@@ -395,7 +353,7 @@
               </div>
             </div>
 
-            <!-- Right Card -->
+            <!-- Right Card (Hidden logic maintained) -->
             <div id="multiplyCard" class="stat-card">
               <div id="multiplyValue" class="stat-value">×0.00</div>
               <div class="stat-label">Multiply</div>
@@ -446,8 +404,8 @@
             <div class="flex items-center input-box p-1">
               <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
 
-              <input type="number" id="betAmount" value="1" min="0" step="1"
-                inputmode="decimal"
+              <input type="number" id="betAmount" value="1.00" min="0" step="0.01"
+                inputmode="decimal" oninput="validateBetInput(this)"
                 class="w-full min-w-0 bg-transparent text-sm font-bold text-white focus:outline-none px-1">
 
               <div class="flex items-center gap-1">
@@ -520,11 +478,10 @@
     </div>
   </div>
 
-  <!-- Live Stats Modal (Updated to exact screenshot design) -->
+  <!-- Live Stats Modal -->
   <div id="liveStatsModal" class="fixed inset-0 bg-black/60 z-[6000] hidden flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="main-wrapper w-full max-w-sm rounded-2xl p-4 flex flex-col gap-3 shadow-2xl bg-[#171d28] border border-[#222b3a]">
       
-      <!-- Modal Header with Bet title and Reset Icon -->
       <div class="flex justify-between items-center pb-2">
         <span class="font-bold text-white text-base">Bet</span>
         <div class="flex items-center gap-2">
@@ -535,10 +492,7 @@
         </div>
       </div>
 
-      <!-- Stats Box Grid Container matching screenshot -->
       <div class="bg-[#111620] border border-[#222b3a] rounded-xl p-3 grid grid-cols-2 gap-4 relative">
-        
-        <!-- Profit -->
         <div class="flex flex-col gap-1">
           <span class="text-xs text-gray-400 font-medium">Profit</span>
           <div class="flex items-center gap-1.5 text-sm font-extrabold text-[#24ee89]">
@@ -547,13 +501,11 @@
           </div>
         </div>
 
-        <!-- WIN -->
         <div class="flex flex-col gap-1 pl-3 border-l border-[#222b3a]">
           <span class="text-xs text-gray-400 font-medium">WIN</span>
           <span id="statsWin" class="text-sm font-extrabold text-[#24ee89]">0</span>
         </div>
 
-        <!-- Wagered -->
         <div class="flex flex-col gap-1 pt-2 border-t border-[#222b3a]/50">
           <span class="text-xs text-gray-400 font-medium">Wagered</span>
           <div class="flex items-center gap-1.5 text-sm font-extrabold text-white">
@@ -562,25 +514,22 @@
           </div>
         </div>
 
-        <!-- LOSE -->
         <div class="flex flex-col gap-1 pt-2 border-t border-[#222b3a]/50 pl-3 border-l border-[#222b3a]">
           <span class="text-xs text-gray-400 font-medium">LOSE</span>
           <span id="statsLose" class="text-sm font-extrabold text-[#ed4245]">0</span>
         </div>
-
       </div>
 
-      <!-- Area Chart Graph Container -->
+      <!-- Area Chart with Green/Red Loss logic -->
       <div class="bg-[#111620] border border-[#222b3a] rounded-xl h-44 relative overflow-hidden flex items-end">
         <svg id="statsAreaChart" class="w-full h-full" viewBox="0 0 320 140" preserveAspectRatio="none">
-          <!-- Dynamic SVG Path will be rendered here -->
         </svg>
       </div>
 
     </div>
   </div>
 
-  <!-- History Modal (Slim Line Style without Card Box) -->
+  <!-- History Modal -->
   <div id="historyModal" class="modal-overlay hidden">
     <div class="modal-content">
       <div class="flex items-center justify-between p-4 border-b border-[#222b3a]">
@@ -593,7 +542,6 @@
       </div>
 
       <div class="p-4 overflow-y-auto flex-1 space-y-3" id="modalHistoryList">
-        <!-- Populated dynamically as slim lines -->
       </div>
 
       <div class="p-3 border-t border-[#222b3a] flex justify-center bg-[#0f141c]">
@@ -617,7 +565,7 @@
     let isFlipping = false;
     let isProcessingAction = false;
 
-    let activeBetAmount = 0;
+    let activeBetAmount = 1.00;
     let currentMultiplier = 1.00;
     let currentSeries = 0;
 
@@ -625,7 +573,6 @@
     let roundToken = 0;
     let showAllHistoryModal = false;
 
-    // Feature Variables (Turbo, Sound, Live Stats)
     let isTurboOn = false;
     let isSoundOn = true;
     let totalWagered = 0;
@@ -634,7 +581,6 @@
     let totalProfit = 0;
     let profitHistory = [0];
 
-    // Smooth Clock Bell Tone Sound Effect using Web Audio API
     function playClockBellSound() {
       if (!isSoundOn) return;
       try {
@@ -658,7 +604,7 @@
       }
     }
 
-    // Rating Logic with 12/24 hour auto-increment & manual click
+    // Rating System with 1-time count per account/device check
     function initRatingSystem() {
       const savedRatingData = JSON.parse(localStorage.getItem('game_rating_system'));
       const now = Date.now();
@@ -679,19 +625,37 @@
         }
       }
 
-      localStorage.setItem('game_rating_system', JSON.stringify({ count: ratingVal, timestamp: lastTime }));
+      localStorage.setItem('game_rating_system', JSON.stringify({ count: ratingVal, timestamp: lastTime, hasVoted: savedRatingData?.hasVoted || false }));
       const displayElem = document.getElementById('ratingDisplayCount');
       if (displayElem) displayElem.innerText = ratingVal;
     }
 
     function handleRatingClick() {
-      let savedRatingData = JSON.parse(localStorage.getItem('game_rating_system')) || { count: 2635, timestamp: Date.now() };
-      savedRatingData.count += 1;
-      localStorage.setItem('game_rating_system', JSON.stringify(savedRatingData));
+      let savedRatingData = JSON.parse(localStorage.getItem('game_rating_system')) || { count: 2635, timestamp: Date.now(), hasVoted: false };
+      
+      if (!savedRatingData.hasVoted) {
+        savedRatingData.count += 1;
+        savedRatingData.hasVoted = true;
+        localStorage.setItem('game_rating_system', JSON.stringify(savedRatingData));
 
-      const displayElem = document.getElementById('ratingDisplayCount');
-      if (displayElem) displayElem.innerText = savedRatingData.count;
-      playClockBellSound();
+        const displayElem = document.getElementById('ratingDisplayCount');
+        if (displayElem) displayElem.innerText = savedRatingData.count;
+        playClockBellSound();
+      }
+    }
+
+    // Bet amount validation (turns red if <= 0.99 and disables button)
+    function validateBetInput(input) {
+      const val = parseFloat(input.value);
+      const btn = document.getElementById('btnAction');
+
+      if (isNaN(val) || val <= 0.99) {
+        input.style.color = '#ed4245';
+        btn.disabled = true;
+      } else {
+        input.style.color = '#ffffff';
+        btn.disabled = false;
+      }
     }
 
     function goToHelpPage() {
@@ -760,7 +724,6 @@
       totalProfit = 0;
       profitHistory = [0];
       updateLiveStatsUI(0, 0, true);
-      // Reset counter visually
       document.getElementById('statsWin').innerText = '0';
       document.getElementById('statsLose').innerText = '0';
       document.getElementById('statsProfit').innerText = 'BDT 0.00';
@@ -768,7 +731,7 @@
       updateAreaChart();
     }
 
-    // Render Area Chart matching screenshot style
+    // Render Area Chart with Green (Profit) & Red (Loss) split layout
     function updateAreaChart() {
       const svg = document.getElementById('statsAreaChart');
       if (!svg) return;
@@ -784,60 +747,54 @@
       const minVal = Math.min(0, ...profitHistory);
       const maxVal = Math.max(...profitHistory, 1);
       const range = maxVal - minVal || 1;
+      const zeroY = height - ((0 - minVal) / range) * (height - 20) - 10;
 
       const points = profitHistory.map((val, idx) => {
         const x = (idx / (profitHistory.length - 1 || 1)) * width;
         const y = height - ((val - minVal) / range) * (height - 20) - 10;
-        return { x, y };
+        return { x, y, val };
       });
 
-      // Construct SVG path for area fill
-      let pathD = `M 0 ${height} `;
-      points.forEach(p => {
-        pathD += `L ${p.x} ${p.y} `;
-      });
-      pathD += `L ${width} ${height} Z`;
-
-      // Gradient definition
+      // SVG Gradients for green and red areas
       const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-      const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
-      gradient.setAttribute('id', 'chartGradient');
-      gradient.setAttribute('x1', '0%');
-      gradient.setAttribute('y1', '0%');
-      gradient.setAttribute('x2', '0%');
-      gradient.setAttribute('y2', '100%');
+      
+      const greenGrad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+      greenGrad.setAttribute('id', 'greenGrad');
+      greenGrad.setAttribute('x1', '0%'); greenGrad.setAttribute('y1', '0%'); greenGrad.setAttribute('x2', '0%'); greenGrad.setAttribute('y2', '100%');
+      greenGrad.innerHTML = '<stop offset="0%" stop-color="#24ee89" stop-opacity="0.5"/><stop offset="100%" stop-color="#24ee89" stop-opacity="0.0"/>';
+      
+      const redGrad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+      redGrad.setAttribute('id', 'redGrad');
+      redGrad.setAttribute('x1', '0%'); redGrad.setAttribute('y1', '0%'); redGrad.setAttribute('x2', '0%'); redGrad.setAttribute('y2', '100%');
+      redGrad.innerHTML = '<stop offset="0%" stop-color="#ed4245" stop-opacity="0.0"/><stop offset="100%" stop-color="#ed4245" stop-opacity="0.6"/>';
 
-      const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-      stop1.setAttribute('offset', '0%');
-      stop1.setAttribute('stop-color', '#24ee89');
-      stop1.setAttribute('stop-opacity', '0.5');
-
-      const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
-      stop2.setAttribute('offset', '100%');
-      stop2.setAttribute('stop-color', '#24ee89');
-      stop2.setAttribute('stop-opacity', '0.0');
-
-      gradient.appendChild(stop1);
-      gradient.appendChild(stop2);
-      defs.appendChild(gradient);
+      defs.appendChild(greenGrad);
+      defs.appendChild(redGrad);
       svg.appendChild(defs);
 
-      // Area Path
-      const areaPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      areaPath.setAttribute('d', pathD);
-      areaPath.setAttribute('fill', 'url(#chartGradient)');
-      svg.appendChild(areaPath);
-
-      // Line Path on top
+      // Main line path
       let lineD = '';
       points.forEach((p, idx) => {
         lineD += (idx === 0 ? `M ${p.x} ${p.y} ` : `L ${p.x} ${p.y} `);
       });
 
+      const isOverallLoss = totalProfit < 0;
+      const strokeColor = isOverallLoss ? '#ed4245' : '#24ee89';
+      const fillGrad = isOverallLoss ? 'url(#redGrad)' : 'url(#greenGrad)';
+
+      let areaD = `M 0 ${zeroY} `;
+      points.forEach(p => { areaD += `L ${p.x} ${p.y} `; });
+      areaD += `L ${width} ${zeroY} Z`;
+
+      const areaPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      areaPath.setAttribute('d', areaD);
+      areaPath.setAttribute('fill', fillGrad);
+      svg.appendChild(areaPath);
+
       const linePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       linePath.setAttribute('d', lineD);
       linePath.setAttribute('fill', 'none');
-      linePath.setAttribute('stroke', '#24ee89');
+      linePath.setAttribute('stroke', strokeColor);
       linePath.setAttribute('stroke-width', '2');
       svg.appendChild(linePath);
     }
@@ -871,9 +828,9 @@
 
         return Array.isArray(saved)
           ? saved.slice(-40)
-          : ['1.96x', '0.00x', '3.84x', '1.96x', '0.00x'];
+          : ['1.91x', '0.00x', '3.65x', '1.91x', '0.00x'];
       } catch (e) {
-        return ['1.96x', '0.00x', '3.84x', '1.96x', '0.00x'];
+        return ['1.91x', '0.00x', '3.65x', '1.91x', '0.00x'];
       }
     }
 
@@ -885,7 +842,6 @@
       });
     }
 
-    // Generate random Hash with '***' in the middle
     function generateMaskedHash() {
       const chars = 'abcdef0123456789';
       let part1 = '';
@@ -992,454 +948,4 @@
 
       if (multiplyValue) {
         multiplyValue.innerText = currentSeries > 0
-          ? '×' + currentMultiplier.toFixed(2)
-          : '×0.00';
-      }
-
-      if (seriesCard) {
-        seriesCard.classList.toggle('stat-active', currentSeries > 0);
-      }
-
-      if (multiplyCard) {
-        multiplyCard.classList.toggle('stat-active', currentSeries > 0);
-      }
-    }
-
-    function resetStats() {
-      currentSeries = 0;
-      currentMultiplier = 1.00;
-      updateStatsUI();
-    }
-
-    function selectChoice(choice) {
-      if (isFlipping || isProcessingAction) return;
-
-      selectedChoice = choice;
-
-      const btnHeads = document.getElementById('btnHeads');
-      const btnTails = document.getElementById('btnTails');
-
-      if (choice === 'heads') {
-        btnHeads.className =
-          'py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition';
-
-        btnTails.className =
-          'py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition';
-      } else {
-        btnTails.className =
-          'py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition';
-
-        btnHeads.className =
-          'py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition';
-      }
-
-      if (gameState === 'won_streak') {
-        executeFlip(false);
-      }
-    }
-
-    function modifyBet(type) {
-      if (gameState !== 'ready' || isProcessingAction || isFlipping) return;
-
-      const input = document.getElementById('betAmount');
-      const current = Number(input.value) || 0;
-
-      if (type === 'half') {
-        input.value = Math.max(0, Math.floor(current / 2));
-      } else if (type === 'double') {
-        input.value = Math.floor(current * 2);
-      } else if (type === 'max') {
-        input.value = Math.max(0, Math.floor(balance));
-      }
-    }
-
-    function renderHistoryBar() {
-      const historyContainer = document.getElementById('historyBar');
-      if (!historyContainer) return;
-
-      historyContainer.innerHTML = '';
-
-      previousResults.slice(-20).reverse().forEach(resStr => {
-        const badge = document.createElement('span');
-        const isCrash = resStr === '0.00x';
-
-        badge.className = isCrash
-          ? 'px-2 py-1 rounded-md text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 whitespace-nowrap'
-          : 'px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-500/20 text-[#24ee89] border border-emerald-500/30 whitespace-nowrap';
-
-        badge.innerText = resStr;
-        historyContainer.appendChild(badge);
-      });
-
-      try {
-        localStorage.setItem('coin_multiplier_history', JSON.stringify(previousResults));
-      } catch (e) {
-        console.warn('History save error:', e);
-      }
-    }
-
-    function openHistoryModal() {
-      showAllHistoryModal = false;
-      renderModalHistoryList();
-      document.getElementById('historyModal').classList.remove('hidden');
-    }
-
-    function closeHistoryModal() {
-      document.getElementById('historyModal').classList.add('hidden');
-    }
-
-    function toggleHistoryLimit() {
-      showAllHistoryModal = !showAllHistoryModal;
-      renderModalHistoryList();
-    }
-
-    function renderModalHistoryList() {
-      const listContainer = document.getElementById('modalHistoryList');
-      const toggleBtn = document.getElementById('historyToggleBtn');
-      if (!listContainer) return;
-
-      listContainer.innerHTML = '';
-
-      const itemsToDisplay = showAllHistoryModal ? [...previousResults].reverse() : [...previousResults].slice(-10).reverse();
-
-      itemsToDisplay.forEach((resStr, idx) => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center justify-between border-b border-[#222b3a] py-2 px-1 text-xs';
-
-        const isCrash = resStr === '0.00x';
-        const gameId = 'GID-' + Math.floor(100000 + Math.random() * 900000);
-        const hashStr = generateMaskedHash();
-
-        row.innerHTML = `
-          <div class="flex flex-col gap-0.5">
-            <span class="text-gray-300 font-bold text-[11px]">${gameId}</span>
-            <span class="text-gray-500 font-mono text-[10px]">Hash: ${hashStr}</span>
-          </div>
-          <span class="font-bold px-2 py-0.5 rounded text-[10px] border ${isCrash ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-[#24ee89] border-emerald-500/30'}">
-            ${resStr}
-          </span>
-        `;
-        listContainer.appendChild(row);
-      });
-
-      if (toggleBtn) {
-        toggleBtn.innerText = showAllHistoryModal ? 'Less' : 'More';
-      }
-    }
-
-    function setActionButton(text, color, disabled = false) {
-      const btn = document.getElementById('btnAction');
-
-      btn.disabled = disabled;
-      btn.className =
-        'w-full py-3.5 ' + color +
-        ' text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2';
-
-      btn.innerText = text;
-    }
-
-    async function saveProfileBalance() {
-      if (!currentUserId || typeof supabaseClient === 'undefined') {
-        return true;
-      }
-
-      const { error } = await supabaseClient
-        .from('profiles')
-        .update({ balance: balance })
-        .eq('id', currentUserId);
-
-      if (error) {
-        console.error('Balance update error:', error);
-        return false;
-      }
-
-      return true;
-    }
-
-    async function handleMainAction() {
-      if (isFlipping || isProcessingAction) return;
-
-      if (gameState === 'ready') {
-        isProcessingAction = true;
-        setActionButton('Starting...', 'green-btn', true);
-
-        const amountInput = document.getElementById('betAmount');
-        const enteredAmount = Number(amountInput.value);
-
-        if (!Number.isFinite(enteredAmount) || enteredAmount < 0) {
-          alert('সঠিক বেটের পরিমাণ লিখুন।');
-          isProcessingAction = false;
-          setActionButton('Bet', 'green-btn');
-          return;
-        }
-
-        if (enteredAmount > 0 && enteredAmount < 1) {
-          alert('সর্বনিম্ন বেট ১ টাকা।');
-          isProcessingAction = false;
-          setActionButton('Bet', 'green-btn');
-          return;
-        }
-
-        if (enteredAmount > balance) {
-          alert('পর্যাপ্ত ব্যালেন্স নেই!');
-          isProcessingAction = false;
-          setActionButton('Bet', 'green-btn');
-          return;
-        }
-
-        activeBetAmount = enteredAmount;
-        resetStats();
-
-        if (activeBetAmount > 0) {
-          balance -= activeBetAmount;
-          updateBalanceUI();
-
-          const saved = await saveProfileBalance();
-
-          if (!saved) {
-            balance += activeBetAmount;
-            updateBalanceUI();
-
-            activeBetAmount = 0;
-            isProcessingAction = false;
-
-            setActionButton('Bet', 'green-btn');
-            alert('ব্যালেন্স আপডেট করা যায়নি। আবার চেষ্টা করুন।');
-            return;
-          }
-        }
-
-        currentMultiplier = 1.96;
-        gameState = 'playing';
-        isProcessingAction = false;
-
-        executeFlip(true);
-      } else if (gameState === 'won_streak') {
-        await cashOut();
-      }
-    }
-
-    async function executeFlip(isFirstBet) {
-      if (isFlipping || isProcessingAction) return;
-
-      if (gameState !== 'playing' && gameState !== 'won_streak') return;
-
-      isFlipping = true;
-
-      const thisRound = roundToken;
-      const btn = document.getElementById('btnAction');
-      const statusText = document.getElementById('gameStatusText');
-      const coin = document.getElementById('coinElement');
-
-      btn.disabled = true;
-      btn.className =
-        'w-full py-3.5 green-btn text-sm rounded-xl transition shadow flex items-center justify-center gap-2';
-      btn.innerText = 'Flipping...';
-
-      statusText.innerText = 'Coin is flipping...';
-
-      const outcome = Math.random() < 0.5 ? 'heads' : 'tails';
-
-      coin.classList.remove('flipping-heads', 'flipping-tails');
-      void coin.offsetWidth;
-
-      const flipDelay = isTurboOn ? 100 : 800;
-      if (isTurboOn) {
-        coin.style.animationDuration = '0.1s';
-      } else {
-        coin.style.animationDuration = '0.8s';
-      }
-
-      coin.classList.add(
-        outcome === 'heads' ? 'flipping-heads' : 'flipping-tails'
-      );
-
-      setTimeout(async () => {
-        if (thisRound !== roundToken) return;
-
-        const isWin = selectedChoice === outcome;
-        playClockBellSound();
-
-        if (isWin) {
-          if (isFirstBet) {
-            currentMultiplier = 1.96;
-            currentSeries = 1;
-          } else {
-            currentMultiplier = Number(
-              (currentMultiplier * 1.96).toFixed(2)
-            );
-            currentSeries++;
-          }
-
-          updateStatsUI();
-
-          const potentialWin = activeBetAmount > 0
-            ? activeBetAmount * currentMultiplier
-            : 0;
-
-          statusText.innerHTML =
-            '<span style="color:#24ee89;font-weight:800">WIN! Choose another side or Cash Out · ৳ ' +
-            potentialWin.toFixed(2) +
-            '</span>';
-
-          gameState = 'won_streak';
-          isFlipping = false;
-
-          setActionButton(
-            activeBetAmount > 0
-              ? 'Cash Out (৳ ' + potentialWin.toFixed(2) + ')'
-              : 'Continue (Demo)',
-            'red-btn'
-          );
-
-        } else {
-          statusText.innerHTML =
-            '<span style="color:#ed4245;font-weight:800">LOST! Better luck next time.</span>';
-
-          previousResults.push('0.00x');
-          if (previousResults.length > 50) previousResults.shift();
-          renderHistoryBar();
-
-          if (activeBetAmount > 0) {
-            updateLiveStatsUI(-activeBetAmount, activeBetAmount, false);
-          }
-
-          if (
-            currentUserId &&
-            activeBetAmount > 0 &&
-            typeof supabaseClient !== 'undefined'
-          ) {
-            const insertData = {
-              id: generateUUID(),
-              user_id: currentUserId,
-              target_number: selectedChoice === 'heads' ? 1 : 2,
-              roll_result: 0.00,
-              bet_amount: activeBetAmount,
-              payout: 0,
-              is_bool: false
-            };
-
-            const { error } = await supabaseClient
-              .from('bets')
-              .insert([insertData]);
-
-            if (error) {
-              console.error('Lost bet record error:', error);
-            }
-          }
-
-          resetGameUI();
-        }
-      }, flipDelay);
-    }
-
-    async function cashOut() {
-      if (
-        isFlipping ||
-        isProcessingAction ||
-        gameState !== 'won_streak'
-      ) {
-        return;
-      }
-
-      isProcessingAction = true;
-
-      const payoutAmount = activeBetAmount > 0
-        ? Number((activeBetAmount * currentMultiplier).toFixed(2))
-        : 0;
-
-      setActionButton('Processing Cash Out...', 'red-btn', true);
-
-      const recordedMultiplierStr = currentMultiplier.toFixed(2) + 'x';
-      previousResults.push(recordedMultiplierStr);
-      if (previousResults.length > 50) previousResults.shift();
-      renderHistoryBar();
-
-      const profit = payoutAmount - activeBetAmount;
-      if (activeBetAmount > 0) {
-        balance += payoutAmount;
-        updateBalanceUI();
-
-        const saved = await saveProfileBalance();
-
-        if (!saved) {
-          balance -= payoutAmount;
-          updateBalanceUI();
-
-          isProcessingAction = false;
-
-          setActionButton(
-            'Cash Out (৳ ' + payoutAmount.toFixed(2) + ')',
-            'red-btn'
-          );
-
-          document.getElementById('gameStatusText').innerHTML =
-            '<span style="color:#ed4245;font-weight:800">Balance update failed. Please try again.</span>';
-
-          return;
-        }
-
-        updateLiveStatsUI(profit, activeBetAmount, true);
-      }
-
-      if (
-        currentUserId &&
-        activeBetAmount > 0 &&
-        typeof supabaseClient !== 'undefined'
-      ) {
-        const insertData = {
-          id: generateUUID(),
-          user_id: currentUserId,
-          target_number: selectedChoice === 'heads' ? 1 : 2,
-          roll_result: currentMultiplier,
-          bet_amount: activeBetAmount,
-          payout: payoutAmount,
-          is_bool: true
-        };
-
-        const { error } = await supabaseClient
-          .from('bets')
-          .insert([insertData]);
-
-        if (error) {
-          console.error('Cashout bet record error:', error);
-        }
-      }
-
-      playClockBellSound();
-      document.getElementById('gameStatusText').innerHTML =
-        '<span style="color:#24ee89;font-weight:800">Cashed Out Successfully: ৳ ' +
-        payoutAmount.toFixed(2) +
-        '</span>';
-
-      resetGameUI();
-    }
-
-    function resetGameUI() {
-      roundToken++;
-
-      gameState = 'ready';
-      isFlipping = false;
-      isProcessingAction = false;
-
-      activeBetAmount = 0;
-
-      resetStats();
-
-      const btn = document.getElementById('btnAction');
-      const coin = document.getElementById('coinElement');
-
-      coin.classList.remove('flipping-heads', 'flipping-tails');
-      void coin.offsetWidth;
-
-      btn.disabled = false;
-      btn.className =
-        'w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2';
-      btn.innerText = 'Bet';
-    }
-
-    window.addEventListener('load', initCoinFlipGame);
-  </script>
-
-</body>
-</html>
+          ? '×' + currentMultiplier.
