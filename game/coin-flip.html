@@ -124,7 +124,6 @@
         radial-gradient(circle at 20% 80%, rgba(255,255,255,.06) 1px, transparent 2px);
     }
 
-    /* UPDATED: narrower side cards, closer to screen edges */
     .game-stage {
       position: absolute;
       left: 2px;
@@ -138,24 +137,24 @@
       gap: 2px;
     }
 
-    /* UPDATED: thinner Series and Multiply cards */
+    /* Series and Multiply cards reduced by ~30% */
     .stat-card {
       width: 100%;
-      max-width: 88px;
+      max-width: 62px;
       min-width: 0;
-      height: 120px;
+      height: 84px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 10px;
+      gap: 6px;
       text-align: center;
-      border-radius: 15px;
+      border-radius: 12px;
       border: 1px solid rgba(190, 210, 218, .17);
       background: rgba(180, 198, 205, .12);
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,.04),
-        0 5px 18px rgba(0,0,0,.08);
+        0 4px 12px rgba(0,0,0,.08);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       overflow: hidden;
@@ -163,23 +162,23 @@
 
     .stat-value {
       color: #fff;
-      font-size: clamp(18px, 4.5vw, 25px);
+      font-size: clamp(13px, 3.2vw, 18px);
       line-height: 1.1;
       font-weight: 900;
-      letter-spacing: -.6px;
+      letter-spacing: -.5px;
       white-space: nowrap;
     }
 
     .stat-label {
       color: #f0f3f5;
-      font-size: clamp(11px, 2.8vw, 14px);
+      font-size: clamp(9px, 2.2vw, 11px);
       line-height: 1.2;
       font-weight: 800;
     }
 
     .stat-card.stat-active {
       border-color: rgba(36, 238, 137, .48);
-      box-shadow: 0 0 15px rgba(36, 238, 137, .08);
+      box-shadow: 0 0 12px rgba(36, 238, 137, .08);
     }
 
     .stat-card.stat-active .stat-value {
@@ -263,7 +262,7 @@
       color: #a7b2bf;
     }
 
-    .history-bar {
+    .history-bar-wrapper {
       position: absolute;
       top: 8px;
       left: 10px;
@@ -272,66 +271,64 @@
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .history-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       overflow-x: auto;
       scrollbar-width: none;
+      flex: 1;
     }
 
     .history-bar::-webkit-scrollbar { display: none; }
 
-    /* Small mobile screens */
-    @media (max-width: 380px) {
-      .game-screen { height: 245px; }
-
-      .game-stage {
-        left: 2px;
-        right: 2px;
-        top: 47px;
-        bottom: 32px;
-        grid-template-columns: minmax(0, 1fr) 108px minmax(0, 1fr);
-        gap: 1px;
-      }
-
-      .coin-container {
-        width: 104px;
-        height: 104px;
-      }
-
-      .coin-face { border-width: 3px; }
-
-      .coin-face > div {
-        width: 67px;
-        height: 67px;
-      }
-
-      .stat-card {
-        max-width: 76px;
-        height: 105px;
-        border-radius: 13px;
-        gap: 9px;
-      }
-
-      .stat-value { font-size: 18px; }
-      .stat-label { font-size: 11px; }
+    .history-btn-icon {
+      background: #222b3a;
+      border: 1px solid #2a3548;
+      color: #cbd5e1;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 11px;
+      flex-shrink: 0;
+      transition: background 0.2s;
     }
 
-    /* Standard mobile screens */
-    @media (min-width: 381px) and (max-width: 480px) {
-      .game-stage {
-        left: 2px;
-        right: 2px;
-        grid-template-columns: minmax(0, 1fr) 124px minmax(0, 1fr);
-        gap: 2px;
-      }
+    .history-btn-icon:hover {
+      background: #2c3748;
+      color: #fff;
+    }
 
-      .coin-container {
-        width: 120px;
-        height: 120px;
-      }
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 6000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
 
-      .stat-card {
-        max-width: 84px;
-        height: 116px;
-      }
+    .modal-content {
+      background: #171d28;
+      border: 1px solid #222b3a;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
     }
 
     ::-webkit-scrollbar {
@@ -362,8 +359,13 @@
         <!-- Game Screen -->
         <div class="game-screen">
 
-          <!-- History -->
-          <div id="historyBar" class="history-bar"></div>
+          <!-- History Bar & Icon Wrapper -->
+          <div class="history-bar-wrapper">
+            <div id="historyBar" class="history-bar"></div>
+            <button type="button" onclick="openHistoryModal()" class="history-btn-icon" title="View Full History">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+            </button>
+          </div>
 
           <!-- Series, Coin and Multiply -->
           <div class="game-stage">
@@ -462,13 +464,33 @@
             Bet
           </button>
 
-          <div class="text-center text-[11px] text-gray-400">
-            ℹ Betting with 0 will enter demo mode.
-          </div>
-
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- History Modal (More / Less) -->
+  <div id="historyModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="flex items-center justify-between p-4 border-b border-[#222b3a]">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-clock-rotate-left text-[#24ee89]"></i> Full History List
+        </h3>
+        <button type="button" onclick="closeHistoryModal()" class="text-gray-400 hover:text-white px-2 py-1 text-sm font-bold">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto flex-1 space-y-2" id="modalHistoryList">
+        <!-- Populated dynamically -->
+      </div>
+
+      <div class="p-3 border-t border-[#222b3a] flex justify-center bg-[#0f141c]">
+        <button type="button" id="historyToggleBtn" onclick="toggleHistoryLimit()" class="px-4 py-1.5 rounded-lg bg-[#222b3a] hover:bg-[#2c3748] text-xs font-bold text-gray-300 transition">
+          More
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Bottom Bar -->
@@ -490,13 +512,14 @@
 
     let previousResults = loadSavedHistory();
     let roundToken = 0;
+    let showAllHistoryModal = false;
 
     function loadSavedHistory() {
       try {
         const saved = JSON.parse(localStorage.getItem('bc_coin_history'));
 
         return Array.isArray(saved)
-          ? saved.filter(x => x === 'heads' || x === 'tails').slice(-30)
+          ? saved.filter(x => x === 'heads' || x === 'tails').slice(-40)
           : ['heads', 'tails', 'heads', 'heads', 'tails'];
       } catch (e) {
         return ['heads', 'tails', 'heads', 'heads', 'tails'];
@@ -671,16 +694,17 @@
 
       historyContainer.innerHTML = '';
 
-      previousResults.slice(-10).reverse().forEach(res => {
+      // Show exactly 20 results in the main bar
+      previousResults.slice(-20).reverse().forEach(res => {
         const badge = document.createElement('span');
 
         if (res === 'heads') {
           badge.className =
-            'px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+            'px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 whitespace-nowrap';
           badge.innerText = 'Heads';
         } else {
           badge.className =
-            'px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-500/20 text-slate-300 border border-slate-500/30';
+            'px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-500/20 text-slate-300 border border-slate-500/30 whitespace-nowrap';
           badge.innerText = 'Tails';
         }
 
@@ -691,6 +715,51 @@
         localStorage.setItem('bc_coin_history', JSON.stringify(previousResults));
       } catch (e) {
         console.warn('History save error:', e);
+      }
+    }
+
+    function openHistoryModal() {
+      showAllHistoryModal = false;
+      renderModalHistoryList();
+      document.getElementById('historyModal').classList.remove('hidden');
+    }
+
+    function closeHistoryModal() {
+      document.getElementById('historyModal').classList.add('hidden');
+    }
+
+    function toggleHistoryLimit() {
+      showAllHistoryModal = !showAllHistoryModal;
+      renderModalHistoryList();
+    }
+
+    function renderModalHistoryList() {
+      const listContainer = document.getElementById('modalHistoryList');
+      const toggleBtn = document.getElementById('historyToggleBtn');
+      if (!listContainer) return;
+
+      listContainer.innerHTML = '';
+
+      const itemsToDisplay = showAllHistoryModal ? [...previousResults].reverse() : [...previousResults].slice(-10).reverse();
+
+      itemsToDisplay.forEach((res, idx) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between bg-[#0f141c] border border-[#222b3a] px-3 py-2 rounded-xl text-xs';
+
+        const isHeads = res === 'heads';
+        const serialNo = showAllHistoryModal ? previousResults.length - idx : Math.min(10, previousResults.length) - idx;
+
+        row.innerHTML = `
+          <span class="text-gray-400 text-xs">#${serialNo}</span>
+          <span class="font-bold px-2.5 py-0.5 rounded text-[10px] border ${isHeads ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-slate-500/20 text-slate-300 border-slate-500/30'}">
+            ${isHeads ? 'Heads' : 'Tails'}
+          </span>
+        `;
+        listContainer.appendChild(row);
+      });
+
+      if (toggleBtn) {
+        toggleBtn.innerText = showAllHistoryModal ? 'Less' : 'More';
       }
     }
 
@@ -821,7 +890,7 @@
 
         previousResults.push(outcome);
 
-        if (previousResults.length > 30) {
+        if (previousResults.length > 50) {
           previousResults.shift();
         }
 
