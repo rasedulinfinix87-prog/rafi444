@@ -78,7 +78,13 @@
             <span class="bg-[#252c2d] text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/20 w-fit">
               <i class="fa-solid fa-crown text-[9px] mr-1"></i> VIP 1
             </span>
-            <span id="userName" class="font-extrabold text-sm text-white truncate">Loading...</span>
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="text-[11px] text-slate-400 font-medium shrink-0">GAME ID:</span>
+              <span id="userGameId" class="text-xs text-emerald-400 font-bold truncate">----</span>
+              <button type="button" onclick="copyGameId()" class="text-slate-400 hover:text-white text-xs p-1" aria-label="Copy Game ID" title="Copy Game ID">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+            </div>
             <span id="userJoined" class="text-[10px] text-slate-400 font-semibold">Joined: ----</span>
             <button type="button" onclick="openAvatarPicker()" class="text-left text-[11px] text-emerald-400 font-semibold mt-0.5">
               <i class="fa-solid fa-user-pen mr-1"></i> Change Avatar
@@ -242,7 +248,18 @@
       try { localStorage.setItem('selected_account_avatar', type); } catch (e) {}
     }
 
-    // Load member profile and balance. Game ID and referral logic removed.
+    async function copyGameId() {
+      const gameId = document.getElementById('userGameId').textContent.trim();
+      if (!gameId || gameId === '----') return;
+      try {
+        await navigator.clipboard.writeText(gameId);
+        alert('GAME ID copied!');
+      } catch (err) {
+        prompt('Copy your GAME ID:', gameId);
+      }
+    }
+
+    // Load member profile, Game ID and balance.
     async function syncMemberBalance() {
       const refreshIcon = document.getElementById('refreshIcon');
       if (refreshIcon) refreshIcon.classList.add('fa-spin');
@@ -266,11 +283,10 @@
           if (error) console.error('Profile load error:', error);
 
           if (profile) {
-            if (profile.full_name) {
-              document.getElementById('userName').innerText = profile.full_name;
-            } else {
-              document.getElementById('userName').innerText = 'Member';
-            }
+            const gameId = profile.user_game_id || profile.id || currentUserObj.id || '';
+            document.getElementById('userGameId').innerText = gameId
+              ? String(gameId).slice(0, 8).toUpperCase()
+              : '----';
             if (profile.balance !== undefined && profile.balance !== null) {
               document.getElementById('userBalance').innerText = parseFloat(profile.balance).toFixed(2);
             }
