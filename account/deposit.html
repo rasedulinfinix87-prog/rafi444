@@ -1,27 +1,72 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Deposit Funds</title>
-  
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <!-- Supabase JS Client & App Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
 
   <style>
-    /* Scrollbar Styling */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track { background: #0f141c; }
-    ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb {
+      background: #21262d;
+      border-radius: 4px;
+    }
+
+    .bonus-card {
+      background: #161b22;
+      border: 1px solid #252e3b;
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+      min-width: 0;
+      transition: border-color .2s, background .2s;
+    }
+
+    .bonus-card.active {
+      border: 2px solid #24ee89;
+      background: #102820;
+      padding: 11px 7px;
+    }
+
+    .bonus-card:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+
+    .bonus-percent {
+      color: #24ee89;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .bonus-subtitle {
+      color: #9ca3af;
+      font-size: 10px;
+      margin-top: 5px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+    }
   </style>
 </head>
+
 <body class="bg-[#0f141c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
 
   <!-- Header -->
@@ -44,7 +89,7 @@
         <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
         <span>Deposit Method</span>
       </div>
-      
+
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="methodGrid">
         <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card relative bg-[#161b22] border-2 border-[#24ee89] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 transition">
           <span class="text-xs font-black text-pink-500">bKash</span>
@@ -85,8 +130,63 @@
       <div class="pt-2">
         <div class="relative flex items-center">
           <span class="absolute left-3 text-xs text-gray-500 font-bold">৳</span>
-          <input type="number" id="customAmount" min="10" max="25000" placeholder="100 - 25,000 BDT" class="w-full bg-[#161b22] border border-gray-800 rounded-xl pl-7 pr-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#24ee89] font-semibold placeholder-gray-600">
+          <input type="number" id="customAmount" min="100" max="25000" step="1" placeholder="100 - 25,000 BDT" class="w-full bg-[#161b22] border border-gray-800 rounded-xl pl-7 pr-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#24ee89] font-semibold placeholder-gray-600">
         </div>
+      </div>
+    </section>
+
+    <!-- OPTIONAL DEPOSIT BONUS -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
+          <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
+          <span>Deposit Bonus</span>
+        </div>
+        <span class="text-[10px] text-gray-500">Optional</span>
+      </div>
+
+      <!-- Bonus Options -->
+      <div id="bonusGrid" class="grid grid-cols-2 gap-2">
+        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
+          <div class="text-sm font-black text-white">No Bonus</div>
+          <div class="bonus-subtitle">1× Turnover</div>
+        </button>
+      </div>
+
+      <p id="bonusLoading" class="text-[10px] text-gray-500">
+        Loading available bonuses...
+      </p>
+
+      <!-- Deposit Calculation -->
+      <div class="bg-[#161b22] border border-gray-800 rounded-xl p-3.5 space-y-3">
+        <div class="summary-row">
+          <span class="text-gray-400">Deposit Amount</span>
+          <span id="summaryDeposit" class="font-bold text-white">৳0.00</span>
+        </div>
+
+        <div class="summary-row">
+          <span class="text-gray-400">Bonus Amount</span>
+          <span id="summaryBonus" class="font-bold text-[#24ee89]">+৳0.00</span>
+        </div>
+
+        <div class="border-t border-gray-800 pt-3 summary-row">
+          <span class="font-bold text-gray-300">Total After Bonus</span>
+          <span id="summaryTotal" class="font-black text-lg text-[#24ee89]">৳0.00</span>
+        </div>
+
+        <div class="summary-row">
+          <span class="text-gray-400">Turnover Multiplier</span>
+          <span id="summaryMultiplier" class="font-bold text-amber-400">1×</span>
+        </div>
+
+        <div class="summary-row">
+          <span class="text-gray-400">Required Turnover</span>
+          <span id="summaryTurnover" class="font-extrabold text-white">৳0.00</span>
+        </div>
+
+        <p class="text-[10px] text-gray-500 leading-relaxed">
+          Turnover is calculated on the deposit amount plus bonus. The bonus and funds are subject to payment verification.
+        </p>
       </div>
     </section>
 
@@ -100,8 +200,8 @@
   <!-- STEP 1: PAYMENT MODAL POPUP -->
   <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-[#161b22] border border-gray-800 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
-      <button onclick="closeModal('paymentModal')" class="absolute top-3 right-3 text-gray-500 hover:text-white text-base">✕</button>
-      
+      <button type="button" onclick="closeModal('paymentModal')" class="absolute top-3 right-3 text-gray-500 hover:text-white text-base">✕</button>
+
       <div class="text-center border-b border-gray-800/80 pb-3">
         <h3 class="text-sm font-black text-[#24ee89]">Confirm Payment</h3>
         <p class="text-[10px] text-gray-400 mt-0.5">Follow instructions to complete deposit</p>
@@ -113,22 +213,39 @@
           <span class="text-gray-400">Method:</span>
           <span id="modalMethod" class="font-bold text-white">bKash</span>
         </div>
+
         <div class="flex justify-between items-center">
-          <span class="text-gray-400">Amount:</span>
-          <span id="modalAmount" class="font-extrabold text-[#24ee89]">0 BDT</span>
+          <span class="text-gray-400">Deposit Amount:</span>
+          <span id="modalAmount" class="font-extrabold text-white">0 BDT</span>
         </div>
+
+        <div class="flex justify-between items-center">
+          <span class="text-gray-400">Bonus:</span>
+          <span id="modalBonus" class="font-bold text-[#24ee89]">0 BDT</span>
+        </div>
+
+        <div class="flex justify-between items-center border-t border-gray-800/60 pt-2">
+          <span class="text-gray-400">Total After Bonus:</span>
+          <span id="modalTotal" class="font-black text-[#24ee89]">0 BDT</span>
+        </div>
+
+        <div class="flex justify-between items-center">
+          <span class="text-gray-400">Required Turnover:</span>
+          <span id="modalTurnover" class="font-bold text-amber-400">0 BDT</span>
+        </div>
+
         <div class="flex justify-between items-center border-t border-gray-800/60 pt-2">
           <span class="text-gray-400">Send Money To:</span>
           <div class="flex items-center gap-1.5">
             <span id="modalNumber" class="font-black text-amber-400 tracking-wider">Loading...</span>
-            <button onclick="copyNumber()" class="text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">Copy</button>
+            <button type="button" onclick="copyNumber()" class="text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">Copy</button>
           </div>
         </div>
       </div>
 
       <!-- Transaction ID Input Field -->
       <div class="space-y-1">
-        <label class="block text-[11px] font-bold text-gray-300">Transaction ID (TrxID)</label>
+        <label for="modalTrxId" class="block text-[11px] font-bold text-gray-300">Transaction ID (TrxID)</label>
         <input type="text" id="modalTrxId" placeholder="e.g. 9J83KS92" class="w-full bg-[#0f141c] border border-gray-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#24ee89] tracking-wider uppercase font-mono">
       </div>
 
@@ -145,10 +262,10 @@
       <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-xl">
         ✓
       </div>
-      
+
       <div>
         <h3 class="text-base font-black text-white">Payment Verification</h3>
-        <p class="text-xs text-gray-400 mt-1">Your deposit request is currently being verified. Please allow a few minutes for funds to reflect in your account.</p>
+        <p class="text-xs text-gray-400 mt-1">Your deposit request is currently being verified. Your deposit and bonus will be credited only after the payment is approved.</p>
       </div>
 
       <button type="button" onclick="finishDeposit()" class="w-full bg-[#24ee89] text-black font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition">
@@ -163,50 +280,149 @@
     let selectedAmount = 0;
     let paymentNumbers = {};
 
-    // Initialize Auth and Fetch Dynamic Numbers from Supabase
+    let bonusSettings = [];
+    let selectedBonus = null;
+    let isSubmitting = false;
+
+    const MIN_DEPOSIT = 100;
+    const MAX_DEPOSIT = 25000;
+
+    function money(value) {
+      return Number(value || 0).toLocaleString('en-BD', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function getDepositAmount() {
+      const inputValue = document.getElementById('customAmount').value;
+      return inputValue.trim() === '' ? 0 : Number(inputValue);
+    }
+
+    function getBonusCalculation(amount) {
+      if (!selectedBonus) {
+        return {
+          bonusAmount: 0,
+          totalAmount: amount,
+          multiplier: 1,
+          turnoverRequired: amount
+        };
+      }
+
+      const percent = Number(selectedBonus.bonus_percent || 0);
+      const maxBonus = Number(selectedBonus.max_bonus || 0);
+      const multiplier = Number(selectedBonus.turnover_multiplier);
+
+      let bonusAmount = amount * percent / 100;
+
+      // A zero or NULL max_bonus means no bonus cap.
+      if (maxBonus > 0) {
+        bonusAmount = Math.min(bonusAmount, maxBonus);
+      }
+
+      const totalAmount = amount + bonusAmount;
+
+      return {
+        bonusAmount: bonusAmount,
+        totalAmount: totalAmount,
+        multiplier: multiplier,
+        turnoverRequired: totalAmount * multiplier
+      };
+    }
+
+    // Initialize Auth, payment numbers and bonus settings.
     async function init() {
       try {
-        // Check if user is logged in via localStorage
         const storedUser = localStorage.getItem('current_user');
+
         if (!storedUser) {
           window.location.href = "../login-signup.html";
           return;
         }
 
         const userObj = JSON.parse(storedUser);
+
+        if (!userObj || !userObj.id) {
+          window.location.href = "../login-signup.html";
+          return;
+        }
+
         currentUserId = userObj.id;
 
-        // Fetch numbers from Supabase `payment_numbers` table
-        const { data, error } = await supabaseClient
-          .from('payment_numbers')
-          .select('method_name, number');
+        if (typeof supabaseClient === 'undefined') {
+          throw new Error('supabaseClient was not found. Check ../supabase-config.js');
+        }
 
-        if (data && !error) {
-          data.forEach(item => {
+        const [numbersResult, bonusesResult] = await Promise.all([
+          supabaseClient
+            .from('payment_numbers')
+            .select('method_name, number'),
+
+          supabaseClient
+            .from('bonus_settings')
+            .select('id, bonus_code, title, bonus_percent, min_deposit, max_bonus, turnover_multiplier, is_active, sort_order')
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true })
+        ]);
+
+        if (numbersResult.error) {
+          console.error('Payment number load error:', numbersResult.error);
+        } else if (numbersResult.data) {
+          numbersResult.data.forEach(item => {
             paymentNumbers[item.method_name] = item.number;
           });
         }
+
+        if (bonusesResult.error) {
+          console.error('Bonus settings load error:', bonusesResult.error);
+
+          document.getElementById('bonusLoading').textContent =
+            'Bonus settings could not be loaded. No bonus is selected.';
+        } else {
+          bonusSettings = (bonusesResult.data || []).filter(item => {
+            const percent = Number(item.bonus_percent);
+            const multiplier = Number(item.turnover_multiplier);
+
+            return percent > 0 &&
+              multiplier > 0 &&
+              Number.isFinite(percent) &&
+              Number.isFinite(multiplier);
+          });
+
+          renderBonusOptions();
+        }
+
+        updateCalculation();
       } catch (err) {
         console.error("Initialization Error:", err);
-        window.location.href = "../login-signup.html";
+        showAlert('Could not initialize the deposit page. Please refresh and try again.');
       }
     }
 
     function showAlert(msg, isSuccess = false) {
       const alertBox = document.getElementById('alertBox');
+
       alertBox.innerText = msg;
-      alertBox.className = `p-3 rounded-xl text-xs font-semibold ${isSuccess ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`;
+      alertBox.className =
+        `p-3 rounded-xl text-xs font-semibold ${
+          isSuccess
+            ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700'
+            : 'bg-red-900/50 text-red-300 border border-red-700'
+        }`;
+
       alertBox.classList.remove('hidden');
     }
 
     function selectMethod(method) {
       selectedMethod = method;
+
       document.querySelectorAll('.method-card').forEach(card => {
         card.classList.remove('border-[#24ee89]', 'border-2');
         card.classList.add('border-gray-800');
       });
 
       const activeBtn = document.getElementById(`method-${method}`);
+
       if (activeBtn) {
         activeBtn.classList.remove('border-gray-800');
         activeBtn.classList.add('border-[#24ee89]', 'border-2');
@@ -214,45 +430,192 @@
     }
 
     function setAmount(amount) {
-      selectedAmount = amount;
+      selectedAmount = Number(amount);
       document.getElementById('customAmount').value = amount;
+      updateCalculation();
     }
 
-    async function openPaymentModal() {
-      const customAmt = parseFloat(document.getElementById('customAmount').value);
-      const finalAmt = customAmt || selectedAmount;
+    // Render optional bonus cards from Supabase.
+    function renderBonusOptions() {
+      const grid = document.getElementById('bonusGrid');
+      const loading = document.getElementById('bonusLoading');
 
-      if (!finalAmt || finalAmt < 10) {
-        showAlert('Please select or enter a valid amount (Min 10 BDT)');
+      grid.innerHTML = `
+        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
+          <div class="text-sm font-black text-white">No Bonus</div>
+          <div class="bonus-subtitle">1× Turnover</div>
+        </button>
+      `;
+
+      bonusSettings.forEach((bonus, index) => {
+        const button = document.createElement('button');
+
+        button.type = 'button';
+        button.id = `bonus-option-${index}`;
+        button.className = 'bonus-card';
+
+        const title = document.createElement('div');
+        title.className = 'text-xs font-extrabold text-white';
+        title.textContent = bonus.title || `${bonus.bonus_percent}% Bonus`;
+
+        const percent = document.createElement('div');
+        percent.className = 'bonus-percent';
+        percent.textContent = `${Number(bonus.bonus_percent)}%`;
+
+        const subtitle = document.createElement('div');
+        subtitle.className = 'bonus-subtitle';
+        subtitle.textContent = `${Number(bonus.turnover_multiplier)}× Turnover`;
+
+        button.appendChild(title);
+        button.appendChild(percent);
+        button.appendChild(subtitle);
+
+        button.addEventListener('click', () => {
+          selectBonus(bonus);
+        });
+
+        grid.appendChild(button);
+      });
+
+      loading.textContent = bonusSettings.length
+        ? 'Choose a bonus or continue without one.'
+        : 'No active bonuses available. You can continue without a bonus.';
+    }
+
+    function selectBonus(bonus) {
+      selectedBonus = bonus;
+
+      document.querySelectorAll('.bonus-card').forEach(card => {
+        card.classList.remove('active');
+      });
+
+      if (!bonus) {
+        document.getElementById('bonus-none')?.classList.add('active');
+      } else {
+        const index = bonusSettings.findIndex(item => item.id === bonus.id);
+
+        document.getElementById(`bonus-option-${index}`)?.classList.add('active');
+      }
+
+      updateCalculation();
+    }
+
+    function updateCalculation() {
+      const amount = getDepositAmount();
+      const validAmount = Number.isFinite(amount) && amount > 0 ? amount : 0;
+
+      // Enforce the bonus's configured minimum deposit.
+      if (selectedBonus && validAmount < Number(selectedBonus.min_deposit || 0)) {
+        document.getElementById('bonusLoading').textContent =
+          `This bonus requires a minimum deposit of ৳${money(selectedBonus.min_deposit)}. Select a higher amount or choose No Bonus.`;
+      } else {
+        document.getElementById('bonusLoading').textContent =
+          bonusSettings.length
+            ? 'Choose a bonus or continue without one.'
+            : 'No active bonuses available. You can continue without a bonus.';
+      }
+
+      const calculation = getBonusCalculation(validAmount);
+
+      document.getElementById('summaryDeposit').textContent =
+        `৳${money(validAmount)}`;
+
+      document.getElementById('summaryBonus').textContent =
+        `+৳${money(calculation.bonusAmount)}`;
+
+      document.getElementById('summaryTotal').textContent =
+        `৳${money(calculation.totalAmount)}`;
+
+      document.getElementById('summaryMultiplier').textContent =
+        `${calculation.multiplier}×`;
+
+      document.getElementById('summaryTurnover').textContent =
+        `৳${money(calculation.turnoverRequired)}`;
+    }
+
+    document.getElementById('customAmount').addEventListener('input', () => {
+      selectedAmount = getDepositAmount();
+      updateCalculation();
+    });
+
+    async function openPaymentModal() {
+      const finalAmt = getDepositAmount();
+
+      if (!Number.isFinite(finalAmt) ||
+          finalAmt < MIN_DEPOSIT ||
+          finalAmt > MAX_DEPOSIT) {
+        showAlert('Please enter a valid amount between 100 and 25,000 BDT.');
+        return;
+      }
+
+      if (selectedBonus &&
+          finalAmt < Number(selectedBonus.min_deposit || 0)) {
+        showAlert(
+          `The selected bonus requires a minimum deposit of ৳${money(selectedBonus.min_deposit)}.`
+        );
+        return;
+      }
+
+      if (!currentUserId) {
+        showAlert('Your login session is missing. Please log in again.');
         return;
       }
 
       document.getElementById('alertBox').classList.add('hidden');
+
       selectedAmount = finalAmt;
 
-      // Populate Modal Fields
+      const calculation = getBonusCalculation(selectedAmount);
+
       document.getElementById('modalMethod').innerText = selectedMethod;
-      document.getElementById('modalAmount').innerText = `${selectedAmount} BDT`;
-      
-      // Dynamic payment number load
-      const payNum = paymentNumbers[selectedMethod] || '01700000000';
-      document.getElementById('modalNumber').innerText = payNum;
+      document.getElementById('modalAmount').innerText =
+        `${money(selectedAmount)} BDT`;
+
+      document.getElementById('modalBonus').innerText =
+        `${money(calculation.bonusAmount)} BDT`;
+
+      document.getElementById('modalTotal').innerText =
+        `${money(calculation.totalAmount)} BDT`;
+
+      document.getElementById('modalTurnover').innerText =
+        `${money(calculation.turnoverRequired)} BDT`;
+
+      const payNum = paymentNumbers[selectedMethod];
+
+      document.getElementById('modalNumber').innerText =
+        payNum || 'Not configured';
+
       document.getElementById('modalTrxId').value = '';
 
       document.getElementById('paymentModal').classList.remove('hidden');
+      document.getElementById('paymentModal').classList.add('flex');
     }
 
     function closeModal(modalId) {
-      document.getElementById(modalId).classList.add('hidden');
+      const modal = document.getElementById(modalId);
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
 
-    function copyNumber() {
+    async function copyNumber() {
       const num = document.getElementById('modalNumber').innerText;
-      navigator.clipboard.writeText(num);
-      alert('Number copied to clipboard!');
+
+      if (!num || num === 'Not configured' || num === 'Loading...') {
+        alert('Payment number is not configured.');
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(num);
+        alert('Number copied to clipboard!');
+      } catch (err) {
+        alert('Unable to copy the number. Please copy it manually.');
+      }
     }
 
     async function submitDeposit() {
+      if (isSubmitting) return;
+
       const trxId = document.getElementById('modalTrxId').value.trim();
       const btn = document.getElementById('submitDepositBtn');
 
@@ -261,48 +624,81 @@
         return;
       }
 
-      btn.disabled = true;
-      btn.innerText = "Processing...";
-
-      // Check duplicate TrxID locally before inserting
-      const { data: existingTrx } = await supabaseClient
-        .from('deposits')
-        .select('id')
-        .eq('transection_id', trxId)
-        .maybeSingle();
-
-      if (existingTrx) {
-        alert('This Transaction ID has already been submitted!');
-        btn.disabled = false;
-        btn.innerText = "Submit Request";
+      if (!currentUserId) {
+        alert('Your login session is missing. Please log in again.');
         return;
       }
 
-      // Insert Deposit Data into Supabase
-      const { data, error } = await supabaseClient
-        .from('deposits')
-        .insert([
-          {
-            user_id: currentUserId,
-            amount: selectedAmount,
-            payment_method: selectedMethod,
-            transection_id: trxId,
-            status: 'pending'
-          }
-        ]);
+      if (!paymentNumbers[selectedMethod]) {
+        alert('The selected payment method has no configured payment number.');
+        return;
+      }
 
-      btn.disabled = false;
-      btn.innerText = "Submit Request";
+      const calculation = getBonusCalculation(selectedAmount);
 
-      if (error) {
-        if (error.code === '23505') { // Unique constraint code
-          alert('This Transaction ID has already been used.');
-        } else {
-          alert('Error: ' + error.message);
+      isSubmitting = true;
+      btn.disabled = true;
+      btn.innerText = 'Processing...';
+
+      try {
+        // Check duplicate TrxID before inserting.
+        const { data: existingTrx, error: duplicateError } =
+          await supabaseClient
+            .from('deposits')
+            .select('id')
+            .eq('transection_id', trxId)
+            .maybeSingle();
+
+        if (duplicateError) {
+          throw duplicateError;
         }
-      } else {
+
+        if (existingTrx) {
+          alert('This Transaction ID has already been submitted!');
+          return;
+        }
+
+        // Save bonus and turnover details with the pending deposit.
+        // Do not credit balance or bonus from this client-side page.
+        const depositRecord = {
+          user_id: currentUserId,
+          amount: selectedAmount,
+          payment_method: selectedMethod,
+          transection_id: trxId,
+          status: 'pending',
+          bonus_percent: selectedBonus
+            ? Number(selectedBonus.bonus_percent)
+            : 0,
+          bonus_amount: calculation.bonusAmount,
+          turnover_multiplier: calculation.multiplier,
+          turnover_required: calculation.turnoverRequired
+        };
+
+        const { error: insertError } = await supabaseClient
+          .from('deposits')
+          .insert([depositRecord]);
+
+        if (insertError) {
+          if (insertError.code === '23505') {
+            alert('This Transaction ID has already been used.');
+          } else {
+            alert('Error: ' + insertError.message);
+          }
+          return;
+        }
+
         closeModal('paymentModal');
+
         document.getElementById('verificationModal').classList.remove('hidden');
+        document.getElementById('verificationModal').classList.add('flex');
+
+      } catch (err) {
+        console.error('Deposit submission error:', err);
+        alert('Unable to submit your deposit request. Please try again.');
+      } finally {
+        isSubmitting = false;
+        btn.disabled = false;
+        btn.innerText = 'Submit Request';
       }
     }
 
