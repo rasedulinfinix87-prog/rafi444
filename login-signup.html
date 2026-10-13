@@ -99,10 +99,10 @@
       btn.innerText = "Logging in...";
 
       try {
-        // Find profile by phone number or game id
+        // Find user by phone number or game id from profiles table
         const { data: profileData, error: profileError } = await supabaseClient
           .from('profiles')
-          .select('*')
+          .select('id')
           .or(`phone_number.eq.${identifier},user_game_id.eq.${identifier}`)
           .maybeSingle();
 
@@ -110,19 +110,39 @@
           throw new Error("ভুল Game ID বা Phone Number দেওয়া হয়েছে!");
         }
 
-        // Use the mapped internal system email for auth sign-in
-        const systemEmail = `${profileData.phone_number}@gameportal.local`;
+        // Fetch corresponding auth email using user id or we can query profiles to link. 
+        // Note: Supabase sign-in usually requires email. Since user logs in with phone/game id, 
+        // we can store a pseudo-email like `phone@gameportal.local` during signup, or query it securely.
+        // Let's assume we map phone to a unique system email format during registration: `98xxxxxxxx@gameportal.com`
+        const systemEmail = `${identifier}@gameportal.local`;
+        
+        // Alternatively, fetch email from auth or query profiles if email is stored. 
+        // Let's query profiles table for the email if we store it, or construct the email format:
+        // Better approach: store email in profiles or query auth mapping. Let's look up profile with email column if available, 
+        // or sign in directly with constructed email if phone was used.
+        
+        let loginEmail = identifier;
+        if (!identifier.includes('@')) {
+          // It's a phone or game id, let's find the exact user email mapped to it
+          const { data: fullProfile } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .or(`phone_number.eq.${identifier},user_game_id.eq.${identifier}`)
+            .single();
+
+            if (fullProfile) {
+              loginEmail = fullProfile.email || `${fullProfile.phone_number}@gameportal.local`;
+            }
+        }
 
         const { data, error } = await supabaseClient.auth.signInWithPassword({ 
-          email: systemEmail, 
+          email: loginEmail, 
           password 
         });
 
-        if (error) {
-          throw new Error("ভুল Password অথবা অ্যাকাউন্ট পাওয়া যায়নি!");
-        }
+        if (error) throw new Error("ভুল Password অথবা অ্যাকাউন্ট পাওয়া যায়নি!");
 
-        window.location.href = "index.html";
+        window.location.href = "../index.html";
       } catch (err) {
         showAlert(err.message);
         btn.disabled = false;
@@ -155,7 +175,7 @@
 
       try {
         // Validation 3: Check if phone number already exists in profiles
-        const { data: existingUser } = await supabaseClient
+        const { data: existingUser, error: checkError } = await supabaseClient
           .from('profiles')
           .select('phone_number')
           .eq('phone_number', phone)
@@ -167,7 +187,7 @@
 
         btn.innerText = "Creating Account...";
         
-        // Generate unique Game ID and system email mapping
+        // Generate unique Game ID
         const userGameId = generateGameId();
         const systemEmail = `${phone}@gameportal.local`;
 
@@ -178,7 +198,8 @@
             data: {
               full_name: fullName,
               phone_number: phone,
-              user_game_id: userGameId
+              user_game_id: userGameId,
+              email: systemEmail
             }
           }
         });
@@ -187,7 +208,7 @@
 
         showAlert("Account created successfully! Redirecting...", true);
         setTimeout(() => {
-          window.location.href = "index.html";
+          window.location.href = "../index.html";
         }, 1500);
 
       } catch (err) {
