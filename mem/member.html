@@ -23,18 +23,18 @@
     .menu-row + .menu-row { border-top: 1px solid rgba(210,220,220,.075); }
     .menu-icon { width: 24px; flex: 0 0 24px; color: #b5c0c2; text-align: center; font-size: 19px; }
     .menu-label { color: #f4f6f6; font-size: 15px; font-weight: 650; flex: 1; }
-    .chevron-box { width: 35px; height: 35px; border-radius: 9px; background: #414a4c; color: #c9d1d2; display: flex; align-items: center; justify-content: center; font-size: 17px; }
+    .chevron-box { width: 35px; height: 35px; border-radius: 9px; background: #414a4c; color: #c9d1d2; display: flex; align-items: center; justify-content: center; font-size: 15px; }
     .shortcut { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 78px; border-radius: 10px; color: #f4f6f6; font-size: 12px; font-weight: 650; }
     .shortcut i { color: #b8c3c4; font-size: 23px; }
     .shortcut:active, .menu-row:active { background: rgba(255,255,255,.045); }
-    .toggle { width: 58px; height: 34px; padding: 4px; border-radius: 20px; background: #252c2d; display: flex; align-items: center; transition: background .2s; }
-    .toggle-dot { width: 25px; height: 25px; border-radius: 50%; background: #818b8d; box-shadow: 0 1px 3px #1118; transition: transform .2s, background .2s; }
-    .toggle.active { background: #20d995; }
-    .toggle.active .toggle-dot { background: white; transform: translateX(24px); }
     .theme-switch { display:flex; align-items:center; padding:3px; background:#252b2c; border-radius:12px; }
     .theme-switch button { width:46px; height:42px; border-radius:10px; color:#899394; }
     .theme-switch button.active { background:#41494a; color:#fff; box-shadow:0 1px 3px #1116; }
-    .ref-link { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; color:#20df98; }
+    .avatar-button { cursor:pointer; }
+    .avatar-button:focus-visible { outline:2px solid #34d399; outline-offset:3px; }
+    .avatar-option { border:1px solid #485052; border-radius:13px; background:#252c2d; padding:10px 5px; display:flex; flex-direction:column; align-items:center; gap:7px; color:#f4f6f6; font-size:12px; font-weight:700; }
+    .avatar-option.selected { border-color:#34d399; background:#173d32; box-shadow:0 0 0 1px #34d399 inset; }
+    .avatar-option img { width:54px; height:54px; border-radius:50%; background:#303738; }
     body.light-mode { background:#edf1f1; color:#182020; }
     body.light-mode .menu-card, body.light-mode .profile-card-bg { background:#fff; border-color:#dce3e3; }
     body.light-mode .menu-label, body.light-mode .shortcut { color:#1c2525; }
@@ -43,6 +43,9 @@
     body.light-mode .chevron-box { background:#edf1f1; color:#566162; }
     body.light-mode .theme-switch { background:#e6ebeb; }
     body.light-mode .theme-switch button.active { background:#fff; color:#263030; }
+    body.light-mode .avatar-option { background:#f3f6f6; color:#1c2525; border-color:#dce3e3; }
+    body.light-mode .avatar-option.selected { background:#dcfce7; border-color:#059669; }
+    body.light-mode #avatarModal > div { background:#fff; color:#1c2525; }
   </style>
 </head>
 
@@ -52,36 +55,34 @@
     <!-- Top Header -->
     <header class="flex items-center justify-between px-4 py-3 bg-[#292f30]/95 backdrop-blur-md sticky top-0 z-40 border-b border-white/5">
       <a href="../index.html" class="p-2 text-gray-300 hover:text-white transition" aria-label="Back">
-        <i class="fa-solid fa-chevron-left text-lg"></i>
+        <i class="fa-solid fa-arrow-left text-lg"></i>
       </a>
-      <h1 class="text-base font-bold text-white tracking-wide">User</h1>
+      <h1 class="text-base font-bold text-white tracking-wide">My Account</h1>
       <div class="w-8"></div>
     </header>
 
     <main class="px-3 py-3 flex-1 flex flex-col gap-4">
 
-      <!-- Profile & Account Status Card (kept from original file) -->
+      <!-- Profile & Account Status Card -->
       <div class="profile-card-bg border border-white/5 text-white rounded-2xl p-4 shadow-xl relative overflow-hidden">
         <div class="absolute -right-4 -bottom-4 text-white/5 text-8xl pointer-events-none">
           <i class="fa-solid fa-crown"></i>
         </div>
 
         <div class="flex items-center gap-3">
-          <div class="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#222a2b] shrink-0 flex items-center justify-center">
-            <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=gameuser" alt="Profile" class="w-full h-full object-cover">
-          </div>
+          <button type="button" class="avatar-button relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#222a2b] shrink-0 flex items-center justify-center" onclick="openAvatarPicker()" aria-label="Choose avatar" title="Choose avatar">
+            <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=male" alt="Selected avatar" class="w-full h-full object-cover">
+            <span class="absolute inset-0 bg-black/0 hover:bg-black/20 flex items-center justify-center"><i class="fa-solid fa-pen text-white text-xs opacity-0 hover:opacity-100"></i></span>
+          </button>
           <div class="flex flex-col gap-1 min-w-0">
             <span class="bg-[#252c2d] text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/20 w-fit">
               <i class="fa-solid fa-crown text-[9px] mr-1"></i> VIP 1
             </span>
             <span id="userName" class="font-extrabold text-sm text-white truncate">Loading...</span>
-            <div class="flex items-center gap-1.5">
-              <span class="text-[11px] text-slate-400 font-medium">ID: <span id="userGameId" class="text-emerald-400 font-bold">----</span></span>
-              <button onclick="copyGameId()" class="text-slate-400 hover:text-white text-xs" aria-label="Copy game ID">
-                <i class="fa-solid fa-copy"></i>
-              </button>
-            </div>
             <span id="userJoined" class="text-[10px] text-slate-400 font-semibold">Joined: ----</span>
+            <button type="button" onclick="openAvatarPicker()" class="text-left text-[11px] text-emerald-400 font-semibold mt-0.5">
+              <i class="fa-solid fa-user-pen mr-1"></i> Change Avatar
+            </button>
           </div>
         </div>
 
@@ -90,7 +91,7 @@
             <span class="text-lg font-bold text-emerald-400">৳</span>
             <span id="userBalance" class="text-2xl font-black text-emerald-400 tracking-tight">0.00</span>
           </div>
-          <button onclick="syncMemberBalance()" class="text-slate-400 hover:text-white text-sm p-2 transition" aria-label="Refresh balance">
+          <button type="button" onclick="syncMemberBalance()" class="text-slate-400 hover:text-white text-sm p-2 transition" aria-label="Refresh balance">
             <i class="fa-solid fa-rotate-right" id="refreshIcon"></i>
           </button>
         </div>
@@ -108,40 +109,23 @@
         </div>
       </div>
 
-      <!-- Shortcut card inspired by the supplied reference image -->
+      <!-- Account shortcuts: Buy and Swap removed -->
       <section class="menu-card px-3 py-3">
         <div class="grid grid-cols-4 gap-x-1 gap-y-2">
-          <a href="../account/deposit.html" class="shortcut"><i class="fa-brands fa-bitcoin"></i><span>Buy</span></a>
-          <a href="../account/swap.html" class="shortcut"><i class="fa-solid fa-arrows-rotate"></i><span>Swap</span></a>
           <a href="../account/vault.html" class="shortcut"><i class="fa-solid fa-vault"></i><span>Vault Pro</span></a>
-          <a href="../account/transactions.html" class="shortcut"><i class="fa-solid fa-file-invoice-dollar"></i><span>Transaction</span></a>
+          <a href="../account/transactions.html" class="shortcut"><i class="fa-solid fa-receipt"></i><span>Transaction</span></a>
           <a href="../account/rollover.html" class="shortcut"><i class="fa-solid fa-chart-column"></i><span>Rollover</span></a>
-          <a href="../account/bet-history.html" class="shortcut"><i class="fa-regular fa-clock"></i><span>Bet History</span></a>
+          <a href="../account/bet-history.html" class="shortcut"><i class="fa-solid fa-clock-rotate-left"></i><span>Bet History</span></a>
           <a href="../account/free-plays.html" class="shortcut"><i class="fa-solid fa-coins"></i><span>Free Plays</span></a>
         </div>
       </section>
 
-      <!-- Notifications and referrals list -->
+      <!-- Notifications -->
       <section class="menu-card">
-        <button type="button" id="dndButton" class="menu-row" onclick="toggleDnd()" aria-pressed="false">
-          <i class="menu-icon fa-solid fa-volume-low"></i>
-          <span class="menu-label">Do Not Disturb</span>
-          <span id="dndToggle" class="toggle"><span class="toggle-dot"></span></span>
-        </button>
         <a href="../account/notifications.html" class="menu-row">
-          <i class="menu-icon fa-solid fa-bell"></i>
+          <i class="menu-icon fa-regular fa-bell"></i>
           <span class="menu-label">Notification</span>
           <span class="bg-emerald-400 text-[#062018] text-xs font-black rounded-full px-2 py-0.5">10</span>
-          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
-        </a>
-        <a href="../account/refer-and-earn.html" class="menu-row">
-          <i class="menu-icon fa-solid fa-file-circle-plus"></i>
-          <span class="menu-label">Refer and Earn</span>
-          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
-        </a>
-        <a href="../account/referral.html" class="menu-row">
-          <i class="menu-icon fa-solid fa-atom"></i>
-          <span class="menu-label">Referral</span>
           <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
         </a>
       </section>
@@ -155,19 +139,13 @@
           <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
         </a>
         <button type="button" class="menu-row" onclick="cycleLanguage()">
-          <i class="menu-icon fa-solid fa-globe"></i>
+          <i class="menu-icon fa-solid fa-language"></i>
           <span class="menu-label">Language</span>
           <span id="languageValue" class="text-sm text-slate-300 mr-1">English</span>
           <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
         </button>
-        <button type="button" class="menu-row" onclick="cycleCurrency()">
-          <i class="menu-icon fa-solid fa-circle-dollar-to-slot"></i>
-          <span class="menu-label">Currency</span>
-          <span id="currencyValue" class="text-sm text-slate-300 mr-1">BDT</span>
-          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
-        </button>
         <div class="menu-row">
-          <i class="menu-icon fa-solid fa-arrow-right-arrow-left"></i>
+          <i class="menu-icon fa-solid fa-palette"></i>
           <span class="menu-label">Theme</span>
           <div class="theme-switch">
             <button id="darkThemeBtn" type="button" class="active" onclick="setTheme('dark')" aria-label="Dark theme"><i class="fa-solid fa-moon"></i></button>
@@ -176,27 +154,10 @@
         </div>
       </section>
 
-      <!-- Referral link card -->
-      <section class="menu-card p-3 flex items-center gap-3">
-        <div class="w-16 h-16 shrink-0 flex items-center justify-center">
-          <div class="text-purple-300 text-5xl relative">
-            <i class="fa-solid fa-gift"></i>
-            <i class="fa-solid fa-dollar-sign absolute -right-1 bottom-0 text-emerald-400 text-lg"></i>
-          </div>
-        </div>
-        <div class="min-w-0 flex-1">
-          <p class="text-sm text-slate-300 font-semibold leading-6">Referral &amp; get <span class="text-white font-extrabold">BDT 123,038.66 + 25% commission</span></p>
-          <div class="mt-2 flex items-center gap-2 bg-[#252c2d] border border-white/5 rounded-xl p-1.5">
-            <span id="referralLink" class="ref-link text-sm pl-2 flex-1">Loading referral link...</span>
-            <button type="button" onclick="copyReferralLink()" class="bg-[#3b4445] text-white rounded-lg px-3 py-2 text-sm font-semibold">Copy</button>
-          </div>
-        </div>
-      </section>
-
       <!-- Support row -->
       <section class="menu-card">
         <a href="../account/support.html" class="menu-row">
-          <i class="menu-icon fa-regular fa-life-ring text-emerald-400"></i>
+          <i class="menu-icon fa-solid fa-headset text-emerald-400"></i>
           <span class="menu-label">Live Support</span>
           <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
         </a>
@@ -209,8 +170,79 @@
     </footer>
   </div>
 
+  <!-- Avatar Picker Modal -->
+  <div id="avatarModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="avatarModalTitle" onclick="if(event.target===this) closeAvatarPicker()">
+    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-[#303738] p-4 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="avatarModalTitle" class="text-base font-extrabold">Choose Your Avatar</h2>
+        <button type="button" onclick="closeAvatarPicker()" class="w-9 h-9 rounded-lg bg-[#414a4c] text-white" aria-label="Close avatar picker"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <button type="button" class="avatar-option" data-avatar="male" onclick="selectAvatar('male')">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=male&top=shortHair" alt="Male avatar"><span>Male</span>
+        </button>
+        <button type="button" class="avatar-option" data-avatar="female" onclick="selectAvatar('female')">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=female&top=longHair" alt="Female avatar"><span>Female</span>
+        </button>
+        <button type="button" class="avatar-option" data-avatar="queen" onclick="selectAvatar('queen')">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=queen& accessories=round" alt="Queen avatar"><span>Queen</span>
+        </button>
+        <button type="button" class="avatar-option" data-avatar="king" onclick="selectAvatar('king')">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=king&top=hat" alt="King avatar"><span>King</span>
+        </button>
+        <button type="button" class="avatar-option" data-avatar="rockman" onclick="selectAvatar('rockman')">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=rockman" alt="Rockman avatar"><span>Rockman</span>
+        </button>
+      </div>
+      <p class="text-xs text-slate-400 mt-3">Your selection is saved on this device.</p>
+      <button type="button" onclick="closeAvatarPicker()" class="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-[#062018]">Done</button>
+    </div>
+  </div>
+
   <script>
-    // Load member profile and balance. Recent Transactions logic has been removed.
+    const AVATAR_URLS = {
+      male: 'https://api.dicebear.com/7.x/avataaars/svg?seed=male&top=shortHair',
+      female: 'https://api.dicebear.com/7.x/avataaars/svg?seed=female&top=longHair',
+      queen: 'https://api.dicebear.com/7.x/avataaars/svg?seed=queen&accessories=round',
+      king: 'https://api.dicebear.com/7.x/avataaars/svg?seed=king&top=hat',
+      rockman: 'https://api.dicebear.com/7.x/bottts/svg?seed=rockman'
+    };
+
+    function applySavedAvatar() {
+      let selected = 'male';
+      try {
+        const saved = localStorage.getItem('selected_account_avatar');
+        if (saved && Object.prototype.hasOwnProperty.call(AVATAR_URLS, saved)) selected = saved;
+      } catch (e) {}
+      document.getElementById('userAvatar').src = AVATAR_URLS[selected];
+      document.querySelectorAll('.avatar-option').forEach(option => {
+        option.classList.toggle('selected', option.dataset.avatar === selected);
+      });
+    }
+
+    function openAvatarPicker() {
+      applySavedAvatar();
+      const modal = document.getElementById('avatarModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeAvatarPicker() {
+      const modal = document.getElementById('avatarModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function selectAvatar(type) {
+      if (!Object.prototype.hasOwnProperty.call(AVATAR_URLS, type)) return;
+      document.getElementById('userAvatar').src = AVATAR_URLS[type];
+      document.querySelectorAll('.avatar-option').forEach(option => {
+        option.classList.toggle('selected', option.dataset.avatar === type);
+      });
+      try { localStorage.setItem('selected_account_avatar', type); } catch (e) {}
+    }
+
+    // Load member profile and balance. Game ID and referral logic removed.
     async function syncMemberBalance() {
       const refreshIcon = document.getElementById('refreshIcon');
       if (refreshIcon) refreshIcon.classList.add('fa-spin');
@@ -236,13 +268,8 @@
           if (profile) {
             if (profile.full_name) {
               document.getElementById('userName').innerText = profile.full_name;
-              document.getElementById('userAvatar').src =
-                `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile.full_name)}`;
-            }
-            if (profile.user_game_id) {
-              document.getElementById('userGameId').innerText = profile.user_game_id;
-            } else if (profile.id) {
-              document.getElementById('userGameId').innerText = String(profile.id).slice(0, 8).toUpperCase();
+            } else {
+              document.getElementById('userName').innerText = 'Member';
             }
             if (profile.balance !== undefined && profile.balance !== null) {
               document.getElementById('userBalance').innerText = parseFloat(profile.balance).toFixed(2);
@@ -251,9 +278,6 @@
               const date = new Date(profile.created_at).toISOString().split('T')[0];
               document.getElementById('userJoined').innerText = `Joined: ${date}`;
             }
-            const referralCode = profile.user_game_id || profile.id || currentUserObj.id || '';
-            document.getElementById('referralLink').textContent =
-              `${window.location.origin}/i-${encodeURIComponent(String(referralCode))}`;
           }
         } else {
           console.error('supabaseClient was not found. Check ../supabase-config.js');
@@ -261,37 +285,8 @@
       } catch (err) {
         console.error('Member sync error:', err);
       } finally {
-        if (refreshIcon) setTimeout(() => refreshIcon.classList.remove('fa-spin'), 600);
+        if (refreshIcon) refreshIcon.classList.remove('fa-spin');
       }
-    }
-
-    async function copyGameId() {
-      const gameId = document.getElementById('userGameId').innerText;
-      if (!gameId || gameId === '----') return;
-      try {
-        await navigator.clipboard.writeText(gameId);
-        alert('Game ID copied to clipboard!');
-      } catch (err) {
-        prompt('Copy your Game ID:', gameId);
-      }
-    }
-
-    async function copyReferralLink() {
-      const link = document.getElementById('referralLink').textContent.trim();
-      if (!link || link === 'Loading referral link...') return;
-      try {
-        await navigator.clipboard.writeText(link);
-        alert('Referral link copied!');
-      } catch (err) {
-        prompt('Copy your referral link:', link);
-      }
-    }
-
-    function toggleDnd() {
-      const button = document.getElementById('dndButton');
-      const toggle = document.getElementById('dndToggle');
-      const active = toggle.classList.toggle('active');
-      button.setAttribute('aria-pressed', String(active));
     }
 
     function setTheme(theme) {
@@ -306,13 +301,10 @@
       el.textContent = el.textContent === 'English' ? 'বাংলা' : 'English';
     }
 
-    function cycleCurrency() {
-      const el = document.getElementById('currencyValue');
-      const options = ['BDT', 'USD'];
-      el.textContent = options[(options.indexOf(el.textContent) + 1) % options.length];
-    }
-
-    document.addEventListener('DOMContentLoaded', syncMemberBalance);
+    document.addEventListener('DOMContentLoaded', () => {
+      applySavedAvatar();
+      syncMemberBalance();
+    });
   </script>
 </body>
 </html>
