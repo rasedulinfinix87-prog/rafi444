@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>BC Game Style Coin Flip</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: #0f141c;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #0f141c;
+      color: #ffffff;
+      font-family: sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    }
+
+    .bc-main-wrapper {
+      background: #171d28;
+      border: 1px solid #222b3a;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .bc-divider {
+      height: 1px;
+      background-color: #222b3a;
+      width: 100%;
+    }
+
+    .bc-input-box {
+      background: #0f141c;
+      border: 1px solid #222b3a;
+      border-radius: 10px;
+    }
+    .bc-input-box:focus-within {
+      border-color: #24ee89;
+    }
+
+    .green-btn {
+      background: #24ee89;
+      color: #0f141c;
+      font-weight: 800;
+    }
+    .green-btn:hover {
+      background: #1ed67a;
+    }
+
+    /* Coin 3D Flip Styles */
+    .coin-container {
+      perspective: 1000px;
+      width: 130px;
+      height: 130px;
+    }
+
+    .coin {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .coin-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 15px rgba(255,255,255,0.3);
+      border: 4px solid #f59e0b;
+    }
+
+    .coin-heads {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .coin-tails {
+      background: linear-gradient(135deg, #94a3b8, #64748b);
+      border-color: #cbd5e1;
+      transform: rotateY(180deg);
+    }
+
+    @keyframes flipHeads {
+      0% { transform: rotateY(0); }
+      100% { transform: rotateY(1800deg); }
+    }
+
+    @keyframes flipTails {
+      0% { transform: rotateY(0); }
+      100% { transform: rotateY(1980deg); }
+    }
+
+    .flipping-heads {
+      animation: flipHeads 1s forwards;
+    }
+
+    .flipping-tails {
+      animation: flipTails 1s forwards;
+    }
+
+    #topBarContainer {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      width: 100%;
+    }
+
+    #bottomBarContainer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 5000;
+      isolation: isolate;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    ::-webkit-scrollbar {
+      height: 4px;
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f141c;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #222b3a;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body class="bg-[#0f141c] text-white font-sans min-h-screen flex flex-col items-center justify-between p-0 select-none">
+
+  <!-- Top Bar Container -->
+  <div id="topBarContainer" class="w-full max-w-2xl sticky top-0 z-50"></div>
+
+  <div class="w-full max-w-2xl flex flex-col justify-between overflow-x-hidden my-2 pb-24 px-2 sm:px-4">
+    <main class="flex flex-col gap-3 flex-1">
+      
+      <!-- Main Game Wrapper Card -->
+      <div class="bc-main-wrapper flex flex-col shadow-xl">
+        
+        <!-- Game Screen Area -->
+        <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-8">
+          
+          <!-- History Bar -->
+          <div class="absolute top-2 left-3 right-2 flex items-center justify-between z-30 pb-1 pr-1">
+            <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-2">
+              <!-- Dynamically populated history badges -->
+            </div>
+          </div>
+
+          <!-- Coin Container -->
+          <div class="coin-container my-auto z-20">
+            <div id="coinElement" class="coin">
+              <!-- Heads Face -->
+              <div class="coin-face coin-heads">
+                <div class="w-20 h-20 rounded-full bg-red-600 flex items-center justify-center border-2 border-yellow-300 shadow-inner overflow-hidden">
+                  <i class="fa-solid fa-dragon text-3xl text-yellow-300"></i>
+                </div>
+              </div>
+              <!-- Tails Face -->
+              <div class="coin-face coin-tails">
+                <div class="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center border-2 border-slate-300 shadow-inner overflow-hidden">
+                  <i class="fa-solid fa-coins text-3xl text-slate-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Result Subtext -->
+          <div class="absolute bottom-2 text-xs text-gray-400 font-semibold" id="gameStatusText">
+            Pick a side and flip!
+          </div>
+        </div>
+
+        <div class="bc-divider"></div>
+
+        <!-- Game Controls Section -->
+        <div class="p-4 flex flex-col gap-3.5 bg-[#171d28]">
+          
+          <!-- Choice Selector (Heads / Tails) -->
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="selectChoice('heads')" id="btnHeads" class="py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition">
+              <div class="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-[10px]"><i class="fa-solid fa-dragon"></i></div>
+              <span>Heads (Coco)</span>
+            </button>
+            <button onclick="selectChoice('tails')" id="btnTails" class="py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition">
+              <div class="w-5 h-5 rounded-full bg-slate-500 flex items-center justify-center text-[10px]"><i class="fa-solid fa-coins"></i></div>
+              <span>Tails (Coin)</span>
+            </button>
+          </div>
+
+          <!-- Bet Amount Controls -->
+          <div class="flex flex-col gap-1">
+            <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+              <span>Amount (৳)</span>
+              <span class="text-gray-400 text-[10px]">Min: 1 ৳</span>
+            </div>
+            <div class="flex items-center bc-input-box p-1">
+              <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
+              <input type="number" id="betAmount" value="1" min="0" step="1" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
+              
+              <div class="flex items-center gap-1">
+                <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
+                <button onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
+                <button onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-[#F5CF66] transition">Max</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <button id="btnAction" onclick="handleFlip()" class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
+            <span>Flip Coin</span>
+          </button>
+
+          <!-- Demo Mode Info -->
+          <div class="text-center text-[11px] text-gray-400">
+            ℹ Betting with 0 will enter demo mode.
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Bottom Bar Container -->
+  <div id="bottomBarContainer" class="w-full max-w-2xl fixed bottom-0 z-50"></div>
+
+  <script>
+    let currentUserId = null;
+    let balance = 0.00;
+    let selectedChoice = 'heads'; // 'heads' or 'tails'
+    let isFlipping = false;
+    let previousResults = JSON.parse(localStorage.getItem('bc_coin_history')) || ['heads', 'tails', 'heads', 'heads', 'tails'];
+
+    // Helper for generating standard UUID for mobile compatibility
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    async function loadBars() {
+      try {
+        const topRes = await fetch('../bar/top.html');
+        if (topRes.ok) {
+          document.getElementById('topBarContainer').innerHTML = await topRes.text();
+          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+            a.href = '../account/deposit.html';
+          });
+        }
+
+        const botRes = await fetch('../bar/bottom.html');
+        if (botRes.ok) {
+          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+        }
+      } catch (e) { console.error('Bar load error:', e); }
+    }
+
+    async function initCoinFlipGame() {
+      await loadBars();
+      renderHistoryBar();
+
+      if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
+        const user = await getCurrentUser();
+        if (user) {
+          currentUserId = user.id;
+          
+          const { data: profile } = await supabaseClient.from('profiles').select('balance').eq('id', user.id).single();
+          if (profile) {
+            balance = parseFloat(profile.balance) || 0;
+            updateBalanceUI();
+          }
+
+          supabaseClient
+            .channel('coin-profile-channel')
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` }, (payload) => {
+              if (payload.new && payload.new.balance !== undefined) {
+                balance = parseFloat(payload.new.balance) || 0;
+                updateBalanceUI();
+              }
+            })
+            .subscribe();
+        }
+      }
+    }
+
+    function updateBalanceUI() {
+      const topBal1 = document.getElementById('topBarBalance');
+      const topBal2 = document.getElementById('userBalance');
+      
+      if (topBal1) topBal1.innerText = balance.toFixed(2);
+      if (topBal2) topBal2.innerText = `৳ ${balance.toFixed(2)}`;
+    }
+
+    function selectChoice(choice) {
+      if (isFlipping) return;
+      selectedChoice = choice;
+      const btnHeads = document.getElementById('btnHeads');
+      const btnTails = document.getElementById('btnTails');
+
+      if (choice === 'heads') {
+        btnHeads.className = "py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition";
+        btnTails.className = "py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition";
+      } else {
+        btnTails.className = "py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition";
+        btnHeads.className = "py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition";
+      }
+    }
+
+    function modifyBet(type) {
+      let current = parseFloat(document.getElementById('betAmount').value) || 0;
+      if (type === 'half') {
+        document.getElementById('betAmount').value = Math.max(0, Math.floor(current / 2));
+      } else if (type === 'double') {
+        document.getElementById('betAmount').value = Math.floor(current * 2);
+      } else if (type === 'max') {
+        document.getElementById('betAmount').value = Math.floor(balance);
+      }
+    }
+
+    function renderHistoryBar() {
+      const historyContainer = document.getElementById('historyBar');
+      if (!historyContainer) return;
+      historyContainer.innerHTML = '';
+
+      previousResults.slice(-10).reverse().forEach(res => {
+        let badge = document.createElement('span');
+        if (res === 'heads') {
+          badge.className = "px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30";
+          badge.innerText = "Heads (1.96x)";
+        } else {
+          badge.className = "px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-500/20 text-slate-300 border border-slate-500/30";
+          badge.innerText = "Tails (1.96x)";
+        }
+        historyContainer.appendChild(badge);
+      });
+      localStorage.setItem('bc_coin_history', JSON.stringify(previousResults));
+    }
+
+    async function handleFlip() {
+      if (isFlipping) return;
+
+      let betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
+      if (betAmount > 0 && betAmount > balance) {
+        alert("পর্যাপ্ত ব্যালেন্স নেই!");
+        return;
+      }
+
+      isFlipping = true;
+      const btn = document.getElementById('btnAction');
+      const statusText = document.getElementById('gameStatusText');
+      btn.disabled = true;
+      btn.innerText = "Flipping...";
+      statusText.innerText = "Coin is flipping...";
+
+      if (betAmount > 0) {
+        balance -= betAmount;
+        updateBalanceUI();
+        if (currentUserId && typeof supabaseClient !== 'undefined') {
+          await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+        }
+      }
+
+      // Randomly determine outcome: 'heads' or 'tails'
+      let outcome = Math.random() < 0.5 ? 'heads' : 'tails';
+      let coin = document.getElementById('coinElement');
+
+      // Reset animation class
+      coin.classList.remove('flipping-heads', 'flipping-tails');
+      void coin.offsetWidth; // trigger reflow
+
+      if (outcome === 'heads') {
+        coin.classList.add('flipping-heads');
+      } else {
+        coin.classList.add('flipping-tails');
+      }
+
+      setTimeout(async () => {
+        let isWin = (selectedChoice === outcome);
+        let multiplier = 1.96;
+        let payoutAmount = isWin && betAmount > 0 ? (betAmount * multiplier) : 0;
+
+        if (isWin && betAmount > 0) {
+          balance += payoutAmount;
+          updateBalanceUI();
+          statusText.innerHTML = `<span class="text-[#24ee89] font-bold">You Won ৳ ${payoutAmount.toFixed(2)}!</span>`;
+        } else {
+          statusText.innerHTML = `<span class="text-red-500 font-bold">You Lost!</span>`;
+        }
+
+        previousResults.push(outcome);
+        if (previousResults.length > 30) previousResults.shift();
+        renderHistoryBar();
+
+        if (currentUserId && betAmount > 0 && typeof supabaseClient !== 'undefined') {
+          const insertData = {
+            id: generateUUID(),
+            user_id: currentUserId,
+            target_number: selectedChoice === 'heads' ? 1 : 2,
+            roll_result: outcome === 'heads' ? 1 : 2,
+            bet_amount: betAmount,
+            payout: payoutAmount,
+            is_bool: isWin
+          };
+
+          await supabaseClient.from('bets').insert([insertData]);
+          await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+        }
+
+        isFlipping = false;
+        btn.disabled = false;
+        btn.innerText = "Flip Coin";
+      }, 1000);
+    }
+
+    window.onload = initCoinFlipGame;
+  </script>
+</body>
+</html>
