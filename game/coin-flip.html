@@ -465,8 +465,93 @@
           </button>
 
         </div>
+
+        <div class="bc-divider"></div>
+
+        <!-- Bottom Action Bar Inside Wrapper -->
+        <div class="flex items-center justify-between px-4 py-2.5 text-gray-400 text-sm bg-[#171d28]">
+          <button onclick="toggleSettingsModal()" class="hover:text-[#24ee89] p-1.5" title="Settings">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+
+          <button class="flex items-center gap-1.5 hover:text-[#24ee89] p-1.5" title="Rating">
+            <i class="fa-solid fa-star text-xs text-[#24ee89]"></i>
+            <span class="text-xs font-semibold">12543</span>
+          </button>
+
+          <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-[#24ee89] p-1.5 flex items-center gap-1" title="Turbo Mode">
+            <i id="turboIcon" class="fa-solid fa-bolt text-gray-400"></i>
+            <span id="turboText" class="text-[10px] font-bold">OFF</span>
+          </button>
+
+          <button onclick="toggleLiveStatsModal()" class="hover:text-[#24ee89] p-1.5" title="Live Stats">
+            <i class="fa-solid fa-chart-simple"></i>
+          </button>
+        </div>
+
       </div>
     </main>
+  </div>
+
+  <!-- Settings Bottom Sheet Modal -->
+  <div id="settingsModal" class="fixed inset-0 bg-black/60 z-[6000] hidden flex items-end justify-center backdrop-blur-sm">
+    <div class="bc-main-wrapper w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 bg-[#171d28] border-t border-[#222b3a]">
+      <div class="flex justify-between items-center pb-2 border-b border-[#222b3a]">
+        <span class="font-bold text-white">Settings</span>
+        <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
+        <i class="fa-regular fa-circle-question w-5 text-[#24ee89]"></i> Help
+      </button>
+
+      <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-sm text-[#24ee89]">
+        <span class="flex items-center gap-3"><i class="fa-solid fa-volume-high w-5"></i> Sound Effects</span>
+        <span id="soundStatusText" class="text-xs font-bold">ON</span>
+      </button>
+
+      <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
+        <i class="fa-solid fa-seedling w-5 text-[#24ee89]"></i> Seed
+      </button>
+
+      <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
+        <i class="fa-solid fa-share-nodes w-5 text-[#24ee89]"></i> Share
+      </button>
+    </div>
+  </div>
+
+  <!-- Live Stats Modal -->
+  <div id="liveStatsModal" class="fixed inset-0 bg-black/60 z-[6000] hidden flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bc-main-wrapper w-full max-w-sm rounded-2xl p-4 flex flex-col gap-4 shadow-2xl bg-[#171d28]">
+      <div class="flex justify-between items-center pb-2 border-b border-[#222b3a]">
+        <span class="font-bold text-white text-base">Live Stats</span>
+        <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="bc-input-box p-3 rounded-xl flex flex-col gap-3">
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-gray-400">Profit</span>
+          <span id="statsProfit" class="text-[#24ee89] font-bold">৳ 0.00</span>
+        </div>
+
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-gray-400">Wagered</span>
+          <span id="statsWagered" class="text-white font-bold">৳ 0.00</span>
+        </div>
+
+        <div class="flex justify-between items-center text-sm border-t border-[#222b3a] pt-2">
+          <span class="text-gray-400">WIN: <strong id="statsWin" class="text-white">0</strong></span>
+          <span class="text-gray-400">LOSE: <strong id="statsLose" class="text-white">0</strong></span>
+        </div>
+      </div>
+
+      <div class="bc-input-box p-3 rounded-xl flex flex-col gap-2 h-36 relative overflow-hidden">
+        <span class="text-[11px] text-gray-400">Profit/Loss Graph</span>
+        <div class="flex-1 w-full flex items-end gap-1 overflow-x-auto pt-4" id="statsGraphContainer">
+          <div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- History Modal (More / Less) -->
@@ -513,6 +598,120 @@
     let previousResults = loadSavedHistory();
     let roundToken = 0;
     let showAllHistoryModal = false;
+
+    // Feature Variables (Turbo, Sound, Live Stats)
+    let isTurboOn = false;
+    let isSoundOn = true;
+    let totalWagered = 0;
+    let totalWins = 0;
+    let totalLosses = 0;
+    let totalProfit = 0;
+    let profitHistory = [0];
+
+    function toggleTurbo() {
+      isTurboOn = !isTurboOn;
+      const icon = document.getElementById('turboIcon');
+      const txt = document.getElementById('turboText');
+
+      if (isTurboOn) {
+        icon.className = "fa-solid fa-bolt text-[#24ee89]";
+        txt.innerText = "ON";
+        txt.className = "text-[10px] font-bold text-[#24ee89]";
+      } else {
+        icon.className = "fa-solid fa-bolt text-gray-400";
+        txt.innerText = "OFF";
+        txt.className = "text-[10px] font-bold text-gray-400";
+      }
+    }
+
+    function toggleSoundEffect() {
+      isSoundOn = !isSoundOn;
+      const btn = document.getElementById('soundSettingBtn');
+      const txt = document.getElementById('soundStatusText');
+
+      if (isSoundOn) {
+        btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-sm text-[#24ee89]";
+        txt.innerText = "ON";
+      } else {
+        btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-sm text-gray-400";
+        txt.innerText = "OFF";
+      }
+    }
+
+    async function shareGame() {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Coin Flip Game',
+            text: 'Play this amazing Coin Flip game!',
+            url: window.location.href
+          });
+        } catch (err) {
+          console.log('Share error:', err);
+        }
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('লিংক কপি করা হয়েছে!');
+      }
+    }
+
+    function toggleSettingsModal() {
+      document.getElementById('settingsModal').classList.toggle('hidden');
+    }
+
+    function toggleLiveStatsModal() {
+      document.getElementById('liveStatsModal').classList.toggle('hidden');
+    }
+
+    function updateGraph() {
+      const container = document.getElementById('statsGraphContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (profitHistory.length <= 1) {
+        container.innerHTML = '<div class="w-full text-center text-xs text-gray-500 self-center">No bets yet</div>';
+        return;
+      }
+
+      const maxVal = Math.max(...profitHistory.map(Math.abs), 1);
+
+      profitHistory.forEach((val, idx) => {
+        if (idx === 0) return;
+        const bar = document.createElement('div');
+        const isProfit = val >= 0;
+        const heightPercent = Math.min(Math.max((Math.abs(val) / maxVal) * 45, 10), 100);
+
+        bar.className = `w-3 rounded-sm transition-all ${isProfit ? 'bg-[#24ee89]' : 'bg-[#ed4245]'}`;
+        bar.style.height = heightPercent + '%';
+        bar.title = `Profit: ৳${val.toFixed(2)}`;
+        container.appendChild(bar);
+      });
+
+      container.scrollLeft = container.scrollWidth;
+    }
+
+    function updateLiveStatsUI(profitChange, wagerChange, isWin) {
+      totalWagered += wagerChange;
+      totalProfit += profitChange;
+      if (isWin) {
+        totalWins++;
+      } else {
+        totalLosses++;
+      }
+      profitHistory.push(totalProfit);
+
+      const statsProfit = document.getElementById('statsProfit');
+      const statsWagered = document.getElementById('statsWagered');
+      const statsWin = document.getElementById('statsWin');
+      const statsLose = document.getElementById('statsLose');
+
+      if (statsProfit) statsProfit.innerText = '৳ ' + totalProfit.toFixed(2);
+      if (statsWagered) statsWagered.innerText = '৳ ' + totalWagered.toFixed(2);
+      if (statsWin) statsWin.innerText = totalWins;
+      if (statsLose) statsLose.innerText = totalLosses;
+
+      updateGraph();
+    }
 
     function loadSavedHistory() {
       try {
@@ -694,7 +893,6 @@
 
       historyContainer.innerHTML = '';
 
-      // Show exactly 20 results in the main bar
       previousResults.slice(-20).reverse().forEach(resStr => {
         const badge = document.createElement('span');
         const isCrash = resStr === '0.00x';
@@ -879,6 +1077,8 @@
         outcome === 'heads' ? 'flipping-heads' : 'flipping-tails'
       );
 
+      const flipDelay = isTurboOn ? 300 : 800;
+
       setTimeout(async () => {
         if (thisRound !== roundToken) return;
 
@@ -917,14 +1117,16 @@
           );
 
         } else {
-          // Crash occurred (Lost)
           statusText.innerHTML =
             '<span style="color:#ed4245;font-weight:800">LOST! Better luck next time.</span>';
 
-          // Record 0.00x in history for crash
           previousResults.push('0.00x');
           if (previousResults.length > 50) previousResults.shift();
           renderHistoryBar();
+
+          if (activeBetAmount > 0) {
+            updateLiveStatsUI(-activeBetAmount, activeBetAmount, false);
+          }
 
           if (
             currentUserId &&
@@ -952,7 +1154,7 @@
 
           resetGameUI();
         }
-      }, 800);
+      }, flipDelay);
     }
 
     async function cashOut() {
@@ -972,12 +1174,12 @@
 
       setActionButton('Processing Cash Out...', 'red-btn', true);
 
-      // Record multiplier string in history on manual cash out
       const recordedMultiplierStr = currentMultiplier.toFixed(2) + 'x';
       previousResults.push(recordedMultiplierStr);
       if (previousResults.length > 50) previousResults.shift();
       renderHistoryBar();
 
+      const profit = payoutAmount - activeBetAmount;
       if (activeBetAmount > 0) {
         balance += payoutAmount;
         updateBalanceUI();
@@ -1000,6 +1202,8 @@
 
           return;
         }
+
+        updateLiveStatsUI(profit, activeBetAmount, true);
       }
 
       if (
