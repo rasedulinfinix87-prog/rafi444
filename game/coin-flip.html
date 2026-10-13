@@ -163,10 +163,10 @@
         <!-- Game Screen Area -->
         <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-8">
           
-          <!-- History Bar -->
+          <!-- Dynamic History Bar (Empty Initially, populated on bet) -->
           <div class="absolute top-2 left-3 right-2 flex items-center justify-between z-30 pb-1 pr-1">
             <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-2">
-              <!-- Dynamically populated history badges -->
+              <!-- Populated dynamically when user bets -->
             </div>
           </div>
 
@@ -188,9 +188,10 @@
             </div>
           </div>
 
-          <!-- Result Subtext -->
-          <div class="absolute bottom-2 text-xs text-gray-400 font-semibold" id="gameStatusText">
-            Pick a side and flip!
+          <!-- Result Subtext & Multiplier info -->
+          <div class="absolute bottom-2 flex flex-col items-center gap-0.5">
+            <span class="text-xs text-gray-400 font-semibold" id="gameStatusText">Pick Coin or Flip and start betting!</span>
+            <span class="text-[11px] text-[#24ee89] font-bold" id="currentMultiplierText">Current Payout: 3.13x</span>
           </div>
         </div>
 
@@ -199,15 +200,15 @@
         <!-- Game Controls Section -->
         <div class="p-4 flex flex-col gap-3.5 bg-[#171d28]">
           
-          <!-- Choice Selector (Heads / Tails) -->
+          <!-- User Choice Selector: Coin vs Flip / Heads vs Tails -->
           <div class="grid grid-cols-2 gap-2">
-            <button onclick="selectChoice('heads')" id="btnHeads" class="py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition">
-              <div class="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-[10px]"><i class="fa-solid fa-dragon"></i></div>
-              <span>Heads (Coco)</span>
+            <button onclick="selectUserMode('coin')" id="btnModeCoin" class="py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition" title="User chooses Coin">
+              <i class="fa-solid fa-coins text-[#F5CF66]"></i>
+              <span>Select: Coin</span>
             </button>
-            <button onclick="selectChoice('tails')" id="btnTails" class="py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition">
-              <div class="w-5 h-5 rounded-full bg-slate-500 flex items-center justify-center text-[10px]"><i class="fa-solid fa-coins"></i></div>
-              <span>Tails (Coin)</span>
+            <button onclick="selectUserMode('flip')" id="btnModeFlip" class="py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition" title="User chooses Flip">
+              <i class="fa-solid fa-rotate text-blue-400"></i>
+              <span>Select: Flip</span>
             </button>
           </div>
 
@@ -230,8 +231,8 @@
           </div>
 
           <!-- Action Button -->
-          <button id="btnAction" onclick="handleFlip()" class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
-            <span>Flip Coin</span>
+          <button id="btnAction" onclick="handleBetAndFlip()" class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
+            <span>Bet & Flip</span>
           </button>
 
           <!-- Demo Mode Info -->
@@ -252,11 +253,11 @@
   <script>
     let currentUserId = null;
     let balance = 0.00;
-    let selectedChoice = 'heads'; // 'heads' or 'tails'
+    let userMode = 'coin'; // 'coin' or 'flip'
     let isFlipping = false;
-    let previousResults = JSON.parse(localStorage.getItem('bc_coin_history')) || ['heads', 'tails', 'heads', 'heads', 'tails'];
+    let currentMultiplier = 3.13; // Starts at 3.13x and increases by 3.13% on click/interaction
+    let historyResults = []; // Completely empty initially, populates upon betting
 
-    // Helper for generating standard UUID for mobile compatibility
     function generateUUID() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -284,6 +285,7 @@
     async function initCoinFlipGame() {
       await loadBars();
       renderHistoryBar();
+      updateMultiplierUI();
 
       if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
         const user = await getCurrentUser();
@@ -317,18 +319,27 @@
       if (topBal2) topBal2.innerText = `৳ ${balance.toFixed(2)}`;
     }
 
-    function selectChoice(choice) {
-      if (isFlipping) return;
-      selectedChoice = choice;
-      const btnHeads = document.getElementById('btnHeads');
-      const btnTails = document.getElementById('btnTails');
+    function updateMultiplierUI() {
+      document.getElementById('currentMultiplierText').innerText = `Current Payout: ${currentMultiplier.toFixed(2)}x`;
+    }
 
-      if (choice === 'heads') {
-        btnHeads.className = "py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition";
-        btnTails.className = "py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition";
+    function selectUserMode(mode) {
+      if (isFlipping) return;
+      userMode = mode;
+      
+      // Each click/selection increases multiplier by 3.13%
+      currentMultiplier = parseFloat((currentMultiplier * 1.0313).toFixed(2));
+      updateMultiplierUI();
+
+      const btnCoin = document.getElementById('btnModeCoin');
+      const btnFlip = document.getElementById('btnModeFlip');
+
+      if (mode === 'coin') {
+        btnCoin.className = "py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition";
+        btnFlip.className = "py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition";
       } else {
-        btnTails.className = "py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition";
-        btnHeads.className = "py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition";
+        btnFlip.className = "py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition";
+        btnCoin.className = "py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition";
       }
     }
 
@@ -348,21 +359,20 @@
       if (!historyContainer) return;
       historyContainer.innerHTML = '';
 
-      previousResults.slice(-10).reverse().forEach(res => {
+      historyResults.slice(-10).reverse().forEach(res => {
         let badge = document.createElement('span');
-        if (res === 'heads') {
-          badge.className = "px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30";
-          badge.innerText = "Heads (1.96x)";
+        if (res.isWin) {
+          badge.className = "px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-500/25 text-[#24ee89] border border-emerald-500/40";
+          badge.innerText = `${res.choice.toUpperCase()} (${res.mult.toFixed(2)}x)`;
         } else {
-          badge.className = "px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-500/20 text-slate-300 border border-slate-500/30";
-          badge.innerText = "Tails (1.96x)";
+          badge.className = "px-2.5 py-1 rounded-md text-[10px] font-bold bg-red-500/25 text-red-400 border border-red-500/40";
+          badge.innerText = `${res.choice.toUpperCase()} (${res.mult.toFixed(2)}x)`;
         }
         historyContainer.appendChild(badge);
       });
-      localStorage.setItem('bc_coin_history', JSON.stringify(previousResults));
     }
 
-    async function handleFlip() {
+    async function handleBetAndFlip() {
       if (isFlipping) return;
 
       let betAmount = parseFloat(document.getElementById('betAmount').value) || 0;
@@ -375,54 +385,53 @@
       const btn = document.getElementById('btnAction');
       const statusText = document.getElementById('gameStatusText');
       btn.disabled = true;
-      btn.innerText = "Flipping...";
-      statusText.innerText = "Coin is flipping...";
+      btn.innerText = "Flipping via RNG...";
+      statusText.innerText = "System RNG is processing...";
 
       if (betAmount > 0) {
         balance -= betAmount;
         updateBalanceUI();
         if (currentUserId && typeof supabaseClient !== 'undefined') {
-          await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
+          await supabaseClient.from('profiles').update({ balance: balance }).eq('id', userMode === 'coin' ? currentUserId : currentUserId);
         }
       }
 
-      // Randomly determine outcome: 'heads' or 'tails'
-      let outcome = Math.random() < 0.5 ? 'heads' : 'tails';
+      // RNG System Logic for outcome determination
+      let rngOutcome = Math.random() < 0.5 ? 'coin' : 'flip';
       let coin = document.getElementById('coinElement');
 
-      // Reset animation class
       coin.classList.remove('flipping-heads', 'flipping-tails');
-      void coin.offsetWidth; // trigger reflow
+      void coin.offsetWidth;
 
-      if (outcome === 'heads') {
+      if (rngOutcome === 'coin') {
         coin.classList.add('flipping-heads');
       } else {
         coin.classList.add('flipping-tails');
       }
 
       setTimeout(async () => {
-        let isWin = (selectedChoice === outcome);
-        let multiplier = 1.96;
-        let payoutAmount = isWin && betAmount > 0 ? (betAmount * multiplier) : 0;
+        let isWin = (userMode === rngOutcome);
+        let payoutAmount = isWin && betAmount > 0 ? (betAmount * currentMultiplier) : 0;
 
         if (isWin && betAmount > 0) {
           balance += payoutAmount;
           updateBalanceUI();
-          statusText.innerHTML = `<span class="text-[#24ee89] font-bold">You Won ৳ ${payoutAmount.toFixed(2)}!</span>`;
+          statusText.innerHTML = `<span class="text-[#24ee89] font-bold">Won ৳ ${payoutAmount.toFixed(2)} (${currentMultiplier.toFixed(2)}x)!</span>`;
         } else {
-          statusText.innerHTML = `<span class="text-red-500 font-bold">You Lost!</span>`;
+          statusText.innerHTML = `<span class="text-red-500 font-bold">Lost! RNG resulted in ${rngOutcome.toUpperCase()}</span>`;
         }
 
-        previousResults.push(outcome);
-        if (previousResults.length > 30) previousResults.shift();
+        // Push to history only when user bets and plays
+        historyResults.push({ choice: userMode, outcome: rngOutcome, isWin: isWin, mult: currentMultiplier });
+        if (historyResults.length > 20) historyResults.shift();
         renderHistoryBar();
 
         if (currentUserId && betAmount > 0 && typeof supabaseClient !== 'undefined') {
           const insertData = {
             id: generateUUID(),
             user_id: currentUserId,
-            target_number: selectedChoice === 'heads' ? 1 : 2,
-            roll_result: outcome === 'heads' ? 1 : 2,
+            target_number: userMode === 'coin' ? 1 : 2,
+            roll_result: rngOutcome === 'coin' ? 1 : 2,
             bet_amount: betAmount,
             payout: payoutAmount,
             is_bool: isWin
@@ -432,9 +441,13 @@
           await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
         }
 
+        // Increase multiplier by 3.13% for the next round action
+        currentMultiplier = parseFloat((currentMultiplier * 1.0313).toFixed(2));
+        updateMultiplierUI();
+
         isFlipping = false;
         btn.disabled = false;
-        btn.innerText = "Flip Coin";
+        btn.innerText = "Bet & Flip";
       }, 1000);
     }
 
