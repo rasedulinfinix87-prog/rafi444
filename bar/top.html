@@ -105,32 +105,24 @@
 
         if (!u) {
           try {
-            var raw = localStorage.getItem('current_user');
-            if (raw) {
-              var saved = JSON.parse(raw);
-              if (saved && saved.id) {
-                u = { id: saved.id };
-              }
-            }
+            var { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) u = user;
           } catch (e) {
-            console.warn('Could not read saved user', e);
+            console.warn('Supabase auth getUser failed', e);
           }
         }
 
         if (!u || !u.id) return;
 
-        // গেমের গ্লোবাল স্কোপের জন্য আইডি এবং ব্যালেন্স সেট করে দেওয়া
+        // গেমের গ্লোবাল স্কোপের জন্য আইডি এবং ব্যালেন্স সরাসরি সেট করে দেওয়া
         if (typeof currentUserId !== 'undefined') {
           currentUserId = u.id;
         }
+        window.currentUserId = u.id;
 
-        var r = await supabaseClient.from('profiles').select('balance').eq('id', u.id).maybeSingle();
-        if (r.error) {
-          console.error('Top bar balance query failed:', r.error.message);
-          return;
-        }
-        if (!r.data) {
-          console.error('Top bar profile not found for user:', u.id);
+        var r = await supabaseClient.from('profiles').select('balance, user_game_id').eq('id', u.id).maybeSingle();
+        if (r.error || !r.data) {
+          console.error('Top bar profile query failed:', r.error ? r.error.message : 'Not found');
           return;
         }
 
@@ -140,23 +132,27 @@
         if (typeof balance !== 'undefined') {
           balance = currentFetchedBalance;
         }
+        if (typeof userBalance !== 'undefined') {
+          userBalance = currentFetchedBalance;
+        }
+        window.balance = currentFetchedBalance;
 
         if (activeId !== u.id) {
           if (channel) {
             try { await supabaseClient.removeChannel(channel); } catch (e) {}
           }
           activeId = u.id;
-          channel = supabaseClient.channel('topbar-balance-fallback-' + u.id)
+          channel = supabaseClient.channel('topbar-balance-sync-' + u.id)
             .on(
               'postgres_changes',
               { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'id=eq.' + u.id },
               function(payload) {
-                if (payload.new && payload.new.id === u.id && payload.new.balance !== undefined) {
+                if (payload.new && payload.new.balance !== undefined) {
                   var newBal = Number(payload.new.balance) || 0;
                   window.updateBalanceUI(newBal);
-                  if (typeof balance !== 'undefined') {
-                    balance = newBal;
-                  }
+                  if (typeof balance !== 'undefined') balance = newBal;
+                  if (typeof userBalance !== 'undefined') userBalance = newBal;
+                  window.balance = newBal;
                 }
               }
             )
@@ -177,6 +173,7 @@
         if (event === 'SIGNED_OUT') {
           window.updateBalanceUI(0);
           if (typeof balance !== 'undefined') balance = 0;
+          if (typeof userBalance !== 'undefined') userBalance = 0;
           activeId = null;
           if (channel) {
             supabaseClient.removeChannel(channel);
@@ -186,13 +183,10 @@
       });
     }
 
-    // GitHub Pages sub-folder path adjuster for links
+    // Path adjuster for links
     document.addEventListener('DOMContentLoaded', () => {
       const pathSegments = window.location.pathname.split('/').filter(Boolean);
       let depth = pathSegments.length > 1 ? pathSegments.length - 1 : 0;
-      if (!window.location.hostname.includes('github.io')) {
-        depth = pathSegments.length > 0 ? pathSegments.length - 1 : 0;
-      }
       let prefix = '';
       for (let i = 0; i < depth; i++) {
         prefix += '../';
