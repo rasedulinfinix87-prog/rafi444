@@ -3,29 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BDTMINER - Admin Dashboard</title>
+  <title>BDTMINER - Admin Management Panel</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+
+  <style>
+    body {
+      background: #0b0e14;
+      color: #fff;
+    }
+    .tab-active {
+      background: #24ee89 !important;
+      color: #000 !important;
+      border-color: #24ee89 !important;
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    th, td {
+      white-space: nowrap;
+    }
+  </style>
 </head>
 
-<body class="bg-[#0b0e14] text-white min-h-screen p-3 sm:p-6">
+<body class="min-h-screen p-3 sm:p-6">
 
 <div class="max-w-7xl mx-auto space-y-5">
 
   <header class="flex items-center justify-between gap-3">
     <div>
-      <h1 class="text-xl font-black">BDTMINER Admin</h1>
-      <p class="text-xs text-gray-400 mt-1">Management Panel</p>
+      <h1 class="text-xl font-black">Admin Management Panel</h1>
+      <p class="text-xs text-gray-400 mt-1">BDTMINER Dashboard</p>
     </div>
     <span class="text-xs bg-emerald-500/10 text-[#24ee89] border border-[#24ee89]/30 px-3 py-2 rounded-full font-bold">
       Live System
     </span>
   </header>
 
-  <div id="messageBox" class="hidden p-3 rounded-xl text-sm"></div>
+  <div id="messageBox" class="hidden p-3 rounded-xl text-sm break-words"></div>
 
+  <!-- STAT CARDS -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
 
     <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl">
@@ -50,11 +70,23 @@
 
   </div>
 
+  <!-- NAVIGATION -->
   <nav class="flex gap-2 overflow-x-auto pb-2">
-    <button onclick="switchTab('deposits')" id="tabDeposits" class="tab-btn bg-[#24ee89] text-black px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">Deposits</button>
-    <button onclick="switchTab('withdrawals')" id="tabWithdrawals" class="tab-btn bg-[#161b22] border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">Withdrawals</button>
-    <button onclick="switchTab('users')" id="tabUsers" class="tab-btn bg-[#161b22] border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">Users</button>
-    <button onclick="switchTab('bets')" id="tabBets" class="tab-btn bg-[#161b22] border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">Recent Bets</button>
+    <button id="tabDeposits" onclick="switchTab('deposits')" class="tab-btn tab-active border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">
+      <i class="fa-solid fa-wallet mr-1"></i> Deposits
+    </button>
+
+    <button id="tabWithdrawals" onclick="switchTab('withdrawals')" class="tab-btn bg-[#161b22] border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">
+      <i class="fa-solid fa-money-bill-transfer mr-1"></i> Withdrawals
+    </button>
+
+    <button id="tabUsers" onclick="switchTab('users')" class="tab-btn bg-[#161b22] border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">
+      <i class="fa-solid fa-users mr-1"></i> Users
+    </button>
+
+    <button id="tabBets" onclick="switchTab('bets')" class="tab-btn bg-[#161b22] border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">
+      <i class="fa-solid fa-dice mr-1"></i> Recent Bets
+    </button>
   </nav>
 
   <main class="bg-[#161b22] border border-gray-800 rounded-2xl p-4">
@@ -62,26 +94,29 @@
     <!-- DEPOSITS -->
     <section id="contentDeposits" class="tab-content space-y-4">
       <div class="flex justify-between items-center">
-        <h2 class="font-bold">Deposit Requests</h2>
-        <button onclick="loadDeposits()" class="text-xs text-[#24ee89]">Refresh</button>
+        <h2 class="text-sm font-bold">Deposit Requests</h2>
+        <button onclick="loadDeposits()" class="text-xs text-[#24ee89]">
+          <i class="fa-solid fa-rotate-right mr-1"></i>Refresh
+        </button>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs min-w-[850px]">
+      <div class="table-wrap">
+        <table class="w-full text-left text-xs min-w-[950px]">
           <thead class="text-gray-400 bg-[#0f141c]">
             <tr>
               <th class="p-3">User</th>
               <th class="p-3">Method</th>
               <th class="p-3">Deposit</th>
               <th class="p-3">Bonus</th>
-              <th class="p-3">Turnover</th>
+              <th class="p-3">Total Credit</th>
+              <th class="p-3">Required Turnover</th>
               <th class="p-3">TrxID</th>
               <th class="p-3">Status</th>
               <th class="p-3">Action</th>
             </tr>
           </thead>
           <tbody id="depositsTableBody">
-            <tr><td colspan="8" class="p-5 text-center text-gray-400">Loading...</td></tr>
+            <tr><td colspan="9" class="p-6 text-center text-gray-400">Loading deposits...</td></tr>
           </tbody>
         </table>
       </div>
@@ -90,24 +125,26 @@
     <!-- WITHDRAWALS -->
     <section id="contentWithdrawals" class="tab-content hidden space-y-4">
       <div class="flex justify-between items-center">
-        <h2 class="font-bold">Withdrawal Requests</h2>
-        <button onclick="loadWithdrawals()" class="text-xs text-[#24ee89]">Refresh</button>
+        <h2 class="text-sm font-bold">Withdrawal Requests</h2>
+        <button onclick="loadWithdrawals()" class="text-xs text-[#24ee89]">
+          <i class="fa-solid fa-rotate-right mr-1"></i>Refresh
+        </button>
       </div>
 
-      <div class="overflow-x-auto">
+      <div class="table-wrap">
         <table class="w-full text-left text-xs min-w-[750px]">
           <thead class="text-gray-400 bg-[#0f141c]">
             <tr>
-              <th class="p-3">User ID</th>
+              <th class="p-3">User</th>
               <th class="p-3">Method</th>
-              <th class="p-3">Account</th>
+              <th class="p-3">Account Number</th>
               <th class="p-3">Amount</th>
               <th class="p-3">Status</th>
               <th class="p-3">Action</th>
             </tr>
           </thead>
           <tbody id="withdrawalsTableBody">
-            <tr><td colspan="6" class="p-5 text-center text-gray-400">Loading...</td></tr>
+            <tr><td colspan="6" class="p-6 text-center text-gray-400">Loading withdrawals...</td></tr>
           </tbody>
         </table>
       </div>
@@ -116,23 +153,25 @@
     <!-- USERS -->
     <section id="contentUsers" class="tab-content hidden space-y-4">
       <div class="flex justify-between items-center">
-        <h2 class="font-bold">Users Database</h2>
-        <button onclick="loadUsers()" class="text-xs text-[#24ee89]">Refresh</button>
+        <h2 class="text-sm font-bold">User Database</h2>
+        <button onclick="loadUsers()" class="text-xs text-[#24ee89]">
+          <i class="fa-solid fa-rotate-right mr-1"></i>Refresh
+        </button>
       </div>
 
-      <div class="overflow-x-auto">
+      <div class="table-wrap">
         <table class="w-full text-left text-xs min-w-[700px]">
           <thead class="text-gray-400 bg-[#0f141c]">
             <tr>
-              <th class="p-3">Name</th>
+              <th class="p-3">Full Name</th>
               <th class="p-3">Phone</th>
               <th class="p-3">Balance</th>
-              <th class="p-3">Joined</th>
-              <th class="p-3">Action</th>
+              <th class="p-3">Joined Date</th>
+              <th class="p-3">Manual Balance Adjust</th>
             </tr>
           </thead>
           <tbody id="usersTableBody">
-            <tr><td colspan="5" class="p-5 text-center text-gray-400">Loading...</td></tr>
+            <tr><td colspan="5" class="p-6 text-center text-gray-400">Loading users...</td></tr>
           </tbody>
         </table>
       </div>
@@ -141,17 +180,19 @@
     <!-- BETS -->
     <section id="contentBets" class="tab-content hidden space-y-4">
       <div class="flex justify-between items-center">
-        <h2 class="font-bold">Recent Bets</h2>
-        <button onclick="loadBets()" class="text-xs text-[#24ee89]">Refresh</button>
+        <h2 class="text-sm font-bold">Recent Bets</h2>
+        <button onclick="loadBets()" class="text-xs text-[#24ee89]">
+          <i class="fa-solid fa-rotate-right mr-1"></i>Refresh
+        </button>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs min-w-[700px]">
+      <div class="table-wrap">
+        <table class="w-full text-left text-xs min-w-[750px]">
           <thead class="text-gray-400 bg-[#0f141c]">
             <tr>
               <th class="p-3">User ID</th>
               <th class="p-3">Bet Amount</th>
-              <th class="p-3">Target</th>
+              <th class="p-3">Target Number</th>
               <th class="p-3">Roll Result</th>
               <th class="p-3">Payout</th>
               <th class="p-3">Outcome</th>
@@ -159,7 +200,7 @@
             </tr>
           </thead>
           <tbody id="betsTableBody">
-            <tr><td colspan="7" class="p-5 text-center text-gray-400">Loading...</td></tr>
+            <tr><td colspan="7" class="p-6 text-center text-gray-400">Loading bets...</td></tr>
           </tbody>
         </table>
       </div>
@@ -169,36 +210,16 @@
 </div>
 
 <script>
-/* =========================================
-   SUPABASE CONFIGURATION
-   এখানে আপনার আগের ফাইলের URL ও ANON KEY বসান।
-   কখনো service_role key এখানে দেবেন না।
-========================================= */
-
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+/* =====================================
+   USE EXISTING supabase-config.js
+   Do not create a second client.
+===================================== */
 
 const money = value =>
   "৳" + Number(value || 0).toLocaleString("en-BD", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
-
-function showMessage(message, isError = false) {
-  const box = document.getElementById("messageBox");
-  box.textContent = message;
-  box.className = "p-3 rounded-xl text-sm " +
-    (isError
-      ? "bg-red-500/10 text-red-400 border border-red-500/30"
-      : "bg-emerald-500/10 text-[#24ee89] border border-emerald-500/30");
-  box.classList.remove("hidden");
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
 
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({
@@ -210,25 +231,41 @@ function escapeHTML(value) {
   })[char]);
 }
 
+function showMessage(message, isError = false) {
+  const box = document.getElementById("messageBox");
+  box.textContent = message;
+  box.className =
+    "p-3 rounded-xl text-sm break-words " +
+    (isError
+      ? "bg-red-500/10 text-red-400 border border-red-500/30"
+      : "bg-emerald-500/10 text-[#24ee89] border border-emerald-500/30");
+
+  box.classList.remove("hidden");
+}
+
+function hideMessage() {
+  document.getElementById("messageBox").classList.add("hidden");
+}
+
 function switchTab(tab) {
+  hideMessage();
+
   document.querySelectorAll(".tab-content").forEach(section => {
     section.classList.add("hidden");
   });
 
   document.querySelectorAll(".tab-btn").forEach(button => {
-    button.classList.remove("bg-[#24ee89]", "text-black");
+    button.classList.remove("tab-active");
     button.classList.add("bg-[#161b22]");
   });
 
-  document.getElementById("content" +
-    tab.charAt(0).toUpperCase() + tab.slice(1)
-  ).classList.remove("hidden");
+  const suffix = tab.charAt(0).toUpperCase() + tab.slice(1);
 
-  const activeButton = document.getElementById("tab" +
-    tab.charAt(0).toUpperCase() + tab.slice(1));
+  document.getElementById("content" + suffix).classList.remove("hidden");
 
+  const activeButton = document.getElementById("tab" + suffix);
+  activeButton.classList.add("tab-active");
   activeButton.classList.remove("bg-[#161b22]");
-  activeButton.classList.add("bg-[#24ee89]", "text-black");
 
   if (tab === "deposits") loadDeposits();
   if (tab === "withdrawals") loadWithdrawals();
@@ -236,14 +273,13 @@ function switchTab(tab) {
   if (tab === "bets") loadBets();
 }
 
+/* =====================================
+   DASHBOARD STATS
+===================================== */
+
 async function loadStats() {
   try {
-    const [
-      depositsResult,
-      withdrawalsResult,
-      usersResult,
-      betsResult
-    ] = await Promise.all([
+    const results = await Promise.all([
       supabaseClient.from("deposits")
         .select("id", { count: "exact", head: true })
         .eq("status", "pending"),
@@ -259,32 +295,35 @@ async function loadStats() {
         .select("id", { count: "exact", head: true })
     ]);
 
-    if (depositsResult.error) throw depositsResult.error;
-    if (withdrawalsResult.error) throw withdrawalsResult.error;
-    if (usersResult.error) throw usersResult.error;
-    if (betsResult.error) throw betsResult.error;
+    for (const result of results) {
+      if (result.error) throw result.error;
+    }
 
     document.getElementById("statPendingDeposits").textContent =
-      depositsResult.count ?? 0;
+      results[0].count ?? 0;
+
     document.getElementById("statPendingWithdrawals").textContent =
-      withdrawalsResult.count ?? 0;
+      results[1].count ?? 0;
+
     document.getElementById("statTotalUsers").textContent =
-      usersResult.count ?? 0;
+      results[2].count ?? 0;
+
     document.getElementById("statTotalBets").textContent =
-      betsResult.count ?? 0;
+      results[3].count ?? 0;
+
   } catch (error) {
     showMessage("Stats error: " + error.message, true);
   }
 }
 
-/* =========================================
+/* =====================================
    DEPOSIT REQUESTS
-========================================= */
+===================================== */
 
 async function loadDeposits() {
   const tbody = document.getElementById("depositsTableBody");
   tbody.innerHTML =
-    '<tr><td colspan="8" class="p-5 text-center">Loading...</td></tr>';
+    '<tr><td colspan="9" class="p-6 text-center text-gray-400">Loading...</td></tr>';
 
   try {
     const { data: deposits, error } = await supabaseClient
@@ -297,13 +336,16 @@ async function loadDeposits() {
 
     if (!deposits || deposits.length === 0) {
       tbody.innerHTML =
-        '<tr><td colspan="8" class="p-5 text-center text-gray-400">No deposits found.</td></tr>';
+        '<tr><td colspan="9" class="p-6 text-center text-gray-400">No deposits found.</td></tr>';
       await loadStats();
       return;
     }
 
-    const userIds = [...new Set(deposits.map(d => d.user_id).filter(Boolean))];
-    let profileMap = {};
+    const userIds = [...new Set(
+      deposits.map(item => item.user_id).filter(Boolean)
+    )];
+
+    const profileMap = {};
 
     if (userIds.length) {
       const { data: profiles, error: profileError } = await supabaseClient
@@ -319,56 +361,80 @@ async function loadDeposits() {
     }
 
     tbody.innerHTML = deposits.map(dep => {
-      const user = profileMap[dep.user_id] || {};
-      const userLabel = user.phone_number || user.full_name || dep.user_id;
+      const profile = profileMap[dep.user_id] || {};
+      const userLabel =
+        profile.phone_number || profile.full_name || dep.user_id || "-";
+
       const status = String(dep.status || "pending").toLowerCase();
-      const isPending = status === "pending";
+      const pending = status === "pending";
+
+      const amount = Number(dep.amount || 0);
+      const bonus = Number(dep.bonus_amount || 0);
+      const total = amount + bonus;
 
       return `
         <tr class="border-b border-gray-800/60">
           <td class="p-3">${escapeHTML(userLabel)}</td>
-          <td class="p-3">${escapeHTML(dep.payment_method)}</td>
-          <td class="p-3">${money(dep.amount)}</td>
-          <td class="p-3 text-[#24ee89]">${money(dep.bonus_amount)}</td>
-          <td class="p-3">${money(dep.turnover_required)}</td>
-          <td class="p-3">${escapeHTML(dep.transection_id)}</td>
+          <td class="p-3">${escapeHTML(dep.payment_method || "-")}</td>
+          <td class="p-3">${money(amount)}</td>
+          <td class="p-3 text-[#24ee89]">${money(bonus)}</td>
+          <td class="p-3 font-bold">${money(total)}</td>
+          <td class="p-3 text-amber-400">${money(dep.turnover_required)}</td>
+          <td class="p-3">${escapeHTML(dep.transection_id || "-")}</td>
           <td class="p-3">${escapeHTML(status)}</td>
           <td class="p-3">
             ${
-              isPending
+              pending
               ? `<div class="flex gap-2">
-                   <button onclick="approveDeposit('${dep.id}')"
-                     class="bg-emerald-500 text-black px-3 py-2 rounded-lg font-bold">
-                     Approve
-                   </button>
-                   <button onclick="rejectDeposit('${dep.id}')"
-                     class="bg-red-500/20 text-red-400 px-3 py-2 rounded-lg font-bold">
-                     Reject
-                   </button>
-                 </div>`
-              : `<span class="text-gray-500">Processed</span>`
+                  <button
+                    data-approve-id="${escapeHTML(dep.id)}"
+                    class="approve-btn bg-emerald-500 text-black px-3 py-2 rounded-lg font-bold">
+                    Approve
+                  </button>
+                  <button
+                    data-reject-id="${escapeHTML(dep.id)}"
+                    class="reject-btn bg-red-500/20 text-red-400 px-3 py-2 rounded-lg font-bold">
+                    Reject
+                  </button>
+                </div>`
+              : '<span class="text-gray-500">Processed</span>'
             }
           </td>
-        </tr>`;
+        </tr>
+      `;
     }).join("");
 
+    tbody.querySelectorAll(".approve-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        approveDeposit(button.dataset.approveId);
+      });
+    });
+
+    tbody.querySelectorAll(".reject-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        rejectDeposit(button.dataset.rejectId);
+      });
+    });
+
     await loadStats();
+
   } catch (error) {
     tbody.innerHTML =
-      `<tr><td colspan="8" class="p-5 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
+      `<tr><td colspan="9" class="p-6 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
     showMessage("Could not load deposits: " + error.message, true);
   }
 }
 
 /*
-  গুরুত্বপূর্ণ:
-  Balance ও turnover সরাসরি JavaScript থেকে update করা হচ্ছে না।
-  approve_deposit RPC এক transaction-এ approval সম্পন্ন করবে।
+  IMPORTANT:
+  Approval is processed through the SQL RPC function.
+  This page does not directly update the balance or turnover.
 */
 
 async function approveDeposit(depositId) {
   if (!confirm(
-    "এই ডিপোজিট অনুমোদন করবেন?\n\nডিপোজিট + সংরক্ষিত বোনাস ব্যালেন্সে যোগ হবে।"
+    "এই ডিপোজিট অনুমোদন করবেন?\n\n" +
+    "Deposit + saved bonus ব্যালেন্সে যোগ হবে।"
   )) return;
 
   try {
@@ -384,22 +450,25 @@ async function approveDeposit(depositId) {
     }
 
     showMessage(
-      "Deposit approved. Credited: " +
-      money(data.credited_amount) +
-      " | Required turnover: " +
-      money(data.turnover_required)
+      "Deposit approved successfully. " +
+      "Credited: " + money(data.credited_amount) +
+      " | Required turnover: " + money(data.turnover_required)
     );
 
     await loadDeposits();
     await loadUsers();
     await loadStats();
+
   } catch (error) {
-    showMessage("Deposit approval failed: " + error.message, true);
+    showMessage(
+      "Approval failed: " + error.message,
+      true
+    );
   }
 }
 
 async function rejectDeposit(depositId) {
-  if (!confirm("এই ডিপোজিট রিকোয়েস্ট Reject করবেন?")) return;
+  if (!confirm("এই deposit request Reject করবেন?")) return;
 
   try {
     const { data, error } = await supabaseClient
@@ -410,26 +479,28 @@ async function rejectDeposit(depositId) {
       .select("id");
 
     if (error) throw error;
+
     if (!data || data.length === 0) {
-      throw new Error("Request is no longer pending or access is denied.");
+      throw new Error("Request is no longer pending or permission was denied.");
     }
 
     showMessage("Deposit request rejected.");
     await loadDeposits();
     await loadStats();
+
   } catch (error) {
     showMessage("Reject failed: " + error.message, true);
   }
 }
 
-/* =========================================
-   WITHDRAWALS
-========================================= */
+/* =====================================
+   WITHDRAWAL REQUESTS
+===================================== */
 
 async function loadWithdrawals() {
   const tbody = document.getElementById("withdrawalsTableBody");
   tbody.innerHTML =
-    '<tr><td colspan="6" class="p-5 text-center">Loading...</td></tr>';
+    '<tr><td colspan="6" class="p-6 text-center text-gray-400">Loading...</td></tr>';
 
   try {
     const { data, error } = await supabaseClient
@@ -442,50 +513,65 @@ async function loadWithdrawals() {
 
     if (!data || !data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="6" class="p-5 text-center text-gray-400">No withdrawals found.</td></tr>';
+        '<tr><td colspan="6" class="p-6 text-center text-gray-400">No withdrawals found.</td></tr>';
       await loadStats();
       return;
     }
 
     tbody.innerHTML = data.map(item => {
-      const pending = String(item.status).toLowerCase() === "pending";
+      const pending =
+        String(item.status || "").toLowerCase() === "pending";
 
       return `
         <tr class="border-b border-gray-800/60">
           <td class="p-3">${escapeHTML(item.user_id)}</td>
-          <td class="p-3">${escapeHTML(item.payment_method)}</td>
-          <td class="p-3">${escapeHTML(item.account_number)}</td>
+          <td class="p-3">${escapeHTML(item.payment_method || "-")}</td>
+          <td class="p-3">${escapeHTML(item.account_number || "-")}</td>
           <td class="p-3">${money(item.amount)}</td>
-          <td class="p-3">${escapeHTML(item.status)}</td>
+          <td class="p-3">${escapeHTML(item.status || "-")}</td>
           <td class="p-3">
             ${
               pending
               ? `<div class="flex gap-2">
-                   <button onclick="updateWithdrawal('${item.id}','approved')"
-                     class="bg-emerald-500 text-black px-3 py-2 rounded-lg font-bold">Mark Paid</button>
-                   <button onclick="updateWithdrawal('${item.id}','rejected')"
-                     class="bg-red-500/20 text-red-400 px-3 py-2 rounded-lg font-bold">Reject</button>
-                 </div>`
-              : `<span class="text-gray-500">Processed</span>`
+                  <button data-id="${escapeHTML(item.id)}" data-status="approved"
+                    class="withdraw-action bg-emerald-500 text-black px-3 py-2 rounded-lg font-bold">
+                    Mark Paid
+                  </button>
+                  <button data-id="${escapeHTML(item.id)}" data-status="rejected"
+                    class="withdraw-action bg-red-500/20 text-red-400 px-3 py-2 rounded-lg font-bold">
+                    Reject
+                  </button>
+                </div>`
+              : '<span class="text-gray-500">Processed</span>'
             }
           </td>
-        </tr>`;
+        </tr>
+      `;
     }).join("");
 
+    tbody.querySelectorAll(".withdraw-action").forEach(button => {
+      button.addEventListener("click", () => {
+        updateWithdrawal(button.dataset.id, button.dataset.status);
+      });
+    });
+
     await loadStats();
+
   } catch (error) {
     tbody.innerHTML =
-      `<tr><td colspan="6" class="p-5 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
+      `<tr><td colspan="6" class="p-6 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
     showMessage("Could not load withdrawals: " + error.message, true);
   }
 }
 
 async function updateWithdrawal(id, status) {
-  const confirmation = status === "approved"
-    ? "টাকা পাঠানো সম্পন্ন হয়েছে নিশ্চিত হলে তবেই Mark Paid করুন।"
-    : "এই withdrawal request Reject করবেন?";
-
-  if (!confirm(confirmation)) return;
+  if (status === "approved") {
+    if (!confirm(
+      "টাকা পাঠানো সম্পন্ন হয়েছে নিশ্চিত হলে তবেই Mark Paid করুন।"
+    )) return;
+  } else {
+    if (!confirm("এই withdrawal request Reject করবেন?")) return;
+  }
 
   try {
     const { data, error } = await supabaseClient
@@ -496,26 +582,28 @@ async function updateWithdrawal(id, status) {
       .select("id");
 
     if (error) throw error;
-    if (!data || !data.length) {
-      throw new Error("Request is no longer pending or access is denied.");
+
+    if (!data || data.length === 0) {
+      throw new Error("Request is no longer pending or permission was denied.");
     }
 
     showMessage("Withdrawal status updated: " + status);
     await loadWithdrawals();
     await loadStats();
+
   } catch (error) {
     showMessage("Withdrawal update failed: " + error.message, true);
   }
 }
 
-/* =========================================
-   USERS
-========================================= */
+/* =====================================
+   USER MANAGEMENT
+===================================== */
 
 async function loadUsers() {
   const tbody = document.getElementById("usersTableBody");
   tbody.innerHTML =
-    '<tr><td colspan="5" class="p-5 text-center">Loading...</td></tr>';
+    '<tr><td colspan="5" class="p-6 text-center text-gray-400">Loading...</td></tr>';
 
   try {
     const { data, error } = await supabaseClient
@@ -528,7 +616,7 @@ async function loadUsers() {
 
     if (!data || !data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="5" class="p-5 text-center text-gray-400">No users found.</td></tr>';
+        '<tr><td colspan="5" class="p-6 text-center text-gray-400">No users found.</td></tr>';
       await loadStats();
       return;
     }
@@ -542,18 +630,30 @@ async function loadUsers() {
           ? escapeHTML(new Date(user.created_at).toLocaleDateString())
           : "-"}</td>
         <td class="p-3">
-          <button onclick="adjustBalance('${user.id}','${escapeHTML(user.phone_number || user.full_name || "")}')"
-            class="bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-3 py-2 rounded-lg font-bold">
+          <button
+            data-user-id="${escapeHTML(user.id)}"
+            data-user-label="${escapeHTML(user.phone_number || user.full_name || "")}"
+            class="balance-btn bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-3 py-2 rounded-lg font-bold">
             Adjust
           </button>
         </td>
       </tr>
     `).join("");
 
+    tbody.querySelectorAll(".balance-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        adjustBalance(
+          button.dataset.userId,
+          button.dataset.userLabel
+        );
+      });
+    });
+
     await loadStats();
+
   } catch (error) {
     tbody.innerHTML =
-      `<tr><td colspan="5" class="p-5 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
+      `<tr><td colspan="5" class="p-6 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
     showMessage("Could not load users: " + error.message, true);
   }
 }
@@ -561,7 +661,7 @@ async function loadUsers() {
 async function adjustBalance(userId, userLabel) {
   const raw = prompt(
     "User: " + userLabel +
-    "\nবর্তমান ব্যালেন্সের সঙ্গে কত টাকা যোগ/বিয়োগ করবেন?\n" +
+    "\nকত টাকা যোগ/বিয়োগ করবেন?\n" +
     "যোগের জন্য 100, বিয়োগের জন্য -100 লিখুন।"
   );
 
@@ -575,7 +675,7 @@ async function adjustBalance(userId, userLabel) {
   }
 
   if (!confirm(
-    "Balance " + (amount > 0 ? "যোগ" : "বিয়োগ") +
+    (amount > 0 ? "যোগ" : "বিয়োগ") +
     " করবেন: " + money(Math.abs(amount)) + "?"
   )) return;
 
@@ -601,21 +701,22 @@ async function adjustBalance(userId, userLabel) {
 
     if (updateError) throw updateError;
 
-    showMessage("User balance updated.");
+    showMessage("Balance updated.");
     await loadUsers();
+
   } catch (error) {
     showMessage("Balance update failed: " + error.message, true);
   }
 }
 
-/* =========================================
-   BET HISTORY
-========================================= */
+/* =====================================
+   RECENT BETS
+===================================== */
 
 async function loadBets() {
   const tbody = document.getElementById("betsTableBody");
   tbody.innerHTML =
-    '<tr><td colspan="7" class="p-5 text-center">Loading...</td></tr>';
+    '<tr><td colspan="7" class="p-6 text-center text-gray-400">Loading...</td></tr>';
 
   try {
     const { data, error } = await supabaseClient
@@ -628,7 +729,7 @@ async function loadBets() {
 
     if (!data || !data.length) {
       tbody.innerHTML =
-        '<tr><td colspan="7" class="p-5 text-center text-gray-400">No bets found.</td></tr>';
+        '<tr><td colspan="7" class="p-6 text-center text-gray-400">No bets found.</td></tr>';
       await loadStats();
       return;
     }
@@ -650,21 +751,22 @@ async function loadBets() {
     `).join("");
 
     await loadStats();
+
   } catch (error) {
     tbody.innerHTML =
-      `<tr><td colspan="7" class="p-5 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
+      `<tr><td colspan="7" class="p-6 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
     showMessage("Could not load bets: " + error.message, true);
   }
 }
 
-/* INITIAL LOAD */
+/* =====================================
+   INITIAL LOAD
+===================================== */
+
 (async function initAdminPanel() {
-  if (
-    SUPABASE_URL === "YOUR_SUPABASE_PROJECT_URL" ||
-    SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY"
-  ) {
+  if (!window.supabase || typeof supabaseClient === "undefined") {
     showMessage(
-      "প্রথমে SUPABASE_URL ও SUPABASE_ANON_KEY-তে আপনার বিদ্যমান project-এর মান বসান।",
+      "Supabase client পাওয়া যায়নি। supabase-config.js path পরীক্ষা করুন।",
       true
     );
     return;
