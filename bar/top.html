@@ -1,4 +1,4 @@
-<!-- Top Navigation Bar Container --><header class="w-full bg-[#080B10] border-b border-[rgba(245,207,102,0.25)] px-4 py-2.5 flex items-center justify-between text-white select-none">  <!-- Left Side: Hamburger Menu Button -->  <div class="flex items-center gap-3">
+<!-- Top Navigation Bar Container --><header class="w-full bg-[#080B10] border-b border-[rgba(245,207,102,0.25)] px-4 py-2.5 flex items-center justify-between text-white select-none">  <!-- Hamburger -->  <div class="flex items-center gap-3">
     <button id="hamburgerBtn" onclick="toggleSidebar()" class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-[rgba(245,207,102,0.1)] transition focus:outline-none">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -53,123 +53,164 @@
   </div>
 </header><script>
 (function () {
-  // Prevent duplicate initialization if the header is loaded more than once.
-  if (window.__topBarBalanceInitialized) {
+  // This script can execute more than once when the header is reloaded.
+  if (window.__topBarScriptInstalled) {
     if (typeof window.syncTopBarBalance === 'function') {
       window.syncTopBarBalance();
     }
     return;
   }
 
-  window.__topBarBalanceInitialized = true;
+  window.__topBarScriptInstalled = true;
 
-  let profileSubscription = null;
-  let currentSubscribedUserId = null;
-  let balanceSyncInProgress = false;
+  let activeChannel = null;
+  let activeUserId = null;
+  let authListenerRegistered = false;
+  let syncSequence = 0;
 
-  window.updateBalanceUI = function (newBalance) {
-    const el = document.getElementById('topBarBalance');
-    if (!el || newBalance === null || newBalance === undefined) return;
+  function getClient() {
+    return typeof supabaseClient !== 'undefined'
+      ? supabaseClient
+      : null;
+  }
 
-    const amount = Number(newBalance);
-    if (!Number.isFinite(amount)) {
-      console.error('Invalid profile balance:', newBalance);
-      return;
+  function displayBalance(value) {
+    const element = document.getElementById('topBarBalance');
+    if (!element || value === null || value === undefined) return;
+
+    const amount = Number(value);
+    if (Number.isFinite(amount)) {
+      element.textContent = amount.toFixed(2);
+    } else {
+      console.error('Top bar: Invalid balance value.');
+    }
+  }
+
+  window.updateBalanceUI = displayBalance;
+
+  async function resolveUser(client) {
+    // Prefer the active Supabase session.
+    try {
+      const { data, error } = await client.auth.getUser();
+
+      if (!error && data && data.user) {
+        return data.user;
+      }
+    } catch (error) {
+      console.error('Top bar auth lookup failed:', error);
     }
 
-    el.textContent = amount.toFixed(2);
-  };
+    // Fallback to the same user ID source used by My Account.
+    try {
+      const stored = localStorage.getItem('current_user');
+
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.id) {
+          return { id: parsed.id };
+        }
+      }
+    } catch (error) {
+      console.error('Top bar stored user lookup failed:', error);
+    }
+
+    return null;
+  }
+
+  async function attachRealtime(client, userId) {
+    if (activeUserId === userId && activeChannel) return;
+
+    if (activeChannel) {
+      try {
+        await client.removeChannel(activeChannel);
+      } catch (error) {
+        console.error('Top bar channel cleanup failed:', error);
+      }
+      activeChannel = null;
+    }
+
+    activeUserId = userId;
+
+    activeChannel = client
+      .channel('topbar-balance-' + userId)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: 'id=eq.' + userId
+        },
+        function (payload) {
+          if (
+            payload.new &&
+            payload.new.id === userId &&
+            payload.new.balance !== undefined
+          ) {
+            displayBalance(payload.new.balance);
+          }
+        }
+      )
+      .subscribe(function (status) {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error('Top bar realtime error:', status);
+        }
+      });
+  }
 
   window.syncTopBarBalance = async function () {
-    if (balanceSyncInProgress) return;
+    const thisSync = ++syncSequence;
+    const client = getClient();
 
-    if (
-      typeof supabaseClient === 'undefined' ||
-      typeof getCurrentUser !== 'function'
-    ) {
+    if (!client) {
       console.error(
-        'Top bar: supabaseClient/getCurrentUser unavailable. Check script loading order.'
+        'Top bar: supabaseClient not found. Load Supabase and supabase-config.js first.'
       );
       return;
     }
 
-    balanceSyncInProgress = true;
-
     try {
-      const user = await getCurrentUser();
+      const user = await resolveUser(client);
 
-      if (!user) {
-        window.updateBalanceUI(0);
+      if (thisSync !== syncSequence) return;
+
+      if (!user || !user.id) {
+        console.warn('Top bar: No logged-in user was found.');
         return;
       }
 
-      // Fetch the signed-in user's current balance.
-      const { data: profile, error } = await supabaseClient
+      const { data: profile, error } = await client
         .from('profiles')
         .select('balance')
         .eq('id', user.id)
         .maybeSingle();
 
+      if (thisSync !== syncSequence) return;
+
       if (error) {
-        console.error('Top bar profile balance error:', error.message);
+        console.error('Top bar balance query failed:', error.message);
         return;
       }
 
       if (!profile) {
         console.error(
-          'No profiles row found for the signed-in user:',
+          'Top bar: No matching profiles row for user ID:',
           user.id
         );
         return;
       }
 
-      window.updateBalanceUI(profile.balance);
+      displayBalance(profile.balance);
+      await attachRealtime(client, user.id);
 
-      // Subscribe only once per signed-in user.
-      if (currentSubscribedUserId !== user.id) {
-        if (profileSubscription) {
-          await supabaseClient.removeChannel(profileSubscription);
-          profileSubscription = null;
-        }
-
-        currentSubscribedUserId = user.id;
-
-        profileSubscription = supabaseClient
-          .channel('topbar-balance-' + user.id)
-          .on(
-            'postgres_changes',
-            {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'profiles',
-              filter: 'id=eq.' + user.id
-            },
-            function (payload) {
-              if (
-                payload.new &&
-                payload.new.id === user.id &&
-                payload.new.balance !== undefined
-              ) {
-                window.updateBalanceUI(payload.new.balance);
-              }
-            }
-          )
-          .subscribe(function (status) {
-            if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-              console.error('Top bar realtime subscription status:', status);
-            }
-          });
-      }
-    } catch (err) {
-      console.error('Top bar balance sync error:', err);
-    } finally {
-      balanceSyncInProgress = false;
+    } catch (error) {
+      console.error('Top bar balance sync failed:', error);
     }
   };
 
   window.toggleNotifications = function () {
-    const dropdown = document.getElementById('notifDropdown');
-    if (dropdown) dropdown.classList.toggle('hidden');
+    const element = document.getElementById('notifDropdown');
+    if (element) element.classList.toggle('hidden');
   };
 
   window.clearNotifications = function () {
@@ -182,40 +223,48 @@
     if (sidebar) {
       sidebar.classList.toggle('hidden');
     } else {
-      console.log('Sidebar element #appSidebar was not found.');
+      console.warn('Sidebar #appSidebar was not found.');
     }
   };
 
-  // Run whether this script loads before or after DOMContentLoaded.
-  function initializeTopBar() {
+  function initialize() {
     window.syncTopBarBalance();
 
-    if (
-      typeof supabaseClient !== 'undefined' &&
-      supabaseClient.auth
-    ) {
-      supabaseClient.auth.onAuthStateChange(function (event) {
+    const client = getClient();
+
+    if (client && client.auth && !authListenerRegistered) {
+      authListenerRegistered = true;
+
+      client.auth.onAuthStateChange(function (event) {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           window.syncTopBarBalance();
-        } else if (event === 'SIGNED_OUT') {
-          window.updateBalanceUI(0);
-          currentSubscribedUserId = null;
+        }
 
-          if (profileSubscription) {
-            supabaseClient.removeChannel(profileSubscription);
-            profileSubscription = null;
+        if (event === 'SIGNED_OUT') {
+          syncSequence++;
+          displayBalance(0);
+          activeUserId = null;
+
+          if (activeChannel) {
+            client.removeChannel(activeChannel);
+            activeChannel = null;
           }
         }
       });
     }
   }
 
+  // Works whether the HTML is loaded before or after DOMContentLoaded.
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeTopBar, {
+    document.addEventListener('DOMContentLoaded', initialize, {
       once: true
     });
   } else {
-    initializeTopBar();
+    initialize();
   }
+
+  // Public function for pages that insert this HTML with fetch().
+  window.initializeTopBar = initialize;
+
 })();
 </script>
