@@ -595,16 +595,6 @@
         startWaitingPhase();
         return;
       }
-
-      // ডেটাবেজ থেকে রিয়েল-টাইম ব্যালান্স ফেচ করে সিঙ্ক করা
-      if (currentUserId && typeof supabaseClient !== 'undefined') {
-        const { data: freshProfile } = await supabaseClient.from('profiles').select('balance').eq('id', currentUserId).single();
-        if (freshProfile) {
-          balance = parseFloat(freshProfile.balance) || 0;
-          updateBalanceUI();
-        }
-      }
-
       if (activeBetAmount > balance) {
         alert("পর্যাপ্ত ব্যালেন্স নেই!");
         stopAutoSequence();
