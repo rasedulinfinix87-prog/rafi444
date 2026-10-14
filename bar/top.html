@@ -23,7 +23,7 @@
       </div>
 
       <!-- Quick Deposit Button -->
-      <a href="account/deposit.html" class="bg-[#24ee89] hover:bg-emerald-400 text-black font-extrabold p-1.5 rounded-md transition flex items-center justify-center shadow-md">
+      <a href="../account/deposit.html" id="depositLinkBtn" class="bg-[#24ee89] hover:bg-emerald-400 text-black font-extrabold p-1.5 rounded-md transition flex items-center justify-center shadow-md">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -56,7 +56,7 @@
     </div>
 
     <!-- Profile Icon -->
-    <a href="mem/member.html" class="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition border border-gray-800 flex items-center justify-center bg-[#0f141c]">
+    <a href="../mem/member.html" id="profileLinkBtn" class="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition border border-gray-800 flex items-center justify-center bg-[#0f141c]">
       <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
       </svg>
@@ -65,4 +65,117 @@
   </div>
 </header>
 
-<img src="__topbar-bootstrap-missing__.png" alt="" aria-hidden="true" style="display:none;width:0;height:0" onerror="this.onerror=null;this.remove();window.__topBarBalanceBooted=true;window.toggleNotifications=function(){var d=document.getElementById('notifDropdown');if(d)d.classList.toggle('hidden')};window.clearNotifications=function(){var b=document.getElementById('notifBadge');if(b)b.classList.add('hidden')};window.toggleSidebar=function(){var s=document.getElementById('appSidebar');if(s)s.classList.toggle('hidden')};(function(){var channel=null;var activeId=null;window.updateBalanceUI=function(v){var e=document.getElementById('topBarBalance');if(!e||v===null||v===undefined)return;var n=Number(v);if(Number.isFinite(n))e.textContent=n.toFixed(2)};window.syncTopBarBalance=async function(){try{if(typeof supabaseClient==='undefined')return;var u=null;if(typeof getCurrentUser==='function'){try{u=await getCurrentUser()}catch(e){console.warn('Top bar auth lookup failed',e)}}if(!u){try{var raw=localStorage.getItem('current_user');if(raw){var saved=JSON.parse(raw);if(saved&&saved.id)u={id:saved.id}}}catch(e){console.warn('Could not read saved user',e)}}if(!u||!u.id)return;var r=await supabaseClient.from('profiles').select('balance').eq('id',u.id).maybeSingle();if(r.error){console.error('Top bar balance query failed:',r.error.message);return}if(!r.data){console.error('Top bar profile not found for user:',u.id);return}window.updateBalanceUI(r.data.balance);if(activeId!==u.id){if(channel){try{await supabaseClient.removeChannel(channel)}catch(e){}}activeId=u.id;channel=supabaseClient.channel('topbar-balance-fallback-'+u.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:'id=eq.'+u.id},function(payload){if(payload.new&&payload.new.id===u.id&&payload.new.balance!==undefined)window.updateBalanceUI(payload.new.balance)}).subscribe()}}catch(e){console.error('Top bar balance sync error:',e)}};window.syncTopBarBalance();if(typeof supabaseClient!=='undefined'&&supabaseClient.auth){supabaseClient.auth.onAuthStateChange(function(event){if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED')window.syncTopBarBalance();if(event==='SIGNED_OUT'){window.updateBalanceUI(0);activeId=null;if(channel){supabaseClient.removeChannel(channel);channel=null}}})}})();"></img>
+<script>
+  window.toggleNotifications = function() {
+    var d = document.getElementById('notifDropdown');
+    if (d) d.classList.toggle('hidden');
+  };
+
+  window.clearNotifications = function() {
+    var b = document.getElementById('notifBadge');
+    if (b) b.classList.add('hidden');
+  };
+
+  window.toggleSidebar = function() {
+    var s = document.getElementById('appSidebar');
+    if (s) s.classList.toggle('hidden');
+  };
+
+  (function() {
+    let channel = null;
+    let activeId = null;
+
+    window.updateBalanceUI = function(v) {
+      var e = document.getElementById('topBarBalance');
+      if (!e || v === null || v === undefined) return;
+      var n = Number(v);
+      if (Number.isFinite(n)) {
+        e.textContent = n.toFixed(2);
+      }
+    };
+
+    window.syncTopBarBalance = async function() {
+      try {
+        if (typeof supabaseClient === 'undefined') return;
+        
+        let u = null;
+        if (typeof getCurrentUser === 'function') {
+          try {
+            u = await getCurrentUser();
+          } catch (e) {}
+        }
+
+        if (!u) {
+          const { data: { user } } = await supabaseClient.auth.getUser();
+          if (user) u = user;
+        }
+
+        if (!u || !u.id) return;
+
+        // গেমের গ্লোবাল স্কোপে আইডি সেট করে দেওয়া
+        window.currentUserId = u.id;
+        if (typeof currentUserId !== 'undefined') currentUserId = u.id;
+
+        // profiles টেবিল থেকে balance ফেচ করা
+        const { data: profile, error } = await supabaseClient
+          .from('profiles')
+          .select('balance, user_game_id')
+          .eq('id', u.id)
+          .maybeSingle();
+
+        if (error || !profile) return;
+
+        const currentBal = Number(profile.balance) || 0;
+        window.updateBalanceUI(currentBal);
+
+        if (typeof balance !== 'undefined') balance = currentBal;
+        if (typeof userBalance !== 'undefined') userBalance = currentBal;
+        window.balance = currentBal;
+
+        // রিয়েল-টাইম লাইভ ব্যালান্স আপডেট লিসেনার
+        if (activeId !== u.id) {
+          if (channel) {
+            try { await supabaseClient.removeChannel(channel); } catch (e) {}
+          }
+          activeId = u.id;
+          channel = supabaseClient.channel('profiles-balance-changes-' + u.id)
+            .on(
+              'postgres_changes',
+              { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'id=eq.' + u.id },
+              function(payload) {
+                if (payload.new && payload.new.balance !== undefined) {
+                  const newBal = Number(payload.new.balance) || 0;
+                  window.updateBalanceUI(newBal);
+                  if (typeof balance !== 'undefined') balance = newBal;
+                  if (typeof userBalance !== 'undefined') userBalance = newBal;
+                  window.balance = newBal;
+                }
+              }
+            )
+            .subscribe();
+        }
+      } catch (e) {
+        console.error('Top bar sync error:', e);
+      }
+    };
+
+    window.syncTopBarBalance();
+
+    if (typeof supabaseClient !== 'undefined' && supabaseClient.auth) {
+      supabaseClient.auth.onAuthStateChange(function(event) {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          window.syncTopBarBalance();
+        } else if (event === 'SIGNED_OUT') {
+          window.updateBalanceUI(0);
+          if (typeof balance !== 'undefined') balance = 0;
+          if (typeof userBalance !== 'undefined') userBalance = 0;
+          activeId = null;
+          if (channel) {
+            supabaseClient.removeChannel(channel);
+            channel = null;
+          }
+        }
+      });
+    }
+  })();
+</script>
