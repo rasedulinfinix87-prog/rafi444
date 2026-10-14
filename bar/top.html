@@ -75,106 +75,61 @@
   };
 
   (function() {
-    let topChannel = null;
-    let syncedUserId = null;
-
-    window.updateTopBarBalanceUI = function(val) {
-      const el = document.getElementById('topBarBalance');
-      if (el && val !== null && val !== undefined) {
-        const num = Number(val);
-        if (Number.isFinite(num)) {
-          el.textContent = num.toFixed(2);
-        }
-      }
-    };
-
-    window.syncTopBarAndGame = async function() {
+    async function directSyncBalance() {
       try {
         if (typeof supabaseClient === 'undefined') return;
 
-        let user = null;
-        if (typeof getCurrentUser === 'function') {
-          try {
-            user = await getCurrentUser();
-          } catch (e) {}
+        let userId = null;
+        
+        // ১. Supabase auth থেকে ইউজার বের করার চেষ্টা
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user && user.id) {
+          userId = user.id;
+        } else {
+          // ২. localStorage বা অন্য সোর্স থেকেFallback
+          const localUser = localStorage.getItem('current_user');
+          if (localUser) {
+            const parsed = JSON.parse(localUser);
+            if (parsed && parsed.id) userId = parsed.id;
+          }
         }
 
-        if (!user) {
-          const { data: { user: authUser } } = await supabaseClient.auth.getUser();
-          if (authUser) user = authUser;
-        }
+        if (!userId) return;
 
-        if (!user || !user.id) return;
+        // গেমের গ্লোবাল আইডিতে সেট করা
+        window.currentUserId = userId;
+        if (typeof currentUserId !== 'undefined') currentUserId = userId;
 
-        // গেমের গ্লোবাল ভ্যারিয়েবলে আইডি সেট করা
-        window.currentUserId = user.id;
-        if (typeof currentUserId !== 'undefined') currentUserId = user.id;
-
-        // ডাটাবেজ থেকে profiles টেবিল ফেচ করা
+        // profiles টেবিল থেকে সরাসরি ব্যালান্স ফেচ করা
         const { data: profile, error } = await supabaseClient
           .from('profiles')
-          .select('balance, user_game_id')
-          .eq('id', user.id)
+          .select('balance')
+          .eq('id', userId)
           .maybeSingle();
 
         if (error || !profile) return;
 
-        const fetchedBal = Number(profile.balance) || 0;
+        const currentBal = Number(profile.balance) || 0;
 
-        // টপ বারে ব্যালান্স শো করানো
-        window.updateTopBarBalanceUI(fetchedBal);
-
-        // গেমের ব্যালান্স ভ্যারিয়েবলগুলো একসাথে সিঙ্ক করা যাতে বেট করার সময় আটকে না যায়
-        if (typeof balance !== 'undefined') balance = fetchedBal;
-        if (typeof userBalance !== 'undefined') userBalance = fetchedBal;
-        window.balance = fetchedBal;
-
-        // রিয়েল-টাইম ব্যালান্স আপডেট চ্যানেল
-        if (syncedUserId !== user.id) {
-          if (topChannel) {
-            try { await supabaseClient.removeChannel(topChannel); } catch (e) {}
-          }
-          syncedUserId = user.id;
-          topChannel = supabaseClient.channel('topbar-live-sync-' + user.id)
-            .on(
-              'postgres_changes',
-              { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'id=eq.' + user.id },
-              function(payload) {
-                if (payload.new && payload.new.balance !== undefined) {
-                  const newBalance = Number(payload.new.balance) || 0;
-                  window.updateTopBarBalanceUI(newBalance);
-                  if (typeof balance !== 'undefined') balance = newBalance;
-                  if (typeof userBalance !== 'undefined') userBalance = newBalance;
-                  window.balance = newBalance;
-                }
-              }
-            )
-            .subscribe();
+        // UI-তে ব্যালান্স বসানো
+        const balanceElem = document.getElementById('topBarBalance');
+        if (balanceElem) {
+          balanceElem.textContent = currentBal.toFixed(2);
         }
-      } catch (e) {
-        console.error('TopBar Sync Error:', e);
+
+        // গেমের নিজস্ব ভ্যারিয়েবলগুলোতে ব্যালান্স পুশ করা
+        if (typeof balance !== 'undefined') balance = currentBal;
+        if (typeof userBalance !== 'undefined') userBalance = currentBal;
+        window.balance = currentBal;
+
+      } catch (err) {
+        console.error('Direct balance sync error:', err);
       }
-    };
-
-    // পেজ লোড হওয়ার সাথে সাথে এবং সামান্য বিরতিতে সিঙ্ক নিশ্চিত করা
-    window.syncTopBarAndGame();
-    setTimeout(window.syncTopBarAndGame, 500);
-
-    if (typeof supabaseClient !== 'undefined' && supabaseClient.auth) {
-      supabaseClient.auth.onAuthStateChange(function(event) {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          window.syncTopBarAndGame();
-        } else if (event === 'SIGNED_OUT') {
-          window.updateTopBarBalanceUI(0);
-          if (typeof balance !== 'undefined') balance = 0;
-          if (typeof userBalance !== 'undefined') userBalance = 0;
-          syncedUserId = null;
-          if (topChannel) {
-            supabaseClient.removeChannel(topChannel);
-            topChannel = null;
-          }
-        }
-      });
     }
+
+    // পেজ লোড হওয়ার সাথে সাথে এবং ১ সেকেন্ড পরপর নিশ্চিত করার জন্য সিঙ্ক কল করা
+    directSyncBalance();
+    setTimeout(directSyncBalance, 800);
+    setInterval(directSyncBalance, 3000);
   })();
 </script>
