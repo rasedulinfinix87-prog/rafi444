@@ -1,6 +1,5 @@
 <!-- Top Navigation Bar Container -->
-<header class="w-full bg-[#161b22] border-b border-gray-800/80 px-4 py-2.5 flex justify-between items-center text-white select-none sticky top-0 z-40">
-  
+<header class="w-full bg-[#161b22] border-b border-gray-800/80 px-4 py-2.5 flex justify-between items-center text-white select-none sticky top-0 z-40">  
   <!-- Left Side: Hamburger Menu Button -->
   <div class="flex items-center gap-3">
     <button id="hamburgerBtn" onclick="toggleSidebar()" class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition focus:outline-none">
@@ -12,17 +11,14 @@
 
   <!-- Right Side -->
   <div class="flex items-center gap-3">
-    
     <!-- Balance and Deposit Button Group -->
     <div class="flex items-center bg-[#0f141c] border border-gray-800 rounded-lg p-1 text-xs">
-      <!-- Balance Display -->
       <div class="flex items-center gap-1.5 px-2.5 py-1">
         <span class="w-2 h-2 rounded-full bg-[#24ee89] animate-pulse"></span>
         <span id="topBarCurrency" class="text-gray-400 font-semibold text-[11px]">৳</span>
         <span id="topBarBalance" class="font-extrabold text-[#24ee89] text-sm">0.00</span>
       </div>
 
-      <!-- Quick Deposit Button -->
       <a href="../account/deposit.html" id="depositLinkBtn" class="bg-[#24ee89] hover:bg-emerald-400 text-black font-extrabold p-1.5 rounded-md transition flex items-center justify-center shadow-md">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
@@ -30,7 +26,7 @@
       </a>
     </div>
 
-    <!-- Notification Icon with Dropdown -->
+    <!-- Notification Icon -->
     <div class="relative">
       <button id="notifBtn" onclick="toggleNotifications()" class="relative p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition focus:outline-none">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,13 +35,11 @@
         <span id="notifBadge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-[#161b22]"></span>
       </button>
 
-      <!-- Notification Panel Dropdown -->
       <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-72 bg-[#161b22] border border-gray-800 rounded-xl shadow-2xl z-50 overflow-hidden">
         <div class="p-3 border-b border-gray-800 flex justify-between items-center">
           <span class="text-xs font-bold text-gray-300">Notifications</span>
           <button onclick="clearNotifications()" class="text-[10px] text-gray-500 hover:text-gray-300">Mark as read</button>
         </div>
-
         <div id="notifList" class="max-h-60 overflow-y-auto p-2 text-xs space-y-2 text-gray-400">
           <div class="p-2 bg-[#0f141c] rounded-lg border border-gray-800/60">
             <p class="text-white font-medium text-[11px]">Welcome Bonus Received!</p>
@@ -61,7 +55,6 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
       </svg>
     </a>
-
   </div>
 </header>
 
@@ -82,97 +75,103 @@
   };
 
   (function() {
-    let channel = null;
-    let activeId = null;
+    let topChannel = null;
+    let syncedUserId = null;
 
-    window.updateBalanceUI = function(v) {
-      var e = document.getElementById('topBarBalance');
-      if (!e || v === null || v === undefined) return;
-      var n = Number(v);
-      if (Number.isFinite(n)) {
-        e.textContent = n.toFixed(2);
+    window.updateTopBarBalanceUI = function(val) {
+      const el = document.getElementById('topBarBalance');
+      if (el && val !== null && val !== undefined) {
+        const num = Number(val);
+        if (Number.isFinite(num)) {
+          el.textContent = num.toFixed(2);
+        }
       }
     };
 
-    window.syncTopBarBalance = async function() {
+    window.syncTopBarAndGame = async function() {
       try {
         if (typeof supabaseClient === 'undefined') return;
-        
-        let u = null;
+
+        let user = null;
         if (typeof getCurrentUser === 'function') {
           try {
-            u = await getCurrentUser();
+            user = await getCurrentUser();
           } catch (e) {}
         }
 
-        if (!u) {
-          const { data: { user } } = await supabaseClient.auth.getUser();
-          if (user) u = user;
+        if (!user) {
+          const { data: { user: authUser } } = await supabaseClient.auth.getUser();
+          if (authUser) user = authUser;
         }
 
-        if (!u || !u.id) return;
+        if (!user || !user.id) return;
 
-        // গেমের গ্লোবাল স্কোপে আইডি সেট করে দেওয়া
-        window.currentUserId = u.id;
-        if (typeof currentUserId !== 'undefined') currentUserId = u.id;
+        // গেমের গ্লোবাল ভ্যারিয়েবলে আইডি সেট করা
+        window.currentUserId = user.id;
+        if (typeof currentUserId !== 'undefined') currentUserId = user.id;
 
-        // profiles টেবিল থেকে balance ফেচ করা
+        // ডাটাবেজ থেকে profiles টেবিল ফেচ করা
         const { data: profile, error } = await supabaseClient
           .from('profiles')
           .select('balance, user_game_id')
-          .eq('id', u.id)
+          .eq('id', user.id)
           .maybeSingle();
 
         if (error || !profile) return;
 
-        const currentBal = Number(profile.balance) || 0;
-        window.updateBalanceUI(currentBal);
+        const fetchedBal = Number(profile.balance) || 0;
 
-        if (typeof balance !== 'undefined') balance = currentBal;
-        if (typeof userBalance !== 'undefined') userBalance = currentBal;
-        window.balance = currentBal;
+        // টপ বারে ব্যালান্স শো করানো
+        window.updateTopBarBalanceUI(fetchedBal);
 
-        // রিয়েল-টাইম লাইভ ব্যালান্স আপডেট লিসেনার
-        if (activeId !== u.id) {
-          if (channel) {
-            try { await supabaseClient.removeChannel(channel); } catch (e) {}
+        // গেমের ব্যালান্স ভ্যারিয়েবলগুলো একসাথে সিঙ্ক করা যাতে বেট করার সময় আটকে না যায়
+        if (typeof balance !== 'undefined') balance = fetchedBal;
+        if (typeof userBalance !== 'undefined') userBalance = fetchedBal;
+        window.balance = fetchedBal;
+
+        // রিয়েল-টাইম ব্যালান্স আপডেট চ্যানেল
+        if (syncedUserId !== user.id) {
+          if (topChannel) {
+            try { await supabaseClient.removeChannel(topChannel); } catch (e) {}
           }
-          activeId = u.id;
-          channel = supabaseClient.channel('profiles-balance-changes-' + u.id)
+          syncedUserId = user.id;
+          topChannel = supabaseClient.channel('topbar-live-sync-' + user.id)
             .on(
               'postgres_changes',
-              { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'id=eq.' + u.id },
+              { event: 'UPDATE', schema: 'public', table: 'profiles', filter: 'id=eq.' + user.id },
               function(payload) {
                 if (payload.new && payload.new.balance !== undefined) {
-                  const newBal = Number(payload.new.balance) || 0;
-                  window.updateBalanceUI(newBal);
-                  if (typeof balance !== 'undefined') balance = newBal;
-                  if (typeof userBalance !== 'undefined') userBalance = newBal;
-                  window.balance = newBal;
+                  const newBalance = Number(payload.new.balance) || 0;
+                  window.updateTopBarBalanceUI(newBalance);
+                  if (typeof balance !== 'undefined') balance = newBalance;
+                  if (typeof userBalance !== 'undefined') userBalance = newBalance;
+                  window.balance = newBalance;
                 }
               }
             )
             .subscribe();
         }
       } catch (e) {
-        console.error('Top bar sync error:', e);
+        console.error('TopBar Sync Error:', e);
       }
     };
 
-    window.syncTopBarBalance();
+    // পেজ লোড হওয়ার সাথে সাথে এবং সামান্য বিরতিতে সিঙ্ক নিশ্চিত করা
+    window.syncTopBarAndGame();
+    setTimeout(window.syncTopBarAndGame, 500);
 
     if (typeof supabaseClient !== 'undefined' && supabaseClient.auth) {
       supabaseClient.auth.onAuthStateChange(function(event) {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          window.syncTopBarBalance();
+          window.syncTopBarAndGame();
         } else if (event === 'SIGNED_OUT') {
-          window.updateBalanceUI(0);
+          window.updateTopBarBalanceUI(0);
           if (typeof balance !== 'undefined') balance = 0;
           if (typeof userBalance !== 'undefined') userBalance = 0;
-          activeId = null;
-          if (channel) {
-            supabaseClient.removeChannel(channel);
-            channel = null;
+          syncedUserId = null;
+          if (topChannel) {
+            supabaseClient.removeChannel(topChannel);
+            topChannel = null;
           }
         }
       });
