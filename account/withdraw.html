@@ -4,16 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Withdraw Funds</title>
-  
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <!-- Supabase JS Client & App Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
 
   <style>
-    /* Custom Scrollbar Styling */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -22,12 +21,11 @@
     ::-webkit-scrollbar-thumb { background: #1b2438; border-radius: 4px; }
   </style>
 </head>
+
 <body class="bg-[#0b0f19] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
 
-  <!-- Top Navigation Bar Container (bar/top.html dynamically loaded) -->
   <div id="topBarContainer" class="sticky top-0 z-50"></div>
 
-  <!-- Header -->
   <header class="bg-[#111827] border-b border-slate-800/80 px-4 py-3 flex justify-between items-center">
     <a href="profile.html" class="text-xs text-slate-400 hover:text-white transition flex items-center gap-1 font-semibold">
       ← Profile
@@ -38,10 +36,8 @@
 
   <main class="max-w-md w-full mx-auto p-4 space-y-6 flex-1 pb-10">
 
-    <!-- Alert Box -->
     <div id="alertBox" class="hidden p-3 rounded-xl text-xs font-semibold shadow-md transition-all"></div>
 
-    <!-- Available Balance Card -->
     <div class="bg-[#111827] border border-slate-800 rounded-2xl p-4 flex justify-between items-center shadow-lg">
       <div class="flex items-center gap-2">
         <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89] animate-pulse"></span>
@@ -50,13 +46,12 @@
       <span id="availBalance" class="font-black text-lg text-[#24ee89] tracking-tight">BDT 0.00</span>
     </div>
 
-    <!-- Withdrawal Method Selection -->
     <section class="space-y-2">
       <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300">
         <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
         <span>Select Payment Method</span>
       </div>
-      
+
       <div class="grid grid-cols-3 gap-2.5">
         <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card relative bg-[#111827] border-2 border-[#24ee89] rounded-xl p-3 flex flex-col items-center justify-center gap-1 transition">
           <span class="text-xs font-black text-pink-500">bKash</span>
@@ -75,15 +70,14 @@
       </div>
     </section>
 
-    <!-- Phone Number Input -->
     <section class="space-y-2">
       <label class="block text-xs font-bold text-slate-300">
-        <span class="w-2 h-2 inline-block rounded-full bg-[#24ee89] mr-1"></span> Account Phone Number
+        <span class="w-2 h-2 inline-block rounded-full bg-[#24ee89] mr-1"></span>
+        Account Phone Number
       </label>
       <input type="tel" id="accountNumber" maxlength="11" placeholder="e.g. 017XXXXXXXX" class="w-full bg-[#111827] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#24ee89] font-mono tracking-wider placeholder-slate-600">
     </section>
 
-    <!-- Quick Amounts Selection -->
     <section class="space-y-2">
       <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300">
         <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
@@ -99,7 +93,6 @@
         <button type="button" onclick="setAmount(5000)" class="amount-btn bg-[#111827] border border-slate-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">5,000</button>
       </div>
 
-      <!-- Custom Amount Input -->
       <div class="pt-2">
         <div class="relative flex items-center">
           <span class="absolute left-3.5 text-xs text-slate-500 font-bold">৳</span>
@@ -108,24 +101,22 @@
       </div>
     </section>
 
-    <!-- Next Action Button -->
     <button type="button" onclick="openWithdrawModal()" class="w-full bg-[#24ee89] text-black font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition shadow-lg shadow-[#24ee89]/10">
       Next
     </button>
 
   </main>
 
-  <!-- STEP 1: CONFIRMATION MODAL POPUP -->
+  <!-- Confirmation Modal -->
   <div id="withdrawModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-[#111827] border border-slate-800 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
-      <button onclick="closeModal('withdrawModal')" class="absolute top-3 right-3 text-slate-500 hover:text-white text-base">✕</button>
-      
+      <button type="button" onclick="closeModal('withdrawModal')" class="absolute top-3 right-3 text-slate-500 hover:text-white text-base">✕</button>
+
       <div class="text-center border-b border-slate-800/80 pb-3">
         <h3 class="text-sm font-black text-[#24ee89]">Confirm Withdrawal</h3>
         <p class="text-[10px] text-slate-400 mt-0.5">Please review details carefully</p>
       </div>
 
-      <!-- Summary Info -->
       <div class="bg-[#0b0f19] border border-slate-800/80 rounded-xl p-3.5 space-y-2.5 text-xs">
         <div class="flex justify-between items-center">
           <span class="text-slate-400">Method:</span>
@@ -147,13 +138,13 @@
     </div>
   </div>
 
-  <!-- STEP 2: SUCCESS VERIFICATION MODAL POPUP -->
+  <!-- Success Modal -->
   <div id="verificationModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-[#111827] border border-slate-800 rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
       <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-xl">
         ✓
       </div>
-      
+
       <div>
         <h3 class="text-base font-black text-white">Withdrawal Requested</h3>
         <p class="text-xs text-slate-400 mt-1">Your withdrawal request is being processed. It will be sent to your account after verification.</p>
@@ -172,7 +163,6 @@
     let selectedAmount = 0;
     let hasPendingWithdrawal = false;
 
-    // Load Top Navigation Component
     async function loadTopBar() {
       try {
         const response = await fetch('bar/top.html');
@@ -185,70 +175,91 @@
       }
     }
 
-    // Initialize Auth & Load User Balance + Check Pending Request
     async function init() {
       await loadTopBar();
 
       try {
         let user = null;
+
         if (typeof requireAuth === 'function') {
           user = await requireAuth();
         } else if (typeof getCurrentUser === 'function') {
           user = await getCurrentUser();
         }
 
-        if (user) {
-          currentUserId = user.id;
-
-          // Fetch Profile Balance
-          const { data: profile } = await supabaseClient
-            .from('profiles')
-            .select('balance')
-            .eq('id', currentUserId)
-            .single();
-
-          if (profile) {
-            currentBalance = parseFloat(profile.balance) || 0;
-            document.getElementById('availBalance').innerText = `BDT ${currentBalance.toFixed(2)}`;
-            
-            // Sync with Top Bar Balance element if present
-            const topBal = document.getElementById('topBarBalance');
-            if (topBal) topBal.innerText = currentBalance.toFixed(2);
-          }
-
-          // Check if user already has a pending withdrawal request
-          const { data: pending } = await supabaseClient
-            .from('withdrawals')
-            .select('id')
-            .eq('user_id', currentUserId)
-            .eq('status', 'pending')
-            .maybeSingle();
-
-          if (pending) {
-            hasPendingWithdrawal = true;
-            showAlert('আপনার একটি উইথড্রয়াল রিকোয়েস্ট পেন্ডিং অবস্থায় আছে। সেটি সফল হওয়া ছাড়া নতুন উইথড্র দেওয়া সম্ভব নয়।');
-          }
+        if (!user) {
+          showAlert('আপনাকে প্রথমে লগইন করতে হবে।');
+          return;
         }
+
+        currentUserId = user.id;
+
+        // Balance এবং Turnover একই profiles টেবিল থেকে নেওয়া হচ্ছে
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('balance, turnover_required, current_turnover')
+          .eq('id', currentUserId)
+          .single();
+
+        if (profileError || !profile) {
+          showAlert('আপনার অ্যাকাউন্টের তথ্য লোড করা যায়নি।');
+          return;
+        }
+
+        currentBalance = Number(profile.balance) || 0;
+
+        document.getElementById('availBalance').innerText =
+          `BDT ${currentBalance.toFixed(2)}`;
+
+        const topBal = document.getElementById('topBarBalance');
+        if (topBal) topBal.innerText = currentBalance.toFixed(2);
+
+        // Pending Withdrawal পরীক্ষা
+        const { data: pending, error: pendingError } = await supabaseClient
+          .from('withdrawals')
+          .select('id')
+          .eq('user_id', currentUserId)
+          .eq('status', 'pending')
+          .limit(1);
+
+        if (pendingError) {
+          showAlert('Withdrawal তথ্য যাচাই করা যায়নি।');
+          return;
+        }
+
+        if (pending && pending.length > 0) {
+          hasPendingWithdrawal = true;
+          showAlert('আপনার একটি উইথড্রয়াল রিকোয়েস্ট পেন্ডিং অবস্থায় আছে। সেটি সফল হওয়া ছাড়া নতুন উইথড্র দেওয়া সম্ভব নয়।');
+        }
+
       } catch (err) {
         console.error("Init Error:", err);
+        showAlert('অ্যাকাউন্টের তথ্য লোড করতে সমস্যা হয়েছে।');
       }
     }
 
     function showAlert(msg, isSuccess = false) {
       const alertBox = document.getElementById('alertBox');
       alertBox.innerText = msg;
-      alertBox.className = `p-3 rounded-xl text-xs font-semibold ${isSuccess ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`;
+      alertBox.className =
+        `p-3 rounded-xl text-xs font-semibold ${
+          isSuccess
+            ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700'
+            : 'bg-red-900/50 text-red-300 border border-red-700'
+        }`;
       alertBox.classList.remove('hidden');
     }
 
     function selectMethod(method) {
       selectedMethod = method;
+
       document.querySelectorAll('.method-card').forEach(card => {
         card.classList.remove('border-[#24ee89]', 'border-2');
         card.classList.add('border-slate-800');
       });
 
       const activeBtn = document.getElementById(`method-${method}`);
+
       if (activeBtn) {
         activeBtn.classList.remove('border-slate-800');
         activeBtn.classList.add('border-[#24ee89]', 'border-2');
@@ -260,23 +271,56 @@
       document.getElementById('customAmount').value = amount;
     }
 
-    function openWithdrawModal() {
+    async function openWithdrawModal() {
+      if (!currentUserId) {
+        showAlert('আপনাকে প্রথমে লগইন করতে হবে।');
+        return;
+      }
+
       if (hasPendingWithdrawal) {
         showAlert('আপনার পূর্বের উইথড্র রিকোয়েস্টটি পেন্ডিং রয়েছে। সেটি প্রসেস হওয়া পর্যন্ত অপেক্ষা করুন।');
         return;
       }
 
+      // Turnover যাচাই
+      const { data: profile, error } = await supabaseClient
+        .from('profiles')
+        .select('balance, turnover_required, current_turnover')
+        .eq('id', currentUserId)
+        .single();
+
+      if (error || !profile) {
+        showAlert('আপনার অ্যাকাউন্টের তথ্য যাচাই করা যায়নি।');
+        return;
+      }
+
+      const requiredTurnover = Number(profile.turnover_required) || 0;
+      const currentTurnover = Number(profile.current_turnover) || 0;
+
+      if (currentTurnover < requiredTurnover) {
+        const remaining = requiredTurnover - currentTurnover;
+
+        showAlert(
+          `Turnover পূর্ণ হয়নি। প্রয়োজন: ${requiredTurnover.toFixed(2)} BDT, সম্পন্ন: ${currentTurnover.toFixed(2)} BDT, বাকি: ${remaining.toFixed(2)} BDT।`
+        );
+        return;
+      }
+
+      currentBalance = Number(profile.balance) || 0;
+
+      document.getElementById('availBalance').innerText =
+        `BDT ${currentBalance.toFixed(2)}`;
+
       const accNum = document.getElementById('accountNumber').value.trim();
       const customAmt = parseFloat(document.getElementById('customAmount').value);
       const finalAmt = customAmt || selectedAmount;
 
-      // Validations
-      if (!accNum || accNum.length < 11) {
-        showAlert('অনুগ্রহ করে ১১ ডিজিটের সঠিক মোবাইল নম্বর দিন।');
+      if (!/^01[3-9]\d{8}$/.test(accNum)) {
+        showAlert('অনুগ্রহ করে সঠিক ১১ ডিজিটের বাংলাদেশি মোবাইল নম্বর দিন।');
         return;
       }
 
-      if (!finalAmt || finalAmt < 50) {
+      if (!Number.isFinite(finalAmt) || finalAmt < 50) {
         showAlert('সর্বনিম্ন ৫০ BDT উইথড্র করতে পারবেন।');
         return;
       }
@@ -289,7 +333,6 @@
       document.getElementById('alertBox').classList.add('hidden');
       selectedAmount = finalAmt;
 
-      // Populate Modal Fields
       document.getElementById('modalMethod').innerText = selectedMethod + ' Personal';
       document.getElementById('modalNumber').innerText = accNum;
       document.getElementById('modalAmount').innerText = `${selectedAmount} BDT`;
@@ -301,92 +344,122 @@
       document.getElementById(modalId).classList.add('hidden');
     }
 
-    // Updated Submit Withdrawal Function
     async function submitWithdrawal() {
       const accNum = document.getElementById('accountNumber').value.trim();
       const btn = document.getElementById('submitWithdrawBtn');
 
+      if (!currentUserId) {
+        showAlert('আপনাকে প্রথমে লগইন করতে হবে।');
+        return;
+      }
+
       btn.disabled = true;
-      btn.innerText = "Processing...";
+      btn.innerText = 'Processing...';
 
       try {
-        // 1. Double Check Balance
+        // Submit করার সময়ও সর্বশেষ Balance ও Turnover যাচাই
         const { data: profile, error: pErr } = await supabaseClient
           .from('profiles')
-          .select('balance')
+          .select('balance, turnover_required, current_turnover')
           .eq('id', currentUserId)
           .single();
 
         if (pErr || !profile) {
-          alert('ব্যালেন্স আপডেট করতে সমস্যা হয়েছে।');
-          btn.disabled = false;
-          btn.innerText = "Confirm & Submit";
+          showAlert('অ্যাকাউন্টের তথ্য যাচাই করতে সমস্যা হয়েছে।');
           return;
         }
 
-        const latestBal = parseFloat(profile.balance || 0);
+        const latestBal = Number(profile.balance) || 0;
+        const requiredTurnover = Number(profile.turnover_required) || 0;
+        const currentTurnover = Number(profile.current_turnover) || 0;
 
-        if (latestBal < selectedAmount) {
-          alert('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
-          btn.disabled = false;
-          btn.innerText = "Confirm & Submit";
+        if (currentTurnover < requiredTurnover) {
+          showAlert(
+            `Turnover পূর্ণ হয়নি। প্রয়োজন: ${requiredTurnover.toFixed(2)} BDT, সম্পন্ন: ${currentTurnover.toFixed(2)} BDT, বাকি: ${(requiredTurnover - currentTurnover).toFixed(2)} BDT।`
+          );
           closeModal('withdrawModal');
           return;
         }
 
-        // 2. Insert into withdrawals table
-        const { data, error } = await supabaseClient
-          .from('withdrawals')
-          .insert([
-            {
-              user_id: currentUserId,
-              amount: selectedAmount,
-              payment_method: selectedMethod,
-              account_number: accNum,
-              status: 'pending'
-            }
-          ]);
-
-        if (error) {
-          alert('Error: ' + error.message);
-          btn.disabled = false;
-          btn.innerText = "Confirm & Submit";
+        if (latestBal < selectedAmount) {
+          showAlert('আপনার অ্যাকাউন্টে পর্যাপ্ত ব্যালেন্স নেই!');
+          closeModal('withdrawModal');
           return;
         }
 
-        // 3. Deduct balance from user profile
+        // Pending Withdrawal পুনরায় যাচাই
+        const { data: pending, error: pendingErr } = await supabaseClient
+          .from('withdrawals')
+          .select('id')
+          .eq('user_id', currentUserId)
+          .eq('status', 'pending')
+          .limit(1);
+
+        if (pendingErr) {
+          showAlert('Pending Withdrawal যাচাই করা যায়নি।');
+          return;
+        }
+
+        if (pending && pending.length > 0) {
+          hasPendingWithdrawal = true;
+          showAlert('আপনার একটি Withdrawal Request ইতিমধ্যে Pending রয়েছে।');
+          closeModal('withdrawModal');
+          return;
+        }
+
+        // Withdrawal Request তৈরি
+        const { error: insertError } = await supabaseClient
+          .from('withdrawals')
+          .insert({
+            user_id: currentUserId,
+            amount: selectedAmount,
+            payment_method: selectedMethod,
+            account_number: accNum,
+            status: 'pending'
+          });
+
+        if (insertError) {
+          showAlert('Withdrawal Request তৈরি করা যায়নি: ' + insertError.message);
+          return;
+        }
+
+        // আগের নিয়ম অনুযায়ী Balance থেকে টাকা বাদ
         const newBal = latestBal - selectedAmount;
+
         const { error: updateErr } = await supabaseClient
           .from('profiles')
           .update({ balance: newBal })
           .eq('id', currentUserId);
 
         if (updateErr) {
-          console.error("Balance update error:", updateErr);
-        } else {
-          // Update local state and UI balance instantly
-          currentBalance = newBal;
-          document.getElementById('availBalance').innerText = `BDT ${currentBalance.toFixed(2)}`;
-          const topBal = document.getElementById('topBarBalance');
-          if (topBal) topBal.innerText = currentBalance.toFixed(2);
+          console.error('Balance update error:', updateErr);
+          showAlert('Withdrawal Request তৈরি হয়েছে, কিন্তু Balance আপডেট করা যায়নি।');
+          return;
         }
 
+        currentBalance = newBal;
+        document.getElementById('availBalance').innerText =
+          `BDT ${currentBalance.toFixed(2)}`;
+
+        const topBal = document.getElementById('topBarBalance');
+        if (topBal) topBal.innerText = currentBalance.toFixed(2);
+
         hasPendingWithdrawal = true;
-        btn.disabled = false;
-        btn.innerText = "Confirm & Submit";
 
         closeModal('withdrawModal');
         document.getElementById('verificationModal').classList.remove('hidden');
 
       } catch (err) {
-        console.error("Withdraw submission error:", err);
+        console.error('Withdraw submission error:', err);
+        showAlert('Withdrawal করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+      } finally {
         btn.disabled = false;
-        btn.innerText = "Confirm & Submit";
+        btn.innerText = 'Confirm & Submit';
       }
     }
 
     function finishWithdraw() {
-      window.location.href = "profile.html";
+      window.location.href = 'profile.html';
     }
 
     document.addEventListener('DOMContentLoaded', init);
