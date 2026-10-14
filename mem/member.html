@@ -74,10 +74,12 @@
             <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=male" alt="Selected avatar" class="w-full h-full object-cover">
             <span class="absolute inset-0 bg-black/0 hover:bg-black/20 flex items-center justify-center"><i class="fa-solid fa-pen text-white text-xs opacity-0 hover:opacity-100"></i></span>
           </button>
+
           <div class="flex flex-col gap-1 min-w-0">
             <span class="bg-[#252c2d] text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/20 w-fit">
               <i class="fa-solid fa-crown text-[9px] mr-1"></i> VIP 1
             </span>
+
             <div class="flex items-center gap-1.5 min-w-0">
               <span class="text-[11px] text-slate-400 font-medium shrink-0">GAME ID:</span>
               <span id="userGameId" class="text-xs text-emerald-400 font-bold truncate">----</span>
@@ -85,7 +87,9 @@
                 <i class="fa-regular fa-copy"></i>
               </button>
             </div>
+
             <span id="userJoined" class="text-[10px] text-slate-400 font-semibold">Joined: ----</span>
+
             <button type="button" onclick="openAvatarPicker()" class="text-left text-[11px] text-emerald-400 font-semibold mt-0.5">
               <i class="fa-solid fa-user-pen mr-1"></i> Change Avatar
             </button>
@@ -97,6 +101,7 @@
             <span class="text-lg font-bold text-emerald-400">৳</span>
             <span id="userBalance" class="text-2xl font-black text-emerald-400 tracking-tight">0.00</span>
           </div>
+
           <button type="button" onclick="syncMemberBalance()" class="text-slate-400 hover:text-white text-sm p-2 transition" aria-label="Refresh balance">
             <i class="fa-solid fa-rotate-right" id="refreshIcon"></i>
           </button>
@@ -106,16 +111,18 @@
           <a href="../account/deposit.html" class="bg-[#252d2e] text-white font-extrabold text-xs py-3 px-1 rounded-xl border border-white/5 text-center flex items-center justify-center gap-1.5 active:scale-95">
             <i class="fa-solid fa-wallet text-emerald-400"></i> Deposit
           </a>
+
           <a href="../account/withdraw.html" class="bg-[#252d2e] text-white font-extrabold text-xs py-3 px-1 rounded-xl border border-white/5 text-center flex items-center justify-center gap-1.5 active:scale-95">
             <i class="fa-solid fa-money-bill-transfer text-amber-400"></i> Withdrawal
           </a>
+
           <a href="../account/profile.html" class="bg-[#252d2e] text-white font-extrabold text-[11px] py-3 px-1 rounded-xl border border-white/5 text-center flex items-center justify-center gap-1 leading-tight active:scale-95">
             <i class="fa-solid fa-building-columns text-sky-400"></i> Bank Account
           </a>
         </div>
       </div>
 
-      <!-- Account shortcuts: Buy and Swap removed -->
+      <!-- Account shortcuts -->
       <section class="menu-card px-3 py-3">
         <div class="grid grid-cols-4 gap-x-1 gap-y-2">
           <a href="../account/vault.html" class="shortcut"><i class="fa-solid fa-vault"></i><span>Vault Pro</span></a>
@@ -136,7 +143,7 @@
         </a>
       </section>
 
-      <!-- Global settings list -->
+      <!-- Global settings -->
       <section class="menu-card">
         <a href="../account/settings.html" class="menu-row">
           <i class="menu-icon fa-solid fa-gear"></i>
@@ -144,23 +151,29 @@
           <i class="fa-solid fa-circle-exclamation text-amber-400 text-sm mr-1"></i>
           <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
         </a>
+
         <button type="button" class="menu-row" onclick="cycleLanguage()">
           <i class="menu-icon fa-solid fa-language"></i>
           <span class="menu-label">Language</span>
           <span id="languageValue" class="text-sm text-slate-300 mr-1">English</span>
           <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
         </button>
+
         <div class="menu-row">
           <i class="menu-icon fa-solid fa-palette"></i>
           <span class="menu-label">Theme</span>
           <div class="theme-switch">
-            <button id="darkThemeBtn" type="button" class="active" onclick="setTheme('dark')" aria-label="Dark theme"><i class="fa-solid fa-moon"></i></button>
-            <button id="lightThemeBtn" type="button" onclick="setTheme('light')" aria-label="Light theme"><i class="fa-solid fa-sun"></i></button>
+            <button id="darkThemeBtn" type="button" class="active" onclick="setTheme('dark')" aria-label="Dark theme">
+              <i class="fa-solid fa-moon"></i>
+            </button>
+            <button id="lightThemeBtn" type="button" onclick="setTheme('light')" aria-label="Light theme">
+              <i class="fa-solid fa-sun"></i>
+            </button>
           </div>
         </div>
       </section>
 
-      <!-- Support row -->
+      <!-- Support -->
       <section class="menu-card">
         <a href="../account/support.html" class="menu-row">
           <i class="menu-icon fa-solid fa-headset text-emerald-400"></i>
@@ -181,27 +194,38 @@
     <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-[#303738] p-4 shadow-2xl">
       <div class="flex items-center justify-between mb-4">
         <h2 id="avatarModalTitle" class="text-base font-extrabold">Choose Your Avatar</h2>
-        <button type="button" onclick="closeAvatarPicker()" class="w-9 h-9 rounded-lg bg-[#414a4c] text-white" aria-label="Close avatar picker"><i class="fa-solid fa-xmark"></i></button>
+        <button type="button" onclick="closeAvatarPicker()" class="w-9 h-9 rounded-lg bg-[#414a4c] text-white" aria-label="Close avatar picker">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
+
       <div class="grid grid-cols-3 gap-2">
         <button type="button" class="avatar-option" data-avatar="male" onclick="selectAvatar('male')">
           <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=male&top=shortHair" alt="Male avatar"><span>Male</span>
         </button>
+
         <button type="button" class="avatar-option" data-avatar="female" onclick="selectAvatar('female')">
           <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=female&top=longHair" alt="Female avatar"><span>Female</span>
         </button>
+
         <button type="button" class="avatar-option" data-avatar="queen" onclick="selectAvatar('queen')">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=queen& accessories=round" alt="Queen avatar"><span>Queen</span>
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=queen&accessories=round" alt="Queen avatar"><span>Queen</span>
         </button>
+
         <button type="button" class="avatar-option" data-avatar="king" onclick="selectAvatar('king')">
           <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=king&top=hat" alt="King avatar"><span>King</span>
         </button>
+
         <button type="button" class="avatar-option" data-avatar="rockman" onclick="selectAvatar('rockman')">
           <img src="https://api.dicebear.com/7.x/bottts/svg?seed=rockman" alt="Rockman avatar"><span>Rockman</span>
         </button>
       </div>
+
       <p class="text-xs text-slate-400 mt-3">Your selection is saved on this device.</p>
-      <button type="button" onclick="closeAvatarPicker()" class="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-[#062018]">Done</button>
+
+      <button type="button" onclick="closeAvatarPicker()" class="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-[#062018]">
+        Done
+      </button>
     </div>
   </div>
 
@@ -216,11 +240,19 @@
 
     function applySavedAvatar() {
       let selected = 'male';
+
       try {
         const saved = localStorage.getItem('selected_account_avatar');
-        if (saved && Object.prototype.hasOwnProperty.call(AVATAR_URLS, saved)) selected = saved;
-      } catch (e) {}
+
+        if (saved && Object.prototype.hasOwnProperty.call(AVATAR_URLS, saved)) {
+          selected = saved;
+        }
+      } catch (e) {
+        console.error('Avatar preference error:', e);
+      }
+
       document.getElementById('userAvatar').src = AVATAR_URLS[selected];
+
       document.querySelectorAll('.avatar-option').forEach(option => {
         option.classList.toggle('selected', option.dataset.avatar === selected);
       });
@@ -228,6 +260,7 @@
 
     function openAvatarPicker() {
       applySavedAvatar();
+
       const modal = document.getElementById('avatarModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
@@ -241,16 +274,25 @@
 
     function selectAvatar(type) {
       if (!Object.prototype.hasOwnProperty.call(AVATAR_URLS, type)) return;
+
       document.getElementById('userAvatar').src = AVATAR_URLS[type];
+
       document.querySelectorAll('.avatar-option').forEach(option => {
         option.classList.toggle('selected', option.dataset.avatar === type);
       });
-      try { localStorage.setItem('selected_account_avatar', type); } catch (e) {}
+
+      try {
+        localStorage.setItem('selected_account_avatar', type);
+      } catch (e) {
+        console.error('Avatar save error:', e);
+      }
     }
 
     async function copyGameId() {
       const gameId = document.getElementById('userGameId').textContent.trim();
+
       if (!gameId || gameId === '----') return;
+
       try {
         await navigator.clipboard.writeText(gameId);
         alert('GAME ID copied!');
@@ -259,62 +301,170 @@
       }
     }
 
-    // Load member profile, Game ID and balance.
+    // ==========================================
+    // MEMBER PROFILE AND BALANCE SYNCHRONIZATION
+    // Balance source: profiles.balance
+    // ==========================================
+
+    let memberSyncInProgress = false;
+
     async function syncMemberBalance() {
       const refreshIcon = document.getElementById('refreshIcon');
-      if (refreshIcon) refreshIcon.classList.add('fa-spin');
+
+      if (memberSyncInProgress) return;
+
+      memberSyncInProgress = true;
+
+      if (refreshIcon) {
+        refreshIcon.classList.add('fa-spin');
+      }
 
       try {
+        // Check logged-in member.
         const storedUser = localStorage.getItem('current_user');
+
         if (!storedUser) {
-          window.location.href = "../login-signup.html";
+          window.location.href = '../login-signup.html';
           return;
         }
 
-        const currentUserObj = JSON.parse(storedUser);
+        let currentUserObj;
 
-        if (typeof supabaseClient !== 'undefined') {
-          const { data: profile, error } = await supabaseClient
-            .from('profiles')
-            .select('*')
-            .eq('id', currentUserObj.id)
-            .single();
-
-          if (error) console.error('Profile load error:', error);
-
-          if (profile) {
-            const gameId = profile.user_game_id || profile.id || currentUserObj.id || '';
-            document.getElementById('userGameId').innerText = gameId
-              ? String(gameId).slice(0, 8).toUpperCase()
-              : '----';
-            if (profile.balance !== undefined && profile.balance !== null) {
-              document.getElementById('userBalance').innerText = parseFloat(profile.balance).toFixed(2);
-            }
-            if (profile.created_at) {
-              const date = new Date(profile.created_at).toISOString().split('T')[0];
-              document.getElementById('userJoined').innerText = `Joined: ${date}`;
-            }
-          }
-        } else {
-          console.error('supabaseClient was not found. Check ../supabase-config.js');
+        try {
+          currentUserObj = JSON.parse(storedUser);
+        } catch (parseError) {
+          console.error('Invalid current_user data:', parseError);
+          window.location.href = '../login-signup.html';
+          return;
         }
+
+        // profiles.id is a UUID.
+        // Support the common user ID property names.
+        const userId =
+          currentUserObj.id ||
+          currentUserObj.user_id ||
+          currentUserObj.uid;
+
+        if (!userId) {
+          console.error('Logged-in user UUID was not found.');
+          alert('User session is invalid. Please log in again.');
+          window.location.href = '../login-signup.html';
+          return;
+        }
+
+        // Verify Supabase client.
+        if (
+          typeof supabaseClient === 'undefined' ||
+          !supabaseClient
+        ) {
+          console.error(
+            'supabaseClient was not found. Check ../supabase-config.js'
+          );
+          return;
+        }
+
+        // Read only the columns needed by this page.
+        const { data: profile, error } = await supabaseClient
+          .from('profiles')
+          .select(`
+            id,
+            full_name,
+            phone_number,
+            balance,
+            created_at,
+            user_game_id,
+            turnover_required,
+            current_turnover
+          `)
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Profile load error:', error);
+          return;
+        }
+
+        if (!profile) {
+          console.error(
+            'No profiles record found for user UUID:',
+            userId
+          );
+          return;
+        }
+
+        // Update Game ID.
+        const gameId = profile.user_game_id || profile.id || '';
+
+        document.getElementById('userGameId').textContent = gameId
+          ? String(gameId).slice(0, 8).toUpperCase()
+          : '----';
+
+        // Update balance from the profiles.balance column.
+        // Do not add deposits.bonus_amount again here.
+        const balanceElement = document.getElementById('userBalance');
+
+        if (
+          profile.balance !== null &&
+          profile.balance !== undefined &&
+          Number.isFinite(Number(profile.balance))
+        ) {
+          balanceElement.textContent = Number(profile.balance).toFixed(2);
+        } else {
+          console.error(
+            'Invalid balance value in profiles:',
+            profile.balance
+          );
+          balanceElement.textContent = '0.00';
+        }
+
+        // Update registration date.
+        if (profile.created_at) {
+          const joinedDate = new Date(profile.created_at);
+
+          if (!Number.isNaN(joinedDate.getTime())) {
+            document.getElementById('userJoined').textContent =
+              'Joined: ' +
+              joinedDate.toLocaleDateString('en-CA', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                timeZone: 'UTC'
+              });
+          }
+        }
+
+        // Keep these profile columns available for rollover integration.
+        // They are not added to the wallet balance.
+        console.log('Member profile synchronized successfully.');
+
       } catch (err) {
-        console.error('Member sync error:', err);
+        console.error('Member synchronization error:', err);
       } finally {
-        if (refreshIcon) refreshIcon.classList.remove('fa-spin');
+        memberSyncInProgress = false;
+
+        if (refreshIcon) {
+          refreshIcon.classList.remove('fa-spin');
+        }
       }
     }
 
     function setTheme(theme) {
       const isLight = theme === 'light';
+
       document.body.classList.toggle('light-mode', isLight);
-      document.getElementById('darkThemeBtn').classList.toggle('active', !isLight);
-      document.getElementById('lightThemeBtn').classList.toggle('active', isLight);
+
+      document.getElementById('darkThemeBtn')
+        .classList.toggle('active', !isLight);
+
+      document.getElementById('lightThemeBtn')
+        .classList.toggle('active', isLight);
     }
 
     function cycleLanguage() {
       const el = document.getElementById('languageValue');
-      el.textContent = el.textContent === 'English' ? 'বাংলা' : 'English';
+
+      el.textContent =
+        el.textContent === 'English' ? 'বাংলা' : 'English';
     }
 
     document.addEventListener('DOMContentLoaded', () => {
