@@ -75,62 +75,157 @@
             font-size: 20px;
         }
 
-        /* Period and timer card */
+        /* Main Period and Timer Card */
         .period-timer-card {
+            position: relative;
+            overflow: hidden;
             background:
-                radial-gradient(circle at top right, rgba(16,185,129,.08), transparent 45%),
-                #030817;
-            border: 1px solid #253047;
-            border-radius: 20px;
-            padding: 14px 12px;
-            min-height: 112px;
+                radial-gradient(ellipse at 10% 0%, rgba(16,185,129,.13), transparent 48%),
+                radial-gradient(ellipse at 100% 100%, rgba(59,130,246,.12), transparent 45%),
+                linear-gradient(145deg, #0b1428 0%, #030817 65%, #071326 100%);
+            border: 1px solid #263b54;
+            border-radius: 22px;
+            padding: 13px;
+            min-height: 126px;
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
             align-items: center;
             gap: 10px;
-            box-shadow: inset 0 0 18px rgba(0,0,0,.45);
+            box-shadow:
+                inset 0 0 22px rgba(0,0,0,.4),
+                0 8px 20px rgba(0,0,0,.18);
         }
 
+        .period-timer-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 14%;
+            right: 14%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(52,211,153,.65), transparent);
+        }
+
+        /* Individual Period Card */
         .period-info {
             min-width: 0;
+            padding: 11px 9px;
+            border-radius: 15px;
+            border: 1px solid rgba(96,165,250,.22);
+            background:
+                linear-gradient(145deg, rgba(30,58,95,.42), rgba(8,15,32,.9));
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.04),
+                0 4px 12px rgba(0,0,0,.18);
         }
 
         .period-heading {
-            font-size: 11px;
-            color: #94a3b8;
-            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            max-width: 100%;
+            font-size: 9px;
+            line-height: 1.3;
+            color: #93c5fd;
+            letter-spacing: .7px;
             text-transform: uppercase;
-            font-weight: 700;
-            margin-bottom: 7px;
-        }
-
-        .period-number-display {
-            color: #fbbf24;
-            font-family: monospace;
-            font-size: clamp(12px, 3.6vw, 16px);
             font-weight: 900;
-            letter-spacing: .3px;
-            overflow-wrap: anywhere;
-            text-shadow: 0 0 10px rgba(251,191,36,.18);
-        }
-
-        .timer-area {
-            text-align: center;
-            min-width: 0;
-        }
-
-        .timer-label {
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: 1.1px;
-            color: #6ee7b7;
-            margin-bottom: 8px;
+            margin-bottom: 9px;
+            padding: 5px 7px;
+            border-radius: 7px;
+            border: 1px solid rgba(96,165,250,.25);
+            background: rgba(30,64,115,.28);
             white-space: nowrap;
         }
 
+        .period-heading::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            flex: 0 0 6px;
+            border-radius: 50%;
+            background: #60a5fa;
+            box-shadow: 0 0 7px rgba(96,165,250,.75);
+        }
+
+        .period-number-display {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 9px 7px;
+            border-radius: 10px;
+            border: 1px solid rgba(251,191,36,.32);
+            background:
+                linear-gradient(180deg, rgba(2,6,23,.95), rgba(15,23,42,.95));
+            color: #fbbf24;
+            font-family: monospace;
+            font-size: clamp(11px, 3.4vw, 15px);
+            line-height: 1.4;
+            font-weight: 900;
+            letter-spacing: .2px;
+            text-align: center;
+            overflow-wrap: anywhere;
+            text-shadow: 0 0 10px rgba(251,191,36,.22);
+            box-shadow:
+                inset 0 2px 7px rgba(0,0,0,.4),
+                0 0 10px rgba(251,191,36,.04);
+        }
+
+        /* Timer Card */
+        .timer-area {
+            text-align: center;
+            min-width: 0;
+            padding: 10px 8px;
+            border-radius: 15px;
+            border: 1px solid rgba(52,211,153,.23);
+            background:
+                linear-gradient(145deg, rgba(6,35,35,.65), rgba(3,12,24,.95));
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.04),
+                0 4px 12px rgba(0,0,0,.18);
+        }
+
+        .timer-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            min-height: 25px;
+            padding: 5px 8px;
+            margin-bottom: 9px;
+            border-radius: 8px;
+            border: 1px solid rgba(52,211,153,.28);
+            background: rgba(6,78,59,.3);
+            color: #6ee7b7;
+            font-size: 9px;
+            line-height: 1.2;
+            font-weight: 900;
+            letter-spacing: .65px;
+            white-space: nowrap;
+            box-shadow: 0 0 10px rgba(16,185,129,.04);
+        }
+
+        .timer-label::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            flex: 0 0 6px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 7px rgba(52,211,153,.8);
+        }
+
         .timer-label.timer-label-danger {
-            color: #fb7185;
+            color: #fecdd3;
+            background: rgba(136,19,55,.45);
+            border-color: rgba(251,113,133,.65);
+            box-shadow: 0 0 12px rgba(244,63,94,.15);
             animation: dangerPulse 1s infinite;
+        }
+
+        .timer-label.timer-label-danger::before {
+            background: #fb7185;
+            box-shadow: 0 0 8px rgba(251,113,133,.9);
         }
 
         .digital-timer {
@@ -182,7 +277,7 @@
             text-shadow: 0 0 8px rgba(74,222,128,.4);
         }
 
-        /* Last five seconds: keep the digits visible, but change the color */
+        /* Final five seconds */
         .digital-timer.timer-danger .timer-digit {
             background: linear-gradient(180deg, #f43f5e 0%, #9f1239 100%);
             border-color: #fb7185;
@@ -296,10 +391,31 @@
             border-radius: 8px;
         }
 
-        @media (max-width: 360px) {
+        @media (max-width: 380px) {
             .period-timer-card {
-                padding: 12px 9px;
-                gap: 6px;
+                padding: 9px;
+                gap: 7px;
+                grid-template-columns: minmax(0, 1fr) auto;
+            }
+
+            .period-info {
+                padding: 8px 6px;
+            }
+
+            .period-heading {
+                font-size: 8px;
+                letter-spacing: .3px;
+                padding: 5px 5px;
+                gap: 4px;
+            }
+
+            .period-number-display {
+                font-size: 11px;
+                padding: 8px 4px;
+            }
+
+            .timer-area {
+                padding: 8px 5px;
             }
 
             .timer-digit {
@@ -313,8 +429,34 @@
             }
 
             .timer-label {
-                font-size: 9px;
-                letter-spacing: .6px;
+                font-size: 8px;
+                letter-spacing: .3px;
+                padding: 5px 5px;
+                gap: 4px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .period-timer-card {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .period-info {
+                width: 100%;
+            }
+
+            .period-number-display {
+                font-size: 14px;
+            }
+
+            .timer-area {
+                width: 100%;
+            }
+
+            .timer-digit {
+                width: 27px;
+                height: 38px;
+                font-size: 23px;
             }
         }
     </style>
@@ -365,7 +507,7 @@
 
                 </div>
 
-                <!-- Updated Period and Digital Timer Card -->
+                <!-- Period Number and Digital Timer Card -->
                 <div class="game-section period-timer-card">
 
                     <div class="period-info">
@@ -609,10 +751,6 @@
                 const timeText =
                     `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 
-                /*
-                 * Render each digit in its own tile.
-                 * Example: 00:05 remains visible instead of "No More Bet".
-                 */
                 timerElem.innerHTML = `
                     <span class="timer-digit">${timeText[0]}</span>
                     <span class="timer-digit">${timeText[1]}</span>
@@ -625,7 +763,7 @@
                     timerElem.classList.add("timer-danger");
 
                     if (timerLabel) {
-                        timerLabel.innerText = "BETTING CLOSED";
+                        timerLabel.innerText = "BET CLOSED";
                         timerLabel.classList.add("timer-label-danger");
                     }
                 } else {
