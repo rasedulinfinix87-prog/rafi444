@@ -103,7 +103,7 @@
             height: 1px;
             width: 100%;
             background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.3), transparent);
-            margin: 4px 0;
+            margin: 6px 0;
         }
 
         .period-info, .timer-area {
@@ -118,7 +118,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            width: 100%;
         }
 
         .period-heading {
@@ -140,9 +140,12 @@
             color: #f59e0b;
             background: rgba(245, 158, 11, 0.1);
             border: 1px solid rgba(245, 158, 11, 0.3);
-            padding: 2px 8px;
+            padding: 3px 8px;
             border-radius: 6px;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
             transition: all 0.2s ease;
         }
 
@@ -163,6 +166,7 @@
             background: transparent;
             text-align: left;
             overflow: hidden;
+            margin-top: 4px;
         }
 
         .period-digit {
@@ -516,7 +520,9 @@
                     <div class="period-info">
                         <div class="period-heading-row">
                             <p class="period-heading">Period Number</p>
-                            <a href="play-condtion/color-trading.html" class="how-to-play-btn">How To Play +</a>
+                            <a href="play-condtion/color-trading.html" class="how-to-play-btn">
+                                📖 How To Play
+                            </a>
                         </div>
                         <div class="card-divider"></div>
                         <p id="period-number" class="period-number-display" aria-label="Period Number"></p>
@@ -698,7 +704,6 @@
         let timerInterval = null;
         let selectedTarget = null;
         let winModalTimeout = null;
-        let lastPlayedDangerSecond = null;
 
         let activeTab = 'game-history';
 
@@ -720,6 +725,7 @@
                 let utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-US';
                 utterance.rate = 1.0;
+                utterance.pitch = 1.1; // প্রিমিয়াম স্পষ্ট টোন
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -831,7 +837,6 @@
         function startTimer() {
             clearInterval(timerInterval);
             timerSeconds = selectedGameDuration;
-            lastPlayedDangerSecond = null;
 
             const timerElem = document.getElementById("countdown-timer");
             const timerLabel = document.getElementById("timer-label");
@@ -861,9 +866,9 @@
                         timerLabel.classList.add("timer-label-danger");
                     }
 
-                    if (lastPlayedDangerSecond !== timerSeconds) {
+                    // শুধুমাত্র ঠিক যখন সেকেন্ড ৫ এ আসবে, তখন একবার ভয়েস বাজবে
+                    if (timerSeconds === 5) {
                         playVoiceMessage("No more bets");
-                        lastPlayedDangerSecond = timerSeconds;
                     }
                 } else {
                     timerElem.classList.remove("timer-danger");
