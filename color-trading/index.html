@@ -965,11 +965,11 @@
             }
         });
 
-        // Supabase Realtime Subscription to auto-update charts and history when a round completes
+        // Supabase Realtime Subscription & Mobile Auto-Refresh Fallback
         function initRealtimeSubscription() {
             if (typeof supabaseClient !== 'undefined' && supabaseClient.channel) {
                 supabaseClient
-                    .channel('public:color_periods')
+                    .channel('public:color_periods_changes')
                     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'color_periods' }, payload => {
                         if (payload.new && payload.new.status === 'completed') {
                             if (activeTab) {
@@ -979,6 +979,13 @@
                     })
                     .subscribe();
             }
+
+            // Mobile fallback: Auto-refresh active tab every 5 seconds to ensure chart updates smoothly on mobile
+            setInterval(() => {
+                if (activeTab && (activeTab === 'chart' || activeTab === 'game-history')) {
+                    loadHistoryData(activeTab);
+                }
+            }, 5000);
         }
 
         function selectChip(amount, element) {
@@ -1478,8 +1485,9 @@
             if (!type) return;
 
             container.classList.remove("hidden");
-            container.innerHTML =
-                `<p class="text-center text-slate-500 py-3">Loading...</p>`;
+            if (!container.innerHTML.includes("table") && !container.innerHTML.includes("trend-grid-container")) {
+                container.innerHTML = `<p class="text-center text-slate-500 py-3">Loading...</p>`;
+            }
 
             if (type === 'game-history') {
                 let { data, error } = await supabaseClient
