@@ -299,36 +299,47 @@
             }
         }
 
-        /* Receipt Slot Animation CSS */
+        /* HubuHu Reference Receipt Slot Animation Effect */
         .receipt-slot-container {
             position: relative;
             width: 100%;
             overflow: hidden;
-            padding-top: 10px;
+            padding-top: 5px;
             padding-bottom: 5px;
+            perspective: 1000px;
         }
 
         .receipt-slot-slit {
-            width: 80%;
-            height: 6px;
-            background: #500724;
+            width: 75%;
+            height: 8px;
+            background: #781c39;
             margin: 0 auto;
-            border-radius: 3px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+            border-radius: 4px;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.9), 0 1px 2px rgba(255,255,255,0.1);
+            position: relative;
+            z-index: 2;
         }
 
         .receipt-slip {
-            animation: printReceipt 0.8s cubic-bezier(0.15, 0.85, 0.35, 1.2) forwards;
-            transform-origin: top;
+            position: relative;
+            background: #ffffff;
+            color: #0f172a;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            margin-top: -4px;
+            z-index: 1;
+            transform-origin: top center;
+            animation: printReceiptSlot 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        @keyframes printReceipt {
+        @keyframes printReceiptSlot {
             0% {
-                transform: translateY(-110%);
+                transform: translateY(-105%) rotateX(15deg);
                 opacity: 0;
             }
             100% {
-                transform: translateY(0);
+                transform: translateY(0) rotateX(0deg);
                 opacity: 1;
             }
         }
@@ -604,7 +615,7 @@
         </div>
     </div>
 
-    <!-- Win Congratulations Popup with Receipt Slot Animation -->
+    <!-- Win Congratulations Popup with HubuHu Receipt Slot Animation -->
     <div id="win-modal"
         class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
 
@@ -627,10 +638,10 @@
                 <span id="win-res-bs" class="px-2 py-0.5 bg-blue-600 text-white rounded font-bold text-xs">Big</span>
             </div>
 
-            <!-- Receipt Slot Animation Wrapper -->
+            <!-- Receipt Slot Animation Effect Wrapper -->
             <div class="receipt-slot-container w-full">
                 <div class="receipt-slot-slit"></div>
-                <div class="receipt-slip w-full bg-white text-slate-900 rounded-2xl p-4 shadow-2xl mt-1 flex flex-col items-center border-t-4 border-dashed border-rose-400">
+                <div class="receipt-slip w-full text-slate-900 p-4 shadow-2xl flex flex-col items-center">
                     <p class="text-xs text-slate-400 uppercase font-semibold">Winning Bonus</p>
                     <p id="win-bonus-amount" class="text-3xl font-black text-rose-600 my-1 font-mono">৳0.00</p>
                     <p id="win-period-text" class="text-[11px] text-slate-500 font-mono">Period: 2026101501</p>
@@ -1400,7 +1411,7 @@
                 document.getElementById("win-modal").classList.remove("hidden");
                 document.getElementById("win-modal").classList.add("flex");
 
-                // Auto close after 4 seconds if user doesn't close manually
+                // Auto close after 4 seconds
                 if (winModalTimeout) clearTimeout(winModalTimeout);
                 winModalTimeout = setTimeout(() => {
                     closeWinModal();
