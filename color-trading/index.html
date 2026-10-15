@@ -69,7 +69,7 @@
             font-size: 20px;
         }
 
-        /* Period and Timer card */
+        /* Period and Timer card - Perfectly Aligned Bottom */
         .period-timer-card {
             position: relative;
             overflow: hidden;
@@ -82,7 +82,7 @@
             padding: 12px 15px;
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
-            align-items: center;
+            align-items: end; /* নিচ বরাবর সমানভাবে aligned */
             gap: 12px;
             box-shadow: inset 0 0 22px rgba(0,0,0,.4),
                 0 8px 20px rgba(0,0,0,.18);
@@ -98,7 +98,6 @@
             background: linear-gradient(90deg, transparent, #34d399, transparent);
         }
 
-        /* চিকন দাগ Divider */
         .card-divider {
             height: 1px;
             width: 100%;
@@ -114,25 +113,12 @@
             box-shadow: none;
         }
 
-        .period-heading-row {
+        .period-heading-group {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 6px;
+            gap: 5px;
             width: 100%;
-        }
-
-        .period-heading {
-            display: block;
-            font-size: 10px;
-            line-height: 1.4;
-            color: #93c5fd;
-            letter-spacing: .7px;
-            text-transform: uppercase;
-            font-weight: 900;
-            white-space: nowrap;
-            text-align: left;
-            margin: 0;
         }
 
         .how-to-play-btn {
@@ -155,6 +141,19 @@
             color: #fbbf24;
         }
 
+        .period-heading {
+            display: block;
+            font-size: 10px;
+            line-height: 1.4;
+            color: #93c5fd;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+            font-weight: 900;
+            white-space: nowrap;
+            text-align: left;
+            margin: 0;
+        }
+
         .period-number-display {
             display: flex;
             align-items: center;
@@ -170,6 +169,7 @@
             margin-top: 4px;
         }
 
+        /* পিরিয়ড নম্বরের জন্য নতুন ডিপ ব্লু/রয়্যাল ব্লু কালার (অন্যান্য সবুজের সাথে মিলবে না) */
         .period-digit {
             flex: 0 1 19px;
             min-width: 0;
@@ -180,11 +180,11 @@
             position: relative;
             overflow: hidden;
             border-radius: 5px;
-            background: linear-gradient(180deg, #16a34a, #08752c);
-            border: 1px solid #22c55e;
+            background: linear-gradient(180deg, #3b82f6, #1d4ed8);
+            border: 1px solid #60a5fa;
             box-shadow: inset 0 2px 4px rgba(255,255,255,.18),
                 inset 0 -4px 5px rgba(0,0,0,.35),
-                0 0 7px rgba(34,197,94,.2);
+                0 0 7px rgba(59,130,246,.3);
             color: white;
             font-family: monospace;
             font-size: clamp(10px, 3.1vw, 14px);
@@ -335,7 +335,6 @@
             }
         }
 
-        /* Receipt Slot Animation Effect Wrapper */
         .receipt-slot-container {
             position: relative;
             width: 100%;
@@ -519,11 +518,11 @@
                 <div class="game-section period-timer-card">
 
                     <div class="period-info">
-                        <div class="period-heading-row">
-                            <p class="period-heading">Period Number</p>
+                        <div class="period-heading-group">
                             <a href="play-condtion/color-trading.html" class="how-to-play-btn">
                                 📖 How To Play
                             </a>
+                            <p class="period-heading">Period Number</p>
                         </div>
                         <div class="card-divider"></div>
                         <p id="period-number" class="period-number-display" aria-label="Period Number"></p>
