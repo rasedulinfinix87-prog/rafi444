@@ -58,9 +58,10 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            position: relative;
         }
 
-        .game-section { min-width: 0; }
+        .game-section { min-width: 0; position: relative; }
 
         /* বর্ডার ছাড়া শুধু কমন প্লেট কন্টেইনার */
         .modes-plate {
@@ -112,6 +113,7 @@
             aspect-ratio: 1 / 1;
             min-width: 0;
             font-size: 20px;
+            position: relative;
         }
 
         /* Period and Timer card - Compact & Optimized */
@@ -539,7 +541,7 @@
             border-radius: 8px;
         }
 
-        /* Chips & Action Buttons Styling (Borderless Real Casino Chips style) */
+        /* Chips & Action Buttons Styling (No neon glow on click) */
         .chips-container {
             display: flex;
             align-items: center;
@@ -582,7 +584,6 @@
             overflow-x: auto;
         }
 
-        /* Realistic Casino Poker Chip Style matching reference image */
         .chip-item {
             width: 38px;
             height: 38px;
@@ -594,8 +595,8 @@
             font-weight: 900;
             cursor: pointer;
             border: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.6);
-            transition: transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.4), inset 0 -3px 4px rgba(0,0,0,0.6);
+            transition: transform 0.1s;
             flex-shrink: 0;
             color: white;
             text-shadow: 0 1px 2px rgba(0,0,0,0.9);
@@ -604,28 +605,32 @@
 
         .chip-item:active { transform: scale(0.92); }
         .chip-item.selected-chip {
-            box-shadow: 0 0 12px #facc15, inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.6);
-            transform: scale(1.1);
+            transform: scale(1.08);
+            box-shadow: 0 0 5px rgba(255,255,255,0.5), inset 0 2px 2px rgba(255,255,255,0.6), inset 0 -3px 4px rgba(0,0,0,0.6);
         }
 
-        /* Precise Casino Chip Colors with striped edge simulation */
-        .chip-20 {
-            background: radial-gradient(circle, #0284c7 42%, #ffffff 43%, #ffffff 58%, #0284c7 59%);
-        }
-        .chip-50 {
-            background: radial-gradient(circle, #16a34a 42%, #ffffff 43%, #ffffff 58%, #16a34a 59%);
-        }
-        .chip-100 {
-            background: radial-gradient(circle, #e11d48 42%, #ffffff 43%, #ffffff 58%, #e11d48 59%);
-        }
-        .chip-500 {
-            background: radial-gradient(circle, #7c3aed 42%, #ffffff 43%, #ffffff 58%, #7c3aed 59%);
-        }
-        .chip-1k {
-            background: radial-gradient(circle, #d97706 42%, #ffffff 43%, #ffffff 58%, #d97706 59%);
-        }
-        .chip-10k {
-            background: radial-gradient(circle, #881337 42%, #ffffff 43%, #ffffff 58%, #881337 59%);
+        /* Casino Chip Colors */
+        .chip-20 { background: radial-gradient(circle, #0284c7 42%, #ffffff 43%, #ffffff 58%, #0284c7 59%); }
+        .chip-50 { background: radial-gradient(circle, #16a34a 42%, #ffffff 43%, #ffffff 58%, #16a34a 59%); }
+        .chip-100 { background: radial-gradient(circle, #e11d48 42%, #ffffff 43%, #ffffff 58%, #e11d48 59%); }
+        .chip-500 { background: radial-gradient(circle, #7c3aed 42%, #ffffff 43%, #ffffff 58%, #7c3aed 59%); }
+        .chip-1k { background: radial-gradient(circle, #d97706 42%, #ffffff 43%, #ffffff 58%, #d97706 59%); }
+        .chip-10k { background: radial-gradient(circle, #881337 42%, #ffffff 43%, #ffffff 58%, #881337 59%); }
+
+        /* Placed Bet Badge on Target buttons */
+        .bet-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #f59e0b;
+            color: #0f172a;
+            font-size: 9px;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 10;
+            border: 1px solid #fff;
         }
 
         /* Bottom Fixed Thin Bar Styling */
@@ -723,18 +728,18 @@
                 </div>
 
                 <div class="game-section grid grid-cols-3 gap-2">
-                    <button onclick="openBetModal('Green')"
-                        class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">
+                    <button onclick="openBetModal('Green')" id="btn-Green"
+                        class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white relative">
                         Green
                     </button>
 
-                    <button onclick="openBetModal('Violet')"
-                        class="bg-purple-600 hover:bg-purple-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">
+                    <button onclick="openBetModal('Violet')" id="btn-Violet"
+                        class="bg-purple-600 hover:bg-purple-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white relative">
                         Violet
                     </button>
 
-                    <button onclick="openBetModal('Red')"
-                        class="bg-rose-600 hover:bg-rose-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">
+                    <button onclick="openBetModal('Red')" id="btn-Red"
+                        class="bg-rose-600 hover:bg-rose-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white relative">
                         Red
                     </button>
                 </div>
@@ -745,33 +750,33 @@
                     </p>
 
                     <div class="grid grid-cols-5 gap-2">
-                        <button onclick="openBetModal('0')" class="number-button violet-sphere active:scale-95 rounded-xl font-black transition">0</button>
-                        <button onclick="openBetModal('1')" class="number-button green-sphere active:scale-95 rounded-xl font-black transition">1</button>
-                        <button onclick="openBetModal('2')" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition">2</button>
-                        <button onclick="openBetModal('3')" class="number-button green-sphere active:scale-95 rounded-xl font-black transition">3</button>
-                        <button onclick="openBetModal('4')" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition">4</button>
+                        <button onclick="openBetModal('0')" id="btn-0" class="number-button violet-sphere active:scale-95 rounded-xl font-black transition relative">0</button>
+                        <button onclick="openBetModal('1')" id="btn-1" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative">1</button>
+                        <button onclick="openBetModal('2')" id="btn-2" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative">2</button>
+                        <button onclick="openBetModal('3')" id="btn-3" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative">3</button>
+                        <button onclick="openBetModal('4')" id="btn-4" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative">4</button>
 
-                        <button onclick="openBetModal('5')" class="number-button violet-sphere active:scale-95 rounded-xl font-black transition">5</button>
-                        <button onclick="openBetModal('6')" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition">6</button>
-                        <button onclick="openBetModal('7')" class="number-button green-sphere active:scale-95 rounded-xl font-black transition">7</button>
-                        <button onclick="openBetModal('8')" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition">8</button>
-                        <button onclick="openBetModal('9')" class="number-button green-sphere active:scale-95 rounded-xl font-black transition">9</button>
+                        <button onclick="openBetModal('5')" id="btn-5" class="number-button violet-sphere active:scale-95 rounded-xl font-black transition relative">5</button>
+                        <button onclick="openBetModal('6')" id="btn-6" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative">6</button>
+                        <button onclick="openBetModal('7')" id="btn-7" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative">7</button>
+                        <button onclick="openBetModal('8')" id="btn-8" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative">8</button>
+                        <button onclick="openBetModal('9')" id="btn-9" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative">9</button>
                     </div>
                 </div>
 
                 <div class="game-section grid grid-cols-2 gap-2">
-                    <button onclick="openBetModal('Big')"
-                        class="bg-amber-600 hover:bg-amber-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white">
+                    <button onclick="openBetModal('Big')" id="btn-Big"
+                        class="bg-amber-600 hover:bg-amber-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white relative">
                         Big
                     </button>
 
-                    <button onclick="openBetModal('Small')"
-                        class="bg-blue-600 hover:bg-blue-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white">
+                    <button onclick="openBetModal('Small')" id="btn-Small"
+                        class="bg-blue-600 hover:bg-blue-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white relative">
                         Small
                     </button>
                 </div>
 
-                <!-- Chips & Action Bar (Placed directly under Big/Small card) -->
+                <!-- Chips & Action Bar -->
                 <div class="game-section chips-container">
                     <div class="action-group">
                         <button onclick="undoLastBet()" class="action-chip" title="Undo Bet">↩</button>
@@ -917,6 +922,7 @@
         let selectedChipAmount = 20; 
         let lastPlacedBet = null;
         let currentRoundTotalBet = 0;
+        let userActiveBets = []; // Track bets for undo & badges
 
         document.addEventListener("DOMContentLoaded", async () => {
             renderPeriodNumber();
@@ -941,12 +947,72 @@
             }
         }
 
-        function undoLastBet() {
-            document.getElementById("game-status-text").innerText = "Last bet action reset.";
-            lastPlacedBet = null;
+        async function undoLastBet() {
+            if (userActiveBets.length === 0) {
+                alert("No active bet to undo for this round!");
+                return;
+            }
+
+            let lastBet = userActiveBets.pop();
+            
+            // Refund balance in profile and DB
+            let refundedBalance = Number(userProfile.balance) + lastBet.amount;
+            const { error: profileError } = await supabaseClient
+                .from("profiles")
+                .update({ balance: refundedBalance })
+                .eq("id", currentUser.id);
+
+            if (profileError) {
+                alert("Failed to undo bet. Try again.");
+                userActiveBets.push(lastBet); // Revert pop
+                return;
+            }
+
+            userProfile.balance = refundedBalance;
+            let bal = refundedBalance.toFixed(2);
+            document.getElementById("user-balance").innerText = bal;
+            document.getElementById("bar-user-balance").innerText = bal;
+
+            currentRoundTotalBet = Math.max(0, currentRoundTotalBet - lastBet.amount);
+            document.getElementById("bar-total-bet").innerText = currentRoundTotalBet.toFixed(2);
+
+            // Delete from database history
+            await supabaseClient
+                .from("color_game_history")
+                .delete()
+                .eq("id", lastBet.db_id);
+
+            // Update Period Amounts in DB
+            await updatePeriodAmountsOnUndo(lastBet.amount, lastBet.target);
+
+            updateBetBadgesUI();
+            document.getElementById("game-status-text").innerText = "Last bet successfully undone.";
         }
 
-        function rebetLast() {
+        async function updatePeriodAmountsOnUndo(amount, target) {
+            let { data: periodData } = await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq("period_number", currentPeriodNumber)
+                .maybeSingle();
+
+            if (periodData) {
+                let updateField = {};
+                if (target === 'Green') {
+                    updateField.total_green_amount = Math.max(0, Number(periodData.total_green_amount) - amount);
+                } else if (target === 'Red') {
+                    updateField.total_red_amount = Math.max(0, Number(periodData.total_red_amount) - amount);
+                } else if (target === 'Violet') {
+                    updateField.total_violet_amount = Math.max(0, Number(periodData.total_violet_amount) - amount);
+                }
+                await supabaseClient
+                    .from("color_periods")
+                    .update(updateField)
+                    .eq("period_number", currentPeriodNumber);
+            }
+        }
+
+        async function rebetLast() {
             if (!lastPlacedBet) {
                 alert("No previous bet to rebet!");
                 return;
@@ -954,6 +1020,28 @@
             selectedTarget = lastPlacedBet.target;
             document.getElementById("bet-amount-input").value = lastPlacedBet.amount;
             confirmAndPlaceBet();
+        }
+
+        function updateBetBadgesUI() {
+            // Clear all badges first
+            document.querySelectorAll('.bet-badge').forEach(el => el.remove());
+
+            // Aggregate bets per target
+            let targetTotals = {};
+            userActiveBets.forEach(bet => {
+                targetTotals[bet.target] = (targetTotals[bet.target] || 0) + bet.amount;
+            });
+
+            // Render badges on buttons
+            for (let target in targetTotals) {
+                let btn = document.getElementById(`btn-${target}`);
+                if (btn) {
+                    let badge = document.createElement('span');
+                    badge.className = 'bet-badge';
+                    badge.innerText = `৳${targetTotals[target]}`;
+                    btn.appendChild(badge);
+                }
+            }
         }
 
         function playVoiceMessage(text) {
@@ -988,6 +1076,8 @@
             selectedGameDuration = duration;
             timerSeconds = duration;
             currentRoundTotalBet = 0;
+            userActiveBets = [];
+            updateBetBadgesUI();
             document.getElementById("bar-total-bet").innerText = "0.00";
 
             ['15s', '30s', '1m', '5m'].forEach(key => {
@@ -1497,7 +1587,7 @@
             currentRoundTotalBet += amount;
             document.getElementById("bar-total-bet").innerText = currentRoundTotalBet.toFixed(2);
 
-            const { error: betInsertError } = await supabaseClient
+            const { data: insertedData, error: betInsertError } = await supabaseClient
                 .from("color_game_history")
                 .insert([{
                     user_id: currentUser.id,
@@ -1505,7 +1595,8 @@
                     bet_type: selectedTarget,
                     bet_amount: amount,
                     status: 'pending'
-                }]);
+                }])
+                .select();
 
             if (betInsertError) {
                 console.error("Bet history insert error:", betInsertError);
@@ -1513,7 +1604,11 @@
                 return;
             }
 
+            let newDbId = insertedData && insertedData[0] ? insertedData[0].id : null;
+
             lastPlacedBet = { target: selectedTarget, amount: amount };
+            userActiveBets.push({ db_id: newDbId, target: selectedTarget, amount: amount });
+            updateBetBadgesUI();
 
             await updatePeriodAmounts(amount, selectedTarget);
             closeBetModal();
@@ -1568,6 +1663,8 @@
                 "Calculating result...";
 
             currentRoundTotalBet = 0;
+            userActiveBets = [];
+            updateBetBadgesUI();
             document.getElementById("bar-total-bet").innerText = "0.00";
 
             let { data: periodData } = await supabaseClient
