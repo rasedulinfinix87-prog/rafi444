@@ -79,11 +79,10 @@
                 linear-gradient(145deg, #0b1428, #030817 65%, #071326);
             border: 1px solid #263b54;
             border-radius: 22px;
-            padding: 12px 15px; /* প্যাডিং কমানো হয়েছে */
-            min-height: 95px;
+            padding: 12px 15px;
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
-            align-items: flex-end;
+            align-items: center;
             gap: 12px;
             box-shadow: inset 0 0 22px rgba(0,0,0,.4),
                 0 8px 20px rgba(0,0,0,.18);
@@ -92,11 +91,19 @@
         .period-timer-card::before {
             content: "";
             position: absolute;
-            bottom: 0; /* ৪টি timer-এর নিচে চিকন দাগ */
+            top: 0;
             left: 14%;
             right: 14%;
             height: 1px;
             background: linear-gradient(90deg, transparent, #34d399, transparent);
+        }
+
+        /* চিকন দাগ Divider */
+        .card-divider {
+            height: 1px;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.3), transparent);
+            margin: 4px 0;
         }
 
         .period-info, .timer-area {
@@ -107,6 +114,13 @@
             box-shadow: none;
         }
 
+        .period-heading-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
         .period-heading {
             display: block;
             font-size: 10px;
@@ -115,12 +129,28 @@
             letter-spacing: .7px;
             text-transform: uppercase;
             font-weight: 900;
-            margin-bottom: 4px;
             white-space: nowrap;
             text-align: left;
+            margin: 0;
         }
 
-        /* Period number uses the same digital style as the timer */
+        .how-to-play-btn {
+            font-size: 10px;
+            font-weight: 700;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 2px 8px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .how-to-play-btn:hover {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
         .period-number-display {
             display: flex;
             align-items: center;
@@ -177,7 +207,7 @@
             gap: 5px;
             min-height: 25px;
             padding: 6px 9px;
-            margin-bottom: 6px;
+            margin-bottom: 9px;
             border-radius: 8px;
             border: 1px solid rgba(52,211,153,.28);
             background: rgba(6,78,59,.3);
@@ -271,7 +301,6 @@
             50% { opacity: .72; }
         }
 
-        /* Winning selection blinks exactly 3 times */
         .winning-blink {
             position: relative;
             z-index: 2;
@@ -292,13 +321,57 @@
                 outline: 2px solid transparent;
                 outline-offset: 1px;
             }
-
             50% {
                 filter: brightness(1.5);
                 box-shadow: 0 0 15px var(--win-glow, white),
                     0 0 28px var(--win-glow, white);
                 outline: 2px solid var(--win-glow, white);
                 outline-offset: 2px;
+            }
+        }
+
+        /* Receipt Slot Animation Effect Wrapper */
+        .receipt-slot-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            perspective: 1000px;
+        }
+
+        .receipt-slot-slit {
+            width: 75%;
+            height: 8px;
+            background: #781c39;
+            margin: 0 auto;
+            border-radius: 4px;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.9), 0 1px 2px rgba(255,255,255,0.1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .receipt-slip {
+            position: relative;
+            background: #ffffff;
+            color: #0f172a;
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            margin-top: -4px;
+            z-index: 1;
+            transform-origin: top center;
+            animation: printReceiptSlot 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes printReceiptSlot {
+            0% {
+                transform: translateY(-105%) rotateX(15deg);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0) rotateX(0deg);
+                opacity: 1;
             }
         }
 
@@ -390,62 +463,6 @@
             -webkit-overflow-scrolling: touch;
             border-radius: 8px;
         }
-
-        @media (max-width: 380px) {
-            .period-timer-card {
-                padding: 10px;
-                gap: 8px;
-                grid-template-columns: minmax(0, 1fr) auto;
-            }
-
-            .period-heading {
-                font-size: 9px;
-                letter-spacing: .3px;
-            }
-
-            .period-digit {
-                height: 30px;
-                font-size: 10px;
-                border-radius: 4px;
-            }
-
-            .timer-digit {
-                width: 21px;
-                height: 34px;
-                font-size: 20px;
-            }
-
-            .timer-colon { font-size: 20px; }
-
-            .timer-label {
-                font-size: 8px;
-                letter-spacing: .2px;
-                padding: 5px 6px;
-                gap: 4px;
-            }
-        }
-
-        @media (max-width: 320px) {
-            .period-timer-card {
-                grid-template-columns: minmax(0, 1fr);
-            }
-
-            .period-info { width: 100%; }
-
-            .period-number-display { gap: 3px; }
-
-            .period-digit {
-                flex: 1 1 0;
-                height: 34px;
-                font-size: 13px;
-            }
-
-            .timer-digit {
-                width: 27px;
-                height: 38px;
-                font-size: 23px;
-            }
-        }
     </style>
 </head>
 
@@ -497,12 +514,11 @@
                 <div class="game-section period-timer-card">
 
                     <div class="period-info">
-                        <div class="flex justify-between items-center mb-1">
-                            <p class="period-heading" style="margin-bottom:0;">Period Number</p>
-                            <a href="play-condtion/color-trading.html" class="text-[10px] text-amber-400 font-bold hover:underline flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
-                                How To Play <span class="text-xs">+</span>
-                            </a>
+                        <div class="period-heading-row">
+                            <p class="period-heading">Period Number</p>
+                            <a href="play-condtion/color-trading.html" class="how-to-play-btn">How To Play +</a>
                         </div>
+                        <div class="card-divider"></div>
                         <p id="period-number" class="period-number-display" aria-label="Period Number"></p>
                     </div>
 
@@ -634,7 +650,7 @@
         </div>
     </div>
 
-    <!-- Win Congratulations Popup -->
+    <!-- Win Congratulations Popup with Receipt Slot Animation -->
     <div id="win-modal"
         class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
 
@@ -648,23 +664,26 @@
                 Congratulations
             </h2>
 
-            <p class="text-xs text-white/90 mb-2">You have won the trade!</p>
+            <p class="text-xs text-white/90 mb-1">You have won the trade!</p>
 
-            <div class="flex items-center gap-2 my-2">
+            <div class="flex items-center gap-2 my-1">
                 <span class="text-xs text-white/80">Result:</span>
                 <span id="win-res-badge" class="px-3 py-1 bg-rose-700 text-white font-bold rounded-full text-xs border border-white/20">Red</span>
                 <span id="win-res-num" class="w-6 h-6 bg-amber-500 rounded-full text-white font-bold text-xs flex items-center justify-center">8</span>
                 <span id="win-res-bs" class="px-2 py-0.5 bg-blue-600 text-white rounded font-bold text-xs">Big</span>
             </div>
 
-            <div class="w-full bg-white text-slate-900 rounded-2xl p-4 shadow-inner mt-2 flex flex-col items-center">
-                <p class="text-xs text-slate-400 uppercase font-semibold">Winning Bonus</p>
-                <p id="win-bonus-amount" class="text-3xl font-black text-rose-600 my-1 font-mono">৳0.00</p>
-                <p id="win-period-text" class="text-[11px] text-slate-500 font-mono">Period: 2026101501</p>
+            <div class="receipt-slot-container w-full">
+                <div class="receipt-slot-slit"></div>
+                <div class="receipt-slip w-full text-slate-900 p-4 shadow-2xl flex flex-col items-center">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Winning Bonus</p>
+                    <p id="win-bonus-amount" class="text-3xl font-black text-rose-600 my-1 font-mono">৳0.00</p>
+                    <p id="win-period-text" class="text-[11px] text-slate-500 font-mono">Period: 2026101501</p>
+                </div>
             </div>
 
             <button onclick="closeWinModal()"
-                class="mt-5 w-full bg-slate-900 hover:bg-slate-950 text-white py-3 rounded-xl font-bold shadow-lg transition text-sm border border-slate-700">
+                class="mt-4 w-full bg-slate-900 hover:bg-slate-950 text-white py-3 rounded-xl font-bold shadow-lg transition text-sm border border-slate-700">
                 Collect & Continue
             </button>
         </div>
@@ -678,8 +697,10 @@
         let timerSeconds = 15;
         let timerInterval = null;
         let selectedTarget = null;
+        let winModalTimeout = null;
+        let lastPlayedDangerSecond = null;
+
         let activeTab = 'game-history';
-        let playedNoMoreBetsVoice = false;
 
         document.addEventListener("DOMContentLoaded", async () => {
             renderPeriodNumber();
@@ -693,13 +714,12 @@
             }
         });
 
-        function playVoice(text) {
+        function playVoiceMessage(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
                 utterance.rate = 1.0;
-                utterance.pitch = 1.0;
-                utterance.volume = 1.0;
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -716,7 +736,6 @@
         function changeGameMode(duration, modeKey) {
             selectedGameDuration = duration;
             timerSeconds = duration;
-            playedNoMoreBetsVoice = false;
 
             ['15s', '30s', '1m', '5m'].forEach(key => {
                 let btn = document.getElementById(`mode-${key}`);
@@ -812,7 +831,7 @@
         function startTimer() {
             clearInterval(timerInterval);
             timerSeconds = selectedGameDuration;
-            playedNoMoreBetsVoice = false;
+            lastPlayedDangerSecond = null;
 
             const timerElem = document.getElementById("countdown-timer");
             const timerLabel = document.getElementById("timer-label");
@@ -842,9 +861,9 @@
                         timerLabel.classList.add("timer-label-danger");
                     }
 
-                    if (!playedNoMoreBetsVoice) {
-                        playVoice("No More Bets");
-                        playedNoMoreBetsVoice = true;
+                    if (lastPlayedDangerSecond !== timerSeconds) {
+                        playVoiceMessage("No more bets");
+                        lastPlayedDangerSecond = timerSeconds;
                     }
                 } else {
                     timerElem.classList.remove("timer-danger");
@@ -1174,6 +1193,10 @@
         }
 
         function closeWinModal() {
+            if (winModalTimeout) {
+                clearTimeout(winModalTimeout);
+                winModalTimeout = null;
+            }
             document.getElementById("win-modal").classList.remove("flex");
             document.getElementById("win-modal").classList.add("hidden");
         }
@@ -1346,7 +1369,7 @@
 
             let userWonAmount = 0;
             let hasUserWon = false;
-            let userPlacedBetThisRound = false;
+            let userParticipated = false;
 
             if (allBets && allBets.length > 0) {
                 for (let bet of allBets) {
@@ -1370,7 +1393,7 @@
                     }
 
                     if (bet.user_id === currentUser.id) {
-                        userPlacedBetThisRound = true;
+                        userParticipated = true;
                     }
 
                     if (isWin) {
@@ -1419,15 +1442,6 @@
                 }
             }
 
-            // Voice effect check for win/loss
-            if (userPlacedBetThisRound) {
-                if (hasUserWon) {
-                    playVoice("Congratulation Winner");
-                } else {
-                    playVoice("Better luck next time");
-                }
-            }
-
             document.getElementById("game-status-text").innerText =
                 `Result: ${winningResultString} (${winningBigSmall})`;
 
@@ -1438,6 +1452,15 @@
             );
 
             await loadUserProfile();
+
+            // ভয়েস ইফেক্ট লজিক
+            if (userParticipated) {
+                if (hasUserWon) {
+                    playVoiceMessage("congratulation winner");
+                } else {
+                    playVoiceMessage("better luck next time");
+                }
+            }
 
             if (hasUserWon) {
                 document.getElementById("win-res-badge").innerText = winningColor;
@@ -1452,6 +1475,11 @@
 
                 document.getElementById("win-modal").classList.remove("hidden");
                 document.getElementById("win-modal").classList.add("flex");
+
+                if (winModalTimeout) clearTimeout(winModalTimeout);
+                winModalTimeout = setTimeout(() => {
+                    closeWinModal();
+                }, 4000);
             }
 
             currentPeriodNumber = String(parseInt(currentPeriodNumber, 10) + 1);
