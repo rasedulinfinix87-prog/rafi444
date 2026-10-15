@@ -538,6 +538,82 @@
             -webkit-overflow-scrolling: touch;
             border-radius: 8px;
         }
+
+        /* Chips & Action Buttons Styling */
+        .chips-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0b1329;
+            padding: 8px 10px;
+            border-radius: 16px;
+            border: 1px solid #1e293b;
+            gap: 6px;
+            overflow-x: auto;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .action-chip {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-chip:hover { background: #334155; color: white; }
+
+        .chips-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        .chip-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 900;
+            cursor: pointer;
+            border: 2px dashed rgba(255,255,255,0.6);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: transform 0.1s, box-shadow 0.2s;
+            flex-shrink: 0;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .chip-item:active { transform: scale(0.92); }
+        .chip-item.selected-chip {
+            border: 3px solid #facc15;
+            box-shadow: 0 0 12px rgba(250, 204, 21, 0.8);
+            transform: scale(1.08);
+        }
+
+        /* Chip Colors */
+        .chip-20 { background: radial-gradient(circle at 30% 30%, #38bdf8, #0284c7); }
+        .chip-50 { background: radial-gradient(circle at 30% 30%, #4ade80, #16a34a); }
+        .chip-100 { background: radial-gradient(circle at 30% 30%, #f43f5e, #e11d48); }
+        .chip-500 { background: radial-gradient(circle at 30% 30%, #a855f7, #7c3aed); }
+        .chip-1k { background: radial-gradient(circle at 30% 30%, #fbbf24, #d97706); }
+        .chip-10k { background: radial-gradient(circle at 30% 30%, #fb7185, #881337); }
     </style>
 </head>
 
@@ -663,6 +739,22 @@
                     </button>
                 </div>
 
+                <!-- Chips & Action Bar (Placed directly under Big/Small card) -->
+                <div class="game-section chips-container">
+                    <div class="action-group">
+                        <button onclick="undoLastBet()" class="action-chip" title="Undo Bet">↩</button>
+                        <button onclick="rebetLast()" class="action-chip" title="Rebet">🔄</button>
+                    </div>
+                    <div class="chips-group">
+                        <div onclick="selectChip(20, this)" class="chip-item chip-20 selected-chip">20</div>
+                        <div onclick="selectChip(50, this)" class="chip-item chip-50">50</div>
+                        <div onclick="selectChip(100, this)" class="chip-item chip-100">100</div>
+                        <div onclick="selectChip(500, this)" class="chip-item chip-500">500</div>
+                        <div onclick="selectChip(1000, this)" class="chip-item chip-1k">1K</div>
+                        <div onclick="selectChip(10000, this)" class="chip-item chip-10k">10K</div>
+                    </div>
+                </div>
+
                 <div id="game-status-text" class="hidden" aria-live="polite">
                     Place your bet before timer ends...
                 </div>
@@ -778,6 +870,8 @@
         let winModalTimeout = null;
 
         let activeTab = 'game-history';
+        let selectedChipAmount = 20; // Default selected chip
+        let lastPlacedBet = null;
 
         document.addEventListener("DOMContentLoaded", async () => {
             renderPeriodNumber();
@@ -790,6 +884,33 @@
                 loadHistoryData('game-history');
             }
         });
+
+        function selectChip(amount, element) {
+            selectedChipAmount = amount;
+            document.querySelectorAll('.chip-item').forEach(el => el.classList.remove('selected-chip'));
+            element.classList.add('selected-chip');
+            
+            // Update modal input value automatically based on selected chip
+            const inputElem = document.getElementById("bet-amount-input");
+            if(inputElem) {
+                inputElem.value = amount;
+            }
+        }
+
+        function undoLastBet() {
+            document.getElementById("game-status-text").innerText = "Last bet action reset.";
+            lastPlacedBet = null;
+        }
+
+        function rebetLast() {
+            if (!lastPlacedBet) {
+                alert("No previous bet to rebet!");
+                return;
+            }
+            selectedTarget = lastPlacedBet.target;
+            document.getElementById("bet-amount-input").value = lastPlacedBet.amount;
+            confirmAndPlaceBet();
+        }
 
         function playVoiceMessage(text) {
             if ('speechSynthesis' in window) {
@@ -1266,6 +1387,9 @@
             selectedTarget = target;
 
             document.getElementById("modal-target").innerText = target;
+            // Automatically set input to currently selected chip value
+            document.getElementById("bet-amount-input").value = selectedChipAmount;
+            
             document.getElementById("bet-modal").classList.remove("hidden");
             document.getElementById("bet-modal").classList.add("flex");
         }
@@ -1340,6 +1464,8 @@
                 alert("Bet history could not be saved. Please contact support.");
                 return;
             }
+
+            lastPlacedBet = { target: selectedTarget, amount: amount };
 
             await updatePeriodAmounts(amount, selectedTarget);
             closeBetModal();
