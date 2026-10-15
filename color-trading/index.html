@@ -3,110 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>কালার ট্রেডিং গেম</title>
+    <title>Color Trade - Win Go</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- আপনার বিদ্যমান কনফিগারেশন ফাইল -->
     <script src="../supabase-config.js"></script>
     
     <style>
         body {
-            background-color: #030712;
-            color: #f3f4f6;
+            background-color: #0f172a;
+            color: #f8fafc;
             font-family: system-ui, -apple-system, sans-serif;
+        }
+        .custom-gradient {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         }
     </style>
 </head>
 <body class="flex justify-center items-center min-h-screen bg-slate-950">
 
-    <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col justify-between shadow-2xl border-x border-slate-800">
+    <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col justify-between shadow-2xl border-x border-slate-800 relative overflow-hidden">
         
-        <!-- Header: ব্যালেন্স ও ওয়ালেট -->
-        <header class="p-4 bg-slate-900 flex justify-between items-center border-b border-slate-800 sticky top-0 z-10">
-            <h1 class="text-lg font-bold text-amber-400">Color Trade</h1>
-            <div class="bg-slate-800 px-3 py-1.5 rounded-full text-sm font-semibold border border-slate-700">
-                Balance: ৳ <span id="user-balance" class="text-emerald-400 font-mono">0.00</span>
+        <!-- Header -->
+        <header class="p-4 custom-gradient flex justify-between items-center shadow-lg">
+            <h1 class="text-lg font-extrabold text-white tracking-wider">W 1XBET</h1>
+            <div class="bg-black/30 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border border-white/10">
+                Wallet: ৳ <span id="user-balance" class="text-emerald-300 font-mono text-sm">0.00</span>
             </div>
         </header>
 
         <!-- Main Game Area -->
-        <main class="p-4 flex-1 flex flex-col gap-4 overflow-y-auto pb-20">
+        <main class="p-4 flex-1 flex flex-col gap-4 overflow-y-auto pb-10">
             
             <!-- Timer & Period Section -->
-            <div class="bg-slate-950 p-4 rounded-xl flex justify-between items-center border border-slate-800 shadow-inner">
+            <div class="bg-slate-950 p-4 rounded-2xl flex justify-between items-center border border-slate-800/80 shadow-inner">
                 <div>
-                    <p class="text-xs text-slate-400">Period No</p>
-                    <p id="period-number" class="font-mono font-bold text-amber-300 text-sm">2026101501</p>
+                    <p class="text-[11px] text-slate-400">Period No</p>
+                    <p id="period-number" class="font-mono font-bold text-amber-400 text-xs">2026101501</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-xs text-slate-400">Time Remaining</p>
-                    <p id="countdown-timer" class="font-mono text-2xl font-bold text-emerald-400">00:30</p>
+                    <p class="text-[11px] text-slate-400">Time remaining</p>
+                    <p id="countdown-timer" class="font-mono text-2xl font-black text-emerald-400">00:30</p>
                 </div>
             </div>
 
             <!-- Color Betting Buttons -->
-            <div class="grid grid-cols-3 gap-3">
-                <button onclick="openBetModal('Green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Green (2x)</button>
-                <button onclick="openBetModal('Violet')" class="bg-purple-600 hover:bg-purple-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Violet (4.5x)</button>
-                <button onclick="openBetModal('Red')" class="bg-rose-600 hover:bg-rose-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Red (1.9x)</button>
+            <div class="grid grid-cols-3 gap-2.5">
+                <button onclick="openBetModal('Green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Green (2x)</button>
+                <button onclick="openBetModal('Violet')" class="bg-purple-600 hover:bg-purple-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Violet (4.5x)</button>
+                <button onclick="openBetModal('Red')" class="bg-rose-600 hover:bg-rose-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Red (1.9x)</button>
             </div>
 
-            <!-- Number Selection (0-9 সাজানো বিন্যাস) -->
-            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <p class="text-xs text-slate-400 mb-3 text-center">Select Number (Payout 9x)</p>
-                <div class="grid grid-cols-5 gap-2.5">
-                    <button onclick="openBetModal('0')" class="bg-slate-800 hover:bg-purple-700 active:scale-95 py-3 rounded-lg font-bold transition text-purple-300 border border-purple-900/50">0</button>
-                    <button onclick="openBetModal('1')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-3 rounded-lg font-bold transition text-emerald-300 border border-emerald-900/50">1</button>
-                    <button onclick="openBetModal('2')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-3 rounded-lg font-bold transition text-rose-300 border border-rose-900/50">2</button>
-                    <button onclick="openBetModal('3')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-3 rounded-lg font-bold transition text-emerald-300 border border-emerald-900/50">3</button>
-                    <button onclick="openBetModal('4')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-3 rounded-lg font-bold transition text-rose-300 border border-rose-900/50">4</button>
-                    <button onclick="openBetModal('5')" class="bg-slate-800 hover:bg-purple-700 active:scale-95 py-3 rounded-lg font-bold transition text-purple-300 border border-purple-900/50">5</button>
-                    <button onclick="openBetModal('6')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-3 rounded-lg font-bold transition text-rose-300 border border-rose-900/50">6</button>
-                    <button onclick="openBetModal('7')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-3 rounded-lg font-bold transition text-emerald-300 border border-emerald-900/50">7</button>
-                    <button onclick="openBetModal('8')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-3 rounded-lg font-bold transition text-rose-300 border border-rose-900/50">8</button>
-                    <button onclick="openBetModal('9')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-3 rounded-lg font-bold transition text-emerald-300 border border-emerald-900/50">9</button>
+            <!-- Number Selection Grid (0 to 9) -->
+            <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                <p class="text-[11px] text-slate-400 mb-2.5 text-center">Select Number (Payout 9x)</p>
+                <div class="grid grid-cols-5 gap-2">
+                    <button onclick="openBetModal('0')" class="bg-slate-900 hover:bg-purple-900/40 border border-purple-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-purple-300 transition text-sm">0</button>
+                    <button onclick="openBetModal('1')" class="bg-slate-900 hover:bg-emerald-900/40 border border-emerald-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-emerald-300 transition text-sm">1</button>
+                    <button onclick="openBetModal('2')" class="bg-slate-900 hover:bg-rose-900/40 border border-rose-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-rose-300 transition text-sm">2</button>
+                    <button onclick="openBetModal('3')" class="bg-slate-900 hover:bg-emerald-900/40 border border-emerald-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-emerald-300 transition text-sm">3</button>
+                    <button onclick="openBetModal('4')" class="bg-slate-900 hover:bg-rose-900/40 border border-rose-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-rose-300 transition text-sm">4</button>
+                    <button onclick="openBetModal('5')" class="bg-slate-900 hover:bg-purple-900/40 border border-purple-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-purple-300 transition text-sm">5</button>
+                    <button onclick="openBetModal('6')" class="bg-slate-900 hover:bg-rose-900/40 border border-rose-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-rose-300 transition text-sm">6</button>
+                    <button onclick="openBetModal('7')" class="bg-slate-900 hover:bg-emerald-900/40 border border-emerald-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-emerald-300 transition text-sm">7</button>
+                    <button onclick="openBetModal('8')" class="bg-slate-900 hover:bg-rose-900/40 border border-rose-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-rose-300 transition text-sm">8</button>
+                    <button onclick="openBetModal('9')" class="bg-slate-900 hover:bg-emerald-900/40 border border-emerald-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-emerald-300 transition text-sm">9</button>
                 </div>
             </div>
 
-            <!-- Game Status Box -->
-            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <h3 class="text-xs text-slate-400 mb-2">Game Status</h3>
-                <div id="game-status-text" class="text-sm font-semibold text-amber-200">
+            <!-- Big & Small Buttons (1.9x Payout) -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="openBetModal('Big')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white">Big (1.9x)</button>
+                <button onclick="openBetModal('Small')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white">Small (1.9x)</button>
+            </div>
+
+            <!-- Game Status -->
+            <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-center">
+                <div id="game-status-text" class="text-xs font-semibold text-slate-300">
                     Place your bet before timer ends...
                 </div>
             </div>
 
         </main>
-
-        <!-- Bottom Navigation -->
-        <footer class="p-3 bg-slate-900 border-t border-slate-800 flex justify-around text-xs text-slate-400 fixed bottom-0 max-w-md w-full z-10">
-            <button class="flex flex-col items-center text-amber-400 font-bold">🏠 Home</button>
-            <button onclick="alert('History feature coming soon!')" class="flex flex-col items-center hover:text-white">📊 History</button>
-            <button onclick="logoutUser()" class="flex flex-col items-center hover:text-rose-400">🚪 Logout</button>
-        </footer>
-
     </div>
 
-    <!-- Bet Modal (Popup) -->
+    <!-- ৫ সেকেন্ডের বিগ কাউন্টডাউন ওভারলে -->
+    <div id="big-countdown-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50">
+        <div id="big-number-display" class="text-white font-mono font-black text-9xl animate-pulse text-rose-500 drop-shadow-[0_0_35px_rgba(244,63,94,0.7)]">
+            5
+        </div>
+    </div>
+
+    <!-- Bet Modal -->
     <div id="bet-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden justify-center items-center z-50 p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-xs p-5 rounded-2xl shadow-2xl flex flex-col gap-4">
-            <h3 class="text-base font-bold text-slate-200">Place Bet on: <span id="modal-target" class="text-amber-400"></span></h3>
-            
+            <h3 class="text-sm font-bold text-slate-300">Place Bet on: <span id="modal-target" class="text-amber-400 font-extrabold text-base"></span></h3>
             <div>
-                <label class="text-xs text-slate-400 block mb-1">Enter Amount (৳)</label>
-                <input type="number" id="bet-amount-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-amber-400" placeholder="100" value="100">
+                <label class="text-[11px] text-slate-400 block mb-1">Enter Amount (৳)</label>
+                <input type="number" id="bet-amount-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-amber-400" value="100">
             </div>
-
             <div class="flex gap-2">
-                <button onclick="closeBetModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2.5 rounded-xl font-semibold transition text-sm">Cancel</button>
-                <button onclick="confirmAndPlaceBet()" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 py-2.5 rounded-xl font-bold transition text-sm">Confirm</button>
+                <button onclick="closeBetModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded-xl font-semibold transition text-xs">Cancel</button>
+                <button onclick="confirmAndPlaceBet()" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 py-2 rounded-xl font-bold transition text-xs">Confirm</button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Game Logic -->
+    <!-- Win Congratulations Popup (হুবহু ৫ম ছবির স্টাইল)[span_4](start_span)[span_4](end_span) -->
+    <div id="win-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
+        <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center">
+            
+            <!-- ওপরের গোল লোগো আইকন -->
+            <div class="w-16 h-16 bg-amber-400 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-10 mb-2">
+                <span class="text-2xl">🚀</span>
+            </div>
+
+            <h2 class="text-2xl font-black text-white tracking-wider drop-shadow-md">Congratulations</h2>
+            
+            <div class="flex items-center gap-2 my-3">
+                <span class="text-xs text-white/80">Lottery results</span>
+                <span id="win-res-badge" class="px-3 py-1 bg-rose-700 text-white font-bold rounded-full text-xs border border-white/20">Red</span>
+                <span id="win-res-num" class="w-6 h-6 bg-amber-500 rounded-full text-white font-bold text-xs flex items-center justify-center">8</span>
+                <span id="win-res-bs" class="px-2 py-0.5 bg-blue-600 text-white rounded font-bold text-xs">Big</span>
+            </div>
+
+            <!-- নিচের রসিদ স্টাইল বক্স -->
+            <div class="w-full bg-white text-slate-900 rounded-2xl p-4 shadow-inner mt-2 flex flex-col items-center">
+                <p class="text-xs text-slate-400 uppercase font-semibold">Bonus</p>
+                <p id="win-bonus-amount" class="text-2xl font-black text-rose-600 my-1 font-mono">৳0.00</p>
+                <p id="win-period-text" class="text-[11px] text-slate-500 font-mono">Period: 2026101501</p>
+            </div>
+
+            <button onclick="closeWinModal()" class="mt-5 w-full bg-slate-900 hover:bg-slate-950 text-white py-3 rounded-xl font-bold shadow-lg transition text-sm border border-slate-700">
+                OK / Continue
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Logic Script -->
     <script>
         let currentUser = null;
         let userProfile = null;
@@ -133,14 +168,25 @@
         function startTimer() {
             clearInterval(timerInterval);
             timerSeconds = 30;
+            document.getElementById("big-countdown-overlay").classList.add("hidden");
+            document.getElementById("big-countdown-overlay").classList.remove("flex");
             
             timerInterval = setInterval(() => {
                 timerSeconds--;
                 let displaySec = timerSeconds < 10 ? "0" + timerSeconds : timerSeconds;
                 document.getElementById("countdown-timer").innerText = `00:${displaySec}`;
                 
+                // ৫ সেকেন্ড বাকি থাকলে বড় কাউন্টডাউন দেখানো
+                if (timerSeconds <= 5 && timerSeconds > 0) {
+                    document.getElementById("big-number-display").innerText = timerSeconds;
+                    document.getElementById("big-countdown-overlay").classList.remove("hidden");
+                    document.getElementById("big-countdown-overlay").classList.add("flex");
+                }
+
                 if (timerSeconds <= 0) {
                     clearInterval(timerInterval);
+                    document.getElementById("big-countdown-overlay").classList.remove("flex");
+                    document.getElementById("big-countdown-overlay").classList.add("hidden");
                     processRoundResult();
                 }
             }, 1000);
@@ -156,6 +202,11 @@
         function closeBetModal() {
             document.getElementById("bet-modal").classList.remove("flex");
             document.getElementById("bet-modal").classList.add("hidden");
+        }
+
+        function closeWinModal() {
+            document.getElementById("win-modal").classList.remove("flex");
+            document.getElementById("win-modal").classList.add("hidden");
         }
 
         async function confirmAndPlaceBet() {
@@ -180,7 +231,6 @@
 
             if (profileError) {
                 alert("Failed to place bet. Try again.");
-                console.error(profileError);
                 return;
             }
 
@@ -196,9 +246,8 @@
             }]);
 
             await updatePeriodAmounts(amount, selectedTarget);
-
             closeBetModal();
-            document.getElementById("game-status-text").innerText = `Bet placed successfully on ${selectedTarget} (৳${amount})!`;
+            document.getElementById("game-status-text").innerText = `Successfully placed ৳${amount} on ${selectedTarget}!`;
         }
 
         async function updatePeriodAmounts(amount, target) {
@@ -259,6 +308,7 @@
             };
             let possibleNums = numbersMap[winningColor];
             let winningNumber = possibleNums[Math.floor(Math.random() * possibleNums.length)];
+            let winningBigSmall = winningNumber >= 5 ? 'Big' : 'Small';
             let winningResultString = `${winningColor}-${winningNumber}`;
 
             await supabaseClient
@@ -272,28 +322,29 @@
                 .eq("period_number", currentPeriodNumber)
                 .eq("status", 'pending');
 
+            let userWonAmount = 0;
+            let hasUserWon = false;
+
             if (allBets && allBets.length > 0) {
                 for (let bet of allBets) {
                     let isWin = false;
-                    let multiplier = 2; // ডিফল্ট Green এর জন্য 2x
+                    let multiplier = 2; // Default Green 2x
 
-                    if (bet.bet_type === 'Red') {
-                        multiplier = 1.9;
-                    } else if (bet.bet_type === 'Violet') {
-                        multiplier = 4.5;
-                    } else if (!isNaN(bet.bet_type)) {
-                        multiplier = 9; // নির্দিষ্ট নাম্বারের জন্য 9x
-                    }
+                    if (bet.bet_type === 'Red') multiplier = 1.9;
+                    else if (bet.bet_type === 'Violet') multiplier = 4.5;
+                    else if (bet.bet_type === 'Big' || bet.bet_type === 'Small') multiplier = 1.9;
+                    else if (!isNaN(bet.bet_type)) multiplier = 9;
 
-                    // উইনিং ম্যাচিং চেক
-                    if (bet.bet_type === winningColor) {
-                        isWin = true;
-                    } else if (bet.bet_type === String(winningNumber)) {
-                        isWin = true;
-                    }
+                    if (bet.bet_type === winningColor) isWin = true;
+                    else if (bet.bet_type === String(winningNumber)) isWin = true;
+                    else if (bet.bet_type === winningBigSmall) isWin = true;
 
                     if (isWin) {
                         let payoutAmount = bet.bet_amount * multiplier;
+                        if (bet.user_id === currentUser.id) {
+                            userWonAmount = payoutAmount;
+                            hasUserWon = true;
+                        }
                         
                         await supabaseClient
                             .from("color_game_history")
@@ -322,16 +373,27 @@
                 }
             }
 
-            document.getElementById("game-status-text").innerText = `Result: ${winningResultString}. New round starting...`;
-
+            document.getElementById("game-status-text").innerText = `Result: ${winningResultString} (${winningBigSmall})`;
             await loadUserProfile();
+
+            // ইউজার জিতলে কনগ্রাচুলেশন পপআপ দেখানো
+            if (hasUserWon) {
+                document.getElementById("win-res-badge").innerText = winningColor;
+                document.getElementById("win-res-num").innerText = winningNumber;
+                document.getElementById("win-res-bs").innerText = winningBigSmall;
+                document.getElementById("win-bonus-amount").innerText = `৳${userWonAmount.toFixed(2)}`;
+                document.getElementById("win-period-text").innerText = `Period: ${currentPeriodNumber}`;
+                
+                document.getElementById("win-modal").classList.remove("hidden");
+                document.getElementById("win-modal").classList.add("flex");
+            }
 
             currentPeriodNumber = String(parseInt(currentPeriodNumber) + 1);
             document.getElementById("period-number").innerText = currentPeriodNumber;
 
             setTimeout(() => {
                 startTimer();
-            }, 2000);
+            }, 3000);
         }
     </script>
 </body>
