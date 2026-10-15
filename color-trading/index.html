@@ -62,15 +62,15 @@
 
         .game-section { min-width: 0; }
 
-        /* গেম মোডের জন্য সিঙ্গেল প্লেট বা কন্টেইনার */
+        /* বর্ডার ছাড়া শুধু কমন প্লেট কন্টেইনার */
         .modes-plate {
             background: linear-gradient(145deg, #0b1428, #030817 65%, #071326);
-            border: 1px solid #263b54;
+            border: none;
             border-radius: 18px;
-            padding: 6px;
+            padding: 4px;
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 6px;
+            gap: 4px;
             box-shadow: inset 0 0 15px rgba(0,0,0,.4);
         }
 
@@ -90,19 +90,19 @@
             justify-content: center;
         }
 
-        /* সিলেক্টেড মোড বাটন স্টাইল এবং নিচে চিকন গ্লোয়িং দাগ */
+        /* কোনো বর্ডার থাকবে না, শুধু ব্যাকগ্রাউন্ড এবং নিচে চিকন দাগ */
         .mode-button.active-mode {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.12);
+            border: none;
+            box-shadow: none;
         }
 
         .mode-button.active-mode::after {
             content: "";
             position: absolute;
             bottom: 2px;
-            left: 15%;
-            right: 15%;
+            left: 20%;
+            right: 20%;
             height: 2px;
             background: linear-gradient(90deg, transparent, #ef4444, transparent);
             box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
@@ -558,7 +558,7 @@
 
             <div class="main-game-card">
 
-                <!-- মোডগুলোর জন্য একক প্লেট কন্টেইনার -->
+                <!-- মোডগুলোর জন্য বর্ডারবিহীন কমন প্লেট -->
                 <div class="game-section modes-plate">
 
                     <button onclick="changeGameMode(15, '15s')" id="mode-15s"
