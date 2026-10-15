@@ -796,8 +796,16 @@
                 window.speechSynthesis.cancel();
                 let utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-US';
-                utterance.rate = 1.0;
-                utterance.pitch = 1.1;
+                utterance.rate = 0.9;  // ধীর গতি (ভারী শোনানোর জন্য)
+                utterance.pitch = 0.4; // পিচ কমিয়ে গলা ডিপ ও মোটা করা
+
+                // ডিপ বা পুরুষালী ভয়েস খোঁজার চেষ্টা
+                let voices = window.speechSynthesis.getVoices();
+                let maleVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Male') || v.name.includes('David') || v.name.includes('Mark') || v.name.includes('Google UK English Male')));
+                if (maleVoice) {
+                    utterance.voice = maleVoice;
+                }
+
                 window.speechSynthesis.speak(utterance);
             }
         }
