@@ -79,11 +79,11 @@
                 linear-gradient(145deg, #0b1428, #030817 65%, #071326);
             border: 1px solid #263b54;
             border-radius: 22px;
-            padding: 15px;
-            min-height: 112px;
+            padding: 12px 15px; /* প্যাডিং কমানো হয়েছে */
+            min-height: 95px;
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
-            align-items: flex-end; /* নিচের দিক সমান রাখার জন্য পরিবর্তন করা হয়েছে */
+            align-items: flex-end;
             gap: 12px;
             box-shadow: inset 0 0 22px rgba(0,0,0,.4),
                 0 8px 20px rgba(0,0,0,.18);
@@ -92,7 +92,7 @@
         .period-timer-card::before {
             content: "";
             position: absolute;
-            top: 0;
+            bottom: 0; /* ৪টি timer-এর নিচে চিকন দাগ */
             left: 14%;
             right: 14%;
             height: 1px;
@@ -115,7 +115,7 @@
             letter-spacing: .7px;
             text-transform: uppercase;
             font-weight: 900;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             white-space: nowrap;
             text-align: left;
         }
@@ -177,7 +177,7 @@
             gap: 5px;
             min-height: 25px;
             padding: 6px 9px;
-            margin-bottom: 9px;
+            margin-bottom: 6px;
             border-radius: 8px;
             border: 1px solid rgba(52,211,153,.28);
             background: rgba(6,78,59,.3);
@@ -468,16 +468,16 @@
 
                 <div class="game-section grid grid-cols-4 gap-2">
 
-                    <button onclick="changeGameMode(10, '10s')" id="mode-10s"
-                        class="mode-button bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-center border border-slate-700 transition active:scale-95">
+                    <button onclick="changeGameMode(15, '15s')" id="mode-15s"
+                        class="mode-button bg-rose-600 p-2 rounded-xl text-center border border-rose-500 transition active:scale-95 shadow-md">
                         <div class="text-xs">🕒</div>
-                        <div class="text-[11px] font-bold text-amber-400 mt-1">Win 10s</div>
+                        <div class="text-[11px] font-bold text-white mt-1">Win 15s</div>
                     </button>
 
                     <button onclick="changeGameMode(30, '30s')" id="mode-30s"
-                        class="mode-button bg-rose-600 p-2 rounded-xl text-center border border-rose-500 transition active:scale-95 shadow-md">
+                        class="mode-button bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-center border border-slate-700 transition active:scale-95">
                         <div class="text-xs">🕒</div>
-                        <div class="text-[11px] font-bold text-white mt-1">Win 30s</div>
+                        <div class="text-[11px] font-bold text-amber-400 mt-1">Win 30s</div>
                     </button>
 
                     <button onclick="changeGameMode(60, '1m')" id="mode-1m"
@@ -497,7 +497,12 @@
                 <div class="game-section period-timer-card">
 
                     <div class="period-info">
-                        <p class="period-heading">Period Number</p>
+                        <div class="flex justify-between items-center mb-1">
+                            <p class="period-heading" style="margin-bottom:0;">Period Number</p>
+                            <a href="play-condtion/color-trading.html" class="text-[10px] text-amber-400 font-bold hover:underline flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                                How To Play <span class="text-xs">+</span>
+                            </a>
+                        </div>
                         <p id="period-number" class="period-number-display" aria-label="Period Number"></p>
                     </div>
 
@@ -508,8 +513,8 @@
                             <span class="timer-digit">0</span>
                             <span class="timer-digit">0</span>
                             <span class="timer-colon">:</span>
-                            <span class="timer-digit">3</span>
-                            <span class="timer-digit">0</span>
+                            <span class="timer-digit">1</span>
+                            <span class="timer-digit">5</span>
                         </div>
                     </div>
 
@@ -668,13 +673,13 @@
     <script>
         let currentUser = null;
         let userProfile = null;
-        let selectedGameDuration = 30;
+        let selectedGameDuration = 15;
         let currentPeriodNumber = "2026101501";
-        let timerSeconds = 30;
+        let timerSeconds = 15;
         let timerInterval = null;
         let selectedTarget = null;
-
         let activeTab = 'game-history';
+        let playedNoMoreBetsVoice = false;
 
         document.addEventListener("DOMContentLoaded", async () => {
             renderPeriodNumber();
@@ -688,6 +693,17 @@
             }
         });
 
+        function playVoice(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
         async function loadUserProfile() {
             userProfile = await getUserProfile(currentUser.id);
 
@@ -700,8 +716,9 @@
         function changeGameMode(duration, modeKey) {
             selectedGameDuration = duration;
             timerSeconds = duration;
+            playedNoMoreBetsVoice = false;
 
-            ['10s', '30s', '1m', '5m'].forEach(key => {
+            ['15s', '30s', '1m', '5m'].forEach(key => {
                 let btn = document.getElementById(`mode-${key}`);
 
                 if (key === modeKey) {
@@ -795,6 +812,7 @@
         function startTimer() {
             clearInterval(timerInterval);
             timerSeconds = selectedGameDuration;
+            playedNoMoreBetsVoice = false;
 
             const timerElem = document.getElementById("countdown-timer");
             const timerLabel = document.getElementById("timer-label");
@@ -820,8 +838,13 @@
                     timerElem.classList.add("timer-danger");
 
                     if (timerLabel) {
-                        timerLabel.innerText = "BET CLOSED";
+                        timerLabel.innerText = "NO MORE BET";
                         timerLabel.classList.add("timer-label-danger");
+                    }
+
+                    if (!playedNoMoreBetsVoice) {
+                        playVoice("No More Bets");
+                        playedNoMoreBetsVoice = true;
                     }
                 } else {
                     timerElem.classList.remove("timer-danger");
@@ -1323,6 +1346,7 @@
 
             let userWonAmount = 0;
             let hasUserWon = false;
+            let userPlacedBetThisRound = false;
 
             if (allBets && allBets.length > 0) {
                 for (let bet of allBets) {
@@ -1343,6 +1367,10 @@
                         isWin = true;
                     } else if (bet.bet_type === winningBigSmall) {
                         isWin = true;
+                    }
+
+                    if (bet.user_id === currentUser.id) {
+                        userPlacedBetThisRound = true;
                     }
 
                     if (isWin) {
@@ -1388,6 +1416,15 @@
                             })
                             .eq("id", bet.id);
                     }
+                }
+            }
+
+            // Voice effect check for win/loss
+            if (userPlacedBetThisRound) {
+                if (hasUserWon) {
+                    playVoice("Congratulation Winner");
+                } else {
+                    playVoice("Better luck next time");
                 }
             }
 
