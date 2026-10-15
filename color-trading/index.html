@@ -116,8 +116,9 @@
 
         .period-heading-row {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
             width: 100%;
         }
 
@@ -725,7 +726,7 @@
                 let utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-US';
                 utterance.rate = 1.0;
-                utterance.pitch = 1.1; // প্রিমিয়াম স্পষ্ট টোন
+                utterance.pitch = 1.1;
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -866,7 +867,6 @@
                         timerLabel.classList.add("timer-label-danger");
                     }
 
-                    // শুধুমাত্র ঠিক যখন সেকেন্ড ৫ এ আসবে, তখন একবার ভয়েস বাজবে
                     if (timerSeconds === 5) {
                         playVoiceMessage("No more bets");
                     }
@@ -1458,7 +1458,6 @@
 
             await loadUserProfile();
 
-            // ভয়েস ইফেক্ট লজিক
             if (userParticipated) {
                 if (hasUserWon) {
                     playVoiceMessage("congratulation winner");
