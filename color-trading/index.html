@@ -61,7 +61,52 @@
         }
 
         .game-section { min-width: 0; }
-        .mode-button { min-height: 58px; }
+
+        /* গেম মোডের জন্য সিঙ্গেল প্লেট বা কন্টেইনার */
+        .modes-plate {
+            background: linear-gradient(145deg, #0b1428, #030817 65%, #071326);
+            border: 1px solid #263b54;
+            border-radius: 18px;
+            padding: 6px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 6px;
+            box-shadow: inset 0 0 15px rgba(0,0,0,.4);
+        }
+
+        .mode-button {
+            position: relative;
+            background: transparent;
+            border: none;
+            border-radius: 12px;
+            padding: 8px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 52px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* সিলেক্টেড মোড বাটন স্টাইল এবং নিচে চিকন গ্লোয়িং দাগ */
+        .mode-button.active-mode {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .mode-button.active-mode::after {
+            content: "";
+            position: absolute;
+            bottom: 2px;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ef4444, transparent);
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+        }
 
         .number-button {
             aspect-ratio: 1 / 1;
@@ -262,7 +307,6 @@
             position: relative;
         }
 
-        /* টাইমারের নিচে চিকন একটি গ্লোয়িং দাগ */
         .digital-timer::after {
             content: "";
             position: absolute;
@@ -514,30 +558,31 @@
 
             <div class="main-game-card">
 
-                <div class="game-section grid grid-cols-4 gap-2">
+                <!-- মোডগুলোর জন্য একক প্লেট কন্টেইনার -->
+                <div class="game-section modes-plate">
 
                     <button onclick="changeGameMode(15, '15s')" id="mode-15s"
-                        class="mode-button bg-rose-600 p-2 rounded-xl text-center border border-rose-500 transition active:scale-95 shadow-md">
+                        class="mode-button active-mode">
                         <div class="text-xs">🕒</div>
-                        <div class="text-[11px] font-bold text-white mt-1">Win 15s</div>
+                        <div id="text-15s" class="text-[11px] font-bold text-white mt-1">Win 15s</div>
                     </button>
 
                     <button onclick="changeGameMode(30, '30s')" id="mode-30s"
-                        class="mode-button bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-center border border-slate-700 transition active:scale-95">
+                        class="mode-button">
                         <div class="text-xs">🕒</div>
-                        <div class="text-[11px] font-bold text-amber-400 mt-1">Win 30s</div>
+                        <div id="text-30s" class="text-[11px] font-bold text-amber-400 mt-1">Win 30s</div>
                     </button>
 
                     <button onclick="changeGameMode(60, '1m')" id="mode-1m"
-                        class="mode-button bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-center border border-slate-700 transition active:scale-95">
+                        class="mode-button">
                         <div class="text-xs">🕒</div>
-                        <div class="text-[11px] font-bold text-amber-400 mt-1">Win 1m</div>
+                        <div id="text-1m" class="text-[11px] font-bold text-amber-400 mt-1">Win 1m</div>
                     </button>
 
                     <button onclick="changeGameMode(300, '5m')" id="mode-5m"
-                        class="mode-button bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-center border border-slate-700 transition active:scale-95">
+                        class="mode-button">
                         <div class="text-xs">🕒</div>
-                        <div class="text-[11px] font-bold text-amber-400 mt-1">Win 5m</div>
+                        <div id="text-5m" class="text-[11px] font-bold text-amber-400 mt-1">Win 5m</div>
                     </button>
 
                 </div>
@@ -772,15 +817,14 @@
 
             ['15s', '30s', '1m', '5m'].forEach(key => {
                 let btn = document.getElementById(`mode-${key}`);
+                let txt = document.getElementById(`text-${key}`);
 
                 if (key === modeKey) {
-                    btn.className = "mode-button bg-rose-600 p-2 rounded-xl text-center border border-rose-500 transition active:scale-95 shadow-md";
-                    btn.querySelector("div:nth-child(2)").className =
-                        "text-[11px] font-bold text-white mt-1";
+                    btn.className = "mode-button active-mode";
+                    txt.className = "text-[11px] font-bold text-white mt-1";
                 } else {
-                    btn.className = "mode-button bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-center border border-slate-700 transition active:scale-95";
-                    btn.querySelector("div:nth-child(2)").className =
-                        "text-[11px] font-bold text-amber-400 mt-1";
+                    btn.className = "mode-button";
+                    txt.className = "text-[11px] font-bold text-amber-400 mt-1";
                 }
             });
 
