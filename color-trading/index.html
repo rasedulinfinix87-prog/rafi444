@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>কালার ট্রেডিং গেম</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- আপনার বিদ্যমান কনফিগারেশন ফাইল -->
+    <script src="../supabase-config.js"></script>
+    
+    <style>
+        /* কাস্টম স্টাইলসমূহ */
+        body {
+            background-color: #030712;
+            color: #f3f4f6;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .animate-pulse-fast {
+            animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen bg-slate-950">
+
+    <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col justify-between shadow-2xl border-x border-slate-800">
+        
+        <!-- Header: ব্যালেন্স ও ওয়ালেট -->
+        <header class="p-4 bg-slate-900 flex justify-between items-center border-b border-slate-800 sticky top-0 z-10">
+            <h1 class="text-lg font-bold text-amber-400">Color Trade</h1>
+            <div class="bg-slate-800 px-3 py-1.5 rounded-full text-sm font-semibold border border-slate-700">
+                Balance: ৳ <span id="user-balance" class="text-emerald-400 font-mono">0.00</span>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <main class="p-4 flex-1 flex flex-col gap-4 overflow-y-auto pb-20">
+            
+            <!-- Timer & Period Section -->
+            <div class="bg-slate-950 p-4 rounded-xl flex justify-between items-center border border-slate-800 shadow-inner">
+                <div>
+                    <p class="text-xs text-slate-400">Period No</p>
+                    <p id="period-number" class="font-mono font-bold text-amber-300 text-sm">2026101501</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-slate-400">Time Remaining</p>
+                    <p id="countdown-timer" class="font-mono text-2xl font-bold text-emerald-400">00:30</p>
+                </div>
+            </div>
+
+            <!-- Color Betting Buttons -->
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="openBetModal('Green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Green</button>
+                <button onclick="openBetModal('Violet')" class="bg-purple-600 hover:bg-purple-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Violet</button>
+                <button onclick="openBetModal('Red')" class="bg-rose-600 hover:bg-rose-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Red</button>
+            </div>
+
+            <!-- Number Selection (0-9) -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <p class="text-xs text-slate-400 mb-3">Select Number (Payout 9x)</p>
+                <div class="grid grid-cols-5 gap-2.5">
+                    <button onclick="openBetModal('1')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-2.5 rounded-lg font-bold transition">1</button>
+                    <button onclick="openBetModal('2')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-2.5 rounded-lg font-bold transition">2</button>
+                    <button onclick="openBetModal('3')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-2.5 rounded-lg font-bold transition">3</button>
+                    <button onclick="openBetModal('4')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-2.5 rounded-lg font-bold transition">4</button>
+                    <button onclick="openBetModal('5')" class="bg-slate-800 hover:bg-purple-700 active:scale-95 py-2.5 rounded-lg font-bold transition">5</button>
+                    <button onclick="openBetModal('6')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-2.5 rounded-lg font-bold transition">6</button>
+                    <button onclick="openBetModal('7')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-2.5 rounded-lg font-bold transition">7</button>
+                    <button onclick="openBetModal('8')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-2.5 rounded-lg font-bold transition">8</button>
+                    <button onclick="openBetModal('9')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-2.5 rounded-lg font-bold transition">9</button>
+                    <button onclick="openBetModal('0')" class="bg-slate-800 hover:bg-purple-700 active:scale-95 py-2.5 rounded-lg font-bold transition col-span-2">0</button>
+                </div>
+            </div>
+
+            <!-- Game Status / Recent Result Box -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <h3 class="text-xs text-slate-400 mb-2">Game Status</h3>
+                <div id="game-status-text" class="text-sm font-semibold text-amber-200">
+                    Place your bet before timer ends...
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <footer class="p-3 bg-slate-900 border-t border-slate-800 flex justify-around text-xs text-slate-400 fixed bottom-0 max-w-md w-full z-10">
+            <button class="flex flex-col items-center text-amber-400 font-bold">🏠 Home</button>
+            <button onclick="alert('History feature coming soon!')" class="flex flex-col items-center hover:text-white">📊 History</button>
+            <button onclick="logoutUser()" class="flex flex-col items-center hover:text-rose-400">🚪 Logout</button>
+        </footer>
+
+    </div>
+
+    <!-- Bet Modal (Popup) -->
+    <div id="bet-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden justify-center items-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-xs p-5 rounded-2xl shadow-2xl flex flex-col gap-4">
+            <h3 class="text-base font-bold text-slate-200">Place Bet on: <span id="modal-target" class="text-amber-400"></span></h3>
+            
+            <div>
+                <label class="text-xs text-slate-400 block mb-1">Enter Amount (৳)</label>
+                <input type="number" id="bet-amount-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-amber-400" placeholder="100" value="100">
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeBetModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2.5 rounded-xl font-semibold transition text-sm">Cancel</button>
+                <button onclick="confirmAndPlaceBet()" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 py-2.5 rounded-xl font-bold transition text-sm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Game Logic -->
+    <script>
+        let currentUser = null;
+        let userProfile = null;
+        let currentPeriodNumber = "2026101501";
+        let timerSeconds = 30;
+        let timerInterval = null;
+        let selectedTarget = null;
+
+        // ইনিশিয়ালাইজেশন
+        document.addEventListener("DOMContentLoaded", async () => {
+            currentUser = await requireAuth();
+            if (currentUser) {
+                await loadUserProfile();
+                startTimer();
+            }
+        });
+
+        // প্রোফাইল লোড করা ও ব্যালেন্স দেখানো
+        async function loadUserProfile() {
+            userProfile = await getUserProfile(currentUser.id);
+            if (userProfile) {
+                document.getElementById("user-balance").innerText = Number(userProfile.balance).toFixed(2);
+            }
+        }
+
+        // কাউন্টডাউন টাইমার
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerSeconds = 30;
+            
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                let displaySec = timerSeconds < 10 ? "0" + timerSeconds : timerSeconds;
+                document.getElementById("countdown-timer").innerText = `00:${displaySec}`;
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    processRoundResult();
+                }
+            }, 1000);
+        }
+
+        // বেট পপআপ ওপেন করা
+        function openBetModal(target) {
+            selectedTarget = target;
+            document.getElementById("modal-target").innerText = target;
+            document.getElementById("bet-modal").classList.remove("hidden");
+            document.getElementById("bet-modal").classList.add("flex");
+        }
+
+        // বেট পপআপ ক্লোজ করা
+        function closeBetModal() {
+            document.getElementById("bet-modal").classList.remove("flex");
+            document.getElementById("bet-modal").classList.add("hidden");
+        }
+
+        // বেট কনফার্ম ও ডাটাবেসে সেভ করার লজিক
+        async function confirmAndPlaceBet() {
+            let amount = parseFloat(document.getElementById("bet-amount-input").value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid amount!");
+                return;
+            }
+
+            if (amount > userProfile.balance) {
+                alert("Insufficient balance!");
+                return;
+            }
+
+            // নতুন ব্যালেন্স হিসাব করা
+            let newBalance = userProfile.balance - amount;
+
+            // ১. প্রফাইল ব্যালেন্স আপডেট করা Supabase-এ
+            const { error: profileError } = await supabaseClient
+                .from("profiles")
+                .update({ balance: newBalance })
+                .eq("id", currentUser.id);
+
+            if (profileError) {
+                alert("Failed to place bet. Try again.");
+                console.error(profileError);
+                return;
+            }
+
+            // লোকাল অবজেক্ট আপডেট
+            userProfile.balance = newBalance;
+            document.getElementById("user-balance").innerText = newBalance.toFixed(2);
+
+            // ২. color_game_history টেবিলে বেট এন্ট্রি করা
+            await supabaseClient.from("color_game_history").insert([{
+                user_id: currentUser.id,
+                period_number: currentPeriodNumber,
+                bet_type: selectedTarget,
+                bet_amount: amount,
+                status: 'pending'
+            }]),
+
+            // ৩. color_periods টেবিলে মোট এমাউন্ট আপডেট করা (Least Exposure লজিকের জন্য)
+            await updatePeriodAmounts(amount, selectedTarget);
+
+            closeBetModal();
+            document.getElementById("game-status-text").innerText = `Bet placed successfully on ${selectedTarget} (৳${amount})!`;
+        }
+
+        // পিরিয়ড টেবিলে অ্যামাউন্ট যোগ করার ফাংশন
+        async function updatePeriodAmounts(amount, target) {
+            // প্রথমে চেক করা বর্তমান পিরিয়ড ডেটাবেজে আছে কি না
+            let { data: periodData } = await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq("period_number", currentPeriodNumber)
+                .maybeSingle();
+
+            if (!periodData) {
+                // না থাকলে নতুন পিরিয়ড রো তৈরি করা
+                await supabaseClient.from("color_periods").insert([{
+                    period_number: currentPeriodNumber,
+                    total_green_amount: target === 'Green' ? amount : 0,
+                    total_red_amount: target === 'Red' ? amount : 0,
+                    total_violet_amount: target === 'Violet' ? amount : 0,
+                    status: 'pending'
+                }]);
+            } else {
+                // থাকলে আপডেট করা
+                let updateField = {};
+                if (target === 'Green') updateField.total_green_amount = Number(periodData.total_green_amount) + amount;
+                else if (target === 'Red') updateField.total_red_amount = Number(periodData.total_red_amount) + amount;
+                else if (target === 'Violet') updateField.total_violet_amount = Number(periodData.total_violet_amount) + amount;
+
+                await supabaseClient
+                    .from("color_periods")
+                    .update(updateField)
+                    .eq("period_number", currentPeriodNumber);
+            }
+        }
+
+        // রাউন্ড রেজাল্ট ও কোম্পানির লাভজনক লজিক (Least Exposure Logic)
+        async function processRoundResult() {
+            document.getElementById("game-status-text").innerText = "Calculating result...";
+
+            // ডেটাবেজ থেকে বর্তমান পিরিয়ডের বেট এমাউন্টগুলো আনা
+            let { data: periodData } = await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq("period_number", currentPeriodNumber)
+                .maybeSingle();
+
+            let green = periodData ? Number(periodData.total_green_amount) : 0;
+            let red = periodData ? Number(periodData.total_red_amount) : 0;
+            let violet = periodData ? Number(periodData.total_violet_amount) : 0;
+
+            // কোম্পানির লজিক: যে কালারে ইউজারের বেট সবচেয়ে কম, সেই কালারকেই বিজয়ী করা হবে
+            let winningColor = 'Green';
+            if (green === 0 && red === 0 && violet === 0) {
+                const randomColors = ['Green', 'Red', 'Green', 'Red', 'Violet'];
+                winningColor = randomColors[Math.floor(Math.random() * randomColors.length)];
+            } else {
+                if (green <= red && green <= violet) winningColor = 'Green';
+                else if (red <= green && red <= violet) winningColor = 'Red';
+                else winningColor = 'Violet';
+            }
+
+            // কালারের সাথে সামঞ্জস্য রেখে নাম্বার ঠিক করা
+            let numbersMap = {
+                Green: [1, 3, 7, 9],
+                Red: [2, 4, 6, 8],
+                Violet: [0, 5]
+            };
+            let possibleNums = numbersMap[winningColor];
+            let winningNumber = possibleNums[Math.floor(Math.random() * possibleNums.length)];
+            let winningResultString = `${winningColor}-${winningNumber}`;
+
+            // পিরিয়ড স্ট্যাটাস আপডেট করা
+            await supabaseClient
+                .from("color_periods")
+                .update({ winning_color: winningColor, winning_number: winningNumber, status: 'completed' })
+                .eq("period_number", currentPeriodNumber);
+
+            // এই পিরিয়ডের সমস্ত বেট চেক করে উইনারদের পে-আউট দেওয়া
+            let { data: allBets } = await supabaseClient
+                .from("color_game_history")
+                .select("*")
+                .eq("period_number", currentPeriodNumber)
+                .eq("status", 'pending');
+
+            if (allBets && allBets.length > 0) {
+                for (let bet of allBets) {
+                    let isWin = false;
+                    let multiplier = 2; // ডিফল্ট কালার মাল্টিপ্লায়ার
+
+                    if (bet.bet_type === winningColor) {
+                        isWin = true;
+                    } else if (bet.bet_type === String(winningNumber)) {
+                        isWin = true;
+                        multiplier = 9; // নাম্বার মিললে ৯ গুণ
+                    }
+
+                    if (isWin) {
+                        let payoutAmount = bet.bet_amount * multiplier;
+                        
+                        // হিস্ট্রি টেবিল আপডেট
+                        await supabaseClient
+                            .from("color_game_history")
+                            .update({ winning_result: winningResultString, payout: payoutAmount, status: 'win' })
+                            .eq("id", bet.id);
+
+                        // ইউজারের ব্যালেন্স উইনিং এমাউন্টসহ যোগ করা
+                        let { data: targetProfile } = await supabaseClient
+                            .from("profiles")
+                            .select("balance")
+                            .eq("id", bet.user_id)
+                            .single();
+
+                        if (targetProfile) {
+                            let updatedBal = Number(targetProfile.balance) + payoutAmount;
+                            await supabaseClient
+                                .from("profiles")
+                                .update({ balance: updatedBal })
+                                .eq("id", bet.user_id);
+                        }
+                    } else {
+                        // হেরে গেলে লস আপডেট
+                        await supabaseClient
+                            .from("color_game_history")
+                            .update({ winning_result: winningResultString, payout: 0, status: 'loss' })
+                            .eq("id", bet.id);
+                    }
+                }
+            }
+
+            document.getElementById("game-status-text").innerText = `Result: ${winningResultString}. New round starting...`;
+
+            // ব্যালেন্স রিফ্রেশ করা
+            await loadUserProfile();
+
+            // পরবর্তী রাউন্ডের জন্য পিরিয়ড নম্বর বাড়িয়ে দেওয়া
+            currentPeriodNumber = String(parseInt(currentPeriodNumber) + 1);
+            document.getElementById("period-number").innerText = currentPeriodNumber;
+
+            // আবার টাইমার শুরু করা
+            setTimeout(() => {
+                startTimer();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
