@@ -83,7 +83,7 @@
             min-height: 112px;
             display: grid;
             grid-template-columns: minmax(0, 1fr) auto;
-            align-items: center;
+            align-items: flex-end; /* নিচের দিক সমান রাখার জন্য পরিবর্তন করা হয়েছে */
             gap: 12px;
             box-shadow: inset 0 0 22px rgba(0,0,0,.4),
                 0 8px 20px rgba(0,0,0,.18);
@@ -120,6 +120,7 @@
             text-align: left;
         }
 
+        /* Period number uses the same digital style as the timer */
         .period-number-display {
             display: flex;
             align-items: center;
@@ -390,794 +391,6 @@
             border-radius: 8px;
         }
 
-
-        /* =========================================================
-           WIN CONGRATULATIONS POPUP
-           New visual animation - existing game logic unchanged
-           ========================================================= */
-
-        #win-modal {
-            background:
-                radial-gradient(circle at center,
-                    rgba(255, 160, 40, .10),
-                    rgba(0,0,0,.86) 58%,
-                    rgba(0,0,0,.94));
-            backdrop-filter: blur(7px);
-            -webkit-backdrop-filter: blur(7px);
-        }
-
-        .win-popup {
-            position: relative;
-            width: min(94vw, 390px);
-            min-height: 480px;
-            padding: 0 14px 24px;
-            overflow: visible;
-            border-radius: 30px;
-            background:
-                linear-gradient(180deg,
-                    #ff784c 0%,
-                    #f85b48 35%,
-                    #f44245 72%,
-                    #ed303e 100%);
-            border: 1px solid rgba(255,255,255,.22);
-            box-shadow:
-                0 30px 70px rgba(0,0,0,.65),
-                0 0 45px rgba(255,78,55,.25),
-                inset 0 1px 0 rgba(255,255,255,.35);
-            transform-origin: center center;
-            animation: winPopupEnter .65s cubic-bezier(.17,.89,.32,1.28) both;
-        }
-
-        .win-popup::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 30px;
-            pointer-events: none;
-            background:
-                radial-gradient(circle at 50% 0%,
-                    rgba(255,255,255,.23),
-                    transparent 30%),
-                linear-gradient(180deg,
-                    transparent 60%,
-                    rgba(165,0,20,.12));
-        }
-
-        .win-popup::after {
-            content: "";
-            position: absolute;
-            left: 8%;
-            right: 8%;
-            bottom: -5px;
-            height: 22px;
-            border-radius: 50%;
-            background: rgba(0,0,0,.28);
-            filter: blur(12px);
-            z-index: -1;
-        }
-
-        @keyframes winPopupEnter {
-            0% {
-                opacity: 0;
-                transform: translateY(70px) scale(.65) rotate(-2deg);
-            }
-
-            55% {
-                opacity: 1;
-                transform: translateY(-8px) scale(1.035) rotate(.5deg);
-            }
-
-            75% {
-                transform: translateY(3px) scale(.985);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-
-        /* Decorative rays behind medal */
-        .win-rays {
-            position: absolute;
-            top: -72px;
-            left: 50%;
-            width: 230px;
-            height: 230px;
-            transform: translateX(-50%);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .win-rays span {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 5px;
-            height: 102px;
-            transform-origin: 50% 100%;
-            background: linear-gradient(
-                to top,
-                rgba(255,215,90,.55),
-                rgba(255,244,190,.05)
-            );
-            border-radius: 100%;
-        }
-
-        .win-rays span:nth-child(1) {
-            transform: translate(-50%, -100%) rotate(0deg);
-        }
-
-        .win-rays span:nth-child(2) {
-            transform: translate(-50%, -100%) rotate(45deg);
-        }
-
-        .win-rays span:nth-child(3) {
-            transform: translate(-50%, -100%) rotate(90deg);
-        }
-
-        .win-rays span:nth-child(4) {
-            transform: translate(-50%, -100%) rotate(135deg);
-        }
-
-        .win-rays span:nth-child(5) {
-            transform: translate(-50%, -100%) rotate(180deg);
-        }
-
-        .win-rays span:nth-child(6) {
-            transform: translate(-50%, -100%) rotate(225deg);
-        }
-
-        .win-rays span:nth-child(7) {
-            transform: translate(-50%, -100%) rotate(270deg);
-        }
-
-        .win-rays span:nth-child(8) {
-            transform: translate(-50%, -100%) rotate(315deg);
-        }
-
-
-        /* Ribbon */
-        .win-ribbon-area {
-            position: relative;
-            height: 145px;
-            margin: 0 -14px;
-            z-index: 3;
-        }
-
-        .win-ribbon {
-            position: absolute;
-            top: 54px;
-            width: 155px;
-            height: 68px;
-            background:
-                linear-gradient(180deg,
-                    #ffb72e 0%,
-                    #f28a19 48%,
-                    #dc5b0d 100%);
-            box-shadow:
-                0 7px 10px rgba(113,35,0,.28),
-                inset 0 1px 1px rgba(255,255,255,.55),
-                inset 0 -4px 7px rgba(128,43,0,.22);
-        }
-
-        .win-ribbon.left {
-            left: -16px;
-            transform: rotate(-9deg);
-            border-radius: 10px 0 0 12px;
-        }
-
-        .win-ribbon.right {
-            right: -16px;
-            transform: rotate(9deg);
-            border-radius: 0 10px 12px 0;
-        }
-
-        .win-ribbon.left::after,
-        .win-ribbon.right::after {
-            content: "";
-            position: absolute;
-            bottom: -16px;
-            width: 42px;
-            height: 34px;
-            background: #cf550b;
-            clip-path: polygon(0 0, 100% 0, 76% 100%, 50% 72%, 23% 100%);
-        }
-
-        .win-ribbon.left::after {
-            right: 8px;
-        }
-
-        .win-ribbon.right::after {
-            left: 8px;
-        }
-
-        .win-ribbon-fold {
-            position: absolute;
-            top: 62px;
-            width: 35px;
-            height: 53px;
-            background: linear-gradient(
-                90deg,
-                rgba(150,48,0,.55),
-                rgba(255,172,35,.6)
-            );
-            z-index: 2;
-        }
-
-        .win-ribbon-fold.left {
-            left: 119px;
-            transform: skewY(12deg);
-        }
-
-        .win-ribbon-fold.right {
-            right: 119px;
-            transform: skewY(-12deg);
-        }
-
-
-        /* White decorative petals */
-        .win-petals {
-            position: absolute;
-            left: 50%;
-            top: 4px;
-            width: 210px;
-            height: 125px;
-            transform: translateX(-50%);
-            z-index: 4;
-            pointer-events: none;
-        }
-
-        .petal {
-            position: absolute;
-            width: 35px;
-            height: 73px;
-            background: linear-gradient(
-                90deg,
-                #fff,
-                #fff7f2 55%,
-                #e9d7d1
-            );
-            border-radius: 70% 30% 70% 30%;
-            box-shadow:
-                0 3px 8px rgba(70,0,0,.16),
-                inset 1px 0 3px rgba(255,255,255,.9);
-            transform-origin: 50% 90%;
-        }
-
-        .petal.p1 {
-            left: 86px;
-            top: -2px;
-            transform: rotate(0deg);
-        }
-
-        .petal.p2 {
-            left: 42px;
-            top: 15px;
-            transform: rotate(-42deg) scale(.92);
-        }
-
-        .petal.p3 {
-            right: 42px;
-            top: 15px;
-            transform: rotate(42deg) scale(.92);
-        }
-
-        .petal.p4 {
-            left: 14px;
-            top: 45px;
-            transform: rotate(-65deg) scale(.76);
-        }
-
-        .petal.p5 {
-            right: 14px;
-            top: 45px;
-            transform: rotate(65deg) scale(.76);
-        }
-
-        .petal.p6 {
-            left: 67px;
-            top: 45px;
-            transform: rotate(-24deg) scale(.68);
-        }
-
-        .petal.p7 {
-            right: 67px;
-            top: 45px;
-            transform: rotate(24deg) scale(.68);
-        }
-
-
-        /* Gold medal */
-        .win-medal {
-            position: absolute;
-            top: 7px;
-            left: 50%;
-            width: 132px;
-            height: 132px;
-            transform: translateX(-50%);
-            border-radius: 50%;
-            z-index: 7;
-            background:
-                radial-gradient(circle at 37% 30%,
-                    #fff6a3 0%,
-                    #ffd34f 18%,
-                    #ffae18 45%,
-                    #ed7d08 68%,
-                    #b95000 100%);
-            border: 8px solid #ffe8a0;
-            box-shadow:
-                0 0 0 3px #f1a62a,
-                0 0 0 6px rgba(255,255,255,.42),
-                0 10px 24px rgba(103,30,0,.36),
-                inset 0 3px 8px rgba(255,255,255,.75),
-                inset 0 -8px 12px rgba(139,52,0,.35);
-            animation: medalFloat 2.2s ease-in-out infinite;
-        }
-
-        .win-medal::before {
-            content: "";
-            position: absolute;
-            inset: 12px;
-            border-radius: 50%;
-            border: 3px solid rgba(255,239,157,.9);
-            box-shadow:
-                inset 0 0 0 3px rgba(235,129,8,.45),
-                0 0 12px rgba(255,247,190,.55);
-        }
-
-        .win-medal::after {
-            content: "";
-            position: absolute;
-            inset: 22px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,238,160,.55);
-        }
-
-        @keyframes medalFloat {
-            0%, 100% {
-                transform: translateX(-50%) translateY(0) rotate(0deg);
-            }
-
-            50% {
-                transform: translateX(-50%) translateY(-5px) rotate(.8deg);
-            }
-        }
-
-        .win-rocket {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -52%);
-            width: 63px;
-            height: 70px;
-            z-index: 3;
-            filter: drop-shadow(0 2px 3px rgba(110,55,0,.28));
-        }
-
-        .rocket-body {
-            position: absolute;
-            left: 17px;
-            top: 5px;
-            width: 30px;
-            height: 51px;
-            background: #fffdf3;
-            border-radius: 50% 50% 43% 43%;
-            transform: rotate(0deg);
-        }
-
-        .rocket-body::before {
-            content: "";
-            position: absolute;
-            left: 8px;
-            top: 8px;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: #ffbd2f;
-            box-shadow:
-                0 0 0 2px rgba(222,135,8,.18),
-                inset 0 1px 3px rgba(255,255,255,.8);
-        }
-
-        .rocket-body::after {
-            content: "⚡";
-            position: absolute;
-            left: 11px;
-            top: 9px;
-            color: white;
-            font-size: 10px;
-            line-height: 14px;
-            font-weight: 900;
-        }
-
-        .rocket-fin-left,
-        .rocket-fin-right {
-            position: absolute;
-            top: 32px;
-            width: 17px;
-            height: 22px;
-            background: #fffdf3;
-        }
-
-        .rocket-fin-left {
-            left: 4px;
-            border-radius: 100% 0 0 10px;
-            transform: skewY(-28deg);
-        }
-
-        .rocket-fin-right {
-            right: 4px;
-            border-radius: 0 100% 10px 0;
-            transform: skewY(28deg);
-        }
-
-        .rocket-fire {
-            position: absolute;
-            left: 50%;
-            bottom: -4px;
-            width: 17px;
-            height: 25px;
-            transform: translateX(-50%);
-            background: linear-gradient(
-                180deg,
-                #fff6a1,
-                #ffad1e 45%,
-                #f04425
-            );
-            clip-path: polygon(
-                50% 100%,
-                18% 60%,
-                37% 0,
-                54% 34%,
-                71% 0,
-                82% 60%
-            );
-            animation: rocketFire .45s ease-in-out infinite alternate;
-        }
-
-        @keyframes rocketFire {
-            from {
-                transform: translateX(-50%) scaleY(.82);
-            }
-            to {
-                transform: translateX(-50%) scaleY(1.08);
-            }
-        }
-
-
-        /* Congratulations title */
-        .win-title {
-            position: relative;
-            z-index: 5;
-            margin-top: 0;
-            color: white;
-            font-size: clamp(29px, 8vw, 39px);
-            line-height: 1.1;
-            font-weight: 800;
-            letter-spacing: .2px;
-            text-shadow:
-                0 2px 0 rgba(175,35,24,.45),
-                0 4px 12px rgba(120,0,0,.35);
-            animation: titleReveal .65s .15s both;
-        }
-
-        @keyframes titleReveal {
-            0% {
-                opacity: 0;
-                transform: translateY(15px) scale(.85);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .win-subtitle {
-            position: relative;
-            z-index: 5;
-            margin-top: 7px;
-            color: rgba(255,255,255,.88);
-            font-size: 12px;
-            font-weight: 600;
-            animation: titleReveal .65s .22s both;
-        }
-
-
-        /* Result badges */
-        .win-result-row {
-            position: relative;
-            z-index: 5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            margin-top: 17px;
-            margin-bottom: 12px;
-            animation: titleReveal .65s .28s both;
-        }
-
-        .win-result-label {
-            color: rgba(255,255,255,.76);
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .win-result-pill {
-            min-width: 58px;
-            padding: 6px 11px;
-            border-radius: 8px;
-            background: rgba(196,25,46,.52);
-            border: 1px solid rgba(255,255,255,.25);
-            color: white;
-            font-size: 11px;
-            font-weight: 900;
-            box-shadow:
-                inset 0 1px 2px rgba(255,255,255,.14),
-                0 3px 8px rgba(120,0,0,.18);
-        }
-
-        .win-number-pill {
-            width: 31px;
-            height: 31px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: #ec5b67;
-            border: 2px solid rgba(255,255,255,.45);
-            color: white;
-            font-size: 13px;
-            font-weight: 900;
-            box-shadow:
-                inset 0 1px 3px rgba(255,255,255,.3),
-                0 3px 8px rgba(120,0,0,.2);
-        }
-
-        .win-bs-pill {
-            padding: 6px 10px;
-            border-radius: 8px;
-            background: #df4856;
-            border: 1px solid rgba(255,255,255,.25);
-            color: white;
-            font-size: 11px;
-            font-weight: 900;
-        }
-
-
-        /* Paper / receipt */
-        .win-paper-wrap {
-            position: relative;
-            z-index: 5;
-            width: 100%;
-            padding: 0 8px;
-            margin-top: 2px;
-            perspective: 800px;
-        }
-
-        .win-paper-shadow {
-            position: absolute;
-            left: 9%;
-            right: 9%;
-            bottom: -8px;
-            height: 25px;
-            border-radius: 50%;
-            background: rgba(90,0,0,.38);
-            filter: blur(8px);
-            z-index: -1;
-        }
-
-        .win-paper {
-            position: relative;
-            min-height: 180px;
-            padding: 20px 18px 17px;
-            background:
-                linear-gradient(
-                    180deg,
-                    #fffdfd 0%,
-                    #fff9fa 65%,
-                    #f4e6e7 100%
-                );
-            color: #374151;
-            box-shadow:
-                0 9px 16px rgba(80,0,0,.28),
-                inset 0 1px 0 white;
-            clip-path: polygon(
-                0 0,
-                100% 0,
-                100% 90%,
-                97% 95%,
-                94% 91%,
-                91% 96%,
-                88% 91%,
-                85% 96%,
-                82% 91%,
-                79% 96%,
-                76% 91%,
-                73% 96%,
-                70% 91%,
-                67% 96%,
-                64% 91%,
-                61% 96%,
-                58% 91%,
-                55% 96%,
-                52% 91%,
-                49% 96%,
-                46% 91%,
-                43% 96%,
-                40% 91%,
-                37% 96%,
-                34% 91%,
-                31% 96%,
-                28% 91%,
-                25% 96%,
-                22% 91%,
-                19% 96%,
-                16% 91%,
-                13% 96%,
-                10% 91%,
-                7% 96%,
-                4% 91%,
-                0 95%
-            );
-            transform-origin: top center;
-            animation: paperDrop .95s .32s cubic-bezier(.16,1,.3,1) both;
-        }
-
-        @keyframes paperDrop {
-            0% {
-                opacity: 0;
-                transform: translateY(-105px) rotateX(-75deg) scaleY(.15);
-                filter: brightness(1.5);
-            }
-
-            45% {
-                opacity: 1;
-                transform: translateY(12px) rotateX(16deg) scaleY(.93);
-            }
-
-            70% {
-                transform: translateY(-5px) rotateX(-4deg) scaleY(1.015);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0) rotateX(0deg) scaleY(1);
-                filter: brightness(1);
-            }
-        }
-
-        .paper-top-line {
-            position: absolute;
-            left: 18px;
-            right: 18px;
-            top: 10px;
-            height: 5px;
-            border-radius: 50%;
-            background: rgba(224,61,79,.09);
-        }
-
-        .paper-label {
-            font-size: 14px;
-            color: #b84d5b;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .paper-amount {
-            font-family: monospace;
-            color: #d74757;
-            font-size: clamp(30px, 9vw, 42px);
-            line-height: 1.1;
-            font-weight: 900;
-            letter-spacing: -1px;
-            text-shadow: 0 1px 0 rgba(255,255,255,.8);
-            animation: amountPop .7s .75s cubic-bezier(.17,.89,.32,1.4) both;
-        }
-
-        @keyframes amountPop {
-            0% {
-                opacity: 0;
-                transform: scale(.55);
-            }
-
-            65% {
-                opacity: 1;
-                transform: scale(1.08);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .paper-period {
-            margin-top: 18px;
-            color: #6b7280;
-            font-family: monospace;
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-
-        /* Sparkles */
-        .win-sparkle {
-            position: absolute;
-            z-index: 10;
-            color: #fff5b5;
-            font-size: 19px;
-            text-shadow:
-                0 0 5px white,
-                0 0 14px #ffd75a;
-            animation: sparkleFloat 1.5s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        .sparkle-1 {
-            left: 22px;
-            top: 132px;
-            animation-delay: .1s;
-        }
-
-        .sparkle-2 {
-            right: 23px;
-            top: 174px;
-            animation-delay: .45s;
-        }
-
-        .sparkle-3 {
-            left: 35px;
-            bottom: 106px;
-            font-size: 14px;
-            animation-delay: .75s;
-        }
-
-        .sparkle-4 {
-            right: 31px;
-            bottom: 136px;
-            font-size: 15px;
-            animation-delay: .25s;
-        }
-
-        @keyframes sparkleFloat {
-            0%, 100% {
-                opacity: .35;
-                transform: scale(.7) rotate(0deg);
-            }
-
-            50% {
-                opacity: 1;
-                transform: scale(1.25) rotate(18deg);
-            }
-        }
-
-
-        /* Close button */
-        .win-close-button {
-            position: relative;
-            z-index: 6;
-            width: 100%;
-            margin-top: 16px;
-            padding: 13px 15px;
-            border-radius: 13px;
-            background: #111827;
-            color: white;
-            border: 1px solid rgba(255,255,255,.12);
-            box-shadow:
-                0 7px 14px rgba(90,0,0,.25),
-                inset 0 1px 0 rgba(255,255,255,.08);
-            font-size: 13px;
-            font-weight: 800;
-            transition: .2s ease;
-        }
-
-        .win-close-button:active {
-            transform: scale(.97);
-        }
-
         @media (max-width: 380px) {
             .period-timer-card {
                 padding: 10px;
@@ -1210,33 +423,6 @@
                 padding: 5px 6px;
                 gap: 4px;
             }
-
-            .win-popup {
-                min-height: 455px;
-                padding-bottom: 18px;
-            }
-
-            .win-medal {
-                width: 116px;
-                height: 116px;
-            }
-
-            .win-ribbon {
-                width: 138px;
-            }
-
-            .win-title {
-                font-size: 29px;
-            }
-
-            .win-paper {
-                min-height: 165px;
-                padding-top: 18px;
-            }
-
-            .paper-amount {
-                font-size: 32px;
-            }
         }
 
         @media (max-width: 320px) {
@@ -1258,18 +444,6 @@
                 width: 27px;
                 height: 38px;
                 font-size: 23px;
-            }
-
-            .win-popup {
-                width: 96vw;
-            }
-
-            .win-ribbon {
-                width: 125px;
-            }
-
-            .win-result-row {
-                gap: 4px;
             }
         }
     </style>
@@ -1424,13 +598,11 @@
         </main>
     </div>
 
-
     <!-- Bet Modal -->
     <div id="bet-modal"
         class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden justify-center items-center z-50 p-4">
 
         <div class="bg-slate-900 border border-slate-800 w-full max-w-xs p-5 rounded-2xl shadow-2xl flex flex-col gap-4">
-
             <h3 class="text-sm font-bold text-slate-300">
                 Place Bet on:
                 <span id="modal-target" class="text-amber-400 font-extrabold text-base"></span>
@@ -1438,14 +610,12 @@
 
             <div>
                 <label class="text-[11px] text-slate-400 block mb-1">Enter Amount (৳)</label>
-
                 <input type="number" id="bet-amount-input"
                     class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-amber-400"
                     value="100">
             </div>
 
             <div class="flex gap-2">
-
                 <button onclick="closeBetModal()"
                     class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded-xl font-semibold transition text-xs">
                     Cancel
@@ -1455,151 +625,45 @@
                     class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 py-2 rounded-xl font-bold transition text-xs">
                     Confirm
                 </button>
-
             </div>
         </div>
     </div>
 
-
-    <!-- =========================================================
-         WIN CONGRATULATIONS POPUP
-         ========================================================= -->
-
+    <!-- Win Congratulations Popup -->
     <div id="win-modal"
-        class="fixed inset-0 hidden justify-center items-center z-50 p-3">
+        class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
 
-        <div class="win-popup">
+        <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center">
 
-            <!-- Decorative Rays -->
-            <div class="win-rays">
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
-                <span></span>
+            <div class="w-16 h-16 bg-amber-400 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-10 mb-2 animate-bounce">
+                <span class="text-2xl">🎉</span>
             </div>
 
-
-            <!-- Ribbon -->
-            <div class="win-ribbon-area">
-
-                <div class="win-ribbon left"></div>
-                <div class="win-ribbon right"></div>
-
-                <div class="win-ribbon-fold left"></div>
-                <div class="win-ribbon-fold right"></div>
-
-
-                <!-- White Petals -->
-                <div class="win-petals">
-
-                    <div class="petal p1"></div>
-                    <div class="petal p2"></div>
-                    <div class="petal p3"></div>
-                    <div class="petal p4"></div>
-                    <div class="petal p5"></div>
-                    <div class="petal p6"></div>
-                    <div class="petal p7"></div>
-
-                </div>
-
-
-                <!-- Gold Medal -->
-                <div class="win-medal">
-
-                    <div class="win-rocket">
-
-                        <div class="rocket-fin-left"></div>
-                        <div class="rocket-fin-right"></div>
-
-                        <div class="rocket-body"></div>
-
-                        <div class="rocket-fire"></div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- Sparkles -->
-            <span class="win-sparkle sparkle-1">✦</span>
-            <span class="win-sparkle sparkle-2">✦</span>
-            <span class="win-sparkle sparkle-3">✧</span>
-            <span class="win-sparkle sparkle-4">✧</span>
-
-
-            <!-- Congratulations -->
-            <h2 class="win-title text-center">
+            <h2 class="text-2xl font-black text-white tracking-wider drop-shadow-md">
                 Congratulations
             </h2>
 
-            <p class="win-subtitle text-center">
-                You have won the trade!
-            </p>
+            <p class="text-xs text-white/90 mb-2">You have won the trade!</p>
 
-
-            <!-- Result -->
-            <div class="win-result-row">
-
-                <span class="win-result-label">
-                    Lottery results
-                </span>
-
-                <span id="win-res-badge" class="win-result-pill">
-                    Red
-                </span>
-
-                <span id="win-res-num" class="win-number-pill">
-                    8
-                </span>
-
-                <span id="win-res-bs" class="win-bs-pill">
-                    Big
-                </span>
-
+            <div class="flex items-center gap-2 my-2">
+                <span class="text-xs text-white/80">Result:</span>
+                <span id="win-res-badge" class="px-3 py-1 bg-rose-700 text-white font-bold rounded-full text-xs border border-white/20">Red</span>
+                <span id="win-res-num" class="w-6 h-6 bg-amber-500 rounded-full text-white font-bold text-xs flex items-center justify-center">8</span>
+                <span id="win-res-bs" class="px-2 py-0.5 bg-blue-600 text-white rounded font-bold text-xs">Big</span>
             </div>
 
-
-            <!-- Paper / Receipt -->
-            <div class="win-paper-wrap">
-
-                <div class="win-paper-shadow"></div>
-
-                <div class="win-paper">
-
-                    <div class="paper-top-line"></div>
-
-                    <p class="paper-label">
-                        Bonus
-                    </p>
-
-                    <p id="win-bonus-amount" class="paper-amount">
-                        ৳0.00
-                    </p>
-
-                    <p id="win-period-text" class="paper-period">
-                        Period: 2026101501
-                    </p>
-
-                </div>
-
+            <div class="w-full bg-white text-slate-900 rounded-2xl p-4 shadow-inner mt-2 flex flex-col items-center">
+                <p class="text-xs text-slate-400 uppercase font-semibold">Winning Bonus</p>
+                <p id="win-bonus-amount" class="text-3xl font-black text-rose-600 my-1 font-mono">৳0.00</p>
+                <p id="win-period-text" class="text-[11px] text-slate-500 font-mono">Period: 2026101501</p>
             </div>
 
-
-            <!-- Close -->
             <button onclick="closeWinModal()"
-                class="win-close-button">
+                class="mt-5 w-full bg-slate-900 hover:bg-slate-950 text-white py-3 rounded-xl font-bold shadow-lg transition text-sm border border-slate-700">
                 Collect & Continue
             </button>
-
         </div>
     </div>
-
 
     <script>
         let currentUser = null;
@@ -1642,13 +706,10 @@
 
                 if (key === modeKey) {
                     btn.className = "mode-button bg-rose-600 p-2 rounded-xl text-center border border-rose-500 transition active:scale-95 shadow-md";
-
                     btn.querySelector("div:nth-child(2)").className =
                         "text-[11px] font-bold text-white mt-1";
-
                 } else {
                     btn.className = "mode-button bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-center border border-slate-700 transition active:scale-95";
-
                     btn.querySelector("div:nth-child(2)").className =
                         "text-[11px] font-bold text-amber-400 mt-1";
                 }
@@ -1657,10 +718,8 @@
             startTimer();
         }
 
-
         function renderPeriodNumber() {
             const element = document.getElementById("period-number");
-
             if (!element) return;
 
             const periodText = String(currentPeriodNumber);
@@ -1670,11 +729,8 @@
             ).join("");
         }
 
-
         function clearWinningHighlights() {
-
             document.querySelectorAll('.winning-blink').forEach(button => {
-
                 button.classList.remove(
                     'winning-blink',
                     'win-blink-green',
@@ -1684,18 +740,10 @@
                     'win-blink-big',
                     'win-blink-small'
                 );
-
             });
-
         }
 
-
-        function highlightWinningTargets(
-            winningColor,
-            winningNumber,
-            winningBigSmall
-        ) {
-
+        function highlightWinningTargets(winningColor, winningNumber, winningBigSmall) {
             clearWinningHighlights();
 
             const colorClass = {
@@ -1704,109 +752,61 @@
                 Violet: 'win-blink-violet'
             };
 
-            document.querySelectorAll(
-                'button[onclick^="openBetModal("]'
-            ).forEach(button => {
-
-                const match = button
-                    .getAttribute('onclick')
-                    ?.match(
-                        /openBetModal\(['"]([^'"]+)['"]\)/
-                    );
+            document.querySelectorAll('button[onclick^="openBetModal("]').forEach(button => {
+                const match = button.getAttribute('onclick')?.match(/openBetModal\(['"]([^'"]+)['"]\)/);
 
                 if (!match) return;
 
                 const target = match[1];
-
                 let highlightClass = '';
 
                 if (target === winningColor) {
-
-                    highlightClass =
-                        colorClass[winningColor] || '';
-
-                } else if (
-                    target === String(winningNumber)
-                ) {
-
-                    highlightClass =
-                        'win-blink-number';
-
-                } else if (
-                    target === winningBigSmall
-                ) {
-
-                    highlightClass =
-                        winningBigSmall === 'Big'
-                            ? 'win-blink-big'
-                            : 'win-blink-small';
+                    highlightClass = colorClass[winningColor] || '';
+                } else if (target === String(winningNumber)) {
+                    highlightClass = 'win-blink-number';
+                } else if (target === winningBigSmall) {
+                    highlightClass = winningBigSmall === 'Big'
+                        ? 'win-blink-big'
+                        : 'win-blink-small';
                 }
 
                 if (highlightClass) {
+                    button.classList.add('winning-blink', highlightClass);
 
-                    button.classList.add(
-                        'winning-blink',
-                        highlightClass
-                    );
+                    button.addEventListener('animationend', function removeBlink(event) {
+                        if (event.animationName !== 'winningBlink') return;
 
-                    button.addEventListener(
-                        'animationend',
-                        function removeBlink(event) {
+                        button.classList.remove(
+                            'winning-blink',
+                            'win-blink-green',
+                            'win-blink-red',
+                            'win-blink-violet',
+                            'win-blink-number',
+                            'win-blink-big',
+                            'win-blink-small'
+                        );
 
-                            if (
-                                event.animationName !==
-                                'winningBlink'
-                            ) return;
-
-                            button.classList.remove(
-                                'winning-blink',
-                                'win-blink-green',
-                                'win-blink-red',
-                                'win-blink-violet',
-                                'win-blink-number',
-                                'win-blink-big',
-                                'win-blink-small'
-                            );
-
-                            button.removeEventListener(
-                                'animationend',
-                                removeBlink
-                            );
-
-                        }
-                    );
+                        button.removeEventListener('animationend', removeBlink);
+                    });
                 }
-
             });
         }
 
-
         function startTimer() {
-
             clearInterval(timerInterval);
-
             timerSeconds = selectedGameDuration;
 
-            const timerElem =
-                document.getElementById("countdown-timer");
-
-            const timerLabel =
-                document.getElementById("timer-label");
-
+            const timerElem = document.getElementById("countdown-timer");
+            const timerLabel = document.getElementById("timer-label");
 
             function updateMainTimer() {
-
                 if (!timerElem) return;
 
-                const min =
-                    Math.floor(timerSeconds / 60);
-
-                const sec =
-                    timerSeconds % 60;
+                const min = Math.floor(timerSeconds / 60);
+                const sec = timerSeconds % 60;
 
                 const timeText =
                     `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-
 
                 timerElem.innerHTML = `
                     <span class="timer-digit">${timeText[0]}</span>
@@ -1816,299 +816,173 @@
                     <span class="timer-digit">${timeText[4]}</span>
                 `;
 
-
                 if (timerSeconds <= 5) {
-
-                    timerElem.classList.add(
-                        "timer-danger"
-                    );
+                    timerElem.classList.add("timer-danger");
 
                     if (timerLabel) {
-
-                        timerLabel.innerText =
-                            "BET CLOSED";
-
-                        timerLabel.classList.add(
-                            "timer-label-danger"
-                        );
+                        timerLabel.innerText = "BET CLOSED";
+                        timerLabel.classList.add("timer-label-danger");
                     }
-
                 } else {
-
-                    timerElem.classList.remove(
-                        "timer-danger"
-                    );
+                    timerElem.classList.remove("timer-danger");
 
                     if (timerLabel) {
-
-                        timerLabel.innerText =
-                            "PLACE YOUR BET";
-
-                        timerLabel.classList.remove(
-                            "timer-label-danger"
-                        );
+                        timerLabel.innerText = "PLACE YOUR BET";
+                        timerLabel.classList.remove("timer-label-danger");
                     }
                 }
             }
 
-
             updateMainTimer();
 
-
             timerInterval = setInterval(() => {
-
-                timerSeconds =
-                    Math.max(0, timerSeconds - 1);
-
+                timerSeconds = Math.max(0, timerSeconds - 1);
                 updateMainTimer();
 
-
                 if (timerSeconds <= 0) {
-
                     clearInterval(timerInterval);
-
                     processRoundResult();
                 }
-
             }, 1000);
         }
 
-
         function switchTab(tabName) {
+            const container = document.getElementById("tab-content");
 
-            const container =
-                document.getElementById("tab-content");
-
-
-            if (
-                activeTab === tabName &&
-                !container.classList.contains("hidden")
-            ) {
-
+            if (activeTab === tabName && !container.classList.contains("hidden")) {
                 activeTab = null;
-
                 container.classList.add("hidden");
 
-
-                ['game-history', 'chart', 'my-history']
-                    .forEach(t => {
-
-                        const btn =
-                            document.getElementById(`tab-${t}`);
-
-                        btn.className =
-                            "flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition";
-
-                    });
+                ['game-history', 'chart', 'my-history'].forEach(t => {
+                    const btn = document.getElementById(`tab-${t}`);
+                    btn.className =
+                        "flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition";
+                });
 
                 return;
             }
 
-
             activeTab = tabName;
-
             container.classList.remove("hidden");
 
+            ['game-history', 'chart', 'my-history'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
 
-            ['game-history', 'chart', 'my-history']
-                .forEach(t => {
-
-                    const btn =
-                        document.getElementById(`tab-${t}`);
-
-
-                    if (t === tabName) {
-
-                        btn.className =
-                            "flex-1 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white transition";
-
-                    } else {
-
-                        btn.className =
-                            "flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition";
-                    }
-
-                });
-
+                if (t === tabName) {
+                    btn.className =
+                        "flex-1 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white transition";
+                } else {
+                    btn.className =
+                        "flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition";
+                }
+            });
 
             loadHistoryData(tabName);
         }
 
-
         function escapeHtml(value) {
-
-            return String(value ?? '')
-                .replace(
-                    /[&<>"']/g,
-                    char => ({
-                        '&': '&amp;',
-                        '<': '&lt;',
-                        '>': '&gt;',
-                        '"': '&quot;',
-                        "'": '&#39;'
-                    })[char]
-                );
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[char]);
         }
 
-
         function getSavedBetResult(row) {
-
-            let savedResult =
-                String(row.winning_result || '');
-
-            let resultMatch =
-                savedResult.match(
-                    /(Green|Red|Violet)\s*[-:]\s*(\d)/i
-                );
-
+            let savedResult = String(row.winning_result || '');
+            let resultMatch = savedResult.match(/(Green|Red|Violet)\s*[-:]\s*(\d)/i);
 
             let color = resultMatch
-                ? resultMatch[1].charAt(0).toUpperCase() +
-                  resultMatch[1].slice(1).toLowerCase()
+                ? resultMatch[1].charAt(0).toUpperCase() + resultMatch[1].slice(1).toLowerCase()
                 : (row.winning_color || '');
-
 
             let number = resultMatch
                 ? Number(resultMatch[2])
-                : (
-                    row.winning_number !== null &&
-                    row.winning_number !== undefined &&
-                    row.winning_number !== ''
-                )
+                : (row.winning_number !== null &&
+                   row.winning_number !== undefined &&
+                   row.winning_number !== ''
                     ? Number(row.winning_number)
-                    : null;
+                    : null);
 
-
-            if (
-                !['Green', 'Red', 'Violet']
-                .includes(color)
-            ) {
+            if (!['Green', 'Red', 'Violet'].includes(color)) {
                 color = '';
             }
 
+            let bigSmall = number !== null && Number.isFinite(number)
+                ? (number >= 5 ? 'Big' : 'Small')
+                : '';
 
-            let bigSmall =
-                number !== null &&
-                Number.isFinite(number)
-                    ? (number >= 5 ? 'Big' : 'Small')
-                    : '';
-
-
-            let colorClass =
-                color === 'Red'
-                    ? 'result-red'
-                    : color === 'Green'
-                        ? 'result-green'
-                        : color === 'Violet'
-                            ? 'result-violet'
-                            : '';
-
+            let colorClass = color === 'Red'
+                ? 'result-red'
+                : color === 'Green'
+                    ? 'result-green'
+                    : color === 'Violet'
+                        ? 'result-violet'
+                        : '';
 
             return {
                 color,
                 number,
                 bigSmall,
                 colorClass,
-                hasResult:
-                    number !== null &&
-                    Number.isFinite(number) &&
-                    color !== ''
+                hasResult: number !== null &&
+                           Number.isFinite(number) &&
+                           color !== ''
             };
         }
-
 
         function formatHistoryDate(dateValue) {
+            if (!dateValue) return { date: 'N/A', time: 'N/A' };
 
-            if (!dateValue) {
-                return {
-                    date: 'N/A',
-                    time: 'N/A'
-                };
-            }
-
-
-            const date =
-                new Date(dateValue);
-
+            const date = new Date(dateValue);
 
             if (Number.isNaN(date.getTime())) {
-
-                return {
-                    date: 'N/A',
-                    time: 'N/A'
-                };
+                return { date: 'N/A', time: 'N/A' };
             }
 
-
             return {
-
-                date: date.toLocaleDateString(
-                    'en-GB',
-                    {
-                        timeZone: 'Asia/Dhaka',
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    }
-                ),
-
-                time: date.toLocaleTimeString(
-                    'en-GB',
-                    {
-                        timeZone: 'Asia/Dhaka',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: true
-                    }
-                )
+                date: date.toLocaleDateString('en-GB', {
+                    timeZone: 'Asia/Dhaka',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                }),
+                time: date.toLocaleTimeString('en-GB', {
+                    timeZone: 'Asia/Dhaka',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                })
             };
         }
 
-
         async function loadHistoryData(type) {
-
-            let container =
-                document.getElementById("tab-content");
+            let container = document.getElementById("tab-content");
 
             if (!type) return;
 
-
             container.classList.remove("hidden");
-
             container.innerHTML =
                 `<p class="text-center text-slate-500 py-3">Loading...</p>`;
 
-
             if (type === 'game-history') {
+                let { data, error } = await supabaseClient
+                    .from("color_periods")
+                    .select("*")
+                    .eq("status", "completed")
+                    .order("created_at", { ascending: false })
+                    .limit(10);
 
-                let { data, error } =
-                    await supabaseClient
-                        .from("color_periods")
-                        .select("*")
-                        .eq("status", "completed")
-                        .order(
-                            "created_at",
-                            { ascending: false }
-                        )
-                        .limit(10);
-
-
-                if (
-                    error ||
-                    !data ||
-                    data.length === 0
-                ) {
-
+                if (error || !data || data.length === 0) {
                     container.innerHTML =
                         `<p class="text-center text-slate-500 py-3">No history found</p>`;
-
                     return;
                 }
 
-
-                let html = `
-                    <div class="overflow-x-auto">
+                let html = `<div class="overflow-x-auto">
                     <table class="history-table">
                     <thead>
                     <tr class="text-slate-400 border-b border-slate-800">
@@ -2117,115 +991,58 @@
                         <th>Big/Small</th>
                         <th>Color</th>
                     </tr>
-                    </thead>
-                    <tbody>`;
-
+                    </thead><tbody>`;
 
                 data.forEach(row => {
+                    let bs = Number(row.winning_number) >= 5 ? 'Big' : 'Small';
 
-                    let bs =
-                        Number(row.winning_number) >= 5
-                            ? 'Big'
-                            : 'Small';
+                    let colorClass = row.winning_color === 'Green'
+                        ? 'text-emerald-400'
+                        : (row.winning_color === 'Red'
+                            ? 'text-rose-500'
+                            : 'text-purple-400');
 
-
-                    let colorClass =
-                        row.winning_color === 'Green'
-                            ? 'text-emerald-400'
-                            : (
-                                row.winning_color === 'Red'
-                                    ? 'text-rose-500'
-                                    : 'text-purple-400'
-                            );
-
-
-                    html += `
-                        <tr class="border-b border-slate-900/50">
-
-                            <td class="font-mono text-amber-300">
-                                ${escapeHtml(row.period_number)}
-                            </td>
-
-                            <td class="font-bold">
-                                ${escapeHtml(row.winning_number)}
-                            </td>
-
-                            <td class="font-semibold">
-                                ${bs}
-                            </td>
-
-                            <td class="font-bold ${colorClass}">
-                                ${escapeHtml(row.winning_color)}
-                            </td>
-
-                        </tr>`;
+                    html += `<tr class="border-b border-slate-900/50">
+                        <td class="font-mono text-amber-300">${escapeHtml(row.period_number)}</td>
+                        <td class="font-bold">${escapeHtml(row.winning_number)}</td>
+                        <td class="font-semibold">${bs}</td>
+                        <td class="font-bold ${colorClass}">${escapeHtml(row.winning_color)}</td>
+                    </tr>`;
                 });
 
-
-                html += `
-                    </tbody>
-                    </table>
-                    </div>`;
-
-
+                html += `</tbody></table></div>`;
                 container.innerHTML = html;
 
-
             } else if (type === 'my-history') {
-
-                let { data, error } =
-                    await supabaseClient
-                        .from("color_game_history")
-                        .select("*")
-                        .eq("user_id", currentUser.id)
-                        .order(
-                            "created_at",
-                            { ascending: false }
-                        )
-                        .limit(10);
-
+                let { data, error } = await supabaseClient
+                    .from("color_game_history")
+                    .select("*")
+                    .eq("user_id", currentUser.id)
+                    .order("created_at", { ascending: false })
+                    .limit(10);
 
                 if (error) {
-
-                    console.error(
-                        "My History error:",
-                        error
-                    );
-
+                    console.error("My History error:", error);
                     container.innerHTML =
                         `<p class="text-center text-rose-400 py-4">
                             Unable to load My History. Please check the database.
                         </p>`;
-
                     return;
                 }
 
-
-                if (
-                    !data ||
-                    data.length === 0
-                ) {
-
+                if (!data || data.length === 0) {
                     container.innerHTML =
-                        `<p class="text-center text-slate-500 py-4">
-                            No bets found
-                        </p>`;
-
+                        `<p class="text-center text-slate-500 py-4">No bets found</p>`;
                     return;
                 }
-
 
                 let html = `
                     <div class="mb-3 text-[10px] text-slate-400">
                         Showing your latest 10 bets. Scroll horizontally to see all details.
                     </div>
-
                     <div class="history-scroll max-h-96">
-
                     <table class="my-history-table">
-
                     <thead>
-
                     <tr>
                         <th>Period</th>
                         <th>Bet</th>
@@ -2236,810 +1053,346 @@
                         <th>Big/Small</th>
                         <th>Date & Time</th>
                     </tr>
-
-                    </thead>
-
-                    <tbody>`;
-
+                    </thead><tbody>`;
 
                 data.forEach(row => {
+                    let status = String(row.status || 'pending').toLowerCase();
 
-                    let status =
-                        String(
-                            row.status || 'pending'
-                        ).toLowerCase();
+                    let statusColor = status === 'win'
+                        ? 'text-emerald-400'
+                        : status === 'loss'
+                            ? 'text-rose-400'
+                            : 'text-amber-400';
 
+                    let statusLabel = status === 'win'
+                        ? 'WIN'
+                        : status === 'loss'
+                            ? 'LOSS'
+                            : 'PENDING';
 
-                    let statusColor =
-                        status === 'win'
-                            ? 'text-emerald-400'
-                            : status === 'loss'
-                                ? 'text-rose-400'
-                                : 'text-amber-400';
+                    let result = getSavedBetResult(row);
 
+                    let resultNumberHtml = result.hasResult
+                        ? `<span class="result-number ${result.colorClass}">${result.number}</span>`
+                        : `<span class="text-slate-500">—</span>`;
 
-                    let statusLabel =
-                        status === 'win'
-                            ? 'WIN'
-                            : status === 'loss'
-                                ? 'LOSS'
-                                : 'PENDING';
+                    let resultColorHtml = result.hasResult
+                        ? `<span class="result-badge ${
+                            result.color === 'Red'
+                                ? 'bg-rose-900/60 text-rose-300 border border-rose-700'
+                                : result.color === 'Green'
+                                    ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-700'
+                                    : 'bg-purple-900/60 text-purple-300 border border-purple-700'
+                          }">${escapeHtml(result.color.toUpperCase())}</span>`
+                        : `<span class="text-slate-500">—</span>`;
 
+                    let bigSmallHtml = result.hasResult
+                        ? `<span class="result-badge ${
+                            result.bigSmall === 'Big'
+                                ? 'bg-amber-900/60 text-amber-300 border border-amber-700'
+                                : 'bg-blue-900/60 text-blue-300 border border-blue-700'
+                          }">${result.bigSmall.toUpperCase()}</span>`
+                        : `<span class="text-slate-500">—</span>`;
 
-                    let result =
-                        getSavedBetResult(row);
-
-
-                    let resultNumberHtml =
-                        result.hasResult
-
-                            ? `<span class="result-number ${result.colorClass}">
-                                ${result.number}
-                              </span>`
-
-                            : `<span class="text-slate-500">—</span>`;
-
-
-                    let resultColorHtml =
-                        result.hasResult
-
-                            ? `<span class="result-badge ${
-                                result.color === 'Red'
-                                    ? 'bg-rose-900/60 text-rose-300 border border-rose-700'
-                                    : result.color === 'Green'
-                                        ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-700'
-                                        : 'bg-purple-900/60 text-purple-300 border border-purple-700'
-                              }">
-                                ${escapeHtml(result.color.toUpperCase())}
-                              </span>`
-
-                            : `<span class="text-slate-500">—</span>`;
-
-
-                    let bigSmallHtml =
-                        result.hasResult
-
-                            ? `<span class="result-badge ${
-                                result.bigSmall === 'Big'
-                                    ? 'bg-amber-900/60 text-amber-300 border border-amber-700'
-                                    : 'bg-blue-900/60 text-blue-300 border border-blue-700'
-                              }">
-                                ${result.bigSmall.toUpperCase()}
-                              </span>`
-
-                            : `<span class="text-slate-500">—</span>`;
-
-
-                    let dateTime =
-                        formatHistoryDate(
-                            row.created_at
-                        );
-
+                    let dateTime = formatHistoryDate(row.created_at);
 
                     html += `
                         <tr>
-
-                            <td class="font-mono text-amber-300">
-                                ${escapeHtml(
-                                    row.period_number || '—'
-                                )}
-                            </td>
-
-                            <td class="font-bold text-white">
-                                ${escapeHtml(
-                                    row.bet_type || '—'
-                                )}
-                            </td>
-
-                            <td class="font-mono text-slate-200">
-                                ৳${Number(
-                                    row.bet_amount || 0
-                                ).toFixed(2)}
-                            </td>
-
-                            <td class="font-bold ${statusColor}">
-                                ${statusLabel}
-                            </td>
-
-                            <td>
-                                ${resultNumberHtml}
-                            </td>
-
-                            <td>
-                                ${resultColorHtml}
-                            </td>
-
-                            <td>
-                                ${bigSmallHtml}
-                            </td>
-
+                            <td class="font-mono text-amber-300">${escapeHtml(row.period_number || '—')}</td>
+                            <td class="font-bold text-white">${escapeHtml(row.bet_type || '—')}</td>
+                            <td class="font-mono text-slate-200">৳${Number(row.bet_amount || 0).toFixed(2)}</td>
+                            <td class="font-bold ${statusColor}">${statusLabel}</td>
+                            <td>${resultNumberHtml}</td>
+                            <td>${resultColorHtml}</td>
+                            <td>${bigSmallHtml}</td>
                             <td class="date-cell">
-
-                                <div>
-                                    ${escapeHtml(dateTime.date)}
-                                </div>
-
-                                <div class="text-slate-400">
-                                    ${escapeHtml(dateTime.time)}
-                                </div>
-
+                                <div>${escapeHtml(dateTime.date)}</div>
+                                <div class="text-slate-400">${escapeHtml(dateTime.time)}</div>
                             </td>
-
                         </tr>`;
                 });
 
-
                 html += `
-                    </tbody>
-                    </table>
-                    </div>
-
+                    </tbody></table></div>
                     <div class="mt-3 p-3 rounded-xl bg-slate-900 border border-slate-800">
-
                         <p class="text-[10px] text-slate-400 leading-relaxed">
-
                             Result No., Result Color এবং Big/Small দেখানোর জন্য
                             সংশ্লিষ্ট রাউন্ডের ফলাফল ডাটাবেসে সংরক্ষিত থাকতে হবে।
                             Pending বেটের ফলাফল রাউন্ড সম্পন্ন না হওয়া পর্যন্ত
                             দেখানো হবে না।
-
                         </p>
-
                     </div>`;
-
 
                 container.innerHTML = html;
 
-
             } else if (type === 'chart') {
-
                 container.innerHTML =
-                    `<p class="text-center text-slate-500 py-5">
-                        Chart feature coming soon...
-                    </p>`;
+                    `<p class="text-center text-slate-500 py-5">Chart feature coming soon...</p>`;
             }
         }
 
-
         function openBetModal(target) {
-
             if (timerSeconds <= 5) {
-
-                document.getElementById(
-                    "game-status-text"
-                ).innerText =
+                document.getElementById("game-status-text").innerText =
                     "No More Bet! Please wait for the next round.";
-
                 return;
             }
-
 
             selectedTarget = target;
 
-
-            document.getElementById(
-                "modal-target"
-            ).innerText = target;
-
-
-            document.getElementById(
-                "bet-modal"
-            ).classList.remove("hidden");
-
-
-            document.getElementById(
-                "bet-modal"
-            ).classList.add("flex");
+            document.getElementById("modal-target").innerText = target;
+            document.getElementById("bet-modal").classList.remove("hidden");
+            document.getElementById("bet-modal").classList.add("flex");
         }
-
 
         function closeBetModal() {
-
-            document.getElementById(
-                "bet-modal"
-            ).classList.remove("flex");
-
-
-            document.getElementById(
-                "bet-modal"
-            ).classList.add("hidden");
+            document.getElementById("bet-modal").classList.remove("flex");
+            document.getElementById("bet-modal").classList.add("hidden");
         }
-
 
         function closeWinModal() {
-
-            document.getElementById(
-                "win-modal"
-            ).classList.remove("flex");
-
-
-            document.getElementById(
-                "win-modal"
-            ).classList.add("hidden");
+            document.getElementById("win-modal").classList.remove("flex");
+            document.getElementById("win-modal").classList.add("hidden");
         }
 
-
         async function confirmAndPlaceBet() {
-
             if (timerSeconds <= 5) {
-
                 closeBetModal();
 
-                document.getElementById(
-                    "game-status-text"
-                ).innerText =
+                document.getElementById("game-status-text").innerText =
                     "No More Bet! Please wait for the next round.";
 
                 return;
             }
 
-
-            let amount =
-                parseFloat(
-                    document.getElementById(
-                        "bet-amount-input"
-                    ).value
-                );
-
-
-            if (isNaN(amount) || amount <= 0) {
-
-                alert(
-                    "Please enter a valid amount!"
-                );
-
-                return;
-            }
-
-
-            if (
-                amount >
-                Number(userProfile.balance)
-            ) {
-
-                alert(
-                    "Insufficient balance!"
-                );
-
-                return;
-            }
-
-
-            let newBalance =
-                Number(userProfile.balance) -
-                amount;
-
-
-            const {
-                error: profileError
-            } =
-                await supabaseClient
-                    .from("profiles")
-                    .update({
-                        balance: newBalance
-                    })
-                    .eq(
-                        "id",
-                        currentUser.id
-                    );
-
-
-            if (profileError) {
-
-                alert(
-                    "Failed to place bet. Try again."
-                );
-
-                return;
-            }
-
-
-            userProfile.balance =
-                newBalance;
-
-
-            document.getElementById(
-                "user-balance"
-            ).innerText =
-                newBalance.toFixed(2);
-
-
-            const {
-                error: betInsertError
-            } =
-                await supabaseClient
-                    .from("color_game_history")
-                    .insert([{
-                        user_id: currentUser.id,
-                        period_number: currentPeriodNumber,
-                        bet_type: selectedTarget,
-                        bet_amount: amount,
-                        status: 'pending'
-                    }]);
-
-
-            if (betInsertError) {
-
-                console.error(
-                    "Bet history insert error:",
-                    betInsertError
-                );
-
-                alert(
-                    "Bet history could not be saved. Please contact support."
-                );
-
-                return;
-            }
-
-
-            await updatePeriodAmounts(
-                amount,
-                selectedTarget
+            let amount = parseFloat(
+                document.getElementById("bet-amount-input").value
             );
 
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid amount!");
+                return;
+            }
 
+            if (amount > Number(userProfile.balance)) {
+                alert("Insufficient balance!");
+                return;
+            }
+
+            let newBalance = Number(userProfile.balance) - amount;
+
+            const { error: profileError } = await supabaseClient
+                .from("profiles")
+                .update({ balance: newBalance })
+                .eq("id", currentUser.id);
+
+            if (profileError) {
+                alert("Failed to place bet. Try again.");
+                return;
+            }
+
+            userProfile.balance = newBalance;
+
+            document.getElementById("user-balance").innerText =
+                newBalance.toFixed(2);
+
+            const { error: betInsertError } = await supabaseClient
+                .from("color_game_history")
+                .insert([{
+                    user_id: currentUser.id,
+                    period_number: currentPeriodNumber,
+                    bet_type: selectedTarget,
+                    bet_amount: amount,
+                    status: 'pending'
+                }]);
+
+            if (betInsertError) {
+                console.error("Bet history insert error:", betInsertError);
+                alert("Bet history could not be saved. Please contact support.");
+                return;
+            }
+
+            await updatePeriodAmounts(amount, selectedTarget);
             closeBetModal();
 
-
-            document.getElementById(
-                "game-status-text"
-            ).innerText =
+            document.getElementById("game-status-text").innerText =
                 `Successfully placed ৳${amount} on ${selectedTarget}!`;
 
-
             if (activeTab === 'my-history') {
-
-                loadHistoryData(
-                    'my-history'
-                );
+                loadHistoryData('my-history');
             }
         }
 
-
-        async function updatePeriodAmounts(
-            amount,
-            target
-        ) {
-
-            let {
-                data: periodData
-            } =
-                await supabaseClient
-                    .from("color_periods")
-                    .select("*")
-                    .eq(
-                        "period_number",
-                        currentPeriodNumber
-                    )
-                    .maybeSingle();
-
+        async function updatePeriodAmounts(amount, target) {
+            let { data: periodData } = await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq("period_number", currentPeriodNumber)
+                .maybeSingle();
 
             if (!periodData) {
-
-                await supabaseClient
-                    .from("color_periods")
-                    .insert([{
-
-                        period_number:
-                            currentPeriodNumber,
-
-                        total_green_amount:
-                            target === 'Green'
-                                ? amount
-                                : 0,
-
-                        total_red_amount:
-                            target === 'Red'
-                                ? amount
-                                : 0,
-
-                        total_violet_amount:
-                            target === 'Violet'
-                                ? amount
-                                : 0,
-
-                        status: 'pending'
-
-                    }]);
+                await supabaseClient.from("color_periods").insert([{
+                    period_number: currentPeriodNumber,
+                    total_green_amount: target === 'Green' ? amount : 0,
+                    total_red_amount: target === 'Red' ? amount : 0,
+                    total_violet_amount: target === 'Violet' ? amount : 0,
+                    status: 'pending'
+                }]);
 
             } else {
-
                 let updateField = {};
 
-
                 if (target === 'Green') {
-
                     updateField.total_green_amount =
-                        Number(
-                            periodData.total_green_amount
-                        ) + amount;
-
+                        Number(periodData.total_green_amount) + amount;
                 } else if (target === 'Red') {
-
                     updateField.total_red_amount =
-                        Number(
-                            periodData.total_red_amount
-                        ) + amount;
-
+                        Number(periodData.total_red_amount) + amount;
                 } else if (target === 'Violet') {
-
                     updateField.total_violet_amount =
-                        Number(
-                            periodData.total_violet_amount
-                        ) + amount;
+                        Number(periodData.total_violet_amount) + amount;
                 }
-
 
                 await supabaseClient
                     .from("color_periods")
                     .update(updateField)
-                    .eq(
-                        "period_number",
-                        currentPeriodNumber
-                    );
+                    .eq("period_number", currentPeriodNumber);
             }
         }
 
-
         async function processRoundResult() {
-
-            document.getElementById(
-                "game-status-text"
-            ).innerText =
+            document.getElementById("game-status-text").innerText =
                 "Calculating result...";
 
+            let { data: periodData } = await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq("period_number", currentPeriodNumber)
+                .maybeSingle();
 
-            let {
-                data: periodData
-            } =
-                await supabaseClient
-                    .from("color_periods")
-                    .select("*")
-                    .eq(
-                        "period_number",
-                        currentPeriodNumber
-                    )
-                    .maybeSingle();
-
-
-            let green =
-                periodData
-                    ? Number(
-                        periodData.total_green_amount
-                    )
-                    : 0;
-
-
-            let red =
-                periodData
-                    ? Number(
-                        periodData.total_red_amount
-                    )
-                    : 0;
-
-
-            let violet =
-                periodData
-                    ? Number(
-                        periodData.total_violet_amount
-                    )
-                    : 0;
-
+            let green = periodData ? Number(periodData.total_green_amount) : 0;
+            let red = periodData ? Number(periodData.total_red_amount) : 0;
+            let violet = periodData ? Number(periodData.total_violet_amount) : 0;
 
             let winningColor = 'Green';
 
-
-            if (
-                green === 0 &&
-                red === 0 &&
-                violet === 0
-            ) {
-
-                const randomColors = [
-                    'Green',
-                    'Red',
-                    'Green',
-                    'Red',
-                    'Violet'
-                ];
-
+            if (green === 0 && red === 0 && violet === 0) {
+                const randomColors = ['Green', 'Red', 'Green', 'Red', 'Violet'];
 
                 winningColor =
-                    randomColors[
-                        Math.floor(
-                            Math.random() *
-                            randomColors.length
-                        )
-                    ];
+                    randomColors[Math.floor(Math.random() * randomColors.length)];
 
             } else {
-
-                if (
-                    green <= red &&
-                    green <= violet
-                ) {
-
-                    winningColor =
-                        'Green';
-
-                } else if (
-                    red <= green &&
-                    red <= violet
-                ) {
-
-                    winningColor =
-                        'Red';
-
+                if (green <= red && green <= violet) {
+                    winningColor = 'Green';
+                } else if (red <= green && red <= violet) {
+                    winningColor = 'Red';
                 } else {
-
-                    winningColor =
-                        'Violet';
+                    winningColor = 'Violet';
                 }
             }
 
-
             let numbersMap = {
-
-                Green: [
-                    1,
-                    3,
-                    7,
-                    9
-                ],
-
-                Red: [
-                    2,
-                    4,
-                    6,
-                    8
-                ],
-
-                Violet: [
-                    0,
-                    5
-                ]
-
+                Green: [1, 3, 7, 9],
+                Red: [2, 4, 6, 8],
+                Violet: [0, 5]
             };
 
-
-            let possibleNums =
-                numbersMap[winningColor];
-
+            let possibleNums = numbersMap[winningColor];
 
             let winningNumber =
-                possibleNums[
-                    Math.floor(
-                        Math.random() *
-                        possibleNums.length
-                    )
-                ];
+                possibleNums[Math.floor(Math.random() * possibleNums.length)];
 
-
-            let winningBigSmall =
-                winningNumber >= 5
-                    ? 'Big'
-                    : 'Small';
-
-
-            let winningResultString =
-                `${winningColor}-${winningNumber}`;
-
+            let winningBigSmall = winningNumber >= 5 ? 'Big' : 'Small';
+            let winningResultString = `${winningColor}-${winningNumber}`;
 
             await supabaseClient
                 .from("color_periods")
                 .update({
-
-                    winning_color:
-                        winningColor,
-
-                    winning_number:
-                        winningNumber,
-
-                    status:
-                        'completed'
-
+                    winning_color: winningColor,
+                    winning_number: winningNumber,
+                    status: 'completed'
                 })
-                .eq(
-                    "period_number",
-                    currentPeriodNumber
-                );
+                .eq("period_number", currentPeriodNumber);
 
-
-            let {
-                data: allBets
-            } =
-                await supabaseClient
-                    .from("color_game_history")
-                    .select("*")
-                    .eq(
-                        "period_number",
-                        currentPeriodNumber
-                    )
-                    .eq(
-                        "status",
-                        'pending'
-                    );
-
+            let { data: allBets } = await supabaseClient
+                .from("color_game_history")
+                .select("*")
+                .eq("period_number", currentPeriodNumber)
+                .eq("status", 'pending');
 
             let userWonAmount = 0;
-
             let hasUserWon = false;
 
-
-            if (
-                allBets &&
-                allBets.length > 0
-            ) {
-
-                for (
-                    let bet of allBets
-                ) {
-
+            if (allBets && allBets.length > 0) {
+                for (let bet of allBets) {
                     let isWin = false;
-
                     let multiplier = 2;
 
-
-                    if (
-                        bet.bet_type === 'Red'
-                    ) {
-
-                        multiplier = 1.9;
-
-                    } else if (
-                        bet.bet_type === 'Violet'
-                    ) {
-
-                        multiplier = 4.5;
-
-                    } else if (
+                    if (bet.bet_type === 'Red') multiplier = 1.9;
+                    else if (bet.bet_type === 'Violet') multiplier = 4.5;
+                    else if (
                         bet.bet_type === 'Big' ||
                         bet.bet_type === 'Small'
-                    ) {
+                    ) multiplier = 1.9;
+                    else if (!isNaN(bet.bet_type)) multiplier = 9;
 
-                        multiplier = 1.9;
-
-                    } else if (
-                        !isNaN(
-                            bet.bet_type
-                        )
-                    ) {
-
-                        multiplier = 9;
-                    }
-
-
-                    if (
-                        bet.bet_type ===
-                        winningColor
-                    ) {
-
+                    if (bet.bet_type === winningColor) {
                         isWin = true;
-
-                    } else if (
-                        bet.bet_type ===
-                        String(winningNumber)
-                    ) {
-
+                    } else if (bet.bet_type === String(winningNumber)) {
                         isWin = true;
-
-                    } else if (
-                        bet.bet_type ===
-                        winningBigSmall
-                    ) {
-
+                    } else if (bet.bet_type === winningBigSmall) {
                         isWin = true;
                     }
-
 
                     if (isWin) {
+                        let payoutAmount = bet.bet_amount * multiplier;
 
-                        let payoutAmount =
-                            bet.bet_amount *
-                            multiplier;
-
-
-                        if (
-                            bet.user_id ===
-                            currentUser.id
-                        ) {
-
-                            userWonAmount +=
-                                payoutAmount;
-
+                        if (bet.user_id === currentUser.id) {
+                            userWonAmount += payoutAmount;
                             hasUserWon = true;
                         }
 
-
                         await supabaseClient
-                            .from(
-                                "color_game_history"
-                            )
+                            .from("color_game_history")
                             .update({
-
-                                winning_result:
-                                    winningResultString,
-
-                                payout:
-                                    payoutAmount,
-
-                                status:
-                                    'win'
-
+                                winning_result: winningResultString,
+                                payout: payoutAmount,
+                                status: 'win'
                             })
-                            .eq(
-                                "id",
-                                bet.id
-                            );
+                            .eq("id", bet.id);
 
-
-                        let {
-                            data: targetProfile
-                        } =
-                            await supabaseClient
-                                .from("profiles")
-                                .select("balance")
-                                .eq(
-                                    "id",
-                                    bet.user_id
-                                )
-                                .single();
-
+                        let { data: targetProfile } = await supabaseClient
+                            .from("profiles")
+                            .select("balance")
+                            .eq("id", bet.user_id)
+                            .single();
 
                         if (targetProfile) {
-
                             let updatedBal =
-                                Number(
-                                    targetProfile.balance
-                                ) +
-                                payoutAmount;
-
+                                Number(targetProfile.balance) + payoutAmount;
 
                             await supabaseClient
                                 .from("profiles")
-                                .update({
-                                    balance:
-                                        updatedBal
-                                })
-                                .eq(
-                                    "id",
-                                    bet.user_id
-                                );
+                                .update({ balance: updatedBal })
+                                .eq("id", bet.user_id);
                         }
 
                     } else {
-
                         await supabaseClient
-                            .from(
-                                "color_game_history"
-                            )
+                            .from("color_game_history")
                             .update({
-
-                                winning_result:
-                                    winningResultString,
-
-                                payout:
-                                    0,
-
-                                status:
-                                    'loss'
-
+                                winning_result: winningResultString,
+                                payout: 0,
+                                status: 'loss'
                             })
-                            .eq(
-                                "id",
-                                bet.id
-                            );
+                            .eq("id", bet.id);
                     }
                 }
             }
 
-
-            document.getElementById(
-                "game-status-text"
-            ).innerText =
+            document.getElementById("game-status-text").innerText =
                 `Result: ${winningResultString} (${winningBigSmall})`;
-
 
             highlightWinningTargets(
                 winningColor,
@@ -3047,93 +1400,30 @@
                 winningBigSmall
             );
 
-
             await loadUserProfile();
 
-
             if (hasUserWon) {
+                document.getElementById("win-res-badge").innerText = winningColor;
+                document.getElementById("win-res-num").innerText = winningNumber;
+                document.getElementById("win-res-bs").innerText = winningBigSmall;
 
-                document.getElementById(
-                    "win-res-badge"
-                ).innerText =
-                    winningColor;
-
-
-                document.getElementById(
-                    "win-res-num"
-                ).innerText =
-                    winningNumber;
-
-
-                document.getElementById(
-                    "win-res-bs"
-                ).innerText =
-                    winningBigSmall;
-
-
-                document.getElementById(
-                    "win-bonus-amount"
-                ).innerText =
+                document.getElementById("win-bonus-amount").innerText =
                     `৳${userWonAmount.toFixed(2)}`;
 
-
-                document.getElementById(
-                    "win-period-text"
-                ).innerText =
+                document.getElementById("win-period-text").innerText =
                     `Period: ${currentPeriodNumber}`;
 
-
-                /*
-                 * Re-trigger popup animation every time.
-                 * This does not change any game logic.
-                 */
-                const winModal =
-                    document.getElementById(
-                        "win-modal"
-                    );
-
-                const winPopup =
-                    winModal.querySelector(
-                        ".win-popup"
-                    );
-
-
-                winPopup.style.animation = "none";
-
-                void winPopup.offsetWidth;
-
-                winPopup.style.animation = "";
-
-
-                winModal.classList.remove(
-                    "hidden"
-                );
-
-                winModal.classList.add(
-                    "flex"
-                );
+                document.getElementById("win-modal").classList.remove("hidden");
+                document.getElementById("win-modal").classList.add("flex");
             }
 
-
-            currentPeriodNumber =
-                String(
-                    parseInt(
-                        currentPeriodNumber,
-                        10
-                    ) + 1
-                );
-
+            currentPeriodNumber = String(parseInt(currentPeriodNumber, 10) + 1);
 
             renderPeriodNumber();
 
-
             if (activeTab) {
-
-                loadHistoryData(
-                    activeTab
-                );
+                loadHistoryData(activeTab);
             }
-
 
             startTimer();
         }
