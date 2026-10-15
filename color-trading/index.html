@@ -6,7 +6,6 @@
     <title>Color Trade - Win Go</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../supabase-config.js"></script>
     
@@ -18,6 +17,16 @@
         }
         .custom-gradient {
             background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        /* Ruby Red Sphere Design for 2, 4, 6, 8 */
+        .ruby-sphere {
+            background: radial-gradient(circle at 35% 35%, #ff4d4d 0%, #cc0000 50%, #5a0000 100%);
+            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.8), 
+                        inset 3px 3px 6px rgba(255,255,255,0.4), 
+                        0 0 12px rgba(239, 68, 68, 0.5);
+            border: 2px solid #ff1a1a;
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
         }
     </style>
 </head>
@@ -55,24 +64,27 @@
                 <button onclick="openBetModal('Red')" class="bg-rose-600 hover:bg-rose-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Red (1.9x)</button>
             </div>
 
-            <!-- Number Selection Grid (0 to 9) -->
+            <!-- Number Selection Grid (0 to 9 with Ruby Red for 2,4,6,8) -->
             <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
                 <p class="text-[11px] text-slate-400 mb-2.5 text-center">Select Number (Payout 9x)</p>
                 <div class="grid grid-cols-5 gap-2">
                     <button onclick="openBetModal('0')" class="bg-slate-900 hover:bg-purple-900/40 border border-purple-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-purple-300 transition text-sm">0</button>
                     <button onclick="openBetModal('1')" class="bg-slate-900 hover:bg-emerald-900/40 border border-emerald-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-emerald-300 transition text-sm">1</button>
-                    <button onclick="openBetModal('2')" class="bg-slate-900 hover:bg-rose-900/40 border border-rose-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-rose-300 transition text-sm">2</button>
+                    
+                    <!-- Ruby Elite Red Numbers (2, 4, 6, 8) -->
+                    <button onclick="openBetModal('2')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">2</button>
                     <button onclick="openBetModal('3')" class="bg-slate-900 hover:bg-emerald-900/40 border border-emerald-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-emerald-300 transition text-sm">3</button>
-                    <button onclick="openBetModal('4')" class="bg-slate-900 hover:bg-rose-900/40 border border-rose-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-rose-300 transition text-sm">4</button>
+                    <button onclick="openBetModal('4')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">4</button>
+                    
                     <button onclick="openBetModal('5')" class="bg-slate-900 hover:bg-purple-900/40 border border-purple-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-purple-300 transition text-sm">5</button>
-                    <button onclick="openBetModal('6')" class="bg-slate-900 hover:bg-rose-900/40 border border-rose-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-rose-300 transition text-sm">6</button>
+                    <button onclick="openBetModal('6')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">6</button>
                     <button onclick="openBetModal('7')" class="bg-slate-900 hover:bg-emerald-900/40 border border-emerald-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-emerald-300 transition text-sm">7</button>
-                    <button onclick="openBetModal('8')" class="bg-slate-900 hover:bg-rose-900/40 border border-rose-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-rose-300 transition text-sm">8</button>
+                    <button onclick="openBetModal('8')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">8</button>
                     <button onclick="openBetModal('9')" class="bg-slate-900 hover:bg-emerald-900/40 border border-emerald-500/40 active:scale-95 py-2.5 rounded-xl font-bold text-emerald-300 transition text-sm">9</button>
                 </div>
             </div>
 
-            <!-- Big & Small Buttons (1.9x Payout) -->
+            <!-- Big & Small Buttons -->
             <div class="grid grid-cols-2 gap-3">
                 <button onclick="openBetModal('Big')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white">Big (1.9x)</button>
                 <button onclick="openBetModal('Small')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white">Small (1.9x)</button>
@@ -88,7 +100,7 @@
         </main>
     </div>
 
-    <!-- ৫ সেকেন্ডের বিগ কাউন্টডাউন ওভারলে -->
+    <!-- Big Countdown Overlay -->
     <div id="big-countdown-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50">
         <div id="big-number-display" class="text-white font-mono font-black text-9xl animate-pulse text-rose-500 drop-shadow-[0_0_35px_rgba(244,63,94,0.7)]">
             5
@@ -110,11 +122,10 @@
         </div>
     </div>
 
-    <!-- Win Congratulations Popup (হুবহু ৫ম ছবির স্টাইল)[span_4](start_span)[span_4](end_span) -->
+    <!-- Win Congratulations Popup -->
     <div id="win-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
         <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center">
             
-            <!-- ওপরের গোল লোগো আইকন -->
             <div class="w-16 h-16 bg-amber-400 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-10 mb-2">
                 <span class="text-2xl">🚀</span>
             </div>
@@ -128,7 +139,6 @@
                 <span id="win-res-bs" class="px-2 py-0.5 bg-blue-600 text-white rounded font-bold text-xs">Big</span>
             </div>
 
-            <!-- নিচের রসিদ স্টাইল বক্স -->
             <div class="w-full bg-white text-slate-900 rounded-2xl p-4 shadow-inner mt-2 flex flex-col items-center">
                 <p class="text-xs text-slate-400 uppercase font-semibold">Bonus</p>
                 <p id="win-bonus-amount" class="text-2xl font-black text-rose-600 my-1 font-mono">৳0.00</p>
@@ -176,7 +186,6 @@
                 let displaySec = timerSeconds < 10 ? "0" + timerSeconds : timerSeconds;
                 document.getElementById("countdown-timer").innerText = `00:${displaySec}`;
                 
-                // ৫ সেকেন্ড বাকি থাকলে বড় কাউন্টডাউন দেখানো
                 if (timerSeconds <= 5 && timerSeconds > 0) {
                     document.getElementById("big-number-display").innerText = timerSeconds;
                     document.getElementById("big-countdown-overlay").classList.remove("hidden");
@@ -328,7 +337,7 @@
             if (allBets && allBets.length > 0) {
                 for (let bet of allBets) {
                     let isWin = false;
-                    let multiplier = 2; // Default Green 2x
+                    let multiplier = 2;
 
                     if (bet.bet_type === 'Red') multiplier = 1.9;
                     else if (bet.bet_type === 'Violet') multiplier = 4.5;
@@ -376,7 +385,6 @@
             document.getElementById("game-status-text").innerText = `Result: ${winningResultString} (${winningBigSmall})`;
             await loadUserProfile();
 
-            // ইউজার জিতলে কনগ্রাচুলেশন পপআপ দেখানো
             if (hasUserWon) {
                 document.getElementById("win-res-badge").innerText = winningColor;
                 document.getElementById("win-res-num").innerText = winningNumber;
