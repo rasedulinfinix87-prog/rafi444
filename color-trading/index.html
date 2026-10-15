@@ -69,7 +69,7 @@
             font-size: 20px;
         }
 
-        /* Period and Timer card - Perfectly Aligned Bottom */
+        /* Period and Timer card - Optimized Spacing */
         .period-timer-card {
             position: relative;
             overflow: hidden;
@@ -79,11 +79,11 @@
                 linear-gradient(145deg, #0b1428, #030817 65%, #071326);
             border: 1px solid #263b54;
             border-radius: 22px;
-            padding: 12px 15px;
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            align-items: end; /* নিচ বরাবর সমানভাবে aligned */
-            gap: 12px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
             box-shadow: inset 0 0 22px rgba(0,0,0,.4),
                 0 8px 20px rgba(0,0,0,.18);
         }
@@ -102,22 +102,19 @@
             height: 1px;
             width: 100%;
             background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.3), transparent);
-            margin: 6px 0;
+            margin: 5px 0;
         }
 
-        .period-info, .timer-area {
+        .period-info {
+            flex: 1;
             min-width: 0;
-            padding: 0;
-            border: 0;
-            background: transparent;
-            box-shadow: none;
         }
 
         .period-heading-group {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 5px;
+            gap: 4px;
             width: 100%;
         }
 
@@ -127,7 +124,7 @@
             color: #f59e0b;
             background: rgba(245, 158, 11, 0.1);
             border: 1px solid rgba(245, 158, 11, 0.3);
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 6px;
             text-decoration: none;
             display: inline-flex;
@@ -166,14 +163,14 @@
             background: transparent;
             text-align: left;
             overflow: hidden;
-            margin-top: 4px;
+            margin-top: 3px;
         }
 
-        /* পিরিয়ড নম্বরের জন্য নতুন ডিপ ব্লু/রয়্যাল ব্লু কালার (অন্যান্য সবুজের সাথে মিলবে না) */
+        /* পিরিয়ড নম্বরের জন্য ডিপ ব্লু কালার */
         .period-digit {
-            flex: 0 1 19px;
+            flex: 0 1 18px;
             min-width: 0;
-            height: 34px;
+            height: 32px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -187,7 +184,7 @@
                 0 0 7px rgba(59,130,246,.3);
             color: white;
             font-family: monospace;
-            font-size: clamp(10px, 3.1vw, 14px);
+            font-size: clamp(9px, 2.8vw, 13px);
             font-weight: 900;
             text-shadow: 0 0 5px rgba(255,255,255,.3);
         }
@@ -203,62 +200,59 @@
             border-top: 1px solid rgba(255,255,255,.10);
         }
 
-        .timer-area { text-align: center; }
+        .timer-area {
+            text-align: center;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
         .timer-label {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            min-height: 25px;
-            padding: 6px 9px;
-            margin-bottom: 9px;
-            border-radius: 8px;
-            border: 1px solid rgba(52,211,153,.28);
-            background: rgba(6,78,59,.3);
-            color: #6ee7b7;
             font-size: 9px;
             line-height: 1.2;
             font-weight: 900;
             letter-spacing: .5px;
             white-space: nowrap;
-        }
-
-        .timer-label::before {
-            content: "";
-            width: 6px;
-            height: 6px;
-            flex: 0 0 6px;
-            border-radius: 50%;
-            background: #34d399;
-            box-shadow: 0 0 7px rgba(52,211,153,.8);
+            color: #6ee7b7;
+            margin-bottom: 4px;
         }
 
         .timer-label.timer-label-danger {
-            color: #fecdd3;
-            background: rgba(136,19,55,.45);
-            border-color: rgba(251,113,133,.65);
+            color: #fb7185;
             animation: dangerPulse 1s infinite;
         }
 
-        .timer-label.timer-label-danger::before {
-            background: #fb7185;
+        /* টাইমের নিচে চিকন দাগ ও ফাঁকা জায়গা কমানোর জন্য কনটেইনার */
+        .timer-bottom-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .timer-divider {
+            height: 1px;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.4), transparent);
+            margin-top: 4px;
+            margin-bottom: 4px;
         }
 
         .digital-timer {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 3px;
+            gap: 2px;
         }
 
         .timer-digit {
-            width: 25px;
-            height: 38px;
+            width: 23px;
+            height: 36px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 7px;
+            border-radius: 6px;
             background: linear-gradient(180deg, #16a34a, #08752c);
             border: 1px solid #22c55e;
             box-shadow: inset 0 2px 4px rgba(255,255,255,.18),
@@ -266,7 +260,7 @@
                 0 0 9px rgba(34,197,94,.24);
             color: white;
             font-family: monospace;
-            font-size: 23px;
+            font-size: 21px;
             font-weight: 900;
             position: relative;
             overflow: hidden;
@@ -285,7 +279,7 @@
 
         .timer-colon {
             color: #4ade80;
-            font-size: 23px;
+            font-size: 21px;
             line-height: 1;
             font-weight: 900;
             padding: 0 1px;
@@ -529,7 +523,10 @@
                     </div>
 
                     <div class="timer-area">
-                        <p id="timer-label" class="timer-label">PLACE YOUR BET</p>
+                        <div class="timer-bottom-container">
+                            <p id="timer-label" class="timer-label">PLACE YOUR BET</p>
+                            <div class="timer-divider"></div>
+                        </div>
 
                         <div id="countdown-timer" class="digital-timer" aria-label="Time remaining">
                             <span class="timer-digit">0</span>
