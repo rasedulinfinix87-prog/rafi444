@@ -17,7 +17,8 @@
         }
 
         .custom-gradient {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
+            background: rgba(8, 13, 32, 0.95);
+            border-bottom: 1px solid #1e293b;
         }
 
         .ruby-sphere {
@@ -544,18 +545,18 @@
             overflow-x: auto;
         }
 
+        /* 100% Matching Casino Chip Design & 30% Smaller Font Sizes inside Chips */
         .chip-item {
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 9px;
+            font-size: 8px;
             font-weight: 900;
             cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 1.5px 1.5px rgba(255,255,255,0.4), inset 0 -2px 3px rgba(0,0,0,0.6);
+            border: 2px dashed rgba(255, 255, 255, 0.4);
             transition: transform 0.1s;
             flex-shrink: 0;
             color: white;
@@ -567,16 +568,17 @@
         .chip-item:active { transform: scale(0.92); }
         .chip-item.selected-chip {
             transform: scale(1.08);
-            box-shadow: 0 0 5px rgba(255,255,255,0.5), inset 0 1.5px 1.5px rgba(255,255,255,0.6), inset 0 -2px 3px rgba(0,0,0,0.6);
+            border-color: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
         }
 
-        /* Casino Chip Colors */
-        .chip-20 { background: radial-gradient(circle, #0284c7 42%, #ffffff 43%, #ffffff 58%, #0284c7 59%); }
-        .chip-50 { background: radial-gradient(circle, #16a34a 42%, #ffffff 43%, #ffffff 58%, #16a34a 59%); }
-        .chip-100 { background: radial-gradient(circle, #e11d48 42%, #ffffff 43%, #ffffff 58%, #e11d48 59%); }
-        .chip-500 { background: radial-gradient(circle, #7c3aed 42%, #ffffff 43%, #ffffff 58%, #7c3aed 59%); }
-        .chip-1k { background: radial-gradient(circle, #d97706 42%, #ffffff 43%, #ffffff 58%, #d97706 59%); }
-        .chip-10k { background: radial-gradient(circle, #881337 42%, #ffffff 43%, #ffffff 58%, #881337 59%); }
+        /* 2nd Image Reference Casino Chip Radial Styles */
+        .chip-20 { background: radial-gradient(circle, #e11d48 45%, #991b1b 46%, #991b1b 56%, #ffffff 57%, #ffffff 70%, #e11d48 71%); }
+        .chip-50 { background: radial-gradient(circle, #2563eb 45%, #1d4ed8 46%, #1d4ed8 56%, #ffffff 57%, #ffffff 70%, #2563eb 71%); }
+        .chip-100 { background: radial-gradient(circle, #1f2937 45%, #030712 46%, #030712 56%, #ffffff 57%, #ffffff 70%, #1f2937 71%); }
+        .chip-500 { background: radial-gradient(circle, #2563eb 45%, #1d4ed8 46%, #1d4ed8 56%, #ffffff 57%, #ffffff 70%, #2563eb 71%); }
+        .chip-1k { background: radial-gradient(circle, #d97706 45%, #b45309 46%, #b45309 56%, #ffffff 57%, #ffffff 70%, #d97706 71%); }
+        .chip-10k { background: radial-gradient(circle, #059669 45%, #047857 46%, #047857 56%, #ffffff 57%, #ffffff 70%, #059669 71%); }
 
         /* Placed Bet Badge on Target buttons */
         .bet-badge {
@@ -654,13 +656,12 @@
 
     <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl border-x border-slate-800 relative overflow-hidden pb-12">
 
-        <header class="p-3 custom-gradient flex justify-between items-center shadow-lg">
-            <h1 class="text-base font-extrabold text-white tracking-wider">W 1XBET</h1>
+        <header class="px-3 py-2 custom-gradient flex justify-between items-center shadow-lg">
+            <h1 class="text-sm font-extrabold text-white tracking-wider">Color Trading</h1>
 
-            <div class="bg-black/30 px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md border border-white/10">
-                Wallet: ৳
-                <span id="user-balance" class="text-emerald-300 font-mono text-sm">0.00</span>
-            </div>
+            <a href="color-trading/how-to-play.html" class="bg-black/30 w-7 h-7 flex items-center justify-center rounded-full text-xs font-semibold backdrop-blur-md border border-white/10 text-amber-400 hover:text-amber-300 transition shadow" title="How To Play">
+                📖
+            </a>
         </header>
 
         <main class="p-2.5 flex-1 overflow-y-auto pb-16">
@@ -1076,7 +1077,6 @@
             updateBetBadgesUI();
             document.getElementById("bar-total-bet").innerText = "0.00";
 
-            // Clear bottom bar status when changing mode
             document.getElementById("bottom-bar-center-status").innerHTML = "";
 
             ['15s', '30s', '1m', '5m'].forEach(key => {
@@ -1194,7 +1194,6 @@
                 `;
 
                 if (timerSeconds <= 5) {
-                    // Trigger zoom out animation for bottom bar result 3-5 seconds before next round ends/starts
                     let centerStatusElem = document.getElementById("bottom-bar-center-status");
                     let statusSpan = centerStatusElem.querySelector("span");
                     if (statusSpan && !statusSpan.classList.contains("animate-zoom-out")) {
