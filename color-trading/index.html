@@ -111,8 +111,19 @@
         .number-button {
             aspect-ratio: 1 / 1;
             min-width: 0;
-            font-size: 20px;
+            font-size: 18px;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.1;
+        }
+
+        .number-payout {
+            font-size: 8.5px;
+            opacity: 0.85;
+            font-weight: 600;
         }
 
         /* Period and Timer card */
@@ -407,50 +418,6 @@
             }
         }
 
-        .receipt-slot-container {
-            position: relative;
-            width: 100%;
-            overflow: hidden;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            perspective: 1000px;
-        }
-
-        .receipt-slot-slit {
-            width: 75%;
-            height: 8px;
-            background: #781c39;
-            margin: 0 auto;
-            border-radius: 4px;
-            box-shadow: inset 0 3px 6px rgba(0,0,0,0.9), 0 1px 2px rgba(255,255,255,0.1);
-            position: relative;
-            z-index: 2;
-        }
-
-        .receipt-slip {
-            position: relative;
-            background: #ffffff;
-            color: #0f172a;
-            border-radius: 14px;
-            padding: 14px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            margin-top: -4px;
-            z-index: 1;
-            transform-origin: top center;
-            animation: printReceiptSlot 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes printReceiptSlot {
-            0% {
-                transform: translateY(-105%) rotateX(15deg);
-                opacity: 0;
-            }
-            100% {
-                transform: translateY(0) rotateX(0deg);
-                opacity: 1;
-            }
-        }
-
         .history-table {
             min-width: 100%;
             border-collapse: collapse;
@@ -670,6 +637,17 @@
             100% { transform: scale(1); opacity: 0; }
         }
 
+        /* Zoom Out Animation for Bottom Bar Result Status */
+        @keyframes zoomOutResult {
+            0% { transform: scale(1.2); opacity: 1; }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.3); opacity: 0; }
+        }
+
+        .animate-zoom-out {
+            animation: zoomOutResult 1.5s ease forwards;
+        }
+
         /* Bottom Fixed Thin Bar Styling */
         .bottom-fixed-bar {
             position: fixed;
@@ -782,22 +760,18 @@
                 </div>
 
                 <div class="game-section bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                    <p class="text-[11px] text-slate-400 mb-3 text-center">
-                        Select Number (Payout 9x)
-                    </p>
-
                     <div class="grid grid-cols-5 gap-2">
-                        <button onclick="placeDirectBet('0')" id="btn-0" class="number-button violet-sphere active:scale-95 rounded-xl font-black transition relative">0</button>
-                        <button onclick="placeDirectBet('1')" id="btn-1" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative">1</button>
-                        <button onclick="placeDirectBet('2')" id="btn-2" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative">2</button>
-                        <button onclick="placeDirectBet('3')" id="btn-3" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative">3</button>
-                        <button onclick="placeDirectBet('4')" id="btn-4" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative">4</button>
+                        <button onclick="placeDirectBet('0')" id="btn-0" class="number-button violet-sphere active:scale-95 rounded-xl font-black transition relative"><span>0</span><span class="number-payout">(9x)</span></button>
+                        <button onclick="placeDirectBet('1')" id="btn-1" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative"><span>1</span><span class="number-payout">(9x)</span></button>
+                        <button onclick="placeDirectBet('2')" id="btn-2" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative"><span>2</span><span class="number-payout">(9x)</span></button>
+                        <button onclick="placeDirectBet('3')" id="btn-3" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative"><span>3</span><span class="number-payout">(9x)</span></button>
+                        <button onclick="placeDirectBet('4')" id="btn-4" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative"><span>4</span><span class="number-payout">(9x)</span></button>
 
-                        <button onclick="placeDirectBet('5')" id="btn-5" class="number-button violet-sphere active:scale-95 rounded-xl font-black transition relative">5</button>
-                        <button onclick="placeDirectBet('6')" id="btn-6" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative">6</button>
-                        <button onclick="placeDirectBet('7')" id="btn-7" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative">7</button>
-                        <button onclick="placeDirectBet('8')" id="btn-8" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative">8</button>
-                        <button onclick="placeDirectBet('9')" id="btn-9" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative">9</button>
+                        <button onclick="placeDirectBet('5')" id="btn-5" class="number-button violet-sphere active:scale-95 rounded-xl font-black transition relative"><span>5</span><span class="number-payout">(9x)</span></button>
+                        <button onclick="placeDirectBet('6')" id="btn-6" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative"><span>6</span><span class="number-payout">(9x)</span></button>
+                        <button onclick="placeDirectBet('7')" id="btn-7" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative"><span>7</span><span class="number-payout">(9x)</span></button>
+                        <button onclick="placeDirectBet('8')" id="btn-8" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition relative"><span>8</span><span class="number-payout">(9x)</span></button>
+                        <button onclick="placeDirectBet('9')" id="btn-9" class="number-button green-sphere active:scale-95 rounded-xl font-black transition relative"><span>9</span><span class="number-payout">(9x)</span></button>
                     </div>
                 </div>
 
@@ -871,49 +845,13 @@
                 <span class="text-slate-400">Balance:</span> 
                 <span class="text-emerald-400 font-mono font-bold">৳<span id="bar-user-balance">0.00</span></span>
             </div>
+            <div id="bottom-bar-center-status" class="font-bold text-xs text-center">
+                <!-- Win/Lost result displays dynamically here -->
+            </div>
             <div>
                 <span class="text-slate-400">Total Bet:</span> 
                 <span class="text-amber-400 font-mono font-bold">৳<span id="bar-total-bet">0.00</span></span>
             </div>
-        </div>
-    </div>
-
-    <!-- Win Congratulations Popup with Receipt Slot Animation -->
-    <div id="win-modal"
-        class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
-
-        <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center">
-
-            <div class="w-16 h-16 bg-amber-400 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-10 mb-2 animate-bounce">
-                <span class="text-2xl">🎉</span>
-            </div>
-
-            <h2 class="text-2xl font-black text-white tracking-wider drop-shadow-md">
-                Congratulations
-            </h2>
-
-            <p class="text-xs text-white/90 mb-1">You have won the trade!</p>
-
-            <div class="flex items-center gap-2 my-1">
-                <span class="text-xs text-white/80">Result:</span>
-                <span id="win-res-badge" class="px-3 py-1 bg-rose-700 text-white font-bold rounded-full text-xs border border-white/20">Red</span>
-                <span id="win-res-num" class="w-6 h-6 bg-amber-500 rounded-full text-white font-bold text-xs flex items-center justify-center">8</span>
-                <span id="win-res-bs" class="px-2 py-0.5 bg-blue-600 text-white rounded font-bold text-xs">Big</span>
-            </div>
-
-            <div class="receipt-slot-container w-full">
-                <div class="receipt-slot-slit"></div>
-                <div class="receipt-slip w-full text-slate-900 p-4 shadow-2xl flex flex-col items-center">
-                    <p class="text-xs text-slate-400 uppercase font-semibold">Winning Bonus</p>
-                    <p id="win-bonus-amount" class="text-3xl font-black text-rose-600 my-1 font-mono">৳0.00</p>
-                    <p id="win-period-text" class="text-[11px] text-slate-500 font-mono">Period: 2026101501</p>
-                </div>
-            </div>
-
-            <button onclick="closeWinModal()"
-                class="mt-4 w-full bg-slate-900 hover:bg-slate-950 text-white py-3 rounded-xl font-bold shadow-lg transition text-sm border border-slate-700">
-                Collect & Continue
-            </button>
         </div>
     </div>
 
@@ -924,7 +862,6 @@
         let currentPeriodNumber = "2026101501";
         let timerSeconds = 15;
         let timerInterval = null;
-        let winModalTimeout = null;
 
         let activeTab = 'game-history';
         let selectedChipAmount = 20; 
@@ -1594,15 +1531,6 @@
             }
         }
 
-        function closeWinModal() {
-            if (winModalTimeout) {
-                clearTimeout(winModalTimeout);
-                winModalTimeout = null;
-            }
-            document.getElementById("win-modal").classList.remove("flex");
-            document.getElementById("win-modal").classList.add("hidden");
-        }
-
         async function updatePeriodAmounts(amount, target) {
             let { data: periodData } = await supabaseClient
                 .from("color_periods")
@@ -1704,7 +1632,7 @@
             let userWonAmount = 0;
             let hasUserWon = false;
             let userParticipated = false;
-            let userWinsMap = {}; // Tracks winnings per target for animation overlay
+            let userWinsMap = {}; 
 
             if (allBets && allBets.length > 0) {
                 for (let bet of allBets) {
@@ -1737,7 +1665,6 @@
                         if (bet.user_id === currentUser.id) {
                             userWonAmount += payoutAmount;
                             hasUserWon = true;
-                            // Total amount returned to user on that target button: original bet + profit
                             let totalTargetWinReturn = bet.bet_amount + payoutAmount;
                             userWinsMap[bet.bet_type] = (userWinsMap[bet.bet_type] || 0) + totalTargetWinReturn;
                         }
@@ -1786,7 +1713,6 @@
             updateBetBadgesUI();
             document.getElementById("bar-total-bet").innerText = "0.00";
 
-            // Show total win return amount over the respective target buttons if won
             for (let target in userWinsMap) {
                 let btn = document.getElementById(`btn-${target}`);
                 if (btn) {
@@ -1809,32 +1735,18 @@
 
             await loadUserProfile();
 
+            // Set bottom bar center status depending on user participate & win/loss
+            let centerStatusElem = document.getElementById("bottom-bar-center-status");
             if (userParticipated) {
                 if (hasUserWon) {
+                    centerStatusElem.innerHTML = `<span class="text-emerald-400 animate-zoom-out inline-block">Win ৳${userWonAmount.toFixed(2)}</span>`;
                     playVoiceMessage("congratulation winner");
                 } else {
+                    centerStatusElem.innerHTML = `<span class="text-rose-500 animate-zoom-out inline-block">Lost</span>`;
                     playVoiceMessage("better luck next time");
                 }
-            }
-
-            if (hasUserWon) {
-                document.getElementById("win-res-badge").innerText = winningColor;
-                document.getElementById("win-res-num").innerText = winningNumber;
-                document.getElementById("win-res-bs").innerText = winningBigSmall;
-
-                document.getElementById("win-bonus-amount").innerText =
-                    `৳${userWonAmount.toFixed(2)}`;
-
-                document.getElementById("win-period-text").innerText =
-                    `Period: ${currentPeriodNumber}`;
-
-                document.getElementById("win-modal").classList.remove("hidden");
-                document.getElementById("win-modal").classList.add("flex");
-
-                if (winModalTimeout) clearTimeout(winModalTimeout);
-                winModalTimeout = setTimeout(() => {
-                    closeWinModal();
-                }, 4000);
+            } else {
+                centerStatusElem.innerHTML = "";
             }
 
             currentPeriodNumber = String(parseInt(currentPeriodNumber, 10) + 1);
