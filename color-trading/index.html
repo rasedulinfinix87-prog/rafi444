@@ -62,7 +62,7 @@
         <!-- Main Game Area -->
         <main class="p-4 flex-1 flex flex-col gap-3 overflow-y-auto pb-10">
             
-            <!-- Time Mode Selection Cards (ঘড়ি আইকনসহ স্ক্রিনের ভেতরে সাজানো) -->
+            <!-- Time Mode Selection Cards -->
             <div class="grid grid-cols-4 gap-2">
                 <button onclick="changeGameMode(10, '10s')" id="mode-10s" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-center border border-slate-700 transition active:scale-95">
                     <div class="text-xs">🕒</div>
@@ -94,27 +94,27 @@
                 </div>
             </div>
 
-            <!-- Color Betting Buttons (মাল্টিপ্লায়ার টেক্সট ছাড়া) -->
+            <!-- Color Betting Buttons -->
             <div class="grid grid-cols-3 gap-2.5">
                 <button onclick="openBetModal('Green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Green</button>
                 <button onclick="openBetModal('Violet')" class="bg-purple-600 hover:bg-purple-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Violet</button>
                 <button onclick="openBetModal('Red')" class="bg-rose-600 hover:bg-rose-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Red</button>
             </div>
 
-            <!-- Number Selection Grid (0 to 9 with proper color mapping) -->
+            <!-- Number Selection Grid -->
             <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
                 <p class="text-[11px] text-slate-400 mb-2.5 text-center">Select Number (Payout 9x)</p>
                 <div class="grid grid-cols-5 gap-2">
-                    <button onclick="openBetModal('Violet')" class="violet-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">0</button>
-                    <button onclick="openBetModal('Green')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">1</button>
-                    <button onclick="openBetModal('Red')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">2</button>
-                    <button onclick="openBetModal('Green')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">3</button>
-                    <button onclick="openBetModal('Red')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">4</button>
-                    <button onclick="openBetModal('Violet')" class="violet-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">5</button>
-                    <button onclick="openBetModal('Red')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">6</button>
-                    <button onclick="openBetModal('Green')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">7</button>
-                    <button onclick="openBetModal('Red')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">8</button>
-                    <button onclick="openBetModal('Green')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">9</button>
+                    <button onclick="openBetModal('0')" class="violet-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">0</button>
+                    <button onclick="openBetModal('1')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">1</button>
+                    <button onclick="openBetModal('2')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">2</button>
+                    <button onclick="openBetModal('3')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">3</button>
+                    <button onclick="openBetModal('4')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">4</button>
+                    <button onclick="openBetModal('5')" class="violet-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">5</button>
+                    <button onclick="openBetModal('6')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">6</button>
+                    <button onclick="openBetModal('7')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">7</button>
+                    <button onclick="openBetModal('8')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">8</button>
+                    <button onclick="openBetModal('9')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">9</button>
                 </div>
             </div>
 
@@ -131,10 +131,24 @@
                 </div>
             </div>
 
+            <!-- History & Chart Card Bar (নতুন যুক্ত করা হয়েছে) -->
+            <div class="bg-slate-950 rounded-2xl border border-slate-800 p-3 mt-2">
+                <div class="flex border-b border-slate-800 pb-2 mb-3 gap-2">
+                    <button onclick="switchTab('game-history')" id="tab-game-history" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white transition">Game History</button>
+                    <button onclick="switchTab('chart')" id="tab-chart" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">Chart</button>
+                    <button onclick="switchTab('my-history')" id="tab-my-history" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">My History</button>
+                </div>
+
+                <!-- Tab Content Container -->
+                <div id="tab-content" class="max-h-48 overflow-y-auto text-xs">
+                    <!-- Dynamic Data will load here -->
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <!-- Big Countdown Overlay (5 সেকেন্ড বাকি থাকলে প্রিমিয়াম লুক) -->
+    <!-- Big Countdown Overlay -->
     <div id="big-countdown-overlay" class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center z-50">
         <div class="text-center flex flex-col items-center">
             <p class="text-amber-400 text-xl font-bold mb-4 tracking-widest uppercase animate-bounce">Round Ending Soon</p>
@@ -159,7 +173,7 @@
         </div>
     </div>
 
-    <!-- Win Congratulations Popup (প্রিমিয়াম স্টাইল) -->
+    <!-- Win Congratulations Popup -->
     <div id="win-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
         <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center">
             
@@ -193,17 +207,19 @@
     <script>
         let currentUser = null;
         let userProfile = null;
-        let selectedGameDuration = 30; // ডিফল্ট ৩০ সেকেন্ড
+        let selectedGameDuration = 30;
         let currentPeriodNumber = "2026101501";
         let timerSeconds = 30;
         let timerInterval = null;
         let selectedTarget = null;
+        let activeTab = 'game-history';
 
         document.addEventListener("DOMContentLoaded", async () => {
             currentUser = await requireAuth();
             if (currentUser) {
                 await loadUserProfile();
                 startTimer();
+                loadHistoryData('game-history');
             }
         });
 
@@ -218,7 +234,6 @@
             selectedGameDuration = duration;
             timerSeconds = duration;
             
-            // মোড কার্ড স্টাইল আপডেট
             ['10s', '30s', '1m', '5m'].forEach(key => {
                 let btn = document.getElementById(`mode-${key}`);
                 if(key === modeKey) {
@@ -270,6 +285,95 @@
                     processRoundResult();
                 }
             }, 1000);
+        }
+
+        function switchTab(tabName) {
+            activeTab = tabName;
+            ['game-history', 'chart', 'my-history'].forEach(t => {
+                let btn = document.getElementById(`tab-${t}`);
+                if(t === tabName) {
+                    btn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white transition";
+                } else {
+                    btn.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition";
+                }
+            });
+            loadHistoryData(tabName);
+        }
+
+        async function loadHistoryData(type) {
+            let container = document.getElementById("tab-content");
+            container.innerHTML = `<p class="text-center text-slate-500 py-3">Loading...</p>`;
+
+            if (type === 'game-history') {
+                let { data, error } = await supabaseClient
+                    .from("color_periods")
+                    .select("*")
+                    .eq("status", "completed")
+                    .order("created_at", { ascending: false })
+                    .limit(10);
+
+                if (error || !data || data.length === 0) {
+                    container.innerHTML = `<p class="text-center text-slate-500 py-3">No history found</p>`;
+                    return;
+                }
+
+                let html = `<table class="w-full text-left">
+                    <tr class="text-slate-400 border-b border-slate-800">
+                        <th class="py-1">Period</th>
+                        <th class="py-1">Number</th>
+                        <th class="py-1">Big/Small</th>
+                        <th class="py-1">Color</th>
+                    </tr>`;
+                
+                data.forEach(row => {
+                    let bs = Number(row.winning_number) >= 5 ? 'Big' : 'Small';
+                    let colorClass = row.winning_color === 'Green' ? 'text-emerald-400' : (row.winning_color === 'Red' ? 'text-rose-500' : 'text-purple-400');
+                    html += `<tr class="border-b border-slate-900/50">
+                        <td class="py-1.5 font-mono text-amber-300">${row.period_number}</td>
+                        <td class="py-1.5 font-bold">${row.winning_number}</td>
+                        <td class="py-1.5 font-semibold">${bs}</td>
+                        <td class="py-1.5 font-bold ${colorClass}">${row.winning_color}</td>
+                    </tr>`;
+                });
+                html += `</table>`;
+                container.innerHTML = html;
+
+            } else if (type === 'my-history') {
+                let { data, error } = await supabaseClient
+                    .from("color_game_history")
+                    .select("*")
+                    .eq("user_id", currentUser.id)
+                    .order("created_at", { ascending: false })
+                    .limit(10);
+
+                if (error || !data || data.length === 0) {
+                    container.innerHTML = `<p class="text-center text-slate-500 py-3">No bets found</p>`;
+                    return;
+                }
+
+                let html = `<table class="w-full text-left">
+                    <tr class="text-slate-400 border-b border-slate-800">
+                        <th class="py-1">Period</th>
+                        <th class="py-1">Bet</th>
+                        <th class="py-1">Amount</th>
+                        <th class="py-1">Status</th>
+                    </tr>`;
+                
+                data.forEach(row => {
+                    let statusColor = row.status === 'win' ? 'text-emerald-400' : (row.status === 'loss' ? 'text-rose-500' : 'text-amber-400');
+                    html += `<tr class="border-b border-slate-900/50">
+                        <td class="py-1.5 font-mono text-amber-300">${row.period_number}</td>
+                        <td class="py-1.5 font-bold">${row.bet_type}</td>
+                        <td class="py-1.5 font-mono">৳${row.bet_amount}</td>
+                        <td class="py-1.5 font-bold uppercase ${statusColor}">${row.status}</td>
+                    </tr>`;
+                });
+                html += `</table>`;
+                container.innerHTML = html;
+
+            } else if (type === 'chart') {
+                container.innerHTML = `<p class="text-center text-slate-500 py-5">Chart feature coming soon...</p>`;
+            }
         }
 
         function openBetModal(target) {
@@ -328,6 +432,7 @@
             await updatePeriodAmounts(amount, selectedTarget);
             closeBetModal();
             document.getElementById("game-status-text").innerText = `Successfully placed ৳${amount} on ${selectedTarget}!`;
+            if(activeTab === 'my-history') loadHistoryData('my-history');
         }
 
         async function updatePeriodAmounts(amount, target) {
@@ -469,6 +574,8 @@
 
             currentPeriodNumber = String(parseInt(currentPeriodNumber) + 1);
             document.getElementById("period-number").innerText = currentPeriodNumber;
+
+            loadHistoryData(activeTab);
 
             setTimeout(() => {
                 startTimer();
