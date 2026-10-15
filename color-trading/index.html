@@ -731,24 +731,28 @@
             font-size: 11px;
         }
 
-        /* Sicbo Style Grid Bead Plate & Statistics styling */
-        .sicbo-grid {
-            display: flex;
-            flex-wrap: wrap;
+        /* Trend Grid Layout (6 items per column/row grid flowing rightwards) */
+        .trend-grid-container {
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-rows: repeat(6, minmax(0, 1fr));
             gap: 6px;
-            justify-content: center;
+            overflow-x: auto;
+            padding: 6px;
+            justify-content: start;
         }
-        .sicbo-ball {
-            width: 32px;
-            height: 32px;
+        .trend-ball {
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 900;
             color: white;
             box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 2px 5px rgba(0,0,0,0.5);
+            flex-shrink: 0;
         }
     </style>
 </head>
@@ -942,7 +946,7 @@
         let timerInterval = null;
 
         let activeTab = 'game-history';
-        let selectedChartDuration = 15; // Chart timeframe filter
+        let selectedChartDuration = 15;
         let selectedChipAmount = 20; 
         let lastPlacedBet = null;
         let currentRoundTotalBet = 0;
@@ -1448,14 +1452,6 @@
 
         async function switchChartDuration(duration) {
             selectedChartDuration = duration;
-            ['15s', '30s', '1m', '5m'].forEach(d => {
-                let btn = document.getElementById(`chart-dur-${d}`);
-                if(btn) {
-                    if(Number(d.replace('s','').replace('m','')) === (duration === 60 ? '1m' : duration)) { // Simple check
-                        // Active style updated below via direct attributes
-                    }
-                }
-            });
             loadHistoryData('chart');
         }
 
@@ -1624,85 +1620,92 @@
                 container.innerHTML = html;
 
             } else if (type === 'chart') {
-                // Fetch last 10 completed rounds for Sicbo Style Statistics
                 let { data, error } = await supabaseClient
                     .from("color_periods")
                     .select("*")
                     .eq("status", "completed")
                     .order("created_at", { ascending: false })
-                    .limit(10);
+                    .limit(30);
 
-                let sicboBallsHtml = '';
+                let trendBallsHtml = '';
                 let bigCount = 0;
                 let smallCount = 0;
-                let redCount = 0;
                 let greenCount = 0;
+                let redCount = 0;
                 let violetCount = 0;
 
                 if (data && data.length > 0) {
                     data.forEach(row => {
                         let num = Number(row.winning_number);
-                        let isBig = num >= 5;
-                        if(isBig) bigCount++; else smallCount++;
+                        if (num >= 5) bigCount++; else smallCount++;
 
-                        if(row.winning_color === 'Red') redCount++;
-                        else if(row.winning_color === 'Green') greenCount++;
-                        else if(row.winning_color === 'Violet') violetCount++;
+                        if (row.winning_color === 'Green') greenCount++;
+                        else if (row.winning_color === 'Red') redCount++;
+                        else if (row.winning_color === 'Violet') violetCount++;
 
                         let bgStyle = row.winning_color === 'Red' ? '#e11d48' : (row.winning_color === 'Green' ? '#059669' : '#7c3aed');
-                        sicboBallsHtml += `<div class="sicbo-ball" style="background: ${bgStyle};">${num}</div>`;
+                        trendBallsHtml += `<div class="trend-ball" style="background: ${bgStyle};">${num}</div>`;
                     });
                 } else {
-                    sicboBallsHtml = `<p class="text-slate-500 text-center py-2">No data for statistics yet</p>`;
+                    trendBallsHtml = `<p class="text-slate-500 text-center py-2">কোনো ডাটা পাওয়া যায়নি</p>`;
                 }
 
-                let totalRounds = (data ? data.length : 0) || 1;
-                let bigPercent = Math.round((bigCount / totalRounds) * 100);
-                let smallPercent = 100 - bigPercent;
-
-                // Trend Prediction Suggestion Logic
-                let suggestedTrend = bigCount > smallCount ? "Big (বড়)" : "Small (ছোট)";
-                let suggestedColor = redCount >= greenCount ? "Red / Green Trend" : "Green / Violet Trend";
+                let total = (data ? data.length : 0) || 1;
+                let bigPct = Math.round((bigCount / total) * 100);
+                let smallPct = 100 - bigPct;
+                let greenPct = Math.round((greenCount / total) * 100);
+                let redPct = Math.round((redCount / total) * 100);
+                let violetPct = 100 - (greenPct + redPct);
+                if(violetPct < 0) violetPct = 0;
 
                 container.innerHTML = `
                     <div class="p-2 space-y-3">
+                        <!-- Timeframe Selector -->
                         <div class="flex justify-between items-center bg-slate-900 p-2 rounded-xl border border-slate-800">
-                            <span class="text-slate-400 text-[11px] font-bold">টাইম ফ্রেম স্ট্যাটিস্টিক্স (শেষ ১০ রাউন্ড)</span>
+                            <span class="text-slate-400 text-[11px] font-bold">টাইম ফ্রেম সিলেক্ট করুন:</span>
                             <div class="flex gap-1">
-                                <button onclick="selectedChartDuration=15; loadHistoryData('chart');" class="px-2 py-0.5 rounded text-[10px] font-bold ${selectedChartDuration===15?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">15s</button>
-                                <button onclick="selectedChartDuration=30; loadHistoryData('chart');" class="px-2 py-0.5 rounded text-[10px] font-bold ${selectedChartDuration===30?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">30s</button>
-                                <button onclick="selectedChartDuration=60; loadHistoryData('chart');" class="px-2 py-0.5 rounded text-[10px] font-bold ${selectedChartDuration===60?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">1m</button>
-                                <button onclick="selectedChartDuration=300; loadHistoryData('chart');" class="px-2 py-0.5 rounded text-[10px] font-bold ${selectedChartDuration===300?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">5m</button>
+                                <button onclick="switchChartDuration(15)" class="px-2.5 py-1 rounded text-[10px] font-bold ${selectedChartDuration===15?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">15s</button>
+                                <button onclick="switchChartDuration(30)" class="px-2.5 py-1 rounded text-[10px] font-bold ${selectedChartDuration===30?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">30s</button>
+                                <button onclick="switchChartDuration(60)" class="px-2.5 py-1 rounded text-[10px] font-bold ${selectedChartDuration===60?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">1m</button>
+                                <button onclick="switchChartDuration(300)" class="px-2.5 py-1 rounded text-[10px] font-bold ${selectedChartDuration===300?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">5m</button>
                             </div>
                         </div>
 
-                        <!-- Sicbo Bead Plate Trend Display -->
-                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-                            <div class="text-[10px] text-slate-400 mb-2 font-bold">সিকবো স্টাইল ট্রেন্ড রেজাল্ট বল (শেষ থেকে শুরু):</div>
-                            <div class="sicbo-grid py-1">
-                                ${sicboBallsHtml}
+                        <!-- Trend Bead Grid (6 rows, columns growing rightwards) -->
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 overflow-x-auto">
+                            <div class="text-[10px] text-slate-400 mb-2 font-bold">ট্রেন্ড রেজাল্ট গ্রিড (প্রতি সারিতে ৬টি):</div>
+                            <div class="trend-grid-container">
+                                ${trendBallsHtml}
                             </div>
                         </div>
 
-                        <!-- Ratio & Prediction Summary -->
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
-                                <span class="text-[10px] text-slate-400 font-bold">Big vs Small অনুপাত</span>
-                                <div class="flex justify-between items-center mt-1">
-                                    <span class="text-amber-400 font-bold text-xs">Big: ${bigPercent}%</span>
-                                    <span class="text-blue-400 font-bold text-xs">Small: ${smallPercent}%</span>
+                        <!-- Statistics Percentages (Big, Small, Green, Red, Violet) -->
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2.5">
+                            <div class="text-[10px] text-slate-400 font-bold">পরিসংখ্যান ও শতকরা হার (%):</div>
+                            
+                            <!-- Big / Small Percent -->
+                            <div>
+                                <div class="flex justify-between text-[11px] font-bold mb-1">
+                                    <span class="text-amber-400">Big: ${bigPct}%</span>
+                                    <span class="text-blue-400">Small: ${smallPct}%</span>
                                 </div>
-                                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden flex">
-                                    <div class="bg-amber-500 h-full" style="width: ${bigPercent}%"></div>
-                                    <div class="bg-blue-500 h-full" style="width: ${smallPercent}%"></div>
+                                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex">
+                                    <div class="bg-amber-500 h-full" style="width: ${bigPct}%"></div>
+                                    <div class="bg-blue-500 h-full" style="width: ${smallPct}%"></div>
                                 </div>
                             </div>
 
-                            <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
-                                <span class="text-[10px] text-slate-400 font-bold">পরবর্তী অনুমেয় ফলাফল (Trend)</span>
-                                <div class="mt-1">
-                                    <div class="text-emerald-400 font-extrabold text-xs">অ্যানালিসিস: ${suggestedTrend}</div>
-                                    <div class="text-[9.5px] text-slate-400 mt-0.5">রঙের প্যাটার্ন: ${suggestedColor}</div>
+                            <!-- Color Percentages -->
+                            <div class="pt-1">
+                                <div class="flex justify-between text-[10.5px] font-bold mb-1">
+                                    <span class="text-emerald-400">Green: ${greenPct}%</span>
+                                    <span class="text-purple-400">Violet: ${violetPct}%</span>
+                                    <span class="text-rose-400">Red: ${redPct}%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex">
+                                    <div class="bg-emerald-600 h-full" style="width: ${greenPct}%"></div>
+                                    <div class="bg-purple-600 h-full" style="width: ${violetPct}%"></div>
+                                    <div class="bg-rose-600 h-full" style="width: ${redPct}%"></div>
                                 </div>
                             </div>
                         </div>
