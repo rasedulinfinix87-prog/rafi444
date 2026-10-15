@@ -51,7 +51,7 @@
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
         }
 
-        /* Main game elements are inside one card */
+        /* Main game elements */
         .main-game-card {
             background: #080d20;
             border: 1px solid #253047;
@@ -84,8 +84,90 @@
 
         .history-table th,
         .history-table td {
-            padding: 8px 5px;
+            padding: 9px 7px;
             text-align: left;
+            vertical-align: middle;
+        }
+
+        /* My History table */
+        .my-history-table {
+            min-width: 850px;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        .my-history-table th,
+        .my-history-table td {
+            padding: 10px 9px;
+            text-align: center;
+            border-bottom: 1px solid #1e293b;
+            vertical-align: middle;
+        }
+
+        .my-history-table th {
+            background: #111b30;
+            color: #94a3b8;
+            font-size: 10px;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .my-history-table td {
+            font-size: 11px;
+        }
+
+        .result-number {
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 13px;
+            font-weight: 900;
+            color: white;
+        }
+
+        .result-red {
+            background: #e11d48;
+            border: 2px solid #fb7185;
+            box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);
+        }
+
+        .result-green {
+            background: #059669;
+            border: 2px solid #34d399;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.25);
+        }
+
+        .result-violet {
+            background: #7c3aed;
+            border: 2px solid #a78bfa;
+            box-shadow: 0 0 8px rgba(139, 92, 246, 0.25);
+        }
+
+        .result-badge {
+            display: inline-block;
+            padding: 4px 7px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .date-cell {
+            line-height: 1.6;
+            color: #cbd5e1;
+            font-size: 10px !important;
+        }
+
+        .history-scroll {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -107,7 +189,7 @@
         <!-- Main Game Area -->
         <main class="p-3 flex-1 overflow-y-auto pb-10">
 
-            <!-- ONE MAIN CARD: All game controls -->
+            <!-- ONE MAIN CARD -->
             <div class="main-game-card">
 
                 <!-- Time Mode Selection -->
@@ -225,10 +307,8 @@
                 </div>
 
             </div>
-            <!-- END ONE MAIN CARD -->
 
-
-            <!-- History Card: These three tabs remain separate -->
+            <!-- History Card -->
             <div class="bg-slate-950 rounded-2xl border border-slate-800 p-3 mt-3">
 
                 <!-- Tab Buttons -->
@@ -252,7 +332,7 @@
                 </div>
 
                 <!-- Tab Content -->
-                <div id="tab-content" class="max-h-64 overflow-auto text-xs">
+                <div id="tab-content" class="max-h-96 overflow-auto text-xs">
                     <p class="text-center text-slate-500 py-3">Loading...</p>
                 </div>
 
@@ -260,7 +340,6 @@
 
         </main>
     </div>
-
 
     <!-- Big Countdown Overlay -->
     <div id="big-countdown-overlay"
@@ -278,7 +357,6 @@
         </div>
 
     </div>
-
 
     <!-- Bet Modal -->
     <div id="bet-modal"
@@ -312,7 +390,6 @@
 
         </div>
     </div>
-
 
     <!-- Win Congratulations Popup -->
     <div id="win-modal"
@@ -350,7 +427,6 @@
 
         </div>
     </div>
-
 
     <!-- Game Logic Script -->
     <script>
@@ -480,6 +556,85 @@
             loadHistoryData(tabName);
         }
 
+        // Safe display of database text
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[char]);
+        }
+
+        // Read the result saved in winning_result, for example Green-7
+        function getSavedBetResult(row) {
+            let savedResult = String(row.winning_result || '');
+            let resultMatch = savedResult.match(/(Green|Red|Violet)\s*[-:]\s*(\d)/i);
+
+            let color = resultMatch
+                ? resultMatch[1].charAt(0).toUpperCase() + resultMatch[1].slice(1).toLowerCase()
+                : (row.winning_color || '');
+
+            let number = resultMatch
+                ? Number(resultMatch[2])
+                : (row.winning_number !== null && row.winning_number !== undefined
+                    && row.winning_number !== ''
+                    ? Number(row.winning_number)
+                    : null);
+
+            if (!['Green', 'Red', 'Violet'].includes(color)) {
+                color = '';
+            }
+
+            let bigSmall = number !== null && Number.isFinite(number)
+                ? (number >= 5 ? 'Big' : 'Small')
+                : '';
+
+            let colorClass = color === 'Red'
+                ? 'result-red'
+                : color === 'Green'
+                    ? 'result-green'
+                    : color === 'Violet'
+                        ? 'result-violet'
+                        : '';
+
+            return {
+                color,
+                number,
+                bigSmall,
+                colorClass,
+                hasResult: number !== null && Number.isFinite(number) && color !== ''
+            };
+        }
+
+        // Format saved date/time in Bangladesh time
+        function formatHistoryDate(dateValue) {
+            if (!dateValue) return { date: 'N/A', time: 'N/A' };
+
+            const date = new Date(dateValue);
+
+            if (Number.isNaN(date.getTime())) {
+                return { date: 'N/A', time: 'N/A' };
+            }
+
+            return {
+                date: date.toLocaleDateString('en-GB', {
+                    timeZone: 'Asia/Dhaka',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                }),
+                time: date.toLocaleTimeString('en-GB', {
+                    timeZone: 'Asia/Dhaka',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                })
+            };
+        }
+
         async function loadHistoryData(type) {
             let container = document.getElementById("tab-content");
 
@@ -521,10 +676,10 @@
                             : 'text-purple-400');
 
                     html += `<tr class="border-b border-slate-900/50">
-                        <td class="font-mono text-amber-300">${row.period_number}</td>
-                        <td class="font-bold">${row.winning_number}</td>
+                        <td class="font-mono text-amber-300">${escapeHtml(row.period_number)}</td>
+                        <td class="font-bold">${escapeHtml(row.winning_number)}</td>
                         <td class="font-semibold">${bs}</td>
-                        <td class="font-bold ${colorClass}">${row.winning_color}</td>
+                        <td class="font-bold ${colorClass}">${escapeHtml(row.winning_color)}</td>
                     </tr>`;
                 });
 
@@ -532,6 +687,8 @@
                 container.innerHTML = html;
 
             } else if (type === 'my-history') {
+
+                // User's own bets, including completed wins and losses
                 let { data, error } = await supabaseClient
                     .from("color_game_history")
                     .select("*")
@@ -539,39 +696,138 @@
                     .order("created_at", { ascending: false })
                     .limit(10);
 
-                if (error || !data || data.length === 0) {
+                if (error) {
+                    console.error("My History error:", error);
+
                     container.innerHTML =
-                        `<p class="text-center text-slate-500 py-3">No bets found</p>`;
+                        `<p class="text-center text-rose-400 py-4">
+                            Unable to load My History. Please check the database.
+                        </p>`;
                     return;
                 }
 
-                let html = `<div class="overflow-x-auto">
-                    <table class="history-table">
+                if (!data || data.length === 0) {
+                    container.innerHTML =
+                        `<p class="text-center text-slate-500 py-4">No bets found</p>`;
+                    return;
+                }
+
+                let html = `
+                    <div class="mb-3 text-[10px] text-slate-400">
+                        Showing your latest 10 bets. Scroll horizontally to see all details.
+                    </div>
+
+                    <div class="history-scroll max-h-96">
+                    <table class="my-history-table">
                     <thead>
-                    <tr class="text-slate-400 border-b border-slate-800">
+                    <tr>
                         <th>Period</th>
                         <th>Bet</th>
                         <th>Amount</th>
                         <th>Status</th>
+                        <th>Result No.</th>
+                        <th>Result Color</th>
+                        <th>Big/Small</th>
+                        <th>Date & Time</th>
                     </tr>
-                    </thead><tbody>`;
+                    </thead>
+                    <tbody>`;
 
                 data.forEach(row => {
-                    let statusColor = row.status === 'win'
-                        ? 'text-emerald-400'
-                        : (row.status === 'loss'
-                            ? 'text-rose-500'
-                            : 'text-amber-400');
+                    let status = String(row.status || 'pending').toLowerCase();
 
-                    html += `<tr class="border-b border-slate-900/50">
-                        <td class="font-mono text-amber-300">${row.period_number}</td>
-                        <td class="font-bold">${row.bet_type}</td>
-                        <td class="font-mono">৳${row.bet_amount}</td>
-                        <td class="font-bold uppercase ${statusColor}">${row.status}</td>
-                    </tr>`;
+                    let statusColor = status === 'win'
+                        ? 'text-emerald-400'
+                        : status === 'loss'
+                            ? 'text-rose-400'
+                            : 'text-amber-400';
+
+                    let statusLabel = status === 'win'
+                        ? 'WIN'
+                        : status === 'loss'
+                            ? 'LOSS'
+                            : 'PENDING';
+
+                    // Read actual result saved when the round was processed
+                    let result = getSavedBetResult(row);
+
+                    let resultNumberHtml = result.hasResult
+                        ? `<span class="result-number ${result.colorClass}">
+                               ${result.number}
+                           </span>`
+                        : `<span class="text-slate-500">—</span>`;
+
+                    let resultColorHtml = result.hasResult
+                        ? `<span class="result-badge ${
+                            result.color === 'Red'
+                                ? 'bg-rose-900/60 text-rose-300 border border-rose-700'
+                                : result.color === 'Green'
+                                    ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-700'
+                                    : 'bg-purple-900/60 text-purple-300 border border-purple-700'
+                          }">${escapeHtml(result.color.toUpperCase())}</span>`
+                        : `<span class="text-slate-500">—</span>`;
+
+                    let bigSmallHtml = result.hasResult
+                        ? `<span class="result-badge ${
+                            result.bigSmall === 'Big'
+                                ? 'bg-amber-900/60 text-amber-300 border border-amber-700'
+                                : 'bg-blue-900/60 text-blue-300 border border-blue-700'
+                          }">${result.bigSmall.toUpperCase()}</span>`
+                        : `<span class="text-slate-500">—</span>`;
+
+                    let dateTime = formatHistoryDate(row.created_at);
+
+                    html += `
+                        <tr>
+                            <td class="font-mono text-amber-300">
+                                ${escapeHtml(row.period_number || '—')}
+                            </td>
+
+                            <td class="font-bold text-white">
+                                ${escapeHtml(row.bet_type || '—')}
+                            </td>
+
+                            <td class="font-mono text-slate-200">
+                                ৳${Number(row.bet_amount || 0).toFixed(2)}
+                            </td>
+
+                            <td class="font-bold ${statusColor}">
+                                ${statusLabel}
+                            </td>
+
+                            <td>
+                                ${resultNumberHtml}
+                            </td>
+
+                            <td>
+                                ${resultColorHtml}
+                            </td>
+
+                            <td>
+                                ${bigSmallHtml}
+                            </td>
+
+                            <td class="date-cell">
+                                <div>${escapeHtml(dateTime.date)}</div>
+                                <div class="text-slate-400">${escapeHtml(dateTime.time)}</div>
+                            </td>
+                        </tr>`;
                 });
 
-                html += `</tbody></table></div>`;
+                html += `
+                    </tbody>
+                    </table>
+                    </div>
+
+                    <div class="mt-3 p-3 rounded-xl bg-slate-900 border border-slate-800">
+                        <p class="text-[10px] text-slate-400 leading-relaxed">
+                            Result No., Result Color এবং Big/Small দেখানোর জন্য
+                            সংশ্লিষ্ট রাউন্ডের ফলাফল ডাটাবেসে সংরক্ষিত থাকতে হবে।
+                            Pending বেটের ফলাফল রাউন্ড সম্পন্ন না হওয়া পর্যন্ত
+                            দেখানো হবে না।
+                        </p>
+                    </div>`;
+
                 container.innerHTML = html;
 
             } else if (type === 'chart') {
@@ -630,13 +886,22 @@
             document.getElementById("user-balance").innerText =
                 newBalance.toFixed(2);
 
-            await supabaseClient.from("color_game_history").insert([{
-                user_id: currentUser.id,
-                period_number: currentPeriodNumber,
-                bet_type: selectedTarget,
-                bet_amount: amount,
-                status: 'pending'
-            }]);
+            const { error: betInsertError } = await supabaseClient
+                .from("color_game_history")
+                .insert([{
+                    user_id: currentUser.id,
+                    period_number: currentPeriodNumber,
+                    bet_type: selectedTarget,
+                    bet_amount: amount,
+                    status: 'pending'
+                }]);
+
+            if (betInsertError) {
+                console.error("Bet history insert error:", betInsertError);
+
+                alert("Bet history could not be saved. Please contact support.");
+                return;
+            }
 
             await updatePeriodAmounts(amount, selectedTarget);
 
