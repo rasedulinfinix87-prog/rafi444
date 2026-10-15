@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -72,6 +73,134 @@
             aspect-ratio: 1 / 1;
             min-width: 0;
             font-size: 20px;
+        }
+
+        /* Period and timer card */
+        .period-timer-card {
+            background:
+                radial-gradient(circle at top right, rgba(16,185,129,.08), transparent 45%),
+                #030817;
+            border: 1px solid #253047;
+            border-radius: 20px;
+            padding: 14px 12px;
+            min-height: 112px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 10px;
+            box-shadow: inset 0 0 18px rgba(0,0,0,.45);
+        }
+
+        .period-info {
+            min-width: 0;
+        }
+
+        .period-heading {
+            font-size: 11px;
+            color: #94a3b8;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .period-number-display {
+            color: #fbbf24;
+            font-family: monospace;
+            font-size: clamp(12px, 3.6vw, 16px);
+            font-weight: 900;
+            letter-spacing: .3px;
+            overflow-wrap: anywhere;
+            text-shadow: 0 0 10px rgba(251,191,36,.18);
+        }
+
+        .timer-area {
+            text-align: center;
+            min-width: 0;
+        }
+
+        .timer-label {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1.1px;
+            color: #6ee7b7;
+            margin-bottom: 8px;
+            white-space: nowrap;
+        }
+
+        .timer-label.timer-label-danger {
+            color: #fb7185;
+            animation: dangerPulse 1s infinite;
+        }
+
+        .digital-timer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+
+        .timer-digit {
+            width: 25px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            background: linear-gradient(180deg, #16a34a 0%, #08752c 100%);
+            border: 1px solid #22c55e;
+            box-shadow:
+                inset 0 2px 4px rgba(255,255,255,.18),
+                inset 0 -4px 5px rgba(0,0,0,.35),
+                0 0 9px rgba(34,197,94,.24);
+            color: #ffffff;
+            font-family: monospace;
+            font-size: 23px;
+            font-weight: 900;
+            text-shadow: 0 0 7px rgba(255,255,255,.45);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timer-digit::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: rgba(0,0,0,.18);
+            border-top: 1px solid rgba(255,255,255,.10);
+        }
+
+        .timer-colon {
+            color: #4ade80;
+            font-size: 23px;
+            line-height: 1;
+            font-weight: 900;
+            padding: 0 1px;
+            text-shadow: 0 0 8px rgba(74,222,128,.4);
+        }
+
+        /* Last five seconds: keep the digits visible, but change the color */
+        .digital-timer.timer-danger .timer-digit {
+            background: linear-gradient(180deg, #f43f5e 0%, #9f1239 100%);
+            border-color: #fb7185;
+            box-shadow:
+                inset 0 2px 4px rgba(255,255,255,.18),
+                inset 0 -4px 5px rgba(0,0,0,.35),
+                0 0 10px rgba(244,63,94,.35);
+            animation: dangerPulse 1s infinite;
+        }
+
+        .digital-timer.timer-danger .timer-colon {
+            color: #fb7185;
+            text-shadow: 0 0 8px rgba(251,113,133,.4);
+        }
+
+        @keyframes dangerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .72; }
         }
 
         .history-table {
@@ -167,16 +296,26 @@
             border-radius: 8px;
         }
 
-        /* No More Bet timer appearance */
-        .no-more-bet {
-            color: #fb7185 !important;
-            font-size: 15px !important;
-            letter-spacing: .5px;
-            white-space: nowrap;
-        }
+        @media (max-width: 360px) {
+            .period-timer-card {
+                padding: 12px 9px;
+                gap: 6px;
+            }
 
-        .timer-normal {
-            color: #34d399 !important;
+            .timer-digit {
+                width: 21px;
+                height: 34px;
+                font-size: 20px;
+            }
+
+            .timer-colon {
+                font-size: 20px;
+            }
+
+            .timer-label {
+                font-size: 9px;
+                letter-spacing: .6px;
+            }
         }
     </style>
 </head>
@@ -226,20 +365,28 @@
 
                 </div>
 
-                <div class="game-section bg-slate-950 p-4 rounded-2xl flex justify-between items-center border border-slate-800 shadow-inner">
-                    <div>
-                        <p class="text-[11px] text-slate-400">Period No</p>
-                        <p id="period-number" class="font-mono font-bold text-amber-400 text-xs">
+                <!-- Updated Period and Digital Timer Card -->
+                <div class="game-section period-timer-card">
+
+                    <div class="period-info">
+                        <p class="period-heading">Period Number</p>
+                        <p id="period-number" class="period-number-display">
                             2026101501
                         </p>
                     </div>
 
-                    <div class="text-right">
-                        <p id="timer-label" class="text-[11px] text-slate-400">Time Remaining</p>
-                        <p id="countdown-timer" class="font-mono text-2xl font-black text-emerald-400 timer-normal">
-                            00:30
-                        </p>
+                    <div class="timer-area">
+                        <p id="timer-label" class="timer-label">TIME REMAINING</p>
+
+                        <div id="countdown-timer" class="digital-timer" aria-label="Time remaining">
+                            <span class="timer-digit">0</span>
+                            <span class="timer-digit">0</span>
+                            <span class="timer-colon">:</span>
+                            <span class="timer-digit">3</span>
+                            <span class="timer-digit">0</span>
+                        </div>
                     </div>
+
                 </div>
 
                 <div class="game-section grid grid-cols-3 gap-2">
@@ -442,9 +589,8 @@
         }
 
         /*
-         * Countdown popup removed.
-         * At 5 seconds or less, show "No More Bet".
-         * At zero, process the round and start the next round immediately.
+         * Timer remains visible during the final five seconds.
+         * The timer digits change color, and betting is blocked.
          */
         function startTimer() {
             clearInterval(timerInterval);
@@ -457,31 +603,37 @@
             function updateMainTimer() {
                 if (!timerElem) return;
 
+                const min = Math.floor(timerSeconds / 60);
+                const sec = timerSeconds % 60;
+
+                const timeText =
+                    `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+
+                /*
+                 * Render each digit in its own tile.
+                 * Example: 00:05 remains visible instead of "No More Bet".
+                 */
+                timerElem.innerHTML = `
+                    <span class="timer-digit">${timeText[0]}</span>
+                    <span class="timer-digit">${timeText[1]}</span>
+                    <span class="timer-colon">:</span>
+                    <span class="timer-digit">${timeText[3]}</span>
+                    <span class="timer-digit">${timeText[4]}</span>
+                `;
+
                 if (timerSeconds <= 5) {
-                    timerElem.innerText = "No More Bet";
-                    timerElem.classList.remove("timer-normal");
-                    timerElem.classList.add("no-more-bet");
+                    timerElem.classList.add("timer-danger");
 
                     if (timerLabel) {
-                        timerLabel.innerText = "Betting Closed";
-                        timerLabel.classList.remove("text-slate-400");
-                        timerLabel.classList.add("text-rose-400");
+                        timerLabel.innerText = "BETTING CLOSED";
+                        timerLabel.classList.add("timer-label-danger");
                     }
                 } else {
-                    const min = Math.floor(timerSeconds / 60);
-                    const sec = timerSeconds % 60;
-
-                    timerElem.innerText = min > 0
-                        ? `${min}:${sec < 10 ? '0' : ''}${sec}`
-                        : `00:${sec < 10 ? '0' : ''}${sec}`;
-
-                    timerElem.classList.remove("no-more-bet");
-                    timerElem.classList.add("timer-normal");
+                    timerElem.classList.remove("timer-danger");
 
                     if (timerLabel) {
-                        timerLabel.innerText = "Time Remaining";
-                        timerLabel.classList.remove("text-rose-400");
-                        timerLabel.classList.add("text-slate-400");
+                        timerLabel.innerText = "TIME REMAINING";
+                        timerLabel.classList.remove("timer-label-danger");
                     }
                 }
             }
