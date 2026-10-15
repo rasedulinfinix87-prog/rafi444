@@ -481,7 +481,7 @@
             border-radius: 8px;
         }
 
-        /* Chips & Action Buttons Styling (Updated for 100% professional chip design & 30% smaller text) */
+        /* Chips & Action Buttons Styling */
         .chips-container {
             display: flex;
             align-items: center;
@@ -563,7 +563,6 @@
             box-shadow: 0 0 8px rgba(255,255,255,0.7), inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -3px 4px rgba(0,0,0,0.6);
         }
 
-        /* Pro Casino Chip Styles based on 2nd reference image */
         .chip-20 { 
             background: repeating-conic-gradient(#0284c7 0deg 30deg, #ffffff 30deg 36deg);
             border: 2px solid #0369a1;
@@ -731,6 +730,26 @@
             z-index: 40;
             font-size: 11px;
         }
+
+        /* Sicbo Style Grid Bead Plate & Statistics styling */
+        .sicbo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+        .sicbo-ball {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 900;
+            color: white;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 2px 5px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 
@@ -738,7 +757,6 @@
 
     <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl border-x border-slate-800 relative overflow-hidden pb-12">
 
-        <!-- Top Bar (Thinner, theme background, with Book Symbol) -->
         <header class="py-1.5 px-3 bg-[#080d20] border-b border-slate-800 flex justify-between items-center shadow-lg">
             <h1 class="text-sm font-extrabold text-white tracking-wider">Color Trading</h1>
 
@@ -924,6 +942,7 @@
         let timerInterval = null;
 
         let activeTab = 'game-history';
+        let selectedChartDuration = 15; // Chart timeframe filter
         let selectedChipAmount = 20; 
         let lastPlacedBet = null;
         let currentRoundTotalBet = 0;
@@ -1427,6 +1446,19 @@
             };
         }
 
+        async function switchChartDuration(duration) {
+            selectedChartDuration = duration;
+            ['15s', '30s', '1m', '5m'].forEach(d => {
+                let btn = document.getElementById(`chart-dur-${d}`);
+                if(btn) {
+                    if(Number(d.replace('s','').replace('m','')) === (duration === 60 ? '1m' : duration)) { // Simple check
+                        // Active style updated below via direct attributes
+                    }
+                }
+            });
+            loadHistoryData('chart');
+        }
+
         async function loadHistoryData(type) {
             let container = document.getElementById("tab-content");
 
@@ -1592,8 +1624,90 @@
                 container.innerHTML = html;
 
             } else if (type === 'chart') {
-                container.innerHTML =
-                    `<p class="text-center text-slate-500 py-5">Chart feature coming soon...</p>`;
+                // Fetch last 10 completed rounds for Sicbo Style Statistics
+                let { data, error } = await supabaseClient
+                    .from("color_periods")
+                    .select("*")
+                    .eq("status", "completed")
+                    .order("created_at", { ascending: false })
+                    .limit(10);
+
+                let sicboBallsHtml = '';
+                let bigCount = 0;
+                let smallCount = 0;
+                let redCount = 0;
+                let greenCount = 0;
+                let violetCount = 0;
+
+                if (data && data.length > 0) {
+                    data.forEach(row => {
+                        let num = Number(row.winning_number);
+                        let isBig = num >= 5;
+                        if(isBig) bigCount++; else smallCount++;
+
+                        if(row.winning_color === 'Red') redCount++;
+                        else if(row.winning_color === 'Green') greenCount++;
+                        else if(row.winning_color === 'Violet') violetCount++;
+
+                        let bgStyle = row.winning_color === 'Red' ? '#e11d48' : (row.winning_color === 'Green' ? '#059669' : '#7c3aed');
+                        sicboBallsHtml += `<div class="sicbo-ball" style="background: ${bgStyle};">${num}</div>`;
+                    });
+                } else {
+                    sicboBallsHtml = `<p class="text-slate-500 text-center py-2">No data for statistics yet</p>`;
+                }
+
+                let totalRounds = (data ? data.length : 0) || 1;
+                let bigPercent = Math.round((bigCount / totalRounds) * 100);
+                let smallPercent = 100 - bigPercent;
+
+                // Trend Prediction Suggestion Logic
+                let suggestedTrend = bigCount > smallCount ? "Big (বড়)" : "Small (ছোট)";
+                let suggestedColor = redCount >= greenCount ? "Red / Green Trend" : "Green / Violet Trend";
+
+                container.innerHTML = `
+                    <div class="p-2 space-y-3">
+                        <div class="flex justify-between items-center bg-slate-900 p-2 rounded-xl border border-slate-800">
+                            <span class="text-slate-400 text-[11px] font-bold">টাইম ফ্রেম স্ট্যাটিস্টিক্স (শেষ ১০ রাউন্ড)</span>
+                            <div class="flex gap-1">
+                                <button onclick="selectedChartDuration=15; loadHistoryData('chart');" class="px-2 py-0.5 rounded text-[10px] font-bold ${selectedChartDuration===15?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">15s</button>
+                                <button onclick="selectedChartDuration=30; loadHistoryData('chart');" class="px-2 py-0.5 rounded text-[10px] font-bold ${selectedChartDuration===30?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">30s</button>
+                                <button onclick="selectedChartDuration=60; loadHistoryData('chart');" class="px-2 py-0.5 rounded text-[10px] font-bold ${selectedChartDuration===60?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">1m</button>
+                                <button onclick="selectedChartDuration=300; loadHistoryData('chart');" class="px-2 py-0.5 rounded text-[10px] font-bold ${selectedChartDuration===300?'bg-rose-600 text-white':'bg-slate-800 text-slate-400'}">5m</button>
+                            </div>
+                        </div>
+
+                        <!-- Sicbo Bead Plate Trend Display -->
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                            <div class="text-[10px] text-slate-400 mb-2 font-bold">সিকবো স্টাইল ট্রেন্ড রেজাল্ট বল (শেষ থেকে শুরু):</div>
+                            <div class="sicbo-grid py-1">
+                                ${sicboBallsHtml}
+                            </div>
+                        </div>
+
+                        <!-- Ratio & Prediction Summary -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                                <span class="text-[10px] text-slate-400 font-bold">Big vs Small অনুপাত</span>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-amber-400 font-bold text-xs">Big: ${bigPercent}%</span>
+                                    <span class="text-blue-400 font-bold text-xs">Small: ${smallPercent}%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden flex">
+                                    <div class="bg-amber-500 h-full" style="width: ${bigPercent}%"></div>
+                                    <div class="bg-blue-500 h-full" style="width: ${smallPercent}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                                <span class="text-[10px] text-slate-400 font-bold">পরবর্তী অনুমেয় ফলাফল (Trend)</span>
+                                <div class="mt-1">
+                                    <div class="text-emerald-400 font-extrabold text-xs">অ্যানালিসিস: ${suggestedTrend}</div>
+                                    <div class="text-[9.5px] text-slate-400 mt-0.5">রঙের প্যাটার্ন: ${suggestedColor}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
         }
 
