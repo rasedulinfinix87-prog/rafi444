@@ -62,7 +62,7 @@
         <!-- Main Game Area -->
         <main class="p-4 flex-1 flex flex-col gap-3 overflow-y-auto pb-10">
             
-            <!-- Time Mode Selection Cards (ঘড়ি আইকনসহ) -->
+            <!-- Time Mode Selection Cards (ঘড়ি আইকনসহ স্ক্রিনের ভেতরে সাজানো) -->
             <div class="grid grid-cols-4 gap-2">
                 <button onclick="changeGameMode(10, '10s')" id="mode-10s" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-xl text-center border border-slate-700 transition active:scale-95">
                     <div class="text-xs">🕒</div>
@@ -105,16 +105,16 @@
             <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
                 <p class="text-[11px] text-slate-400 mb-2.5 text-center">Select Number (Payout 9x)</p>
                 <div class="grid grid-cols-5 gap-2">
-                    <button onclick="openBetModal('0')" class="violet-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base" data-color="Violet">0</button>
-                    <button onclick="openBetModal('1')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base" data-color="Green">1</button>
-                    <button onclick="openBetModal('2')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base" data-color="Red">2</button>
-                    <button onclick="openBetModal('3')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base" data-color="Green">3</button>
-                    <button onclick="openBetModal('4')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base" data-color="Red">4</button>
-                    <button onclick="openBetModal('5')" class="violet-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base" data-color="Violet">5</button>
-                    <button onclick="openBetModal('6')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base" data-color="Red">6</button>
-                    <button onclick="openBetModal('7')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base" data-color="Green">7</button>
-                    <button onclick="openBetModal('8')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base" data-color="Red">8</button>
-                    <button onclick="openBetModal('9')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base" data-color="Green">9</button>
+                    <button onclick="openBetModal('Violet')" class="violet-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">0</button>
+                    <button onclick="openBetModal('Green')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">1</button>
+                    <button onclick="openBetModal('Red')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">2</button>
+                    <button onclick="openBetModal('Green')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">3</button>
+                    <button onclick="openBetModal('Red')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">4</button>
+                    <button onclick="openBetModal('Violet')" class="violet-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">5</button>
+                    <button onclick="openBetModal('Red')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">6</button>
+                    <button onclick="openBetModal('Green')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">7</button>
+                    <button onclick="openBetModal('Red')" class="ruby-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">8</button>
+                    <button onclick="openBetModal('Green')" class="green-sphere active:scale-95 py-2.5 rounded-xl font-black transition text-base">9</button>
                 </div>
             </div>
 
@@ -236,26 +236,37 @@
         function startTimer() {
             clearInterval(timerInterval);
             timerSeconds = selectedGameDuration;
-            document.getElementById("big-countdown-overlayclassList").add("hidden");
-            document.getElementById("big-countdown-overlay").classList.remove("flex");
+            
+            let overlay = document.getElementById("big-countdown-overlay");
+            if(overlay) {
+                overlay.classList.add("hidden");
+                overlay.classList.remove("flex");
+            }
             
             timerInterval = setInterval(() => {
                 timerSeconds--;
                 let min = Math.floor(timerSeconds / 60);
                 let sec = timerSeconds % 60;
                 let displayTime = min > 0 ? `${min}:${sec < 10 ? '0' : ''}${sec}` : `00:${sec < 10 ? '0' : ''}${sec}`;
-                document.getElementById("countdown-timer").innerText = displayTime;
+                
+                let timerElem = document.getElementById("countdown-timer");
+                if(timerElem) timerElem.innerText = displayTime;
                 
                 if (timerSeconds <= 5 && timerSeconds > 0) {
-                    document.getElementById("big-number-display").innerText = timerSeconds;
-                    document.getElementById("big-countdown-overlay").classList.remove("hidden");
-                    document.getElementById("big-countdown-overlay").classList.add("flex");
+                    let numDisp = document.getElementById("big-number-display");
+                    if(numDisp) numDisp.innerText = timerSeconds;
+                    if(overlay) {
+                        overlay.classList.remove("hidden");
+                        overlay.classList.add("flex");
+                    }
                 }
 
                 if (timerSeconds <= 0) {
                     clearInterval(timerInterval);
-                    document.getElementById("big-countdown-overlay").classList.remove("flex");
-                    document.getElementById("big-countdown-overlay").classList.add("hidden");
+                    if(overlay) {
+                        overlay.classList.remove("flex");
+                        overlay.classList.add("hidden");
+                    }
                     processRoundResult();
                 }
             }, 1000);
