@@ -961,8 +961,25 @@
                 await loadUserProfile();
                 startTimer();
                 loadHistoryData('game-history');
+                initRealtimeSubscription();
             }
         });
+
+        // Supabase Realtime Subscription to auto-update charts and history when a round completes
+        function initRealtimeSubscription() {
+            if (typeof supabaseClient !== 'undefined' && supabaseClient.channel) {
+                supabaseClient
+                    .channel('public:color_periods')
+                    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'color_periods' }, payload => {
+                        if (payload.new && payload.new.status === 'completed') {
+                            if (activeTab) {
+                                loadHistoryData(activeTab);
+                            }
+                        }
+                    })
+                    .subscribe();
+            }
+        }
 
         function selectChip(amount, element) {
             selectedChipAmount = amount;
