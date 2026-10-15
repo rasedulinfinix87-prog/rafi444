@@ -16,11 +16,6 @@
             font-family: system-ui, -apple-system, sans-serif;
         }
 
-        .custom-gradient {
-            background: rgba(8, 13, 32, 0.95);
-            border-bottom: 1px solid #1e293b;
-        }
-
         .ruby-sphere {
             background: radial-gradient(circle at 35% 35%, #ff4d4d, #cc0000 50%, #5a0000);
             box-shadow: inset -3px -3px 8px rgba(0,0,0,.8),
@@ -64,7 +59,6 @@
 
         .game-section { min-width: 0; position: relative; }
 
-        /* বর্ডার ছাড়া শুধু কমন প্লেট কন্টেইনার */
         .modes-plate {
             background: linear-gradient(145deg, #0b1428, #030817 65%, #071326);
             border: none;
@@ -127,7 +121,6 @@
             font-weight: 600;
         }
 
-        /* Period and Timer card */
         .period-timer-card {
             position: relative;
             overflow: hidden;
@@ -488,7 +481,7 @@
             border-radius: 8px;
         }
 
-        /* Chips & Action Buttons Styling */
+        /* Chips & Action Buttons Styling (Updated for 100% professional chip design & 30% smaller text) */
         .chips-container {
             display: flex;
             align-items: center;
@@ -545,7 +538,6 @@
             overflow-x: auto;
         }
 
-        /* 100% Matching Casino Chip Design & 30% Smaller Font Sizes inside Chips */
         .chip-item {
             width: 36px;
             height: 36px;
@@ -553,10 +545,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: 7.5px;
             font-weight: 900;
             cursor: pointer;
-            border: 2px dashed rgba(255, 255, 255, 0.4);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -3px 4px rgba(0,0,0,0.6);
             transition: transform 0.1s;
             flex-shrink: 0;
             color: white;
@@ -568,19 +560,112 @@
         .chip-item:active { transform: scale(0.92); }
         .chip-item.selected-chip {
             transform: scale(1.08);
-            border-color: #f59e0b;
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+            box-shadow: 0 0 8px rgba(255,255,255,0.7), inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -3px 4px rgba(0,0,0,0.6);
         }
 
-        /* 2nd Image Reference Casino Chip Radial Styles */
-        .chip-20 { background: radial-gradient(circle, #e11d48 45%, #991b1b 46%, #991b1b 56%, #ffffff 57%, #ffffff 70%, #e11d48 71%); }
-        .chip-50 { background: radial-gradient(circle, #2563eb 45%, #1d4ed8 46%, #1d4ed8 56%, #ffffff 57%, #ffffff 70%, #2563eb 71%); }
-        .chip-100 { background: radial-gradient(circle, #1f2937 45%, #030712 46%, #030712 56%, #ffffff 57%, #ffffff 70%, #1f2937 71%); }
-        .chip-500 { background: radial-gradient(circle, #2563eb 45%, #1d4ed8 46%, #1d4ed8 56%, #ffffff 57%, #ffffff 70%, #2563eb 71%); }
-        .chip-1k { background: radial-gradient(circle, #d97706 45%, #b45309 46%, #b45309 56%, #ffffff 57%, #ffffff 70%, #d97706 71%); }
-        .chip-10k { background: radial-gradient(circle, #059669 45%, #047857 46%, #047857 56%, #ffffff 57%, #ffffff 70%, #059669 71%); }
+        /* Pro Casino Chip Styles based on 2nd reference image */
+        .chip-20 { 
+            background: repeating-conic-gradient(#0284c7 0deg 30deg, #ffffff 30deg 36deg);
+            border: 2px solid #0369a1;
+        }
+        .chip-20::after {
+            content: attr(data-text);
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #0284c7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed rgba(255,255,255,0.6);
+        }
 
-        /* Placed Bet Badge on Target buttons */
+        .chip-50 { 
+            background: repeating-conic-gradient(#16a34a 0deg 30deg, #ffffff 30deg 36deg);
+            border: 2px solid #15803d;
+        }
+        .chip-50::after {
+            content: attr(data-text);
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #16a34a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed rgba(255,255,255,0.6);
+        }
+
+        .chip-100 { 
+            background: repeating-conic-gradient(#e11d48 0deg 30deg, #ffffff 30deg 36deg);
+            border: 2px solid #be123c;
+        }
+        .chip-100::after {
+            content: attr(data-text);
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #e11d48;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed rgba(255,255,255,0.6);
+        }
+
+        .chip-500 { 
+            background: repeating-conic-gradient(#7c3aed 0deg 30deg, #ffffff 30deg 36deg);
+            border: 2px solid #6d28d9;
+        }
+        .chip-500::after {
+            content: attr(data-text);
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #7c3aed;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed rgba(255,255,255,0.6);
+        }
+
+        .chip-1k { 
+            background: repeating-conic-gradient(#d97706 0deg 30deg, #ffffff 30deg 36deg);
+            border: 2px solid #b45309;
+        }
+        .chip-1k::after {
+            content: attr(data-text);
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #d97706;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed rgba(255,255,255,0.6);
+        }
+
+        .chip-10k { 
+            background: repeating-conic-gradient(#881337 0deg 30deg, #ffffff 30deg 36deg);
+            border: 2px solid #4c0519;
+        }
+        .chip-10k::after {
+            content: attr(data-text);
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #881337;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed rgba(255,255,255,0.6);
+        }
+
         .bet-badge {
             position: absolute;
             top: -5px;
@@ -596,7 +681,6 @@
             border: 1px solid #fff;
         }
 
-        /* Win Payout Floating Animation on Target Button */
         .win-payout-overlay {
             position: absolute;
             inset: 0;
@@ -620,7 +704,6 @@
             100% { transform: scale(1); opacity: 0; }
         }
 
-        /* Zoom Out Animation for Bottom Bar Result Status */
         @keyframes zoomOutResult {
             0% { transform: scale(1.2); opacity: 1; }
             80% { transform: scale(1); opacity: 1; }
@@ -631,7 +714,6 @@
             animation: zoomOutResult 1.5s ease forwards;
         }
 
-        /* Bottom Fixed Thin Bar Styling */
         .bottom-fixed-bar {
             position: fixed;
             bottom: 0;
@@ -656,10 +738,11 @@
 
     <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl border-x border-slate-800 relative overflow-hidden pb-12">
 
-        <header class="px-3 py-2 custom-gradient flex justify-between items-center shadow-lg">
+        <!-- Top Bar (Thinner, theme background, with Book Symbol) -->
+        <header class="py-1.5 px-3 bg-[#080d20] border-b border-slate-800 flex justify-between items-center shadow-lg">
             <h1 class="text-sm font-extrabold text-white tracking-wider">Color Trading</h1>
 
-            <a href="color-trading/how-to-play.html" class="bg-black/30 w-7 h-7 flex items-center justify-center rounded-full text-xs font-semibold backdrop-blur-md border border-white/10 text-amber-400 hover:text-amber-300 transition shadow" title="How To Play">
+            <a href="color-trading/how-to-play.html" class="bg-slate-800/80 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center text-amber-400 text-base shadow-md border border-slate-700 transition" title="How to play">
                 📖
             </a>
         </header>
@@ -668,7 +751,6 @@
 
             <div class="main-game-card">
 
-                <!-- মোডগুলোর জন্য বর্ডারবিহীন কমন প্লেট -->
                 <div class="game-section modes-plate">
 
                     <button onclick="changeGameMode(15, '15s')" id="mode-15s"
@@ -776,12 +858,12 @@
                         </button>
                     </div>
                     <div class="chips-group">
-                        <div onclick="selectChip(20, this)" class="chip-item chip-20 selected-chip">৳20</div>
-                        <div onclick="selectChip(50, this)" class="chip-item chip-50">৳50</div>
-                        <div onclick="selectChip(100, this)" class="chip-item chip-100">৳100</div>
-                        <div onclick="selectChip(500, this)" class="chip-item chip-500">৳500</div>
-                        <div onclick="selectChip(1000, this)" class="chip-item chip-1k">৳1K</div>
-                        <div onclick="selectChip(10000, this)" class="chip-item chip-10k">৳10K</div>
+                        <div onclick="selectChip(20, this)" class="chip-item chip-20 selected-chip" data-text="৳20">৳20</div>
+                        <div onclick="selectChip(50, this)" class="chip-item chip-50" data-text="৳50">৳50</div>
+                        <div onclick="selectChip(100, this)" class="chip-item chip-100" data-text="৳100">৳100</div>
+                        <div onclick="selectChip(500, this)" class="chip-item chip-500" data-text="৳500">৳500</div>
+                        <div onclick="selectChip(1000, this)" class="chip-item chip-1k" data-text="৳1K">৳1K</div>
+                        <div onclick="selectChip(10000, this)" class="chip-item chip-10k" data-text="৳10K">৳10K</div>
                     </div>
                 </div>
 
@@ -825,7 +907,6 @@
                 <span class="text-emerald-400 font-mono font-bold">৳<span id="bar-user-balance">0.00</span></span>
             </div>
             <div id="bottom-bar-center-status" class="font-bold text-xs text-center">
-                <!-- Win/Lost result displays dynamically here -->
             </div>
             <div>
                 <span class="text-slate-400">Total Bet:</span> 
@@ -893,7 +974,6 @@
 
             userProfile.balance = refundedBalance;
             let bal = refundedBalance.toFixed(2);
-            document.getElementById("user-balance").innerText = bal;
             document.getElementById("bar-user-balance").innerText = bal;
 
             currentRoundTotalBet = Math.max(0, currentRoundTotalBet - lastBet.amount);
@@ -983,7 +1063,6 @@
 
             userProfile.balance = newBalance;
             let bal = newBalance.toFixed(2);
-            document.getElementById("user-balance").innerText = bal;
             document.getElementById("bar-user-balance").innerText = bal;
 
             currentRoundTotalBet += amount;
@@ -1064,7 +1143,6 @@
 
             if (userProfile) {
                 let bal = Number(userProfile.balance).toFixed(2);
-                document.getElementById("user-balance").innerText = bal;
                 document.getElementById("bar-user-balance").innerText = bal;
             }
         }
@@ -1695,7 +1773,6 @@
                 }
             }
 
-            // Immediately clear chips/badges from buttons as the round ends
             currentRoundTotalBet = 0;
             userActiveBets = [];
             updateBetBadgesUI();
@@ -1723,7 +1800,6 @@
 
             await loadUserProfile();
 
-            // Set bottom bar center status depending on user participate & win/loss
             let centerStatusElem = document.getElementById("bottom-bar-center-status");
             if (userParticipated) {
                 if (hasUserWon) {
