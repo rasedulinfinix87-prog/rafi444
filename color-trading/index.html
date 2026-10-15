@@ -69,7 +69,7 @@
             font-size: 20px;
         }
 
-        /* Period and Timer card - Optimized Spacing */
+        /* Period and Timer card - Compact & Optimized */
         .period-timer-card {
             position: relative;
             overflow: hidden;
@@ -79,11 +79,11 @@
                 linear-gradient(145deg, #0b1428, #030817 65%, #071326);
             border: 1px solid #263b54;
             border-radius: 22px;
-            padding: 12px;
+            padding: 10px 12px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            gap: 8px;
+            align-items: flex-end;
+            gap: 6px;
             box-shadow: inset 0 0 22px rgba(0,0,0,.4),
                 0 8px 20px rgba(0,0,0,.18);
         }
@@ -102,12 +102,27 @@
             height: 1px;
             width: 100%;
             background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.3), transparent);
-            margin: 5px 0;
+            margin: 4px 0;
+        }
+
+        .period-info, .timer-area {
+            min-width: 0;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            box-shadow: none;
         }
 
         .period-info {
             flex: 1;
-            min-width: 0;
+            max-width: 68%;
+        }
+
+        .timer-area {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
         }
 
         .period-heading-group {
@@ -124,7 +139,7 @@
             color: #f59e0b;
             background: rgba(245, 158, 11, 0.1);
             border: 1px solid rgba(245, 158, 11, 0.3);
-            padding: 2px 6px;
+            padding: 2px 7px;
             border-radius: 6px;
             text-decoration: none;
             display: inline-flex;
@@ -140,10 +155,10 @@
 
         .period-heading {
             display: block;
-            font-size: 10px;
-            line-height: 1.4;
+            font-size: 9px;
+            line-height: 1.3;
             color: #93c5fd;
-            letter-spacing: .7px;
+            letter-spacing: .5px;
             text-transform: uppercase;
             font-weight: 900;
             white-space: nowrap;
@@ -155,7 +170,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            gap: 2px;
+            gap: 1.5px;
             width: 100%;
             min-width: 0;
             padding: 0;
@@ -163,20 +178,19 @@
             background: transparent;
             text-align: left;
             overflow: hidden;
-            margin-top: 3px;
+            margin-top: 2px;
         }
 
-        /* পিরিয়ড নম্বরের জন্য ডিপ ব্লু কালার */
         .period-digit {
-            flex: 0 1 18px;
+            flex: 0 1 17px;
             min-width: 0;
-            height: 32px;
+            height: 31px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
-            border-radius: 5px;
+            border-radius: 4px;
             background: linear-gradient(180deg, #3b82f6, #1d4ed8);
             border: 1px solid #60a5fa;
             box-shadow: inset 0 2px 4px rgba(255,255,255,.18),
@@ -200,43 +214,44 @@
             border-top: 1px solid rgba(255,255,255,.10);
         }
 
-        .timer-area {
-            text-align: center;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
         .timer-label {
-            font-size: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-height: 22px;
+            padding: 4px 7px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            border: 1px solid rgba(52,211,153,.28);
+            background: rgba(6,78,59,.3);
+            color: #6ee7b7;
+            font-size: 8.5px;
             line-height: 1.2;
             font-weight: 900;
-            letter-spacing: .5px;
+            letter-spacing: .4px;
             white-space: nowrap;
-            color: #6ee7b7;
-            margin-bottom: 4px;
+        }
+
+        .timer-label::before {
+            content: "";
+            width: 5px;
+            height: 5px;
+            flex: 0 0 5px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 6px rgba(52,211,153,.8);
         }
 
         .timer-label.timer-label-danger {
-            color: #fb7185;
+            color: #fecdd3;
+            background: rgba(136,19,55,.45);
+            border-color: rgba(251,113,133,.65);
             animation: dangerPulse 1s infinite;
         }
 
-        /* টাইমের নিচে চিকন দাগ ও ফাঁকা জায়গা কমানোর জন্য কনটেইনার */
-        .timer-bottom-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-
-        .timer-divider {
-            height: 1px;
-            width: 100%;
-            background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.4), transparent);
-            margin-top: 4px;
-            margin-bottom: 4px;
+        .timer-label.timer-label-danger::before {
+            background: #fb7185;
         }
 
         .digital-timer {
@@ -244,11 +259,29 @@
             align-items: center;
             justify-content: center;
             gap: 2px;
+            position: relative;
+        }
+
+        /* টাইমারের নিচে চিকন একটি গ্লোয়িং দাগ */
+        .digital-timer::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, #34d399, transparent);
+            box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);
+        }
+
+        .digital-timer.timer-danger::after {
+            background: linear-gradient(90deg, transparent, #fb7185, transparent);
+            box-shadow: 0 0 6px rgba(251, 113, 133, 0.6);
         }
 
         .timer-digit {
-            width: 23px;
-            height: 36px;
+            width: 22px;
+            height: 34px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -260,7 +293,7 @@
                 0 0 9px rgba(34,197,94,.24);
             color: white;
             font-family: monospace;
-            font-size: 21px;
+            font-size: 20px;
             font-weight: 900;
             position: relative;
             overflow: hidden;
@@ -279,7 +312,7 @@
 
         .timer-colon {
             color: #4ade80;
-            font-size: 21px;
+            font-size: 20px;
             line-height: 1;
             font-weight: 900;
             padding: 0 1px;
@@ -523,10 +556,7 @@
                     </div>
 
                     <div class="timer-area">
-                        <div class="timer-bottom-container">
-                            <p id="timer-label" class="timer-label">PLACE YOUR BET</p>
-                            <div class="timer-divider"></div>
-                        </div>
+                        <p id="timer-label" class="timer-label">PLACE YOUR BET</p>
 
                         <div id="countdown-timer" class="digital-timer" aria-label="Time remaining">
                             <span class="timer-digit">0</span>
