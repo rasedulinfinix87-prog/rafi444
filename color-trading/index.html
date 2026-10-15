@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Color Trade - Win Go</title>
 
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../supabase-config.js"></script>
@@ -23,35 +22,34 @@
 
         .ruby-sphere {
             background: radial-gradient(circle at 35% 35%, #ff4d4d 0%, #cc0000 50%, #5a0000 100%);
-            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.8),
-                        inset 3px 3px 6px rgba(255,255,255,0.4),
-                        0 0 12px rgba(239, 68, 68, 0.5);
+            box-shadow: inset -3px -3px 8px rgba(0,0,0,.8),
+                        inset 3px 3px 6px rgba(255,255,255,.4),
+                        0 0 12px rgba(239,68,68,.5);
             border: 2px solid #ff1a1a;
-            color: #ffffff;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            color: white;
+            text-shadow: 0 0 8px rgba(255,255,255,.8);
         }
 
         .green-sphere {
             background: radial-gradient(circle at 35% 35%, #2eff7d 0%, #00b33c 50%, #004d1a 100%);
-            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.8),
-                        inset 3px 3px 6px rgba(255,255,255,0.4),
-                        0 0 12px rgba(0, 255, 65, 0.5);
+            box-shadow: inset -3px -3px 8px rgba(0,0,0,.8),
+                        inset 3px 3px 6px rgba(255,255,255,.4),
+                        0 0 12px rgba(0,255,65,.5);
             border: 2px solid #1aff66;
-            color: #ffffff;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            color: white;
+            text-shadow: 0 0 8px rgba(255,255,255,.8);
         }
 
         .violet-sphere {
             background: radial-gradient(circle at 35% 35%, #b192ff 0%, #7c3aed 50%, #3b0764 100%);
-            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.8),
-                        inset 3px 3px 6px rgba(255,255,255,0.4),
-                        0 0 12px rgba(124, 58, 237, 0.5);
+            box-shadow: inset -3px -3px 8px rgba(0,0,0,.8),
+                        inset 3px 3px 6px rgba(255,255,255,.4),
+                        0 0 12px rgba(124,58,237,.5);
             border: 2px solid #a78bfa;
-            color: #ffffff;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            color: white;
+            text-shadow: 0 0 8px rgba(255,255,255,.8);
         }
 
-        /* Main game elements */
         .main-game-card {
             background: #080d20;
             border: 1px solid #253047;
@@ -89,7 +87,6 @@
             vertical-align: middle;
         }
 
-        /* My History table */
         .my-history-table {
             min-width: 850px;
             border-collapse: collapse;
@@ -133,19 +130,19 @@
         .result-red {
             background: #e11d48;
             border: 2px solid #fb7185;
-            box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);
+            box-shadow: 0 0 8px rgba(244,63,94,.25);
         }
 
         .result-green {
             background: #059669;
             border: 2px solid #34d399;
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.25);
+            box-shadow: 0 0 8px rgba(16,185,129,.25);
         }
 
         .result-violet {
             background: #7c3aed;
             border: 2px solid #a78bfa;
-            box-shadow: 0 0 8px rgba(139, 92, 246, 0.25);
+            box-shadow: 0 0 8px rgba(139,92,246,.25);
         }
 
         .result-badge {
@@ -169,6 +166,124 @@
             -webkit-overflow-scrolling: touch;
             border-radius: 8px;
         }
+
+        /* NEW: Round countdown popup */
+        #big-countdown-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, .88);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .countdown-popup {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: min(82vw, 330px);
+            aspect-ratio: 1 / 1;
+            position: relative;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 35% 25%, #252b35 0%, #171b23 55%, #10141c 100%);
+            border: 2px solid rgba(148, 163, 184, .16);
+            box-shadow:
+                0 0 30px rgba(100, 116, 139, .12),
+                inset 0 0 35px rgba(148, 163, 184, .08);
+            animation: popupAppear .35s ease-out;
+        }
+
+        .countdown-popup::before {
+            content: "";
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from -90deg,
+                #facc15 var(--countdown-progress, 100%),
+                rgba(148, 163, 184, .12) var(--countdown-progress, 100%)
+            );
+            -webkit-mask: radial-gradient(
+                farthest-side,
+                transparent calc(100% - 5px),
+                #000 calc(100% - 4px)
+            );
+            mask: radial-gradient(
+                farthest-side,
+                transparent calc(100% - 5px),
+                #000 calc(100% - 4px)
+            );
+            filter: drop-shadow(0 0 5px rgba(250, 204, 21, .35));
+        }
+
+        .countdown-popup::after {
+            content: "";
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fde047;
+            box-shadow: 0 0 14px 5px rgba(250, 204, 21, .5);
+            top: 9%;
+            left: 65%;
+            animation: orbitGlow 1s ease-in-out infinite alternate;
+        }
+
+        .countdown-caption {
+            color: #facc15;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .countdown-number {
+            font-family: system-ui, sans-serif;
+            font-size: clamp(76px, 23vw, 108px);
+            font-weight: 800;
+            line-height: .95;
+            color: #f8fafc;
+            text-shadow: 0 0 24px rgba(255, 255, 255, .12);
+            animation: numberPop .35s ease-out;
+        }
+
+        .countdown-unit {
+            font-size: 20px;
+            font-weight: 500;
+            color: #a1a1aa;
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        @keyframes popupAppear {
+            from { transform: scale(.82); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes numberPop {
+            from { transform: scale(1.14); opacity: .4; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes orbitGlow {
+            from { opacity: .65; transform: scale(.85); }
+            to { opacity: 1; transform: scale(1.15); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .countdown-popup,
+            .countdown-popup::after,
+            .countdown-number {
+                animation: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -176,7 +291,6 @@
 
     <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl border-x border-slate-800 relative overflow-hidden">
 
-        <!-- Header -->
         <header class="p-4 custom-gradient flex justify-between items-center shadow-lg">
             <h1 class="text-lg font-extrabold text-white tracking-wider">W 1XBET</h1>
 
@@ -186,13 +300,10 @@
             </div>
         </header>
 
-        <!-- Main Game Area -->
         <main class="p-3 flex-1 overflow-y-auto pb-10">
 
-            <!-- ONE MAIN CARD -->
             <div class="main-game-card">
 
-                <!-- Time Mode Selection -->
                 <div class="game-section grid grid-cols-4 gap-2">
 
                     <button onclick="changeGameMode(10, '10s')" id="mode-10s"
@@ -221,9 +332,7 @@
 
                 </div>
 
-                <!-- Timer & Period -->
                 <div class="game-section bg-slate-950 p-4 rounded-2xl flex justify-between items-center border border-slate-800 shadow-inner">
-
                     <div>
                         <p class="text-[11px] text-slate-400">Period No</p>
                         <p id="period-number" class="font-mono font-bold text-amber-400 text-xs">
@@ -237,12 +346,9 @@
                             00:30
                         </p>
                     </div>
-
                 </div>
 
-                <!-- Color Betting Buttons -->
                 <div class="game-section grid grid-cols-3 gap-2">
-
                     <button onclick="openBetModal('Green')"
                         class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">
                         Green
@@ -257,18 +363,14 @@
                         class="bg-rose-600 hover:bg-rose-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">
                         Red
                     </button>
-
                 </div>
 
-                <!-- Number Selection -->
                 <div class="game-section bg-slate-950 p-3 rounded-2xl border border-slate-800">
-
                     <p class="text-[11px] text-slate-400 mb-3 text-center">
                         Select Number (Payout 9x)
                     </p>
 
                     <div class="grid grid-cols-5 gap-2">
-
                         <button onclick="openBetModal('0')" class="number-button violet-sphere active:scale-95 rounded-xl font-black transition">0</button>
                         <button onclick="openBetModal('1')" class="number-button green-sphere active:scale-95 rounded-xl font-black transition">1</button>
                         <button onclick="openBetModal('2')" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition">2</button>
@@ -280,13 +382,10 @@
                         <button onclick="openBetModal('7')" class="number-button green-sphere active:scale-95 rounded-xl font-black transition">7</button>
                         <button onclick="openBetModal('8')" class="number-button ruby-sphere active:scale-95 rounded-xl font-black transition">8</button>
                         <button onclick="openBetModal('9')" class="number-button green-sphere active:scale-95 rounded-xl font-black transition">9</button>
-
                     </div>
                 </div>
 
-                <!-- Big & Small -->
                 <div class="game-section grid grid-cols-2 gap-2">
-
                     <button onclick="openBetModal('Big')"
                         class="bg-amber-600 hover:bg-amber-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white">
                         Big (1.9x)
@@ -296,10 +395,8 @@
                         class="bg-blue-600 hover:bg-blue-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white">
                         Small (1.9x)
                     </button>
-
                 </div>
 
-                <!-- Game Status / Result -->
                 <div class="game-section bg-slate-950 p-3 rounded-xl border border-slate-800 text-center">
                     <div id="game-status-text" class="text-xs font-semibold text-slate-300">
                         Place your bet before timer ends...
@@ -308,12 +405,8 @@
 
             </div>
 
-            <!-- History Card -->
             <div class="bg-slate-950 rounded-2xl border border-slate-800 p-3 mt-3">
-
-                <!-- Tab Buttons -->
                 <div class="flex border-b border-slate-800 pb-2 mb-3 gap-2">
-
                     <button onclick="switchTab('game-history')" id="tab-game-history"
                         class="flex-1 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white transition">
                         Game History
@@ -328,32 +421,26 @@
                         class="flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">
                         My History
                     </button>
-
                 </div>
 
-                <!-- Tab Content -->
                 <div id="tab-content" class="max-h-96 overflow-auto text-xs">
                     <p class="text-center text-slate-500 py-3">Loading...</p>
                 </div>
-
             </div>
 
         </main>
     </div>
 
-    <!-- Big Countdown Overlay -->
+    <!-- Updated Round Countdown Popup -->
     <div id="big-countdown-overlay"
-        class="fixed inset-0 bg-black/85 backdrop-blur-md hidden justify-center items-center z-50">
+        class="fixed inset-0 hidden items-center justify-center">
 
-        <div class="text-center flex flex-col items-center">
-            <p class="text-amber-400 text-xl font-bold mb-4 tracking-widest uppercase animate-bounce">
-                Round Ending Soon
-            </p>
+        <div class="countdown-popup">
+            <p class="countdown-caption">Round Ending Soon</p>
 
-            <div id="big-number-display"
-                class="text-white font-mono font-black text-9xl animate-pulse text-rose-500 drop-shadow-[0_0_50px_rgba(244,63,94,0.9)]">
-                5
-            </div>
+            <div id="big-number-display" class="countdown-number">5</div>
+
+            <div class="countdown-unit">sec</div>
         </div>
 
     </div>
@@ -363,7 +450,6 @@
         class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden justify-center items-center z-50 p-4">
 
         <div class="bg-slate-900 border border-slate-800 w-full max-w-xs p-5 rounded-2xl shadow-2xl flex flex-col gap-4">
-
             <h3 class="text-sm font-bold text-slate-300">
                 Place Bet on:
                 <span id="modal-target" class="text-amber-400 font-extrabold text-base"></span>
@@ -387,7 +473,6 @@
                     Confirm
                 </button>
             </div>
-
         </div>
     </div>
 
@@ -396,7 +481,6 @@
         class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
 
         <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center">
-
             <div class="w-16 h-16 bg-amber-400 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-10 mb-2 animate-bounce">
                 <span class="text-2xl">🎉</span>
             </div>
@@ -424,11 +508,9 @@
                 class="mt-5 w-full bg-slate-900 hover:bg-slate-950 text-white py-3 rounded-xl font-bold shadow-lg transition text-sm border border-slate-700">
                 Collect & Continue
             </button>
-
         </div>
     </div>
 
-    <!-- Game Logic Script -->
     <script>
         let currentUser = null;
         let userProfile = null;
@@ -479,47 +561,55 @@
             startTimer();
         }
 
+        /* Updated timer: popup appears during the final 5 seconds */
         function startTimer() {
             clearInterval(timerInterval);
+
             timerSeconds = selectedGameDuration;
 
-            let overlay = document.getElementById("big-countdown-overlay");
+            const overlay = document.getElementById("big-countdown-overlay");
+            const numDisp = document.getElementById("big-number-display");
+            const timerElem = document.getElementById("countdown-timer");
 
             if (overlay) {
                 overlay.classList.add("hidden");
                 overlay.classList.remove("flex");
             }
 
-            let timerElem = document.getElementById("countdown-timer");
-            let min = Math.floor(timerSeconds / 60);
-            let sec = timerSeconds % 60;
-
-            if (timerElem) {
-                timerElem.innerText = min > 0
-                    ? `${min}:${sec < 10 ? '0' : ''}${sec}`
-                    : `00:${sec < 10 ? '0' : ''}${sec}`;
-            }
-
-            timerInterval = setInterval(() => {
-                timerSeconds--;
-
-                let min = Math.floor(timerSeconds / 60);
-                let sec = timerSeconds % 60;
-
-                let displayTime = min > 0
-                    ? `${min}:${sec < 10 ? '0' : ''}${sec}`
-                    : `00:${sec < 10 ? '0' : ''}${sec}`;
+            function updateMainTimer() {
+                const min = Math.floor(timerSeconds / 60);
+                const sec = timerSeconds % 60;
 
                 if (timerElem) {
-                    timerElem.innerText = displayTime;
+                    timerElem.innerText = min > 0
+                        ? `${min}:${sec < 10 ? '0' : ''}${sec}`
+                        : `00:${sec < 10 ? '0' : ''}${sec}`;
                 }
+            }
+
+            updateMainTimer();
+
+            timerInterval = setInterval(() => {
+                timerSeconds = Math.max(0, timerSeconds - 1);
+
+                updateMainTimer();
 
                 if (timerSeconds <= 5 && timerSeconds > 0) {
-                    let numDisp = document.getElementById("big-number-display");
+                    if (numDisp) {
+                        numDisp.innerText = timerSeconds;
 
-                    if (numDisp) numDisp.innerText = timerSeconds;
+                        // Restart the number animation each second
+                        numDisp.style.animation = "none";
+                        void numDisp.offsetWidth;
+                        numDisp.style.animation = "numberPop .35s ease-out";
+                    }
 
                     if (overlay) {
+                        overlay.style.setProperty(
+                            "--countdown-progress",
+                            `${(timerSeconds / 5) * 100}%`
+                        );
+
                         overlay.classList.remove("hidden");
                         overlay.classList.add("flex");
                     }
@@ -556,7 +646,6 @@
             loadHistoryData(tabName);
         }
 
-        // Safe display of database text
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, char => ({
                 '&': '&amp;',
@@ -567,7 +656,6 @@
             })[char]);
         }
 
-        // Read the result saved in winning_result, for example Green-7
         function getSavedBetResult(row) {
             let savedResult = String(row.winning_result || '');
             let resultMatch = savedResult.match(/(Green|Red|Violet)\s*[-:]\s*(\d)/i);
@@ -578,8 +666,9 @@
 
             let number = resultMatch
                 ? Number(resultMatch[2])
-                : (row.winning_number !== null && row.winning_number !== undefined
-                    && row.winning_number !== ''
+                : (row.winning_number !== null &&
+                   row.winning_number !== undefined &&
+                   row.winning_number !== ''
                     ? Number(row.winning_number)
                     : null);
 
@@ -604,11 +693,12 @@
                 number,
                 bigSmall,
                 colorClass,
-                hasResult: number !== null && Number.isFinite(number) && color !== ''
+                hasResult: number !== null &&
+                           Number.isFinite(number) &&
+                           color !== ''
             };
         }
 
-        // Format saved date/time in Bangladesh time
         function formatHistoryDate(dateValue) {
             if (!dateValue) return { date: 'N/A', time: 'N/A' };
 
@@ -688,7 +778,6 @@
 
             } else if (type === 'my-history') {
 
-                // User's own bets, including completed wins and losses
                 let { data, error } = await supabaseClient
                     .from("color_game_history")
                     .select("*")
@@ -748,7 +837,6 @@
                             ? 'LOSS'
                             : 'PENDING';
 
-                    // Read actual result saved when the round was processed
                     let result = getSavedBetResult(row);
 
                     let resultNumberHtml = result.hasResult
@@ -795,17 +883,9 @@
                                 ${statusLabel}
                             </td>
 
-                            <td>
-                                ${resultNumberHtml}
-                            </td>
-
-                            <td>
-                                ${resultColorHtml}
-                            </td>
-
-                            <td>
-                                ${bigSmallHtml}
-                            </td>
+                            <td>${resultNumberHtml}</td>
+                            <td>${resultColorHtml}</td>
+                            <td>${bigSmallHtml}</td>
 
                             <td class="date-cell">
                                 <div>${escapeHtml(dateTime.date)}</div>
@@ -898,7 +978,6 @@
 
             if (betInsertError) {
                 console.error("Bet history insert error:", betInsertError);
-
                 alert("Bet history could not be saved. Please contact support.");
                 return;
             }
