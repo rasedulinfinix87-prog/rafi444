@@ -120,7 +120,6 @@
             text-align: left;
         }
 
-        /* Period number uses the same digital style as the timer */
         .period-number-display {
             display: flex;
             align-items: center;
@@ -271,7 +270,6 @@
             50% { opacity: .72; }
         }
 
-        /* Winning selection blinks exactly 3 times */
         .winning-blink {
             position: relative;
             z-index: 2;
@@ -299,6 +297,47 @@
                     0 0 28px var(--win-glow, white);
                 outline: 2px solid var(--win-glow, white);
                 outline-offset: 2px;
+            }
+        }
+
+        /* Receipt Slot Animation CSS */
+        .receipt-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            padding-top: 10px;
+        }
+
+        .receipt-slot-bar {
+            width: 100%;
+            height: 12px;
+            background: #991b1b;
+            border-radius: 6px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+            position: relative;
+            z-index: 10;
+        }
+
+        .receipt-slip {
+            background: #ffffff;
+            color: #0f172a;
+            width: 90%;
+            margin: 0 auto;
+            border-radius: 0 0 12px 12px;
+            padding: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 5;
+            transform: translateY(-120%);
+            animation: slipPrint 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes slipPrint {
+            0% {
+                transform: translateY(-120%);
+            }
+            100% {
+                transform: translateY(0);
             }
         }
 
@@ -389,62 +428,6 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             border-radius: 8px;
-        }
-
-        @media (max-width: 380px) {
-            .period-timer-card {
-                padding: 10px;
-                gap: 8px;
-                grid-template-columns: minmax(0, 1fr) auto;
-            }
-
-            .period-heading {
-                font-size: 9px;
-                letter-spacing: .3px;
-            }
-
-            .period-digit {
-                height: 30px;
-                font-size: 10px;
-                border-radius: 4px;
-            }
-
-            .timer-digit {
-                width: 21px;
-                height: 34px;
-                font-size: 20px;
-            }
-
-            .timer-colon { font-size: 20px; }
-
-            .timer-label {
-                font-size: 8px;
-                letter-spacing: .2px;
-                padding: 5px 6px;
-                gap: 4px;
-            }
-        }
-
-        @media (max-width: 320px) {
-            .period-timer-card {
-                grid-template-columns: minmax(0, 1fr);
-            }
-
-            .period-info { width: 100%; }
-
-            .period-number-display { gap: 3px; }
-
-            .period-digit {
-                flex: 1 1 0;
-                height: 34px;
-                font-size: 13px;
-            }
-
-            .timer-digit {
-                width: 27px;
-                height: 38px;
-                font-size: 23px;
-            }
         }
     </style>
 </head>
@@ -629,37 +612,41 @@
         </div>
     </div>
 
-    <!-- Win Congratulations Popup -->
+    <!-- Win Congratulations Popup with Receipt Slot Animation -->
     <div id="win-modal"
         class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
 
-        <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center">
+        <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center overflow-hidden">
 
-            <div class="w-16 h-16 bg-amber-400 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-10 mb-2 animate-bounce">
+            <div class="w-16 h-16 bg-amber-400 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-4 mb-1 animate-bounce z-20">
                 <span class="text-2xl">🎉</span>
             </div>
 
-            <h2 class="text-2xl font-black text-white tracking-wider drop-shadow-md">
+            <h2 class="text-2xl font-black text-white tracking-wider drop-shadow-md z-20">
                 Congratulations
             </h2>
 
-            <p class="text-xs text-white/90 mb-2">You have won the trade!</p>
+            <p class="text-xs text-white/90 mb-2 z-20">You have won the trade!</p>
 
-            <div class="flex items-center gap-2 my-2">
+            <div class="flex items-center gap-2 my-2 z-20">
                 <span class="text-xs text-white/80">Result:</span>
                 <span id="win-res-badge" class="px-3 py-1 bg-rose-700 text-white font-bold rounded-full text-xs border border-white/20">Red</span>
                 <span id="win-res-num" class="w-6 h-6 bg-amber-500 rounded-full text-white font-bold text-xs flex items-center justify-center">8</span>
                 <span id="win-res-bs" class="px-2 py-0.5 bg-blue-600 text-white rounded font-bold text-xs">Big</span>
             </div>
 
-            <div class="w-full bg-white text-slate-900 rounded-2xl p-4 shadow-inner mt-2 flex flex-col items-center">
-                <p class="text-xs text-slate-400 uppercase font-semibold">Winning Bonus</p>
-                <p id="win-bonus-amount" class="text-3xl font-black text-rose-600 my-1 font-mono">৳0.00</p>
-                <p id="win-period-text" class="text-[11px] text-slate-500 font-mono">Period: 2026101501</p>
+            <!-- Receipt Slot Animation Container -->
+            <div class="receipt-container w-full z-20">
+                <div class="receipt-slot-bar"></div>
+                <div class="receipt-slip">
+                    <p class="text-xs text-slate-400 uppercase font-semibold">Winning Bonus</p>
+                    <p id="win-bonus-amount" class="text-3xl font-black text-rose-600 my-1 font-mono">৳0.00</p>
+                    <p id="win-period-text" class="text-[11px] text-slate-500 font-mono">Period: 2026101501</p>
+                </div>
             </div>
 
             <button onclick="closeWinModal()"
-                class="mt-5 w-full bg-slate-900 hover:bg-slate-950 text-white py-3 rounded-xl font-bold shadow-lg transition text-sm border border-slate-700">
+                class="mt-5 w-full bg-slate-900 hover:bg-slate-950 text-white py-3 rounded-xl font-bold shadow-lg transition text-sm border border-slate-700 z-20">
                 Collect & Continue
             </button>
         </div>
@@ -673,8 +660,6 @@
         let timerSeconds = 30;
         let timerInterval = null;
         let selectedTarget = null;
-
-        // null means all history panels are closed
         let activeTab = 'game-history';
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -719,7 +704,6 @@
             startTimer();
         }
 
-        /* Render each period digit using the timer's digital design */
         function renderPeriodNumber() {
             const element = document.getElementById("period-number");
             if (!element) return;
@@ -775,7 +759,6 @@
                 if (highlightClass) {
                     button.classList.add('winning-blink', highlightClass);
 
-                    // Remove highlight after the 3rd blink has finished
                     button.addEventListener('animationend', function removeBlink(event) {
                         if (event.animationName !== 'winningBlink') return;
 
@@ -849,7 +832,6 @@
             }, 1000);
         }
 
-        /* Clicking an already-open tab closes it */
         function switchTab(tabName) {
             const container = document.getElementById("tab-content");
 
@@ -1155,7 +1137,7 @@
         }
 
         function closeWinModal() {
-            document.getElementById("win-modal").classList.remove("flex");
+            document.getElementById("win-modal").classList.remove("hidden");
             document.getElementById("win-modal").classList.add("hidden");
         }
 
@@ -1398,7 +1380,6 @@
             document.getElementById("game-status-text").innerText =
                 `Result: ${winningResultString} (${winningBigSmall})`;
 
-            // Blink winning color, number and Big/Small exactly 3 times
             highlightWinningTargets(
                 winningColor,
                 winningNumber,
@@ -1424,10 +1405,8 @@
 
             currentPeriodNumber = String(parseInt(currentPeriodNumber, 10) + 1);
 
-            // Update the digital period display
             renderPeriodNumber();
 
-            // Refresh only when a history panel is open
             if (activeTab) {
                 loadHistoryData(activeTab);
             }
