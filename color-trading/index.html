@@ -959,11 +959,31 @@
 
             if (currentUser) {
                 await loadUserProfile();
+                await ensureCurrentPeriodExists();
                 startTimer();
                 loadHistoryData('game-history');
                 initRealtimeSubscription();
             }
         });
+
+        // Ensure current period exists in database at startup or new round
+        async function ensureCurrentPeriodExists() {
+            let { data: periodData } = await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq("period_number", currentPeriodNumber)
+                .maybeSingle();
+
+            if (!periodData) {
+                await supabaseClient.from("color_periods").insert([{
+                    period_number: currentPeriodNumber,
+                    total_green_amount: 0,
+                    total_red_amount: 0,
+                    total_violet_amount: 0,
+                    status: 'pending'
+                }]);
+            }
+        }
 
         // Supabase Realtime Subscription & Mobile Auto-Refresh Fallback
         function initRealtimeSubscription() {
@@ -1194,7 +1214,7 @@
             }
         }
 
-        function changeGameMode(duration, modeKey) {
+        async function changeGameMode(duration, modeKey) {
             selectedGameDuration = duration;
             timerSeconds = duration;
             currentRoundTotalBet = 0;
@@ -1217,6 +1237,7 @@
                 }
             });
 
+            await ensureCurrentPeriodExists();
             startTimer();
         }
 
@@ -1958,6 +1979,8 @@
             currentPeriodNumber = String(parseInt(currentPeriodNumber, 10) + 1);
 
             renderPeriodNumber();
+
+            await ensureCurrentPeriodExists();
 
             if (activeTab) {
                 loadHistoryData(activeTab);
