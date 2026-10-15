@@ -12,14 +12,10 @@
     <script src="../supabase-config.js"></script>
     
     <style>
-        /* কাস্টম স্টাইলসমূহ */
         body {
             background-color: #030712;
             color: #f3f4f6;
             font-family: system-ui, -apple-system, sans-serif;
-        }
-        .animate-pulse-fast {
-            animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
     </style>
 </head>
@@ -52,29 +48,29 @@
 
             <!-- Color Betting Buttons -->
             <div class="grid grid-cols-3 gap-3">
-                <button onclick="openBetModal('Green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Green</button>
-                <button onclick="openBetModal('Violet')" class="bg-purple-600 hover:bg-purple-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Violet</button>
-                <button onclick="openBetModal('Red')" class="bg-rose-600 hover:bg-rose-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Red</button>
+                <button onclick="openBetModal('Green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Green (2x)</button>
+                <button onclick="openBetModal('Violet')" class="bg-purple-600 hover:bg-purple-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Violet (4.5x)</button>
+                <button onclick="openBetModal('Red')" class="bg-rose-600 hover:bg-rose-500 active:scale-95 py-3.5 rounded-xl font-bold shadow-lg transition text-white">Red (1.9x)</button>
             </div>
 
-            <!-- Number Selection (0-9) -->
+            <!-- Number Selection (0-9 সাজানো বিন্যাস) -->
             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                <p class="text-xs text-slate-400 mb-3">Select Number (Payout 9x)</p>
+                <p class="text-xs text-slate-400 mb-3 text-center">Select Number (Payout 9x)</p>
                 <div class="grid grid-cols-5 gap-2.5">
-                    <button onclick="openBetModal('1')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-2.5 rounded-lg font-bold transition">1</button>
-                    <button onclick="openBetModal('2')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-2.5 rounded-lg font-bold transition">2</button>
-                    <button onclick="openBetModal('3')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-2.5 rounded-lg font-bold transition">3</button>
-                    <button onclick="openBetModal('4')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-2.5 rounded-lg font-bold transition">4</button>
-                    <button onclick="openBetModal('5')" class="bg-slate-800 hover:bg-purple-700 active:scale-95 py-2.5 rounded-lg font-bold transition">5</button>
-                    <button onclick="openBetModal('6')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-2.5 rounded-lg font-bold transition">6</button>
-                    <button onclick="openBetModal('7')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-2.5 rounded-lg font-bold transition">7</button>
-                    <button onclick="openBetModal('8')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-2.5 rounded-lg font-bold transition">8</button>
-                    <button onclick="openBetModal('9')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-2.5 rounded-lg font-bold transition">9</button>
-                    <button onclick="openBetModal('0')" class="bg-slate-800 hover:bg-purple-700 active:scale-95 py-2.5 rounded-lg font-bold transition col-span-2">0</button>
+                    <button onclick="openBetModal('0')" class="bg-slate-800 hover:bg-purple-700 active:scale-95 py-3 rounded-lg font-bold transition text-purple-300 border border-purple-900/50">0</button>
+                    <button onclick="openBetModal('1')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-3 rounded-lg font-bold transition text-emerald-300 border border-emerald-900/50">1</button>
+                    <button onclick="openBetModal('2')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-3 rounded-lg font-bold transition text-rose-300 border border-rose-900/50">2</button>
+                    <button onclick="openBetModal('3')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-3 rounded-lg font-bold transition text-emerald-300 border border-emerald-900/50">3</button>
+                    <button onclick="openBetModal('4')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-3 rounded-lg font-bold transition text-rose-300 border border-rose-900/50">4</button>
+                    <button onclick="openBetModal('5')" class="bg-slate-800 hover:bg-purple-700 active:scale-95 py-3 rounded-lg font-bold transition text-purple-300 border border-purple-900/50">5</button>
+                    <button onclick="openBetModal('6')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-3 rounded-lg font-bold transition text-rose-300 border border-rose-900/50">6</button>
+                    <button onclick="openBetModal('7')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-3 rounded-lg font-bold transition text-emerald-300 border border-emerald-900/50">7</button>
+                    <button onclick="openBetModal('8')" class="bg-slate-800 hover:bg-rose-700 active:scale-95 py-3 rounded-lg font-bold transition text-rose-300 border border-rose-900/50">8</button>
+                    <button onclick="openBetModal('9')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 py-3 rounded-lg font-bold transition text-emerald-300 border border-emerald-900/50">9</button>
                 </div>
             </div>
 
-            <!-- Game Status / Recent Result Box -->
+            <!-- Game Status Box -->
             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
                 <h3 class="text-xs text-slate-400 mb-2">Game Status</h3>
                 <div id="game-status-text" class="text-sm font-semibold text-amber-200">
@@ -119,7 +115,6 @@
         let timerInterval = null;
         let selectedTarget = null;
 
-        // ইনিশিয়ালাইজেশন
         document.addEventListener("DOMContentLoaded", async () => {
             currentUser = await requireAuth();
             if (currentUser) {
@@ -128,7 +123,6 @@
             }
         });
 
-        // প্রোফাইল লোড করা ও ব্যালেন্স দেখানো
         async function loadUserProfile() {
             userProfile = await getUserProfile(currentUser.id);
             if (userProfile) {
@@ -136,7 +130,6 @@
             }
         }
 
-        // কাউন্টডাউন টাইমার
         function startTimer() {
             clearInterval(timerInterval);
             timerSeconds = 30;
@@ -153,7 +146,6 @@
             }, 1000);
         }
 
-        // বেট পপআপ ওপেন করা
         function openBetModal(target) {
             selectedTarget = target;
             document.getElementById("modal-target").innerText = target;
@@ -161,13 +153,11 @@
             document.getElementById("bet-modal").classList.add("flex");
         }
 
-        // বেট পপআপ ক্লোজ করা
         function closeBetModal() {
             document.getElementById("bet-modal").classList.remove("flex");
             document.getElementById("bet-modal").classList.add("hidden");
         }
 
-        // বেট কনফার্ম ও ডাটাবেসে সেভ করার লজিক
         async function confirmAndPlaceBet() {
             let amount = parseFloat(document.getElementById("bet-amount-input").value);
 
@@ -181,10 +171,8 @@
                 return;
             }
 
-            // নতুন ব্যালেন্স হিসাব করা
             let newBalance = userProfile.balance - amount;
 
-            // ১. প্রফাইল ব্যালেন্স আপডেট করা Supabase-এ
             const { error: profileError } = await supabaseClient
                 .from("profiles")
                 .update({ balance: newBalance })
@@ -196,29 +184,24 @@
                 return;
             }
 
-            // লোকাল অবজেক্ট আপডেট
             userProfile.balance = newBalance;
             document.getElementById("user-balance").innerText = newBalance.toFixed(2);
 
-            // ২. color_game_history টেবিলে বেট এন্ট্রি করা
             await supabaseClient.from("color_game_history").insert([{
                 user_id: currentUser.id,
                 period_number: currentPeriodNumber,
                 bet_type: selectedTarget,
                 bet_amount: amount,
                 status: 'pending'
-            }]),
+            }]);
 
-            // ৩. color_periods টেবিলে মোট এমাউন্ট আপডেট করা (Least Exposure লজিকের জন্য)
             await updatePeriodAmounts(amount, selectedTarget);
 
             closeBetModal();
             document.getElementById("game-status-text").innerText = `Bet placed successfully on ${selectedTarget} (৳${amount})!`;
         }
 
-        // পিরিয়ড টেবিলে অ্যামাউন্ট যোগ করার ফাংশন
         async function updatePeriodAmounts(amount, target) {
-            // প্রথমে চেক করা বর্তমান পিরিয়ড ডেটাবেজে আছে কি না
             let { data: periodData } = await supabaseClient
                 .from("color_periods")
                 .select("*")
@@ -226,7 +209,6 @@
                 .maybeSingle();
 
             if (!periodData) {
-                // না থাকলে নতুন পিরিয়ড রো তৈরি করা
                 await supabaseClient.from("color_periods").insert([{
                     period_number: currentPeriodNumber,
                     total_green_amount: target === 'Green' ? amount : 0,
@@ -235,7 +217,6 @@
                     status: 'pending'
                 }]);
             } else {
-                // থাকলে আপডেট করা
                 let updateField = {};
                 if (target === 'Green') updateField.total_green_amount = Number(periodData.total_green_amount) + amount;
                 else if (target === 'Red') updateField.total_red_amount = Number(periodData.total_red_amount) + amount;
@@ -248,11 +229,9 @@
             }
         }
 
-        // রাউন্ড রেজাল্ট ও কোম্পানির লাভজনক লজিক (Least Exposure Logic)
         async function processRoundResult() {
             document.getElementById("game-status-text").innerText = "Calculating result...";
 
-            // ডেটাবেজ থেকে বর্তমান পিরিয়ডের বেট এমাউন্টগুলো আনা
             let { data: periodData } = await supabaseClient
                 .from("color_periods")
                 .select("*")
@@ -263,7 +242,6 @@
             let red = periodData ? Number(periodData.total_red_amount) : 0;
             let violet = periodData ? Number(periodData.total_violet_amount) : 0;
 
-            // কোম্পানির লজিক: যে কালারে ইউজারের বেট সবচেয়ে কম, সেই কালারকেই বিজয়ী করা হবে
             let winningColor = 'Green';
             if (green === 0 && red === 0 && violet === 0) {
                 const randomColors = ['Green', 'Red', 'Green', 'Red', 'Violet'];
@@ -274,7 +252,6 @@
                 else winningColor = 'Violet';
             }
 
-            // কালারের সাথে সামঞ্জস্য রেখে নাম্বার ঠিক করা
             let numbersMap = {
                 Green: [1, 3, 7, 9],
                 Red: [2, 4, 6, 8],
@@ -284,13 +261,11 @@
             let winningNumber = possibleNums[Math.floor(Math.random() * possibleNums.length)];
             let winningResultString = `${winningColor}-${winningNumber}`;
 
-            // পিরিয়ড স্ট্যাটাস আপডেট করা
             await supabaseClient
                 .from("color_periods")
                 .update({ winning_color: winningColor, winning_number: winningNumber, status: 'completed' })
                 .eq("period_number", currentPeriodNumber);
 
-            // এই পিরিয়ডের সমস্ত বেট চেক করে উইনারদের পে-আউট দেওয়া
             let { data: allBets } = await supabaseClient
                 .from("color_game_history")
                 .select("*")
@@ -300,25 +275,31 @@
             if (allBets && allBets.length > 0) {
                 for (let bet of allBets) {
                     let isWin = false;
-                    let multiplier = 2; // ডিফল্ট কালার মাল্টিপ্লায়ার
+                    let multiplier = 2; // ডিফল্ট Green এর জন্য 2x
 
+                    if (bet.bet_type === 'Red') {
+                        multiplier = 1.9;
+                    } else if (bet.bet_type === 'Violet') {
+                        multiplier = 4.5;
+                    } else if (!isNaN(bet.bet_type)) {
+                        multiplier = 9; // নির্দিষ্ট নাম্বারের জন্য 9x
+                    }
+
+                    // উইনিং ম্যাচিং চেক
                     if (bet.bet_type === winningColor) {
                         isWin = true;
                     } else if (bet.bet_type === String(winningNumber)) {
                         isWin = true;
-                        multiplier = 9; // নাম্বার মিললে ৯ গুণ
                     }
 
                     if (isWin) {
                         let payoutAmount = bet.bet_amount * multiplier;
                         
-                        // হিস্ট্রি টেবিল আপডেট
                         await supabaseClient
                             .from("color_game_history")
                             .update({ winning_result: winningResultString, payout: payoutAmount, status: 'win' })
                             .eq("id", bet.id);
 
-                        // ইউজারের ব্যালেন্স উইনিং এমাউন্টসহ যোগ করা
                         let { data: targetProfile } = await supabaseClient
                             .from("profiles")
                             .select("balance")
@@ -333,7 +314,6 @@
                                 .eq("id", bet.user_id);
                         }
                     } else {
-                        // হেরে গেলে লস আপডেট
                         await supabaseClient
                             .from("color_game_history")
                             .update({ winning_result: winningResultString, payout: 0, status: 'loss' })
@@ -344,14 +324,11 @@
 
             document.getElementById("game-status-text").innerText = `Result: ${winningResultString}. New round starting...`;
 
-            // ব্যালেন্স রিফ্রেশ করা
             await loadUserProfile();
 
-            // পরবর্তী রাউন্ডের জন্য পিরিয়ড নম্বর বাড়িয়ে দেওয়া
             currentPeriodNumber = String(parseInt(currentPeriodNumber) + 1);
             document.getElementById("period-number").innerText = currentPeriodNumber;
 
-            // আবার টাইমার শুরু করা
             setTimeout(() => {
                 startTimer();
             }, 2000);
