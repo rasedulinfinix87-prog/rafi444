@@ -539,7 +539,7 @@
             border-radius: 8px;
         }
 
-        /* Chips & Action Buttons Styling */
+        /* Chips & Action Buttons Styling (Borderless Real Casino Chips style) */
         .chips-container {
             display: flex;
             align-items: center;
@@ -547,7 +547,7 @@
             background: #0b1329;
             padding: 8px 10px;
             border-radius: 16px;
-            border: 1px solid #1e293b;
+            border: none;
             gap: 6px;
             overflow-x: auto;
         }
@@ -568,7 +568,7 @@
             font-size: 12px;
             font-weight: bold;
             background: #1e293b;
-            border: 1px solid #334155;
+            border: none;
             color: #cbd5e1;
             cursor: pointer;
             transition: all 0.2s;
@@ -582,9 +582,10 @@
             overflow-x: auto;
         }
 
+        /* Realistic Casino Poker Chip Style matching reference image */
         .chip-item {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -592,34 +593,65 @@
             font-size: 10px;
             font-weight: 900;
             cursor: pointer;
-            border: 2px dashed rgba(255,255,255,0.6);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -3px 5px rgba(0,0,0,0.6);
             transition: transform 0.1s, box-shadow 0.2s;
             flex-shrink: 0;
             color: white;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+            position: relative;
         }
 
         .chip-item:active { transform: scale(0.92); }
         .chip-item.selected-chip {
-            border: 3px solid #facc15;
-            box-shadow: 0 0 12px rgba(250, 204, 21, 0.8);
-            transform: scale(1.08);
+            box-shadow: 0 0 12px #facc15, inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -3px 5px rgba(0,0,0,0.6);
+            transform: scale(1.1);
         }
 
-        /* Chip Colors */
-        .chip-20 { background: radial-gradient(circle at 30% 30%, #38bdf8, #0284c7); }
-        .chip-50 { background: radial-gradient(circle at 30% 30%, #4ade80, #16a34a); }
-        .chip-100 { background: radial-gradient(circle at 30% 30%, #f43f5e, #e11d48); }
-        .chip-500 { background: radial-gradient(circle at 30% 30%, #a855f7, #7c3aed); }
-        .chip-1k { background: radial-gradient(circle at 30% 30%, #fbbf24, #d97706); }
-        .chip-10k { background: radial-gradient(circle at 30% 30%, #fb7185, #881337); }
+        /* Precise Casino Chip Colors with striped edge simulation */
+        .chip-20 {
+            background: radial-gradient(circle, #0284c7 42%, #ffffff 43%, #ffffff 58%, #0284c7 59%);
+        }
+        .chip-50 {
+            background: radial-gradient(circle, #16a34a 42%, #ffffff 43%, #ffffff 58%, #16a34a 59%);
+        }
+        .chip-100 {
+            background: radial-gradient(circle, #e11d48 42%, #ffffff 43%, #ffffff 58%, #e11d48 59%);
+        }
+        .chip-500 {
+            background: radial-gradient(circle, #7c3aed 42%, #ffffff 43%, #ffffff 58%, #7c3aed 59%);
+        }
+        .chip-1k {
+            background: radial-gradient(circle, #d97706 42%, #ffffff 43%, #ffffff 58%, #d97706 59%);
+        }
+        .chip-10k {
+            background: radial-gradient(circle, #881337 42%, #ffffff 43%, #ffffff 58%, #881337 59%);
+        }
+
+        /* Bottom Fixed Thin Bar Styling */
+        .bottom-fixed-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 28rem;
+            background: rgba(8, 13, 32, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #1e293b;
+            padding: 6px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 40;
+            font-size: 11px;
+        }
     </style>
 </head>
 
 <body class="flex justify-center items-center min-h-screen bg-slate-950">
 
-    <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl border-x border-slate-800 relative overflow-hidden">
+    <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl border-x border-slate-800 relative overflow-hidden pb-12">
 
         <header class="p-4 custom-gradient flex justify-between items-center shadow-lg">
             <h1 class="text-lg font-extrabold text-white tracking-wider">W 1XBET</h1>
@@ -630,7 +662,7 @@
             </div>
         </header>
 
-        <main class="p-3 flex-1 overflow-y-auto pb-10">
+        <main class="p-3 flex-1 overflow-y-auto pb-16">
 
             <div class="main-game-card">
 
@@ -787,6 +819,18 @@
             </div>
 
         </main>
+
+        <!-- Bottom Fixed Thin Bar -->
+        <div class="bottom-fixed-bar">
+            <div>
+                <span class="text-slate-400">Balance:</span> 
+                <span class="text-emerald-400 font-mono font-bold">৳<span id="bar-user-balance">0.00</span></span>
+            </div>
+            <div>
+                <span class="text-slate-400">Total Bet:</span> 
+                <span class="text-amber-400 font-mono font-bold">৳<span id="bar-total-bet">0.00</span></span>
+            </div>
+        </div>
     </div>
 
     <!-- Bet Modal -->
@@ -803,7 +847,7 @@
                 <label class="text-[11px] text-slate-400 block mb-1">Enter Amount (৳)</label>
                 <input type="number" id="bet-amount-input"
                     class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-amber-400"
-                    value="100">
+                    value="20">
             </div>
 
             <div class="flex gap-2">
@@ -870,8 +914,9 @@
         let winModalTimeout = null;
 
         let activeTab = 'game-history';
-        let selectedChipAmount = 20; // Default selected chip
+        let selectedChipAmount = 20; 
         let lastPlacedBet = null;
+        let currentRoundTotalBet = 0;
 
         document.addEventListener("DOMContentLoaded", async () => {
             renderPeriodNumber();
@@ -890,7 +935,6 @@
             document.querySelectorAll('.chip-item').forEach(el => el.classList.remove('selected-chip'));
             element.classList.add('selected-chip');
             
-            // Update modal input value automatically based on selected chip
             const inputElem = document.getElementById("bet-amount-input");
             if(inputElem) {
                 inputElem.value = amount;
@@ -917,10 +961,9 @@
                 window.speechSynthesis.cancel();
                 let utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-US';
-                utterance.rate = 0.9;  // ধীর গতি (ভারী শোনানোর জন্য)
-                utterance.pitch = 0.4; // পিচ কমিয়ে গলা ডিপ ও মোটা করা
+                utterance.rate = 0.9;  
+                utterance.pitch = 0.4; 
 
-                // ডিপ বা পুরুষালী ভয়েস খোঁজার চেষ্টা
                 let voices = window.speechSynthesis.getVoices();
                 let maleVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Male') || v.name.includes('David') || v.name.includes('Mark') || v.name.includes('Google UK English Male')));
                 if (maleVoice) {
@@ -935,14 +978,17 @@
             userProfile = await getUserProfile(currentUser.id);
 
             if (userProfile) {
-                document.getElementById("user-balance").innerText =
-                    Number(userProfile.balance).toFixed(2);
+                let bal = Number(userProfile.balance).toFixed(2);
+                document.getElementById("user-balance").innerText = bal;
+                document.getElementById("bar-user-balance").innerText = bal;
             }
         }
 
         function changeGameMode(duration, modeKey) {
             selectedGameDuration = duration;
             timerSeconds = duration;
+            currentRoundTotalBet = 0;
+            document.getElementById("bar-total-bet").innerText = "0.00";
 
             ['15s', '30s', '1m', '5m'].forEach(key => {
                 let btn = document.getElementById(`mode-${key}`);
@@ -1387,7 +1433,6 @@
             selectedTarget = target;
 
             document.getElementById("modal-target").innerText = target;
-            // Automatically set input to currently selected chip value
             document.getElementById("bet-amount-input").value = selectedChipAmount;
             
             document.getElementById("bet-modal").classList.remove("hidden");
@@ -1445,9 +1490,12 @@
             }
 
             userProfile.balance = newBalance;
+            let bal = newBalance.toFixed(2);
+            document.getElementById("user-balance").innerText = bal;
+            document.getElementById("bar-user-balance").innerText = bal;
 
-            document.getElementById("user-balance").innerText =
-                newBalance.toFixed(2);
+            currentRoundTotalBet += amount;
+            document.getElementById("bar-total-bet").innerText = currentRoundTotalBet.toFixed(2);
 
             const { error: betInsertError } = await supabaseClient
                 .from("color_game_history")
@@ -1518,6 +1566,9 @@
         async function processRoundResult() {
             document.getElementById("game-status-text").innerText =
                 "Calculating result...";
+
+            currentRoundTotalBet = 0;
+            document.getElementById("bar-total-bet").innerText = "0.00";
 
             let { data: periodData } = await supabaseClient
                 .from("color_periods")
