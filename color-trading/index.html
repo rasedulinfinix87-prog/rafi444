@@ -167,122 +167,16 @@
             border-radius: 8px;
         }
 
-        /* NEW: Round countdown popup */
-        #big-countdown-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(0, 0, 0, .88);
-            -webkit-backdrop-filter: blur(12px);
-            backdrop-filter: blur(12px);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+        /* No More Bet timer appearance */
+        .no-more-bet {
+            color: #fb7185 !important;
+            font-size: 15px !important;
+            letter-spacing: .5px;
+            white-space: nowrap;
         }
 
-        .countdown-popup {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: min(82vw, 330px);
-            aspect-ratio: 1 / 1;
-            position: relative;
-            border-radius: 50%;
-            background:
-                radial-gradient(circle at 35% 25%, #252b35 0%, #171b23 55%, #10141c 100%);
-            border: 2px solid rgba(148, 163, 184, .16);
-            box-shadow:
-                0 0 30px rgba(100, 116, 139, .12),
-                inset 0 0 35px rgba(148, 163, 184, .08);
-            animation: popupAppear .35s ease-out;
-        }
-
-        .countdown-popup::before {
-            content: "";
-            position: absolute;
-            inset: -5px;
-            border-radius: 50%;
-            background: conic-gradient(
-                from -90deg,
-                #facc15 var(--countdown-progress, 100%),
-                rgba(148, 163, 184, .12) var(--countdown-progress, 100%)
-            );
-            -webkit-mask: radial-gradient(
-                farthest-side,
-                transparent calc(100% - 5px),
-                #000 calc(100% - 4px)
-            );
-            mask: radial-gradient(
-                farthest-side,
-                transparent calc(100% - 5px),
-                #000 calc(100% - 4px)
-            );
-            filter: drop-shadow(0 0 5px rgba(250, 204, 21, .35));
-        }
-
-        .countdown-popup::after {
-            content: "";
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #fde047;
-            box-shadow: 0 0 14px 5px rgba(250, 204, 21, .5);
-            top: 9%;
-            left: 65%;
-            animation: orbitGlow 1s ease-in-out infinite alternate;
-        }
-
-        .countdown-caption {
-            color: #facc15;
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-bottom: 18px;
-            text-align: center;
-        }
-
-        .countdown-number {
-            font-family: system-ui, sans-serif;
-            font-size: clamp(76px, 23vw, 108px);
-            font-weight: 800;
-            line-height: .95;
-            color: #f8fafc;
-            text-shadow: 0 0 24px rgba(255, 255, 255, .12);
-            animation: numberPop .35s ease-out;
-        }
-
-        .countdown-unit {
-            font-size: 20px;
-            font-weight: 500;
-            color: #a1a1aa;
-            margin-top: 6px;
-            letter-spacing: 1px;
-        }
-
-        @keyframes popupAppear {
-            from { transform: scale(.82); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes numberPop {
-            from { transform: scale(1.14); opacity: .4; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes orbitGlow {
-            from { opacity: .65; transform: scale(.85); }
-            to { opacity: 1; transform: scale(1.15); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .countdown-popup,
-            .countdown-popup::after,
-            .countdown-number {
-                animation: none !important;
-            }
+        .timer-normal {
+            color: #34d399 !important;
         }
     </style>
 </head>
@@ -341,8 +235,8 @@
                     </div>
 
                     <div class="text-right">
-                        <p class="text-[11px] text-slate-400">Time remaining</p>
-                        <p id="countdown-timer" class="font-mono text-2xl font-black text-emerald-400">
+                        <p id="timer-label" class="text-[11px] text-slate-400">Time Remaining</p>
+                        <p id="countdown-timer" class="font-mono text-2xl font-black text-emerald-400 timer-normal">
                             00:30
                         </p>
                     </div>
@@ -429,20 +323,6 @@
             </div>
 
         </main>
-    </div>
-
-    <!-- Updated Round Countdown Popup -->
-    <div id="big-countdown-overlay"
-        class="fixed inset-0 hidden items-center justify-center">
-
-        <div class="countdown-popup">
-            <p class="countdown-caption">Round Ending Soon</p>
-
-            <div id="big-number-display" class="countdown-number">5</div>
-
-            <div class="countdown-unit">sec</div>
-        </div>
-
     </div>
 
     <!-- Bet Modal -->
@@ -561,29 +441,48 @@
             startTimer();
         }
 
-        /* Updated timer: popup appears during the final 5 seconds */
+        /*
+         * Countdown popup removed.
+         * At 5 seconds or less, show "No More Bet".
+         * At zero, process the round and start the next round immediately.
+         */
         function startTimer() {
             clearInterval(timerInterval);
 
             timerSeconds = selectedGameDuration;
 
-            const overlay = document.getElementById("big-countdown-overlay");
-            const numDisp = document.getElementById("big-number-display");
             const timerElem = document.getElementById("countdown-timer");
-
-            if (overlay) {
-                overlay.classList.add("hidden");
-                overlay.classList.remove("flex");
-            }
+            const timerLabel = document.getElementById("timer-label");
 
             function updateMainTimer() {
-                const min = Math.floor(timerSeconds / 60);
-                const sec = timerSeconds % 60;
+                if (!timerElem) return;
 
-                if (timerElem) {
+                if (timerSeconds <= 5) {
+                    timerElem.innerText = "No More Bet";
+                    timerElem.classList.remove("timer-normal");
+                    timerElem.classList.add("no-more-bet");
+
+                    if (timerLabel) {
+                        timerLabel.innerText = "Betting Closed";
+                        timerLabel.classList.remove("text-slate-400");
+                        timerLabel.classList.add("text-rose-400");
+                    }
+                } else {
+                    const min = Math.floor(timerSeconds / 60);
+                    const sec = timerSeconds % 60;
+
                     timerElem.innerText = min > 0
                         ? `${min}:${sec < 10 ? '0' : ''}${sec}`
                         : `00:${sec < 10 ? '0' : ''}${sec}`;
+
+                    timerElem.classList.remove("no-more-bet");
+                    timerElem.classList.add("timer-normal");
+
+                    if (timerLabel) {
+                        timerLabel.innerText = "Time Remaining";
+                        timerLabel.classList.remove("text-rose-400");
+                        timerLabel.classList.add("text-slate-400");
+                    }
                 }
             }
 
@@ -594,35 +493,8 @@
 
                 updateMainTimer();
 
-                if (timerSeconds <= 5 && timerSeconds > 0) {
-                    if (numDisp) {
-                        numDisp.innerText = timerSeconds;
-
-                        // Restart the number animation each second
-                        numDisp.style.animation = "none";
-                        void numDisp.offsetWidth;
-                        numDisp.style.animation = "numberPop .35s ease-out";
-                    }
-
-                    if (overlay) {
-                        overlay.style.setProperty(
-                            "--countdown-progress",
-                            `${(timerSeconds / 5) * 100}%`
-                        );
-
-                        overlay.classList.remove("hidden");
-                        overlay.classList.add("flex");
-                    }
-                }
-
                 if (timerSeconds <= 0) {
                     clearInterval(timerInterval);
-
-                    if (overlay) {
-                        overlay.classList.remove("flex");
-                        overlay.classList.add("hidden");
-                    }
-
                     processRoundResult();
                 }
             }, 1000);
@@ -917,6 +789,12 @@
         }
 
         function openBetModal(target) {
+            if (timerSeconds <= 5) {
+                document.getElementById("game-status-text").innerText =
+                    "No More Bet! Please wait for the next round.";
+                return;
+            }
+
             selectedTarget = target;
 
             document.getElementById("modal-target").innerText = target;
@@ -935,6 +813,15 @@
         }
 
         async function confirmAndPlaceBet() {
+            if (timerSeconds <= 5) {
+                closeBetModal();
+
+                document.getElementById("game-status-text").innerText =
+                    "No More Bet! Please wait for the next round.";
+
+                return;
+            }
+
             let amount = parseFloat(
                 document.getElementById("bet-amount-input").value
             );
@@ -1189,9 +1076,8 @@
 
             loadHistoryData(activeTab);
 
-            setTimeout(() => {
-                startTimer();
-            }, 3000);
+            /* Start the next round immediately */
+            startTimer();
         }
     </script>
 
