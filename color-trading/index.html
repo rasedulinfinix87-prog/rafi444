@@ -646,6 +646,30 @@
             border: 1px solid #fff;
         }
 
+        /* Win Payout Floating Animation on Target Button */
+        .win-payout-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            font-size: 11px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: inherit;
+            z-index: 20;
+            animation: popWinAmount 2s ease forwards;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+
+        @keyframes popWinAmount {
+            0% { transform: scale(0.8); opacity: 0; }
+            20% { transform: scale(1.15); opacity: 1; }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+
         /* Bottom Fixed Thin Bar Styling */
         .bottom-fixed-bar {
             position: fixed;
@@ -927,6 +951,11 @@
         }
 
         async function undoLastBet() {
+            if (timerSeconds <= 5) {
+                alert("No More Bet! Undo is disabled.");
+                return;
+            }
+
             if (userActiveBets.length === 0) {
                 alert("No active bet to undo for this round!");
                 return;
@@ -989,11 +1018,15 @@
         }
 
         async function rebetLast() {
+            if (timerSeconds <= 5) {
+                alert("No More Bet! Rebet is disabled.");
+                return;
+            }
+
             if (!lastPlacedBet) {
                 alert("No previous bet to rebet!");
                 return;
             }
-            // Double the last bet amount on rebet click (2x)
             let doubledAmount = lastPlacedBet.amount * 2;
             
             if (doubledAmount > Number(userProfile.balance)) {
@@ -1611,11 +1644,6 @@
             document.getElementById("game-status-text").innerText =
                 "Calculating result...";
 
-            currentRoundTotalBet = 0;
-            userActiveBets = [];
-            updateBetBadgesUI();
-            document.getElementById("bar-total-bet").innerText = "0.00";
-
             let { data: periodData } = await supabaseClient
                 .from("color_periods")
                 .select("*")
@@ -1676,6 +1704,7 @@
             let userWonAmount = 0;
             let hasUserWon = false;
             let userParticipated = false;
+            let userWinsMap = {}; // Tracks winnings per target for animation overlay
 
             if (allBets && allBets.length > 0) {
                 for (let bet of allBets) {
@@ -1708,6 +1737,9 @@
                         if (bet.user_id === currentUser.id) {
                             userWonAmount += payoutAmount;
                             hasUserWon = true;
+                            // Total amount returned to user on that target button: original bet + profit
+                            let totalTargetWinReturn = bet.bet_amount + payoutAmount;
+                            userWinsMap[bet.bet_type] = (userWinsMap[bet.bet_type] || 0) + totalTargetWinReturn;
                         }
 
                         await supabaseClient
@@ -1745,6 +1777,24 @@
                             })
                             .eq("id", bet.id);
                     }
+                }
+            }
+
+            // Immediately clear chips/badges from buttons as the round ends
+            currentRoundTotalBet = 0;
+            userActiveBets = [];
+            updateBetBadgesUI();
+            document.getElementById("bar-total-bet").innerText = "0.00";
+
+            // Show total win return amount over the respective target buttons if won
+            for (let target in userWinsMap) {
+                let btn = document.getElementById(`btn-${target}`);
+                if (btn) {
+                    let overlay = document.createElement('div');
+                    overlay.className = 'win-payout-overlay';
+                    overlay.innerText = `+৳${userWinsMap[target].toFixed(1)}`;
+                    btn.appendChild(overlay);
+                    setTimeout(() => overlay.remove(), 2000);
                 }
             }
 
