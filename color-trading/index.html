@@ -69,7 +69,7 @@
             font-size: 20px;
         }
 
-        /* One combined Period and Timer card */
+        /* Period and Timer card */
         .period-timer-card {
             position: relative;
             overflow: hidden;
@@ -99,7 +99,6 @@
             background: linear-gradient(90deg, transparent, #34d399, transparent);
         }
 
-        /* No separate inner cards */
         .period-info, .timer-area {
             min-width: 0;
             padding: 0;
@@ -118,26 +117,55 @@
             font-weight: 900;
             margin-bottom: 8px;
             white-space: nowrap;
+            text-align: left;
         }
 
+        /* Period number uses the same digital style as the timer */
         .period-number-display {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 2px;
             width: 100%;
-            box-sizing: border-box;
-            padding: 10px 7px;
-            border-radius: 10px;
-            border: 1px solid rgba(251,191,36,.32);
-            background: linear-gradient(180deg, #020617, #0f172a);
-            color: #fbbf24;
+            min-width: 0;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            text-align: left;
+            overflow: hidden;
+        }
+
+        .period-digit {
+            flex: 0 1 19px;
+            min-width: 0;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 5px;
+            background: linear-gradient(180deg, #16a34a, #08752c);
+            border: 1px solid #22c55e;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,.18),
+                inset 0 -4px 5px rgba(0,0,0,.35),
+                0 0 7px rgba(34,197,94,.2);
+            color: white;
             font-family: monospace;
-            font-size: clamp(11px, 3.4vw, 15px);
-            line-height: 1.4;
+            font-size: clamp(10px, 3.1vw, 14px);
             font-weight: 900;
-            letter-spacing: .2px;
-            text-align: center;
-            overflow-wrap: anywhere;
-            text-shadow: 0 0 10px rgba(251,191,36,.22);
-            box-shadow: inset 0 2px 7px rgba(0,0,0,.4);
+            text-shadow: 0 0 5px rgba(255,255,255,.3);
+        }
+
+        .period-digit::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: rgba(0,0,0,.18);
+            border-top: 1px solid rgba(255,255,255,.10);
         }
 
         .timer-area { text-align: center; }
@@ -234,43 +262,28 @@
             animation: dangerPulse 1s infinite;
         }
 
-        .digital-timer.timer-danger .timer-colon { color: #fb7185; }
+        .digital-timer.timer-danger .timer-colon {
+            color: #fb7185;
+        }
 
         @keyframes dangerPulse {
             0%, 100% { opacity: 1; }
             50% { opacity: .72; }
         }
 
-        /* Smooth blinking highlight for winning selections */
+        /* Winning selection blinks exactly 3 times */
         .winning-blink {
             position: relative;
             z-index: 2;
-            animation: winningBlink 1.05s ease-in-out infinite;
+            animation: winningBlink .45s ease-in-out 3;
         }
 
-        .win-blink-green {
-            --win-glow: rgba(34, 255, 130, .95);
-        }
-
-        .win-blink-red {
-            --win-glow: rgba(255, 65, 95, .95);
-        }
-
-        .win-blink-violet {
-            --win-glow: rgba(190, 130, 255, .95);
-        }
-
-        .win-blink-number {
-            --win-glow: rgba(255, 255, 255, .95);
-        }
-
-        .win-blink-big {
-            --win-glow: rgba(255, 190, 45, .95);
-        }
-
-        .win-blink-small {
-            --win-glow: rgba(70, 160, 255, .95);
-        }
+        .win-blink-green { --win-glow: rgba(34,255,130,.95); }
+        .win-blink-red { --win-glow: rgba(255,65,95,.95); }
+        .win-blink-violet { --win-glow: rgba(190,130,255,.95); }
+        .win-blink-number { --win-glow: rgba(255,255,255,.95); }
+        .win-blink-big { --win-glow: rgba(255,190,45,.95); }
+        .win-blink-small { --win-glow: rgba(70,160,255,.95); }
 
         @keyframes winningBlink {
             0%, 100% {
@@ -279,6 +292,7 @@
                 outline: 2px solid transparent;
                 outline-offset: 1px;
             }
+
             50% {
                 filter: brightness(1.5);
                 box-shadow: 0 0 15px var(--win-glow, white),
@@ -389,9 +403,10 @@
                 letter-spacing: .3px;
             }
 
-            .period-number-display {
-                font-size: 11px;
-                padding: 8px 4px;
+            .period-digit {
+                height: 30px;
+                font-size: 10px;
+                border-radius: 4px;
             }
 
             .timer-digit {
@@ -415,7 +430,15 @@
                 grid-template-columns: minmax(0, 1fr);
             }
 
-            .period-number-display { font-size: 14px; }
+            .period-info { width: 100%; }
+
+            .period-number-display { gap: 3px; }
+
+            .period-digit {
+                flex: 1 1 0;
+                height: 34px;
+                font-size: 13px;
+            }
 
             .timer-digit {
                 width: 27px;
@@ -471,12 +494,11 @@
 
                 </div>
 
-                <!-- One combined Period and Timer card -->
                 <div class="game-section period-timer-card">
 
                     <div class="period-info">
                         <p class="period-heading">Period Number</p>
-                        <p id="period-number" class="period-number-display">2026101501</p>
+                        <p id="period-number" class="period-number-display" aria-label="Period Number"></p>
                     </div>
 
                     <div class="timer-area">
@@ -542,7 +564,6 @@
                     </button>
                 </div>
 
-                <!-- Hidden: retained for existing JavaScript status messages -->
                 <div id="game-status-text" class="hidden" aria-live="polite">
                     Place your bet before timer ends...
                 </div>
@@ -551,6 +572,7 @@
 
             <div class="bg-slate-950 rounded-2xl border border-slate-800 p-3 mt-3">
                 <div class="flex border-b border-slate-800 pb-2 mb-3 gap-2">
+
                     <button onclick="switchTab('game-history')" id="tab-game-history"
                         class="flex-1 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white transition">
                         Game History
@@ -565,6 +587,7 @@
                         class="flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">
                         My History
                     </button>
+
                 </div>
 
                 <div id="tab-content" class="max-h-96 overflow-auto text-xs">
@@ -611,6 +634,7 @@
         class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
 
         <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center">
+
             <div class="w-16 h-16 bg-amber-400 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-10 mb-2 animate-bounce">
                 <span class="text-2xl">🎉</span>
             </div>
@@ -649,9 +673,13 @@
         let timerSeconds = 30;
         let timerInterval = null;
         let selectedTarget = null;
+
+        // null means all history panels are closed
         let activeTab = 'game-history';
 
         document.addEventListener("DOMContentLoaded", async () => {
+            renderPeriodNumber();
+
             currentUser = await requireAuth();
 
             if (currentUser) {
@@ -691,7 +719,18 @@
             startTimer();
         }
 
-        /* Highlight the winning number, size and color buttons */
+        /* Render each period digit using the timer's digital design */
+        function renderPeriodNumber() {
+            const element = document.getElementById("period-number");
+            if (!element) return;
+
+            const periodText = String(currentPeriodNumber);
+
+            element.innerHTML = [...periodText].map(digit =>
+                `<span class="period-digit">${digit}</span>`
+            ).join("");
+        }
+
         function clearWinningHighlights() {
             document.querySelectorAll('.winning-blink').forEach(button => {
                 button.classList.remove(
@@ -735,6 +774,23 @@
 
                 if (highlightClass) {
                     button.classList.add('winning-blink', highlightClass);
+
+                    // Remove highlight after the 3rd blink has finished
+                    button.addEventListener('animationend', function removeBlink(event) {
+                        if (event.animationName !== 'winningBlink') return;
+
+                        button.classList.remove(
+                            'winning-blink',
+                            'win-blink-green',
+                            'win-blink-red',
+                            'win-blink-violet',
+                            'win-blink-number',
+                            'win-blink-big',
+                            'win-blink-small'
+                        );
+
+                        button.removeEventListener('animationend', removeBlink);
+                    });
                 }
             });
         }
@@ -793,11 +849,28 @@
             }, 1000);
         }
 
+        /* Clicking an already-open tab closes it */
         function switchTab(tabName) {
+            const container = document.getElementById("tab-content");
+
+            if (activeTab === tabName && !container.classList.contains("hidden")) {
+                activeTab = null;
+                container.classList.add("hidden");
+
+                ['game-history', 'chart', 'my-history'].forEach(t => {
+                    const btn = document.getElementById(`tab-${t}`);
+                    btn.className =
+                        "flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition";
+                });
+
+                return;
+            }
+
             activeTab = tabName;
+            container.classList.remove("hidden");
 
             ['game-history', 'chart', 'my-history'].forEach(t => {
-                let btn = document.getElementById(`tab-${t}`);
+                const btn = document.getElementById(`tab-${t}`);
 
                 if (t === tabName) {
                     btn.className =
@@ -893,6 +966,9 @@
         async function loadHistoryData(type) {
             let container = document.getElementById("tab-content");
 
+            if (!type) return;
+
+            container.classList.remove("hidden");
             container.innerHTML =
                 `<p class="text-center text-slate-500 py-3">Loading...</p>`;
 
@@ -1277,7 +1353,7 @@
                         let payoutAmount = bet.bet_amount * multiplier;
 
                         if (bet.user_id === currentUser.id) {
-                            userWonAmount = payoutAmount;
+                            userWonAmount += payoutAmount;
                             hasUserWon = true;
                         }
 
@@ -1322,7 +1398,7 @@
             document.getElementById("game-status-text").innerText =
                 `Result: ${winningResultString} (${winningBigSmall})`;
 
-            /* Blink the winning number, color and Big/Small selections */
+            // Blink winning color, number and Big/Small exactly 3 times
             highlightWinningTargets(
                 winningColor,
                 winningNumber,
@@ -1346,14 +1422,16 @@
                 document.getElementById("win-modal").classList.add("flex");
             }
 
-            currentPeriodNumber = String(parseInt(currentPeriodNumber) + 1);
+            currentPeriodNumber = String(parseInt(currentPeriodNumber, 10) + 1);
 
-            document.getElementById("period-number").innerText =
-                currentPeriodNumber;
+            // Update the digital period display
+            renderPeriodNumber();
 
-            loadHistoryData(activeTab);
+            // Refresh only when a history panel is open
+            if (activeTab) {
+                loadHistoryData(activeTab);
+            }
 
-            /* Start the next round immediately */
             startTimer();
         }
     </script>
