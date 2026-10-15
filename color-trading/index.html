@@ -48,6 +48,13 @@
             color: #ffffff;
             text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
         }
+        @keyframes smoothZoomIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-zoom-in {
+            animation: smoothZoomIn 0.3s ease-out forwards;
+        }
     </style>
 </head>
 <body class="flex justify-center items-center min-h-screen bg-slate-950">
@@ -65,6 +72,14 @@
         <!-- Main Game Area -->
         <main class="p-4 flex-1 flex flex-col gap-4 overflow-y-auto pb-10">
             
+            <!-- Win Mode Selector Card (Win 10s, Win 30s, Win 1m, Win 5m) -->
+            <div class="grid grid-cols-4 gap-1.5 bg-slate-950 p-2 rounded-2xl border border-slate-800/80">
+                <button onclick="setGameMode(10, this)" id="mode-10s" class="mode-btn py-2 text-center text-xs font-bold rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Win 10s</button>
+                <button onclick="setGameMode(30, this)" id="mode-30s" class="mode-btn py-2 text-center text-xs font-bold rounded-xl bg-rose-600 text-white shadow-md transition">Win 30s</button>
+                <button onclick="setGameMode(60, this)" id="mode-1m" class="mode-btn py-2 text-center text-xs font-bold rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Win 1m</button>
+                <button onclick="setGameMode(300, this)" id="mode-5m" class="mode-btn py-2 text-center text-xs font-bold rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">Win 5m</button>
+            </div>
+
             <!-- Timer & Period Section -->
             <div class="bg-slate-950 p-4 rounded-2xl flex justify-between items-center border border-slate-800/80 shadow-inner">
                 <div>
@@ -77,7 +92,7 @@
                 </div>
             </div>
 
-            <!-- Color Betting Buttons (Multiplier text removed) -->
+            <!-- Color Betting Buttons -->
             <div class="grid grid-cols-3 gap-2.5">
                 <button onclick="openBetModal('Green')" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Green</button>
                 <button onclick="openBetModal('Violet')" class="bg-purple-600 hover:bg-purple-500 active:scale-95 py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Violet</button>
@@ -102,7 +117,7 @@
                 </div>
             </div>
 
-            <!-- Big & Small Buttons (Multiplier text removed) -->
+            <!-- Big & Small Buttons -->
             <div class="grid grid-cols-2 gap-3">
                 <button onclick="openBetModal('Big')" class="bg-amber-600 hover:bg-amber-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white">Big</button>
                 <button onclick="openBetModal('Small')" class="bg-blue-600 hover:bg-blue-500 active:scale-95 py-3 rounded-xl font-bold text-sm shadow-md transition text-white">Small</button>
@@ -115,12 +130,19 @@
                 </div>
             </div>
 
+            <!-- New History & Chart Tabs Card -->
+            <div class="bg-slate-950 p-2 rounded-2xl border border-slate-800 flex justify-around text-xs font-semibold text-slate-400">
+                <button onclick="switchTab('game-history', this)" class="tab-btn px-4 py-2 text-rose-500 border-b-2 border-rose-500 transition">Game History</button>
+                <button onclick="switchTab('chart', this)" class="tab-btn px-4 py-2 hover:text-white transition">Chart</button>
+                <button onclick="switchTab('my-history', this)" class="tab-btn px-4 py-2 hover:text-white transition">My History</button>
+            </div>
+
         </main>
     </div>
 
-    <!-- Big Countdown Overlay -->
-    <div id="big-countdown-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50">
-        <div id="big-number-display" class="text-white font-mono font-black text-9xl animate-pulse text-rose-500 drop-shadow-[0_0_35px_rgba(244,63,94,0.7)]">
+    <!-- Big Countdown Overlay (Smooth Zoom-in without heavy blur) -->
+    <div id="big-countdown-overlay" class="fixed inset-0 bg-black/40 hidden justify-center items-center z-50 pointer-events-none">
+        <div id="big-number-display" class="bg-slate-900/90 border border-slate-700 px-8 py-6 rounded-3xl text-white font-mono font-black text-8xl animate-zoom-in text-rose-500 shadow-2xl">
             5
         </div>
     </div>
@@ -174,6 +196,7 @@
         let currentUser = null;
         let userProfile = null;
         let currentPeriodNumber = "2026101501";
+        let selectedGameDuration = 30; // ডিফল্ট ৩০ সেকেন্ড
         let timerSeconds = 30;
         let timerInterval = null;
         let selectedTarget = null;
@@ -193,21 +216,43 @@
             }
         }
 
+        function setGameMode(duration, btnElement) {
+            selectedGameDuration = duration;
+            timerSeconds = duration;
+            
+            // সব মোড বাটন থেকে একটিভ ক্লাস রিমুভ করা
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.className = "mode-btn py-2 text-center text-xs font-bold rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+            });
+            // ক্লিক করা বাটনে একটিভ স্টাইল দেওয়া
+            btnElement.className = "mode-btn py-2 text-center text-xs font-bold rounded-xl bg-rose-600 text-white shadow-md transition";
+            
+            startTimer();
+        }
+
         function startTimer() {
             clearInterval(timerInterval);
-            timerSeconds = 30;
+            timerSeconds = selectedGameDuration;
             document.getElementById("big-countdown-overlay").classList.add("hidden");
             document.getElementById("big-countdown-overlay").classList.remove("flex");
             
             timerInterval = setInterval(() => {
                 timerSeconds--;
-                let displaySec = timerSeconds < 10 ? "0" + timerSeconds : timerSeconds;
-                document.getElementById("countdown-timer").innerText = `00:${displaySec}`;
+                let min = Math.floor(timerSeconds / 60);
+                let sec = timerSeconds % 60;
+                let displaySec = sec < 10 ? "0" + sec : sec;
+                let displayMin = min < 10 ? "0" + min : min;
                 
+                document.getElementById("countdown-timer").innerText = `${displayMin}:${displaySec}`;
+                
+                // ৫ সেকেন্ড বাকি থাকলে স্মুথ জুম-ইন অ্যানিমেশনসহ পপআপ দেখানো
                 if (timerSeconds <= 5 && timerSeconds > 0) {
                     document.getElementById("big-number-display").innerText = timerSeconds;
-                    document.getElementById("big-countdown-overlay").classList.remove("hidden");
-                    document.getElementById("big-countdown-overlay").classList.add("flex");
+                    let overlay = document.getElementById("big-countdown-overlay");
+                    if (overlay.classList.contains("hidden")) {
+                        overlay.classList.remove("hidden");
+                        overlay.classList.add("flex");
+                    }
                 }
 
                 if (timerSeconds <= 0) {
@@ -234,6 +279,14 @@
         function closeWinModal() {
             document.getElementById("win-modal").classList.remove("flex");
             document.getElementById("win-modal").classList.add("hidden");
+        }
+
+        function switchTab(tabName, btnElement) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 hover:text-white transition";
+            });
+            btnElement.className = "tab-btn px-4 py-2 text-rose-500 border-b-2 border-rose-500 transition";
+            // এখানে আপনি চাইলে ট্যাব পরিবর্তনের কাস্টম লজিক যুক্ত করতে পারেন
         }
 
         async function confirmAndPlaceBet() {
@@ -410,17 +463,4 @@
                 document.getElementById("win-bonus-amount").innerText = `৳${userWonAmount.toFixed(2)}`;
                 document.getElementById("win-period-text").innerText = `Period: ${currentPeriodNumber}`;
                 
-                document.getElementById("win-modal").classList.remove("hidden");
-                document.getElementById("win-modal").classList.add("flex");
-            }
-
-            currentPeriodNumber = String(parseInt(currentPeriodNumber) + 1);
-            document.getElementById("period-number").innerText = currentPeriodNumber;
-
-            setTimeout(() => {
-                startTimer();
-            }, 3000);
-        }
-    </script>
-</body>
-</html>
+                document.getElementById("win-
