@@ -290,7 +290,6 @@
                 outline: 2px solid transparent;
                 outline-offset: 1px;
             }
-
             50% {
                 filter: brightness(1.5);
                 box-shadow: 0 0 15px var(--win-glow, white),
@@ -301,43 +300,36 @@
         }
 
         /* Receipt Slot Animation CSS */
-        .receipt-container {
+        .receipt-slot-container {
             position: relative;
             width: 100%;
             overflow: hidden;
             padding-top: 10px;
+            padding-bottom: 5px;
         }
 
-        .receipt-slot-bar {
-            width: 100%;
-            height: 12px;
-            background: #991b1b;
-            border-radius: 6px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
-            position: relative;
-            z-index: 10;
+        .receipt-slot-slit {
+            width: 80%;
+            height: 6px;
+            background: #500724;
+            margin: 0 auto;
+            border-radius: 3px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
         }
 
         .receipt-slip {
-            background: #ffffff;
-            color: #0f172a;
-            width: 90%;
-            margin: 0 auto;
-            border-radius: 0 0 12px 12px;
-            padding: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 5;
-            transform: translateY(-120%);
-            animation: slipPrint 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            animation: printReceipt 0.8s cubic-bezier(0.15, 0.85, 0.35, 1.2) forwards;
+            transform-origin: top;
         }
 
-        @keyframes slipPrint {
+        @keyframes printReceipt {
             0% {
-                transform: translateY(-120%);
+                transform: translateY(-110%);
+                opacity: 0;
             }
             100% {
                 transform: translateY(0);
+                opacity: 1;
             }
         }
 
@@ -616,29 +608,29 @@
     <div id="win-modal"
         class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
 
-        <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center overflow-hidden">
+        <div class="relative w-full max-w-sm bg-gradient-to-b from-rose-600 via-rose-500 to-amber-600 p-6 rounded-3xl shadow-2xl border-4 border-amber-300/40 text-center flex flex-col items-center">
 
-            <div class="w-16 h-16 bg-amber-400 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-4 mb-1 animate-bounce z-20">
+            <div class="w-16 h-16 bg-amber-400 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-10 mb-2 animate-bounce">
                 <span class="text-2xl">🎉</span>
             </div>
 
-            <h2 class="text-2xl font-black text-white tracking-wider drop-shadow-md z-20">
+            <h2 class="text-2xl font-black text-white tracking-wider drop-shadow-md">
                 Congratulations
             </h2>
 
-            <p class="text-xs text-white/90 mb-2 z-20">You have won the trade!</p>
+            <p class="text-xs text-white/90 mb-1">You have won the trade!</p>
 
-            <div class="flex items-center gap-2 my-2 z-20">
+            <div class="flex items-center gap-2 my-1">
                 <span class="text-xs text-white/80">Result:</span>
                 <span id="win-res-badge" class="px-3 py-1 bg-rose-700 text-white font-bold rounded-full text-xs border border-white/20">Red</span>
                 <span id="win-res-num" class="w-6 h-6 bg-amber-500 rounded-full text-white font-bold text-xs flex items-center justify-center">8</span>
                 <span id="win-res-bs" class="px-2 py-0.5 bg-blue-600 text-white rounded font-bold text-xs">Big</span>
             </div>
 
-            <!-- Receipt Slot Animation Container -->
-            <div class="receipt-container w-full z-20">
-                <div class="receipt-slot-bar"></div>
-                <div class="receipt-slip">
+            <!-- Receipt Slot Animation Wrapper -->
+            <div class="receipt-slot-container w-full">
+                <div class="receipt-slot-slit"></div>
+                <div class="receipt-slip w-full bg-white text-slate-900 rounded-2xl p-4 shadow-2xl mt-1 flex flex-col items-center border-t-4 border-dashed border-rose-400">
                     <p class="text-xs text-slate-400 uppercase font-semibold">Winning Bonus</p>
                     <p id="win-bonus-amount" class="text-3xl font-black text-rose-600 my-1 font-mono">৳0.00</p>
                     <p id="win-period-text" class="text-[11px] text-slate-500 font-mono">Period: 2026101501</p>
@@ -646,7 +638,7 @@
             </div>
 
             <button onclick="closeWinModal()"
-                class="mt-5 w-full bg-slate-900 hover:bg-slate-950 text-white py-3 rounded-xl font-bold shadow-lg transition text-sm border border-slate-700 z-20">
+                class="mt-4 w-full bg-slate-900 hover:bg-slate-950 text-white py-3 rounded-xl font-bold shadow-lg transition text-sm border border-slate-700">
                 Collect & Continue
             </button>
         </div>
@@ -660,6 +652,8 @@
         let timerSeconds = 30;
         let timerInterval = null;
         let selectedTarget = null;
+        let winModalTimeout = null;
+
         let activeTab = 'game-history';
 
         document.addEventListener("DOMContentLoaded", async () => {
@@ -1137,7 +1131,11 @@
         }
 
         function closeWinModal() {
-            document.getElementById("win-modal").classList.remove("hidden");
+            if (winModalTimeout) {
+                clearTimeout(winModalTimeout);
+                winModalTimeout = null;
+            }
+            document.getElementById("win-modal").classList.remove("flex");
             document.getElementById("win-modal").classList.add("hidden");
         }
 
@@ -1401,6 +1399,12 @@
 
                 document.getElementById("win-modal").classList.remove("hidden");
                 document.getElementById("win-modal").classList.add("flex");
+
+                // Auto close after 4 seconds if user doesn't close manually
+                if (winModalTimeout) clearTimeout(winModalTimeout);
+                winModalTimeout = setTimeout(() => {
+                    closeWinModal();
+                }, 4000);
             }
 
             currentPeriodNumber = String(parseInt(currentPeriodNumber, 10) + 1);
