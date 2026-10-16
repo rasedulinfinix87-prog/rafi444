@@ -1,165 +1,224 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#07111f">
-<title>Color Trade - Win Go</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../supabase-config.js"></script>
-<style>
-:root{--bg:#07111f;--panel:#0d1b2b;--panel2:#10243a;--line:#1d3853;--text:#eff8ff;--muted:#91a9bd;--green:#00e69a;--red:#ff4568;--violet:#b66cff;--blue:#3d9dff}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}body{background:radial-gradient(ellipse at 50% -10%,#123b4d 0,transparent 48%),linear-gradient(180deg,#07111f,#050b14)}button,input{font:inherit}button{cursor:pointer;touch-action:manipulation;transition:transform .16s,filter .16s,box-shadow .16s}button:active{transform:scale(.96);filter:brightness(1.18)}button:focus-visible,input:focus-visible{outline:2px solid #6cecff;outline-offset:2px}
-body>div.w-full.max-w-md{width:100%;max-width:480px;min-height:100vh;background:linear-gradient(180deg,#0a1727,#07111e)!important;border-color:#19334b!important;box-shadow:0 0 55px #0008}
-header.custom-gradient{padding:17px 15px;min-height:75px;background:linear-gradient(115deg,#102a40,#0b1a2c 55%,#14203a)!important;border-bottom:1px solid #24435f;box-shadow:0 8px 24px #0004!important}
-header h1{display:flex;align-items:center;gap:9px;color:#f1fbff!important;font-size:16px!important;font-weight:950!important;letter-spacing:.7px!important}
-header h1:before{content:"W";display:grid;place-items:center;width:37px;height:37px;border-radius:13px;background:linear-gradient(145deg,#00f0a0,#007bca);color:#052033;font-size:18px;box-shadow:0 0 18px #00e69a55}
-header>div{padding:9px 11px!important;border:1px solid #2b5270!important;border-radius:13px!important;background:#061321!important;color:#b9d1e5;font-size:10px!important}
-#user-balance{color:#57ffc3!important;font-size:14px!important;font-weight:900}
-main{padding:12px!important}
-.main-game-card{display:flex;flex-direction:column;gap:13px;padding:12px;border:1px solid #244661;border-radius:23px;background:linear-gradient(155deg,#102238,#0a1625 68%,#10152b);box-shadow:0 14px 35px #0005,inset 0 1px #ffffff0d}
-.game-section{min-width:0}
-.game-section.grid.grid-cols-4{gap:7px!important}
-.mode-button{position:relative;min-height:62px;padding:8px 3px!important;overflow:hidden;border:1px solid #2a4964!important;border-radius:14px!important;background:linear-gradient(145deg,#172d43,#0d1c2c)!important;box-shadow:inset 0 1px #ffffff0d,0 4px 10px #0003;transition:.2s}
-.mode-button>div:first-child{font-size:14px!important;margin-bottom:3px}.mode-button>div:nth-child(2){font-size:10px!important;color:#b9d1e5!important;font-weight:850!important}
-#mode-10s,#mode-30s,#mode-1m,#mode-5m{box-shadow:inset 0 1px #ffffff12}
-#mode-30s{border-color:#00f0aa!important;background:linear-gradient(145deg,#00c98c,#087d91)!important;box-shadow:0 0 17px #00e69a35,inset 0 1px #ffffff45!important}
-#mode-30s>div:nth-child(2){color:white!important}
-.period-timer-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;min-height:124px;padding:13px 10px;overflow:hidden;border:1px solid #245273;border-radius:19px;background:radial-gradient(ellipse at 0 0,#00dca51b,transparent 55%),radial-gradient(ellipse at 100% 100%,#7a54ff19,transparent 52%),linear-gradient(135deg,#102b3b,#0a1727 70%,#17162d);box-shadow:inset 0 1px #ffffff0b,0 8px 20px #0003}
-.period-timer-card:before{content:"";position:absolute}
-.period-info,.timer-area{min-width:0;padding:0;border:0;background:transparent;box-shadow:none}
-.period-heading{margin:0 0 10px;color:#9ec2d8;font-size:9px;line-height:1.4;font-weight:900;letter-spacing:.7px;text-transform:uppercase;text-align:left;white-space:nowrap}
-.period-number-display{display:flex;align-items:center;justify-content:flex-start;gap:2px;width:100%;min-width:0;padding:0;overflow:hidden;border:0;background:transparent;text-align:left}
-.period-digit{position:relative;display:inline-flex;flex:0 1 19px;align-items:center;justify-content:center;min-width:0;height:32px;overflow:hidden;border:1px solid #00dca977;border-radius:6px;background:linear-gradient(180deg,#14775f,#0c3b3b);box-shadow:inset 0 1px #ffffff30,0 0 8px #00e69a12;color:#eafff8;font-family:ui-monospace,monospace;font-size:clamp(9px,2.9vw,13px);font-weight:900}
-.period-digit:after,.timer-digit:after{content:"";position:absolute;top:50%;left:0;right:0;height:1px;background:#00150e33;border-top:1px solid #ffffff0d;pointer-events:none}
-.timer-area{text-align:center}.timer-label{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:24px;margin-bottom:8px;padding:6px 7px;border:1px solid #00dca955;border-radius:8px;background:#073b36;color:#6effd0;font-size:8px;line-height:1.2;font-weight:950;letter-spacing:.25px;white-space:nowrap}
-.timer-label:before{content:"";width:5px;height:5px;flex:0 0 5px;border-radius:50%;background:#39ffbb;box-shadow:0 0 8px #39ffbb}
-.timer-label.timer-label-danger{border-color:#ff4568;background:#4a1427;color:#ffc1d0;animation:pulse 1s infinite}.timer-label.timer-label-danger:before{background:#ff4568}
-.digital-timer{display:flex;align-items:center;justify-content:center;gap:3px}.timer-digit{position:relative;display:inline-flex;align-items:center;justify-content:center;width:25px;height:38px;overflow:hidden;border:1px solid #00dca977;border-radius:7px;background:linear-gradient(180deg,#14775f,#0b3b3b);box-shadow:inset 0 1px #ffffff30,0 0 9px #00e69a19;color:#effff9;font-family:ui-monospace,monospace;font-size:22px;font-weight:950}.timer-colon{padding:0 1px;color:#55e8ff;font-size:21px;font-weight:900}.digital-timer.timer-danger .timer-digit{border-color:#ff4568;background:linear-gradient(180deg,#e43c60,#641d39);animation:pulse 1s infinite}.digital-timer.timer-danger .timer-colon{color:#ff4568}@keyframes pulse{50%{opacity:.72}}
-.game-section.grid.grid-cols-3{gap:9px!important}.game-section.grid.grid-cols-3 button{position:relative;min-height:51px;padding:12px 4px!important;overflow:hidden;border:1px solid #ffffff35;border-radius:14px!important;font-size:12px!important;font-weight:950!important;letter-spacing:.6px;box-shadow:inset 0 1px #ffffff55,0 5px 14px #0004!important;transition:transform .16s,filter .16s,box-shadow .16s}
-.game-section.grid.grid-cols-3 button:nth-child(1){background:linear-gradient(135deg,#00f0a0,#00a96c 55%,#087c69)!important;box-shadow:inset 0 1px #ffffff55,0 0 17px #00e69a24!important}
-.game-section.grid.grid-cols-3 button:nth-child(2){background:linear-gradient(135deg,#d18aff,#8e42ff 55%,#5724b7)!important;box-shadow:inset 0 1px #ffffff55,0 0 17px #b66cff2b!important}
-.game-section.grid.grid-cols-3 button:nth-child(3){background:linear-gradient(135deg,#ff718b,#f02e55 55%,#a9153e)!important;box-shadow:inset 0 1px #ffffff55,0 0 17px #ff45682b!important}
-.main-game-card>.game-section.bg-slate-950{padding:13px!important;border:1px solid #244661!important;border-radius:18px!important;background:radial-gradient(ellipse at 50% 0,#244c6b22,transparent 65%),linear-gradient(145deg,#0b1928,#091321)!important;box-shadow:inset 0 1px #ffffff08}
-.main-game-card>.game-section.bg-slate-950>p{margin-bottom:12px!important;color:#9cb8cc!important;font-size:10px!important;font-weight:800;letter-spacing:.25px}
-.main-game-card>.game-section.bg-slate-950 .grid{gap:9px!important}
-.number-button{position:relative;display:flex;align-items:center;justify-content:center;width:100%;min-width:0;aspect-ratio:1;border-radius:15px!important;font-size:20px!important;font-weight:950!important;box-shadow:inset 0 1px #ffffff66,inset 0 -6px 10px #0003,0 4px 10px #0004!important;transition:transform .16s,filter .16s,box-shadow .16s}
-.number-button:active{transform:scale(.91);filter:brightness(1.25)}
-.ruby-sphere{border:1px solid #ff8ea4!important;background:radial-gradient(circle at 30% 20%,#ffb2c1 0,#ff506e 34%,#c51642 68%,#75102d 100%)!important;color:#fff!important;text-shadow:0 1px 4px #0004;box-shadow:inset 0 1px #ffffff77,inset 0 -6px 10px #4d001b55,0 0 12px #ff45682a!important}
-.green-sphere{border:1px solid #65ffd0!important;background:radial-gradient(circle at 30% 20%,#a0ffe1 0,#21f0a5 34%,#00a96e 68%,#075c4c 100%)!important;color:#fff!important;text-shadow:0 1px 4px #0004;box-shadow:inset 0 1px #ffffff77,inset 0 -6px 10px #004a3155,0 0 12px #00e69a2d!important}
-.violet-sphere{border:1px solid #dfbdff!important;background:radial-gradient(circle at 30% 20%,#f0dfff 0,#bf88ff 34%,#853ef0 68%,#49218b 100%)!important;color:#fff!important;text-shadow:0 1px 4px #0004;box-shadow:inset 0 1px #ffffff77,inset 0 -6px 10px #27004d55,0 0 12px #b66cff35!important}
-.game-section.grid.grid-cols-2{gap:10px!important}.game-section.grid.grid-cols-2 button{position:relative;min-height:52px;padding:12px 8px!important;border:1px solid #ffffff30;border-radius:14px!important;font-size:13px!important;font-weight:950!important;letter-spacing:.5px;box-shadow:inset 0 1px #ffffff55,0 5px 13px #0004!important}
-.game-section.grid.grid-cols-2 button:first-child{background:linear-gradient(135deg,#ffca45,#ff8a00 60%,#d65c08)!important;border-color:#ffe08b;color:#fff!important}
-.game-section.grid.grid-cols-2 button:last-child{background:linear-gradient(135deg,#58bdff,#267eff 60%,#1946c5)!important;border-color:#9bd8ff;color:#fff!important}
-main>div.bg-slate-950.rounded-2xl{margin-top:13px!important;padding:12px!important;border:1px solid #23445f!important;border-radius:19px!important;background:linear-gradient(155deg,#102238,#091523)!important;box-shadow:0 12px 28px #0004,inset 0 1px #ffffff08}
-main>div.bg-slate-950.rounded-2xl>div:first-child{gap:7px!important;padding-bottom:10px!important;border-color:#23445f!important}
-main>div.bg-slate-950.rounded-2xl>div:first-child button{min-height:40px;padding:9px 3px!important;border:1px solid #29445e;border-radius:11px!important;background:linear-gradient(145deg,#172c42,#0d1b2b)!important;color:#9bb2c7!important;font-size:10px!important;font-weight:850!important}
-main>div.bg-slate-950.rounded-2xl>div:first-child button.bg-rose-600{border-color:#00e6a0!important;background:linear-gradient(135deg,#00d994,#008b91)!important;color:#041d27!important;box-shadow:0 0 14px #00e69a22!important}
-#tab-content{color:#e2f1fa;scrollbar-width:thin;scrollbar-color:#2d5672 #091523}#tab-content::-webkit-scrollbar,.history-scroll::-webkit-scrollbar{width:4px;height:4px}#tab-content::-webkit-scrollbar-thumb,.history-scroll::-webkit-scrollbar-thumb{border-radius:8px;background:#2d5672}
-.history-table,.my-history-table{width:100%;border-collapse:separate;border-spacing:0;white-space:nowrap}.history-table th,.history-table td{padding:12px 7px;text-align:left;vertical-align:middle;font-size:10px}.history-table th,.my-history-table th{background:#173149;color:#b9d4e8;font-size:9px;font-weight:850;border-bottom:1px solid #2b526e}.history-table td,.my-history-table td{border-bottom:1px solid #ffffff0d;color:#e3edf5}.history-table tbody tr:nth-child(even),.my-history-table tbody tr:nth-child(even){background:#ffffff05}.my-history-table{min-width:850px}.my-history-table th,.my-history-table td{padding:12px 10px;text-align:center;vertical-align:middle}.my-history-table th{position:sticky;top:0;z-index:2}.my-history-table td{font-size:10px}.result-number{display:inline-flex;align-items:center;justify-content:center;width:29px;height:29px;border-radius:50%;color:white;font-size:12px;font-weight:950}.result-red{background:linear-gradient(145deg,#ff718b,#ad153e);border:1px solid #ff9daf}.result-green{background:linear-gradient(145deg,#2bf5ad,#087752);border:1px solid #68e9b6}.result-violet{background:linear-gradient(145deg,#c18bff,#6034a8);border:1px solid #d8b7ff}.result-badge{display:inline-block;padding:5px 8px;border-radius:7px;font-size:9px;font-weight:900}.date-cell{font-size:10px!important;line-height:1.7}.history-scroll{width:100%;overflow:auto;border:1px solid #244661;border-radius:11px;-webkit-overflow-scrolling:touch}#tab-content>p{padding-top:20px!important;padding-bottom:20px!important;color:#91a9bd!important;font-size:11px}
-#bet-modal,#win-modal{padding:18px!important;background:#020916d9!important;backdrop-filter:blur(13px);-webkit-backdrop-filter:blur(13px)}
-#bet-modal>div{width:100%;max-width:350px;gap:18px!important;padding:22px!important;border:1px solid #34718a!important;border-radius:23px!important;background:radial-gradient(ellipse at 100% 0,#00e69a19,transparent 50%),linear-gradient(145deg,#142c43,#091523)!important;box-shadow:0 25px 70px #0009,inset 0 1px #ffffff0d!important}
-#bet-modal h3{color:#e5f3fc!important;font-size:14px!important}#modal-target{display:inline-block;margin-left:4px;color:#65ffd0!important}
-#bet-modal label{margin-bottom:8px!important;color:#a5bfd2!important;font-size:11px!important;font-weight:700}
-#bet-amount-input{min-height:49px;padding:12px 14px!important;border:1px solid #2e5a78!important;border-radius:13px!important;background:#06111e!important;color:#f3f7ff!important;font-size:16px!important;font-weight:800}
-#bet-amount-input:focus{border-color:#00e6a0!important;box-shadow:0 0 0 3px #00e69a19}
-#bet-modal .flex.gap-2{gap:10px!important}#bet-modal .flex.gap-2 button{min-height:45px;border-radius:12px!important;font-size:12px!important;font-weight:850!important}
-#bet-modal .flex.gap-2 button:first-child{border:1px solid #29445e;background:#1b3045!important;color:#d4e6f4!important}
-#bet-modal .flex.gap-2 button:last-child{border:1px solid #7bffe0;background:linear-gradient(135deg,#00e9a0,#00aeb6)!important;color:#03232a!important;box-shadow:0 4px 14px #00e69a20}
-#win-modal>div{width:100%;max-width:365px;padding:27px 21px 21px!important;overflow:visible;border:1px solid #63f8d2!important;border-radius:25px!important;background:radial-gradient(ellipse at 50% 0,#00e69a25,transparent 48%),linear-gradient(155deg,#153a39,#0c1b2a 70%,#171635)!important;box-shadow:0 25px 80px #0009,inset 0 1px #ffffff12!important}
-#win-modal>div>div:first-child{width:60px!important;height:60px!important;margin-top:-47px!important;border:2px solid #a5ffe7!important;background:linear-gradient(145deg,#8affd9,#00a87d)!important;box-shadow:0 6px 25px #00e69a35!important}
-#win-modal h2{margin-top:5px;color:#baffea!important;font-size:23px!important;letter-spacing:.5px!important}#win-modal>div>p{color:#b6c9d8!important}#win-modal>div>.flex.items-center{flex-wrap:wrap;justify-content:center;gap:7px!important}
-#win-res-badge,#win-res-num,#win-res-bs{border:1px solid #ffffff35}
-#win-modal>div>div.w-full.bg-white{padding:19px!important;border:1px solid #34718a;border-radius:16px!important;background:linear-gradient(145deg,#f4fbff,#dbeaf1)!important;color:#152b3a!important}
-#win-modal>div>div.w-full.bg-white>p:first-child{color:#627c8d!important;font-size:10px!important;letter-spacing:1px}#win-bonus-amount{color:#008b68!important;font-size:clamp(25px,7vw,34px)!important;overflow-wrap:anywhere}#win-period-text{overflow-wrap:anywhere}
-#win-modal>div>button{min-height:48px;border:1px solid #6affd5!important;border-radius:13px!important;background:linear-gradient(135deg,#00e6a0,#00aeb6)!important;color:#03232a!important;font-size:12px!important;font-weight:950!important;box-shadow:0 5px 17px #00e69a22}
-.winning-blink{position:relative;z-index:2;animation:winningBlink .45s ease-in-out 3}.win-blink-green{--win-glow:#22ff9a}.win-blink-red{--win-glow:#ff4568}.win-blink-violet{--win-glow:#c18bff}.win-blink-number{--win-glow:#ffffff}.win-blink-big{--win-glow:#ffbd36}.win-blink-small{--win-glow:#55b8ff}
-@keyframes winningBlink{0%,100%{filter:brightness(1);box-shadow:0 0 5px var(--win-glow,white);outline:2px solid transparent;outline-offset:1px}50%{filter:brightness(1.5);box-shadow:0 0 15px var(--win-glow,white),0 0 28px var(--win-glow,white);outline:2px solid var(--win-glow,white);outline-offset:2px}}
-#game-status-text:not(.hidden){display:block;padding:10px 12px;border:1px solid #2b6273;border-radius:11px;background:#0b3b3a55;color:#a9ffdf;font-size:11px;line-height:1.6}
-@media(max-width:380px){body>div.w-full.max-w-md{width:100%}main{padding:9px!important}.main-game-card{gap:11px;padding:10px;border-radius:19px}.game-section.grid.grid-cols-4{gap:5px!important}.mode-button{min-height:57px;padding:7px 2px!important;border-radius:11px!important}.mode-button>div:nth-child(2){font-size:9px!important}.period-timer-card{gap:6px;padding:10px 7px}.period-heading{font-size:8px;letter-spacing:.4px;margin-bottom:8px}.period-number-display{gap:1px}.period-digit{height:29px;border-radius:4px;font-size:9px}.timer-label{gap:3px;padding:5px;font-size:7px;letter-spacing:0}.timer-digit{width:21px;height:33px;font-size:19px}.timer-colon{font-size:19px}.number-button{border-radius:11px!important;font-size:18px!important}.main-game-card>.game-section.bg-slate-950{padding:10px!important}.main-game-card>.game-section.bg-slate-950 .grid{gap:7px!important}.game-section.grid.grid-cols-3 button{min-height:44px;font-size:10px!important}main>div.bg-slate-950.rounded-2xl{padding:10px!important}main>div.bg-slate-950.rounded-2xl>div:first-child button{font-size:9px!important}}
-@media(max-width:320px){.period-timer-card{grid-template-columns:minmax(0,1fr);gap:12px;padding:12px}.period-number-display{gap:3px}.period-digit{flex:1 1 0;height:32px;font-size:12px}.timer-area{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:right}.timer-label{margin-bottom:0;font-size:8px}.timer-digit{width:25px;height:35px;font-size:20px}.timer-colon{font-size:20px}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>কালার ট্রেডিং গেম</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .game-container {
+            width: 100%;
+            max-width: 400px;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 15px;
+            color: #ffcc00;
+        }
+        .balance-box {
+            background: #2c2c2c;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .timer-box {
+            font-size: 24px;
+            color: #00ffcc;
+            margin-bottom: 15px;
+            background: #252525;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .colors-section {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .color-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            transition: 0.2s;
+        }
+        .green { background-color: #28a745; }
+        .violet { background-color: #6f42c1; }
+        .red { background-color: #dc3545; }
+        
+        .color-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .bet-input-box {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .bet-input-box label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #bbb;
+        }
+        .bet-input-box input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background: #2c2c2c;
+            color: white;
+            font-size: 16px;
+        }
+        .result-box {
+            font-size: 16px;
+            padding: 10px;
+            background: #2c2c2c;
+            border-radius: 6px;
+            min-height: 45px;
+        }
+    </style>
 </head>
-<body class="flex justify-center items-center min-h-screen bg-slate-950">
-<div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl border-x border-slate-800 relative overflow-hidden">
-<header class="p-4 custom-gradient flex justify-between items-center shadow-lg">
-<h1 class="text-lg font-extrabold text-white tracking-wider">W 1XBET</h1>
-<div class="bg-black/30 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md border border-white/10">Wallet: ৳ <span id="user-balance" class="text-emerald-300 font-mono text-sm">0.00</span></div>
-</header>
-<main class="p-3 flex-1 overflow-y-auto pb-10">
-<div class="main-game-card">
-<div class="game-section grid grid-cols-4 gap-2">
-<button onclick="changeGameMode(10,'10s')" id="mode-10s" class="mode-button p-2 rounded-xl text-center"><div>⏱️</div><div class="text-[11px] font-bold mt-1">Win 10s</div></button>
-<button onclick="changeGameMode(30,'30s')" id="mode-30s" class="mode-button p-2 rounded-xl text-center"><div>⚡</div><div class="text-[11px] font-bold mt-1">Win 30s</div></button>
-<button onclick="changeGameMode(60,'1m')" id="mode-1m" class="mode-button p-2 rounded-xl text-center"><div>🕒</div><div class="text-[11px] font-bold mt-1">Win 1m</div></button>
-<button onclick="changeGameMode(300,'5m')" id="mode-5m" class="mode-button p-2 rounded-xl text-center"><div>🕒</div><div class="text-[11px] font-bold mt-1">Win 5m</div></button>
-</div>
-<div class="game-section period-timer-card">
-<div class="period-info"><p class="period-heading">Period Number</p><p id="period-number" class="period-number-display" aria-label="Period Number"></p></div>
-<div class="timer-area"><p id="timer-label" class="timer-label">PLACE YOUR BET</p><div id="countdown-timer" class="digital-timer" aria-label="Time remaining"><span class="timer-digit">0</span><span class="timer-digit">0</span><span class="timer-colon">:</span><span class="timer-digit">3</span><span class="timer-digit">0</span></div></div>
-</div>
-<div class="game-section grid grid-cols-3 gap-2">
-<button onclick="openBetModal('Green')" class="py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Green</button>
-<button onclick="openBetModal('Violet')" class="py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Violet</button>
-<button onclick="openBetModal('Red')" class="py-3 rounded-xl font-bold text-xs shadow-md transition text-white">Red</button>
-</div>
-<div class="game-section bg-slate-950 p-3 rounded-2xl border border-slate-800">
-<p class="text-[11px] text-slate-400 mb-3 text-center">Select Number (Payout 9x)</p>
-<div class="grid grid-cols-5 gap-2">
-<button onclick="openBetModal('0')" class="number-button violet-sphere">0</button><button onclick="openBetModal('1')" class="number-button green-sphere">1</button><button onclick="openBetModal('2')" class="number-button ruby-sphere">2</button><button onclick="openBetModal('3')" class="number-button green-sphere">3</button><button onclick="openBetModal('4')" class="number-button ruby-sphere">4</button>
-<button onclick="openBetModal('5')" class="number-button violet-sphere">5</button><button onclick="openBetModal('6')" class="number-button ruby-sphere">6</button><button onclick="openBetModal('7')" class="number-button green-sphere">7</button><button onclick="openBetModal('8')" class="number-button ruby-sphere">8</button><button onclick="openBetModal('9')" class="number-button green-sphere">9</button>
-</div></div>
-<div class="game-section grid grid-cols-2 gap-2"><button onclick="openBetModal('Big')" class="py-3 rounded-xl font-bold text-sm shadow-md transition text-white">Big</button><button onclick="openBetModal('Small')" class="py-3 rounded-xl font-bold text-sm shadow-md transition text-white">Small</button></div>
-<div id="game-status-text" class="hidden" aria-live="polite">Place your bet before timer ends...</div>
-</div>
-<div class="bg-slate-950 rounded-2xl border border-slate-800 p-3 mt-3">
-<div class="flex border-b border-slate-800 pb-2 mb-3 gap-2">
-<button onclick="switchTab('game-history')" id="tab-game-history" class="flex-1 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white transition">Game History</button>
-<button onclick="switchTab('chart')" id="tab-chart" class="flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 transition">Chart</button>
-<button onclick="switchTab('my-history')" id="tab-my-history" class="flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 transition">My History</button>
-</div>
-<div id="tab-content" class="max-h-96 overflow-auto text-xs"><p class="text-center text-slate-500 py-3">Loading...</p></div>
-</div>
-</main></div>
-<div id="bet-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden justify-center items-center z-50 p-4">
-<div class="bg-slate-900 border border-slate-800 w-full max-w-xs p-5 rounded-2xl shadow-2xl flex flex-col gap-4">
-<h3 class="text-sm font-bold text-slate-300">Place Bet on: <span id="modal-target" class="font-extrabold text-base"></span></h3>
-<div><label class="text-[11px] text-slate-400 block mb-1">Enter Amount (৳)</label><input type="number" id="bet-amount-input" min="1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-sm" value="100"></div>
-<div class="flex gap-2"><button onclick="closeBetModal()" class="flex-1 py-2 rounded-xl font-semibold transition text-xs">Cancel</button><button onclick="confirmAndPlaceBet()" class="flex-1 py-2 rounded-xl font-bold transition text-xs">Confirm</button></div>
-</div></div>
-<div id="win-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden justify-center items-center z-50 p-4">
-<div class="relative w-full max-w-sm p-6 rounded-3xl shadow-2xl text-center flex flex-col items-center">
-<div class="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center shadow-lg -mt-10 mb-2"><span class="text-2xl">🎉</span></div>
-<h2 class="text-2xl font-black tracking-wider">Congratulations</h2><p class="text-xs mb-2">You have won the trade!</p>
-<div class="flex items-center gap-2 my-2"><span class="text-xs">Result:</span><span id="win-res-badge" class="px-3 py-1 font-bold rounded-full text-xs">Red</span><span id="win-res-num" class="w-6 h-6 rounded-full font-bold text-xs flex items-center justify-center">8</span><span id="win-res-bs" class="px-2 py-0.5 rounded font-bold text-xs">Big</span></div>
-<div class="w-full bg-white rounded-2xl p-4 shadow-inner mt-2 flex flex-col items-center"><p class="text-xs uppercase font-semibold">Winning Bonus</p><p id="win-bonus-amount" class="text-3xl font-black my-1 font-mono">৳0.00</p><p id="win-period-text" class="text-[11px] font-mono">Period: 2026101501</p></div>
-<button onclick="closeWinModal()" class="mt-5 w-full py-3 rounded-xl font-bold shadow-lg transition text-sm">Collect &amp; Continue</button>
-</div></div>
-<script>
-let currentUser=null,userProfile=null,selectedGameDuration=30,currentPeriodNumber="2026101501",timerSeconds=30,timerInterval=null,selectedTarget=null;
-let activeTab='game-history';
-document.addEventListener("DOMContentLoaded",async()=>{renderPeriodNumber();currentUser=await requireAuth();if(currentUser){await loadUserProfile();startTimer();loadHistoryData('game-history')}});
-async function loadUserProfile(){userProfile=await getUserProfile(currentUser.id);if(userProfile)document.getElementById("user-balance").innerText=Number(userProfile.balance).toFixed(2)}
-function changeGameMode(duration,modeKey){selectedGameDuration=duration;timerSeconds=duration;['10s','30s','1m','5m'].forEach(key=>{let btn=document.getElementById(`mode-${key}`);btn.classList.toggle('selected-mode',key===modeKey);btn.style.filter=key===modeKey?'brightness(1.16)':'none';btn.style.outline=key===modeKey?'2px solid #00e6a0':'none';btn.style.outlineOffset='1px'});startTimer()}
-function renderPeriodNumber(){const element=document.getElementById("period-number");if(element)element.innerHTML=[...String(currentPeriodNumber)].map(d=>`<span class="period-digit">${d}</span>`).join("")}
-function clearWinningHighlights(){document.querySelectorAll('.winning-blink').forEach(b=>b.classList.remove('winning-blink','win-blink-green','win-blink-red','win-blink-violet','win-blink-number','win-blink-big','win-blink-small'))}
-function highlightWinningTargets(winningColor,winningNumber,winningBigSmall){clearWinningHighlights();const cc={Green:'win-blink-green',Red:'win-blink-red',Violet:'win-blink-violet'};document.querySelectorAll('button[onclick^="openBetModal("]').forEach(button=>{const m=button.getAttribute('onclick')?.match(/openBetModal\(['"]([^'"]+)['"]\)/);if(!m)return;const target=m[1];let cls=target===winningColor?(cc[winningColor]||''):target===String(winningNumber)?'win-blink-number':target===winningBigSmall?(winningBigSmall==='Big'?'win-blink-big':'win-blink-small'):'';if(cls){button.classList.add('winning-blink',cls);button.addEventListener('animationend',function done(e){if(e.animationName!=='winningBlink')return;button.classList.remove('winning-blink','win-blink-green','win-blink-red','win-blink-violet','win-blink-number','win-blink-big','win-blink-small');button.removeEventListener('animationend',done)})}})}
-function startTimer(){clearInterval(timerInterval);timerSeconds=selectedGameDuration;const el=document.getElementById("countdown-timer"),label=document.getElementById("timer-label");function update(){if(!el)return;const t=`${String(Math.floor(timerSeconds/60)).padStart(2,'0')}:${String(timerSeconds%60).padStart(2,'0')}`;el.innerHTML=`<span class="timer-digit">${t[0]}</span><span class="timer-digit">${t[1]}</span><span class="timer-colon">:</span><span class="timer-digit">${t[3]}</span><span class="timer-digit">${t[4]}</span>`;el.classList.toggle('timer-danger',timerSeconds<=5);if(label){label.innerText=timerSeconds<=5?'BET CLOSED':'PLACE YOUR BET';label.classList.toggle('timer-label-danger',timerSeconds<=5)}}update();timerInterval=setInterval(()=>{timerSeconds=Math.max(0,timerSeconds-1);update();if(timerSeconds<=0){clearInterval(timerInterval);processRoundResult()}},1000)}
-function switchTab(tabName){const c=document.getElementById('tab-content');if(activeTab===tabName&&!c.classList.contains('hidden')){activeTab=null;c.classList.add('hidden');['game-history','chart','my-history'].forEach(t=>{const b=document.getElementById(`tab-${t}`);b.className='flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 transition'});return}activeTab=tabName;c.classList.remove('hidden');['game-history','chart','my-history'].forEach(t=>{const b=document.getElementById(`tab-${t}`);b.className=t===tabName?'flex-1 py-2 text-xs font-bold rounded-lg bg-rose-600 text-white transition':'flex-1 py-2 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 transition'});loadHistoryData(tabName)}
-function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function getSavedBetResult(row){let s=String(row.winning_result||''),m=s.match(/(Green|Red|Violet)\s*[-:]\s*(\d)/i),color=m?m[1][0].toUpperCase()+m[1].slice(1).toLowerCase():(row.winning_color||''),number=m?Number(m[2]):row.winning_number!==null&&row.winning_number!==undefined&&row.winning_number!==''?Number(row.winning_number):null;if(!['Green','Red','Violet'].includes(color))color='';let bigSmall=number!==null&&Number.isFinite(number)?number>=5?'Big':'Small':'';let colorClass=color==='Red'?'result-red':color==='Green'?'result-green':color==='Violet'?'result-violet':'';return{color,number,bigSmall,colorClass,hasResult:number!==null&&Number.isFinite(number)&&color!==''}}
-function formatHistoryDate(v){if(!v)return{date:'N/A',time:'N/A'};const d=new Date(v);if(Number.isNaN(d.getTime()))return{date:'N/A',time:'N/A'};return{date:d.toLocaleDateString('en-GB',{timeZone:'Asia/Dhaka',day:'2-digit',month:'2-digit',year:'numeric'}),time:d.toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true})}}
-async function loadHistoryData(type){const c=document.getElementById('tab-content');if(!type)return;c.classList.remove('hidden');c.innerHTML='<p class="text-center text-slate-500 py-3">Loading...</p>';if(type==='game-history'){const{data,error}=await supabaseClient.from('color_periods').select('*').eq('status','completed').order('created_at',{ascending:false}).limit(10);if(error||!data||!data.length){c.innerHTML='<p class="text-center text-slate-500 py-3">No history found</p>';return}let h='<div class="overflow-x-auto"><table class="history-table"><thead><tr><th>Period</th><th>Number</th><th>Big/Small</th><th>Color</th></tr></thead><tbody>';data.forEach(r=>{let bs=Number(r.winning_number)>=5?'Big':'Small',cl=r.winning_color==='Green'?'text-emerald-300':r.winning_color==='Red'?'text-rose-300':'text-purple-300';h+=`<tr><td class="font-mono text-cyan-300">${escapeHtml(r.period_number)}</td><td class="font-bold">${escapeHtml(r.winning_number)}</td><td class="font-semibold">${bs}</td><td class="font-bold ${cl}">${escapeHtml(r.winning_color)}</td></tr>`});c.innerHTML=h+'</tbody></table></div>'}
-else if(type==='my-history'){const{data,error}=await supabaseClient.from('color_game_history').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(10);if(error){c.innerHTML='<p class="text-center text-rose-300 py-4">Unable to load My History. Please check the database.</p>';return}if(!data||!data.length){c.innerHTML='<p class="text-center text-slate-500 py-4">No bets found</p>';return}let h='<div class="mb-3 text-[10px] text-slate-400">Showing latest 10 bets. Scroll horizontally to see all details.</div><div class="history-scroll max-h-96"><table class="my-history-table"><thead><tr><th>Period</th><th>Bet</th><th>Amount</th><th>Status</th><th>Result No.</th><th>Result Color</th><th>Big/Small</th><th>Date &amp; Time</th></tr></thead><tbody>';data.forEach(r=>{let st=String(r.status||'pending').toLowerCase(),sc=st==='win'?'text-emerald-300':st==='loss'?'text-rose-300':'text-amber-300',res=getSavedBetResult(r),dt=formatHistoryDate(r.created_at),rn=res.hasResult?`<span class="result-number ${res.colorClass}">${res.number}</span>`:'—',rc=res.hasResult?`<span class="result-badge ${res.color==='Red'?'bg-rose-900/60 text-rose-300':res.color==='Green'?'bg-emerald-900/60 text-emerald-300':'bg-purple-900/60 text-purple-300'}">${escapeHtml(res.color.toUpperCase())}</span>`:'—',bs=res.hasResult?`<span class="result-badge ${res.bigSmall==='Big'?'bg-amber-900/60 text-amber-300':'bg-blue-900/60 text-blue-300'}">${res.bigSmall.toUpperCase()}</span>`:'—';h+=`<tr><td class="font-mono text-cyan-300">${escapeHtml(r.period_number||'—')}</td><td class="font-bold">${escapeHtml(r.bet_type||'—')}</td><td class="font-mono">৳${Number(r.bet_amount||0).toFixed(2)}</td><td class="font-bold ${sc}">${st.toUpperCase()}</td><td>${rn}</td><td>${rc}</td><td>${bs}</td><td class="date-cell">${escapeHtml(dt.date)}<br><span class="text-slate-400">${escapeHtml(dt.time)}</span></td></tr>`});c.innerHTML=h+'</tbody></table></div>'}
-else if(type==='chart')c.innerHTML='<p class="text-center text-slate-500 py-5">Chart feature coming soon...</p>'}
-function openBetModal(target){if(timerSeconds<=5){const s=document.getElementById('game-status-text');s.innerText='No More Bet! Please wait for the next round.';s.classList.remove('hidden');return}selectedTarget=target;document.getElementById('modal-target').innerText=target;document.getElementById('bet-modal').classList.remove('hidden');document.getElementById('bet-modal').classList.add('flex')}
-function closeBetModal(){document.getElementById('bet-modal').classList.remove('flex');document.getElementById('bet-modal').classList.add('hidden')}
-function closeWinModal(){document.getElementById('win-modal').classList.remove('flex');document.getElementById('win-modal').classList.add('hidden')}
-async function confirmAndPlaceBet(){if(timerSeconds<=5){closeBetModal();const s=document.getElementById('game-status-text');s.innerText='No More Bet! Please wait for the next round.';s.classList.remove('hidden');return}const amount=parseFloat(document.getElementById('bet-amount-input').value);if(!Number.isFinite(amount)||amount<=0){alert('Please enter a valid amount!');return}if(!userProfile||amount>Number(userProfile.balance)){alert('Insufficient balance!');return}const newBalance=Number(userProfile.balance)-amount;const{error:pe}=await supabaseClient.from('profiles').update({balance:newBalance}).eq('id',currentUser.id);if(pe){alert('Failed to place bet. Try again.');return}userProfile.balance=newBalance;document.getElementById('user-balance').innerText=newBalance.toFixed(2);const{error:be}=await supabaseClient.from('color_game_history').insert([{user_id:currentUser.id,period_number:currentPeriodNumber,bet_type:selectedTarget,bet_amount:amount,status:'pending'}]);if(be){console.error(be);alert('Bet history could not be saved. Please contact support.');return}await updatePeriodAmounts(amount,selectedTarget);closeBetModal();const s=document.getElementById('game-status-text');s.innerText=`Successfully placed ৳${amount} on ${selectedTarget}!`;s.classList.remove('hidden');if(activeTab==='my-history')loadHistoryData('my-history')}
-async function updatePeriodAmounts(amount,target){const{data:p}=await supabaseClient.from('color_periods').select('*').eq('period_number',currentPeriodNumber).maybeSingle();if(!p){await supabaseClient.from('color_periods').insert([{period_number:currentPeriodNumber,total_green_amount:target==='Green'?amount:0,total_red_amount:target==='Red'?amount:0,total_violet_amount:target==='Violet'?amount:0,status:'pending'}])}else{const u={};if(target==='Green')u.total_green_amount=Number(p.total_green_amount)+amount;else if(target==='Red')u.total_red_amount=Number(p.total_red_amount)+amount;else if(target==='Violet')u.total_violet_amount=Number(p.total_violet_amount)+amount;if(Object.keys(u).length)await supabaseClient.from('color_periods').update(u).eq('period_number',currentPeriodNumber)}}
-async function processRoundResult(){const s=document.getElementById('game-status-text');s.innerText='Calculating result...';s.classList.remove('hidden');const{data:p}=await supabaseClient.from('color_periods').select('*').eq('period_number',currentPeriodNumber).maybeSingle();const g=p?Number(p.total_green_amount):0,r=p?Number(p.total_red_amount):0,v=p?Number(p.total_violet_amount):0;let wc='Green';if(g===0&&r===0&&v===0){const a=['Green','Red','Green','Red','Violet'];wc=a[Math.floor(Math.random()*a.length)]}else if(g<=r&&g<=v)wc='Green';else if(r<=g&&r<=v)wc='Red';else wc='Violet';const nm={Green:[1,3,7,9],Red:[2,4,6,8],Violet:[0,5]},nums=nm[wc],wn=nums[Math.floor(Math.random()*nums.length)],bs=wn>=5?'Big':'Small',result=`${wc}-${wn}`;await supabaseClient.from('color_periods').update({winning_color:wc,winning_number:wn,status:'completed'}).eq('period_number',currentPeriodNumber);const{data:bets}=await supabaseClient.from('color_game_history').select('*').eq('period_number',currentPeriodNumber).eq('status','pending');let won=0,hasWon=false;if(bets?.length){for(const b of bets){let win=false,m=2;if(b.bet_type==='Red')m=1.9;else if(b.bet_type==='Violet')m=4.5;else if(b.bet_type==='Big'||b.bet_type==='Small')m=1.9;else if(!isNaN(b.bet_type))m=9;if(b.bet_type===wc||b.bet_type===String(wn)||b.bet_type===bs)win=true;const payout=win?Number(b.bet_amount)*m:0;await supabaseClient.from('color_game_history').update({winning_result:result,payout,status:win?'win':'loss'}).eq('id',b.id);if(win){if(b.user_id===currentUser.id){won+=payout;hasWon=true}const{data:profile}=await supabaseClient.from('profiles').select('balance').eq('id',b.user_id).single();if(profile)await supabaseClient.from('profiles').update({balance:Number(profile.balance)+payout}).eq('id',b.user_id)}}}s.innerText=`Result: ${result} (${bs})`;highlightWinningTargets(wc,wn,bs);await loadUserProfile();if(hasWon){document.getElementById('win-res-badge').innerText=wc;document.getElementById('win-res-num').innerText=wn;document.getElementById('win-res-bs').innerText=bs;document.getElementById('win-bonus-amount').innerText=`৳${won.toFixed(2)}`;document.getElementById('win-period-text').innerText=`Period: ${currentPeriodNumber}`;document.getElementById('win-modal').classList.remove('hidden');document.getElementById('win-modal').classList.add('flex')}currentPeriodNumber=String(parseInt(currentPeriodNumber,10)+1);renderPeriodNumber();if(activeTab)loadHistoryData(activeTab);startTimer()}
-</script>
+<body>
+
+    <div class="game-container">
+        <h2>Color Trading Game</h2>
+        
+        <div class="balance-box">
+            ব্যালেন্স: ৳ <span id="balance">100</span>
+        </div>
+
+        <div class="timer-box" id="timer">১০</div>
+
+        <div class="bet-input-box">
+            <label for="betAmount">বাতির পরিমাণ (টাকা):</label>
+            <input type="number" id="betAmount" value="10" min="1">
+        </div>
+
+        <div class="colors-section">
+            <button class="color-btn green" onclick="placeBet('green')">Green (2x)</button>
+            <button class="color-btn violet" onclick="placeBet('violet')">Violet (4x)</button>
+            <button class="color-btn red" onclick="placeBet('red')">Red (2x)</button>
+        </div>
+
+        <div class="result-box" id="resultText">
+            রঙ বেছে নিন এবং ট্রেড করুন!
+        </div>
+    </div>
+
+    <script>
+        let balance = 100;
+        let timeLeft = 10;
+        let isTradingActive = true;
+        let selectedBet = null;
+
+        const balanceDisplay = document.getElementById('balance');
+        const timerDisplay = document.getElementById('timer');
+        const resultText = document.getElementById('resultText');
+        const betInput = document.getElementById('betAmount');
+
+        // কাউন্টডাউন টাইমার
+        function startTimer() {
+            let countdown = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    declareResult();
+                }
+            }, 1000);
+        }
+
+        // বাজি ধরার ফাংশন
+        function placeBet(color) {
+            if (!isTradingActive) {
+                resultText.innerText = "ফলাফল ঘোষণা হচ্ছে, একটু অপেক্ষা করুন!";
+                return;
+            }
+
+            let amount = parseInt(betInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("দয়া করে সঠিক বাজি পরিমাণ লিখুন!");
+                return;
+            }
+
+            if (amount > balance) {
+                alert("আপনার পর্যাপ্ত ব্যালেন্স নেই!");
+                return;
+            }
+
+            selectedBet = { color: color, amount: amount };
+            balance -= amount;
+            balanceDisplay.innerText = balance;
+            
+            resultText.style.color = "#00ffcc";
+            resultText.innerText = `আপনি ${color.toUpperCase()} রঙে ৳${amount} বাজি ধরেছেন। ফলাফলের অপেক্ষা করুন...`;
+            isTradingActive = false;
+        }
+
+        // ফলাফল ঘোষণা ফাংশন
+        function declareResult() {
+            const colors = ['green', 'red', 'green', 'red', 'violet']; // গ্রীন ও রেডের সম্ভাবনা বেশি
+            const winningColor = colors[Math.floor(Math.random() * colors.length)];
+
+            let message = `বিজয়ী রঙ: ${winningColor.toUpperCase()}! `;
+
+            if (selectedBet) {
+                if (selectedBet.color === winningColor) {
+                    let winMultiplier = winningColor === 'violet' ? 4 : 2;
+                    let winnings = selectedBet.amount * winMultiplier;
+                    balance += winnings;
+                    message += `অভিনন্দন! আপনি ৳${winnings} জিতেছেন।`;
+                    resultText.style.color = "#28a745";
+                } else {
+                    message += `দুঃখিত, আপনি হেরে গেছেন।`;
+                    resultText.style.color = "#dc3545";
+                }
+            } else {
+                message += `আপনি কোনো বাজি ধরেননি।`;
+                resultText.style.color = "#ffcc00";
+            }
+
+            balanceDisplay.innerText = balance;
+            resultText.innerText = message;
+
+            // রিসেট করে আবার গেম শুরু করা
+            setTimeout(() => {
+                selectedBet = null;
+                timeLeft = 10;
+                isTradingActive = true;
+                timerDisplay.innerText = timeLeft;
+                resultText.style.color = "#ffffff";
+                resultText.innerText = "নতুন রাউন্ড শুরু হয়েছে! রঙ বেছে নিন।";
+                startTimer();
+            }, 4000);
+        }
+
+        // গেম স্টার্ট
+        startTimer();
+    </script>
+
 </body>
 </html>
