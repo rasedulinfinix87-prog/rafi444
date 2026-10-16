@@ -393,7 +393,7 @@ async function updatePeriodAndTimerState(){
  const now = Math.floor(Date.now() / 1000);
  const periodIndex = Math.floor(now / selectedGameDuration);
  
- const basePeriodId = 2026101500;
+ const basePeriodId = selectedGameDuration === 15 ? 2026101500 : selectedGameDuration === 30 ? 2026301500 : selectedGameDuration === 60 ? 2026601500 : 20263001500;
  currentPeriodNumber = String(basePeriodId + periodIndex);
  renderPeriodNumber();
  
@@ -411,7 +411,8 @@ async function ensureCurrentPeriodExists(){
  } else if(periodData.status === 'completed') {
    const now = Math.floor(Date.now() / 1000);
    const periodIndex = Math.floor(now / selectedGameDuration) + 1;
-   currentPeriodNumber = String(2026101500 + periodIndex);
+   const basePeriodId = selectedGameDuration === 15 ? 2026101500 : selectedGameDuration === 30 ? 2026301500 : selectedGameDuration === 60 ? 2026601500 : 20263001500;
+   currentPeriodNumber = String(basePeriodId + periodIndex);
    renderPeriodNumber();
    let {data:nextPeriodData} = await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).maybeSingle();
    if(!nextPeriodData){
@@ -424,7 +425,9 @@ async function loadRecentWinsUI(){
  const container=document.getElementById("recent-win-balls");
  if(!container) return;
  let tableName = getModeTableName();
- const {data}=await supabaseClient.from(tableName).select("*").eq("status","completed").order("created_at",{ascending:false}).limit(5);
+ const basePeriodPrefix = selectedGameDuration === 15 ? '20261015' : selectedGameDuration === 30 ? '20263015' : selectedGameDuration === 60 ? '20266015' : '202630015';
+ 
+ const {data}=await supabaseClient.from(tableName).select("*").eq("status","completed").ilike("period_number", basePeriodPrefix + "%").order("created_at",{ascending:false}).limit(5);
  if(!data || !data.length){
   container.innerHTML=`<span class="text-[10px] text-zinc-800">No data</span>`;
   return;
@@ -585,9 +588,10 @@ async function loadHistoryData(type){
  const container=document.getElementById("modal-body-content");if(!type)return;
  container.innerHTML=`<p class="text-center text-slate-500 py-3">Loading...</p>`;
  let tableName = getModeTableName();
+ const basePeriodPrefix = selectedGameDuration === 15 ? '20261015' : selectedGameDuration === 30 ? '20263015' : selectedGameDuration === 60 ? '20266015' : '202630015';
  
  if(type==='game-history'){
-  const {data,error}=await supabaseClient.from(tableName).select("*").eq("status","completed").order("created_at",{ascending:false}).limit(30);
+  const {data,error}=await supabaseClient.from(tableName).select("*").eq("status","completed").ilike("period_number", basePeriodPrefix + "%").order("created_at",{ascending:false}).limit(30);
   if(error||!data||!data.length){container.innerHTML=`<p class="text-center text-slate-500 py-3">No history found</p>`;return}
   let html=`<div class="overflow-x-auto"><table class="history-table"><thead><tr><th>Period</th><th>Number</th><th>Big/Small</th><th>Color</th></tr></thead><tbody>`;
   data.forEach(row=>{
@@ -600,7 +604,7 @@ async function loadHistoryData(type){
   container.innerHTML=html;
  }else if(type==='my-history'){
   let histTable = getModeHistoryTableName();
-  const {data,error}=await supabaseClient.from(histTable).select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(10);
+  const {data,error}=await supabaseClient.from(histTable).select("*").eq("user_id",currentUser.id).ilike("period_number", basePeriodPrefix + "%").order("created_at",{ascending:false}).limit(10);
   if(error){container.innerHTML=`<p class="text-center text-rose-400 py-4">Unable to load My History. Please check the database.</p>`;return}
   if(!data||!data.length){container.innerHTML=`<p class="text-center text-slate-500 py-4">No bets found</p>`;return}
   
@@ -649,7 +653,7 @@ async function loadHistoryData(type){
   html+=`</tbody></table></div>`;
   container.innerHTML=html;
  }else if(type==='chart'){
-  const {data}=await supabaseClient.from(tableName).select("*").eq("status","completed").order("created_at",{ascending:false}).limit(30);
+  const {data}=await supabaseClient.from(tableName).select("*").eq("status","completed").ilike("period_number", basePeriodPrefix + "%").order("created_at",{ascending:false}).limit(30);
   let trend='',big=0,small=0,green=0,red=0,violet=0;
   if(data&&data.length)data.forEach(row=>{const n=Number(row.winning_number);n>=5?big++:small++;if(row.winning_color==='Green')green++;else if(row.winning_color==='Red')red++;else if(row.winning_color==='Violet')violet++;const bg=row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#7c3aed';trend+=`<div class="trend-ball" style="background:${bg}">${n}</div>`});else trend=`<p class="text-slate-500 text-center py-2">কোনো ডাটা পাওয়া যায়নি</p>`;
   const total=(data?.length||0)||1,bigPct=Math.round(big/total*100),smallPct=100-bigPct,greenPct=Math.round(green/total*100),redPct=Math.round(red/total*100),violetPct=Math.max(0,100-greenPct-redPct);
