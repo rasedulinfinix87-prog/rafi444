@@ -57,6 +57,7 @@
             padding: 0 15px;
             background: linear-gradient(180deg, #111b22, #0a1218);
             border-bottom: 1px solid rgba(255,255,255,.06);
+            position: relative;
         }
 
         .top-icon {
@@ -69,7 +70,8 @@
             background: #17232c;
             border: 1px solid #263640;
             color: #cbd5df;
-            font-size: 21px;
+            font-size: 19px;
+            cursor: pointer;
         }
 
         .brand {
@@ -97,6 +99,50 @@
         .header-actions {
             display: flex;
             gap: 7px;
+            position: relative;
+        }
+
+        /* Top Bar Dropdown Menu Styling */
+        .top-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: #0d1519;
+            border: 1px solid #27363c;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 100;
+            min-width: 150px;
+        }
+
+        .top-dropdown.show {
+            display: flex;
+        }
+
+        .top-dropdown button {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(39, 54, 60, 0.4);
+            transition: background 0.15s;
+        }
+
+        .top-dropdown button:last-child {
+            border-bottom: none;
+        }
+
+        .top-dropdown button:hover,
+        .top-dropdown button.active {
+            background: #1a272e;
+            color: #f8fafc;
         }
 
         /* =========================
@@ -899,7 +945,7 @@
         }
 
         /* =========================
-           BOTTOM BAR (With Menu Dropdown)
+           BOTTOM BAR
         ========================== */
 
         .bottom-fixed-bar {
@@ -919,71 +965,6 @@
             border-top: 1px solid #27353d;
             backdrop-filter: blur(14px);
             font-size: 13px;
-        }
-
-        .bottom-menu-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .bottom-menu-btn {
-            background: linear-gradient(145deg, #1d2b31, #121c21);
-            border: 1px solid #33434a;
-            color: #e2e8f0;
-            width: 36px;
-            height: 36px;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-
-        .bottom-dropdown {
-            position: absolute;
-            bottom: 48px;
-            left: 0;
-            background: #0d1519;
-            border: 1px solid #27363c;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 50;
-            min-width: 140px;
-        }
-
-        .bottom-dropdown.show {
-            display: flex;
-        }
-
-        .bottom-dropdown button {
-            background: transparent;
-            border: none;
-            color: #cbd5e1;
-            padding: 10px 14px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(39, 54, 60, 0.4);
-            transition: background 0.15s;
-        }
-
-        .bottom-dropdown button:last-child {
-            border-bottom: none;
-        }
-
-        .bottom-dropdown button:hover,
-        .bottom-dropdown button.active {
-            background: #1a272e;
-            color: #f8fafc;
         }
 
         .bottom-fixed-bar .text-emerald-400 {
@@ -1058,8 +1039,17 @@
         </div>
 
         <div class="header-actions">
-            <div class="top-icon">♧</div>
-            <div class="top-icon">♧</div>
+            <!-- Bet History Symbol & Menu Toggle -->
+            <div class="top-icon" onclick="toggleTopMenu()" title="Bet History & Statistics">📊</div>
+            <!-- Statistics Symbol -->
+            <div class="top-icon" onclick="switchTab('chart')" title="Statistics">📈</div>
+
+            <!-- Top Dropdown Menu -->
+            <div id="top-dropdown-menu" class="top-dropdown">
+                <button onclick="switchTab('game-history'); toggleTopMenu();">Game History</button>
+                <button onclick="switchTab('my-history'); toggleTopMenu();">My History</button>
+                <button onclick="switchTab('chart'); toggleTopMenu();">Statistics</button>
+            </div>
         </div>
     </div>
 
@@ -1415,20 +1405,11 @@
     <!-- BOTTOM BAR -->
     <div class="bottom-fixed-bar">
 
-        <div class="bottom-menu-container">
-            <button class="bottom-menu-btn" onclick="toggleBottomMenu()" title="Menu">ƒ</button>
-            <div id="bottom-dropdown-menu" class="bottom-dropdown">
-                <button onclick="switchTab('game-history'); toggleBottomMenu();" id="tab-game-history">Game History</button>
-                <button onclick="switchTab('chart'); toggleBottomMenu();" id="tab-chart">Statistics</button>
-                <button onclick="switchTab('my-history'); toggleBottomMenu();" id="tab-my-history">My History</button>
-            </div>
-
-            <div>
-                <span class="text-slate-400">Total Bet:</span>
-                <span class="text-amber-400 font-mono font-bold">
-                    ৳<span id="bar-total-bet">0.00</span>
-                </span>
-            </div>
+        <div>
+            <span class="text-slate-400">Total Bet:</span>
+            <span class="text-amber-400 font-mono font-bold">
+                ৳<span id="bar-total-bet">0.00</span>
+            </span>
         </div>
 
         <div id="bottom-bar-center-status"
@@ -1464,14 +1445,14 @@
     let currentRoundTotalBet = 0;
     let userActiveBets = [];
 
-    function toggleBottomMenu() {
-        const menu = document.getElementById('bottom-dropdown-menu');
+    function toggleTopMenu() {
+        const menu = document.getElementById('top-dropdown-menu');
         menu.classList.toggle('show');
     }
 
     window.addEventListener('click', function(e) {
-        if (!e.target.closest('.bottom-menu-container')) {
-            const menu = document.getElementById('bottom-dropdown-menu');
+        if (!e.target.closest('.header-actions')) {
+            const menu = document.getElementById('top-dropdown-menu');
             if (menu && menu.classList.contains('show')) {
                 menu.classList.remove('show');
             }
