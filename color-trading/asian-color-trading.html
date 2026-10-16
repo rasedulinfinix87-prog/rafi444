@@ -41,7 +41,7 @@
                 linear-gradient(180deg, #111a21 0%, #0b1218 38%, #071016 100%);
             position: relative;
             overflow-x: hidden;
-            padding-bottom: 110px; /* Big/Small কার্ড যেন বটম বারের নিচে ঢাকা না পড়ে, তার জন্য প্যাডিং বাড়ানো হলো */
+            padding-bottom: 110px;
             box-shadow: 0 0 50px rgba(0,0,0,.45);
         }
 
@@ -147,6 +147,7 @@
         /* =========================
            POPUP MODAL
         ========================== */
+
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -882,9 +883,9 @@
             }
         }
 
-        /* =========================
-           UPDATED BOTTOM BAR & CLASSIC CHIPS STYLING (MATCHING APP THEME)
-        ========================== */
+        /* =========================================================
+           REAL CASINO CHIP SYSTEM
+           ========================================================= */
 
         .bottom-fixed-bar {
             position: fixed;
@@ -894,7 +895,8 @@
             transform: translateX(-50%);
             width: 100%;
             max-width: 430px;
-            background: #111a21; /* ফাইলের মূল ডার্ক ব্যাকগ্রাউন্ড কালারের সাথে সামঞ্জস্য রাখা হলো */
+            background:
+                linear-gradient(180deg, #121d24 0%, #0b141a 100%);
             border-top: 1px solid #27353d;
             padding: 8px 15px 10px 15px;
             display: flex;
@@ -911,7 +913,6 @@
             height: 48px;
         }
 
-        /* Undo Button (Left) */
         .bottom-action-btn {
             width: 44px;
             height: 44px;
@@ -926,7 +927,6 @@
             cursor: pointer;
         }
 
-        /* Rebet Button (Right) */
         .bottom-rebet-btn {
             width: 44px;
             height: 44px;
@@ -954,58 +954,173 @@
             font-weight: 950;
         }
 
-        /* Stacked Chips Display in Center (Exact Image Design with Classic Token Border) */
+        /* =========================================================
+           CASINO CHIP CORE
+           ========================================================= */
+
         .center-chips-stack {
             position: absolute;
             left: 50%;
-            transform: translateX(-50%);
+            top: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            height: 44px;
-            width: 110px;
+            height: 58px;
+            width: 125px;
+            perspective: 500px;
         }
 
         .stacked-chip {
-            width: 40px;
-            height: 40px;
+            --chip-main: #e63950;
+            --chip-dark: #8d1023;
+            --chip-light: #ff7a88;
+            --chip-edge: #f6f6f6;
+
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 10px;
-            font-weight: 900;
+            font-weight: 950;
+            letter-spacing: -.2px;
             position: absolute;
-            border: 3px dashed #ffffff; /* ছবির মতো হোয়াইট ড্যাশড ক্যাসিনো বর্ডার */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.4);
-            transition: all 0.3s ease;
+
+            background:
+                radial-gradient(
+                    circle at 35% 25%,
+                    var(--chip-light) 0%,
+                    var(--chip-main) 38%,
+                    var(--chip-dark) 100%
+                );
+
+            border: 3px solid var(--chip-edge);
+
+            box-shadow:
+                0 6px 12px rgba(0,0,0,.55),
+                inset 0 2px 3px rgba(255,255,255,.55),
+                inset 0 -5px 8px rgba(0,0,0,.35);
+
+            transition:
+                transform .25s ease,
+                filter .25s ease,
+                box-shadow .25s ease;
+        }
+
+        /* Outer casino rim */
+        .stacked-chip::before {
+            content: "";
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,.72);
+            pointer-events: none;
+        }
+
+        /* Inner ring */
+        .stacked-chip::after {
+            content: "";
+            position: absolute;
+            inset: 9px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,.62);
+            box-shadow:
+                inset 0 1px 2px rgba(0,0,0,.28),
+                0 1px 1px rgba(255,255,255,.18);
+            pointer-events: none;
+        }
+
+        /* Edge inserts */
+        .stacked-chip {
+            background-color: var(--chip-main);
+            background-image:
+                repeating-conic-gradient(
+                    from 0deg,
+                    var(--chip-edge) 0deg 8deg,
+                    transparent 8deg 30deg
+                ),
+                radial-gradient(
+                    circle at 35% 25%,
+                    var(--chip-light) 0%,
+                    var(--chip-main) 42%,
+                    var(--chip-dark) 100%
+                );
+            background-size: 100% 100%, 100% 100%;
+            background-position: center;
+            background-blend-mode: soft-light, normal;
         }
 
         .stack-back-1 {
-            background: radial-gradient(circle, #f7b733 40%, #fc4a1a 100%);
-            transform: translateX(-24px) scale(0.85);
+            --chip-main: #e59b16;
+            --chip-dark: #8b4d00;
+            --chip-light: #ffd76b;
+
+            transform:
+                translateX(-31px)
+                translateY(2px)
+                scale(.82)
+                rotate(-8deg);
+
             z-index: 1;
-            opacity: 0.85;
+            opacity: .95;
+            filter: brightness(.82);
         }
 
         .stack-back-2 {
-            background: radial-gradient(circle, #4facfe 40%, #00f2fe 100%);
-            transform: translateX(24px) scale(0.85);
+            --chip-main: #198fd0;
+            --chip-dark: #07518a;
+            --chip-light: #65c9ff;
+
+            transform:
+                translateX(31px)
+                translateY(2px)
+                scale(.82)
+                rotate(8deg);
+
             z-index: 1;
-            opacity: 0.85;
+            opacity: .95;
+            filter: brightness(.82);
         }
 
         .stack-front {
-            background: radial-gradient(circle, #ff6b6b 40%, #d91f43 100%);
-            transform: translateX(0) scale(1.12);
-            z-index: 3;
-            border: 3.5px dashed #ffffff;
-            box-shadow: 0 0 12px rgba(255, 107, 107, 0.8), 0 5px 12px rgba(0,0,0,0.6);
+            --chip-main: #e63950;
+            --chip-dark: #8d1023;
+            --chip-light: #ff7a88;
+
+            width: 53px;
+            height: 53px;
+
+            transform:
+                translateX(0)
+                translateY(-2px)
+                scale(1.05);
+
+            z-index: 4;
+
+            border-width: 3px;
+
+            box-shadow:
+                0 8px 18px rgba(0,0,0,.65),
+                0 0 14px rgba(230,57,80,.24),
+                inset 0 2px 4px rgba(255,255,255,.62),
+                inset 0 -7px 9px rgba(0,0,0,.36);
         }
 
-        /* Bottom Bar Info Row (Balance & Total Bet) */
+        .stack-front:hover {
+            transform:
+                translateX(0)
+                translateY(-4px)
+                scale(1.09);
+        }
+
+        /* =========================================================
+           BOTTOM INFO
+           ========================================================= */
+
         .bottom-bar-info-row {
             display: flex;
             align-items: center;
@@ -1016,7 +1131,8 @@
             padding-top: 6px;
         }
 
-        .info-box-left, .info-box-right {
+        .info-box-left,
+        .info-box-right {
             display: flex;
             flex-direction: column;
         }
@@ -1039,16 +1155,20 @@
             white-space: nowrap;
         }
 
-        /* Chip Selection Popup Modal (2nd Image Style) */
+        /* =========================================================
+           CASINO CHIP SELECTION POPUP
+           ========================================================= */
+
         .chips-popup-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.6);
+            background:
+                rgba(0,0,0,.72);
             z-index: 250;
             display: none;
             align-items: flex-end;
             justify-content: center;
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(5px);
         }
 
         .chips-popup-overlay.show {
@@ -1058,57 +1178,201 @@
         .chips-popup-content {
             width: 100%;
             max-width: 430px;
-            background: #111a21;
-            border-top: 2px solid #27353d;
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
-            padding: 20px 15px 25px 15px;
+            background:
+                linear-gradient(180deg, #141f27 0%, #0c151b 100%);
+            border-top: 1px solid rgba(255,255,255,.08);
+            border-top-left-radius: 26px;
+            border-top-right-radius: 26px;
+            padding: 22px 15px 27px 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+            gap: 18px;
+            box-shadow:
+                0 -15px 45px rgba(0,0,0,.7),
+                inset 0 1px 0 rgba(255,255,255,.04);
             animation: slideUpModal 0.25s ease-out;
+        }
+
+        .chips-popup-content::before {
+            content: "";
+            width: 42px;
+            height: 4px;
+            border-radius: 10px;
+            background: #46545d;
+            display: block;
+            margin-bottom: 2px;
         }
 
         .popup-chips-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 19px 16px;
             width: 100%;
-            max-width: 320px;
+            max-width: 350px;
             justify-items: center;
         }
 
+        /* =========================================================
+           POPUP CHIP
+           ========================================================= */
+
         .popup-chip-item {
-            width: 60px;
-            height: 60px;
+            --chip-main: #e63950;
+            --chip-dark: #8d1023;
+            --chip-light: #ff7a88;
+
+            width: 78px;
+            height: 78px;
             border-radius: 50%;
+
             display: flex;
             align-items: center;
             justify-content: center;
+
             color: white;
-            font-size: 13px;
-            font-weight: 900;
+            font-size: 15px;
+            font-weight: 950;
+            letter-spacing: -.3px;
+
             cursor: pointer;
             position: relative;
-            border: 3.5px dashed #ffffff;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4), inset 0 2px 5px rgba(255,255,255,0.4);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+            background:
+                repeating-conic-gradient(
+                    from 0deg,
+                    rgba(255,255,255,.92) 0deg 7deg,
+                    transparent 7deg 28deg
+                ),
+                radial-gradient(
+                    circle at 34% 24%,
+                    var(--chip-light) 0%,
+                    var(--chip-main) 40%,
+                    var(--chip-dark) 100%
+                );
+
+            border: 5px solid #f4f4f4;
+
+            box-shadow:
+                0 8px 17px rgba(0,0,0,.55),
+                inset 0 3px 5px rgba(255,255,255,.58),
+                inset 0 -7px 10px rgba(0,0,0,.38);
+
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease,
+                filter .2s ease;
+        }
+
+        /* inner casino ring */
+        .popup-chip-item::before {
+            content: "";
+            position: absolute;
+            inset: 7px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,.74);
+
+            box-shadow:
+                inset 0 1px 3px rgba(0,0,0,.35),
+                0 1px 1px rgba(255,255,255,.25);
+
+            pointer-events: none;
+        }
+
+        /* center medallion */
+        .popup-chip-item::after {
+            content: "";
+            position: absolute;
+            inset: 16px;
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle at 35% 28%,
+                    rgba(255,255,255,.22),
+                    transparent 42%
+                ),
+                rgba(0,0,0,.08);
+
+            border: 1px solid rgba(255,255,255,.35);
+
+            box-shadow:
+                inset 0 2px 4px rgba(255,255,255,.18),
+                inset 0 -3px 5px rgba(0,0,0,.28);
+
+            pointer-events: none;
+        }
+
+        .popup-chip-item {
+            text-shadow:
+                0 1px 1px rgba(0,0,0,.75),
+                0 2px 3px rgba(0,0,0,.35);
+        }
+
+        .chip-20 {
+            --chip-main: #e63950;
+            --chip-dark: #861324;
+            --chip-light: #ff7887;
+        }
+
+        .chip-50 {
+            --chip-main: #16b866;
+            --chip-dark: #08733e;
+            --chip-light: #62f0a0;
+        }
+
+        .chip-100 {
+            --chip-main: #e49a18;
+            --chip-dark: #874d00;
+            --chip-light: #ffd86a;
+        }
+
+        .chip-500 {
+            --chip-main: #83d95a;
+            --chip-dark: #3c8c2c;
+            --chip-light: #c4ff9e;
+            color: #10210d;
+            text-shadow: 0 1px 1px rgba(255,255,255,.45);
+        }
+
+        .chip-1k {
+            --chip-main: #249bdd;
+            --chip-dark: #07578f;
+            --chip-light: #69d4ff;
+        }
+
+        .chip-10k {
+            --chip-main: #b84ce0;
+            --chip-dark: #6b168c;
+            --chip-light: #ef9cff;
         }
 
         .popup-chip-item.selected-chip {
-            transform: scale(1.15);
-            border-color: #fff !important;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 6px 15px rgba(0,0,0,0.6);
+            transform: scale(1.12) translateY(-3px);
+
+            border-color: #fff;
+
+            box-shadow:
+                0 0 0 3px rgba(255,210,67,.22),
+                0 0 22px rgba(255,255,255,.65),
+                0 10px 20px rgba(0,0,0,.7),
+                inset 0 3px 5px rgba(255,255,255,.7),
+                inset 0 -8px 11px rgba(0,0,0,.4);
+
             z-index: 10;
+            filter: brightness(1.08);
         }
 
-        /* =========================
+        .popup-chip-item:active {
+            transform: scale(.96);
+        }
+
+        /* =========================================================
            RESPONSIVE
-        ========================== */
+           ========================================================= */
 
         @media (max-width: 360px) {
+
             .page-content {
                 padding: 9px;
             }
@@ -1139,6 +1403,35 @@
 
             .number-button {
                 font-size: 22px !important;
+            }
+
+            .popup-chips-grid {
+                gap: 16px 9px;
+            }
+
+            .popup-chip-item {
+                width: 69px;
+                height: 69px;
+                font-size: 13px;
+                border-width: 4px;
+            }
+
+            .popup-chip-item::before {
+                inset: 6px;
+            }
+
+            .popup-chip-item::after {
+                inset: 14px;
+            }
+
+            .stack-front {
+                width: 49px;
+                height: 49px;
+            }
+
+            .stacked-chip {
+                width: 45px;
+                height: 45px;
             }
         }
     </style>
@@ -1311,25 +1604,19 @@
                 <button onclick="placeDirectBet('Green')"
                     id="btn-Green"
                     class="color-choice green-choice">
-
                     Green
-
                 </button>
 
                 <button onclick="placeDirectBet('Violet')"
                     id="btn-Violet"
                     class="color-choice violet-choice">
-
                     Violet
-
                 </button>
 
                 <button onclick="placeDirectBet('Red')"
                     id="btn-Red"
                     class="color-choice red-choice">
-
                     Red
-
                 </button>
 
             </div>
@@ -1409,17 +1696,13 @@
                 <button onclick="placeDirectBet('Big')"
                     id="btn-Big"
                     class="size-button big-choice relative">
-
                     Big
-
                 </button>
 
                 <button onclick="placeDirectBet('Small')"
                     id="btn-Small"
                     class="size-button small-choice relative">
-
                     Small
-
                 </button>
 
             </div>
@@ -1438,68 +1721,153 @@
     <div id="custom-popup-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <span id="modal-title-text" class="modal-title">History & Statistics</span>
-                <button class="modal-close-btn" onclick="closeModal()">✕</button>
+                <span id="modal-title-text" class="modal-title">
+                    History & Statistics
+                </span>
+
+                <button class="modal-close-btn" onclick="closeModal()">
+                    ✕
+                </button>
             </div>
+
             <div id="modal-body-content" class="modal-body">
-                <p class="text-center text-slate-500 py-3">Loading...</p>
+                <p class="text-center text-slate-500 py-3">
+                    Loading...
+                </p>
             </div>
         </div>
     </div>
 
-    <!-- CHIPS SELECTION POPUP MODAL -->
-    <div id="chips-popup-modal" class="chips-popup-overlay" onclick="closeChipsPopupOnOutside(event)">
+    <!-- =========================================================
+         CASINO CHIP SELECTION POPUP
+         ========================================================= -->
+
+    <div id="chips-popup-modal"
+         class="chips-popup-overlay"
+         onclick="closeChipsPopupOnOutside(event)">
+
         <div class="chips-popup-content">
+
             <div class="popup-chips-grid">
-                <div onclick="selectChipFromPopup(20, this)" class="popup-chip-item chip-20 selected-chip" style="background: radial-gradient(circle, #ff6b6b 40%, #d91f43 100%);">20</div>
-                <div onclick="selectChipFromPopup(50, this)" class="popup-chip-item chip-50" style="background: radial-gradient(circle, #38ef7d 40%, #11998e 100%);">50</div>
-                <div onclick="selectChipFromPopup(100, this)" class="popup-chip-item chip-100" style="background: radial-gradient(circle, #f7b733 40%, #fc4a1a 100%);">100</div>
-                <div onclick="selectChipFromPopup(500, this)" class="popup-chip-item chip-500" style="background: radial-gradient(circle, #a8ff78 40%, #78ffd6 100%); color:#111;">500</div>
-                <div onclick="selectChipFromPopup(1000, this)" class="popup-chip-item chip-1k" style="background: radial-gradient(circle, #4facfe 40%, #00f2fe 100%);">1K</div>
-                <div onclick="selectChipFromPopup(10000, this)" class="popup-chip-item chip-10k" style="background: radial-gradient(circle, #c471f5 40%, #fa71cd 100%);">10K</div>
+
+                <div onclick="selectChipFromPopup(20, this)"
+                     class="popup-chip-item chip-20 selected-chip">
+                    20
+                </div>
+
+                <div onclick="selectChipFromPopup(50, this)"
+                     class="popup-chip-item chip-50">
+                    50
+                </div>
+
+                <div onclick="selectChipFromPopup(100, this)"
+                     class="popup-chip-item chip-100">
+                    100
+                </div>
+
+                <div onclick="selectChipFromPopup(500, this)"
+                     class="popup-chip-item chip-500">
+                    500
+                </div>
+
+                <div onclick="selectChipFromPopup(1000, this)"
+                     class="popup-chip-item chip-1k">
+                    1K
+                </div>
+
+                <div onclick="selectChipFromPopup(10000, this)"
+                     class="popup-chip-item chip-10k">
+                    10K
+                </div>
+
             </div>
+
         </div>
     </div>
 
-    <!-- UPDATED BOTTOM BAR -->
+    <!-- =========================================================
+         BOTTOM BAR
+         ========================================================= -->
+
     <div class="bottom-fixed-bar">
+
         <div class="bottom-bar-top-row">
-            <!-- Undo Button -->
-            <button onclick="undoLastBet()" class="bottom-action-btn" title="Undo Bet">
+
+            <!-- Undo -->
+            <button onclick="undoLastBet()"
+                    class="bottom-action-btn"
+                    title="Undo Bet">
                 ↩
             </button>
 
-            <!-- Center Stacked Chips -->
-            <div class="center-chips-stack" onclick="openChipsPopup()" id="center-chips-display">
-                <div class="stacked-chip stack-back-1">100</div>
-                <div class="stacked-chip stack-back-2">500</div>
-                <div class="stacked-chip stack-front" id="active-stack-chip-label">20</div>
+            <!-- Real Casino Chip Stack -->
+            <div class="center-chips-stack"
+                 onclick="openChipsPopup()"
+                 id="center-chips-display">
+
+                <div class="stacked-chip stack-back-1">
+                    100
+                </div>
+
+                <div class="stacked-chip stack-back-2">
+                    500
+                </div>
+
+                <div class="stacked-chip stack-front"
+                     id="active-stack-chip-label">
+                    20
+                </div>
+
             </div>
 
-            <!-- Rebet Button -->
-            <button onclick="rebetLast()" class="bottom-rebet-btn" title="Rebet">
+            <!-- Rebet -->
+            <button onclick="rebetLast()"
+                    class="bottom-rebet-btn"
+                    title="Rebet">
+
                 🔄
-                <span class="rebet-badge-2x">2x</span>
+
+                <span class="rebet-badge-2x">
+                    2x
+                </span>
+
             </button>
+
         </div>
 
         <div class="bottom-bar-info-row">
+
             <div class="info-box-left">
-                <span class="info-title">BALANCE</span>
+
+                <span class="info-title">
+                    BALANCE
+                </span>
+
                 <span class="info-value text-emerald-400">
                     ৳<span id="bar-user-balance">0.00</span>
                 </span>
+
             </div>
 
-            <div id="bottom-bar-center-status" class="font-bold text-xs text-center"></div>
+            <div id="bottom-bar-center-status"
+                 class="font-bold text-xs text-center">
+            </div>
 
-            <div class="info-box-right" style="text-align: right;">
-                <span class="info-title">TOTAL BET</span>
+            <div class="info-box-right"
+                 style="text-align: right;">
+
+                <span class="info-title">
+                    TOTAL BET
+                </span>
+
                 <span class="info-value text-amber-400">
                     ৳<span id="bar-total-bet">0.00</span>
                 </span>
+
             </div>
+
         </div>
+
     </div>
 
 </div>
@@ -1521,81 +1889,273 @@
 
     function toggleTopMenu() {
         const menu = document.getElementById('top-dropdown-menu');
-        if (menu) menu.classList.toggle('show');
+
+        if (menu) {
+            menu.classList.toggle('show');
+        }
     }
 
     window.addEventListener('click', function(e) {
-        if (!e.target.closest('.header-actions') && !e.target.closest('.top-icon')) {
-            const menu = document.getElementById('top-dropdown-menu');
-            if (menu && menu.classList.contains('show')) {
+
+        if (
+            !e.target.closest('.header-actions') &&
+            !e.target.closest('.top-icon')
+        ) {
+
+            const menu =
+                document.getElementById(
+                    'top-dropdown-menu'
+                );
+
+            if (
+                menu &&
+                menu.classList.contains('show')
+            ) {
                 menu.classList.remove('show');
             }
         }
     });
 
-    // Modal Control Functions
+    /* =========================
+       MODAL CONTROL
+    ========================== */
+
     function openModal(tabName) {
+
         activeModalTab = tabName;
-        const modal = document.getElementById('custom-popup-modal');
-        const titleElem = document.getElementById('modal-title-text');
+
+        const modal =
+            document.getElementById(
+                'custom-popup-modal'
+            );
+
+        const titleElem =
+            document.getElementById(
+                'modal-title-text'
+            );
 
         if (tabName === 'game-history') {
-            titleElem.innerText = 'Game History';
+            titleElem.innerText =
+                'Game History';
+
         } else if (tabName === 'my-history') {
-            titleElem.innerText = 'My Bet History';
+            titleElem.innerText =
+                'My Bet History';
+
         } else if (tabName === 'chart') {
-            titleElem.innerText = 'Statistics & Percentages';
+            titleElem.innerText =
+                'Statistics & Percentages';
         }
 
         modal.classList.add('show');
+
         loadHistoryData(tabName);
     }
 
     function closeModal() {
-        const modal = document.getElementById('custom-popup-modal');
+
+        const modal =
+            document.getElementById(
+                'custom-popup-modal'
+            );
+
         modal.classList.remove('show');
     }
 
-    // Chips Popup Control Functions
+    /* =========================
+       CHIP POPUP
+    ========================== */
+
     function openChipsPopup() {
-        const popup = document.getElementById('chips-popup-modal');
-        if (popup) popup.classList.add('show');
+
+        const popup =
+            document.getElementById(
+                'chips-popup-modal'
+            );
+
+        if (popup) {
+            popup.classList.add('show');
+        }
     }
 
     function closeChipsPopup() {
-        const popup = document.getElementById('chips-popup-modal');
-        if (popup) popup.classList.remove('show');
+
+        const popup =
+            document.getElementById(
+                'chips-popup-modal'
+            );
+
+        if (popup) {
+            popup.classList.remove('show');
+        }
     }
 
     function closeChipsPopupOnOutside(e) {
-        if (e.target.id === 'chips-popup-modal') {
+
+        if (
+            e.target.id ===
+            'chips-popup-modal'
+        ) {
             closeChipsPopup();
         }
     }
 
-    function selectChipFromPopup(amount, element) {
+    function selectChipFromPopup(
+        amount,
+        element
+    ) {
+
         selectedChipAmount = amount;
 
-        document.querySelectorAll('.popup-chip-item')
-            .forEach(el => el.classList.remove('selected-chip'));
+        document
+            .querySelectorAll(
+                '.popup-chip-item'
+            )
+            .forEach(el => {
+                el.classList.remove(
+                    'selected-chip'
+                );
+            });
 
-        element.classList.add('selected-chip');
+        element.classList.add(
+            'selected-chip'
+        );
 
-        let labelElem = document.getElementById('active-stack-chip-label');
+        let labelElem =
+            document.getElementById(
+                'active-stack-chip-label'
+            );
+
         if (labelElem) {
-            let displayVal = amount >= 1000 ? (amount / 1000) + 'K' : amount;
-            labelElem.innerText = displayVal;
+
+            let displayVal =
+                amount >= 1000
+                    ? (amount / 1000) + 'K'
+                    : amount;
+
+            labelElem.innerText =
+                displayVal;
         }
 
-        let frontChip = document.querySelector('.stack-front');
+        /*
+         * Change the front chip colour
+         * without changing any betting logic.
+         */
+
+        let frontChip =
+            document.querySelector(
+                '.stack-front'
+            );
+
         if (frontChip) {
-            frontChip.className = "stacked-chip stack-front";
-            if (amount === 20) frontChip.style.background = "radial-gradient(circle, #ff6b6b 40%, #d91f43 100%)";
-            else if (amount === 50) frontChip.style.background = "radial-gradient(circle, #38ef7d 40%, #11998e 100%)";
-            else if (amount === 100) frontChip.style.background = "radial-gradient(circle, #f7b733 40%, #fc4a1a 100%)";
-            else if (amount === 500) frontChip.style.background = "radial-gradient(circle, #a8ff78 40%, #78ffd6 100%)";
-            else if (amount === 1000) frontChip.style.background = "radial-gradient(circle, #4facfe 40%, #00f2fe 100%)";
-            else if (amount === 10000) frontChip.style.background = "radial-gradient(circle, #c471f5 40%, #fa71cd 100%)";
+
+            frontChip.className =
+                "stacked-chip stack-front";
+
+            frontChip.style.backgroundImage = "";
+
+            if (amount === 20) {
+
+                frontChip.style.setProperty(
+                    '--chip-main',
+                    '#e63950'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-dark',
+                    '#861324'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-light',
+                    '#ff7887'
+                );
+
+            } else if (amount === 50) {
+
+                frontChip.style.setProperty(
+                    '--chip-main',
+                    '#16b866'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-dark',
+                    '#08733e'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-light',
+                    '#62f0a0'
+                );
+
+            } else if (amount === 100) {
+
+                frontChip.style.setProperty(
+                    '--chip-main',
+                    '#e49a18'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-dark',
+                    '#874d00'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-light',
+                    '#ffd86a'
+                );
+
+            } else if (amount === 500) {
+
+                frontChip.style.setProperty(
+                    '--chip-main',
+                    '#83d95a'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-dark',
+                    '#3c8c2c'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-light',
+                    '#c4ff9e'
+                );
+
+            } else if (amount === 1000) {
+
+                frontChip.style.setProperty(
+                    '--chip-main',
+                    '#249bdd'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-dark',
+                    '#07578f'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-light',
+                    '#69d4ff'
+                );
+
+            } else if (amount === 10000) {
+
+                frontChip.style.setProperty(
+                    '--chip-main',
+                    '#b84ce0'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-dark',
+                    '#6b168c'
+                );
+
+                frontChip.style.setProperty(
+                    '--chip-light',
+                    '#ef9cff'
+                );
+            }
         }
 
         setTimeout(() => {
@@ -1603,113 +2163,235 @@
         }, 200);
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
-        renderPeriodNumber();
+    /* =========================
+       INITIALIZATION
+    ========================== */
 
-        currentUser = await requireAuth();
+    document.addEventListener(
+        "DOMContentLoaded",
+        async () => {
 
-        if (currentUser) {
-            await loadUserProfile();
-            await ensureCurrentPeriodExists();
-            startTimer();
-            initRealtimeSubscription();
+            renderPeriodNumber();
+
+            currentUser =
+                await requireAuth();
+
+            if (currentUser) {
+
+                await loadUserProfile();
+
+                await ensureCurrentPeriodExists();
+
+                startTimer();
+
+                initRealtimeSubscription();
+            }
         }
-    });
+    );
 
     async function ensureCurrentPeriodExists() {
-        let { data: periodData, error } = await supabaseClient
+
+        let {
+            data: periodData,
+            error
+        } = await supabaseClient
             .from("color_periods")
             .select("*")
-            .eq("period_number", currentPeriodNumber)
+            .eq(
+                "period_number",
+                currentPeriodNumber
+            )
             .maybeSingle();
 
         if (!periodData) {
-            await supabaseClient.from("color_periods").insert([{
-                period_number: currentPeriodNumber,
-                total_green_amount: 0,
-                total_red_amount: 0,
-                total_violet_amount: 0,
-                status: 'pending'
-            }]);
+
+            await supabaseClient
+                .from("color_periods")
+                .insert([{
+                    period_number:
+                        currentPeriodNumber,
+
+                    total_green_amount: 0,
+                    total_red_amount: 0,
+                    total_violet_amount: 0,
+
+                    status: 'pending'
+                }]);
         }
     }
 
     function initRealtimeSubscription() {
-        if (typeof supabaseClient !== 'undefined' && supabaseClient.channel) {
+
+        if (
+            typeof supabaseClient !== 'undefined' &&
+            supabaseClient.channel
+        ) {
+
             supabaseClient
-                .channel('public:color_periods_changes')
-                .on('postgres_changes', {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'color_periods'
-                }, payload => {
-                    if (payload.new && payload.new.status === 'completed') {
-                        const modal = document.getElementById('custom-popup-modal');
-                        if (modal && modal.classList.contains('show') && activeModalTab) {
-                            loadHistoryData(activeModalTab);
+                .channel(
+                    'public:color_periods_changes'
+                )
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'color_periods'
+                    },
+                    payload => {
+
+                        if (
+                            payload.new &&
+                            payload.new.status ===
+                            'completed'
+                        ) {
+
+                            const modal =
+                                document.getElementById(
+                                    'custom-popup-modal'
+                                );
+
+                            if (
+                                modal &&
+                                modal.classList.contains(
+                                    'show'
+                                ) &&
+                                activeModalTab
+                            ) {
+
+                                loadHistoryData(
+                                    activeModalTab
+                                );
+                            }
                         }
                     }
-                })
+                )
                 .subscribe();
         }
 
         setInterval(() => {
-            const modal = document.getElementById('custom-popup-modal');
-            if (modal && modal.classList.contains('show') && activeModalTab &&
-                (activeModalTab === 'chart' || activeModalTab === 'game-history')) {
-                loadHistoryData(activeModalTab);
+
+            const modal =
+                document.getElementById(
+                    'custom-popup-modal'
+                );
+
+            if (
+                modal &&
+                modal.classList.contains('show') &&
+                activeModalTab &&
+                (
+                    activeModalTab ===
+                    'chart' ||
+                    activeModalTab ===
+                    'game-history'
+                )
+            ) {
+
+                loadHistoryData(
+                    activeModalTab
+                );
             }
+
         }, 5000);
     }
 
+    /* =========================
+       UNDO
+    ========================== */
+
     async function undoLastBet() {
+
         if (timerSeconds <= 5) {
-            alert("No More Bet! Undo is disabled.");
+
+            alert(
+                "No More Bet! Undo is disabled."
+            );
+
             return;
         }
 
         if (userActiveBets.length === 0) {
-            alert("No active bet to undo for this round!");
+
+            alert(
+                "No active bet to undo for this round!"
+            );
+
             return;
         }
 
-        let lastBet = userActiveBets.pop();
+        let lastBet =
+            userActiveBets.pop();
 
         let refundedBalance =
-            Number(userProfile.balance) + lastBet.amount;
+            Number(userProfile.balance) +
+            lastBet.amount;
 
-        const { error: profileError } = await supabaseClient
+        const {
+            error: profileError
+        } = await supabaseClient
             .from("profiles")
-            .update({ balance: refundedBalance })
-            .eq("id", currentUser.id);
+            .update({
+                balance:
+                    refundedBalance
+            })
+            .eq(
+                "id",
+                currentUser.id
+            );
 
         if (profileError) {
-            alert("Failed to undo bet. Try again.");
-            userActiveBets.push(lastBet);
+
+            alert(
+                "Failed to undo bet. Try again."
+            );
+
+            userActiveBets.push(
+                lastBet
+            );
+
             return;
         }
 
-        userProfile.balance = refundedBalance;
+        userProfile.balance =
+            refundedBalance;
 
-        let bal = refundedBalance.toFixed(2);
+        let bal =
+            refundedBalance.toFixed(2);
 
-        document.getElementById("bar-user-balance").innerText = bal;
+        document.getElementById(
+            "bar-user-balance"
+        ).innerText = bal;
 
-        const walletBalance = document.getElementById("wallet-main-balance");
+        const walletBalance =
+            document.getElementById(
+                "wallet-main-balance"
+            );
+
         if (walletBalance) {
-            walletBalance.innerText = bal;
+            walletBalance.innerText =
+                bal;
         }
 
         currentRoundTotalBet =
-            Math.max(0, currentRoundTotalBet - lastBet.amount);
+            Math.max(
+                0,
+                currentRoundTotalBet -
+                lastBet.amount
+            );
 
-        document.getElementById("bar-total-bet").innerText =
+        document.getElementById(
+            "bar-total-bet"
+        ).innerText =
             currentRoundTotalBet.toFixed(2);
 
         await supabaseClient
             .from("color_game_history")
             .delete()
-            .eq("id", lastBet.db_id);
+            .eq(
+                "id",
+                lastBet.db_id
+            );
 
         await updatePeriodAmountsOnUndo(
             lastBet.amount,
@@ -1718,62 +2400,109 @@
 
         updateBetBadgesUI();
 
-        document.getElementById("game-status-text").innerText =
+        document.getElementById(
+            "game-status-text"
+        ).innerText =
             "Last bet successfully undone.";
     }
 
-    async function updatePeriodAmountsOnUndo(amount, target) {
-        let { data: periodData } = await supabaseClient
+    async function updatePeriodAmountsOnUndo(
+        amount,
+        target
+    ) {
+
+        let {
+            data: periodData
+        } = await supabaseClient
             .from("color_periods")
             .select("*")
-            .eq("period_number", currentPeriodNumber)
+            .eq(
+                "period_number",
+                currentPeriodNumber
+            )
             .maybeSingle();
 
         if (periodData) {
+
             let updateField = {};
 
             if (target === 'Green') {
+
                 updateField.total_green_amount =
                     Math.max(
                         0,
-                        Number(periodData.total_green_amount) - amount
+                        Number(
+                            periodData.total_green_amount
+                        ) - amount
                     );
+
             } else if (target === 'Red') {
+
                 updateField.total_red_amount =
                     Math.max(
                         0,
-                        Number(periodData.total_red_amount) - amount
+                        Number(
+                            periodData.total_red_amount
+                        ) - amount
                     );
+
             } else if (target === 'Violet') {
+
                 updateField.total_violet_amount =
                     Math.max(
                         0,
-                        Number(periodData.total_violet_amount) - amount
+                        Number(
+                            periodData.total_violet_amount
+                        ) - amount
                     );
             }
 
             await supabaseClient
                 .from("color_periods")
                 .update(updateField)
-                .eq("period_number", currentPeriodNumber);
+                .eq(
+                    "period_number",
+                    currentPeriodNumber
+                );
         }
     }
 
+    /* =========================
+       REBET
+    ========================== */
+
     async function rebetLast() {
+
         if (timerSeconds <= 5) {
-            alert("No More Bet! Rebet is disabled.");
+
+            alert(
+                "No More Bet! Rebet is disabled."
+            );
+
             return;
         }
 
         if (!lastPlacedBet) {
-            alert("No previous bet to rebet!");
+
+            alert(
+                "No previous bet to rebet!"
+            );
+
             return;
         }
 
-        let doubledAmount = lastPlacedBet.amount * 2;
+        let doubledAmount =
+            lastPlacedBet.amount * 2;
 
-        if (doubledAmount > Number(userProfile.balance)) {
-            alert("Insufficient balance for 2x rebet!");
+        if (
+            doubledAmount >
+            Number(userProfile.balance)
+        ) {
+
+            alert(
+                "Insufficient balance for 2x rebet!"
+            );
+
             return;
         }
 
@@ -1784,9 +2513,14 @@
     }
 
     function placeDirectBet(target) {
+
         if (timerSeconds <= 5) {
-            document.getElementById("game-status-text").innerText =
+
+            document.getElementById(
+                "game-status-text"
+            ).innerText =
                 "No More Bet! Please wait for the next round.";
+
             return;
         }
 
@@ -1796,65 +2530,118 @@
         );
     }
 
-    async function executeBetPlacement(target, amount) {
-        if (amount > Number(userProfile.balance)) {
-            alert("Insufficient balance!");
+    /* =========================
+       BET EXECUTION
+    ========================== */
+
+    async function executeBetPlacement(
+        target,
+        amount
+    ) {
+
+        if (
+            amount >
+            Number(userProfile.balance)
+        ) {
+
+            alert(
+                "Insufficient balance!"
+            );
+
             return;
         }
 
         let newBalance =
-            Number(userProfile.balance) - amount;
+            Number(userProfile.balance) -
+            amount;
 
-        const { error: profileError } =
+        const {
+            error: profileError
+        } =
             await supabaseClient
                 .from("profiles")
-                .update({ balance: newBalance })
-                .eq("id", currentUser.id);
+                .update({
+                    balance:
+                        newBalance
+                })
+                .eq(
+                    "id",
+                    currentUser.id
+                );
 
         if (profileError) {
-            alert("Failed to place bet. Try again.");
+
+            alert(
+                "Failed to place bet. Try again."
+            );
+
             return;
         }
 
-        userProfile.balance = newBalance;
+        userProfile.balance =
+            newBalance;
 
-        let bal = newBalance.toFixed(2);
+        let bal =
+            newBalance.toFixed(2);
 
-        document.getElementById("bar-user-balance").innerText =
+        document.getElementById(
+            "bar-user-balance"
+        ).innerText =
             bal;
 
         const walletBalance =
-            document.getElementById("wallet-main-balance");
+            document.getElementById(
+                "wallet-main-balance"
+            );
 
         if (walletBalance) {
-            walletBalance.innerText = bal;
+            walletBalance.innerText =
+                bal;
         }
 
-        currentRoundTotalBet += amount;
+        currentRoundTotalBet +=
+            amount;
 
-        document.getElementById("bar-total-bet").innerText =
+        document.getElementById(
+            "bar-total-bet"
+        ).innerText =
             currentRoundTotalBet.toFixed(2);
 
-        const { data: insertedData, error: betInsertError } =
+        const {
+            data: insertedData,
+            error: betInsertError
+        } =
             await supabaseClient
                 .from("color_game_history")
                 .insert([{
-                    user_id: currentUser.id,
-                    period_number: currentPeriodNumber,
-                    bet_type: target,
-                    bet_amount: amount,
-                    status: 'pending'
+                    user_id:
+                        currentUser.id,
+
+                    period_number:
+                        currentPeriodNumber,
+
+                    bet_type:
+                        target,
+
+                    bet_amount:
+                        amount,
+
+                    status:
+                        'pending'
                 }])
                 .select();
 
         if (betInsertError) {
+
             console.error(
                 "Bet history insert error:",
                 betInsertError
             );
+
             alert(
                 "Bet history could not be saved. Please contact support."
             );
+
             return;
         }
 
@@ -1865,14 +2652,22 @@
                 : null;
 
         lastPlacedBet = {
-            target: target,
-            amount: amount
+            target:
+                target,
+
+            amount:
+                amount
         };
 
         userActiveBets.push({
-            db_id: newDbId,
-            target: target,
-            amount: amount
+            db_id:
+                newDbId,
+
+            target:
+                target,
+
+            amount:
+                amount
         });
 
         updateBetBadgesUI();
@@ -1882,91 +2677,160 @@
             target
         );
 
-        document.getElementById("game-status-text").innerText =
+        document.getElementById(
+            "game-status-text"
+        ).innerText =
             `Successfully placed ৳${amount} on ${target}!`;
 
-        const modal = document.getElementById('custom-popup-modal');
-        if (modal && modal.classList.contains('show') && activeModalTab === 'my-history') {
-            loadHistoryData('my-history');
+        const modal =
+            document.getElementById(
+                'custom-popup-modal'
+            );
+
+        if (
+            modal &&
+            modal.classList.contains('show') &&
+            activeModalTab === 'my-history'
+        ) {
+
+            loadHistoryData(
+                'my-history'
+            );
         }
     }
 
     function updateBetBadgesUI() {
-        document.querySelectorAll('.bet-badge')
-            .forEach(el => el.remove());
+
+        document
+            .querySelectorAll(
+                '.bet-badge'
+            )
+            .forEach(el =>
+                el.remove()
+            );
 
         let targetTotals = {};
 
-        userActiveBets.forEach(bet => {
-            targetTotals[bet.target] =
-                (targetTotals[bet.target] || 0) +
-                bet.amount;
-        });
+        userActiveBets.forEach(
+            bet => {
 
-        for (let target in targetTotals) {
+                targetTotals[
+                    bet.target
+                ] =
+                    (
+                        targetTotals[
+                            bet.target
+                        ] || 0
+                    ) +
+                    bet.amount;
+            }
+        );
+
+        for (
+            let target in targetTotals
+        ) {
+
             let btn =
-                document.getElementById(`btn-${target}`);
+                document.getElementById(
+                    `btn-${target}`
+                );
 
             if (btn) {
-                let badge =
-                    document.createElement('span');
 
-                badge.className = 'bet-badge';
+                let badge =
+                    document.createElement(
+                        'span'
+                    );
+
+                badge.className =
+                    'bet-badge';
 
                 badge.innerText =
                     `৳${targetTotals[target]}`;
 
-                btn.appendChild(badge);
+                btn.appendChild(
+                    badge
+                );
             }
         }
     }
 
+    /* =========================
+       VOICE
+    ========================== */
+
     function playVoiceMessage(text) {
-        if ('speechSynthesis' in window) {
+
+        if (
+            'speechSynthesis' in window
+        ) {
+
             window.speechSynthesis.cancel();
 
             let utterance =
-                new SpeechSynthesisUtterance(text);
+                new SpeechSynthesisUtterance(
+                    text
+                );
 
-            utterance.lang = 'en-US';
-            utterance.rate = 0.9;
-            utterance.pitch = 0.4;
+            utterance.lang =
+                'en-US';
+
+            utterance.rate =
+                0.9;
+
+            utterance.pitch =
+                0.4;
 
             let voices =
                 window.speechSynthesis.getVoices();
 
             let maleVoice =
-                voices.find(v =>
-                    v.lang.includes('en') &&
-                    (
-                        v.name.includes('Male') ||
-                        v.name.includes('David') ||
-                        v.name.includes('Mark') ||
-                        v.name.includes(
-                            'Google UK English Male'
+                voices.find(
+                    v =>
+                        v.lang.includes('en') &&
+                        (
+                            v.name.includes('Male') ||
+                            v.name.includes('David') ||
+                            v.name.includes('Mark') ||
+                            v.name.includes(
+                                'Google UK English Male'
+                            )
                         )
-                    )
                 );
 
             if (maleVoice) {
-                utterance.voice = maleVoice;
+                utterance.voice =
+                    maleVoice;
             }
 
-            window.speechSynthesis.speak(utterance);
+            window.speechSynthesis.speak(
+                utterance
+            );
         }
     }
 
+    /* =========================
+       PROFILE
+    ========================== */
+
     async function loadUserProfile() {
+
         userProfile =
-            await getUserProfile(currentUser.id);
+            await getUserProfile(
+                currentUser.id
+            );
 
         if (userProfile) {
+
             let bal =
-                Number(userProfile.balance).toFixed(2);
+                Number(
+                    userProfile.balance
+                ).toFixed(2);
 
             document.getElementById(
                 "bar-user-balance"
-            ).innerText = bal;
+            ).innerText =
+                bal;
 
             const walletBalance =
                 document.getElementById(
@@ -1974,7 +2838,9 @@
                 );
 
             if (walletBalance) {
-                walletBalance.innerText = bal;
+
+                walletBalance.innerText =
+                    bal;
             }
 
             const walletUserId =
@@ -1983,44 +2849,77 @@
                 );
 
             if (walletUserId) {
+
                 walletUserId.innerText =
                     currentUser.id
-                        ? String(currentUser.id).slice(-9)
+                        ? String(
+                            currentUser.id
+                        ).slice(-9)
                         : "892736281";
             }
         }
     }
 
-    async function changeGameMode(duration, modeKey) {
-        selectedGameDuration = duration;
-        timerSeconds = duration;
-        currentRoundTotalBet = 0;
-        userActiveBets = [];
+    /* =========================
+       GAME MODE
+    ========================== */
+
+    async function changeGameMode(
+        duration,
+        modeKey
+    ) {
+
+        selectedGameDuration =
+            duration;
+
+        timerSeconds =
+            duration;
+
+        currentRoundTotalBet =
+            0;
+
+        userActiveBets =
+            [];
 
         updateBetBadgesUI();
 
         document.getElementById(
             "bar-total-bet"
-        ).innerText = "0.00";
+        ).innerText =
+            "0.00";
 
         document.getElementById(
             "bottom-bar-center-status"
-        ).innerHTML = "";
+        ).innerHTML =
+            "";
 
-        ['15s', '30s', '1m', '5m'].forEach(key => {
+        [
+            '15s',
+            '30s',
+            '1m',
+            '5m'
+        ].forEach(key => {
+
             let btn =
-                document.getElementById(`mode-${key}`);
+                document.getElementById(
+                    `mode-${key}`
+                );
 
             let txt =
-                document.getElementById(`text-${key}`);
+                document.getElementById(
+                    `text-${key}`
+                );
 
             if (key === modeKey) {
+
                 btn.className =
                     "mode-button active-mode";
 
                 txt.className =
                     "text-[10.5px] font-bold text-white";
+
             } else {
+
                 btn.className =
                     "mode-button";
 
@@ -2035,23 +2934,40 @@
     }
 
     function renderPeriodNumber() {
+
         const element =
-            document.getElementById("period-number");
+            document.getElementById(
+                "period-number"
+            );
 
         if (!element) return;
 
         const periodText =
-            String(currentPeriodNumber);
+            String(
+                currentPeriodNumber
+            );
 
         element.innerHTML =
-            [...periodText].map(digit =>
-                `<span class="period-digit">${digit}</span>`
-            ).join("");
+            [...periodText]
+                .map(
+                    digit =>
+                        `<span class="period-digit">${digit}</span>`
+                )
+                .join("");
     }
 
+    /* =========================
+       WIN HIGHLIGHTS
+    ========================== */
+
     function clearWinningHighlights() {
-        document.querySelectorAll('.winning-blink')
+
+        document
+            .querySelectorAll(
+                '.winning-blink'
+            )
             .forEach(button => {
+
                 button.classList.remove(
                     'winning-blink',
                     'win-blink-green',
@@ -2069,84 +2985,121 @@
         winningNumber,
         winningBigSmall
     ) {
+
         clearWinningHighlights();
 
         const colorClass = {
-            Green: 'win-blink-green',
-            Red: 'win-blink-red',
-            Violet: 'win-blink-violet'
+
+            Green:
+                'win-blink-green',
+
+            Red:
+                'win-blink-red',
+
+            Violet:
+                'win-blink-violet'
         };
 
-        document.querySelectorAll(
-            'button[onclick^="placeDirectBet("]'
-        ).forEach(button => {
+        document
+            .querySelectorAll(
+                'button[onclick^="placeDirectBet("]'
+            )
+            .forEach(button => {
 
-            const match =
-                button
-                    .getAttribute('onclick')
-                    ?.match(
-                        /placeDirectBet\(['"]([^'"]+)['"]\)/
+                const match =
+                    button
+                        .getAttribute(
+                            'onclick'
+                        )
+                        ?.match(
+                            /placeDirectBet\(['"]([^'"]+)['"]\)/
+                        );
+
+                if (!match) return;
+
+                const target =
+                    match[1];
+
+                let highlightClass =
+                    '';
+
+                if (
+                    target ===
+                    winningColor
+                ) {
+
+                    highlightClass =
+                        colorClass[
+                            winningColor
+                        ] || '';
+
+                } else if (
+                    target ===
+                    String(winningNumber)
+                ) {
+
+                    highlightClass =
+                        'win-blink-number';
+
+                } else if (
+                    target ===
+                    winningBigSmall
+                ) {
+
+                    highlightClass =
+                        winningBigSmall ===
+                        'Big'
+                            ? 'win-blink-big'
+                            : 'win-blink-small';
+                }
+
+                if (highlightClass) {
+
+                    button.classList.add(
+                        'winning-blink',
+                        highlightClass
                     );
 
-            if (!match) return;
+                    button.addEventListener(
+                        'animationend',
+                        function removeBlink(
+                            event
+                        ) {
 
-            const target = match[1];
+                            if (
+                                event.animationName !==
+                                'winningBlink'
+                            ) return;
 
-            let highlightClass = '';
+                            button.classList.remove(
+                                'winning-blink',
+                                'win-blink-green',
+                                'win-blink-red',
+                                'win-blink-violet',
+                                'win-blink-number',
+                                'win-blink-big',
+                                'win-blink-small'
+                            );
 
-            if (target === winningColor) {
-                highlightClass =
-                    colorClass[winningColor] || '';
-            } else if (
-                target === String(winningNumber)
-            ) {
-                highlightClass =
-                    'win-blink-number';
-            } else if (
-                target === winningBigSmall
-            ) {
-                highlightClass =
-                    winningBigSmall === 'Big'
-                        ? 'win-blink-big'
-                        : 'win-blink-small';
-            }
-
-            if (highlightClass) {
-                button.classList.add(
-                    'winning-blink',
-                    highlightClass
-                );
-
-                button.addEventListener(
-                    'animationend',
-                    function removeBlink(event) {
-                        if (
-                            event.animationName !==
-                            'winningBlink'
-                        ) return;
-
-                        button.classList.remove(
-                            'winning-blink',
-                            'win-blink-green',
-                            'win-blink-red',
-                            'win-blink-violet',
-                            'win-blink-number',
-                            'win-blink-big',
-                            'win-blink-small'
-                        );
-
-                        button.removeEventListener(
-                            'animationend',
-                            removeBlink
-                        );
-                    }
-                );
-            }
-        });
+                            button.removeEventListener(
+                                'animationend',
+                                removeBlink
+                            );
+                        }
+                    );
+                }
+            });
     }
 
+    /* =========================
+       TIMER
+    ========================== */
+
     function startTimer() {
-        clearInterval(timerInterval);
+
+        clearInterval(
+            timerInterval
+        );
 
         timerSeconds =
             selectedGameDuration;
@@ -2162,10 +3115,13 @@
             );
 
         function updateMainTimer() {
+
             if (!timerElem) return;
 
             const min =
-                Math.floor(timerSeconds / 60);
+                Math.floor(
+                    timerSeconds / 60
+                );
 
             const sec =
                 timerSeconds % 60;
@@ -2174,11 +3130,25 @@
                 `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 
             timerElem.innerHTML = `
-                <span class="timer-digit">${timeText[0]}</span>
-                <span class="timer-digit">${timeText[1]}</span>
-                <span class="timer-colon">:</span>
-                <span class="timer-digit">${timeText[3]}</span>
-                <span class="timer-digit">${timeText[4]}</span>
+                <span class="timer-digit">
+                    ${timeText[0]}
+                </span>
+
+                <span class="timer-digit">
+                    ${timeText[1]}
+                </span>
+
+                <span class="timer-colon">
+                    :
+                </span>
+
+                <span class="timer-digit">
+                    ${timeText[3]}
+                </span>
+
+                <span class="timer-digit">
+                    ${timeText[4]}
+                </span>
             `;
 
             if (timerSeconds <= 5) {
@@ -2199,13 +3169,16 @@
                         "animate-zoom-out"
                     )
                 ) {
+
                     statusSpan.classList.add(
                         "animate-zoom-out"
                     );
 
                     setTimeout(() => {
+
                         centerStatusElem.innerHTML =
                             "";
+
                     }, 1500);
                 }
 
@@ -2214,6 +3187,7 @@
                 );
 
                 if (timerLabel) {
+
                     timerLabel.innerText =
                         "NO MORE BET";
 
@@ -2222,7 +3196,10 @@
                     );
                 }
 
-                if (timerSeconds === 5) {
+                if (
+                    timerSeconds === 5
+                ) {
+
                     playVoiceMessage(
                         "No more bets"
                     );
@@ -2235,6 +3212,7 @@
                 );
 
                 if (timerLabel) {
+
                     timerLabel.innerText =
                         "PLACE YOUR BET";
 
@@ -2258,7 +3236,10 @@
 
                 updateMainTimer();
 
-                if (timerSeconds <= 0) {
+                if (
+                    timerSeconds <= 0
+                ) {
+
                     clearInterval(
                         timerInterval
                     );
@@ -2269,20 +3250,42 @@
             }, 1000);
     }
 
+    /* =========================
+       HELPERS
+    ========================== */
+
     function escapeHtml(value) {
-        return String(value ?? '')
-            .replace(/[&<>"']/g, char => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            })[char]);
+
+        return String(
+            value ?? ''
+        )
+            .replace(
+                /[&<>"']/g,
+                char => ({
+                    '&':
+                        '&amp;',
+
+                    '<':
+                        '&lt;',
+
+                    '>':
+                        '&gt;',
+
+                    '"':
+                        '&quot;',
+
+                    "'":
+                        '&#39;'
+                })[char]
+            );
     }
 
     function getSavedBetResult(row) {
+
         let savedResult =
-            String(row.winning_result || '');
+            String(
+                row.winning_result || ''
+            );
 
         let resultMatch =
             savedResult.match(
@@ -2291,19 +3294,33 @@
 
         let color =
             resultMatch
-                ? resultMatch[1].charAt(0).toUpperCase() +
-                  resultMatch[1].slice(1).toLowerCase()
-                : (row.winning_color || '');
+                ? resultMatch[1]
+                    .charAt(0)
+                    .toUpperCase() +
+                  resultMatch[1]
+                    .slice(1)
+                    .toLowerCase()
+                : (
+                    row.winning_color ||
+                    ''
+                );
 
         let number =
             resultMatch
-                ? Number(resultMatch[2])
-                : (
-                    row.winning_number !== null &&
-                    row.winning_number !== undefined &&
-                    row.winning_number !== ''
+                ? Number(
+                    resultMatch[2]
                 )
-                    ? Number(row.winning_number)
+                : (
+                    row.winning_number !==
+                        null &&
+                    row.winning_number !==
+                        undefined &&
+                    row.winning_number !==
+                        ''
+                )
+                    ? Number(
+                        row.winning_number
+                    )
                     : null;
 
         if (
@@ -2319,7 +3336,11 @@
         let bigSmall =
             number !== null &&
             Number.isFinite(number)
-                ? (number >= 5 ? 'Big' : 'Small')
+                ? (
+                    number >= 5
+                        ? 'Big'
+                        : 'Small'
+                )
                 : '';
 
         let colorClass =
@@ -2332,10 +3353,15 @@
                         : '';
 
         return {
+
             color,
+
             number,
+
             bigSmall,
+
             colorClass,
+
             hasResult:
                 number !== null &&
                 Number.isFinite(number) &&
@@ -2343,8 +3369,12 @@
         };
     }
 
-    function formatHistoryDate(dateValue) {
+    function formatHistoryDate(
+        dateValue
+    ) {
+
         if (!dateValue) {
+
             return {
                 date: 'N/A',
                 time: 'N/A'
@@ -2352,13 +3382,16 @@
         }
 
         const date =
-            new Date(dateValue);
+            new Date(
+                dateValue
+            );
 
         if (
             Number.isNaN(
                 date.getTime()
             )
         ) {
+
             return {
                 date: 'N/A',
                 time: 'N/A'
@@ -2366,15 +3399,22 @@
         }
 
         return {
+
             date:
                 date.toLocaleDateString(
                     'en-GB',
                     {
                         timeZone:
                             'Asia/Dhaka',
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
+
+                        day:
+                            '2-digit',
+
+                        month:
+                            '2-digit',
+
+                        year:
+                            'numeric'
                     }
                 ),
 
@@ -2384,16 +3424,31 @@
                     {
                         timeZone:
                             'Asia/Dhaka',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: true
+
+                        hour:
+                            '2-digit',
+
+                        minute:
+                            '2-digit',
+
+                        second:
+                            '2-digit',
+
+                        hour12:
+                            true
                     }
                 )
         };
     }
 
-    async function loadHistoryData(type) {
+    /* =========================
+       HISTORY
+    ========================== */
+
+    async function loadHistoryData(
+        type
+    ) {
+
         let container =
             document.getElementById(
                 "modal-body-content"
@@ -2404,7 +3459,10 @@
         container.innerHTML =
             `<p class="text-center text-slate-500 py-3">Loading...</p>`;
 
-        if (type === 'game-history') {
+        if (
+            type ===
+            'game-history'
+        ) {
 
             let {
                 data,
@@ -2412,10 +3470,16 @@
             } = await supabaseClient
                 .from("color_periods")
                 .select("*")
-                .eq("status", "completed")
+                .eq(
+                    "status",
+                    "completed"
+                )
                 .order(
                     "created_at",
-                    { ascending: false }
+                    {
+                        ascending:
+                            false
+                    }
                 )
                 .limit(30);
 
@@ -2424,6 +3488,7 @@
                 !data ||
                 data.length === 0
             ) {
+
                 container.innerHTML =
                     `<p class="text-center text-slate-500 py-3">No history found</p>`;
 
@@ -2432,42 +3497,56 @@
 
             let html = `
                 <div class="overflow-x-auto">
+
                     <table class="history-table">
+
                         <thead>
+
                             <tr>
                                 <th>Period</th>
                                 <th>Number</th>
                                 <th>Big/Small</th>
                                 <th>Color</th>
                             </tr>
+
                         </thead>
+
                         <tbody>
             `;
 
             data.forEach(row => {
 
                 let bs =
-                    Number(row.winning_number) >= 5
+                    Number(
+                        row.winning_number
+                    ) >= 5
                         ? 'Big'
                         : 'Small';
 
                 let colorClass =
-                    row.winning_color === 'Green'
+                    row.winning_color ===
+                    'Green'
                         ? 'text-emerald-400'
                         : (
-                            row.winning_color === 'Red'
+                            row.winning_color ===
+                            'Red'
                                 ? 'text-rose-500'
                                 : 'text-purple-400'
                         );
 
                 html += `
                     <tr>
+
                         <td class="font-mono text-amber-300">
-                            ${escapeHtml(row.period_number)}
+                            ${escapeHtml(
+                                row.period_number
+                            )}
                         </td>
 
                         <td class="font-bold">
-                            ${escapeHtml(row.winning_number)}
+                            ${escapeHtml(
+                                row.winning_number
+                            )}
                         </td>
 
                         <td class="font-semibold">
@@ -2475,8 +3554,11 @@
                         </td>
 
                         <td class="font-bold ${colorClass}">
-                            ${escapeHtml(row.winning_color)}
+                            ${escapeHtml(
+                                row.winning_color
+                            )}
                         </td>
+
                     </tr>
                 `;
             });
@@ -2484,19 +3566,25 @@
             html += `
                         </tbody>
                     </table>
+
                 </div>
             `;
 
             container.innerHTML =
                 html;
 
-        } else if (type === 'my-history') {
+        } else if (
+            type ===
+            'my-history'
+        ) {
 
             let {
                 data,
                 error
             } = await supabaseClient
-                .from("color_game_history")
+                .from(
+                    "color_game_history"
+                )
                 .select("*")
                 .eq(
                     "user_id",
@@ -2504,11 +3592,15 @@
                 )
                 .order(
                     "created_at",
-                    { ascending: false }
+                    {
+                        ascending:
+                            false
+                    }
                 )
                 .limit(10);
 
             if (error) {
+
                 console.error(
                     "My History error:",
                     error
@@ -2526,6 +3618,7 @@
                 !data ||
                 data.length === 0
             ) {
+
                 container.innerHTML =
                     `<p class="text-center text-slate-500 py-4">No bets found</p>`;
 
@@ -2533,6 +3626,7 @@
             }
 
             let html = `
+
                 <div class="p-2 text-[10px] text-slate-400">
                     Showing your latest 10 bets.
                 </div>
@@ -2542,7 +3636,9 @@
                     <table class="my-history-table">
 
                         <thead>
+
                             <tr>
+
                                 <th>Period</th>
                                 <th>Bet</th>
                                 <th>Amount</th>
@@ -2551,7 +3647,9 @@
                                 <th>Result Color</th>
                                 <th>Big/Small</th>
                                 <th>Date & Time</th>
+
                             </tr>
+
                         </thead>
 
                         <tbody>
@@ -2561,7 +3659,8 @@
 
                 let status =
                     String(
-                        row.status || 'pending'
+                        row.status ||
+                        'pending'
                     ).toLowerCase();
 
                 let statusColor =
@@ -2579,17 +3678,28 @@
                             : 'PENDING';
 
                 let result =
-                    getSavedBetResult(row);
+                    getSavedBetResult(
+                        row
+                    );
 
                 let resultNumberHtml =
                     result.hasResult
-                        ? `<span class="result-number ${result.colorClass}">
-                            ${result.number}
-                          </span>`
-                        : `<span class="text-slate-500">—</span>`;
+
+                        ? `
+                            <span class="result-number ${result.colorClass}">
+                                ${result.number}
+                            </span>
+                          `
+
+                        : `
+                            <span class="text-slate-500">
+                                —
+                            </span>
+                          `;
 
                 let resultColorHtml =
                     result.hasResult
+
                         ? `
                             <span class="result-badge ${
                                 result.color === 'Red'
@@ -2603,10 +3713,16 @@
                                 )}
                             </span>
                           `
-                        : `<span class="text-slate-500">—</span>`;
+
+                        : `
+                            <span class="text-slate-500">
+                                —
+                            </span>
+                          `;
 
                 let bigSmallHtml =
                     result.hasResult
+
                         ? `
                             <span class="result-badge ${
                                 result.bigSmall === 'Big'
@@ -2616,7 +3732,12 @@
                                 ${result.bigSmall.toUpperCase()}
                             </span>
                           `
-                        : `<span class="text-slate-500">—</span>`;
+
+                        : `
+                            <span class="text-slate-500">
+                                —
+                            </span>
+                          `;
 
                 let dateTime =
                     formatHistoryDate(
@@ -2624,23 +3745,27 @@
                     );
 
                 html += `
+
                     <tr>
 
                         <td class="font-mono text-amber-300">
                             ${escapeHtml(
-                                row.period_number || '—'
+                                row.period_number ||
+                                '—'
                             )}
                         </td>
 
                         <td class="font-bold text-white">
                             ${escapeHtml(
-                                row.bet_type || '—'
+                                row.bet_type ||
+                                '—'
                             )}
                         </td>
 
                         <td class="font-mono text-slate-200">
                             ৳${Number(
-                                row.bet_amount || 0
+                                row.bet_amount ||
+                                0
                             ).toFixed(2)}
                         </td>
 
@@ -2661,6 +3786,7 @@
                         </td>
 
                         <td class="date-cell">
+
                             <div>
                                 ${escapeHtml(
                                     dateTime.date
@@ -2672,6 +3798,7 @@
                                     dateTime.time
                                 )}
                             </div>
+
                         </td>
 
                     </tr>
@@ -2679,7 +3806,9 @@
             });
 
             html += `
+
                         </tbody>
+
                     </table>
 
                 </div>
@@ -2688,7 +3817,9 @@
             container.innerHTML =
                 html;
 
-        } else if (type === 'chart') {
+        } else if (
+            type === 'chart'
+        ) {
 
             let {
                 data,
@@ -2696,75 +3827,105 @@
             } = await supabaseClient
                 .from("color_periods")
                 .select("*")
-                .eq("status", "completed")
+                .eq(
+                    "status",
+                    "completed"
+                )
                 .order(
                     "created_at",
-                    { ascending: false }
+                    {
+                        ascending:
+                            false
+                    }
                 )
                 .limit(30);
 
-            let trendBallsHtml = '';
+            let trendBallsHtml =
+                '';
 
-            let bigCount = 0;
-            let smallCount = 0;
+            let bigCount =
+                0;
 
-            let greenCount = 0;
-            let redCount = 0;
-            let violetCount = 0;
+            let smallCount =
+                0;
+
+            let greenCount =
+                0;
+
+            let redCount =
+                0;
+
+            let violetCount =
+                0;
 
             if (
                 data &&
                 data.length > 0
             ) {
 
-                data.forEach(row => {
+                data.forEach(
+                    row => {
 
-                    let num =
-                        Number(
-                            row.winning_number
-                        );
-
-                    if (num >= 5) {
-                        bigCount++;
-                    } else {
-                        smallCount++;
-                    }
-
-                    if (
-                        row.winning_color ===
-                        'Green'
-                    ) {
-                        greenCount++;
-                    } else if (
-                        row.winning_color ===
-                        'Red'
-                    ) {
-                        redCount++;
-                    } else if (
-                        row.winning_color ===
-                        'Violet'
-                    ) {
-                        violetCount++;
-                    }
-
-                    let bgStyle =
-                        row.winning_color ===
-                            'Red'
-                            ? '#e11d48'
-                            : (
-                                row.winning_color ===
-                                    'Green'
-                                    ? '#059669'
-                                    : '#7c3aed'
+                        let num =
+                            Number(
+                                row.winning_number
                             );
 
-                    trendBallsHtml += `
-                        <div class="trend-ball"
-                             style="background:${bgStyle};">
-                            ${num}
-                        </div>
-                    `;
-                });
+                        if (
+                            num >= 5
+                        ) {
+                            bigCount++;
+                        } else {
+                            smallCount++;
+                        }
+
+                        if (
+                            row.winning_color ===
+                            'Green'
+                        ) {
+
+                            greenCount++;
+
+                        } else if (
+                            row.winning_color ===
+                            'Red'
+                        ) {
+
+                            redCount++;
+
+                        } else if (
+                            row.winning_color ===
+                            'Violet'
+                        ) {
+
+                            violetCount++;
+                        }
+
+                        let bgStyle =
+                            row.winning_color ===
+                                'Red'
+
+                                ? '#e11d48'
+
+                                : (
+                                    row.winning_color ===
+                                        'Green'
+
+                                        ? '#059669'
+
+                                        : '#7c3aed'
+                                );
+
+                        trendBallsHtml += `
+
+                            <div class="trend-ball"
+                                 style="background:${bgStyle};">
+                                ${num}
+                            </div>
+
+                        `;
+                    }
+                );
 
             } else {
 
@@ -2775,41 +3936,63 @@
             }
 
             let total =
-                (data ? data.length : 0) || 1;
+                (
+                    data
+                        ? data.length
+                        : 0
+                ) || 1;
 
             let bigPct =
                 Math.round(
-                    (bigCount / total) * 100
+                    (
+                        bigCount /
+                        total
+                    ) * 100
                 );
 
             let smallPct =
-                100 - bigPct;
+                100 -
+                bigPct;
 
             let greenPct =
                 Math.round(
-                    (greenCount / total) * 100
+                    (
+                        greenCount /
+                        total
+                    ) * 100
                 );
 
             let redPct =
                 Math.round(
-                    (redCount / total) * 100
+                    (
+                        redCount /
+                        total
+                    ) * 100
                 );
 
             let violetPct =
                 100 -
-                (greenPct + redPct);
+                (
+                    greenPct +
+                    redPct
+                );
 
-            if (violetPct < 0) {
+            if (
+                violetPct < 0
+            ) {
                 violetPct = 0;
             }
 
             container.innerHTML = `
+
                 <div class="p-2 space-y-4">
 
                     <div class="overflow-x-auto">
+
                         <div class="trend-grid-container">
                             ${trendBallsHtml}
                         </div>
+
                     </div>
 
                     <div class="h-[1px] w-full bg-slate-800"></div>
@@ -2887,23 +4070,33 @@
         }
     }
 
-    async function updatePeriodAmounts(amount, target) {
+    /* =========================
+       PERIOD AMOUNTS
+    ========================== */
+
+    async function updatePeriodAmounts(
+        amount,
+        target
+    ) {
+
         let {
             data: periodData
-        } = await supabaseClient
-            .from("color_periods")
-            .select("*")
-            .eq(
-                "period_number",
-                currentPeriodNumber
-            )
-            .maybeSingle();
+        } =
+            await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq(
+                    "period_number",
+                    currentPeriodNumber
+                )
+                .maybeSingle();
 
         if (!periodData) {
 
             await supabaseClient
                 .from("color_periods")
                 .insert([{
+
                     period_number:
                         currentPeriodNumber,
 
@@ -2922,44 +4115,64 @@
                             ? amount
                             : 0,
 
-                    status: 'pending'
+                    status:
+                        'pending'
                 }]);
 
         } else {
 
-            let updateField = {};
+            let updateField =
+                {};
 
-            if (target === 'Green') {
+            if (
+                target ===
+                'Green'
+            ) {
 
                 updateField.total_green_amount =
                     Number(
                         periodData.total_green_amount
-                    ) + amount;
+                    ) +
+                    amount;
 
-            } else if (target === 'Red') {
+            } else if (
+                target ===
+                'Red'
+            ) {
 
                 updateField.total_red_amount =
                     Number(
                         periodData.total_red_amount
-                    ) + amount;
+                    ) +
+                    amount;
 
-            } else if (target === 'Violet') {
+            } else if (
+                target ===
+                'Violet'
+            ) {
 
                 updateField.total_violet_amount =
                     Number(
                         periodData.total_violet_amount
-                    ) + amount;
+                    ) +
+                    amount;
             }
 
             await supabaseClient
                 .from("color_periods")
-                .update(updateField)
+                .update(
+                    updateField
+                )
                 .eq(
                     "period_number",
                     currentPeriodNumber
                 );
         }
     }
+
+    /* =========================
+       ROUND RESULT
+    ========================== */
 
     async function processRoundResult() {
 
@@ -2970,14 +4183,15 @@
 
         let {
             data: periodData
-        } = await supabaseClient
-            .from("color_periods")
-            .select("*")
-            .eq(
-                "period_number",
-                currentPeriodNumber
-            )
-            .maybeSingle();
+        } =
+            await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq(
+                    "period_number",
+                    currentPeriodNumber
+                )
+                .maybeSingle();
 
         if (!periodData) {
 
@@ -3000,21 +4214,24 @@
         let green =
             periodData
                 ? Number(
-                    periodData.total_green_amount || 0
+                    periodData.total_green_amount ||
+                    0
                 )
                 : 0;
 
         let red =
             periodData
                 ? Number(
-                    periodData.total_red_amount || 0
+                    periodData.total_red_amount ||
+                    0
                 )
                 : 0;
 
         let violet =
             periodData
                 ? Number(
-                    periodData.total_violet_amount || 0
+                    periodData.total_violet_amount ||
+                    0
                 )
                 : 0;
 
@@ -3027,13 +4244,14 @@
             violet === 0
         ) {
 
-            const randomColors = [
-                'Green',
-                'Red',
-                'Green',
-                'Red',
-                'Violet'
-            ];
+            const randomColors =
+                [
+                    'Green',
+                    'Red',
+                    'Green',
+                    'Red',
+                    'Violet'
+                ];
 
             winningColor =
                 randomColors[
@@ -3069,13 +4287,21 @@
         }
 
         let numbersMap = {
-            Green: [1, 3, 7, 9],
-            Red: [2, 4, 6, 8],
-            Violet: [0, 5]
+
+            Green:
+                [1, 3, 7, 9],
+
+            Red:
+                [2, 4, 6, 8],
+
+            Violet:
+                [0, 5]
         };
 
         let possibleNums =
-            numbersMap[winningColor];
+            numbersMap[
+                winningColor
+            ];
 
         let winningNumber =
             possibleNums[
@@ -3096,6 +4322,7 @@
         await supabaseClient
             .from("color_periods")
             .update({
+
                 winning_color:
                     winningColor,
 
@@ -3104,6 +4331,7 @@
 
                 status:
                     'completed'
+
             })
             .eq(
                 "period_number",
@@ -3112,22 +4340,30 @@
 
         let {
             data: allBets
-        } = await supabaseClient
-            .from("color_game_history")
-            .select("*")
-            .eq(
-                "period_number",
-                currentPeriodNumber
-            )
-            .eq(
-                "status",
-                'pending'
-            );
+        } =
+            await supabaseClient
+                .from("color_game_history")
+                .select("*")
+                .eq(
+                    "period_number",
+                    currentPeriodNumber
+                )
+                .eq(
+                    "status",
+                    'pending'
+                );
 
-        let userWonAmount = 0;
-        let hasUserWon = false;
-        let userParticipated = false;
-        let userWinsMap = {};
+        let userWonAmount =
+            0;
+
+        let hasUserWon =
+            false;
+
+        let userParticipated =
+            false;
+
+        let userWinsMap =
+            {};
 
         if (
             allBets &&
@@ -3138,58 +4374,80 @@
                 let bet of allBets
             ) {
 
-                let isWin = false;
-                let multiplier = 2;
+                let isWin =
+                    false;
+
+                let multiplier =
+                    2;
 
                 if (
                     bet.bet_type ===
                     'Red'
                 ) {
-                    multiplier = 1.9;
+
+                    multiplier =
+                        1.9;
 
                 } else if (
                     bet.bet_type ===
                     'Violet'
                 ) {
-                    multiplier = 4.5;
+
+                    multiplier =
+                        4.5;
 
                 } else if (
-                    bet.bet_type === 'Big' ||
-                    bet.bet_type === 'Small'
+                    bet.bet_type ===
+                    'Big' ||
+                    bet.bet_type ===
+                    'Small'
                 ) {
-                    multiplier = 1.9;
+
+                    multiplier =
+                        1.9;
 
                 } else if (
                     !isNaN(
                         bet.bet_type
                     )
                 ) {
-                    multiplier = 9;
+
+                    multiplier =
+                        9;
                 }
 
                 if (
                     bet.bet_type ===
                     winningColor
                 ) {
-                    isWin = true;
+
+                    isWin =
+                        true;
 
                 } else if (
                     bet.bet_type ===
-                    String(winningNumber)
+                    String(
+                        winningNumber
+                    )
                 ) {
-                    isWin = true;
+
+                    isWin =
+                        true;
 
                 } else if (
                     bet.bet_type ===
                     winningBigSmall
                 ) {
-                    isWin = true;
+
+                    isWin =
+                        true;
                 }
 
                 if (
                     bet.user_id ===
                     currentUser.id
                 ) {
+
                     userParticipated =
                         true;
                 }
@@ -3231,6 +4489,7 @@
                             "color_game_history"
                         )
                         .update({
+
                             winning_result:
                                 winningResultString,
 
@@ -3239,6 +4498,7 @@
 
                             status:
                                 'win'
+
                         })
                         .eq(
                             "id",
@@ -3246,10 +4506,13 @@
                         );
 
                     let {
-                        data: targetProfile
+                        data:
+                            targetProfile
                     } =
                         await supabaseClient
-                            .from("profiles")
+                            .from(
+                                "profiles"
+                            )
                             .select(
                                 "balance"
                             )
@@ -3259,7 +4522,9 @@
                             )
                             .single();
 
-                    if (targetProfile) {
+                    if (
+                        targetProfile
+                    ) {
 
                         let updatedBal =
                             Number(
@@ -3268,7 +4533,9 @@
                             payoutAmount;
 
                         await supabaseClient
-                            .from("profiles")
+                            .from(
+                                "profiles"
+                            )
                             .update({
                                 balance:
                                     updatedBal
@@ -3286,6 +4553,7 @@
                             "color_game_history"
                         )
                         .update({
+
                             winning_result:
                                 winningResultString,
 
@@ -3294,6 +4562,7 @@
 
                             status:
                                 'loss'
+
                         })
                         .eq(
                             "id",
@@ -3303,15 +4572,18 @@
             }
         }
 
-        currentRoundTotalBet = 0;
+        currentRoundTotalBet =
+            0;
 
-        userActiveBets = [];
+        userActiveBets =
+            [];
 
         updateBetBadgesUI();
 
         document.getElementById(
             "bar-total-bet"
-        ).innerText = "0.00";
+        ).innerText =
+            "0.00";
 
         for (
             let target in userWinsMap
@@ -3340,7 +4612,8 @@
                 );
 
                 setTimeout(
-                    () => overlay.remove(),
+                    () =>
+                        overlay.remove(),
                     2000
                 );
             }
@@ -3369,9 +4642,11 @@
             if (hasUserWon) {
 
                 centerStatusElem.innerHTML =
-                    `<span class="text-emerald-400 inline-block">
-                        Win ৳${userWonAmount.toFixed(2)}
-                    </span>`;
+                    `
+                        <span class="text-emerald-400 inline-block">
+                            Win ৳${userWonAmount.toFixed(2)}
+                        </span>
+                    `;
 
                 playVoiceMessage(
                     "congratulation winner"
@@ -3380,9 +4655,11 @@
             } else {
 
                 centerStatusElem.innerHTML =
-                    `<span class="text-rose-500 inline-block">
-                        Lost
-                    </span>`;
+                    `
+                        <span class="text-rose-500 inline-block">
+                            Lost
+                        </span>
+                    `;
 
                 playVoiceMessage(
                     "better luck next time"
@@ -3407,9 +4684,20 @@
 
         await ensureCurrentPeriodExists();
 
-        const modal = document.getElementById('custom-popup-modal');
-        if (modal && modal.classList.contains('show') && activeModalTab) {
-            loadHistoryData(activeModalTab);
+        const modal =
+            document.getElementById(
+                'custom-popup-modal'
+            );
+
+        if (
+            modal &&
+            modal.classList.contains('show') &&
+            activeModalTab
+        ) {
+
+            loadHistoryData(
+                activeModalTab
+            );
         }
 
         startTimer();
