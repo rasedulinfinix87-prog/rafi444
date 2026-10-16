@@ -49,25 +49,6 @@
            TOP HEADER
         ========================== */
 
-        #header-container {
-            position: relative;
-            z-index: 20;
-        }
-
-        #header-container > header,
-        #header-container header {
-            min-height: 70px !important;
-            padding: 10px 16px !important;
-            background: linear-gradient(180deg, #101920, #0b1319) !important;
-            border: 0 !important;
-            border-bottom: 1px solid rgba(255,255,255,.07) !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,.2) !important;
-        }
-
-        #header-container h1 {
-            color: #fff !important;
-        }
-
         .custom-topbar {
             height: 72px;
             display: flex;
@@ -235,54 +216,6 @@
 
         .wallet-deposit {
             background: linear-gradient(180deg, #10bd62, #09a852);
-        }
-
-        /* =========================
-           NOTICE
-        ========================== */
-
-        .notice-card {
-            border: 1px solid #80651d;
-            border-radius: 18px;
-            padding: 12px 13px;
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            background:
-                linear-gradient(145deg, #292518, #181713);
-        }
-
-        .notice-icon {
-            font-size: 27px;
-            color: #ffd340;
-            flex-shrink: 0;
-        }
-
-        .notice-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .notice-title {
-            color: #ffd43d;
-            font-weight: 850;
-            font-size: 13px;
-        }
-
-        .notice-subtitle {
-            color: #b7bec4;
-            font-size: 11px;
-            margin-top: 3px;
-        }
-
-        .notice-button {
-            border: 0;
-            border-radius: 14px;
-            padding: 9px 14px;
-            background: linear-gradient(180deg, #f6c83e, #dfa900);
-            color: #19150a;
-            font-size: 13px;
-            font-weight: 900;
         }
 
         /* =========================
@@ -744,12 +677,7 @@
         }
 
         .history-tabs {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            padding: 3px;
-            border-radius: 14px;
-            background: #0a1116;
+            display: none;
         }
 
         .history-tab {
@@ -971,7 +899,7 @@
         }
 
         /* =========================
-           BOTTOM BAR
+           BOTTOM BAR (With Menu Dropdown)
         ========================== */
 
         .bottom-fixed-bar {
@@ -982,20 +910,80 @@
             transform: translateX(-50%);
             width: 100%;
             max-width: 430px;
-            min-height: 61px;
+            min-height: 62px;
             padding: 8px 13px;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            gap: 8px;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            background: rgba(9,15,20,.97);
+            background: rgba(9,15,20,.98);
             border-top: 1px solid #27353d;
             backdrop-filter: blur(14px);
-            font-size: 9px;
+            font-size: 13px;
         }
 
-        .bottom-fixed-bar > div:last-child {
-            text-align: right;
+        .bottom-menu-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bottom-menu-btn {
+            background: linear-gradient(145deg, #1d2b31, #121c21);
+            border: 1px solid #33434a;
+            color: #e2e8f0;
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .bottom-dropdown {
+            position: absolute;
+            bottom: 48px;
+            left: 0;
+            background: #0d1519;
+            border: 1px solid #27363c;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 50;
+            min-width: 140px;
+        }
+
+        .bottom-dropdown.show {
+            display: flex;
+        }
+
+        .bottom-dropdown button {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(39, 54, 60, 0.4);
+            transition: background 0.15s;
+        }
+
+        .bottom-dropdown button:last-child {
+            border-bottom: none;
+        }
+
+        .bottom-dropdown button:hover,
+        .bottom-dropdown button.active {
+            background: #1a272e;
+            color: #f8fafc;
         }
 
         .bottom-fixed-bar .text-emerald-400 {
@@ -1061,48 +1049,19 @@
 
 <div class="app-shell">
 
-    <div id="header-container">
-        <div class="custom-topbar">
-            <div class="top-icon">☰</div>
+    <div class="custom-topbar">
+        <div class="top-icon">☰</div>
 
-            <div class="brand">
-                <span class="brand-crown">♛</span>
-                <span class="brand-text">COLOR <span class="brand-go">GO</span></span>
-            </div>
+        <div class="brand">
+            <span class="brand-crown">♛</span>
+            <span class="brand-text">COLOR <span class="brand-go">GO</span></span>
+        </div>
 
-            <div class="header-actions">
-                <div class="top-icon">♧</div>
-                <div class="top-icon">♧</div>
-            </div>
+        <div class="header-actions">
+            <div class="top-icon">♧</div>
+            <div class="top-icon">♧</div>
         </div>
     </div>
-
-    <script>
-        fetch('header.html')
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.text();
-            })
-            .then(data => {
-                document.getElementById('header-container').innerHTML = data;
-            })
-            .catch(error => {
-                console.error('Header load error:', error);
-                document.getElementById('header-container').innerHTML = `
-                    <div class="custom-topbar">
-                        <div class="top-icon">☰</div>
-                        <div class="brand">
-                            <span class="brand-crown">♛</span>
-                            <span class="brand-text">COLOR <span class="brand-go">GO</span></span>
-                        </div>
-                        <div class="header-actions">
-                            <div class="top-icon">♧</div>
-                            <div class="top-icon">♧</div>
-                        </div>
-                    </div>
-                `;
-            });
-    </script>
 
     <main class="page-content">
 
@@ -1139,24 +1098,6 @@
                 </button>
             </div>
 
-        </section>
-
-        <!-- NOTICE -->
-        <section class="notice-card section-gap">
-            <div class="notice-icon">⚑</div>
-
-            <div class="notice-content">
-                <div class="notice-title">
-                    Be careful of counterfeit websites and apps.
-                </div>
-                <div class="notice-subtitle">
-                    Always use the official COLOR GO platform.
-                </div>
-            </div>
-
-            <button class="notice-button">
-                Details
-            </button>
         </section>
 
         <!-- GAME -->
@@ -1458,28 +1399,6 @@
         <!-- HISTORY -->
         <section class="history-panel">
 
-            <div class="history-tabs">
-
-                <button onclick="switchTab('game-history')"
-                        id="tab-game-history"
-                        class="history-tab active">
-                    Game History
-                </button>
-
-                <button onclick="switchTab('chart')"
-                        id="tab-chart"
-                        class="history-tab">
-                    Statistics
-                </button>
-
-                <button onclick="switchTab('my-history')"
-                        id="tab-my-history"
-                        class="history-tab">
-                    My History
-                </button>
-
-            </div>
-
             <div id="tab-content"
                  class="history-content max-h-72 overflow-auto">
 
@@ -1496,14 +1415,20 @@
     <!-- BOTTOM BAR -->
     <div class="bottom-fixed-bar">
 
-        <div>
-            <span class="text-slate-400">
-                Balance:
-            </span>
+        <div class="bottom-menu-container">
+            <button class="bottom-menu-btn" onclick="toggleBottomMenu()" title="Menu">ƒ</button>
+            <div id="bottom-dropdown-menu" class="bottom-dropdown">
+                <button onclick="switchTab('game-history'); toggleBottomMenu();" id="tab-game-history">Game History</button>
+                <button onclick="switchTab('chart'); toggleBottomMenu();" id="tab-chart">Statistics</button>
+                <button onclick="switchTab('my-history'); toggleBottomMenu();" id="tab-my-history">My History</button>
+            </div>
 
-            <span class="text-emerald-400 font-mono font-bold">
-                ৳<span id="bar-user-balance">0.00</span>
-            </span>
+            <div>
+                <span class="text-slate-400">Total Bet:</span>
+                <span class="text-amber-400 font-mono font-bold">
+                    ৳<span id="bar-total-bet">0.00</span>
+                </span>
+            </div>
         </div>
 
         <div id="bottom-bar-center-status"
@@ -1512,11 +1437,11 @@
 
         <div>
             <span class="text-slate-400">
-                Total Bet:
+                Balance:
             </span>
 
-            <span class="text-amber-400 font-mono font-bold">
-                ৳<span id="bar-total-bet">0.00</span>
+            <span class="text-emerald-400 font-mono font-bold">
+                ৳<span id="bar-user-balance">0.00</span>
             </span>
         </div>
 
@@ -1538,6 +1463,20 @@
     let lastPlacedBet = null;
     let currentRoundTotalBet = 0;
     let userActiveBets = [];
+
+    function toggleBottomMenu() {
+        const menu = document.getElementById('bottom-dropdown-menu');
+        menu.classList.toggle('show');
+    }
+
+    window.addEventListener('click', function(e) {
+        if (!e.target.closest('.bottom-menu-container')) {
+            const menu = document.getElementById('bottom-dropdown-menu');
+            if (menu && menu.classList.contains('show')) {
+                menu.classList.remove('show');
+            }
+        }
+    });
 
     document.addEventListener("DOMContentLoaded", async () => {
         renderPeriodNumber();
@@ -2216,61 +2155,9 @@
     }
 
     function switchTab(tabName) {
-        const container =
-            document.getElementById(
-                "tab-content"
-            );
-
-        if (
-            activeTab === tabName &&
-            !container.classList.contains(
-                "hidden"
-            )
-        ) {
-            activeTab = null;
-
-            container.classList.add(
-                "hidden"
-            );
-
-            ['game-history', 'chart', 'my-history']
-                .forEach(t => {
-
-                    const btn =
-                        document.getElementById(
-                            `tab-${t}`
-                        );
-
-                    btn.className =
-                        "history-tab";
-                });
-
-            return;
-        }
-
         activeTab = tabName;
-
-        container.classList.remove(
-            "hidden"
-        );
-
-        ['game-history', 'chart', 'my-history']
-            .forEach(t => {
-
-                const btn =
-                    document.getElementById(
-                        `tab-${t}`
-                    );
-
-                if (t === tabName) {
-                    btn.className =
-                        "history-tab active";
-                } else {
-                    btn.className =
-                        "history-tab";
-                }
-            });
-
+        const container = document.getElementById("tab-content");
+        container.classList.remove("hidden");
         loadHistoryData(tabName);
     }
 
