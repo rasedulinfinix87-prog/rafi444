@@ -300,11 +300,11 @@ let currentUser=null,userProfile=null,selectedGameDuration=15,currentPeriodNumbe
 let activeModalTab='game-history',selectedChipAmount=20,lastPlacedBet=null,currentRoundTotalBet=0,userActiveBets=[];
 
 function getModeTableName(){
-  return selectedGameDuration === 15 ? 'color_periods' : `color_periods_${selectedGameDuration}s`;
+  return 'color_periods';
 }
 
 function getModeHistoryTableName(){
-  return selectedGameDuration === 15 ? 'color_game_history' : `color_game_history_${selectedGameDuration}s`;
+  return 'color_game_history';
 }
 
 function showActionToast(message, targetElemId){
@@ -440,16 +440,14 @@ async function loadRecentWinsUI(){
 
 function initRealtimeSubscription(){
  if(typeof supabaseClient!=='undefined'&&supabaseClient.channel){
-  ['color_periods', 'color_periods_30s', 'color_periods_1m', 'color_periods_5s', 'color_periods_300s', 'color_periods_60s', 'color_periods_300'].forEach(tbl => {
-    try {
-      supabaseClient.channel('public:'+tbl).on('postgres_changes',{event:'UPDATE',schema:'public',table:tbl},payload=>{
-       if(payload.new && payload.new.status==='completed'){
-         loadRecentWinsUI();
-         const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);
-       }
-      }).subscribe();
-    } catch(e){}
-  });
+  try {
+    supabaseClient.channel('public:color_periods').on('postgres_changes',{event:'UPDATE',schema:'public',table:'color_periods'},payload=>{
+     if(payload.new && payload.new.status==='completed'){
+       loadRecentWinsUI();
+       const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);
+     }
+    }).subscribe();
+  } catch(e){}
  }
  setInterval(()=>{
    loadRecentWinsUI();
