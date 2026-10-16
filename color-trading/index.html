@@ -761,15 +761,22 @@
 
     <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl border-x border-slate-800 relative overflow-hidden pb-12">
 
-        <!-- color-trading/header.html ফাইল কানেকশন -->
+        <!-- হেডার ফাইল কানেকশন (সঠিক পাথ: header.html) -->
         <div id="header-container"></div>
         <script>
-            fetch('color-trading/header.html')
-                .then(response => response.text())
+            fetch('header.html')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
                 .then(data => {
                     document.getElementById('header-container').innerHTML = data;
                 })
-                .catch(error => console.error('Header load error:', error));
+                .catch(error => {
+                    console.error('Header load error:', error);
+                    // ফলের ব্যাকআপ হিসেবে সরাসরি লিংকের চেষ্টা বা ফলব্যাক টেক্সট
+                    document.getElementById('header-container').innerHTML = `<header class="py-1.5 px-3 bg-[#080d20] border-b border-slate-800 flex justify-between items-center shadow-lg"><h1 class="text-sm font-extrabold text-white tracking-wider">Color Trading</h1><a href="how-to-play.html" class="bg-slate-800/80 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center text-amber-400 text-base shadow-md border border-slate-700 transition" title="How to play">📖</a></header>`;
+                });
         </script>
 
         <main class="p-2.5 flex-1 overflow-y-auto pb-16">
