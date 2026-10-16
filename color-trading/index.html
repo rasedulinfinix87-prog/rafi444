@@ -79,7 +79,7 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
-            min-height: 44px;
+            min-height: 48px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -101,6 +101,42 @@
             height: 2px;
             background: linear-gradient(90deg, transparent, #ef4444, transparent);
             box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+        }
+
+        /* প্রদত্ত ছবির আদলে বড় অ্যানালগ ঘড়ির সিম্বল ডিজাইন */
+        .custom-clock-icon {
+            width: 22px;
+            height: 22px;
+            background: radial-gradient(circle, #e2e8f0 60%, #cbd5e1 100%);
+            border: 2px solid #334155;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.6), 0 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .custom-clock-icon::before {
+            content: "";
+            position: absolute;
+            top: 2px;
+            width: 2px;
+            height: 7px;
+            background: #0f172a;
+            border-radius: 1px;
+            transform-origin: bottom center;
+            transform: rotate(45deg);
+        }
+        .custom-clock-icon::after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 9px;
+            width: 5px;
+            height: 2px;
+            background: #0f172a;
+            border-radius: 1px;
+            transform-origin: left center;
         }
 
         .number-button {
@@ -786,25 +822,25 @@
 
                     <button onclick="changeGameMode(15, '15s')" id="mode-15s"
                         class="mode-button active-mode">
-                        <div class="text-[11px]">🕒</div>
+                        <div class="custom-clock-icon mb-0.5"></div>
                         <div id="text-15s" class="text-[10.5px] font-bold text-white mt-0.5">Win 15s</div>
                     </button>
 
                     <button onclick="changeGameMode(30, '30s')" id="mode-30s"
                         class="mode-button">
-                        <div class="text-[11px]">🕒</div>
+                        <div class="custom-clock-icon mb-0.5"></div>
                         <div id="text-30s" class="text-[10.5px] font-bold text-amber-400 mt-0.5">Win 30s</div>
                     </button>
 
                     <button onclick="changeGameMode(60, '1m')" id="mode-1m"
                         class="mode-button">
-                        <div class="text-[11px]">🕒</div>
+                        <div class="custom-clock-icon mb-0.5"></div>
                         <div id="text-1m" class="text-[10.5px] font-bold text-amber-400 mt-0.5">Win 1m</div>
                     </button>
 
                     <button onclick="changeGameMode(300, '5m')" id="mode-5m"
                         class="mode-button">
-                        <div class="text-[11px]">🕒</div>
+                        <div class="custom-clock-icon mb-0.5"></div>
                         <div id="text-5m" class="text-[10.5px] font-bold text-amber-400 mt-0.5">Win 5m</div>
                     </button>
 
@@ -975,7 +1011,6 @@
             }
         });
 
-        // Ensure current period exists in database at startup or new round
         async function ensureCurrentPeriodExists() {
             let { data: periodData, error } = await supabaseClient
                 .from("color_periods")
@@ -994,7 +1029,6 @@
             }
         }
 
-        // Supabase Realtime Subscription & Mobile Auto-Refresh Fallback
         function initRealtimeSubscription() {
             if (typeof supabaseClient !== 'undefined' && supabaseClient.channel) {
                 supabaseClient
@@ -1855,7 +1889,6 @@
             let winningBigSmall = winningNumber >= 5 ? 'Big' : 'Small';
             let winningResultString = `${winningColor}-${winningNumber}`;
 
-            // Ensure the period record is marked as completed with winning details so Game History captures it properly
             await supabaseClient
                 .from("color_periods")
                 .update({
