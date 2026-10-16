@@ -453,7 +453,7 @@
         }
 
         .my-history-table th {
-            background: #111b30;
+            background: transparent;
             color: #94a3b8;
             font-size: 10px;
             font-weight: 700;
@@ -497,7 +497,7 @@
         .result-badge {
             display: inline-block;
             padding: 3px 6px;
-            border-radius: 5px;
+            border-radius: 50px;
             font-size: 9.5px;
             font-weight: 800;
         }
@@ -516,75 +516,86 @@
             border-radius: 8px;
         }
 
-        /* Chips & Action Buttons Styling (Updated based on provided design image) */
+        /* Chips & Action Buttons Styling (Ultra Premium Upgrade) */
         .chips-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #0b1329;
-            padding: 6px 8px;
-            border-radius: 14px;
-            border: none;
-            gap: 6px;
+            background: linear-gradient(135deg, #0b1329 0%, #060919 100%);
+            padding: 8px 12px;
+            border-radius: 16px;
+            border: 1px solid rgba(71, 85, 105, 0.4);
+            gap: 8px;
             overflow-x: auto;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .action-group {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             flex-shrink: 0;
         }
 
         .action-chip {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 900;
-            background: #1e293b;
-            border: 1px solid #475569;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1.5px solid #475569;
             color: #f8fafc;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.2);
         }
-        .action-chip:hover { background: #334155; color: white; }
+        .action-chip:hover { 
+            background: linear-gradient(145deg, #334155, #1e293b); 
+            border-color: #64748b;
+            color: white; 
+            transform: translateY(-1px);
+        }
 
         .rebet-badge-2x {
             position: absolute;
-            bottom: -2px;
-            right: -2px;
+            bottom: -3px;
+            right: -3px;
             font-size: 7.5px;
             font-weight: 900;
-            background: #f59e0b;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             color: #0f172a;
-            padding: 0 2.5px;
-            border-radius: 3px;
+            padding: 0.5px 3px;
+            border-radius: 4px;
             border: 1px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
         }
 
         .chips-group {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             align-items: center;
             overflow-x: auto;
+            padding: 2px 0;
         }
 
         .chip-item {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 9px;
+            font-size: 9.5px;
             font-weight: 900;
             cursor: pointer;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -3px 4px rgba(0,0,0,0.6);
-            transition: transform 0.1s;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.6), 
+                        inset 0 2px 4px rgba(255,255,255,0.5), 
+                        inset 0 -4px 6px rgba(0,0,0,0.7);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             flex-shrink: 0;
             color: white;
             text-shadow: 0 1px 2px rgba(0,0,0,0.9);
@@ -592,113 +603,128 @@
             letter-spacing: -0.5px;
         }
 
-        .chip-item:active { transform: scale(0.92); }
-        .chip-item.selected-chip {
-            transform: scale(1.08);
-            box-shadow: 0 0 8px rgba(255,255,255,0.7), inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -3px 4px rgba(0,0,0,0.6);
+        .chip-item:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
         }
 
-        /* প্রোভাইড করা ছবির আদলে রিং প্যাটার্ন ও সাদা ব্লক ডিজাইন (৳ ছাড়া) */
+        .chip-item:active { transform: scale(0.92); }
+        .chip-item.selected-chip {
+            transform: scale(1.12) translateY(-2px);
+            box-shadow: 0 0 14px rgba(255,255,255,0.8), 
+                        0 6px 15px rgba(0,0,0,0.7), 
+                        inset 0 2px 4px rgba(255,255,255,0.7), 
+                        inset 0 -4px 6px rgba(0,0,0,0.7);
+            z-index: 5;
+        }
+
+        /* প্রিমিয়াম রিং প্যাটার্ন ও সেন্ট্রাল টেক্সট সার্কেল ডিজাইন */
         .chip-20 { 
             background: repeating-conic-gradient(#0284c7 0deg 30deg, #ffffff 30deg 36deg);
-            border: 2px solid #0369a1;
+            border: 2.5px solid #0369a1;
         }
         .chip-20::after {
             content: attr(data-text);
             position: absolute;
-            width: 24px;
-            height: 24px;
-            background: #0284c7;
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px dashed rgba(255,255,255,0.6);
+            border: 1px dashed rgba(255,255,255,0.7);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);
         }
 
         .chip-50 { 
             background: repeating-conic-gradient(#16a34a 0deg 30deg, #ffffff 30deg 36deg);
-            border: 2px solid #15803d;
+            border: 2.5px solid #15803d;
         }
         .chip-50::after {
             content: attr(data-text);
             position: absolute;
-            width: 24px;
-            height: 24px;
-            background: #16a34a;
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #16a34a, #15803d);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px dashed rgba(255,255,255,0.6);
+            border: 1px dashed rgba(255,255,255,0.7);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);
         }
 
         .chip-100 { 
             background: repeating-conic-gradient(#e11d48 0deg 30deg, #ffffff 30deg 36deg);
-            border: 2px solid #be123c;
+            border: 2.5px solid #be123c;
         }
         .chip-100::after {
             content: attr(data-text);
             position: absolute;
-            width: 24px;
-            height: 24px;
-            background: #e11d48;
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #e11d48, #be123c);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px dashed rgba(255,255,255,0.6);
+            border: 1px dashed rgba(255,255,255,0.7);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);
         }
 
         .chip-500 { 
             background: repeating-conic-gradient(#7c3aed 0deg 30deg, #ffffff 30deg 36deg);
-            border: 2px solid #6d28d9;
+            border: 2.5px solid #6d28d9;
         }
         .chip-500::after {
             content: attr(data-text);
             position: absolute;
-            width: 24px;
-            height: 24px;
-            background: #7c3aed;
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px dashed rgba(255,255,255,0.6);
+            border: 1px dashed rgba(255,255,255,0.7);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);
         }
 
         .chip-1k { 
             background: repeating-conic-gradient(#d97706 0deg 30deg, #ffffff 30deg 36deg);
-            border: 2px solid #b45309;
+            border: 2.5px solid #b45309;
         }
         .chip-1k::after {
             content: attr(data-text);
             position: absolute;
-            width: 24px;
-            height: 24px;
-            background: #d97706;
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #d97706, #b45309);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px dashed rgba(255,255,255,0.6);
+            border: 1px dashed rgba(255,255,255,0.7);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);
         }
 
         .chip-10k { 
             background: repeating-conic-gradient(#881337 0deg 30deg, #ffffff 30deg 36deg);
-            border: 2px solid #4c0519;
+            border: 2.5px solid #4c0519;
         }
         .chip-10k::after {
             content: attr(data-text);
             position: absolute;
-            width: 24px;
-            height: 24px;
-            background: #881337;
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #881337, #4c0519);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px dashed rgba(255,255,255,0.6);
+            border: 1px dashed rgba(255,255,255,0.7);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);
         }
 
         .bet-badge {
@@ -915,7 +941,7 @@
                     </button>
                 </div>
 
-                <!-- Chips & Action Bar (৳ symbol removed, design updated) -->
+                <!-- Chips & Action Bar (Ultra Premium Design) -->
                 <div class="game-section chips-container">
                     <div class="action-group">
                         <button onclick="undoLastBet()" class="action-chip" title="Undo Bet">↩</button>
@@ -940,6 +966,7 @@
 
             </div>
 
+            <!-- ডার্ক ব্যাকগ্রাউন্ড (bg-slate-900) সরিয়ে শুধুমাত্র মূল ব্যাকগ্রাউন্ড ও বর্ডার রাখা হয়েছে -->
             <div class="bg-slate-950 rounded-xl border border-slate-800 p-2.5 mt-2.5">
                 <div class="flex border-b border-slate-800 pb-1.5 mb-2 gap-2">
 
@@ -948,20 +975,19 @@
                         Game History
                     </button>
 
-                    <!-- Chart নাম পরিবর্তন করে Statistics করা হয়েছে -->
                     <button onclick="switchTab('chart')" id="tab-chart"
-                        class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 text-slate-400 hover:text-white transition">
                         Statistics
                     </button>
 
                     <button onclick="switchTab('my-history')" id="tab-my-history"
-                        class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">
+                        class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 text-slate-400 hover:text-white transition">
                         My History
                     </button>
 
                 </div>
 
-                <div id="tab-content" class="max-h-72 overflow-auto text-xs">
+                <div id="tab-content" class="max-h-72 overflow-auto text-xs bg-transparent">
                     <p class="text-center text-slate-500 py-3">Loading...</p>
                 </div>
             </div>
@@ -1435,7 +1461,7 @@
                 ['game-history', 'chart', 'my-history'].forEach(t => {
                     const btn = document.getElementById(`tab-${t}`);
                     btn.className =
-                        "flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition";
+                        "flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 text-slate-400 hover:text-white transition";
                 });
 
                 return;
@@ -1452,7 +1478,7 @@
                         "flex-1 py-1.5 text-xs font-bold rounded-lg bg-rose-600 text-white transition";
                 } else {
                     btn.className =
-                        "flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 hover:text-white transition";
+                        "flex-1 py-1.5 text-xs font-bold rounded-lg bg-slate-800/80 text-slate-400 hover:text-white transition";
                 }
             });
 
@@ -1587,7 +1613,7 @@
                             ? 'text-rose-500'
                             : 'text-purple-400');
 
-                    html += `<tr class="border-b border-slate-900/50">
+                    html += `<tr class="border-b border-slate-800/40">
                         <td class="font-mono text-amber-300">${escapeHtml(row.period_number)}</td>
                         <td class="font-bold">${escapeHtml(row.winning_number)}</td>
                         <td class="font-semibold">${bs}</td>
@@ -1699,7 +1725,7 @@
 
                 html += `
                     </tbody></table></div>
-                    <div class="mt-2.5 p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                    <div class="mt-2.5 p-2.5 rounded-xl bg-transparent border border-slate-800">
                         <p class="text-[9.5px] text-slate-400 leading-relaxed">
                             Result No., Result Color এবং Big/Small দেখানোর জন্য
                             সংশ্লিষ্ট রাউন্ডের ফলাফল ডাটাবেসে সংরক্ষিত থাকতে হবে।
@@ -1747,9 +1773,8 @@
                 let violetPct = 100 - (greenPct + redPct);
                 if(violetPct < 0) violetPct = 0;
 
-                /* সমস্ত কন্টেন্ট একটি একক কার্ডের ভেতরে রাখা হয়েছে এবং নির্দিষ্ট শিরোনাম ও টাইম ফ্রেম লজিক UI থেকে সরিয়ে লজিক অক্ষুণ্ণ রাখা হয়েছে */
                 container.innerHTML = `
-                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-3">
+                    <div class="bg-transparent p-1 space-y-3">
                         <!-- Trend Bead Grid -->
                         <div class="overflow-x-auto pb-1">
                             <div class="trend-grid-container">
