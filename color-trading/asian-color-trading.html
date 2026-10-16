@@ -41,7 +41,7 @@
                 linear-gradient(180deg, #111a21 0%, #0b1218 38%, #071016 100%);
             position: relative;
             overflow-x: hidden;
-            padding-bottom: 78px;
+            padding-bottom: 90px;
             box-shadow: 0 0 50px rgba(0,0,0,.45);
         }
 
@@ -102,7 +102,6 @@
             position: relative;
         }
 
-        /* Top Bar Dropdown Menu Styling */
         .top-dropdown {
             position: absolute;
             top: 50px;
@@ -146,7 +145,7 @@
         }
 
         /* =========================
-           POPUP MODAL (Bottom Sheet Style)
+           POPUP MODAL
         ========================== */
         .modal-overlay {
             position: fixed;
@@ -673,102 +672,6 @@
         }
 
         /* =========================
-           BET CHIPS (Updated Casino Token Style)
-        ========================== */
-
-        .chips-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 9px;
-            padding: 8px;
-            border-radius: 16px;
-            background: #101b22;
-            border: 1px solid #283740;
-        }
-
-        .action-group {
-            display: flex;
-            gap: 5px;
-            flex-shrink: 0;
-        }
-
-        .action-chip {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 1px solid #394952;
-            background: #18252d;
-            color: #d5dde2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            position: relative;
-        }
-
-        .rebet-badge-2x {
-            position: absolute;
-            right: -2px;
-            bottom: -2px;
-            background: #f7b719;
-            color: #111;
-            font-size: 7px;
-            padding: 1px 3px;
-            border-radius: 5px;
-            font-weight: 950;
-        }
-
-        .chips-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            overflow-x: auto;
-            padding: 4px;
-            scrollbar-width: none;
-        }
-
-        .chips-group::-webkit-scrollbar {
-            display: none;
-        }
-
-        .chip-item {
-            width: 44px;
-            height: 44px;
-            flex: 0 0 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 11px;
-            font-weight: 900;
-            cursor: pointer;
-            position: relative;
-            border: 3px dashed rgba(255, 255, 255, 0.6);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.4);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .chip-item.selected-chip {
-            transform: scale(1.18) translateY(-4px);
-            border-color: #fff !important;
-            box-shadow: 0 0 12px rgba(244, 196, 58, 0.8), 0 6px 14px rgba(0,0,0,0.5), inset 0 2px 6px rgba(255,255,255,0.6);
-            z-index: 10;
-        }
-
-        .chip-20 { background: radial-gradient(circle, #ff6b6b 40%, #d91f43 100%); }
-        .chip-50 { background: radial-gradient(circle, #38ef7d 40%, #11998e 100%); }
-        .chip-100 { background: radial-gradient(circle, #f7b733 40%, #fc4a1a 100%); }
-        .chip-500 { background: radial-gradient(circle, #a8ff78 40%, #78ffd6 100%); color: #111; }
-        .chip-1k { background: radial-gradient(circle, #4facfe 40%, #00f2fe 100%); }
-        .chip-10k { background: radial-gradient(circle, #c471f5 40%, #fa71cd 100%); }
-
-        .chip-item::after {
-            display: none !important;
-        }
-
-        /* =========================
            STATUS
         ========================== */
 
@@ -980,7 +883,7 @@
         }
 
         /* =========================
-           BOTTOM BAR
+           NEW UPDATED BOTTOM BAR & CHIPS STYLING
         ========================== */
 
         .bottom-fixed-bar {
@@ -991,28 +894,212 @@
             transform: translateX(-50%);
             width: 100%;
             max-width: 430px;
-            min-height: 62px;
-            padding: 8px 13px;
+            background: #5e0d16; /* ছবির থিমের সাথে সামঞ্জস্য রেখে ডিপ রেড ব্যাকগ্রাউন্ড */
+            border-top: 1px solid #801320;
+            padding: 8px 15px 10px 15px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.6);
+        }
+
+        .bottom-bar-top-row {
+            display: flex;
             align-items: center;
-            background: rgba(9,15,20,.98);
-            border-top: 1px solid #27353d;
-            backdrop-filter: blur(14px);
-            font-size: 13px;
+            justify-content: space-between;
+            position: relative;
+            height: 48px;
         }
 
-        .bottom-fixed-bar .text-emerald-400 {
-            color: #31d67b !important;
+        /* Undo Button (Left) */
+        .bottom-action-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #d5dde2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
         }
 
-        .bottom-fixed-bar .text-amber-400 {
-            color: #f7c73a !important;
+        /* Rebet Button (Right) */
+        .bottom-rebet-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #d5dde2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .rebet-badge-2x {
+            position: absolute;
+            right: -2px;
+            bottom: -2px;
+            background: #f7b719;
+            color: #111;
+            font-size: 7px;
+            padding: 1px 3px;
+            border-radius: 5px;
+            font-weight: 950;
+        }
+
+        /* Stacked Chips Display in Center (1st Image Style) */
+        .center-chips-stack {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            height: 44px;
+            width: 110px;
+        }
+
+        .stacked-chip {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            position: absolute;
+            border: 2px dashed rgba(255, 255, 255, 0.7);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .stack-back-1 {
+            background: radial-gradient(circle, #f7b733 40%, #fc4a1a 100%);
+            transform: translateX(-24px) scale(0.85);
+            z-index: 1;
+            opacity: 0.85;
+        }
+
+        .stack-back-2 {
+            background: radial-gradient(circle, #4facfe 40%, #00f2fe 100%);
+            transform: translateX(24px) scale(0.85);
+            z-index: 1;
+            opacity: 0.85;
+        }
+
+        .stack-front {
+            background: radial-gradient(circle, #ff6b6b 40%, #d91f43 100%);
+            transform: translateX(0) scale(1.1);
+            z-index: 3;
+            border: 3px dashed #fff;
+            box-shadow: 0 0 12px rgba(255, 107, 107, 0.8), 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        /* Bottom Bar Info Row (Balance & Total Bet) */
+        .bottom-bar-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .info-box-left, .info-box-right {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-title {
+            color: #d1a1a6;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-family: monospace;
+            font-weight: 900;
         }
 
         #bottom-bar-center-status {
             font-size: 10px;
             white-space: nowrap;
+        }
+
+        /* Chip Selection Modal Popup (2nd Image Style) */
+        .chips-popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 250;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .chips-popup-overlay.show {
+            display: flex;
+        }
+
+        .chips-popup-content {
+            width: 100%;
+            max-width: 430px;
+            background: #5e0d16;
+            border-top: 2px solid #801320;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 20px 15px 25px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+            animation: slideUpModal 0.25s ease-out;
+        }
+
+        .popup-chips-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 320px;
+            justify-items: center;
+        }
+
+        .popup-chip-item {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 900;
+            cursor: pointer;
+            position: relative;
+            border: 3px dashed rgba(255, 255, 255, 0.7);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4), inset 0 2px 5px rgba(255,255,255,0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .popup-chip-item.selected-chip {
+            transform: scale(1.15);
+            border-color: #fff !important;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 6px 15px rgba(0,0,0,0.6);
+            z-index: 10;
         }
 
         /* =========================
@@ -1051,12 +1138,6 @@
             .number-button {
                 font-size: 22px !important;
             }
-
-            .chip-item {
-                width: 39px;
-                height: 39px;
-                flex-basis: 39px;
-            }
         }
     </style>
 </head>
@@ -1066,7 +1147,7 @@
 <div class="app-shell">
 
     <div class="custom-topbar">
-        <div class="top-icon">☰</div>
+        <div class="top-icon" onclick="toggleTopMenu()">☰</div>
 
         <div class="brand">
             <span class="brand-crown">♛</span>
@@ -1074,12 +1155,9 @@
         </div>
 
         <div class="header-actions">
-            <!-- Bet History Symbol -->
             <div class="top-icon" onclick="openModal('game-history')" title="Bet History">📊</div>
-            <!-- Statistics Symbol -->
             <div class="top-icon" onclick="openModal('chart')" title="Statistics">📈</div>
 
-            <!-- Top Dropdown Menu if needed -->
             <div id="top-dropdown-menu" class="top-dropdown">
                 <button onclick="openModal('game-history'); toggleTopMenu();">Game History</button>
                 <button onclick="openModal('my-history'); toggleTopMenu();">My History</button>
@@ -1344,75 +1422,6 @@
 
             </div>
 
-            <!-- CHIPS -->
-            <div class="chips-container section-gap">
-
-                <div class="action-group">
-
-                    <button onclick="undoLastBet()"
-                        class="action-chip"
-                        title="Undo Bet">
-
-                        ↩
-
-                    </button>
-
-                    <button onclick="rebetLast()"
-                        class="action-chip"
-                        title="Rebet">
-
-                        🔄
-
-                        <span class="rebet-badge-2x">
-                            2x
-                        </span>
-
-                    </button>
-
-                </div>
-
-                <div class="chips-group">
-
-                    <div onclick="selectChip(20, this)"
-                         class="chip-item chip-20 selected-chip"
-                         data-text="20">
-                        20
-                    </div>
-
-                    <div onclick="selectChip(50, this)"
-                         class="chip-item chip-50"
-                         data-text="50">
-                        50
-                    </div>
-
-                    <div onclick="selectChip(100, this)"
-                         class="chip-item chip-100"
-                         data-text="100">
-                        100
-                    </div>
-
-                    <div onclick="selectChip(500, this)"
-                         class="chip-item chip-500"
-                         data-text="500">
-                        500
-                    </div>
-
-                    <div onclick="selectChip(1000, this)"
-                         class="chip-item chip-1k"
-                         data-text="1K">
-                        1K
-                    </div>
-
-                    <div onclick="selectChip(10000, this)"
-                         class="chip-item chip-10k"
-                         data-text="10K">
-                        10K
-                    </div>
-
-                </div>
-
-            </div>
-
             <div id="game-status-text"
                  class="hidden"
                  aria-live="polite">
@@ -1436,30 +1445,59 @@
         </div>
     </div>
 
-    <!-- BOTTOM BAR -->
+    <!-- CHIPS SELECTION POPUP MODAL (2ND IMAGE DESIGN) -->
+    <div id="chips-popup-modal" class="chips-popup-overlay" onclick="closeChipsPopupOnOutside(event)">
+        <div class="chips-popup-content">
+            <div class="popup-chips-grid">
+                <div onclick="selectChipFromPopup(20, this)" class="popup-chip-item chip-20 selected-chip">20</div>
+                <div onclick="selectChipFromPopup(50, this)" class="popup-chip-item chip-50">50</div>
+                <div onclick="selectChipFromPopup(100, this)" class="popup-chip-item chip-100">100</div>
+                <div onclick="selectChipFromPopup(500, this)" class="popup-chip-item chip-500">500</div>
+                <div onclick="selectChipFromPopup(1000, this)" class="popup-chip-item chip-1k">1K</div>
+                <div onclick="selectChipFromPopup(10000, this)" class="popup-chip-item chip-10k">10K</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPDATED BOTTOM BAR (1ST IMAGE DESIGN) -->
     <div class="bottom-fixed-bar">
+        <div class="bottom-bar-top-row">
+            <!-- Undo Button -->
+            <button onclick="undoLastBet()" class="bottom-action-btn" title="Undo Bet">
+                ↩
+            </button>
 
-        <div>
-            <span class="text-slate-400">Total Bet:</span>
-            <span class="text-amber-400 font-mono font-bold">
-                ৳<span id="bar-total-bet">0.00</span>
-            </span>
+            <!-- Center Stacked Chips (Clicking opens popup) -->
+            <div class="center-chips-stack" onclick="openChipsPopup()" id="center-chips-display">
+                <div class="stacked-chip stack-back-1">100</div>
+                <div class="stacked-chip stack-back-2">500</div>
+                <div class="stacked-chip stack-front" id="active-stack-chip-label">20</div>
+            </div>
+
+            <!-- Rebet Button -->
+            <button onclick="rebetLast()" class="bottom-rebet-btn" title="Rebet">
+                🔄
+                <span class="rebet-badge-2x">2x</span>
+            </button>
         </div>
 
-        <div id="bottom-bar-center-status"
-             class="font-bold text-xs text-center">
+        <div class="bottom-bar-info-row">
+            <div class="info-box-left">
+                <span class="info-title">BALANCE</span>
+                <span class="info-value text-emerald-400">
+                    ৳<span id="bar-user-balance">0.00</span>
+                </span>
+            </div>
+
+            <div id="bottom-bar-center-status" class="font-bold text-xs text-center"></div>
+
+            <div class="info-box-right" style="text-align: right;">
+                <span class="info-title">TOTAL BET</span>
+                <span class="info-value text-amber-400">
+                    ৳<span id="bar-total-bet">0.00</span>
+                </span>
+            </div>
         </div>
-
-        <div>
-            <span class="text-slate-400">
-                Balance:
-            </span>
-
-            <span class="text-emerald-400 font-mono font-bold">
-                ৳<span id="bar-user-balance">0.00</span>
-            </span>
-        </div>
-
     </div>
 
 </div>
@@ -1485,7 +1523,7 @@
     }
 
     window.addEventListener('click', function(e) {
-        if (!e.target.closest('.header-actions')) {
+        if (!e.target.closest('.header-actions') && !e.target.closest('.top-icon')) {
             const menu = document.getElementById('top-dropdown-menu');
             if (menu && menu.classList.contains('show')) {
                 menu.classList.remove('show');
@@ -1514,6 +1552,55 @@
     function closeModal() {
         const modal = document.getElementById('custom-popup-modal');
         modal.classList.remove('show');
+    }
+
+    // Chips Popup Control Functions
+    function openChipsPopup() {
+        const popup = document.getElementById('chips-popup-modal');
+        if (popup) popup.classList.add('show');
+    }
+
+    function closeChipsPopup() {
+        const popup = document.getElementById('chips-popup-modal');
+        if (popup) popup.classList.remove('show');
+    }
+
+    function closeChipsPopupOnOutside(e) {
+        if (e.target.id === 'chips-popup-modal') {
+            closeChipsPopup();
+        }
+    }
+
+    function selectChipFromPopup(amount, element) {
+        selectedChipAmount = amount;
+
+        document.querySelectorAll('.popup-chip-item')
+            .forEach(el => el.classList.remove('selected-chip'));
+
+        element.classList.add('selected-chip');
+
+        // Update front active stack chip label
+        let labelElem = document.getElementById('active-stack-chip-label');
+        if (labelElem) {
+            let displayVal = amount >= 1000 ? (amount / 1000) + 'K' : amount;
+            labelElem.innerText = displayVal;
+        }
+
+        // Apply corresponding background gradient based on amount
+        let frontChip = document.querySelector('.stack-front');
+        if (frontChip) {
+            frontChip.className = "stacked-chip stack-front";
+            if (amount === 20) frontChip.style.background = "radial-gradient(circle, #ff6b6b 40%, #d91f43 100%)";
+            else if (amount === 50) frontChip.style.background = "radial-gradient(circle, #38ef7d 40%, #11998e 100%)";
+            else if (amount === 100) frontChip.style.background = "radial-gradient(circle, #f7b733 40%, #fc4a1a 100%)";
+            else if (amount === 500) frontChip.style.background = "radial-gradient(circle, #a8ff78 40%, #78ffd6 100%)";
+            else if (amount === 1000) frontChip.style.background = "radial-gradient(circle, #4facfe 40%, #00f2fe 100%)";
+            else if (amount === 10000) frontChip.style.background = "radial-gradient(circle, #c471f5 40%, #fa71cd 100%)";
+        }
+
+        setTimeout(() => {
+            closeChipsPopup();
+        }, 200);
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -1573,15 +1660,6 @@
                 loadHistoryData(activeModalTab);
             }
         }, 5000);
-    }
-
-    function selectChip(amount, element) {
-        selectedChipAmount = amount;
-
-        document.querySelectorAll('.chip-item')
-            .forEach(el => el.classList.remove('selected-chip'));
-
-        element.classList.add('selected-chip');
     }
 
     async function undoLastBet() {
@@ -1774,11 +1852,9 @@
                 "Bet history insert error:",
                 betInsertError
             );
-
             alert(
                 "Bet history could not be saved. Please contact support."
             );
-
             return;
         }
 
