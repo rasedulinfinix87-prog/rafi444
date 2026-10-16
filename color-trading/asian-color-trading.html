@@ -3,222 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>কালার ট্রেডিং গেম</title>
+    <title>Color Trading Game - Production UI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        body {
-            background: #121212;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        /* Custom scrollbar for history */
+        ::-webkit-scrollbar {
+            width: 4px;
         }
-        .game-container {
-            width: 100%;
-            max-width: 400px;
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            text-align: center;
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
         }
-        h2 {
-            margin-bottom: 15px;
-            color: #ffcc00;
-        }
-        .balance-box {
-            background: #2c2c2c;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 18px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .timer-box {
-            font-size: 24px;
-            color: #00ffcc;
-            margin-bottom: 15px;
-            background: #252525;
-            padding: 10px;
-            border-radius: 8px;
-        }
-        .colors-section {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .color-btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            color: white;
-            transition: 0.2s;
-        }
-        .green { background-color: #28a745; }
-        .violet { background-color: #6f42c1; }
-        .red { background-color: #dc3545; }
-        
-        .color-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .bet-input-box {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .bet-input-box label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-            color: #bbb;
-        }
-        .bet-input-box input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #444;
-            background: #2c2c2c;
-            color: white;
-            font-size: 16px;
-        }
-        .result-box {
-            font-size: 16px;
-            padding: 10px;
-            background: #2c2c2c;
-            border-radius: 6px;
-            min-height: 45px;
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
         }
     </style>
 </head>
-<body>
+<body class="flex justify-center items-center min-h-screen bg-slate-950">
 
-    <div class="game-container">
-        <h2>Color Trading Game</h2>
+    <!-- Mobile Screen Container -->
+    <div class="w-full max-w-md h-[100vh] sm:h-[850px] bg-slate-900 flex flex-col justify-between shadow-2xl relative overflow-hidden sm:rounded-3xl border border-slate-800">
         
-        <div class="balance-box">
-            ব্যালেন্স: ৳ <span id="balance">100</span>
+        <!-- Top Header -->
+        <header class="bg-slate-900/90 backdrop-blur px-4 py-3 border-b border-slate-800 flex justify-between items-center z-10 sticky top-0">
+            <div class="flex items-center space-x-2">
+                <span class="text-xl font-bold text-emerald-400 tracking-wider">WIN<span class="text-amber-400">GO</span></span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openDeposit()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-md transition active:scale-95">
+                    <i class="fa-solid fa-wallet mr-1"></i> ডিপোজিট
+                </button>
+                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 text-slate-300">
+                    <i class="fa-solid fa-user text-xs"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Scrollable Content -->
+        <main class="flex-1 overflow-y-auto px-4 py-3 space-y-4 pb-20">
+            
+            <!-- Balance Card -->
+            <div class="bg-gradient-to-r from-slate-800 to-slate-850 p-4 rounded-2xl border border-slate-700/60 shadow-lg relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl"></div>
+                <p class="text-slate-400 text-xs">মেইন ব্যালেন্স</p>
+                <div class="flex items-center justify-between mt-1">
+                    <h2 class="text-2xl font-bold text-white tracking-wide">৳ <span id="userBalance">1,250.00</span></h2>
+                    <button onclick="refreshBalance()" class="text-slate-400 hover:text-white transition">
+                        <i class="fa-solid fa-rotate-right text-sm"></i>
+                    </button>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <button onclick="openDeposit()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium py-2 rounded-xl transition shadow">রিচার্জ</button>
+                    <button onclick="openWithdraw()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium py-2 rounded-xl transition border border-slate-600">উইথড্র</button>
+                </div>
+            </div>
+
+            <!-- Game Mode / Timer Section -->
+            <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/60 shadow flex justify-between items-center">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="text-xs font-medium text-slate-300">উইনগো ১ মিনিট</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">পিরিয়ড: <span id="periodNumber" class="text-slate-200 font-mono font-semibold">2026101601054</span></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-slate-400 mb-0.5">রিমেইনিং টাইম</p>
+                    <div class="flex items-center space-x-1 font-mono text-lg font-bold text-amber-400">
+                        <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700">0</span>
+                        <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700">0</span>
+                        <span>:</span>
+                        <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700" id="timerSec1">3</span>
+                        <span class="bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700" id="timerSec2">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color Betting Controls -->
+            <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/60 shadow space-y-3">
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="openBetModal('Green', 2, 'bg-emerald-600')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl shadow-lg transition active:scale-95 text-sm flex flex-col items-center justify-center">
+                        <span>সবুজ (Green)</span>
+                        <span class="text-[10px] opacity-80 mt-0.5">১ : ২</span>
+                    </button>
+                    <button onclick="openBetModal('Violet', 4.5, 'bg-purple-600')" class="bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-xl shadow-lg transition active:scale-95 text-sm flex flex-col items-center justify-center">
+                        <span>ভায়োলেট (Violet)</span>
+                        <span class="text-[10px] opacity-80 mt-0.5">১ : ৪.৫</span>
+                    </button>
+                    <button onclick="openBetModal('Red', 2, 'bg-rose-600')" class="bg-rose-600 hover:bg-rose-500 text-white font-semibold py-3 rounded-xl shadow-lg transition active:scale-95 text-sm flex flex-col items-center justify-center">
+                        <span>লাল (Red)</span>
+                        <span class="text-[10px] opacity-80 mt-0.5">১ : ২</span>
+                    </button>
+                </div>
+
+                <!-- Number Grid Selection -->
+                <div class="grid grid-cols-5 gap-2 pt-2">
+                    <button onclick="openBetModal('0', 9, 'bg-gradient-to-r from-rose-600 to-purple-600')" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-sm transition border border-slate-600">0</button>
+                    <button onclick="openBetModal('1', 9, 'bg-emerald-600')" class="bg-emerald-600 text-white font-bold py-2 rounded-lg text-sm transition">1</button>
+                    <button onclick="openBetModal('2', 9, 'bg-rose-600')" class="bg-rose-600 text-white font-bold py-2 rounded-lg text-sm transition">2</button>
+                    <button onclick="openBetModal('3', 9, 'bg-emerald-600')" class="bg-emerald-600 text-white font-bold py-2 rounded-lg text-sm transition">3</button>
+                    <button onclick="openBetModal('4', 9, 'bg-rose-600')" class="bg-rose-600 text-white font-bold py-2 rounded-lg text-sm transition">4</button>
+                    <button onclick="openBetModal('5', 9, 'bg-gradient-to-r from-emerald-600 to-purple-600')" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-sm transition border border-slate-600">5</button>
+                    <button onclick="openBetModal('6', 9, 'bg-rose-600')" class="bg-rose-600 text-white font-bold py-2 rounded-lg text-sm transition">6</button>
+                    <button onclick="openBetModal('7', 9, 'bg-emerald-600')" class="bg-emerald-600 text-white font-bold py-2 rounded-lg text-sm transition">7</button>
+                    <button onclick="openBetModal('8', 9, 'bg-rose-600')" class="bg-rose-600 text-white font-bold py-2 rounded-lg text-sm transition">8</button>
+                    <button onclick="openBetModal('9', 9, 'bg-emerald-600')" class="bg-emerald-600 text-white font-bold py-2 rounded-lg text-sm transition">9</button>
+                </div>
+            </div>
+
+            <!-- Recent Game History -->
+            <div class="bg-slate-800/80 p-4 rounded-2xl border border-slate-700/60 shadow space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-sm font-semibold text-slate-200">গেম হিস্ট্রি</h3>
+                    <span class="text-[10px] text-slate-400">সাম্প্রतिक ফলাফল</span>
+                </div>
+                <div class="space-y-2 max-h-48 overflow-y-auto pr-1" id="historyList">
+                    <!-- History Item Example -->
+                    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/40 text-xs">
+                        <span class="font-mono text-slate-400">2026101601053</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                            <span class="text-slate-300 font-medium">সবুজ</span>
+                        </div>
+                        <span class="font-bold text-emerald-400">6</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/40 text-xs">
+                        <span class="font-mono text-slate-400">2026101601052</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                            <span class="text-slate-300 font-medium">লাল</span>
+                        </div>
+                        <span class="font-bold text-rose-400">3</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/40 text-xs">
+                        <span class="font-mono text-slate-400">2026101601051</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-purple-500"></span>
+                            <span class="text-slate-300 font-medium">ভায়োলেট</span>
+                        </div>
+                        <span class="font-bold text-purple-400">5</span>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="absolute bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 py-2.5 px-6 flex justify-between items-center z-20">
+            <button class="flex flex-col items-center text-emerald-400 transition">
+                <i class="fa-solid fa-gamepad text-lg"></i>
+                <span class="text-[10px] mt-1 font-medium">গেম</span>
+            </button>
+            <button onclick="alert('সক্রিয় প্রমোশন পেজ')" class="flex flex-col items-center text-slate-400 hover:text-emerald-400 transition">
+                <i class="fa-solid fa-gift text-lg"></i>
+                <span class="text-[10px] mt-1 font-medium">অ্যাক্টিভিটি</span>
+            </button>
+            <button onclick="alert('কাস্টমার সাপোর্ট')" class="flex flex-col items-center text-slate-400 hover:text-emerald-400 transition">
+                <i class="fa-solid fa-headset text-lg"></i>
+                <span class="text-[10px] mt-1 font-medium">সাপোর্ট</span>
+            </button>
+            <button onclick="alert('প্রোফাইল সেটিংস')" class="flex flex-col items-center text-slate-400 hover:text-emerald-400 transition">
+                <i class="fa-solid fa-user-gear text-lg"></i>
+                <span class="text-[10px] mt-1 font-medium">অ্যাকাউন্ট</span>
+            </button>
+        </nav>
+
+        <!-- Bet Modal Popup -->
+        <div id="betModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-end justify-center sm:items-center">
+            <div class="bg-slate-900 w-full max-w-md sm:rounded-2xl rounded-t-3xl border border-slate-800 p-5 space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h3 id="modalTitle" class="text-base font-bold text-white">বেট লাগান (Green)</h3>
+                    <button onclick="closeBetModal()" class="text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Contract Money / Amount Selector -->
+                <div class="space-y-2">
+                    <label class="text-xs text-slate-400">টাকার পরিমাণ (BDT)</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="setAmount(10)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs py-2 rounded-lg font-medium">৳ ১০</button>
+                        <button onclick="setAmount(50)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs py-2 rounded-lg font-medium">৳ ৫০</button>
+                        <button onclick="setAmount(100)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs py-2 rounded-lg font-medium">৳ ১০০</button>
+                        <button onclick="setAmount(500)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs py-2 rounded-lg font-medium">৳ ৫০০</button>
+                    </div>
+                    <input type="number" id="betAmountInput" value="10" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500 font-mono mt-2" placeholder="অন্যান্য পরিমাণ">
+                </div>
+
+                <!-- Multiplier Selection -->
+                <div class="space-y-1.5">
+                    <label class="text-xs text-slate-400">মাল্টিপ্লায়ার (Quantity)</label>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="adjustMultiplier(-1)" class="bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-white text-sm">-</button>
+                        <input type="number" id="multiplierInput" value="1" class="w-full text-center bg-slate-950 border border-slate-700 rounded-xl py-1.5 text-white text-sm font-mono" readonly>
+                        <button onclick="adjustMultiplier(1)" class="bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg text-white text-sm">+</button>
+                    </div>
+                </div>
+
+                <!-- Total Calculation & Confirm -->
+                <div class="pt-2">
+                    <div class="flex justify-between text-xs text-slate-400 mb-2">
+                        <span>মোট বেট অ্যামাউন্ট:</span>
+                        <span class="text-emerald-400 font-bold font-mono text-sm" id="totalBetAmount">৳ ১০</span>
+                    </div>
+                    <button onclick="confirmBet()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl shadow-lg transition active:scale-95 text-sm">
+                        বেট কনফার্ম করুন
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <div class="timer-box" id="timer">১০</div>
-
-        <div class="bet-input-box">
-            <label for="betAmount">বাতির পরিমাণ (টাকা):</label>
-            <input type="number" id="betAmount" value="10" min="1">
-        </div>
-
-        <div class="colors-section">
-            <button class="color-btn green" onclick="placeBet('green')">Green (2x)</button>
-            <button class="color-btn violet" onclick="placeBet('violet')">Violet (4x)</button>
-            <button class="color-btn red" onclick="placeBet('red')">Red (2x)</button>
-        </div>
-
-        <div class="result-box" id="resultText">
-            রঙ বেছে নিন এবং ট্রেড করুন!
-        </div>
     </div>
 
+    <!-- JavaScript Game Logic -->
     <script>
-        let balance = 100;
-        let timeLeft = 10;
-        let isTradingActive = true;
-        let selectedBet = null;
+        let currentSelection = '';
+        let currentMultiplier = 1;
 
-        const balanceDisplay = document.getElementById('balance');
-        const timerDisplay = document.getElementById('timer');
-        const resultText = document.getElementById('resultText');
-        const betInput = document.getElementById('betAmount');
-
-        // কাউন্টডাউন টাইমার
-        function startTimer() {
-            let countdown = setInterval(() => {
-                timeLeft--;
-                timerDisplay.innerText = timeLeft;
-
-                if (timeLeft <= 0) {
-                    clearInterval(countdown);
-                    declareResult();
-                }
-            }, 1000);
+        // Open Modal
+        function openBetModal(choice, multiplierRate, colorClass) {
+            currentSelection = choice;
+            currentMultiplier = 1;
+            document.getElementById('multiplierInput').value = 1;
+            document.getElementById('betAmountInput').value = 10;
+            document.getElementById('modalTitle').innerText = `বেট লাগান: ${choice}`;
+            document.getElementById('totalBetAmount').innerText = `৳ 10`;
+            document.getElementById('betModal').classList.remove('hidden');
         }
 
-        // বাজি ধরার ফাংশন
-        function placeBet(color) {
-            if (!isTradingActive) {
-                resultText.innerText = "ফলাফল ঘোষণা হচ্ছে, একটু অপেক্ষা করুন!";
+        function closeBetModal() {
+            document.getElementById('betModal').classList.add('hidden');
+        }
+
+        function setAmount(amt) {
+            document.getElementById('betAmountInput').value = amt;
+            updateTotal();
+        }
+
+        function adjustMultiplier(val) {
+            let mult = parseInt(document.getElementById('multiplierInput').value) + val;
+            if (mult < 1) mult = 1;
+            document.getElementById('multiplierInput').value = mult;
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let amt = parseFloat(document.getElementById('betAmountInput').value) || 0;
+            let mult = parseInt(document.getElementById('multiplierInput').value) || 1;
+            document.getElementById('totalBetAmount').innerText = `৳ ${amt * mult}`;
+        }
+
+        document.getElementById('betAmountInput').addEventListener('input', updateTotal);
+
+        function confirmBet() {
+            let total = parseFloat(document.getElementById('totalBetAmount').innerText.replace('৳ ', ''));
+            let balance = parseFloat(document.getElementById('userBalance').innerText.replace(',', ''));
+
+            if (total > balance) {
+                alert('অপর্যাপ্ত ব্যালেন্স! অনুগ্রহ করে রিচার্জ করুন।');
                 return;
             }
 
-            let amount = parseInt(betInput.value);
-
-            if (isNaN(amount) || amount <= 0) {
-                alert("দয়া করে সঠিক বাজি পরিমাণ লিখুন!");
-                return;
-            }
-
-            if (amount > balance) {
-                alert("আপনার পর্যাপ্ত ব্যালেন্স নেই!");
-                return;
-            }
-
-            selectedBet = { color: color, amount: amount };
-            balance -= amount;
-            balanceDisplay.innerText = balance;
+            // Deduct balance (simulation)
+            balance -= total;
+            document.getElementById('userBalance').innerText = balance.toLocaleString('en-US', {minimumFractionDigits: 2});
             
-            resultText.style.color = "#00ffcc";
-            resultText.innerText = `আপনি ${color.toUpperCase()} রঙে ৳${amount} বাজি ধরেছেন। ফলাফলের অপেক্ষা করুন...`;
-            isTradingActive = false;
+            closeBetModal();
+            alert(`সফলভাবে বেট সফল হয়েছে (${currentSelection})!`);
         }
 
-        // ফলাফল ঘোষণা ফাংশন
-        function declareResult() {
-            const colors = ['green', 'red', 'green', 'red', 'violet']; // গ্রীন ও রেডের সম্ভাবনা বেশি
-            const winningColor = colors[Math.floor(Math.random() * colors.length)];
+        function openDeposit() {
+            alert('ডিপোজিট উইন্ডো ওপেন হয়েছে। (এখানে আপনার পেমেন্ট গেটওয়ে বা বাইবিট পিটুপি ইন্টিগ্রেশন যুক্ত করতে পারেন)');
+        }
 
-            let message = `বিজয়ী রঙ: ${winningColor.toUpperCase()}! `;
+        function openWithdraw() {
+            alert('উইথড্র অপশন সিলেক্ট করা হয়েছে।');
+        }
 
-            if (selectedBet) {
-                if (selectedBet.color === winningColor) {
-                    let winMultiplier = winningColor === 'violet' ? 4 : 2;
-                    let winnings = selectedBet.amount * winMultiplier;
-                    balance += winnings;
-                    message += `অভিনন্দন! আপনি ৳${winnings} জিতেছেন।`;
-                    resultText.style.color = "#28a745";
-                } else {
-                    message += `দুঃখিত, আপনি হেরে গেছেন।`;
-                    resultText.style.color = "#dc3545";
-                }
-            } else {
-                message += `আপনি কোনো বাজি ধরেননি।`;
-                resultText.style.color = "#ffcc00";
+        function refreshBalance() {
+            alert('ব্যালেন্স আপডেট করা হয়েছে।');
+        }
+
+        // Timer Countdown Simulation
+        let timeLeft = 30;
+        setInterval(() => {
+            timeLeft--;
+            if (timeLeft < 0) {
+                timeLeft = 30; // Reset timer
             }
-
-            balanceDisplay.innerText = balance;
-            resultText.innerText = message;
-
-            // রিসেট করে আবার গেম শুরু করা
-            setTimeout(() => {
-                selectedBet = null;
-                timeLeft = 10;
-                isTradingActive = true;
-                timerDisplay.innerText = timeLeft;
-                resultText.style.color = "#ffffff";
-                resultText.innerText = "নতুন রাউন্ড শুরু হয়েছে! রঙ বেছে নিন।";
-                startTimer();
-            }, 4000);
-        }
-
-        // গেম স্টার্ট
-        startTimer();
+            let secStr = timeLeft < 10 ? '0' + timeLeft : timeLeft.toString();
+            document.getElementById('timerSec1').innerText = secStr[0];
+            document.getElementById('timerSec2').innerText = secStr[1];
+        }, 1000);
     </script>
-
 </body>
 </html>
