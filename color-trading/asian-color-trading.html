@@ -16,9 +16,9 @@ body{background:radial-gradient(circle at 50% -10%,#243447 0%,#101820 38%,#070c1
 button{font-family:inherit;touch-action:manipulation}
 .app-shell{width:100%;max-width:430px;min-height:100vh;margin:auto;background:linear-gradient(180deg,#111a21,#0b1218 38%,#071016);position:relative;overflow-x:hidden;padding-bottom:120px;box-shadow:0 0 50px #0007}
 .custom-topbar{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 15px;background:linear-gradient(180deg,#111b22,#0a1218);border-bottom:1px solid #ffffff0f;position:relative}
-.top-icon{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#17232c;border:1px solid #263640;color:#cbd5df;font-size:19px}
+.top-icon{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#17232c;border:1px solid #263640;color:#cbd5df;font-size:19px;cursor:pointer}
 .brand{display:flex;align-items:center;gap:7px;font-size:23px;font-weight:950;letter-spacing:-.8px}.brand-crown{color:#f7c933;font-size:29px}.brand-text{color:#eef3f7}.brand-go{color:#ffc42f}
-.header-actions{display:flex;gap:7px;position:relative}.top-dropdown{position:absolute;top:50px;right:0;background:#0d1519;border:1px solid #27363c;border-radius:12px;box-shadow:0 5px 20px #0009;display:none;flex-direction:column;overflow:hidden;z-index:100;min-width:150px}.top-dropdown.show{display:flex}.top-dropdown button{background:transparent;border:0;color:#cbd5e1;padding:10px 14px;text-align:left;font-size:12px;font-weight:700;border-bottom:1px solid #27363c66}.top-dropdown button:last-child{border-bottom:0}.top-dropdown button:hover,.top-dropdown button.active{background:#1a272e;color:#fff}
+.header-actions{display:flex;gap:7px;position:relative}
 .modal-overlay,.chips-popup-overlay{position:fixed;inset:0;background:#000b;z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}.modal-overlay.show,.chips-popup-overlay.show{display:flex}
 .modal-content,.chips-popup-content{width:100%;max-width:430px;background:#101a21;border-top:1px solid #27363f;border-radius:24px 24px 0 0;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 -10px 30px #0008;animation:slideUpModal .3s ease-out}.chips-popup-content{padding:18px 15px 26px;align-items:center;gap:15px;max-height:none}
 @keyframes slideUpModal{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -52,15 +52,13 @@ button{font-family:inherit;touch-action:manipulation}
 <div class="app-shell">
 
 <div class="custom-topbar">
-  <div class="top-icon" onclick="toggleTopMenu()">☰</div>
   <div class="brand"><span class="brand-crown">♛</span><span class="brand-text">COLOR <span class="brand-go">GO</span></span></div>
   <div class="header-actions">
-    <div class="top-icon" onclick="openModal('game-history')" title="Bet History">📊</div>
-    <div class="top-icon" onclick="openModal('chart')" title="Statistics">📈</div>
-    <div id="top-dropdown-menu" class="top-dropdown">
-      <button onclick="openModal('game-history');toggleTopMenu()">Game History</button>
-      <button onclick="openModal('my-history');toggleTopMenu()">My History</button>
-      <button onclick="openModal('chart');toggleTopMenu()">Statistics</button>
+    <div class="top-icon" onclick="openModal('game-history')" title="Bet History">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+    </div>
+    <div class="top-icon" onclick="openModal('chart')" title="Statistics">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/></svg>
     </div>
   </div>
 </div>
@@ -174,9 +172,6 @@ button{font-family:inherit;touch-action:manipulation}
 <script>
 let currentUser=null,userProfile=null,selectedGameDuration=15,currentPeriodNumber="2026101501",timerSeconds=15,timerInterval=null;
 let activeModalTab='game-history',selectedChartDuration=15,selectedChipAmount=20,lastPlacedBet=null,currentRoundTotalBet=0,userActiveBets=[];
-
-function toggleTopMenu(){const m=document.getElementById('top-dropdown-menu');if(m)m.classList.toggle('show')}
-window.addEventListener('click',e=>{if(!e.target.closest('.header-actions')&&!e.target.closest('.top-icon')){const m=document.getElementById('top-dropdown-menu');if(m)m.classList.remove('show')}});
 
 function openModal(tabName){
  activeModalTab=tabName;const modal=document.getElementById('custom-popup-modal'),title=document.getElementById('modal-title-text');
