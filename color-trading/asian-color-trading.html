@@ -303,16 +303,14 @@ function getModeTableName(){
   return 'color_periods';
 }
 
-function getModeHistoryTableName(){
-  return 'color_game_history';
+function getModeTimerColumn(){
+  return selectedGameDuration === 15 ? 't_15_second_timer' :
+         selectedGameDuration === 30 ? 't_30_second_timer' :
+         selectedGameDuration === 60 ? 't_1_minute_timer' : 't_5_minute_timer';
 }
 
-function getTimerColumnName(){
-  if(selectedGameDuration === 15) return 't_15_second_timer';
-  if(selectedGameDuration === 30) return 't_30_second_timer';
-  if(selectedGameDuration === 60) return 't_1_minute_timer';
-  if(selectedGameDuration === 300) return 't_5_minute_timer';
-  return 't_15_second_timer';
+function getModeHistoryTableName(){
+  return 'color_game_history';
 }
 
 function showActionToast(message, targetElemId){
@@ -401,7 +399,7 @@ async function updatePeriodAndTimerState(){
  const now = Math.floor(Date.now() / 1000);
  const periodIndex = Math.floor(now / selectedGameDuration);
  
- const basePeriodId = selectedGameDuration === 15 ? 2026101500 : selectedGameDuration === 30 ? 2026301500 : selectedGameDuration === 60 ? 2026601500 : 20263001500;
+ const basePeriodId = 2026101500;
  currentPeriodNumber = String(basePeriodId + periodIndex);
  renderPeriodNumber();
  
@@ -413,18 +411,22 @@ async function updatePeriodAndTimerState(){
 
 async function ensureCurrentPeriodExists(){
  let tableName = getModeTableName();
- let {data:periodData}=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).maybeSingle();
+ let timerCol = getModeTimerColumn();
+ let {data:periodData}=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration).maybeSingle();
  if(!periodData){
-   await supabaseClient.from(tableName).insert([{period_number:currentPeriodNumber,total_green_amount:0,total_red_amount:0,total_violet_amount:0,status:'pending'}]);
+   let insertObj = {period_number:currentPeriodNumber,total_green_amount:0,total_red_amount:0,total_violet_amount:0,status:'pending'};
+   insertObj[timerCol] = selectedGameDuration;
+   await supabaseClient.from(tableName).insert([insertObj]);
  } else if(periodData.status === 'completed') {
    const now = Math.floor(Date.now() / 1000);
    const periodIndex = Math.floor(now / selectedGameDuration) + 1;
-   const basePeriodId = selectedGameDuration === 15 ? 2026101500 : selectedGameDuration === 30 ? 2026301500 : selectedGameDuration === 60 ? 2026601500 : 20263001500;
-   currentPeriodNumber = String(basePeriodId + periodIndex);
+   currentPeriodNumber = String(2026101500 + periodIndex);
    renderPeriodNumber();
-   let {data:nextPeriodData} = await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).maybeSingle();
+   let {data:nextPeriodData} = await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration).maybeSingle();
    if(!nextPeriodData){
-     await supabaseClient.from(tableName).insert([{period_number:currentPeriodNumber,total_green_amount:0,total_red_amount:0,total_violet_amount:0,status:'pending'}]);
+     let insertObj = {period_number:currentPeriodNumber,total_green_amount:0,total_red_amount:0,total_violet_amount:0,status:'pending'};
+     insertObj[timerCol] = selectedGameDuration;
+     await supabaseClient.from(tableName).insert([insertObj]);
    }
  }
 }
@@ -433,9 +435,8 @@ async function loadRecentWinsUI(){
  const container=document.getElementById("recent-win-balls");
  if(!container) return;
  let tableName = getModeTableName();
- const basePeriodPrefix = selectedGameDuration === 15 ? '20261015' : selectedGameDuration === 30 ? '20263015' : selectedGameDuration === 60 ? '20266015' : '202630015';
- 
- const {data}=await supabaseClient.from(tableName).select("*").eq("status","completed").ilike("period_number", basePeriodPrefix + "%").order("created_at",{ascending:false}).limit(5);
+ let timerCol = getModeTimerColumn();
+ const {data}=await supabaseClient.from(tableName).select("*").eq(timerCol, selectedGameDuration).eq("status","completed").order("created_at",{ascending:false}).limit(5);
  if(!data || !data.length){
   container.innerHTML=`<span class="text-[10px] text-zinc-800">No data</span>`;
   return;
@@ -451,14 +452,16 @@ async function loadRecentWinsUI(){
 
 function initRealtimeSubscription(){
  if(typeof supabaseClient!=='undefined'&&supabaseClient.channel){
-  try {
-    supabaseClient.channel('public:color_periods').on('postgres_changes',{event:'UPDATE',schema:'public',table:'color_periods'},payload=>{
-     if(payload.new && payload.new.status==='completed'){
-       loadRecentWinsUI();
-       const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);
-     }
-    }).subscribe();
-  } catch(e){}
+  ['color_periods'].forEach(tbl => {
+    try {
+      supabaseClient.channel('public:'+tbl).on('postgres_changes',{event:'UPDATE',schema:'public',table:tbl},payload=>{
+       if(payload.new && payload.new.status==='completed' && payload.new[getModeTimerColumn()] === selectedGameDuration){
+         loadRecentWinsUI();
+         const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);
+       }
+      }).subscribe();
+    } catch(e){}
+  });
  }
  setInterval(()=>{
    loadRecentWinsUI();
@@ -486,8 +489,9 @@ async function undoLastBet(){
 
 async function updatePeriodAmountsOnUndo(amount,target){
  let tableName = getModeTableName();
- let {data:periodData}=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).maybeSingle();
- if(periodData){let f={};if(target==='Green')f.total_green_amount=Math.max(0,Number(periodData.total_green_amount)-amount);else if(target==='Red')f.total_red_amount=Math.max(0,Number(periodData.total_red_amount)-amount);else if(target==='Violet')f.total_violet_amount=Math.max(0,Number(periodData.total_violet_amount)-amount);await supabaseClient.from(tableName).update(f).eq("period_number",currentPeriodNumber)}
+ let timerCol = getModeTimerColumn();
+ let {data:periodData}=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration).maybeSingle();
+ if(periodData){let f={};if(target==='Green')f.total_green_amount=Math.max(0,Number(periodData.total_green_amount)-amount);else if(target==='Red')f.total_red_amount=Math.max(0,Number(periodData.total_red_amount)-amount);else if(target==='Violet')f.total_violet_amount=Math.max(0,Number(periodData.total_violet_amount)-amount);await supabaseClient.from(tableName).update(f).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration)}
 }
 
 async function rebetLast(){
@@ -515,17 +519,9 @@ async function executeBetPlacement(target,amount){
  document.getElementById("wallet-main-balance").innerText=bal;
  currentRoundTotalBet+=amount;document.getElementById("bar-total-bet").innerText=currentRoundTotalBet.toFixed(2);
  let histTable = getModeHistoryTableName();
- 
- const timerCol = getTimerColumnName();
- let insertObj = {
-   user_id: currentUser.id,
-   period_number: currentPeriodNumber,
-   bet_amount: amount,
-   status: 'pending'
- };
- insertObj[timerCol] = target;
-
- const {data:insertedData,error:betInsertError}=await supabaseClient.from(histTable).insert([insertObj]).select();
+ let insertBetObj = {user_id:currentUser.id,period_number:currentPeriodNumber,bet_type:target,bet_amount:amount,status:'pending'};
+ insertBetObj[getModeTimerColumn()] = String(selectedGameDuration);
+ const {data:insertedData,error:betInsertError}=await supabaseClient.from(histTable).insert([insertBetObj]).select();
  if(betInsertError){console.error("Bet history insert error:",betInsertError);alert("Bet history could not be saved. Please contact support.");return}
  const newDbId=insertedData&&insertedData[0]?insertedData[0].id:null;
  lastPlacedBet={target,amount};userActiveBets.push({db_id:newDbId,target,amount});updateBetBadgesUI();await updatePeriodAmounts(amount,target);
@@ -606,10 +602,10 @@ async function loadHistoryData(type){
  const container=document.getElementById("modal-body-content");if(!type)return;
  container.innerHTML=`<p class="text-center text-slate-500 py-3">Loading...</p>`;
  let tableName = getModeTableName();
- const basePeriodPrefix = selectedGameDuration === 15 ? '20261015' : selectedGameDuration === 30 ? '20263015' : selectedGameDuration === 60 ? '20266015' : '202630015';
+ let timerCol = getModeTimerColumn();
  
  if(type==='game-history'){
-  const {data,error}=await supabaseClient.from(tableName).select("*").eq("status","completed").ilike("period_number", basePeriodPrefix + "%").order("created_at",{ascending:false}).limit(30);
+  const {data,error}=await supabaseClient.from(tableName).select("*").eq(timerCol, selectedGameDuration).eq("status","completed").order("created_at",{ascending:false}).limit(30);
   if(error||!data||!data.length){container.innerHTML=`<p class="text-center text-slate-500 py-3">No history found</p>`;return}
   let html=`<div class="overflow-x-auto"><table class="history-table"><thead><tr><th>Period</th><th>Number</th><th>Big/Small</th><th>Color</th></tr></thead><tbody>`;
   data.forEach(row=>{
@@ -622,18 +618,14 @@ async function loadHistoryData(type){
   container.innerHTML=html;
  }else if(type==='my-history'){
   let histTable = getModeHistoryTableName();
-  const timerCol = getTimerColumnName();
-  
-  let query = supabaseClient.from(histTable).select("*").eq("user_id",currentUser.id).ilike("period_number", basePeriodPrefix + "%").not(timerCol, 'is', null);
-
-  const {data,error}=await query.order("created_at",{ascending:false}).limit(10);
+  const {data,error}=await supabaseClient.from(histTable).select("*").eq("user_id",currentUser.id).eq(timerCol, String(selectedGameDuration)).order("created_at",{ascending:false}).limit(10);
   if(error){container.innerHTML=`<p class="text-center text-rose-400 py-4">Unable to load My History. Please check the database.</p>`;return}
   if(!data||!data.length){container.innerHTML=`<p class="text-center text-slate-500 py-4">No bets found</p>`;return}
   
   const periodNumbers = [...new Set(data.map(item => item.period_number))];
   let periodMap = {};
   if(periodNumbers.length > 0){
-    const {data: pData} = await supabaseClient.from(tableName).select("period_number, winning_number, winning_color").in("period_number", periodNumbers);
+    const {data: pData} = await supabaseClient.from(tableName).select("period_number, winning_number, winning_color").eq(timerCol, selectedGameDuration).in("period_number", periodNumbers);
     if(pData){
       pData.forEach(p => { periodMap[p.period_number] = p; });
     }
@@ -646,8 +638,6 @@ async function loadHistoryData(type){
    const statusColor=status==='win'?'text-emerald-400 font-bold':status==='loss'?'text-rose-400 font-bold':'text-amber-400 font-bold';
    const statusLabel=status==='win'?'WIN':status==='loss'?'LOSS':'PENDING';
    
-   const actualBetType = row[timerCol] || '—';
-
    const pInfo = periodMap[row.period_number];
    let num = pInfo && pInfo.winning_number !== null && pInfo.winning_number !== undefined ? Number(pInfo.winning_number) : null;
    let color = pInfo && pInfo.winning_color ? pInfo.winning_color : '';
@@ -672,12 +662,12 @@ async function loadHistoryData(type){
    const dateStr = Number.isNaN(dt.getTime()) ? 'N/A' : dt.toLocaleDateString('en-GB',{timeZone:'Asia/Dhaka',day:'2-digit',month:'2-digit',year:'numeric'});
    const timeStr = Number.isNaN(dt.getTime()) ? 'N/A' : dt.toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
 
-   html+=`<tr><td class="font-mono text-amber-300">${escapeHtml(row.period_number||'—')}</td><td class="font-bold text-white">${escapeHtml(actualBetType)}</td><td class="font-mono text-slate-200">৳${Number(row.bet_amount||0).toFixed(2)}</td><td class="${statusColor}">${statusLabel}</td><td>${resultNumberHtml}</td><td>${resultColorHtml}</td><td>${bsHtml}</td><td class="date-cell"><div>${escapeHtml(dateStr)}</div><div class="text-slate-400">${escapeHtml(timeStr)}</div></td></tr>`;
+   html+=`<tr><td class="font-mono text-amber-300">${escapeHtml(row.period_number||'—')}</td><td class="font-bold text-white">${escapeHtml(row.bet_type||'—')}</td><td class="font-mono text-slate-200">৳${Number(row.bet_amount||0).toFixed(2)}</td><td class="${statusColor}">${statusLabel}</td><td>${resultNumberHtml}</td><td>${resultColorHtml}</td><td>${bsHtml}</td><td class="date-cell"><div>${escapeHtml(dateStr)}</div><div class="text-slate-400">${escapeHtml(timeStr)}</div></td></tr>`;
   });
   html+=`</tbody></table></div>`;
   container.innerHTML=html;
  }else if(type==='chart'){
-  const {data}=await supabaseClient.from(tableName).select("*").eq("status","completed").ilike("period_number", basePeriodPrefix + "%").order("created_at",{ascending:false}).limit(30);
+  const {data}=await supabaseClient.from(tableName).select("*").eq(timerCol, selectedGameDuration).eq("status","completed").order("created_at",{ascending:false}).limit(30);
   let trend='',big=0,small=0,green=0,red=0,violet=0;
   if(data&&data.length)data.forEach(row=>{const n=Number(row.winning_number);n>=5?big++:small++;if(row.winning_color==='Green')green++;else if(row.winning_color==='Red')red++;else if(row.winning_color==='Violet')violet++;const bg=row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#7c3aed';trend+=`<div class="trend-ball" style="background:${bg}">${n}</div>`});else trend=`<p class="text-slate-500 text-center py-2">কোনো ডাটা পাওয়া যায়নি</p>`;
   const total=(data?.length||0)||1,bigPct=Math.round(big/total*100),smallPct=100-bigPct,greenPct=Math.round(green/total*100),redPct=Math.round(red/total*100),violetPct=Math.max(0,100-greenPct-redPct);
@@ -687,38 +677,43 @@ async function loadHistoryData(type){
 
 async function updatePeriodAmounts(amount,target){
  let tableName = getModeTableName();
- let {data:periodData}=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).maybeSingle();
- if(!periodData){await supabaseClient.from(tableName).insert([{period_number:currentPeriodNumber,total_green_amount:target==='Green'?amount:0,total_red_amount:target==='Red'?amount:0,total_violet_amount:target==='Violet'?amount:0,status:'pending'}])}
- else{let f={};if(target==='Green')f.total_green_amount=Number(periodData.total_green_amount)+amount;else if(target==='Red')f.total_red_amount=Number(periodData.total_red_amount)+amount;else if(target==='Violet')f.total_violet_amount=Number(periodData.total_violet_amount)+amount;await supabaseClient.from(tableName).update(f).eq("period_number",currentPeriodNumber)}
+ let timerCol = getModeTimerColumn();
+ let {data:periodData}=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration).maybeSingle();
+ if(!periodData){
+   let insertObj = {period_number:currentPeriodNumber,total_green_amount:target==='Green'?amount:0,total_red_amount:target==='Red'?amount:0,total_violet_amount:target==='Violet'?amount:0,status:'pending'};
+   insertObj[timerCol] = selectedGameDuration;
+   await supabaseClient.from(tableName).insert([insertObj]);
+ } else {
+   let f={};
+   if(target==='Green')f.total_green_amount=Number(periodData.total_green_amount)+amount;
+   else if(target==='Red')f.total_red_amount=Number(periodData.total_red_amount)+amount;
+   else if(target==='Violet')f.total_violet_amount=Number(periodData.total_violet_amount)+amount;
+   await supabaseClient.from(tableName).update(f).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration);
+ }
 }
 
 async function processRoundResult(){
  document.getElementById("game-status-text").innerText="Calculating result...";
  let tableName = getModeTableName();
  let histTable = getModeHistoryTableName();
- let {data:periodData}=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).maybeSingle();
- if(!periodData){await ensureCurrentPeriodExists();const res=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).maybeSingle();periodData=res.data}
+ let timerCol = getModeTimerColumn();
+ let {data:periodData}=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration).maybeSingle();
+ if(!periodData){await ensureCurrentPeriodExists();const res=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration).maybeSingle();periodData=res.data}
  const green=periodData?Number(periodData.total_green_amount||0):0,red=periodData?Number(periodData.total_red_amount||0):0,violet=periodData?Number(periodData.total_violet_amount||0):0;
  let winningColor='Green';
  if(green===0&&red===0&&violet===0){const rc=['Green','Red','Green','Red','Violet'];winningColor=rc[Math.floor(Math.random()*rc.length)]}
  else if(green<=red&&green<=violet)winningColor='Green';else if(red<=green&&red<=violet)winningColor='Red';else winningColor='Violet';
  const numbersMap={Green:[1,3,7,9],Red:[2,4,6,8],Violet:[0,5]},possibleNums=numbersMap[winningColor],winningNumber=possibleNums[Math.floor(Math.random()*possibleNums.length)],winningBigSmall=winningNumber>=5?'Big':'Small',winningResultString=`${winningColor}-${winningNumber}`;
- await supabaseClient.from(tableName).update({winning_color:winningColor,winning_number:winningNumber,status:'completed'}).eq("period_number",currentPeriodNumber);
- 
- const timerCol = getTimerColumnName();
- const {data:allBets}=await supabaseClient.from(histTable).select("*").eq("period_number",currentPeriodNumber).eq("status",'pending').not(timerCol, 'is', null);
- 
+ await supabaseClient.from(tableName).update({winning_color:winningColor,winning_number:winningNumber,status:'completed'}).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration);
+ const {data:allBets}=await supabaseClient.from(histTable).select("*").eq("period_number",currentPeriodNumber).eq(timerCol, String(selectedGameDuration)).eq("status",'pending');
  let userWonAmount=0,hasUserWon=false,userParticipated=false,userWinsMap={};
  if(allBets&&allBets.length)for(let bet of allBets){
-  const currentBetType = bet[timerCol];
-  if(!currentBetType) continue;
-
-  let isWin=false,multiplier=2;if(currentBetType==='Red')multiplier=1.9;else if(currentBetType==='Violet')multiplier=4.5;else if(currentBetType==='Big'||currentBetType==='Small')multiplier=1.9;else if(!isNaN(currentBetType))multiplier=9;
-  if(currentBetType===winningColor||currentBetType===String(winningNumber)||currentBetType===winningBigSmall)isWin=true;
+  let isWin=false,multiplier=2;if(bet.bet_type==='Red')multiplier=1.9;else if(bet.bet_type==='Violet')multiplier=4.5;else if(bet.bet_type==='Big'||bet.bet_type==='Small')multiplier=1.9;else if(!isNaN(bet.bet_type))multiplier=9;
+  if(bet.bet_type===winningColor||bet.bet_type===String(winningNumber)||bet.bet_type===winningBigSmall)isWin=true;
   if(bet.user_id===currentUser.id)userParticipated=true;
   if(isWin){
    const payoutAmount=bet.bet_amount*multiplier;
-   if(bet.user_id===currentUser.id){userWonAmount+=payoutAmount;hasUserWon=true;const totalTargetWinReturn=bet.bet_amount+payoutAmount;userWinsMap[currentBetType]=(userWinsMap[currentBetType]||0)+totalTargetWinReturn}
+   if(bet.user_id===currentUser.id){userWonAmount+=payoutAmount;hasUserWon=true;const totalTargetWinReturn=bet.bet_amount+payoutAmount;userWinsMap[bet.bet_type]=(userWinsMap[bet.bet_type]||0)+totalTargetWinReturn}
    await supabaseClient.from(histTable).update({winning_result:winningResultString,payout:payoutAmount,status:'win'}).eq("id",bet.id);
    const {data:targetProfile}=await supabaseClient.from("profiles").select("balance").eq("id",bet.user_id).single();
    if(targetProfile){const updatedBal=Number(targetProfile.balance)+payoutAmount;await supabaseClient.from("profiles").update({balance:updatedBal}).eq("id",bet.user_id)}
