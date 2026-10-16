@@ -15,19 +15,17 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        html,
-        body {
+        html, body {
             margin: 0;
             padding: 0;
             min-height: 100%;
-            background:
-                radial-gradient(circle at top, #17232a 0%, #081014 38%, #05090c 100%);
-            color: #f8fafc;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
         body {
-            overflow-x: hidden;
+            background:
+                radial-gradient(circle at 50% -10%, #243447 0%, #101820 38%, #070c11 78%);
+            color: #f8fafc;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
         button {
@@ -36,71 +34,140 @@
 
         .app-shell {
             width: 100%;
-            max-width: 768px;
+            max-width: 430px;
             min-height: 100vh;
             margin: 0 auto;
             background:
-                linear-gradient(180deg, #10191e 0%, #081014 42%, #071014 100%);
+                linear-gradient(180deg, #111a21 0%, #0b1218 38%, #071016 100%);
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 60px rgba(0,0,0,.55);
+            overflow-x: hidden;
+            padding-bottom: 78px;
+            box-shadow: 0 0 50px rgba(0,0,0,.45);
         }
 
         /* =========================
-           WALLET / TOP UI
+           TOP HEADER
         ========================== */
 
-        .wallet-section {
-            padding: 10px 16px 4px;
+        #header-container {
+            position: relative;
+            z-index: 20;
         }
+
+        #header-container > header,
+        #header-container header {
+            min-height: 70px !important;
+            padding: 10px 16px !important;
+            background: linear-gradient(180deg, #101920, #0b1319) !important;
+            border: 0 !important;
+            border-bottom: 1px solid rgba(255,255,255,.07) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,.2) !important;
+        }
+
+        #header-container h1 {
+            color: #fff !important;
+        }
+
+        .custom-topbar {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            background: linear-gradient(180deg, #111b22, #0a1218);
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+
+        .top-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #17232c;
+            border: 1px solid #263640;
+            color: #cbd5df;
+            font-size: 21px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 23px;
+            font-weight: 950;
+            letter-spacing: -.8px;
+        }
+
+        .brand-crown {
+            color: #f7c933;
+            font-size: 29px;
+        }
+
+        .brand-text {
+            color: #eef3f7;
+        }
+
+        .brand-go {
+            color: #ffc42f;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 7px;
+        }
+
+        /* =========================
+           MAIN
+        ========================== */
+
+        .page-content {
+            padding: 13px;
+        }
+
+        .section-gap {
+            margin-top: 12px;
+        }
+
+        /* =========================
+           WALLET
+        ========================== */
 
         .wallet-card {
             position: relative;
-            overflow: hidden;
+            padding: 17px;
             border-radius: 22px;
-            padding: 15px;
             background:
-                radial-gradient(circle at 5% 5%, rgba(255,193,7,.08), transparent 30%),
-                linear-gradient(145deg, #182126, #0d1519 65%, #10191d);
-            border: 1px solid rgba(196,154,30,.42);
+                linear-gradient(145deg, #17232b, #0d171e 72%);
+            border: 1px solid #35434b;
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,.04),
-                0 8px 25px rgba(0,0,0,.3);
-        }
-
-        .wallet-card::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 12%;
-            right: 12%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #e4b52b, transparent);
-            opacity: .75;
+                0 12px 28px rgba(0,0,0,.24);
         }
 
         .wallet-top {
             display: flex;
             align-items: center;
-            gap: 13px;
+            gap: 14px;
         }
 
-        .wallet-icon {
-            width: 66px;
-            height: 66px;
-            min-width: 66px;
+        .wallet-symbol {
+            width: 65px;
+            height: 65px;
+            flex: 0 0 65px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             background:
-                radial-gradient(circle at 35% 30%, #ffd94a, #d99b08 58%, #735000);
+                radial-gradient(circle at 35% 30%, #ffd95a, #d79b00 58%, #6f4b00);
+            color: #fff3ae;
+            font-size: 30px;
             box-shadow:
-                inset 4px 4px 8px rgba(255,255,255,.25),
-                inset -5px -6px 10px rgba(0,0,0,.45),
-                0 5px 18px rgba(221,166,25,.18);
-            color: #fff;
-            font-size: 31px;
+                inset 3px 3px 8px rgba(255,255,255,.25),
+                inset -6px -6px 10px rgba(0,0,0,.28),
+                0 5px 18px rgba(220,160,0,.16);
         }
 
         .wallet-info {
@@ -108,229 +175,177 @@
             min-width: 0;
         }
 
-        .wallet-title {
-            margin: 0;
-            color: #9daab2;
-            font-size: 15px;
-            font-weight: 600;
+        .wallet-label {
+            color: #9ba9b5;
+            font-size: 14px;
+            font-weight: 650;
+            margin-bottom: 2px;
         }
 
-        .wallet-balance-row {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            margin-top: 2px;
-        }
-
-        .wallet-balance {
-            margin: 0;
-            color: #f8fafc;
-            font-size: clamp(26px, 7vw, 37px);
-            line-height: 1.1;
+        .wallet-amount {
+            font-size: 30px;
+            line-height: 1.05;
             font-weight: 900;
             letter-spacing: -.8px;
-        }
-
-        .balance-eye {
-            color: #7d8990;
-            font-size: 20px;
+            color: #f4f7f9;
+            white-space: nowrap;
         }
 
         .wallet-id {
-            margin-top: 4px;
-            color: #89969e;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 7px;
+            margin-top: 7px;
+            color: #8998a5;
+            font-size: 12px;
         }
 
         .wallet-refresh {
-            width: 50px;
-            height: 50px;
+            width: 47px;
+            height: 47px;
             border-radius: 50%;
-            border: 1px solid #52616a;
-            background: rgba(9,15,18,.55);
-            color: #aab6bc;
-            font-size: 27px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border: 1px solid #45545e;
+            background: #111c23;
+            color: #c9d2d8;
+            font-size: 23px;
             flex-shrink: 0;
         }
 
         .wallet-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-top: 14px;
+            gap: 11px;
+            margin-top: 17px;
         }
 
-        .wallet-action {
-            height: 58px;
+        .wallet-btn {
+            height: 53px;
+            border-radius: 17px;
             border: 0;
-            border-radius: 18px;
-            color: #fff;
-            font-size: 18px;
-            font-weight: 800;
+            color: white;
+            font-size: 17px;
+            font-weight: 850;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 9px;
-            cursor: pointer;
+            gap: 8px;
             box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
         }
 
-        .withdraw-action {
-            background: linear-gradient(135deg, #ed1745, #ee174b);
+        .wallet-withdraw {
+            background: linear-gradient(180deg, #ef3152, #d91f43);
         }
 
-        .deposit-action {
-            background: linear-gradient(135deg, #00ad58, #09bd63);
+        .wallet-deposit {
+            background: linear-gradient(180deg, #10bd62, #09a852);
         }
 
         /* =========================
-           WARNING
+           NOTICE
         ========================== */
 
-        .warning-card {
-            margin: 12px 16px 8px;
+        .notice-card {
+            border: 1px solid #80651d;
+            border-radius: 18px;
             padding: 12px 13px;
-            border-radius: 17px;
-            border: 1px solid rgba(231,181,38,.55);
-            background: linear-gradient(145deg, #282819, #171a16);
             display: flex;
             align-items: center;
             gap: 11px;
+            background:
+                linear-gradient(145deg, #292518, #181713);
         }
 
-        .warning-icon {
-            color: #ffca25;
-            font-size: 28px;
+        .notice-icon {
+            font-size: 27px;
+            color: #ffd340;
             flex-shrink: 0;
         }
 
-        .warning-text {
+        .notice-content {
             flex: 1;
             min-width: 0;
         }
 
-        .warning-title {
-            color: #f5c52b;
-            font-size: 14px;
-            line-height: 1.2;
-            font-weight: 900;
+        .notice-title {
+            color: #ffd43d;
+            font-weight: 850;
+            font-size: 13px;
         }
 
-        .warning-subtitle {
-            color: #aeb4b5;
-            font-size: 12px;
+        .notice-subtitle {
+            color: #b7bec4;
+            font-size: 11px;
             margin-top: 3px;
         }
 
-        .warning-details {
+        .notice-button {
             border: 0;
             border-radius: 14px;
-            padding: 9px 15px;
-            background: linear-gradient(180deg, #ffd94e, #e6ad20);
-            color: #171717;
+            padding: 9px 14px;
+            background: linear-gradient(180deg, #f6c83e, #dfa900);
+            color: #19150a;
             font-size: 13px;
             font-weight: 900;
-            flex-shrink: 0;
         }
 
         /* =========================
-           MAIN GAME
+           GAME MODES
         ========================== */
 
-        .main-content {
-            padding: 5px 16px 90px;
-        }
-
-        .main-game-card {
-            background: transparent;
-            border: 0;
-            border-radius: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            position: relative;
-        }
-
-        .game-section {
-            min-width: 0;
-            position: relative;
-        }
-
-        /* =========================
-           MODES
-        ========================== */
-
-        .modes-plate {
-            background: transparent;
-            border: 0;
-            border-radius: 16px;
-            padding: 0;
+        .mode-strip {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 9px;
-            box-shadow: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
         }
 
         .mode-button {
-            position: relative;
-            background: linear-gradient(145deg, #182227, #10191d);
-            border: 1px solid #26343a;
+            min-height: 91px;
+            padding: 9px 4px;
             border-radius: 17px;
-            padding: 11px 3px 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all .2s ease;
-            min-height: 105px;
+            border: 1px solid #293740;
+            background: linear-gradient(160deg, #142029, #0e171e);
+            color: #9daab4;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+            gap: 6px;
+            position: relative;
+            transition: .2s ease;
         }
 
         .mode-button.active-mode {
-            background: linear-gradient(145deg, #ffe36a, #eab629);
-            border-color: #ffd83c;
+            background:
+                linear-gradient(160deg, #ffe16b, #eebc24);
+            border-color: #f9d65b;
+            color: #17130a;
             box-shadow:
-                0 4px 15px rgba(238,184,31,.18),
-                inset 0 1px 0 rgba(255,255,255,.35);
+                0 7px 18px rgba(238,188,36,.18),
+                inset 0 1px 0 rgba(255,255,255,.45);
         }
 
-        .mode-button.active-mode::after {
-            display: none;
+        .mode-button.active-mode .custom-clock-icon {
+            border-color: #805e00;
+            background: #111;
         }
 
         .custom-clock-icon {
-            width: 45px;
-            height: 45px;
-            background: radial-gradient(circle at 35% 30%, #f2f5f5, #a9b2b6 70%);
-            border: 3px solid #27343a;
+            width: 37px;
+            height: 37px;
             border-radius: 50%;
             position: relative;
+            background: radial-gradient(circle, #dfe5e8 55%, #8b989f 100%);
+            border: 2px solid #35434b;
             box-shadow:
-                inset 0 2px 4px rgba(255,255,255,.7),
-                inset 0 -4px 5px rgba(0,0,0,.4),
-                0 2px 6px rgba(0,0,0,.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+                inset 0 2px 4px rgba(255,255,255,.45),
+                0 3px 6px rgba(0,0,0,.45);
         }
 
         .custom-clock-icon::before {
             content: "";
             position: absolute;
-            top: 7px;
-            left: 20px;
             width: 3px;
-            height: 14px;
-            background: #111a1e;
+            height: 12px;
+            background: #10171c;
+            left: 16px;
+            top: 5px;
             border-radius: 3px;
             transform-origin: bottom center;
             transform: rotate(0deg);
@@ -339,372 +354,287 @@
         .custom-clock-icon::after {
             content: "";
             position: absolute;
-            top: 21px;
-            left: 20px;
             width: 10px;
             height: 3px;
-            background: #111a1e;
+            background: #10171c;
+            left: 17px;
+            top: 17px;
             border-radius: 3px;
             transform-origin: left center;
             transform: rotate(25deg);
         }
 
-        .mode-button.active-mode .custom-clock-icon {
-            background: radial-gradient(circle at 35% 30%, #ffdc4c, #d89d0b);
-            border-color: #9d7100;
-        }
-
         /* =========================
-           PERIOD / TIMER
+           ROUND PANEL
         ========================== */
 
-        .period-timer-card {
-            position: relative;
+        .round-card {
+            border-radius: 23px;
             overflow: hidden;
             background:
-                linear-gradient(145deg, #ffe45e 0%, #f1c638 55%, #e4ad25 100%);
-            border: 0;
-            border-radius: 20px;
-            padding: 15px 17px;
+                linear-gradient(150deg, #f4cf54, #f1c43a 52%, #e8b528);
+            color: #141414;
+            box-shadow:
+                0 12px 24px rgba(0,0,0,.2),
+                inset 0 1px 0 rgba(255,255,255,.4);
+        }
+
+        .round-inner {
+            padding: 16px;
+        }
+
+        .round-top {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             gap: 10px;
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,.4),
-                0 7px 18px rgba(0,0,0,.2);
-        }
-
-        .period-timer-card::before {
-            display: none;
-        }
-
-        .period-info,
-        .timer-area {
-            min-width: 0;
-            padding: 0;
-            border: 0;
-            background: transparent;
-            box-shadow: none;
         }
 
         .period-info {
             flex: 1;
-            max-width: 58%;
-        }
-
-        .timer-area {
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .period-heading-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0;
-            width: 100%;
+            min-width: 0;
         }
 
         .period-heading {
-            display: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            border-radius: 22px;
+            border: 2px solid #171717;
+            font-size: 12px;
+            font-weight: 850;
+            white-space: nowrap;
+            background: rgba(255,255,255,.08);
         }
 
-        .period-heading-group::before {
-            content: "◷  Period:";
-            color: #101820;
-            font-size: 14px;
-            line-height: 1;
-            font-weight: 900;
-            white-space: nowrap;
+        .period-heading::before {
+            content: "◷";
+            font-size: 17px;
         }
 
         .period-number-display {
             display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 1px;
-            width: 100%;
-            min-width: 0;
-            padding: 7px 12px;
-            border: 2px solid #11191d;
-            background: rgba(255,255,255,.12);
-            border-radius: 24px;
-            text-align: left;
+            gap: 3px;
+            margin-top: 12px;
+            flex-wrap: nowrap;
             overflow: hidden;
-            margin-top: 8px;
         }
 
         .period-digit {
-            flex: 1 1 12px;
-            min-width: 7px;
-            height: auto;
+            width: 22px;
+            height: 31px;
+            flex: 0 0 22px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
-            border-radius: 0;
-            background: transparent;
-            border: 0;
-            box-shadow: none;
-            color: #11191d;
+            border-radius: 5px;
+            background: #171b1f;
+            color: #fff;
             font-family: monospace;
-            font-size: clamp(8px, 2.5vw, 13px);
+            font-size: 13px;
             font-weight: 900;
-            text-shadow: none;
+            box-shadow: inset 0 -3px 4px rgba(0,0,0,.45);
         }
 
-        .period-digit::after {
-            display: none;
-        }
-
-        .card-divider {
-            display: none;
+        .timer-area {
+            min-width: 126px;
+            text-align: right;
         }
 
         .timer-label {
-            display: block;
-            min-height: 0;
-            padding: 0;
-            margin: 0 0 6px;
-            border: 0;
-            background: transparent;
-            color: #11191d;
-            font-size: 15px;
-            line-height: 1.1;
+            color: #171717;
+            font-size: 10px;
             font-weight: 900;
-            letter-spacing: 0;
+            margin-bottom: 7px;
             white-space: nowrap;
         }
 
-        .timer-label::before {
-            display: none;
-        }
-
         .timer-label.timer-label-danger {
-            color: #991b1b;
-            background: transparent;
-            border: 0;
+            color: #bd1730;
             animation: dangerPulse 1s infinite;
         }
 
         .digital-timer {
             display: flex;
+            justify-content: flex-end;
             align-items: center;
-            justify-content: center;
             gap: 3px;
-            position: relative;
-        }
-
-        .digital-timer::after {
-            display: none;
         }
 
         .timer-digit {
-            width: 33px;
-            height: 45px;
+            width: 29px;
+            height: 39px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             border-radius: 5px;
-            background: #11191d;
-            border: 1px solid #263137;
-            box-shadow:
-                inset 0 2px 3px rgba(255,255,255,.05),
-                inset 0 -3px 4px rgba(0,0,0,.6);
-            color: #f5f5f5;
+            background: #171b1f;
+            color: white;
             font-family: monospace;
-            font-size: 28px;
+            font-size: 23px;
             font-weight: 900;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .timer-digit::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 50%;
-            height: 1px;
-            background: rgba(255,255,255,.07);
-            border: 0;
+            box-shadow: inset 0 -4px 5px rgba(0,0,0,.45);
         }
 
         .timer-colon {
-            color: #11191d;
-            font-size: 25px;
-            line-height: 1;
+            color: #171717;
+            font-size: 22px;
             font-weight: 900;
-            padding: 0;
         }
 
-        .digital-timer.timer-danger .timer-digit {
-            background: #11191d;
-            border-color: #263137;
-            animation: dangerPulse 1s infinite;
+        .timer-danger .timer-digit {
+            background: #5e101c;
+            border: 1px solid #c52a42;
         }
 
-        .digital-timer.timer-danger .timer-colon {
-            color: #991b1b;
+        .timer-danger .timer-colon {
+            color: #9f1730;
+        }
+
+        @keyframes dangerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .62; }
         }
 
         /* =========================
-           COLOR BUTTONS
+           COLOR SELECT
         ========================== */
 
-        .color-buttons {
+        .color-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
         }
 
         .color-choice {
-            height: 62px;
+            height: 58px;
             border: 0;
-            border-radius: 13px;
-            color: #fff;
-            font-size: 18px;
+            border-radius: 15px;
+            color: white;
+            font-size: 17px;
             font-weight: 900;
             box-shadow:
-                inset 0 1px 0 rgba(255,255,255,.16),
-                0 4px 8px rgba(0,0,0,.2);
+                inset 0 1px 0 rgba(255,255,255,.18),
+                0 5px 10px rgba(0,0,0,.2);
+            position: relative;
+            overflow: visible;
         }
 
         .green-choice {
-            background: linear-gradient(180deg, #00bd61, #00a852);
+            background: linear-gradient(180deg, #13c76a, #08a952);
         }
 
         .violet-choice {
-            background: linear-gradient(180deg, #a633ed, #9130dc);
+            background: linear-gradient(180deg, #b441f2, #8b28d1);
         }
 
         .red-choice {
-            background: linear-gradient(180deg, #f13349, #ec233e);
+            background: linear-gradient(180deg, #f43b56, #dd1f3e);
         }
 
         /* =========================
-           NUMBER AREA
+           NUMBER BOARD
         ========================== */
 
-        .number-area {
-            background: #080f13;
-            border: 1px solid #17252b;
-            padding: 15px 10px;
-            border-radius: 16px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.015);
+        .number-panel {
+            background: #0c151b;
+            border: 1px solid #24323a;
+            border-radius: 20px;
+            padding: 11px;
         }
 
         .number-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 10px 9px;
+            gap: 9px;
         }
 
         .number-button {
-            aspect-ratio: 1 / 1;
             width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50% !important;
+            border: 0 !important;
             min-width: 0;
-            font-size: 27px;
-            position: relative;
+            font-size: 25px !important;
+            font-weight: 950 !important;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            line-height: 1.1;
-            border-radius: 50% !important;
-            border: 0 !important;
-            padding: 0;
-            overflow: hidden;
+            position: relative;
+            line-height: 1;
+            color: white;
             box-shadow:
-                inset 4px 5px 8px rgba(255,255,255,.34),
-                inset -5px -7px 10px rgba(0,0,0,.5),
-                0 4px 8px rgba(0,0,0,.35);
+                inset 5px 6px 10px rgba(255,255,255,.36),
+                inset -7px -8px 12px rgba(0,0,0,.42),
+                0 4px 8px rgba(0,0,0,.45);
         }
 
-        .number-button::before {
-            content: "";
-            position: absolute;
-            width: 42%;
-            height: 20%;
-            top: 13%;
-            left: 28%;
-            border-radius: 50%;
-            background: rgba(255,255,255,.52);
-            filter: blur(2px);
+        .number-button .number-payout {
+            display: none;
         }
 
         .ruby-sphere {
-            background: radial-gradient(circle at 35% 35%, #ff6672, #e82037 48%, #a40b1e 78%, #55030c);
-            border: 0;
-            color: #fff;
-            text-shadow: 0 2px 2px rgba(0,0,0,.35);
+            background:
+                radial-gradient(circle at 32% 25%, #ff7b8d 0%, #f12d45 35%, #c71934 65%, #75101e 100%);
+            border: 2px solid #ff5368 !important;
         }
 
         .green-sphere {
-            background: radial-gradient(circle at 35% 35%, #54f99b, #09b965 48%, #087a43 78%, #034226);
-            border: 0;
-            color: #fff;
-            text-shadow: 0 2px 2px rgba(0,0,0,.35);
+            background:
+                radial-gradient(circle at 32% 25%, #65f39e 0%, #19d66c 36%, #08a952 65%, #075c32 100%);
+            border: 2px solid #52ec94 !important;
         }
 
         .violet-sphere {
-            background: radial-gradient(circle at 35% 35%, #e7a8ff, #b537e9 48%, #7924ae 78%, #43135e);
-            border: 0;
-            color: #fff;
-            text-shadow: 0 2px 2px rgba(0,0,0,.35);
-        }
-
-        .number-payout {
-            display: none;
+            background:
+                radial-gradient(circle at 32% 25%, #e09bff 0%, #b536e8 36%, #8b22c7 65%, #511176 100%);
+            border: 2px solid #d576f7 !important;
         }
 
         /* =========================
            BIG SMALL
         ========================== */
 
-        .big-small-wrap {
+        .size-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            border-radius: 35px;
             overflow: hidden;
-            height: 63px;
-            box-shadow: 0 4px 10px rgba(0,0,0,.22);
+            border-radius: 27px;
+            background: #18232b;
+            border: 1px solid #31404a;
         }
 
-        .big-small-btn {
+        .size-button {
+            height: 58px;
             border: 0;
-            color: #fff;
-            font-size: 19px;
+            font-size: 17px;
             font-weight: 900;
-            cursor: pointer;
+            color: white;
         }
 
-        .big-btn {
-            background: linear-gradient(90deg, #ffae12, #ffb900);
+        .big-choice {
+            background: linear-gradient(90deg, #ffb51b, #f7a917);
         }
 
-        .small-btn {
-            background: linear-gradient(90deg, #408de8, #2f80df);
+        .small-choice {
+            background: linear-gradient(90deg, #3787ec, #438ef1);
         }
 
         /* =========================
-           CHIP BAR
+           BET CHIPS
         ========================== */
 
         .chips-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #0b1419;
-            padding: 9px 8px;
-            border-radius: 13px;
-            border: 1px solid #1d2b31;
-            gap: 8px;
-            overflow-x: auto;
+            gap: 9px;
+            padding: 8px;
+            border-radius: 16px;
+            background: #101b22;
+            border: 1px solid #283740;
         }
 
         .action-group {
@@ -714,195 +644,134 @@
         }
 
         .action-chip {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
+            border: 1px solid #394952;
+            background: #18252d;
+            color: #d5dde2;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-            background: #1b272d;
-            border: 1px solid #33434a;
-            color: #cbd5e1;
-            cursor: pointer;
+            font-size: 15px;
             position: relative;
-        }
-
-        .action-chip:hover {
-            background: #26353c;
-            color: #fff;
         }
 
         .rebet-badge-2x {
             position: absolute;
-            bottom: -2px;
             right: -2px;
+            bottom: -2px;
+            background: #f7b719;
+            color: #111;
             font-size: 7px;
-            font-weight: 700;
-            background: #f59e0b;
-            color: #0f172a;
-            padding: 0 2px;
-            border-radius: 3px;
+            padding: 1px 3px;
+            border-radius: 5px;
+            font-weight: 950;
         }
 
         .chips-group {
             display: flex;
-            gap: 6px;
             align-items: center;
+            gap: 7px;
             overflow-x: auto;
-            padding: 1px 0;
+            padding: 2px;
+            scrollbar-width: none;
+        }
+
+        .chips-group::-webkit-scrollbar {
+            display: none;
         }
 
         .chip-item {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
+            flex: 0 0 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 9px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: transform .15s;
-            flex-shrink: 0;
             color: white;
+            font-size: 8px;
+            font-weight: 900;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,.25);
+            box-shadow:
+                inset 2px 2px 4px rgba(255,255,255,.25),
+                inset -3px -3px 5px rgba(0,0,0,.35);
             position: relative;
         }
 
-        .chip-item:active {
-            transform: scale(.92);
-        }
-
         .chip-item.selected-chip {
-            transform: scale(1.08);
-            border-color: #fff !important;
-            box-shadow: 0 0 0 2px rgba(255,255,255,.18);
+            transform: scale(1.12);
+            border-color: white !important;
+            box-shadow:
+                0 0 0 2px #f4c43a,
+                inset 2px 2px 4px rgba(255,255,255,.3);
         }
 
-        .chip-20 {
-            background: #0284c7;
-            border: 1.5px solid #0369a1;
+        .chip-20 { background: #118bc7; }
+        .chip-50 { background: #15a84e; }
+        .chip-100 { background: #df2546; }
+        .chip-500 { background: #8b31d5; }
+        .chip-1k { background: #db8509; }
+        .chip-10k { background: #95173e; }
+
+        .chip-item::after {
+            display: none !important;
         }
 
-        .chip-20::after,
-        .chip-50::after,
-        .chip-100::after,
-        .chip-500::after,
-        .chip-1k::after,
-        .chip-10k::after {
-            content: attr(data-text);
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(255,255,255,.4);
-        }
+        /* =========================
+           STATUS
+        ========================== */
 
-        .chip-20::after {
-            background: #0284c7;
-        }
-
-        .chip-50 {
-            background: #16a34a;
-            border: 1.5px solid #15803d;
-        }
-
-        .chip-50::after {
-            background: #16a34a;
-        }
-
-        .chip-100 {
-            background: #e11d48;
-            border: 1.5px solid #be123c;
-        }
-
-        .chip-100::after {
-            background: #e11d48;
-        }
-
-        .chip-500 {
-            background: #7c3aed;
-            border: 1.5px solid #6d28d9;
-        }
-
-        .chip-500::after {
-            background: #7c3aed;
-        }
-
-        .chip-1k {
-            background: #d97706;
-            border: 1.5px solid #b45309;
-        }
-
-        .chip-1k::after {
-            background: #d97706;
-        }
-
-        .chip-10k {
-            background: #881337;
-            border: 1.5px solid #4c0519;
-        }
-
-        .chip-10k::after {
-            background: #881337;
-        }
-
-        .bet-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #f59e0b;
-            color: #0f172a;
-            font-size: 8.5px;
-            font-weight: 900;
-            padding: 2px 5px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,.5);
-            z-index: 10;
-            border: 1px solid #fff;
+        #game-status-text {
+            padding: 5px 8px;
+            text-align: center;
+            color: #aab6bd;
+            font-size: 10px;
         }
 
         /* =========================
            HISTORY
         ========================== */
 
-        .history-box {
-            background: #0a1216;
-            border: 1px solid #1d2b31;
-            border-radius: 17px;
-            padding: 10px;
-            margin-top: 2px;
+        .history-panel {
+            margin-top: 12px;
+            background: #101a21;
+            border: 1px solid #27363f;
+            border-radius: 21px;
+            padding: 9px;
         }
 
         .history-tabs {
-            display: none; /* скрыто так как перенесено в меню */
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            padding: 3px;
+            border-radius: 14px;
+            background: #0a1116;
         }
 
         .history-tab {
-            min-height: 42px;
-            padding: 5px 3px;
+            height: 39px;
             border: 0;
-            border-radius: 9px;
+            border-radius: 11px;
+            background: transparent;
+            color: #81909a;
             font-size: 11px;
-            font-weight: 800;
-            color: #829099;
-            background: #121d22;
+            font-weight: 850;
         }
 
         .history-tab.active {
-            background: linear-gradient(145deg, #d49f18, #e7bb34);
-            color: #10171a;
+            background: linear-gradient(180deg, #f0c93d, #d9a91b);
+            color: #141414;
         }
 
         .history-content {
-            max-height: 300px;
+            margin-top: 9px;
+            border-radius: 15px;
+            background: #0a1116;
             overflow: auto;
-            background: transparent;
-            padding-top: 5px;
         }
 
         .history-table {
@@ -913,19 +782,15 @@
 
         .history-table th,
         .history-table td {
-            padding: 9px 6px;
-            text-align: left;
-            vertical-align: middle;
+            padding: 9px 7px;
+            text-align: center;
+            font-size: 10px;
+            border-bottom: 1px solid #1c2931;
         }
 
         .history-table th {
-            color: #77858d;
-            font-size: 9px;
-        }
-
-        .history-table td {
-            font-size: 10px;
-            border-bottom: 1px solid rgba(38,52,59,.55);
+            color: #7f909b;
+            font-weight: 800;
         }
 
         .my-history-table {
@@ -936,24 +801,26 @@
 
         .my-history-table th,
         .my-history-table td {
-            padding: 8px;
+            padding: 9px 8px;
             text-align: center;
-            border-bottom: 1px solid #1e293b;
+            border-bottom: 1px solid #1c2931;
             vertical-align: middle;
         }
 
         .my-history-table th {
-            background: transparent;
-            color: #94a3b8;
+            color: #7f909b;
             font-size: 10px;
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-            z-index: 2;
         }
 
         .my-history-table td {
-            font-size: 11px;
+            font-size: 10px;
+        }
+
+        .history-scroll {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .result-number {
@@ -963,49 +830,38 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            font-size: 12px;
-            font-weight: 900;
             color: white;
+            font-size: 12px;
+            font-weight: 950;
         }
 
         .result-red {
-            background: #e11d48;
-            border: 2px solid #fb7185;
-            box-shadow: 0 0 8px rgba(244,63,94,.25);
+            background: #df2444;
+            border: 2px solid #ff657c;
         }
 
         .result-green {
-            background: #059669;
-            border: 2px solid #34d399;
-            box-shadow: 0 0 8px rgba(16,185,129,.25);
+            background: #0ba955;
+            border: 2px solid #58e99a;
         }
 
         .result-violet {
-            background: #7c3aed;
-            border: 2px solid #a78bfa;
-            box-shadow: 0 0 8px rgba(139,92,246,.25);
+            background: #8b2fd1;
+            border: 2px solid #d477fa;
         }
 
         .result-badge {
             display: inline-block;
-            padding: 3px 6px;
-            border-radius: 50px;
-            font-size: 9.5px;
-            font-weight: 800;
+            padding: 4px 7px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 900;
         }
 
         .date-cell {
             line-height: 1.5;
             color: #cbd5e1;
-            font-size: 9.5px !important;
-        }
-
-        .history-scroll {
-            width: 100%;
-            overflow-x: auto;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 8px;
+            font-size: 9px !important;
         }
 
         /* =========================
@@ -1015,36 +871,80 @@
         .trend-grid-container {
             display: grid;
             grid-auto-flow: column;
-            grid-template-rows: repeat(6, minmax(0, 1fr));
+            grid-template-rows: repeat(6, 30px);
             gap: 6px;
             overflow-x: auto;
-            padding: 6px;
-            justify-content: start;
+            padding: 8px;
         }
 
         .trend-ball {
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
-            font-weight: 900;
             color: white;
+            font-size: 10px;
+            font-weight: 950;
             box-shadow:
-                inset 0 2px 4px rgba(255,255,255,.4),
-                0 2px 5px rgba(0,0,0,.5);
-            flex-shrink: 0;
+                inset 2px 2px 5px rgba(255,255,255,.35),
+                inset -3px -3px 5px rgba(0,0,0,.35);
         }
 
         /* =========================
-           WIN ANIMATION
+           BET BADGE / WIN
         ========================== */
+
+        .bet-badge {
+            position: absolute;
+            top: -7px;
+            right: -5px;
+            background: #ffd039;
+            color: #111;
+            font-size: 8px;
+            font-weight: 950;
+            padding: 3px 6px;
+            border-radius: 10px;
+            border: 2px solid #111b20;
+            z-index: 30;
+        }
+
+        .win-payout-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(8,180,92,.94);
+            color: white;
+            font-size: 12px;
+            font-weight: 950;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: inherit;
+            z-index: 40;
+            animation: popWinAmount 2s ease forwards;
+        }
+
+        @keyframes popWinAmount {
+            0% { transform: scale(.8); opacity: 0; }
+            20% { transform: scale(1.08); opacity: 1; }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+
+        @keyframes zoomOutResult {
+            0% { transform: scale(1.2); opacity: 1; }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(.3); opacity: 0; }
+        }
+
+        .animate-zoom-out {
+            animation: zoomOutResult 1.5s ease forwards;
+        }
 
         .winning-blink {
             position: relative;
-            z-index: 2;
+            z-index: 50;
             animation: winningBlink .45s ease-in-out 3;
         }
 
@@ -1060,277 +960,98 @@
                 filter: brightness(1);
                 box-shadow: 0 0 5px var(--win-glow, white);
                 outline: 2px solid transparent;
-                outline-offset: 1px;
             }
             50% {
-                filter: brightness(1.5);
+                filter: brightness(1.45);
                 box-shadow:
                     0 0 15px var(--win-glow, white),
                     0 0 28px var(--win-glow, white);
                 outline: 2px solid var(--win-glow, white);
-                outline-offset: 2px;
             }
         }
 
-        .win-payout-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(16,185,129,.92);
-            color: white;
-            font-size: 13px;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: inherit;
-            z-index: 20;
-            animation: popWinAmount 2s ease forwards;
-            text-shadow: 0 1px 2px rgba(0,0,0,.8);
-        }
-
-        @keyframes popWinAmount {
-            0% { transform: scale(.8); opacity: 0; }
-            20% { transform: scale(1.15); opacity: 1; }
-            80% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(1); opacity: 0; }
-        }
-
-        @keyframes zoomOutResult {
-            0% { transform: scale(1.2); opacity: 1; }
-            80% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(.3); opacity: 0; }
-        }
-
-        .animate-zoom-out {
-            animation: zoomOutResult 1.5s ease forwards;
-        }
-
-        @keyframes dangerPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .72; }
-        }
-
         /* =========================
-           BOTTOM BAR (Updated for height, text size & menu)
+           BOTTOM BAR
         ========================== */
 
         .bottom-fixed-bar {
             position: fixed;
-            bottom: 0;
+            z-index: 100;
             left: 50%;
+            bottom: 0;
             transform: translateX(-50%);
             width: 100%;
-            max-width: 768px;
-            background: rgba(8,14,17,.98);
-            backdrop-filter: blur(14px);
-            border-top: 1px solid #27363c;
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 40;
-            font-size: 13px;
-            min-height: 60px;
-        }
-
-        /* Menu Dropdown Style */
-        .bottom-menu-container {
-            position: relative;
-            display: flex;
-            align-items: center;
+            max-width: 430px;
+            min-height: 61px;
+            padding: 8px 13px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             gap: 8px;
-        }
-
-        .bottom-menu-btn {
-            background: linear-gradient(145deg, #1d2b31, #121c21);
-            border: 1px solid #33434a;
-            color: #e2e8f0;
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 15px;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            background: rgba(9,15,20,.97);
+            border-top: 1px solid #27353d;
+            backdrop-filter: blur(14px);
+            font-size: 9px;
         }
 
-        .bottom-dropdown {
-            position: absolute;
-            bottom: 45px;
-            left: 0;
-            background: #0d1519;
-            border: 1px solid #27363c;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 50;
-            min-width: 140px;
+        .bottom-fixed-bar > div:last-child {
+            text-align: right;
         }
 
-        .bottom-dropdown.show {
-            display: flex;
+        .bottom-fixed-bar .text-emerald-400 {
+            color: #31d67b !important;
         }
 
-        .bottom-dropdown button {
-            background: transparent;
-            border: none;
-            color: #cbd5e1;
-            padding: 10px 14px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(39, 54, 60, 0.4);
-            transition: background 0.15s;
+        .bottom-fixed-bar .text-amber-400 {
+            color: #f7c73a !important;
         }
 
-        .bottom-dropdown button:last-child {
-            border-bottom: none;
-        }
-
-        .bottom-dropdown button:hover,
-        .bottom-dropdown button.active {
-            background: #1a272e;
-            color: #f8fafc;
+        #bottom-bar-center-status {
+            font-size: 10px;
+            white-space: nowrap;
         }
 
         /* =========================
            RESPONSIVE
         ========================== */
 
-        @media (max-width: 430px) {
-            .wallet-section {
-                padding: 8px 13px 3px;
-            }
-
-            .warning-card {
-                margin-left: 13px;
-                margin-right: 13px;
-            }
-
-            .main-content {
-                padding-left: 13px;
-                padding-right: 13px;
-            }
-
-            .wallet-icon {
-                width: 58px;
-                height: 58px;
-                min-width: 58px;
-                font-size: 27px;
-            }
-
-            .wallet-balance {
-                font-size: 29px;
-            }
-
-            .wallet-title {
-                font-size: 14px;
-            }
-
-            .wallet-id {
-                font-size: 11px;
-            }
-
-            .wallet-refresh {
-                width: 44px;
-                height: 44px;
-                font-size: 23px;
-            }
-
-            .wallet-action {
-                height: 54px;
-                font-size: 17px;
-            }
-
-            .mode-button {
-                min-height: 96px;
-            }
-
-            .custom-clock-icon {
-                width: 39px;
-                height: 39px;
-            }
-
-            .period-timer-card {
-                padding: 13px 12px;
-            }
-
-            .period-heading-group::before {
-                font-size: 12px;
-            }
-
-            .period-number-display {
-                padding: 6px 9px;
-            }
-
-            .timer-label {
-                font-size: 12px;
-            }
-
-            .timer-digit {
-                width: 29px;
-                height: 40px;
-                font-size: 24px;
-            }
-
-            .color-choice {
-                height: 58px;
-                font-size: 17px;
-            }
-
-            .number-grid {
-                gap: 8px;
-            }
-
-            .number-area {
-                padding: 12px 8px;
-            }
-
-            .number-button {
-                font-size: 24px;
-            }
-
-            .big-small-wrap {
-                height: 59px;
-            }
-        }
-
         @media (max-width: 360px) {
-            .mode-button {
-                min-height: 90px;
+            .page-content {
+                padding: 9px;
             }
 
-            .mode-button div:last-child {
-                font-size: 9px !important;
-            }
-
-            .custom-clock-icon {
-                width: 35px;
-                height: 35px;
-            }
-
-            .wallet-balance {
+            .wallet-amount {
                 font-size: 25px;
             }
 
-            .wallet-actions {
-                gap: 8px;
+            .wallet-symbol {
+                width: 57px;
+                height: 57px;
+                flex-basis: 57px;
             }
 
-            .wallet-action {
-                font-size: 15px;
+            .mode-button {
+                min-height: 82px;
             }
 
             .timer-digit {
-                width: 26px;
-                height: 37px;
-                font-size: 22px;
+                width: 25px;
+                height: 36px;
+                font-size: 20px;
+            }
+
+            .number-grid {
+                gap: 7px;
+            }
+
+            .number-button {
+                font-size: 22px !important;
+            }
+
+            .chip-item {
+                width: 33px;
+                height: 33px;
+                flex-basis: 33px;
             }
         }
     </style>
@@ -1340,8 +1061,21 @@
 
 <div class="app-shell">
 
-    <!-- ORIGINAL HEADER CONNECTION -->
-    <div id="header-container"></div>
+    <div id="header-container">
+        <div class="custom-topbar">
+            <div class="top-icon">☰</div>
+
+            <div class="brand">
+                <span class="brand-crown">♛</span>
+                <span class="brand-text">COLOR <span class="brand-go">GO</span></span>
+            </div>
+
+            <div class="header-actions">
+                <div class="top-icon">♧</div>
+                <div class="top-icon">♧</div>
+            </div>
+        </div>
+    </div>
 
     <script>
         fetch('header.html')
@@ -1354,188 +1088,170 @@
             })
             .catch(error => {
                 console.error('Header load error:', error);
-                document.getElementById('header-container').innerHTML =
-                    `<header class="py-2 px-3 bg-[#080d20] border-b border-slate-800 flex justify-between items-center shadow-lg">
-                        <h1 class="text-sm font-extrabold text-white tracking-wider">Color Trading</h1>
-                        <a href="how-to-play.html"
-                           class="bg-slate-800/80 hover:bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center text-amber-400 text-base shadow-md border border-slate-700 transition"
-                           title="How to play">📖</a>
-                    </header>`;
+                document.getElementById('header-container').innerHTML = `
+                    <div class="custom-topbar">
+                        <div class="top-icon">☰</div>
+                        <div class="brand">
+                            <span class="brand-crown">♛</span>
+                            <span class="brand-text">COLOR <span class="brand-go">GO</span></span>
+                        </div>
+                        <div class="header-actions">
+                            <div class="top-icon">♧</div>
+                            <div class="top-icon">♧</div>
+                        </div>
+                    </div>
+                `;
             });
     </script>
 
-    <!-- WALLET UI -->
-    <section class="wallet-section">
-        <div class="wallet-card">
+    <main class="page-content">
+
+        <!-- WALLET -->
+        <section class="wallet-card">
 
             <div class="wallet-top">
 
-                <div class="wallet-icon">
-                    💼
-                </div>
+                <div class="wallet-symbol">▣</div>
 
                 <div class="wallet-info">
-                    <p class="wallet-title">Wallet Balance</p>
+                    <div class="wallet-label">Wallet Balance</div>
 
-                    <div class="wallet-balance-row">
-                        <p class="wallet-balance">
-                            ৳<span id="top-user-balance">0.00</span>
-                        </p>
-                        <span class="balance-eye">◉̸</span>
+                    <div class="wallet-amount">
+                        ৳<span id="wallet-main-balance">0.00</span>
                     </div>
 
                     <div class="wallet-id">
-                        ID:
-                        <span id="top-user-id">---</span>
-                        <span>▣</span>
+                        ID: <span id="wallet-user-id">892736281</span>
                     </div>
                 </div>
 
-                <button
-                    type="button"
-                    class="wallet-refresh"
-                    onclick="loadUserProfile()"
-                    aria-label="Refresh balance">
-                    ↻
-                </button>
+                <button class="wallet-refresh" onclick="loadUserProfile()">↻</button>
 
             </div>
 
             <div class="wallet-actions">
-
-                <button type="button"
-                        class="wallet-action withdraw-action">
-                    <span style="font-size:22px;">▱</span>
-                    Withdraw
+                <button class="wallet-btn wallet-withdraw">
+                    ▱ Withdraw
                 </button>
 
-                <button type="button"
-                        class="wallet-action deposit-action">
-                    <span style="font-size:23px;">⊕</span>
-                    Deposit
+                <button class="wallet-btn wallet-deposit">
+                    ⊕ Deposit
                 </button>
-
             </div>
 
-        </div>
-    </section>
+        </section>
 
-    <!-- WARNING -->
-    <div class="warning-card">
-        <div class="warning-icon">📢</div>
+        <!-- NOTICE -->
+        <section class="notice-card section-gap">
+            <div class="notice-icon">⚑</div>
 
-        <div class="warning-text">
-            <div class="warning-title">
-                Be careful of counterfeit websites and apps.
+            <div class="notice-content">
+                <div class="notice-title">
+                    Be careful of counterfeit websites and apps.
+                </div>
+                <div class="notice-subtitle">
+                    Always use the official COLOR GO platform.
+                </div>
             </div>
-            <div class="warning-subtitle">
-                Always use the official COLOR GO platform.
-            </div>
-        </div>
 
-        <button type="button" class="warning-details">
-            Details
-        </button>
-    </div>
+            <button class="notice-button">
+                Details
+            </button>
+        </section>
 
-    <main class="main-content">
-
-        <div class="main-game-card">
+        <!-- GAME -->
+        <section class="section-gap">
 
             <!-- GAME MODES -->
-            <div class="game-section modes-plate">
+            <div class="mode-strip">
 
-                <button onclick="changeGameMode(15, '15s')"
-                        id="mode-15s"
-                        class="mode-button active-mode">
+                <button onclick="changeGameMode(15, '15s')" id="mode-15s"
+                    class="mode-button active-mode">
 
-                    <div class="custom-clock-icon mb-1"></div>
+                    <div class="custom-clock-icon"></div>
 
-                    <div id="text-15s"
-                         class="text-[11px] font-bold text-slate-900 mt-0.5">
-                        Win Go<br>
-                        <strong>15s</strong>
+                    <div id="text-15s" class="text-[10.5px] font-bold text-white">
+                        Win 15s
                     </div>
 
                 </button>
 
-                <button onclick="changeGameMode(30, '30s')"
-                        id="mode-30s"
-                        class="mode-button">
+                <button onclick="changeGameMode(30, '30s')" id="mode-30s"
+                    class="mode-button">
 
-                    <div class="custom-clock-icon mb-1"></div>
+                    <div class="custom-clock-icon"></div>
 
-                    <div id="text-30s"
-                         class="text-[11px] font-bold text-slate-300 mt-0.5">
-                        Win Go<br>
-                        <strong>30s</strong>
+                    <div id="text-30s" class="text-[10.5px] font-bold text-amber-400">
+                        Win 30s
                     </div>
 
                 </button>
 
-                <button onclick="changeGameMode(60, '1m')"
-                        id="mode-1m"
-                        class="mode-button">
+                <button onclick="changeGameMode(60, '1m')" id="mode-1m"
+                    class="mode-button">
 
-                    <div class="custom-clock-icon mb-1"></div>
+                    <div class="custom-clock-icon"></div>
 
-                    <div id="text-1m"
-                         class="text-[11px] font-bold text-slate-300 mt-0.5">
-                        Win Go<br>
-                        <strong>1Min</strong>
+                    <div id="text-1m" class="text-[10.5px] font-bold text-amber-400">
+                        Win 1m
                     </div>
 
                 </button>
 
-                <button onclick="changeGameMode(300, '5m')"
-                        id="mode-5m"
-                        class="mode-button">
+                <button onclick="changeGameMode(300, '5m')" id="mode-5m"
+                    class="mode-button">
 
-                    <div class="custom-clock-icon mb-1"></div>
+                    <div class="custom-clock-icon"></div>
 
-                    <div id="text-5m"
-                         class="text-[11px] font-bold text-slate-300 mt-0.5">
-                        Win Go<br>
-                        <strong>5Min</strong>
+                    <div id="text-5m" class="text-[10.5px] font-bold text-amber-400">
+                        Win 5m
                     </div>
 
                 </button>
 
             </div>
 
-            <!-- PERIOD + TIMER -->
-            <div class="game-section period-timer-card">
+            <!-- ROUND / TIMER -->
+            <div class="round-card section-gap">
 
-                <div class="period-info">
+                <div class="round-inner">
 
-                    <div class="period-heading-group">
-                        <p class="period-heading">Period Number</p>
-                    </div>
+                    <div class="round-top">
 
-                    <div class="card-divider"></div>
+                        <div class="period-info">
 
-                    <p id="period-number"
-                       class="period-number-display"
-                       aria-label="Period Number"></p>
+                            <div class="period-heading">
+                                Period:
+                                <span id="period-short-label">
+                                    Current
+                                </span>
+                            </div>
 
-                </div>
+                            <p id="period-number"
+                               class="period-number-display"
+                               aria-label="Period Number"></p>
 
-                <div class="timer-area">
+                        </div>
 
-                    <p id="timer-label"
-                       class="timer-label">
-                        PLACE YOUR BET
-                    </p>
+                        <div class="timer-area">
 
-                    <div id="countdown-timer"
-                         class="digital-timer"
-                         aria-label="Time remaining">
+                            <p id="timer-label" class="timer-label">
+                                PLACE YOUR BET
+                            </p>
 
-                        <span class="timer-digit">0</span>
-                        <span class="timer-digit">0</span>
-                        <span class="timer-colon">:</span>
-                        <span class="timer-digit">1</span>
-                        <span class="timer-digit">5</span>
+                            <div id="countdown-timer"
+                                 class="digital-timer"
+                                 aria-label="Time remaining">
+
+                                <span class="timer-digit">0</span>
+                                <span class="timer-digit">0</span>
+                                <span class="timer-colon">:</span>
+                                <span class="timer-digit">1</span>
+                                <span class="timer-digit">5</span>
+
+                            </div>
+
+                        </div>
 
                     </div>
 
@@ -1544,99 +1260,95 @@
             </div>
 
             <!-- COLORS -->
-            <div class="game-section color-buttons">
+            <div class="color-row section-gap">
 
                 <button onclick="placeDirectBet('Green')"
-                        id="btn-Green"
-                        class="color-choice green-choice relative">
+                    id="btn-Green"
+                    class="color-choice green-choice">
+
                     Green
+
                 </button>
 
                 <button onclick="placeDirectBet('Violet')"
-                        id="btn-Violet"
-                        class="color-choice violet-choice relative">
+                    id="btn-Violet"
+                    class="color-choice violet-choice">
+
                     Violet
+
                 </button>
 
                 <button onclick="placeDirectBet('Red')"
-                        id="btn-Red"
-                        class="color-choice red-choice relative">
+                    id="btn-Red"
+                    class="color-choice red-choice">
+
                     Red
+
                 </button>
 
             </div>
 
             <!-- NUMBERS -->
-            <div class="game-section number-area">
+            <div class="number-panel section-gap">
 
                 <div class="number-grid">
 
-                    <button onclick="placeDirectBet('0')"
-                            id="btn-0"
-                            class="number-button violet-sphere active:scale-95 font-black transition relative">
+                    <button onclick="placeDirectBet('0')" id="btn-0"
+                        class="number-button violet-sphere relative">
                         <span>0</span>
                         <span class="number-payout">(9x)</span>
                     </button>
 
-                    <button onclick="placeDirectBet('1')"
-                            id="btn-1"
-                            class="number-button green-sphere active:scale-95 font-black transition relative">
+                    <button onclick="placeDirectBet('1')" id="btn-1"
+                        class="number-button green-sphere relative">
                         <span>1</span>
                         <span class="number-payout">(9x)</span>
                     </button>
 
-                    <button onclick="placeDirectBet('2')"
-                            id="btn-2"
-                            class="number-button ruby-sphere active:scale-95 font-black transition relative">
+                    <button onclick="placeDirectBet('2')" id="btn-2"
+                        class="number-button ruby-sphere relative">
                         <span>2</span>
                         <span class="number-payout">(9x)</span>
                     </button>
 
-                    <button onclick="placeDirectBet('3')"
-                            id="btn-3"
-                            class="number-button green-sphere active:scale-95 font-black transition relative">
+                    <button onclick="placeDirectBet('3')" id="btn-3"
+                        class="number-button green-sphere relative">
                         <span>3</span>
                         <span class="number-payout">(9x)</span>
                     </button>
 
-                    <button onclick="placeDirectBet('4')"
-                            id="btn-4"
-                            class="number-button ruby-sphere active:scale-95 font-black transition relative">
+                    <button onclick="placeDirectBet('4')" id="btn-4"
+                        class="number-button ruby-sphere relative">
                         <span>4</span>
                         <span class="number-payout">(9x)</span>
                     </button>
 
-                    <button onclick="placeDirectBet('5')"
-                            id="btn-5"
-                            class="number-button violet-sphere active:scale-95 font-black transition relative">
+                    <button onclick="placeDirectBet('5')" id="btn-5"
+                        class="number-button violet-sphere relative">
                         <span>5</span>
                         <span class="number-payout">(9x)</span>
                     </button>
 
-                    <button onclick="placeDirectBet('6')"
-                            id="btn-6"
-                            class="number-button ruby-sphere active:scale-95 font-black transition relative">
+                    <button onclick="placeDirectBet('6')" id="btn-6"
+                        class="number-button ruby-sphere relative">
                         <span>6</span>
                         <span class="number-payout">(9x)</span>
                     </button>
 
-                    <button onclick="placeDirectBet('7')"
-                            id="btn-7"
-                            class="number-button green-sphere active:scale-95 font-black transition relative">
+                    <button onclick="placeDirectBet('7')" id="btn-7"
+                        class="number-button green-sphere relative">
                         <span>7</span>
                         <span class="number-payout">(9x)</span>
                     </button>
 
-                    <button onclick="placeDirectBet('8')"
-                            id="btn-8"
-                            class="number-button ruby-sphere active:scale-95 font-black transition relative">
+                    <button onclick="placeDirectBet('8')" id="btn-8"
+                        class="number-button ruby-sphere relative">
                         <span>8</span>
                         <span class="number-payout">(9x)</span>
                     </button>
 
-                    <button onclick="placeDirectBet('9')"
-                            id="btn-9"
-                            class="number-button green-sphere active:scale-95 font-black transition relative">
+                    <button onclick="placeDirectBet('9')" id="btn-9"
+                        class="number-button green-sphere relative">
                         <span>9</span>
                         <span class="number-payout">(9x)</span>
                     </button>
@@ -1646,38 +1358,49 @@
             </div>
 
             <!-- BIG SMALL -->
-            <div class="game-section big-small-wrap">
+            <div class="size-row section-gap">
 
                 <button onclick="placeDirectBet('Big')"
-                        id="btn-Big"
-                        class="big-small-btn big-btn relative">
+                    id="btn-Big"
+                    class="size-button big-choice relative">
+
                     Big
+
                 </button>
 
                 <button onclick="placeDirectBet('Small')"
-                        id="btn-Small"
-                        class="big-small-btn small-btn relative">
+                    id="btn-Small"
+                    class="size-button small-choice relative">
+
                     Small
+
                 </button>
 
             </div>
 
             <!-- CHIPS -->
-            <div class="game-section chips-container">
+            <div class="chips-container section-gap">
 
                 <div class="action-group">
 
                     <button onclick="undoLastBet()"
-                            class="action-chip"
-                            title="Undo Bet">
+                        class="action-chip"
+                        title="Undo Bet">
+
                         ↩
+
                     </button>
 
                     <button onclick="rebetLast()"
-                            class="action-chip"
-                            title="Rebet">
+                        class="action-chip"
+                        title="Rebet">
+
                         🔄
-                        <span class="rebet-badge-2x">2x</span>
+
+                        <span class="rebet-badge-2x">
+                            2x
+                        </span>
+
                     </button>
 
                 </div>
@@ -1730,39 +1453,57 @@
                 Place your bet before timer ends...
             </div>
 
-        </div>
+        </section>
 
         <!-- HISTORY -->
-        <div class="history-box">
-            <!-- ট্যাব বাটনগুলো Bottom Bar এ মুভ করা হয়েছে -->
+        <section class="history-panel">
+
+            <div class="history-tabs">
+
+                <button onclick="switchTab('game-history')"
+                        id="tab-game-history"
+                        class="history-tab active">
+                    Game History
+                </button>
+
+                <button onclick="switchTab('chart')"
+                        id="tab-chart"
+                        class="history-tab">
+                    Statistics
+                </button>
+
+                <button onclick="switchTab('my-history')"
+                        id="tab-my-history"
+                        class="history-tab">
+                    My History
+                </button>
+
+            </div>
+
             <div id="tab-content"
-                 class="history-content">
+                 class="history-content max-h-72 overflow-auto">
+
                 <p class="text-center text-slate-500 py-3">
                     Loading...
                 </p>
+
             </div>
 
-        </div>
+        </section>
 
     </main>
 
-    <!-- BOTTOM BAR (Updated with Function Symbol Menu & Total Bet) -->
+    <!-- BOTTOM BAR -->
     <div class="bottom-fixed-bar">
 
-        <div class="bottom-menu-container">
-            <button class="bottom-menu-btn" onclick="toggleBottomMenu()" title="Menu">ƒ</button>
-            <div id="bottom-dropdown-menu" class="bottom-dropdown">
-                <button onclick="switchTab('game-history'); toggleBottomMenu();" id="tab-game-history">Game History</button>
-                <button onclick="switchTab('chart'); toggleBottomMenu();" id="tab-chart">Statistics</button>
-                <button onclick="switchTab('my-history'); toggleBottomMenu();" id="tab-my-history">My History</button>
-            </div>
+        <div>
+            <span class="text-slate-400">
+                Balance:
+            </span>
 
-            <div>
-                <span class="text-slate-400">Total Bet:</span>
-                <span class="text-amber-400 font-mono font-bold">
-                    ৳<span id="bar-total-bet">0.00</span>
-                </span>
-            </div>
+            <span class="text-emerald-400 font-mono font-bold">
+                ৳<span id="bar-user-balance">0.00</span>
+            </span>
         </div>
 
         <div id="bottom-bar-center-status"
@@ -1770,9 +1511,12 @@
         </div>
 
         <div>
-            <span class="text-slate-400">Balance:</span>
-            <span class="text-emerald-400 font-mono font-bold">
-                ৳<span id="bar-user-balance">0.00</span>
+            <span class="text-slate-400">
+                Total Bet:
+            </span>
+
+            <span class="text-amber-400 font-mono font-bold">
+                ৳<span id="bar-total-bet">0.00</span>
             </span>
         </div>
 
@@ -1794,22 +1538,6 @@
     let lastPlacedBet = null;
     let currentRoundTotalBet = 0;
     let userActiveBets = [];
-
-    // Toggle bottom menu dropdown
-    function toggleBottomMenu() {
-        const menu = document.getElementById('bottom-dropdown-menu');
-        menu.classList.toggle('show');
-    }
-
-    // Close dropdown when clicking outside
-    window.addEventListener('click', function(e) {
-        if (!e.target.closest('.bottom-menu-container')) {
-            const menu = document.getElementById('bottom-dropdown-menu');
-            if (menu && menu.classList.contains('show')) {
-                menu.classList.remove('show');
-            }
-        }
-    });
 
     document.addEventListener("DOMContentLoaded", async () => {
         renderPeriodNumber();
@@ -1847,27 +1575,24 @@
         if (typeof supabaseClient !== 'undefined' && supabaseClient.channel) {
             supabaseClient
                 .channel('public:color_periods_changes')
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'UPDATE',
-                        schema: 'public',
-                        table: 'color_periods'
-                    },
-                    payload => {
-                        if (payload.new && payload.new.status === 'completed') {
-                            if (activeTab) {
-                                loadHistoryData(activeTab);
-                            }
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'color_periods'
+                }, payload => {
+                    if (payload.new && payload.new.status === 'completed') {
+                        if (activeTab) {
+                            loadHistoryData(activeTab);
                         }
                     }
-                )
+                })
                 .subscribe();
         }
 
         setInterval(() => {
             if (activeTab &&
-                (activeTab === 'chart' || activeTab === 'game-history')) {
+                (activeTab === 'chart' ||
+                 activeTab === 'game-history')) {
                 loadHistoryData(activeTab);
             }
         }, 5000);
@@ -1876,9 +1601,8 @@
     function selectChip(amount, element) {
         selectedChipAmount = amount;
 
-        document.querySelectorAll('.chip-item').forEach(el => {
-            el.classList.remove('selected-chip');
-        });
+        document.querySelectorAll('.chip-item')
+            .forEach(el => el.classList.remove('selected-chip'));
 
         element.classList.add('selected-chip');
     }
@@ -1916,9 +1640,9 @@
 
         document.getElementById("bar-user-balance").innerText = bal;
 
-        const topBalance = document.getElementById("top-user-balance");
-        if (topBalance) {
-            topBalance.innerText = bal;
+        const walletBalance = document.getElementById("wallet-main-balance");
+        if (walletBalance) {
+            walletBalance.innerText = bal;
         }
 
         currentRoundTotalBet =
@@ -2026,10 +1750,11 @@
         let newBalance =
             Number(userProfile.balance) - amount;
 
-        const { error: profileError } = await supabaseClient
-            .from("profiles")
-            .update({ balance: newBalance })
-            .eq("id", currentUser.id);
+        const { error: profileError } =
+            await supabaseClient
+                .from("profiles")
+                .update({ balance: newBalance })
+                .eq("id", currentUser.id);
 
         if (profileError) {
             alert("Failed to place bet. Try again.");
@@ -2040,11 +1765,14 @@
 
         let bal = newBalance.toFixed(2);
 
-        document.getElementById("bar-user-balance").innerText = bal;
+        document.getElementById("bar-user-balance").innerText =
+            bal;
 
-        const topBalance = document.getElementById("top-user-balance");
-        if (topBalance) {
-            topBalance.innerText = bal;
+        const walletBalance =
+            document.getElementById("wallet-main-balance");
+
+        if (walletBalance) {
+            walletBalance.innerText = bal;
         }
 
         currentRoundTotalBet += amount;
@@ -2160,7 +1888,9 @@
                         v.name.includes('Male') ||
                         v.name.includes('David') ||
                         v.name.includes('Mark') ||
-                        v.name.includes('Google UK English Male')
+                        v.name.includes(
+                            'Google UK English Male'
+                        )
                     )
                 );
 
@@ -2184,23 +1914,25 @@
                 "bar-user-balance"
             ).innerText = bal;
 
-            const topBalance =
-                document.getElementById("top-user-balance");
+            const walletBalance =
+                document.getElementById(
+                    "wallet-main-balance"
+                );
 
-            if (topBalance) {
-                topBalance.innerText = bal;
+            if (walletBalance) {
+                walletBalance.innerText = bal;
             }
 
-            const topUserId =
-                document.getElementById("top-user-id");
+            const walletUserId =
+                document.getElementById(
+                    "wallet-user-id"
+                );
 
-            if (topUserId) {
-                topUserId.innerText =
-                    String(
-                        userProfile.id ||
-                        currentUser.id ||
-                        "---"
-                    ).slice(0, 12);
+            if (walletUserId) {
+                walletUserId.innerText =
+                    currentUser.id
+                        ? String(currentUser.id).slice(-9)
+                        : "892736281";
             }
         }
     }
@@ -2221,36 +1953,27 @@
             "bottom-bar-center-status"
         ).innerHTML = "";
 
-        ['15s', '30s', '1m', '5m']
-            .forEach(key => {
+        ['15s', '30s', '1m', '5m'].forEach(key => {
+            let btn =
+                document.getElementById(`mode-${key}`);
 
-                let btn =
-                    document.getElementById(
-                        `mode-${key}`
-                    );
+            let txt =
+                document.getElementById(`text-${key}`);
 
-                let txt =
-                    document.getElementById(
-                        `text-${key}`
-                    );
+            if (key === modeKey) {
+                btn.className =
+                    "mode-button active-mode";
 
-                if (key === modeKey) {
+                txt.className =
+                    "text-[10.5px] font-bold text-white";
+            } else {
+                btn.className =
+                    "mode-button";
 
-                    btn.className =
-                        "mode-button active-mode";
-
-                    txt.className =
-                        "text-[11px] font-bold text-slate-900 mt-0.5";
-
-                } else {
-
-                    btn.className =
-                        "mode-button";
-
-                    txt.className =
-                        "text-[11px] font-bold text-slate-300 mt-0.5";
-                }
-            });
+                txt.className =
+                    "text-[10.5px] font-bold text-amber-400";
+            }
+        });
 
         await ensureCurrentPeriodExists();
 
@@ -2267,17 +1990,14 @@
             String(currentPeriodNumber);
 
         element.innerHTML =
-            [...periodText]
-                .map(digit =>
-                    `<span class="period-digit">${digit}</span>`
-                )
-                .join("");
+            [...periodText].map(digit =>
+                `<span class="period-digit">${digit}</span>`
+            ).join("");
     }
 
     function clearWinningHighlights() {
         document.querySelectorAll('.winning-blink')
             .forEach(button => {
-
                 button.classList.remove(
                     'winning-blink',
                     'win-blink-green',
@@ -2303,78 +2023,72 @@
             Violet: 'win-blink-violet'
         };
 
-        document
-            .querySelectorAll(
-                'button[onclick^="placeDirectBet("]'
-            )
-            .forEach(button => {
+        document.querySelectorAll(
+            'button[onclick^="placeDirectBet("]'
+        ).forEach(button => {
 
-                const match =
-                    button
-                        .getAttribute('onclick')
-                        ?.match(
-                            /placeDirectBet\(['"]([^'"]+)['"]\)/
+            const match =
+                button
+                    .getAttribute('onclick')
+                    ?.match(
+                        /placeDirectBet\(['"]([^'"]+)['"]\)/
+                    );
+
+            if (!match) return;
+
+            const target = match[1];
+
+            let highlightClass = '';
+
+            if (target === winningColor) {
+                highlightClass =
+                    colorClass[winningColor] || '';
+            } else if (
+                target === String(winningNumber)
+            ) {
+                highlightClass =
+                    'win-blink-number';
+            } else if (
+                target === winningBigSmall
+            ) {
+                highlightClass =
+                    winningBigSmall === 'Big'
+                        ? 'win-blink-big'
+                        : 'win-blink-small';
+            }
+
+            if (highlightClass) {
+                button.classList.add(
+                    'winning-blink',
+                    highlightClass
+                );
+
+                button.addEventListener(
+                    'animationend',
+                    function removeBlink(event) {
+                        if (
+                            event.animationName !==
+                            'winningBlink'
+                        ) return;
+
+                        button.classList.remove(
+                            'winning-blink',
+                            'win-blink-green',
+                            'win-blink-red',
+                            'win-blink-violet',
+                            'win-blink-number',
+                            'win-blink-big',
+                            'win-blink-small'
                         );
 
-                if (!match) return;
-
-                const target = match[1];
-
-                let highlightClass = '';
-
-                if (target === winningColor) {
-                    highlightClass =
-                        colorClass[winningColor] || '';
-
-                } else if (
-                    target === String(winningNumber)
-                ) {
-                    highlightClass =
-                        'win-blink-number';
-
-                } else if (
-                    target === winningBigSmall
-                ) {
-                    highlightClass =
-                        winningBigSmall === 'Big'
-                            ? 'win-blink-big'
-                            : 'win-blink-small';
-                }
-
-                if (highlightClass) {
-
-                    button.classList.add(
-                        'winning-blink',
-                        highlightClass
-                    );
-
-                    button.addEventListener(
-                        'animationend',
-                        function removeBlink(event) {
-
-                            if (
-                                event.animationName !==
-                                'winningBlink'
-                            ) return;
-
-                            button.classList.remove(
-                                'winning-blink',
-                                'win-blink-green',
-                                'win-blink-red',
-                                'win-blink-violet',
-                                'win-blink-number',
-                                'win-blink-big',
-                                'win-blink-small'
-                            );
-
-                            button.removeEventListener(
-                                'animationend',
-                                removeBlink
-                            );
-                        }
-                    );
-                }
-            });
+                        button.removeEventListener(
+                            'animationend',
+                            removeBlink
+                        );
+                    }
+                );
+            }
+        });
     }
 
     function startTimer() {
@@ -2394,7 +2108,6 @@
             );
 
         function updateMainTimer() {
-
             if (!timerElem) return;
 
             const min =
@@ -2432,7 +2145,6 @@
                         "animate-zoom-out"
                     )
                 ) {
-
                     statusSpan.classList.add(
                         "animate-zoom-out"
                     );
@@ -2448,7 +2160,6 @@
                 );
 
                 if (timerLabel) {
-
                     timerLabel.innerText =
                         "NO MORE BET";
 
@@ -2470,7 +2181,6 @@
                 );
 
                 if (timerLabel) {
-
                     timerLabel.innerText =
                         "PLACE YOUR BET";
 
@@ -2495,7 +2205,6 @@
                 updateMainTimer();
 
                 if (timerSeconds <= 0) {
-
                     clearInterval(
                         timerInterval
                     );
@@ -2507,11 +2216,37 @@
     }
 
     function switchTab(tabName) {
-
         const container =
             document.getElementById(
                 "tab-content"
             );
+
+        if (
+            activeTab === tabName &&
+            !container.classList.contains(
+                "hidden"
+            )
+        ) {
+            activeTab = null;
+
+            container.classList.add(
+                "hidden"
+            );
+
+            ['game-history', 'chart', 'my-history']
+                .forEach(t => {
+
+                    const btn =
+                        document.getElementById(
+                            `tab-${t}`
+                        );
+
+                    btn.className =
+                        "history-tab";
+                });
+
+            return;
+        }
 
         activeTab = tabName;
 
@@ -2527,12 +2262,12 @@
                         `tab-${t}`
                     );
 
-                if (btn) {
-                    if (t === tabName) {
-                        btn.classList.add("active");
-                    } else {
-                        btn.classList.remove("active");
-                    }
+                if (t === tabName) {
+                    btn.className =
+                        "history-tab active";
+                } else {
+                    btn.className =
+                        "history-tab";
                 }
             });
 
@@ -2541,24 +2276,18 @@
 
     function escapeHtml(value) {
         return String(value ?? '')
-            .replace(
-                /[&<>"']/g,
-                char => ({
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#39;'
-                })[char]
-            );
+            .replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            })[char]);
     }
 
     function getSavedBetResult(row) {
-
         let savedResult =
-            String(
-                row.winning_result || ''
-            );
+            String(row.winning_result || '');
 
         let resultMatch =
             savedResult.match(
@@ -2567,15 +2296,9 @@
 
         let color =
             resultMatch
-                ? resultMatch[1]
-                    .charAt(0)
-                    .toUpperCase() +
-                  resultMatch[1]
-                    .slice(1)
-                    .toLowerCase()
-                : (
-                    row.winning_color || ''
-                );
+                ? resultMatch[1].charAt(0).toUpperCase() +
+                  resultMatch[1].slice(1).toLowerCase()
+                : (row.winning_color || '');
 
         let number =
             resultMatch
@@ -2584,9 +2307,9 @@
                     row.winning_number !== null &&
                     row.winning_number !== undefined &&
                     row.winning_number !== ''
-                        ? Number(row.winning_number)
-                        : null
-                );
+                )
+                    ? Number(row.winning_number)
+                    : null;
 
         if (
             ![
@@ -2601,11 +2324,7 @@
         let bigSmall =
             number !== null &&
             Number.isFinite(number)
-                ? (
-                    number >= 5
-                        ? 'Big'
-                        : 'Small'
-                )
+                ? (number >= 5 ? 'Big' : 'Small')
                 : '';
 
         let colorClass =
@@ -2630,7 +2349,6 @@
     }
 
     function formatHistoryDate(dateValue) {
-
         if (!dateValue) {
             return {
                 date: 'N/A',
@@ -2641,7 +2359,11 @@
         const date =
             new Date(dateValue);
 
-        if (Number.isNaN(date.getTime())) {
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
             return {
                 date: 'N/A',
                 time: 'N/A'
@@ -2649,36 +2371,41 @@
         }
 
         return {
-            date: date.toLocaleDateString(
-                'en-GB',
-                {
-                    timeZone: 'Asia/Dhaka',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                }
-            ),
+            date:
+                date.toLocaleDateString(
+                    'en-GB',
+                    {
+                        timeZone:
+                            'Asia/Dhaka',
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    }
+                ),
 
-            time: date.toLocaleTimeString(
-                'en-GB',
-                {
-                    timeZone: 'Asia/Dhaka',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true
-                }
-            )
+            time:
+                date.toLocaleTimeString(
+                    'en-GB',
+                    {
+                        timeZone:
+                            'Asia/Dhaka',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true
+                    }
+                )
         };
     }
 
     async function switchChartDuration(duration) {
-        selectedChartDuration = duration;
+        selectedChartDuration =
+            duration;
+
         loadHistoryData('chart');
     }
 
     async function loadHistoryData(type) {
-
         let container =
             document.getElementById(
                 "tab-content"
@@ -2704,23 +2431,24 @@
 
         if (type === 'game-history') {
 
-            let { data, error } =
-                await supabaseClient
-                    .from("color_periods")
-                    .select("*")
-                    .eq("status", "completed")
-                    .order(
-                        "created_at",
-                        { ascending: false }
-                    )
-                    .limit(30);
+            let {
+                data,
+                error
+            } = await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq("status", "completed")
+                .order(
+                    "created_at",
+                    { ascending: false }
+                )
+                .limit(30);
 
             if (
                 error ||
                 !data ||
                 data.length === 0
             ) {
-
                 container.innerHTML =
                     `<p class="text-center text-slate-500 py-3">No history found</p>`;
 
@@ -2731,7 +2459,7 @@
                 <div class="overflow-x-auto">
                     <table class="history-table">
                         <thead>
-                            <tr class="text-slate-400 border-b border-slate-800">
+                            <tr>
                                 <th>Period</th>
                                 <th>Number</th>
                                 <th>Big/Small</th>
@@ -2758,7 +2486,7 @@
                         );
 
                 html += `
-                    <tr class="border-b border-slate-800/40">
+                    <tr>
                         <td class="font-mono text-amber-300">
                             ${escapeHtml(row.period_number)}
                         </td>
@@ -2789,19 +2517,23 @@
 
         } else if (type === 'my-history') {
 
-            let { data, error } =
-                await supabaseClient
-                    .from("color_game_history")
-                    .select("*")
-                    .eq("user_id", currentUser.id)
-                    .order(
-                        "created_at",
-                        { ascending: false }
-                    )
-                    .limit(10);
+            let {
+                data,
+                error
+            } = await supabaseClient
+                .from("color_game_history")
+                .select("*")
+                .eq(
+                    "user_id",
+                    currentUser.id
+                )
+                .order(
+                    "created_at",
+                    { ascending: false }
+                )
+                .limit(10);
 
             if (error) {
-
                 console.error(
                     "My History error:",
                     error
@@ -2815,23 +2547,25 @@
                 return;
             }
 
-            if (!data || data.length === 0) {
-
+            if (
+                !data ||
+                data.length === 0
+            ) {
                 container.innerHTML =
-                    `<p class="text-center text-slate-500 py-4">
-                        No bets found
-                    </p>`;
+                    `<p class="text-center text-slate-500 py-4">No bets found</p>`;
 
                 return;
             }
 
             let html = `
-                <div class="mb-2 text-[10px] text-slate-400">
-                    Showing your latest 10 bets. Scroll horizontally to see all details.
+                <div class="p-2 text-[10px] text-slate-400">
+                    Showing your latest 10 bets.
                 </div>
 
                 <div class="history-scroll max-h-64">
+
                     <table class="my-history-table">
+
                         <thead>
                             <tr>
                                 <th>Period</th>
@@ -2844,6 +2578,7 @@
                                 <th>Date & Time</th>
                             </tr>
                         </thead>
+
                         <tbody>
             `;
 
@@ -2875,7 +2610,7 @@
                     result.hasResult
                         ? `<span class="result-number ${result.colorClass}">
                             ${result.number}
-                           </span>`
+                          </span>`
                         : `<span class="text-slate-500">—</span>`;
 
                 let resultColorHtml =
@@ -2971,9 +2706,10 @@
             html += `
                         </tbody>
                     </table>
+
                 </div>
 
-                <div class="mt-2.5 p-2.5 rounded-xl bg-transparent border border-slate-800">
+                <div class="m-2.5 p-2.5 rounded-xl bg-[#111b22] border border-slate-800">
 
                     <p class="text-[9.5px] text-slate-400 leading-relaxed">
                         Result No., Result Color এবং Big/Small দেখানোর জন্য
@@ -2988,16 +2724,18 @@
 
         } else if (type === 'chart') {
 
-            let { data, error } =
-                await supabaseClient
-                    .from("color_periods")
-                    .select("*")
-                    .eq("status", "completed")
-                    .order(
-                        "created_at",
-                        { ascending: false }
-                    )
-                    .limit(30);
+            let {
+                data,
+                error
+            } = await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq("status", "completed")
+                .order(
+                    "created_at",
+                    { ascending: false }
+                )
+                .limit(30);
 
             let trendBallsHtml = '';
 
@@ -3008,12 +2746,17 @@
             let redCount = 0;
             let violetCount = 0;
 
-            if (data && data.length > 0) {
+            if (
+                data &&
+                data.length > 0
+            ) {
 
                 data.forEach(row => {
 
                     let num =
-                        Number(row.winning_number);
+                        Number(
+                            row.winning_number
+                        );
 
                     if (num >= 5) {
                         bigCount++;
@@ -3022,24 +2765,29 @@
                     }
 
                     if (
-                        row.winning_color === 'Green'
+                        row.winning_color ===
+                        'Green'
                     ) {
                         greenCount++;
                     } else if (
-                        row.winning_color === 'Red'
+                        row.winning_color ===
+                        'Red'
                     ) {
                         redCount++;
                     } else if (
-                        row.winning_color === 'Violet'
+                        row.winning_color ===
+                        'Violet'
                     ) {
                         violetCount++;
                     }
 
                     let bgStyle =
-                        row.winning_color === 'Red'
+                        row.winning_color ===
+                            'Red'
                             ? '#e11d48'
                             : (
-                                row.winning_color === 'Green'
+                                row.winning_color ===
+                                    'Green'
                                     ? '#059669'
                                     : '#7c3aed'
                             );
@@ -3090,9 +2838,9 @@
             }
 
             container.innerHTML = `
-                <div class="bg-transparent p-1 space-y-3">
+                <div class="p-2 space-y-3">
 
-                    <div class="overflow-x-auto pb-1">
+                    <div class="overflow-x-auto">
                         <div class="trend-grid-container">
                             ${trendBallsHtml}
                         </div>
@@ -3100,7 +2848,7 @@
 
                     <div class="h-[1px] w-full bg-slate-800"></div>
 
-                    <div class="space-y-2.5">
+                    <div class="space-y-3">
 
                         <div>
 
@@ -3130,7 +2878,7 @@
 
                         </div>
 
-                        <div class="pt-1">
+                        <div>
 
                             <div class="flex justify-between text-[10.5px] font-bold mb-1">
 
@@ -3173,20 +2921,17 @@
         }
     }
 
-    async function updatePeriodAmounts(
-        amount,
-        target
-    ) {
-
-        let { data: periodData } =
-            await supabaseClient
-                .from("color_periods")
-                .select("*")
-                .eq(
-                    "period_number",
-                    currentPeriodNumber
-                )
-                .maybeSingle();
+    async function updatePeriodAmounts(amount, target) {
+        let {
+            data: periodData
+        } = await supabaseClient
+            .from("color_periods")
+            .select("*")
+            .eq(
+                "period_number",
+                currentPeriodNumber
+            )
+            .maybeSingle();
 
         if (!periodData) {
 
@@ -3257,18 +3002,454 @@
         ).innerText =
             "Calculating result...";
 
-        let { data: periodData } =
-            await supabaseClient
-                .from("color_periods")
-                .select("*")
-                .eq(
-                    "period_number",
-                    currentPeriodNumber
-                )
-                .maybeSingle();
+        let {
+            data: periodData
+        } = await supabaseClient
+            .from("color_periods")
+            .select("*")
+            .eq(
+                "period_number",
+                currentPeriodNumber
+            )
+            .maybeSingle();
 
         if (!periodData) {
 
             await ensureCurrentPeriodExists();
 
-            let
+            let res =
+                await supabaseClient
+                    .from("color_periods")
+                    .select("*")
+                    .eq(
+                        "period_number",
+                        currentPeriodNumber
+                    )
+                    .maybeSingle();
+
+            periodData =
+                res.data;
+        }
+
+        let green =
+            periodData
+                ? Number(
+                    periodData.total_green_amount || 0
+                )
+                : 0;
+
+        let red =
+            periodData
+                ? Number(
+                    periodData.total_red_amount || 0
+                )
+                : 0;
+
+        let violet =
+            periodData
+                ? Number(
+                    periodData.total_violet_amount || 0
+                )
+                : 0;
+
+        let winningColor =
+            'Green';
+
+        if (
+            green === 0 &&
+            red === 0 &&
+            violet === 0
+        ) {
+
+            const randomColors = [
+                'Green',
+                'Red',
+                'Green',
+                'Red',
+                'Violet'
+            ];
+
+            winningColor =
+                randomColors[
+                    Math.floor(
+                        Math.random() *
+                        randomColors.length
+                    )
+                ];
+
+        } else {
+
+            if (
+                green <= red &&
+                green <= violet
+            ) {
+
+                winningColor =
+                    'Green';
+
+            } else if (
+                red <= green &&
+                red <= violet
+            ) {
+
+                winningColor =
+                    'Red';
+
+            } else {
+
+                winningColor =
+                    'Violet';
+            }
+        }
+
+        let numbersMap = {
+            Green: [1, 3, 7, 9],
+            Red: [2, 4, 6, 8],
+            Violet: [0, 5]
+        };
+
+        let possibleNums =
+            numbersMap[winningColor];
+
+        let winningNumber =
+            possibleNums[
+                Math.floor(
+                    Math.random() *
+                    possibleNums.length
+                )
+            ];
+
+        let winningBigSmall =
+            winningNumber >= 5
+                ? 'Big'
+                : 'Small';
+
+        let winningResultString =
+            `${winningColor}-${winningNumber}`;
+
+        await supabaseClient
+            .from("color_periods")
+            .update({
+                winning_color:
+                    winningColor,
+
+                winning_number:
+                    winningNumber,
+
+                status:
+                    'completed'
+            })
+            .eq(
+                "period_number",
+                currentPeriodNumber
+            );
+
+        let {
+            data: allBets
+        } = await supabaseClient
+            .from("color_game_history")
+            .select("*")
+            .eq(
+                "period_number",
+                currentPeriodNumber
+            )
+            .eq(
+                "status",
+                'pending'
+            );
+
+        let userWonAmount = 0;
+        let hasUserWon = false;
+        let userParticipated = false;
+        let userWinsMap = {};
+
+        if (
+            allBets &&
+            allBets.length > 0
+        ) {
+
+            for (
+                let bet of allBets
+            ) {
+
+                let isWin = false;
+                let multiplier = 2;
+
+                if (
+                    bet.bet_type ===
+                    'Red'
+                ) {
+                    multiplier = 1.9;
+
+                } else if (
+                    bet.bet_type ===
+                    'Violet'
+                ) {
+                    multiplier = 4.5;
+
+                } else if (
+                    bet.bet_type === 'Big' ||
+                    bet.bet_type === 'Small'
+                ) {
+                    multiplier = 1.9;
+
+                } else if (
+                    !isNaN(
+                        bet.bet_type
+                    )
+                ) {
+                    multiplier = 9;
+                }
+
+                if (
+                    bet.bet_type ===
+                    winningColor
+                ) {
+                    isWin = true;
+
+                } else if (
+                    bet.bet_type ===
+                    String(winningNumber)
+                ) {
+                    isWin = true;
+
+                } else if (
+                    bet.bet_type ===
+                    winningBigSmall
+                ) {
+                    isWin = true;
+                }
+
+                if (
+                    bet.user_id ===
+                    currentUser.id
+                ) {
+                    userParticipated =
+                        true;
+                }
+
+                if (isWin) {
+
+                    let payoutAmount =
+                        bet.bet_amount *
+                        multiplier;
+
+                    if (
+                        bet.user_id ===
+                        currentUser.id
+                    ) {
+
+                        userWonAmount +=
+                            payoutAmount;
+
+                        hasUserWon =
+                            true;
+
+                        let totalTargetWinReturn =
+                            bet.bet_amount +
+                            payoutAmount;
+
+                        userWinsMap[
+                            bet.bet_type
+                        ] =
+                            (
+                                userWinsMap[
+                                    bet.bet_type
+                                ] || 0
+                            ) +
+                            totalTargetWinReturn;
+                    }
+
+                    await supabaseClient
+                        .from(
+                            "color_game_history"
+                        )
+                        .update({
+                            winning_result:
+                                winningResultString,
+
+                            payout:
+                                payoutAmount,
+
+                            status:
+                                'win'
+                        })
+                        .eq(
+                            "id",
+                            bet.id
+                        );
+
+                    let {
+                        data: targetProfile
+                    } =
+                        await supabaseClient
+                            .from("profiles")
+                            .select(
+                                "balance"
+                            )
+                            .eq(
+                                "id",
+                                bet.user_id
+                            )
+                            .single();
+
+                    if (targetProfile) {
+
+                        let updatedBal =
+                            Number(
+                                targetProfile.balance
+                            ) +
+                            payoutAmount;
+
+                        await supabaseClient
+                            .from("profiles")
+                            .update({
+                                balance:
+                                    updatedBal
+                            })
+                            .eq(
+                                "id",
+                                bet.user_id
+                            );
+                    }
+
+                } else {
+
+                    await supabaseClient
+                        .from(
+                            "color_game_history"
+                        )
+                        .update({
+                            winning_result:
+                                winningResultString,
+
+                            payout:
+                                0,
+
+                            status:
+                                'loss'
+                        })
+                        .eq(
+                            "id",
+                            bet.id
+                        );
+                }
+            }
+        }
+
+        currentRoundTotalBet = 0;
+
+        userActiveBets = [];
+
+        updateBetBadgesUI();
+
+        document.getElementById(
+            "bar-total-bet"
+        ).innerText = "0.00";
+
+        for (
+            let target in userWinsMap
+        ) {
+
+            let btn =
+                document.getElementById(
+                    `btn-${target}`
+                );
+
+            if (btn) {
+
+                let overlay =
+                    document.createElement(
+                        'div'
+                    );
+
+                overlay.className =
+                    'win-payout-overlay';
+
+                overlay.innerText =
+                    `+৳${userWinsMap[target].toFixed(1)}`;
+
+                btn.appendChild(
+                    overlay
+                );
+
+                setTimeout(
+                    () => overlay.remove(),
+                    2000
+                );
+            }
+        }
+
+        document.getElementById(
+            "game-status-text"
+        ).innerText =
+            `Result: ${winningResultString} (${winningBigSmall})`;
+
+        highlightWinningTargets(
+            winningColor,
+            winningNumber,
+            winningBigSmall
+        );
+
+        await loadUserProfile();
+
+        let centerStatusElem =
+            document.getElementById(
+                "bottom-bar-center-status"
+            );
+
+        if (userParticipated) {
+
+            if (hasUserWon) {
+
+                centerStatusElem.innerHTML =
+                    `<span class="text-emerald-400 inline-block">
+                        Win ৳${userWonAmount.toFixed(2)}
+                    </span>`;
+
+                playVoiceMessage(
+                    "congratulation winner"
+                );
+
+            } else {
+
+                centerStatusElem.innerHTML =
+                    `<span class="text-rose-500 inline-block">
+                        Lost
+                    </span>`;
+
+                playVoiceMessage(
+                    "better luck next time"
+                );
+            }
+
+        } else {
+
+            centerStatusElem.innerHTML =
+                "";
+        }
+
+        currentPeriodNumber =
+            String(
+                parseInt(
+                    currentPeriodNumber,
+                    10
+                ) + 1
+            );
+
+        renderPeriodNumber();
+
+        await ensureCurrentPeriodExists();
+
+        if (activeTab) {
+            loadHistoryData(
+                activeTab
+            );
+        }
+
+        startTimer();
+    }
+</script>
+
+</body>
+</html>
