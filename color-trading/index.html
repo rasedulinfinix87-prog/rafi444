@@ -1,138 +1,218 @@
-<!-- Top Navigation Bar Container -->
-<header class="w-full bg-[#0f141c] border-b border-[#222b3a] px-4 py-2.5 flex items-center justify-between text-white select-none">
-
+<!-- Top Navigation Bar Container --><header class="w-full bg-[#0f141c] border-b border-[#222b3a] px-4 py-2.5 flex items-center justify-between text-white select-none">
   <div class="flex items-center gap-3">
-    <button
-      id="hamburgerBtn"
-      onclick="toggleSidebar()"
-      class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-[#222b3a] transition focus:outline-none"
-    >
-      <svg
-        class="w-6 h-6"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 6h16M4 12h16M4 18h16"
-        ></path>
+    <button id="hamburgerBtn" onclick="toggleSidebar()" class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-[#222b3a] transition focus:outline-none">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
       </svg>
     </button>
-  </div>
+  </div>  <div class="flex items-center gap-3">
+    <div class="flex items-center bg-[#0f141c] border border-[#222b3a] rounded-lg p-1 text-xs">
+      <div class="flex items-center gap-1.5 px-2.5 py-1">
+        <span class="w-2 h-2 rounded-full bg-[#24ee89] animate-pulse"></span>
+        <span class="text-[#24ee89] font-bold text-sm">৳</span>
+        <span id="topBarBalance" class="font-extrabold text-white text-sm">0.00</span>
+      </div>  <a href="account/deposit.html" id="depositLinkBtn" class="green-btn font-extrabold p-1.5 rounded-md transition flex items-center justify-center shadow-md">
+    <svg class="w-4 h-4 text-[#0f141c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+    </svg>
+  </a>
+</div>
 
-  <div class="flex items-center gap-3">
+<div class="relative">
+  <button id="notifBtn" onclick="toggleNotifications()" class="relative p-2 text-gray-400 hover:text-white rounded-lg hover:bg-[#222b3a] transition focus:outline-none">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+    </svg>
+    <span id="notifBadge" class="absolute top-1.5 right-1.5 w-2 h-2 bg-[#24ee89] rounded-full ring-2 ring-[#0f141c]"></span>
+  </button>
 
-    <!-- Deposit Button -->
-    <a
-      href="account/deposit.html"
-      id="depositLinkBtn"
-      class="green-btn font-extrabold p-1.5 rounded-md transition flex items-center justify-center shadow-md"
-    >
-      <svg
-        class="w-4 h-4 text-[#0f141c]"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2.5"
-          d="M12 4v16m8-8H4"
-        ></path>
-      </svg>
-    </a>
-
-    <!-- Notifications -->
-    <div class="relative">
-
-      <button
-        id="notifBtn"
-        onclick="toggleNotifications()"
-        class="relative p-2 text-gray-400 hover:text-white rounded-lg hover:bg-[#222b3a] transition focus:outline-none"
-      >
-        <svg
-          class="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-          ></path>
-        </svg>
-
-        <span
-          id="notifBadge"
-          class="absolute top-1.5 right-1.5 w-2 h-2 bg-[#24ee89] rounded-full ring-2 ring-[#0f141c]"
-        ></span>
-      </button>
-
-      <!-- Notification Dropdown -->
-      <div
-        id="notifDropdown"
-        class="hidden absolute right-0 mt-2 w-72 bg-[#171d28] border border-[#222b3a] rounded-xl shadow-2xl z-50 overflow-hidden"
-      >
-
-        <div class="p-3 border-b border-[#222b3a] flex justify-between items-center">
-          <span class="text-xs font-bold text-gray-300">
-            Notifications
-          </span>
-
-          <button
-            onclick="clearNotifications()"
-            class="text-[10px] text-gray-500 hover:text-gray-300"
-          >
-            Mark as read
-          </button>
-        </div>
-
-        <div
-          id="notifList"
-          class="max-h-60 overflow-y-auto p-2 text-xs space-y-2 text-gray-400"
-        >
-          <div class="p-2 bg-[#0f141c] rounded-lg border border-[#222b3a]">
-
-            <p class="text-white font-medium text-[11px]">
-              Welcome Bonus Received!
-            </p>
-
-            <span class="text-[9px] text-gray-500">
-              Your initial deposit bonus has been credited.
-            </span>
-
-          </div>
-        </div>
-
+  <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-72 bg-[#171d28] border border-[#222b3a] rounded-xl shadow-2xl z-50 overflow-hidden">
+    <div class="p-3 border-b border-[#222b3a] flex justify-between items-center">
+      <span class="text-xs font-bold text-gray-300">Notifications</span>
+      <button onclick="clearNotifications()" class="text-[10px] text-gray-500 hover:text-gray-300">Mark as read</button>
+    </div>
+    <div id="notifList" class="max-h-60 overflow-y-auto p-2 text-xs space-y-2 text-gray-400">
+      <div class="p-2 bg-[#0f141c] rounded-lg border border-[#222b3a]">
+        <p class="text-white font-medium text-[11px]">Welcome Bonus Received!</p>
+        <span class="text-[9px] text-gray-500">Your initial deposit bonus has been credited.</span>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Profile Button -->
-    <a
-      href="mem/member.html"
-      id="profileLinkBtn"
-      class="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-[#222b3a] transition border border-[#222b3a] flex items-center justify-center bg-[#0f141c]"
-    >
-      <svg
-        class="w-5 h-5 text-gray-300"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-        ></path>
-      </svg>
-    </a>
+<a href="mem/member.html" id="profileLinkBtn" class="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-[#222b3a] transition border border-[#222b3a] flex items-center justify-center bg-[#0f141c]">
+  <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+  </svg>
+</a>
 
   </div>
-</header>
+</header><script>
+(function () {
+  'use strict';
+
+  let balanceSyncInProgress = false;
+  let balanceRefreshTimer = null;
+  let profileChannel = null;
+
+  function getTopBarSupabaseClient() {
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+      return supabaseClient;
+    }
+
+    return null;
+  }
+
+  async function syncTopBarBalance() {
+    if (balanceSyncInProgress) return;
+
+    const balanceElement = document.getElementById('topBarBalance');
+    if (!balanceElement) return;
+
+    balanceSyncInProgress = true;
+
+    try {
+      const storedUser = localStorage.getItem('current_user');
+
+      if (!storedUser) {
+        balanceElement.textContent = '0.00';
+        return;
+      }
+
+      let currentUserObj;
+
+      try {
+        currentUserObj = JSON.parse(storedUser);
+      } catch (error) {
+        console.error('Top bar: invalid current_user data.', error);
+        return;
+      }
+
+      const userId =
+        currentUserObj.id ||
+        currentUserObj.user_id ||
+        currentUserObj.uid;
+
+      if (!userId) {
+        console.error('Top bar: user ID not found.');
+        return;
+      }
+
+      const client = getTopBarSupabaseClient();
+
+      if (!client) {
+        console.error(
+          'Top bar: supabaseClient not found. Load supabase-config.js before top.html.'
+        );
+        return;
+      }
+
+      const { data: profile, error } = await client
+        .from('profiles')
+        .select('id, balance')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Top bar balance load error:', error);
+        return;
+      }
+
+      if (!profile) {
+        console.error('Top bar: profile not found for user ID:', userId);
+        return;
+      }
+
+      const balance = Number(profile.balance);
+
+      if (profile.balance !== null &&
+          profile.balance !== undefined &&
+          Number.isFinite(balance)) {
+        balanceElement.textContent = balance.toFixed(2);
+      } else {
+        console.error('Top bar: invalid profile balance:', profile.balance);
+      }
+    } catch (error) {
+      console.error('Top bar balance synchronization error:', error);
+    } finally {
+      balanceSyncInProgress = false;
+    }
+  }
+
+  function subscribeToTopBarBalance() {
+    const client = getTopBarSupabaseClient();
+    if (!client) return;
+
+    const storedUser = localStorage.getItem('current_user');
+    if (!storedUser) return;
+
+    let user;
+
+    try {
+      user = JSON.parse(storedUser);
+    } catch (_) {
+      return;
+    }
+
+    const userId = user.id || user.user_id || user.uid;
+    if (!userId) return;
+
+    if (profileChannel) {
+      client.removeChannel(profileChannel);
+      profileChannel = null;
+    }
+
+    profileChannel = client
+      .channel('top-bar-balance-' + userId)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: 'id=eq.' + userId
+        },
+        function (payload) {
+          const balanceElement = document.getElementById('topBarBalance');
+          const newBalance = Number(payload.new && payload.new.balance);
+
+          if (
+            balanceElement &&
+            payload.new &&
+            payload.new.balance !== null &&
+            payload.new.balance !== undefined &&
+            Number.isFinite(newBalance)
+          ) {
+            balanceElement.textContent = newBalance.toFixed(2);
+          } else {
+            syncTopBarBalance();
+          }
+        }
+      )
+      .subscribe();
+  }
+
+  function startTopBarBalanceSync() {
+    syncTopBarBalance();
+    subscribeToTopBarBalance();
+
+    if (balanceRefreshTimer) {
+      clearInterval(balanceRefreshTimer);
+    }
+
+    balanceRefreshTimer = setInterval(syncTopBarBalance, 5000);
+
+    window.addEventListener('focus', syncTopBarBalance);
+
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) syncTopBarBalance();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startTopBarBalanceSync);
+  } else {
+    startTopBarBalanceSync();
+  }
+})();
+</script>
