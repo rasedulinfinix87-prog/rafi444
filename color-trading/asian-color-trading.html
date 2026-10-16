@@ -307,6 +307,13 @@ function getModeHistoryTableName(){
   return 'color_game_history';
 }
 
+function getTimerColumnName(){
+  if(selectedGameDuration === 30) return 't_30_second_timer';
+  if(selectedGameDuration === 60) return 't_1_minute_timer';
+  if(selectedGameDuration === 300) return 't_5_minute_timer';
+  return null; // 15s মোডের জন্য আলাদা কলাম বা সাধারণ হিস্ট্রি
+}
+
 function showActionToast(message, targetElemId){
   const toast = document.getElementById('action-toast');
   toast.innerText = message;
@@ -507,7 +514,14 @@ async function executeBetPlacement(target,amount){
  document.getElementById("wallet-main-balance").innerText=bal;
  currentRoundTotalBet+=amount;document.getElementById("bar-total-bet").innerText=currentRoundTotalBet.toFixed(2);
  let histTable = getModeHistoryTableName();
- const {data:insertedData,error:betInsertError}=await supabaseClient.from(histTable).insert([{user_id:currentUser.id,period_number:currentPeriodNumber,bet_type:target,bet_amount:amount,status:'pending'}]).select();
+ 
+ let insertObj = {user_id:currentUser.id,period_number:currentPeriodNumber,bet_type:target,bet_amount:amount,status:'pending'};
+ const timerCol = getTimerColumnName();
+ if(timerCol){
+   insertObj[timerCol] = target; // নির্দিষ্ট কলামে বেট সেভ করা
+ }
+
+ const {data:insertedData,error:betInsertError}=await supabaseClient.from(histTable).insert([insertObj]).select();
  if(betInsertError){console.error("Bet history insert error:",betInsertError);alert("Bet history could not be saved. Please contact support.");return}
  const newDbId=insertedData&&insertedData[0]?insertedData[0].id:null;
  lastPlacedBet={target,amount};userActiveBets.push({db_id:newDbId,target,amount});updateBetBadgesUI();await updatePeriodAmounts(amount,target);
@@ -604,7 +618,15 @@ async function loadHistoryData(type){
   container.innerHTML=html;
  }else if(type==='my-history'){
   let histTable = getModeHistoryTableName();
-  const {data,error}=await supabaseClient.from(histTable).select("*").eq("user_id",currentUser.id).ilike("period_number", basePeriodPrefix + "%").order("created_at",{ascending:false}).limit(10);
+  let query = supabaseClient.from(histTable).select("*").eq("user_id",currentUser.id).ilike("period_number", basePeriodPrefix + "%");
+  
+  // নির্দিষ্ট টাইম ফ্রেমের কলাম ফিল্টারিং
+  const timerCol = getTimerColumnName();
+  if(timerCol){
+    query = query.not(timerCol, 'is', null);
+  }
+
+  const {data,error}=await query.order("created_at",{ascending:false}).limit(10);
   if(error){container.innerHTML=`<p class="text-center text-rose-400 py-4">Unable to load My History. Please check the database.</p>`;return}
   if(!data||!data.length){container.innerHTML=`<p class="text-center text-slate-500 py-4">No bets found</p>`;return}
   
@@ -624,6 +646,9 @@ async function loadHistoryData(type){
    const statusColor=status==='win'?'text-emerald-400 font-bold':status==='loss'?'text-rose-400 font-bold':'text-amber-400 font-bold';
    const statusLabel=status==='win'?'WIN':status==='loss'?'LOSS':'PENDING';
    
+   // নির্দিষ্ট কলাম থেকে বেট টাইপ রিড করা
+   const actualBetType = timerCol ? row[timerCol] : row.bet_type;
+
    const pInfo = periodMap[row.period_number];
    let num = pInfo && pInfo.winning_number !== null && pInfo.winning_number !== undefined ? Number(pInfo.winning_number) : null;
    let color = pInfo && pInfo.winning_color ? pInfo.winning_color : '';
@@ -648,7 +673,7 @@ async function loadHistoryData(type){
    const dateStr = Number.isNaN(dt.getTime()) ? 'N/A' : dt.toLocaleDateString('en-GB',{timeZone:'Asia/Dhaka',day:'2-digit',month:'2-digit',year:'numeric'});
    const timeStr = Number.isNaN(dt.getTime()) ? 'N/A' : dt.toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
 
-   html+=`<tr><td class="font-mono text-amber-300">${escapeHtml(row.period_number||'—')}</td><td class="font-bold text-white">${escapeHtml(row.bet_type||'—')}</td><td class="font-mono text-slate-200">৳${Number(row.bet_amount||0).toFixed(2)}</td><td class="${statusColor}">${statusLabel}</td><td>${resultNumberHtml}</td><td>${resultColorHtml}</td><td>${bsHtml}</td><td class="date-cell"><div>${escapeHtml(dateStr)}</div><div class="text-slate-400">${escapeHtml(timeStr)}</div></td></tr>`;
+   html+=`<tr><td class="font-mono text-amber-300">${escapeHtml(row.period_number||'—')}</td><td class="font-bold text-white">${escapeHtml(actualBetType||'—')}</td><td class="font-mono text-slate-200">৳${Number(row.bet_amount||0).toFixed(2)}</td><td class="${statusColor}">${statusLabel}</td><td>${resultNumberHtml}</td><td>${resultColorHtml}</td><td>${bsHtml}</td><td class="date-cell"><div>${escapeHtml(dateStr)}</div><div class="text-slate-400">${escapeHtml(timeStr)}</div></td></tr>`;
   });
   html+=`</tbody></table></div>`;
   container.innerHTML=html;
@@ -680,15 +705,21 @@ async function processRoundResult(){
  else if(green<=red&&green<=violet)winningColor='Green';else if(red<=green&&red<=violet)winningColor='Red';else winningColor='Violet';
  const numbersMap={Green:[1,3,7,9],Red:[2,4,6,8],Violet:[0,5]},possibleNums=numbersMap[winningColor],winningNumber=possibleNums[Math.floor(Math.random()*possibleNums.length)],winningBigSmall=winningNumber>=5?'Big':'Small',winningResultString=`${winningColor}-${winningNumber}`;
  await supabaseClient.from(tableName).update({winning_color:winningColor,winning_number:winningNumber,status:'completed'}).eq("period_number",currentPeriodNumber);
+ 
  const {data:allBets}=await supabaseClient.from(histTable).select("*").eq("period_number",currentPeriodNumber).eq("status",'pending');
  let userWonAmount=0,hasUserWon=false,userParticipated=false,userWinsMap={};
+ 
  if(allBets&&allBets.length)for(let bet of allBets){
-  let isWin=false,multiplier=2;if(bet.bet_type==='Red')multiplier=1.9;else if(bet.bet_type==='Violet')multiplier=4.5;else if(bet.bet_type==='Big'||bet.bet_type==='Small')multiplier=1.9;else if(!isNaN(bet.bet_type))multiplier=9;
-  if(bet.bet_type===winningColor||bet.bet_type===String(winningNumber)||bet.bet_type===winningBigSmall)isWin=true;
+  const timerCol = getTimerColumnName();
+  const currentBetType = timerCol ? bet[timerCol] : bet.bet_type;
+  if(!currentBetType) continue; // যদি এই টাইমারের বেট না হয়
+
+  let isWin=false,multiplier=2;if(currentBetType==='Red')multiplier=1.9;else if(currentBetType==='Violet')multiplier=4.5;else if(currentBetType==='Big'||currentBetType==='Small')multiplier=1.9;else if(!isNaN(currentBetType))multiplier=9;
+  if(currentBetType===winningColor||currentBetType===String(winningNumber)||currentBetType===winningBigSmall)isWin=true;
   if(bet.user_id===currentUser.id)userParticipated=true;
   if(isWin){
    const payoutAmount=bet.bet_amount*multiplier;
-   if(bet.user_id===currentUser.id){userWonAmount+=payoutAmount;hasUserWon=true;const totalTargetWinReturn=bet.bet_amount+payoutAmount;userWinsMap[bet.bet_type]=(userWinsMap[bet.bet_type]||0)+totalTargetWinReturn}
+   if(bet.user_id===currentUser.id){userWonAmount+=payoutAmount;hasUserWon=true;const totalTargetWinReturn=bet.bet_amount+payoutAmount;userWinsMap[currentBetType]=(userWinsMap[currentBetType]||0)+totalTargetWinReturn}
    await supabaseClient.from(histTable).update({winning_result:winningResultString,payout:payoutAmount,status:'win'}).eq("id",bet.id);
    const {data:targetProfile}=await supabaseClient.from("profiles").select("balance").eq("id",bet.user_id).single();
    if(targetProfile){const updatedBal=Number(targetProfile.balance)+payoutAmount;await supabaseClient.from("profiles").update({balance:updatedBal}).eq("id",bet.user_id)}
