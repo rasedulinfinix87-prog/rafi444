@@ -146,6 +146,77 @@
         }
 
         /* =========================
+           POPUP MODAL (Bottom Sheet Style)
+        ========================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 430px;
+            background: #101a21;
+            border-top: 1px solid #27363f;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+            animation: slideUpModal 0.3s ease-out;
+        }
+
+        @keyframes slideUpModal {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid #1c2931;
+        }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 900;
+            color: #f8fafc;
+        }
+
+        .modal-close-btn {
+            background: #18252d;
+            border: 1px solid #2d3e48;
+            color: #cbd5df;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 15px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* =========================
            MAIN
         ========================== */
 
@@ -711,42 +782,8 @@
         }
 
         /* =========================
-           HISTORY
+           HISTORY & MODAL TABLES
         ========================== */
-
-        .history-panel {
-            margin-top: 12px;
-            background: #101a21;
-            border: 1px solid #27363f;
-            border-radius: 21px;
-            padding: 9px;
-        }
-
-        .history-tabs {
-            display: none;
-        }
-
-        .history-tab {
-            height: 39px;
-            border: 0;
-            border-radius: 11px;
-            background: transparent;
-            color: #81909a;
-            font-size: 11px;
-            font-weight: 850;
-        }
-
-        .history-tab.active {
-            background: linear-gradient(180deg, #f0c93d, #d9a91b);
-            color: #141414;
-        }
-
-        .history-content {
-            margin-top: 9px;
-            border-radius: 15px;
-            background: #0a1116;
-            overflow: auto;
-        }
 
         .history-table {
             min-width: 100%;
@@ -1039,16 +1076,16 @@
         </div>
 
         <div class="header-actions">
-            <!-- Bet History Symbol & Menu Toggle -->
-            <div class="top-icon" onclick="toggleTopMenu()" title="Bet History & Statistics">📊</div>
+            <!-- Bet History Symbol -->
+            <div class="top-icon" onclick="openModal('game-history')" title="Bet History">📊</div>
             <!-- Statistics Symbol -->
-            <div class="top-icon" onclick="switchTab('chart')" title="Statistics">📈</div>
+            <div class="top-icon" onclick="openModal('chart')" title="Statistics">📈</div>
 
-            <!-- Top Dropdown Menu -->
+            <!-- Top Dropdown Menu if needed -->
             <div id="top-dropdown-menu" class="top-dropdown">
-                <button onclick="switchTab('game-history'); toggleTopMenu();">Game History</button>
-                <button onclick="switchTab('my-history'); toggleTopMenu();">My History</button>
-                <button onclick="switchTab('chart'); toggleTopMenu();">Statistics</button>
+                <button onclick="openModal('game-history'); toggleTopMenu();">Game History</button>
+                <button onclick="openModal('my-history'); toggleTopMenu();">My History</button>
+                <button onclick="openModal('chart'); toggleTopMenu();">Statistics</button>
             </div>
         </div>
     </div>
@@ -1386,21 +1423,20 @@
 
         </section>
 
-        <!-- HISTORY -->
-        <section class="history-panel">
-
-            <div id="tab-content"
-                 class="history-content max-h-72 overflow-auto">
-
-                <p class="text-center text-slate-500 py-3">
-                    Loading...
-                </p>
-
-            </div>
-
-        </section>
-
     </main>
+
+    <!-- POPUP MODAL FOR HISTORY / STATISTICS -->
+    <div id="custom-popup-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="modal-title-text" class="modal-title">History & Statistics</span>
+                <button class="modal-close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <div id="modal-body-content" class="modal-body">
+                <p class="text-center text-slate-500 py-3">Loading...</p>
+            </div>
+        </div>
+    </div>
 
     <!-- BOTTOM BAR -->
     <div class="bottom-fixed-bar">
@@ -1438,7 +1474,7 @@
     let timerSeconds = 15;
     let timerInterval = null;
 
-    let activeTab = 'game-history';
+    let activeModalTab = 'game-history';
     let selectedChartDuration = 15;
     let selectedChipAmount = 20;
     let lastPlacedBet = null;
@@ -1447,7 +1483,7 @@
 
     function toggleTopMenu() {
         const menu = document.getElementById('top-dropdown-menu');
-        menu.classList.toggle('show');
+        if (menu) menu.classList.toggle('show');
     }
 
     window.addEventListener('click', function(e) {
@@ -1459,6 +1495,29 @@
         }
     });
 
+    // Modal Control Functions
+    function openModal(tabName) {
+        activeModalTab = tabName;
+        const modal = document.getElementById('custom-popup-modal');
+        const titleElem = document.getElementById('modal-title-text');
+
+        if (tabName === 'game-history') {
+            titleElem.innerText = 'Game History';
+        } else if (tabName === 'my-history') {
+            titleElem.innerText = 'My Bet History';
+        } else if (tabName === 'chart') {
+            titleElem.innerText = 'Statistics & Percentages';
+        }
+
+        modal.classList.add('show');
+        loadHistoryData(tabName);
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('custom-popup-modal');
+        modal.classList.remove('show');
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
         renderPeriodNumber();
 
@@ -1468,7 +1527,6 @@
             await loadUserProfile();
             await ensureCurrentPeriodExists();
             startTimer();
-            loadHistoryData('game-history');
             initRealtimeSubscription();
         }
     });
@@ -1501,8 +1559,9 @@
                     table: 'color_periods'
                 }, payload => {
                     if (payload.new && payload.new.status === 'completed') {
-                        if (activeTab) {
-                            loadHistoryData(activeTab);
+                        const modal = document.getElementById('custom-popup-modal');
+                        if (modal && modal.classList.contains('show') && activeModalTab) {
+                            loadHistoryData(activeModalTab);
                         }
                     }
                 })
@@ -1510,10 +1569,10 @@
         }
 
         setInterval(() => {
-            if (activeTab &&
-                (activeTab === 'chart' ||
-                 activeTab === 'game-history')) {
-                loadHistoryData(activeTab);
+            const modal = document.getElementById('custom-popup-modal');
+            if (modal && modal.classList.contains('show') && activeModalTab &&
+                (activeModalTab === 'chart' || activeModalTab === 'game-history')) {
+                loadHistoryData(activeModalTab);
             }
         }, 5000);
     }
@@ -1752,7 +1811,8 @@
         document.getElementById("game-status-text").innerText =
             `Successfully placed ৳${amount} on ${target}!`;
 
-        if (activeTab === 'my-history') {
+        const modal = document.getElementById('custom-popup-modal');
+        if (modal && modal.classList.contains('show') && activeModalTab === 'my-history') {
             loadHistoryData('my-history');
         }
     }
@@ -2135,13 +2195,6 @@
             }, 1000);
     }
 
-    function switchTab(tabName) {
-        activeTab = tabName;
-        const container = document.getElementById("tab-content");
-        container.classList.remove("hidden");
-        loadHistoryData(tabName);
-    }
-
     function escapeHtml(value) {
         return String(value ?? '')
             .replace(/[&<>"']/g, char => ({
@@ -2266,36 +2319,16 @@
         };
     }
 
-    async function switchChartDuration(duration) {
-        selectedChartDuration =
-            duration;
-
-        loadHistoryData('chart');
-    }
-
     async function loadHistoryData(type) {
         let container =
             document.getElementById(
-                "tab-content"
+                "modal-body-content"
             );
 
         if (!type) return;
 
-        container.classList.remove(
-            "hidden"
-        );
-
-        if (
-            !container.innerHTML.includes(
-                "table"
-            ) &&
-            !container.innerHTML.includes(
-                "trend-grid-container"
-            )
-        ) {
-            container.innerHTML =
-                `<p class="text-center text-slate-500 py-3">Loading...</p>`;
-        }
+        container.innerHTML =
+            `<p class="text-center text-slate-500 py-3">Loading...</p>`;
 
         if (type === 'game-history') {
 
@@ -2576,15 +2609,6 @@
                     </table>
 
                 </div>
-
-                <div class="m-2.5 p-2.5 rounded-xl bg-[#111b22] border border-slate-800">
-
-                    <p class="text-[9.5px] text-slate-400 leading-relaxed">
-                        Result No., Result Color এবং Big/Small দেখানোর জন্য
-                        সংশ্লিষ্ট রাউন্ডের ফলাফল ডাটাবেসে সংরক্ষিত থাকতে হবে।
-                    </p>
-
-                </div>
             `;
 
             container.innerHTML =
@@ -2706,7 +2730,7 @@
             }
 
             container.innerHTML = `
-                <div class="p-2 space-y-3">
+                <div class="p-2 space-y-4">
 
                     <div class="overflow-x-auto">
                         <div class="trend-grid-container">
@@ -3309,10 +3333,9 @@
 
         await ensureCurrentPeriodExists();
 
-        if (activeTab) {
-            loadHistoryData(
-                activeTab
-            );
+        const modal = document.getElementById('custom-popup-modal');
+        if (modal && modal.classList.contains('show') && activeModalTab) {
+            loadHistoryData(activeModalTab);
         }
 
         startTimer();
