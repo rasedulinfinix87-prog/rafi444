@@ -383,16 +383,41 @@ document.addEventListener("DOMContentLoaded",async()=>{
  currentUser=await requireAuth();
  if(!currentUser){ window.location.href='login-signup.html'; return; }
  await loadUserProfile();
- await ensureCurrentPeriodExists();
+ await updatePeriodAndTimerState();
  await loadRecentWinsUI();
  startTimer();
  initRealtimeSubscription();
 });
 
+async function updatePeriodAndTimerState(){
+ const now = Math.floor(Date.now() / 1000);
+ const periodIndex = Math.floor(now / selectedGameDuration);
+ 
+ const basePeriodId = 2026101500;
+ currentPeriodNumber = String(basePeriodId + periodIndex);
+ renderPeriodNumber();
+ 
+ timerSeconds = selectedGameDuration - (now % selectedGameDuration);
+ if(timerSeconds <= 0) timerSeconds = selectedGameDuration;
+
+ await ensureCurrentPeriodExists();
+}
+
 async function ensureCurrentPeriodExists(){
  let tableName = getModeTableName();
  let {data:periodData}=await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).maybeSingle();
- if(!periodData)await supabaseClient.from(tableName).insert([{period_number:currentPeriodNumber,total_green_amount:0,total_red_amount:0,total_violet_amount:0,status:'pending'}])
+ if(!periodData){
+   await supabaseClient.from(tableName).insert([{period_number:currentPeriodNumber,total_green_amount:0,total_red_amount:0,total_violet_amount:0,status:'pending'}]);
+ } else if(periodData.status === 'completed') {
+   const now = Math.floor(Date.now() / 1000);
+   const periodIndex = Math.floor(now / selectedGameDuration) + 1;
+   currentPeriodNumber = String(2026101500 + periodIndex);
+   renderPeriodNumber();
+   let {data:nextPeriodData} = await supabaseClient.from(tableName).select("*").eq("period_number",currentPeriodNumber).maybeSingle();
+   if(!nextPeriodData){
+     await supabaseClient.from(tableName).insert([{period_number:currentPeriodNumber,total_green_amount:0,total_red_amount:0,total_violet_amount:0,status:'pending'}]);
+   }
+ }
 }
 
 async function loadRecentWinsUI(){
@@ -415,12 +440,16 @@ async function loadRecentWinsUI(){
 
 function initRealtimeSubscription(){
  if(typeof supabaseClient!=='undefined'&&supabaseClient.channel){
-  supabaseClient.channel('public:color_periods_all').on('postgres_changes',{event:'UPDATE',schema:'public',table:'color_periods'},payload=>{
-   if(selectedGameDuration===15 && payload.new&&payload.new.status==='completed'){
-     loadRecentWinsUI();
-     const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);
-   }
-  }).subscribe()
+  ['color_periods', 'color_periods_30s', 'color_periods_1m', 'color_periods_5s', 'color_periods_300s', 'color_periods_60s', 'color_periods_300'].forEach(tbl => {
+    try {
+      supabaseClient.channel('public:'+tbl).on('postgres_changes',{event:'UPDATE',schema:'public',table:tbl},payload=>{
+       if(payload.new && payload.new.status==='completed'){
+         loadRecentWinsUI();
+         const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);
+       }
+      }).subscribe();
+    } catch(e){}
+  });
  }
  setInterval(()=>{
    loadRecentWinsUI();
@@ -508,13 +537,11 @@ async function loadUserProfile(){
 }
 
 async function changeGameMode(duration,modeKey){
- selectedGameDuration=duration;timerSeconds=duration;currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";document.getElementById("bottom-bar-center-status").innerHTML="";
+ selectedGameDuration=duration;
+ currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";document.getElementById("bottom-bar-center-status").innerHTML="";
  ['15s','30s','1m','5m'].forEach(key=>{const btn=document.getElementById(`mode-${key}`),txt=document.getElementById(`text-${key}`);if(key===modeKey){btn.className="mode-button active-mode";txt.className="text-[10px] font-bold text-white"}else{btn.className="mode-button";txt.className="text-[10px] font-bold text-amber-400"}});
  
- const now = Math.floor(Date.now() / 1000);
- currentPeriodNumber = String(2026101500 + Math.floor(now / duration));
- renderPeriodNumber();
- await ensureCurrentPeriodExists();
+ await updatePeriodAndTimerState();
  await loadRecentWinsUI();
  startTimer();
 }
@@ -534,23 +561,21 @@ function highlightWinningTargets(winningColor,winningNumber,winningBigSmall){
 
 function startTimer(){
  clearInterval(timerInterval);
- const now = Math.floor(Date.now() / 1000);
- timerSeconds = selectedGameDuration - (now % selectedGameDuration);
- if(timerSeconds <= 0) timerSeconds = selectedGameDuration;
-
  const timerElem=document.getElementById("countdown-timer"),timerLabel=document.getElementById("timer-label");
+ 
  function updateMainTimer(){
   const min=Math.floor(timerSeconds/60),sec=timerSeconds%60,timeText=`${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
   timerElem.innerHTML=`<span class="timer-digit">${timeText[0]}</span><span class="timer-digit">${timeText[1]}</span><span class="timer-colon">:</span><span class="timer-digit">${timeText[3]}</span><span class="timer-digit">${timeText[4]}</span>`;
   if(timerSeconds<=5){const center=document.getElementById("bottom-bar-center-status"),s=center.querySelector("span");if(s&&!s.classList.contains("animate-zoom-out")){s.classList.add("animate-zoom-out");setTimeout(()=>center.innerHTML="",1500)}timerElem.classList.add("timer-danger");timerLabel.innerText="NO MORE BET";timerLabel.classList.add("timer-label-danger");if(timerSeconds===5)playVoiceMessage("No more bets")}
   else{timerElem.classList.remove("timer-danger");timerLabel.innerText="PLACE YOUR BET";timerLabel.classList.remove("timer-label-danger")}
  }
+ 
  updateMainTimer();
- timerInterval=setInterval(()=>{
+ timerInterval=setInterval(async ()=>{
    timerSeconds--;
    if(timerSeconds<=0){
      clearInterval(timerInterval);
-     processRoundResult();
+     await processRoundResult();
    }
    updateMainTimer();
  },1000)
@@ -685,10 +710,7 @@ async function processRoundResult(){
    winDisplay.innerHTML = "";
  }
  
- const now = Math.floor(Date.now() / 1000);
- currentPeriodNumber=String(2026101500 + Math.floor(now / selectedGameDuration));
- renderPeriodNumber();
- await ensureCurrentPeriodExists();
+ await updatePeriodAndTimerState();
  loadRecentWinsUI();
  const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);startTimer()
 }
