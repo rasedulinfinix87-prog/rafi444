@@ -879,11 +879,7 @@
         }
 
         .history-tabs {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            padding-bottom: 7px;
-            border-bottom: 1px solid #1b292f;
+            display: none; /* скрыто так как перенесено в меню */
         }
 
         .history-tab {
@@ -1115,7 +1111,7 @@
         }
 
         /* =========================
-           BOTTOM BAR
+           BOTTOM BAR (Updated for height, text size & menu)
         ========================== */
 
         .bottom-fixed-bar {
@@ -1128,13 +1124,79 @@
             background: rgba(8,14,17,.98);
             backdrop-filter: blur(14px);
             border-top: 1px solid #27363c;
-            padding: 12px 18px;
+            padding: 10px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 40;
             font-size: 13px;
-            min-height: 58px;
+            min-height: 60px;
+        }
+
+        /* Menu Dropdown Style */
+        .bottom-menu-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bottom-menu-btn {
+            background: linear-gradient(145deg, #1d2b31, #121c21);
+            border: 1px solid #33434a;
+            color: #e2e8f0;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .bottom-dropdown {
+            position: absolute;
+            bottom: 45px;
+            left: 0;
+            background: #0d1519;
+            border: 1px solid #27363c;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 50;
+            min-width: 140px;
+        }
+
+        .bottom-dropdown.show {
+            display: flex;
+        }
+
+        .bottom-dropdown button {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(39, 54, 60, 0.4);
+            transition: background 0.15s;
+        }
+
+        .bottom-dropdown button:last-child {
+            border-bottom: none;
+        }
+
+        .bottom-dropdown button:hover,
+        .bottom-dropdown button.active {
+            background: #1a272e;
+            color: #f8fafc;
         }
 
         /* =========================
@@ -1672,29 +1734,7 @@
 
         <!-- HISTORY -->
         <div class="history-box">
-
-            <div class="history-tabs">
-
-                <button onclick="switchTab('game-history')"
-                        id="tab-game-history"
-                        class="history-tab active">
-                    Game History
-                </button>
-
-                <button onclick="switchTab('chart')"
-                        id="tab-chart"
-                        class="history-tab">
-                    Statistics
-                </button>
-
-                <button onclick="switchTab('my-history')"
-                        id="tab-my-history"
-                        class="history-tab">
-                    My History
-                </button>
-
-            </div>
-
+            <!-- ট্যাব বাটনগুলো Bottom Bar এ মুভ করা হয়েছে -->
             <div id="tab-content"
                  class="history-content">
                 <p class="text-center text-slate-500 py-3">
@@ -1706,14 +1746,23 @@
 
     </main>
 
-    <!-- BOTTOM BAR -->
+    <!-- BOTTOM BAR (Updated with Function Symbol Menu & Total Bet) -->
     <div class="bottom-fixed-bar">
 
-        <div>
-            <span class="text-slate-400">Total Bet:</span>
-            <span class="text-amber-400 font-mono font-bold">
-                ৳<span id="bar-total-bet">0.00</span>
-            </span>
+        <div class="bottom-menu-container">
+            <button class="bottom-menu-btn" onclick="toggleBottomMenu()" title="Menu">ƒ</button>
+            <div id="bottom-dropdown-menu" class="bottom-dropdown">
+                <button onclick="switchTab('game-history'); toggleBottomMenu();" id="tab-game-history">Game History</button>
+                <button onclick="switchTab('chart'); toggleBottomMenu();" id="tab-chart">Statistics</button>
+                <button onclick="switchTab('my-history'); toggleBottomMenu();" id="tab-my-history">My History</button>
+            </div>
+
+            <div>
+                <span class="text-slate-400">Total Bet:</span>
+                <span class="text-amber-400 font-mono font-bold">
+                    ৳<span id="bar-total-bet">0.00</span>
+                </span>
+            </div>
         </div>
 
         <div id="bottom-bar-center-status"
@@ -1721,9 +1770,10 @@
         </div>
 
         <div>
-            <button onclick="switchTab('game-history')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-xs font-bold transition">
-                <span>⚙</span> Menu
-            </button>
+            <span class="text-slate-400">Balance:</span>
+            <span class="text-emerald-400 font-mono font-bold">
+                ৳<span id="bar-user-balance">0.00</span>
+            </span>
         </div>
 
     </div>
@@ -1744,6 +1794,22 @@
     let lastPlacedBet = null;
     let currentRoundTotalBet = 0;
     let userActiveBets = [];
+
+    // Toggle bottom menu dropdown
+    function toggleBottomMenu() {
+        const menu = document.getElementById('bottom-dropdown-menu');
+        menu.classList.toggle('show');
+    }
+
+    // Close dropdown when clicking outside
+    window.addEventListener('click', function(e) {
+        if (!e.target.closest('.bottom-menu-container')) {
+            const menu = document.getElementById('bottom-dropdown-menu');
+            if (menu && menu.classList.contains('show')) {
+                menu.classList.remove('show');
+            }
+        }
+    });
 
     document.addEventListener("DOMContentLoaded", async () => {
         renderPeriodNumber();
@@ -1847,6 +1913,8 @@
         userProfile.balance = refundedBalance;
 
         let bal = refundedBalance.toFixed(2);
+
+        document.getElementById("bar-user-balance").innerText = bal;
 
         const topBalance = document.getElementById("top-user-balance");
         if (topBalance) {
@@ -1971,6 +2039,8 @@
         userProfile.balance = newBalance;
 
         let bal = newBalance.toFixed(2);
+
+        document.getElementById("bar-user-balance").innerText = bal;
 
         const topBalance = document.getElementById("top-user-balance");
         if (topBalance) {
@@ -2109,6 +2179,10 @@
         if (userProfile) {
             let bal =
                 Number(userProfile.balance).toFixed(2);
+
+            document.getElementById(
+                "bar-user-balance"
+            ).innerText = bal;
 
             const topBalance =
                 document.getElementById("top-user-balance");
@@ -2284,4 +2358,917 @@
                             ) return;
 
                             button.classList.remove(
-                                '
+                                'winning-blink',
+                                'win-blink-green',
+                                'win-blink-red',
+                                'win-blink-violet',
+                                'win-blink-number',
+                                'win-blink-big',
+                                'win-blink-small'
+                            );
+
+                            button.removeEventListener(
+                                'animationend',
+                                removeBlink
+                            );
+                        }
+                    );
+                }
+            });
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+
+        timerSeconds =
+            selectedGameDuration;
+
+        const timerElem =
+            document.getElementById(
+                "countdown-timer"
+            );
+
+        const timerLabel =
+            document.getElementById(
+                "timer-label"
+            );
+
+        function updateMainTimer() {
+
+            if (!timerElem) return;
+
+            const min =
+                Math.floor(timerSeconds / 60);
+
+            const sec =
+                timerSeconds % 60;
+
+            const timeText =
+                `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+
+            timerElem.innerHTML = `
+                <span class="timer-digit">${timeText[0]}</span>
+                <span class="timer-digit">${timeText[1]}</span>
+                <span class="timer-colon">:</span>
+                <span class="timer-digit">${timeText[3]}</span>
+                <span class="timer-digit">${timeText[4]}</span>
+            `;
+
+            if (timerSeconds <= 5) {
+
+                let centerStatusElem =
+                    document.getElementById(
+                        "bottom-bar-center-status"
+                    );
+
+                let statusSpan =
+                    centerStatusElem.querySelector(
+                        "span"
+                    );
+
+                if (
+                    statusSpan &&
+                    !statusSpan.classList.contains(
+                        "animate-zoom-out"
+                    )
+                ) {
+
+                    statusSpan.classList.add(
+                        "animate-zoom-out"
+                    );
+
+                    setTimeout(() => {
+                        centerStatusElem.innerHTML =
+                            "";
+                    }, 1500);
+                }
+
+                timerElem.classList.add(
+                    "timer-danger"
+                );
+
+                if (timerLabel) {
+
+                    timerLabel.innerText =
+                        "NO MORE BET";
+
+                    timerLabel.classList.add(
+                        "timer-label-danger"
+                    );
+                }
+
+                if (timerSeconds === 5) {
+                    playVoiceMessage(
+                        "No more bets"
+                    );
+                }
+
+            } else {
+
+                timerElem.classList.remove(
+                    "timer-danger"
+                );
+
+                if (timerLabel) {
+
+                    timerLabel.innerText =
+                        "PLACE YOUR BET";
+
+                    timerLabel.classList.remove(
+                        "timer-label-danger"
+                    );
+                }
+            }
+        }
+
+        updateMainTimer();
+
+        timerInterval =
+            setInterval(() => {
+
+                timerSeconds =
+                    Math.max(
+                        0,
+                        timerSeconds - 1
+                    );
+
+                updateMainTimer();
+
+                if (timerSeconds <= 0) {
+
+                    clearInterval(
+                        timerInterval
+                    );
+
+                    processRoundResult();
+                }
+
+            }, 1000);
+    }
+
+    function switchTab(tabName) {
+
+        const container =
+            document.getElementById(
+                "tab-content"
+            );
+
+        activeTab = tabName;
+
+        container.classList.remove(
+            "hidden"
+        );
+
+        ['game-history', 'chart', 'my-history']
+            .forEach(t => {
+
+                const btn =
+                    document.getElementById(
+                        `tab-${t}`
+                    );
+
+                if (btn) {
+                    if (t === tabName) {
+                        btn.classList.add("active");
+                    } else {
+                        btn.classList.remove("active");
+                    }
+                }
+            });
+
+        loadHistoryData(tabName);
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(
+                /[&<>"']/g,
+                char => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                })[char]
+            );
+    }
+
+    function getSavedBetResult(row) {
+
+        let savedResult =
+            String(
+                row.winning_result || ''
+            );
+
+        let resultMatch =
+            savedResult.match(
+                /(Green|Red|Violet)\s*[-:]\s*(\d)/i
+            );
+
+        let color =
+            resultMatch
+                ? resultMatch[1]
+                    .charAt(0)
+                    .toUpperCase() +
+                  resultMatch[1]
+                    .slice(1)
+                    .toLowerCase()
+                : (
+                    row.winning_color || ''
+                );
+
+        let number =
+            resultMatch
+                ? Number(resultMatch[2])
+                : (
+                    row.winning_number !== null &&
+                    row.winning_number !== undefined &&
+                    row.winning_number !== ''
+                        ? Number(row.winning_number)
+                        : null
+                );
+
+        if (
+            ![
+                'Green',
+                'Red',
+                'Violet'
+            ].includes(color)
+        ) {
+            color = '';
+        }
+
+        let bigSmall =
+            number !== null &&
+            Number.isFinite(number)
+                ? (
+                    number >= 5
+                        ? 'Big'
+                        : 'Small'
+                )
+                : '';
+
+        let colorClass =
+            color === 'Red'
+                ? 'result-red'
+                : color === 'Green'
+                    ? 'result-green'
+                    : color === 'Violet'
+                        ? 'result-violet'
+                        : '';
+
+        return {
+            color,
+            number,
+            bigSmall,
+            colorClass,
+            hasResult:
+                number !== null &&
+                Number.isFinite(number) &&
+                color !== ''
+        };
+    }
+
+    function formatHistoryDate(dateValue) {
+
+        if (!dateValue) {
+            return {
+                date: 'N/A',
+                time: 'N/A'
+            };
+        }
+
+        const date =
+            new Date(dateValue);
+
+        if (Number.isNaN(date.getTime())) {
+            return {
+                date: 'N/A',
+                time: 'N/A'
+            };
+        }
+
+        return {
+            date: date.toLocaleDateString(
+                'en-GB',
+                {
+                    timeZone: 'Asia/Dhaka',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                }
+            ),
+
+            time: date.toLocaleTimeString(
+                'en-GB',
+                {
+                    timeZone: 'Asia/Dhaka',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                }
+            )
+        };
+    }
+
+    async function switchChartDuration(duration) {
+        selectedChartDuration = duration;
+        loadHistoryData('chart');
+    }
+
+    async function loadHistoryData(type) {
+
+        let container =
+            document.getElementById(
+                "tab-content"
+            );
+
+        if (!type) return;
+
+        container.classList.remove(
+            "hidden"
+        );
+
+        if (
+            !container.innerHTML.includes(
+                "table"
+            ) &&
+            !container.innerHTML.includes(
+                "trend-grid-container"
+            )
+        ) {
+            container.innerHTML =
+                `<p class="text-center text-slate-500 py-3">Loading...</p>`;
+        }
+
+        if (type === 'game-history') {
+
+            let { data, error } =
+                await supabaseClient
+                    .from("color_periods")
+                    .select("*")
+                    .eq("status", "completed")
+                    .order(
+                        "created_at",
+                        { ascending: false }
+                    )
+                    .limit(30);
+
+            if (
+                error ||
+                !data ||
+                data.length === 0
+            ) {
+
+                container.innerHTML =
+                    `<p class="text-center text-slate-500 py-3">No history found</p>`;
+
+                return;
+            }
+
+            let html = `
+                <div class="overflow-x-auto">
+                    <table class="history-table">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-slate-800">
+                                <th>Period</th>
+                                <th>Number</th>
+                                <th>Big/Small</th>
+                                <th>Color</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            data.forEach(row => {
+
+                let bs =
+                    Number(row.winning_number) >= 5
+                        ? 'Big'
+                        : 'Small';
+
+                let colorClass =
+                    row.winning_color === 'Green'
+                        ? 'text-emerald-400'
+                        : (
+                            row.winning_color === 'Red'
+                                ? 'text-rose-500'
+                                : 'text-purple-400'
+                        );
+
+                html += `
+                    <tr class="border-b border-slate-800/40">
+                        <td class="font-mono text-amber-300">
+                            ${escapeHtml(row.period_number)}
+                        </td>
+
+                        <td class="font-bold">
+                            ${escapeHtml(row.winning_number)}
+                        </td>
+
+                        <td class="font-semibold">
+                            ${bs}
+                        </td>
+
+                        <td class="font-bold ${colorClass}">
+                            ${escapeHtml(row.winning_color)}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            container.innerHTML =
+                html;
+
+        } else if (type === 'my-history') {
+
+            let { data, error } =
+                await supabaseClient
+                    .from("color_game_history")
+                    .select("*")
+                    .eq("user_id", currentUser.id)
+                    .order(
+                        "created_at",
+                        { ascending: false }
+                    )
+                    .limit(10);
+
+            if (error) {
+
+                console.error(
+                    "My History error:",
+                    error
+                );
+
+                container.innerHTML =
+                    `<p class="text-center text-rose-400 py-4">
+                        Unable to load My History. Please check the database.
+                    </p>`;
+
+                return;
+            }
+
+            if (!data || data.length === 0) {
+
+                container.innerHTML =
+                    `<p class="text-center text-slate-500 py-4">
+                        No bets found
+                    </p>`;
+
+                return;
+            }
+
+            let html = `
+                <div class="mb-2 text-[10px] text-slate-400">
+                    Showing your latest 10 bets. Scroll horizontally to see all details.
+                </div>
+
+                <div class="history-scroll max-h-64">
+                    <table class="my-history-table">
+                        <thead>
+                            <tr>
+                                <th>Period</th>
+                                <th>Bet</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Result No.</th>
+                                <th>Result Color</th>
+                                <th>Big/Small</th>
+                                <th>Date & Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            data.forEach(row => {
+
+                let status =
+                    String(
+                        row.status || 'pending'
+                    ).toLowerCase();
+
+                let statusColor =
+                    status === 'win'
+                        ? 'text-emerald-400'
+                        : status === 'loss'
+                            ? 'text-rose-400'
+                            : 'text-amber-400';
+
+                let statusLabel =
+                    status === 'win'
+                        ? 'WIN'
+                        : status === 'loss'
+                            ? 'LOSS'
+                            : 'PENDING';
+
+                let result =
+                    getSavedBetResult(row);
+
+                let resultNumberHtml =
+                    result.hasResult
+                        ? `<span class="result-number ${result.colorClass}">
+                            ${result.number}
+                           </span>`
+                        : `<span class="text-slate-500">—</span>`;
+
+                let resultColorHtml =
+                    result.hasResult
+                        ? `
+                            <span class="result-badge ${
+                                result.color === 'Red'
+                                    ? 'bg-rose-900/60 text-rose-300 border border-rose-700'
+                                    : result.color === 'Green'
+                                        ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-700'
+                                        : 'bg-purple-900/60 text-purple-300 border border-purple-700'
+                            }">
+                                ${escapeHtml(
+                                    result.color.toUpperCase()
+                                )}
+                            </span>
+                          `
+                        : `<span class="text-slate-500">—</span>`;
+
+                let bigSmallHtml =
+                    result.hasResult
+                        ? `
+                            <span class="result-badge ${
+                                result.bigSmall === 'Big'
+                                    ? 'bg-amber-900/60 text-amber-300 border border-amber-700'
+                                    : 'bg-blue-900/60 text-blue-300 border border-blue-700'
+                            }">
+                                ${result.bigSmall.toUpperCase()}
+                            </span>
+                          `
+                        : `<span class="text-slate-500">—</span>`;
+
+                let dateTime =
+                    formatHistoryDate(
+                        row.created_at
+                    );
+
+                html += `
+                    <tr>
+
+                        <td class="font-mono text-amber-300">
+                            ${escapeHtml(
+                                row.period_number || '—'
+                            )}
+                        </td>
+
+                        <td class="font-bold text-white">
+                            ${escapeHtml(
+                                row.bet_type || '—'
+                            )}
+                        </td>
+
+                        <td class="font-mono text-slate-200">
+                            ৳${Number(
+                                row.bet_amount || 0
+                            ).toFixed(2)}
+                        </td>
+
+                        <td class="font-bold ${statusColor}">
+                            ${statusLabel}
+                        </td>
+
+                        <td>
+                            ${resultNumberHtml}
+                        </td>
+
+                        <td>
+                            ${resultColorHtml}
+                        </td>
+
+                        <td>
+                            ${bigSmallHtml}
+                        </td>
+
+                        <td class="date-cell">
+                            <div>
+                                ${escapeHtml(
+                                    dateTime.date
+                                )}
+                            </div>
+
+                            <div class="text-slate-400">
+                                ${escapeHtml(
+                                    dateTime.time
+                                )}
+                            </div>
+                        </td>
+
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-2.5 p-2.5 rounded-xl bg-transparent border border-slate-800">
+
+                    <p class="text-[9.5px] text-slate-400 leading-relaxed">
+                        Result No., Result Color এবং Big/Small দেখানোর জন্য
+                        সংশ্লিষ্ট রাউন্ডের ফলাফল ডাটাবেসে সংরক্ষিত থাকতে হবে।
+                    </p>
+
+                </div>
+            `;
+
+            container.innerHTML =
+                html;
+
+        } else if (type === 'chart') {
+
+            let { data, error } =
+                await supabaseClient
+                    .from("color_periods")
+                    .select("*")
+                    .eq("status", "completed")
+                    .order(
+                        "created_at",
+                        { ascending: false }
+                    )
+                    .limit(30);
+
+            let trendBallsHtml = '';
+
+            let bigCount = 0;
+            let smallCount = 0;
+
+            let greenCount = 0;
+            let redCount = 0;
+            let violetCount = 0;
+
+            if (data && data.length > 0) {
+
+                data.forEach(row => {
+
+                    let num =
+                        Number(row.winning_number);
+
+                    if (num >= 5) {
+                        bigCount++;
+                    } else {
+                        smallCount++;
+                    }
+
+                    if (
+                        row.winning_color === 'Green'
+                    ) {
+                        greenCount++;
+                    } else if (
+                        row.winning_color === 'Red'
+                    ) {
+                        redCount++;
+                    } else if (
+                        row.winning_color === 'Violet'
+                    ) {
+                        violetCount++;
+                    }
+
+                    let bgStyle =
+                        row.winning_color === 'Red'
+                            ? '#e11d48'
+                            : (
+                                row.winning_color === 'Green'
+                                    ? '#059669'
+                                    : '#7c3aed'
+                            );
+
+                    trendBallsHtml += `
+                        <div class="trend-ball"
+                             style="background:${bgStyle};">
+                            ${num}
+                        </div>
+                    `;
+                });
+
+            } else {
+
+                trendBallsHtml =
+                    `<p class="text-slate-500 text-center py-2">
+                        কোনো ডাটা পাওয়া যায়নি
+                    </p>`;
+            }
+
+            let total =
+                (data ? data.length : 0) || 1;
+
+            let bigPct =
+                Math.round(
+                    (bigCount / total) * 100
+                );
+
+            let smallPct =
+                100 - bigPct;
+
+            let greenPct =
+                Math.round(
+                    (greenCount / total) * 100
+                );
+
+            let redPct =
+                Math.round(
+                    (redCount / total) * 100
+                );
+
+            let violetPct =
+                100 -
+                (greenPct + redPct);
+
+            if (violetPct < 0) {
+                violetPct = 0;
+            }
+
+            container.innerHTML = `
+                <div class="bg-transparent p-1 space-y-3">
+
+                    <div class="overflow-x-auto pb-1">
+                        <div class="trend-grid-container">
+                            ${trendBallsHtml}
+                        </div>
+                    </div>
+
+                    <div class="h-[1px] w-full bg-slate-800"></div>
+
+                    <div class="space-y-2.5">
+
+                        <div>
+
+                            <div class="flex justify-between text-[11px] font-bold mb-1">
+
+                                <span class="text-amber-400">
+                                    Big: ${bigPct}%
+                                </span>
+
+                                <span class="text-blue-400">
+                                    Small: ${smallPct}%
+                                </span>
+
+                            </div>
+
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex">
+
+                                <div class="bg-amber-500 h-full"
+                                     style="width:${bigPct}%">
+                                </div>
+
+                                <div class="bg-blue-500 h-full"
+                                     style="width:${smallPct}%">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="pt-1">
+
+                            <div class="flex justify-between text-[10.5px] font-bold mb-1">
+
+                                <span class="text-emerald-400">
+                                    Green: ${greenPct}%
+                                </span>
+
+                                <span class="text-purple-400">
+                                    Violet: ${violetPct}%
+                                </span>
+
+                                <span class="text-rose-400">
+                                    Red: ${redPct}%
+                                </span>
+
+                            </div>
+
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex">
+
+                                <div class="bg-emerald-600 h-full"
+                                     style="width:${greenPct}%">
+                                </div>
+
+                                <div class="bg-purple-600 h-full"
+                                     style="width:${violetPct}%">
+                                </div>
+
+                                <div class="bg-rose-600 h-full"
+                                     style="width:${redPct}%">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+        }
+    }
+
+    async function updatePeriodAmounts(
+        amount,
+        target
+    ) {
+
+        let { data: periodData } =
+            await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq(
+                    "period_number",
+                    currentPeriodNumber
+                )
+                .maybeSingle();
+
+        if (!periodData) {
+
+            await supabaseClient
+                .from("color_periods")
+                .insert([{
+                    period_number:
+                        currentPeriodNumber,
+
+                    total_green_amount:
+                        target === 'Green'
+                            ? amount
+                            : 0,
+
+                    total_red_amount:
+                        target === 'Red'
+                            ? amount
+                            : 0,
+
+                    total_violet_amount:
+                        target === 'Violet'
+                            ? amount
+                            : 0,
+
+                    status: 'pending'
+                }]);
+
+        } else {
+
+            let updateField = {};
+
+            if (target === 'Green') {
+
+                updateField.total_green_amount =
+                    Number(
+                        periodData.total_green_amount
+                    ) + amount;
+
+            } else if (target === 'Red') {
+
+                updateField.total_red_amount =
+                    Number(
+                        periodData.total_red_amount
+                    ) + amount;
+
+            } else if (target === 'Violet') {
+
+                updateField.total_violet_amount =
+                    Number(
+                        periodData.total_violet_amount
+                    ) + amount;
+            }
+
+            await supabaseClient
+                .from("color_periods")
+                .update(updateField)
+                .eq(
+                    "period_number",
+                    currentPeriodNumber
+                );
+        }
+    }
+
+    async function processRoundResult() {
+
+        document.getElementById(
+            "game-status-text"
+        ).innerText =
+            "Calculating result...";
+
+        let { data: periodData } =
+            await supabaseClient
+                .from("color_periods")
+                .select("*")
+                .eq(
+                    "period_number",
+                    currentPeriodNumber
+                )
+                .maybeSingle();
+
+        if (!periodData) {
+
+            await ensureCurrentPeriodExists();
+
+            let
