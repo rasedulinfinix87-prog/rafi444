@@ -41,7 +41,7 @@
                 linear-gradient(180deg, #111a21 0%, #0b1218 38%, #071016 100%);
             position: relative;
             overflow-x: hidden;
-            padding-bottom: 90px;
+            padding-bottom: 110px; /* Big/Small কার্ড যেন বটম বারের নিচে ঢাকা না পড়ে, তার জন্য প্যাডিং বাড়ানো হলো */
             box-shadow: 0 0 50px rgba(0,0,0,.45);
         }
 
@@ -883,7 +883,7 @@
         }
 
         /* =========================
-           NEW UPDATED BOTTOM BAR & CHIPS STYLING
+           UPDATED BOTTOM BAR & CLASSIC CHIPS STYLING (MATCHING APP THEME)
         ========================== */
 
         .bottom-fixed-bar {
@@ -894,8 +894,8 @@
             transform: translateX(-50%);
             width: 100%;
             max-width: 430px;
-            background: #5e0d16; /* ছবির থিমের সাথে সামঞ্জস্য রেখে ডিপ রেড ব্যাকগ্রাউন্ড */
-            border-top: 1px solid #801320;
+            background: #111a21; /* ফাইলের মূল ডার্ক ব্যাকগ্রাউন্ড কালারের সাথে সামঞ্জস্য রাখা হলো */
+            border-top: 1px solid #27353d;
             padding: 8px 15px 10px 15px;
             display: flex;
             flex-direction: column;
@@ -916,8 +916,8 @@
             width: 44px;
             height: 44px;
             border-radius: 12px;
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: #18252d;
+            border: 1px solid #2d3e48;
             color: #d5dde2;
             display: flex;
             align-items: center;
@@ -931,8 +931,8 @@
             width: 44px;
             height: 44px;
             border-radius: 12px;
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: #18252d;
+            border: 1px solid #2d3e48;
             color: #d5dde2;
             display: flex;
             align-items: center;
@@ -954,7 +954,7 @@
             font-weight: 950;
         }
 
-        /* Stacked Chips Display in Center (1st Image Style) */
+        /* Stacked Chips Display in Center (Exact Image Design with Classic Token Border) */
         .center-chips-stack {
             position: absolute;
             left: 50%;
@@ -978,8 +978,8 @@
             font-size: 10px;
             font-weight: 900;
             position: absolute;
-            border: 2px dashed rgba(255, 255, 255, 0.7);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+            border: 3px dashed #ffffff; /* ছবির মতো হোয়াইট ড্যাশড ক্যাসিনো বর্ডার */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,255,0.4);
             transition: all 0.3s ease;
         }
 
@@ -999,10 +999,10 @@
 
         .stack-front {
             background: radial-gradient(circle, #ff6b6b 40%, #d91f43 100%);
-            transform: translateX(0) scale(1.1);
+            transform: translateX(0) scale(1.12);
             z-index: 3;
-            border: 3px dashed #fff;
-            box-shadow: 0 0 12px rgba(255, 107, 107, 0.8), 0 4px 10px rgba(0,0,0,0.5);
+            border: 3.5px dashed #ffffff;
+            box-shadow: 0 0 12px rgba(255, 107, 107, 0.8), 0 5px 12px rgba(0,0,0,0.6);
         }
 
         /* Bottom Bar Info Row (Balance & Total Bet) */
@@ -1012,6 +1012,8 @@
             justify-content: space-between;
             font-size: 11px;
             font-weight: 700;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 6px;
         }
 
         .info-box-left, .info-box-right {
@@ -1020,7 +1022,7 @@
         }
 
         .info-title {
-            color: #d1a1a6;
+            color: #9ba9b5;
             font-size: 9px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -1037,7 +1039,7 @@
             white-space: nowrap;
         }
 
-        /* Chip Selection Modal Popup (2nd Image Style) */
+        /* Chip Selection Popup Modal (2nd Image Style) */
         .chips-popup-overlay {
             position: fixed;
             inset: 0;
@@ -1056,8 +1058,8 @@
         .chips-popup-content {
             width: 100%;
             max-width: 430px;
-            background: #5e0d16;
-            border-top: 2px solid #801320;
+            background: #111a21;
+            border-top: 2px solid #27353d;
             border-top-left-radius: 24px;
             border-top-right-radius: 24px;
             padding: 20px 15px 25px 15px;
@@ -1090,7 +1092,7 @@
             font-weight: 900;
             cursor: pointer;
             position: relative;
-            border: 3px dashed rgba(255, 255, 255, 0.7);
+            border: 3.5px dashed #ffffff;
             box-shadow: 0 5px 15px rgba(0,0,0,0.4), inset 0 2px 5px rgba(255,255,255,0.4);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -1445,21 +1447,21 @@
         </div>
     </div>
 
-    <!-- CHIPS SELECTION POPUP MODAL (2ND IMAGE DESIGN) -->
+    <!-- CHIPS SELECTION POPUP MODAL -->
     <div id="chips-popup-modal" class="chips-popup-overlay" onclick="closeChipsPopupOnOutside(event)">
         <div class="chips-popup-content">
             <div class="popup-chips-grid">
-                <div onclick="selectChipFromPopup(20, this)" class="popup-chip-item chip-20 selected-chip">20</div>
-                <div onclick="selectChipFromPopup(50, this)" class="popup-chip-item chip-50">50</div>
-                <div onclick="selectChipFromPopup(100, this)" class="popup-chip-item chip-100">100</div>
-                <div onclick="selectChipFromPopup(500, this)" class="popup-chip-item chip-500">500</div>
-                <div onclick="selectChipFromPopup(1000, this)" class="popup-chip-item chip-1k">1K</div>
-                <div onclick="selectChipFromPopup(10000, this)" class="popup-chip-item chip-10k">10K</div>
+                <div onclick="selectChipFromPopup(20, this)" class="popup-chip-item chip-20 selected-chip" style="background: radial-gradient(circle, #ff6b6b 40%, #d91f43 100%);">20</div>
+                <div onclick="selectChipFromPopup(50, this)" class="popup-chip-item chip-50" style="background: radial-gradient(circle, #38ef7d 40%, #11998e 100%);">50</div>
+                <div onclick="selectChipFromPopup(100, this)" class="popup-chip-item chip-100" style="background: radial-gradient(circle, #f7b733 40%, #fc4a1a 100%);">100</div>
+                <div onclick="selectChipFromPopup(500, this)" class="popup-chip-item chip-500" style="background: radial-gradient(circle, #a8ff78 40%, #78ffd6 100%); color:#111;">500</div>
+                <div onclick="selectChipFromPopup(1000, this)" class="popup-chip-item chip-1k" style="background: radial-gradient(circle, #4facfe 40%, #00f2fe 100%);">1K</div>
+                <div onclick="selectChipFromPopup(10000, this)" class="popup-chip-item chip-10k" style="background: radial-gradient(circle, #c471f5 40%, #fa71cd 100%);">10K</div>
             </div>
         </div>
     </div>
 
-    <!-- UPDATED BOTTOM BAR (1ST IMAGE DESIGN) -->
+    <!-- UPDATED BOTTOM BAR -->
     <div class="bottom-fixed-bar">
         <div class="bottom-bar-top-row">
             <!-- Undo Button -->
@@ -1467,7 +1469,7 @@
                 ↩
             </button>
 
-            <!-- Center Stacked Chips (Clicking opens popup) -->
+            <!-- Center Stacked Chips -->
             <div class="center-chips-stack" onclick="openChipsPopup()" id="center-chips-display">
                 <div class="stacked-chip stack-back-1">100</div>
                 <div class="stacked-chip stack-back-2">500</div>
@@ -1579,14 +1581,12 @@
 
         element.classList.add('selected-chip');
 
-        // Update front active stack chip label
         let labelElem = document.getElementById('active-stack-chip-label');
         if (labelElem) {
             let displayVal = amount >= 1000 ? (amount / 1000) + 'K' : amount;
             labelElem.innerText = displayVal;
         }
 
-        // Apply corresponding background gradient based on amount
         let frontChip = document.querySelector('.stack-front');
         if (frontChip) {
             frontChip.className = "stacked-chip stack-front";
