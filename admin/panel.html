@@ -12,13 +12,19 @@
 
   <style>
     body {
-      background: #0b0e14;
-      color: #fff;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
     }
     .tab-active {
-      background: #24ee89 !important;
-      color: #000 !important;
-      border-color: #24ee89 !important;
+      background: #059669 !important;
+      color: #ffffff !important;
+      border-color: #059669 !important;
     }
     .table-wrap {
       overflow-x: auto;
@@ -34,66 +40,66 @@
 <div class="max-w-7xl mx-auto space-y-5">
 
   <!-- TOP BAR WITH LEFT HAMBURGER MENU -->
-  <header class="flex items-center justify-between gap-3 bg-[#161b22] border border-gray-800 p-4 rounded-2xl relative">
+  <header class="flex items-center justify-between gap-3 glass-card p-4 rounded-2xl relative">
     <div class="flex items-center gap-4">
       <!-- Hamburger Menu on Left -->
-      <button onclick="toggleMenu()" class="p-2.5 bg-[#0b0e14] border border-gray-800 rounded-xl hover:bg-gray-800 transition text-[#24ee89]">
+      <button onclick="toggleMenu()" class="p-2.5 bg-gray-100 border border-gray-200 rounded-xl hover:bg-gray-200 transition text-emerald-600">
         <i class="fa-solid fa-bars text-lg"></i>
       </button>
 
       <div>
-        <h1 class="text-xl font-black">Admin Management Panel</h1>
-        <p class="text-xs text-gray-400 mt-1">BDTMINER Dashboard</p>
+        <h1 class="text-xl font-black text-gray-900">Admin Management Panel</h1>
+        <p class="text-xs text-gray-500 mt-0.5">BDTMINER Dashboard</p>
       </div>
     </div>
 
-    <span class="text-xs bg-emerald-500/10 text-[#24ee89] border border-[#24ee89]/30 px-3 py-2 rounded-full font-bold hidden sm:inline-block">
+    <span class="text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-2 rounded-full font-bold hidden sm:inline-block">
       Live System
     </span>
   </header>
 
-  <!-- RIGHT SIDE SLIDING MODAL / DRAWER -->
-  <div id="sideModalOverlay" class="fixed inset-0 bg-black/60 z-50 hidden transition-opacity" onclick="toggleMenu()"></div>
-  <div id="sideModal" class="fixed top-0 right-0 h-full w-80 bg-[#161b22] border-l border-gray-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col p-5 space-y-6">
-    <div class="flex items-center justify-between border-b border-gray-800 pb-4">
-      <h3 class="text-sm font-bold flex items-center gap-2">
-        <i class="fa-solid fa-sliders text-[#24ee89]"></i> History Management
+  <!-- LEFT SIDE SLIDING MODAL / DRAWER -->
+  <div id="sideModalOverlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 hidden transition-opacity" onclick="toggleMenu()"></div>
+  <div id="sideModal" class="fixed top-0 left-0 h-full w-80 bg-white border-r border-gray-200 shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col p-5 space-y-6">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+      <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
+        <i class="fa-solid fa-sliders text-emerald-600"></i> History Management
       </h3>
-      <button onclick="toggleMenu()" class="text-gray-400 hover:text-white p-1">
+      <button onclick="toggleMenu()" class="text-gray-400 hover:text-gray-700 p-1">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
     </div>
 
     <div class="space-y-3 flex-1 overflow-y-auto">
-      <p class="text-xs text-gray-400">সিলেক্ট করুন কোন হিস্ট্রি ম্যানেজ করতে চান:</p>
+      <p class="text-xs text-gray-500 font-medium">Select history category to manage:</p>
       
-      <button onclick="openHistoryManager('color_game_history')" class="w-full text-left px-4 py-3 bg-[#0b0e14] border border-gray-800 rounded-xl text-xs font-bold hover:border-[#24ee89] transition flex items-center justify-between group">
-        <span class="text-gray-200 group-hover:text-[#24ee89]">Color Trading Bet History</span>
-        <i class="fa-solid fa-chevron-right text-gray-500 text-xs"></i>
+      <button onclick="openHistoryManager('color_game_history')" class="w-full text-left px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold hover:border-emerald-500 transition flex items-center justify-between group">
+        <span class="text-gray-800 group-hover:text-emerald-600">Color Trading Bet History</span>
+        <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
       </button>
 
-      <button onclick="openHistoryManager('color_periods')" class="w-full text-left px-4 py-3 bg-[#0b0e14] border border-gray-800 rounded-xl text-xs font-bold hover:border-[#24ee89] transition flex items-center justify-between group">
-        <span class="text-gray-200 group-hover:text-[#24ee89]">Color Trading Period History</span>
-        <i class="fa-solid fa-chevron-right text-gray-500 text-xs"></i>
+      <button onclick="openHistoryManager('color_periods')" class="w-full text-left px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold hover:border-emerald-500 transition flex items-center justify-between group">
+        <span class="text-gray-800 group-hover:text-emerald-600">Color Trading Period History</span>
+        <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
       </button>
     </div>
 
-    <div class="border-t border-gray-800 pt-4 text-xs text-gray-500 text-center">
+    <div class="border-t border-gray-100 pt-4 text-xs text-gray-400 text-center font-medium">
       BDTMINER Security Panel
     </div>
   </div>
 
   <!-- DYNAMIC HISTORY CLEANUP MODAL (POPUP VIEW) -->
-  <div id="historyManagerModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-[#161b22] border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+  <div id="historyManagerModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
       
       <!-- Modal Header -->
-      <div class="p-4 border-b border-gray-800 flex items-center justify-between bg-[#0f141c]">
+      <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
         <div>
-          <h3 id="managerModalTitle" class="text-sm font-bold">History Management</h3>
-          <p class="text-xs text-gray-400 mt-0.5">সর্বশেষ ২৯টি রেকর্ড আনমার্কড থাকবে, বাকি পুরোনো রেকর্ডগুলো অটো-মার্কড থাকবে।</p>
+          <h3 id="managerModalTitle" class="text-sm font-bold text-gray-900">History Management</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Latest 29 records remain unmarked, older records are auto-selected for deletion.</p>
         </div>
-        <button onclick="closeHistoryManager()" class="p-2 text-gray-400 hover:text-white rounded-lg bg-[#161b22] border border-gray-800">
+        <button onclick="closeHistoryManager()" class="p-2 text-gray-500 hover:text-gray-900 rounded-lg bg-white border border-gray-200">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -101,7 +107,7 @@
       <!-- Modal Body (Table) -->
       <div class="p-4 flex-1 overflow-y-auto table-wrap">
         <table class="w-full text-left text-xs">
-          <thead class="text-gray-400 bg-[#0f141c] sticky top-0">
+          <thead class="text-gray-500 bg-gray-50 sticky top-0">
             <tr>
               <th class="p-3 w-10">Select</th>
               <th class="p-3">ID / Ref</th>
@@ -110,18 +116,18 @@
             </tr>
           </thead>
           <tbody id="managerTableBody">
-            <tr><td colspan="4" class="p-6 text-center text-gray-400">Loading records...</td></tr>
+            <tr><td colspan="4" class="p-6 text-center text-gray-500">Loading records...</td></tr>
           </tbody>
         </table>
       </div>
 
       <!-- Modal Footer -->
-      <div class="p-4 border-t border-gray-800 bg-[#0f141c] flex items-center justify-between">
-        <span id="selectedCountText" class="text-xs text-gray-400 font-bold">0 items selected for deletion</span>
+      <div class="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
+        <span id="selectedCountText" class="text-xs text-gray-600 font-bold">0 items selected for deletion</span>
         <div class="flex gap-2">
-          <button onclick="closeHistoryManager()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-xs font-bold rounded-xl">বাতিল</button>
-          <button onclick="confirmAndDeleteSelected()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5">
-            <i class="fa-solid fa-trash-can"></i> ডিলিট সিলেক্টেড হিস্ট্রি
+          <button onclick="closeHistoryManager()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold rounded-xl transition">Cancel</button>
+          <button onclick="confirmAndDeleteSelected()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-trash-can"></i> Delete Selected History
           </button>
         </div>
       </div>
@@ -134,61 +140,61 @@
   <!-- STAT CARDS -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
 
-    <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl">
-      <p class="text-xs text-gray-400">Pending Deposits</p>
-      <h3 id="statPendingDeposits" class="text-2xl font-black text-amber-400 mt-2">0</h3>
+    <div class="glass-card p-4 rounded-xl">
+      <p class="text-xs text-gray-500 font-medium">Pending Deposits</p>
+      <h3 id="statPendingDeposits" class="text-2xl font-black text-amber-600 mt-2">0</h3>
     </div>
 
-    <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl">
-      <p class="text-xs text-gray-400">Pending Withdrawals</p>
-      <h3 id="statPendingWithdrawals" class="text-2xl font-black text-rose-400 mt-2">0</h3>
+    <div class="glass-card p-4 rounded-xl">
+      <p class="text-xs text-gray-500 font-medium">Pending Withdrawals</p>
+      <h3 id="statPendingWithdrawals" class="text-2xl font-black text-rose-600 mt-2">0</h3>
     </div>
 
-    <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl">
-      <p class="text-xs text-gray-400">Total Users</p>
-      <h3 id="statTotalUsers" class="text-2xl font-black text-cyan-400 mt-2">0</h3>
+    <div class="glass-card p-4 rounded-xl">
+      <p class="text-xs text-gray-500 font-medium">Total Users</p>
+      <h3 id="statTotalUsers" class="text-2xl font-black text-cyan-600 mt-2">0</h3>
     </div>
 
-    <div class="bg-[#161b22] border border-gray-800 p-4 rounded-xl">
-      <p class="text-xs text-gray-400">Total Bets</p>
-      <h3 id="statTotalBets" class="text-2xl font-black text-[#24ee89] mt-2">0</h3>
+    <div class="glass-card p-4 rounded-xl">
+      <p class="text-xs text-gray-500 font-medium">Total Bets</p>
+      <h3 id="statTotalBets" class="text-2xl font-black text-emerald-600 mt-2">0</h3>
     </div>
 
   </div>
 
   <!-- NAVIGATION -->
   <nav class="flex gap-2 overflow-x-auto pb-2">
-    <button id="tabDeposits" onclick="switchTab('deposits')" class="tab-btn tab-active border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">
+    <button id="tabDeposits" onclick="switchTab('deposits')" class="tab-btn tab-active glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
       <i class="fa-solid fa-wallet mr-1"></i> Deposits
     </button>
 
-    <button id="tabWithdrawals" onclick="switchTab('withdrawals')" class="tab-btn bg-[#161b22] border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">
+    <button id="tabWithdrawals" onclick="switchTab('withdrawals')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
       <i class="fa-solid fa-money-bill-transfer mr-1"></i> Withdrawals
     </button>
 
-    <button id="tabUsers" onclick="switchTab('users')" class="tab-btn bg-[#161b22] border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">
+    <button id="tabUsers" onclick="switchTab('users')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
       <i class="fa-solid fa-users mr-1"></i> Users
     </button>
 
-    <button id="tabBets" onclick="switchTab('bets')" class="tab-btn bg-[#161b22] border border-gray-800 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap">
+    <button id="tabBets" onclick="switchTab('bets')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
       <i class="fa-solid fa-dice mr-1"></i> Recent Bets
     </button>
   </nav>
 
-  <main class="bg-[#161b22] border border-gray-800 rounded-2xl p-4">
+  <main class="glass-card rounded-2xl p-4">
 
     <!-- DEPOSITS -->
     <section id="contentDeposits" class="tab-content space-y-4">
       <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold">Deposit Requests</h2>
-        <button onclick="loadDeposits()" class="text-xs text-[#24ee89]">
+        <h2 class="text-sm font-bold text-gray-900">Deposit Requests</h2>
+        <button onclick="loadDeposits()" class="text-xs text-emerald-600 font-bold hover:underline">
           <i class="fa-solid fa-rotate-right mr-1"></i>Refresh
         </button>
       </div>
 
       <div class="table-wrap">
         <table class="w-full text-left text-xs min-w-[950px]">
-          <thead class="text-gray-400 bg-[#0f141c]">
+          <thead class="text-gray-500 bg-gray-50">
             <tr>
               <th class="p-3">User</th>
               <th class="p-3">Method</th>
@@ -211,15 +217,15 @@
     <!-- WITHDRAWALS -->
     <section id="contentWithdrawals" class="tab-content hidden space-y-4">
       <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold">Withdrawal Requests</h2>
-        <button onclick="loadWithdrawals()" class="text-xs text-[#24ee89]">
+        <h2 class="text-sm font-bold text-gray-900">Withdrawal Requests</h2>
+        <button onclick="loadWithdrawals()" class="text-xs text-emerald-600 font-bold hover:underline">
           <i class="fa-solid fa-rotate-right mr-1"></i>Refresh
         </button>
       </div>
 
       <div class="table-wrap">
         <table class="w-full text-left text-xs min-w-[750px]">
-          <thead class="text-gray-400 bg-[#0f141c]">
+          <thead class="text-gray-500 bg-gray-50">
             <tr>
               <th class="p-3">User</th>
               <th class="p-3">Method</th>
@@ -239,15 +245,15 @@
     <!-- USERS -->
     <section id="contentUsers" class="tab-content hidden space-y-4">
       <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold">User Database</h2>
-        <button onclick="loadUsers()" class="text-xs text-[#24ee89]">
+        <h2 class="text-sm font-bold text-gray-900">User Database</h2>
+        <button onclick="loadUsers()" class="text-xs text-emerald-600 font-bold hover:underline">
           <i class="fa-solid fa-rotate-right mr-1"></i>Refresh
         </button>
       </div>
 
       <div class="table-wrap">
         <table class="w-full text-left text-xs min-w-[700px]">
-          <thead class="text-gray-400 bg-[#0f141c]">
+          <thead class="text-gray-500 bg-gray-50">
             <tr>
               <th class="p-3">Full Name</th>
               <th class="p-3">Phone</th>
@@ -266,15 +272,15 @@
     <!-- BETS -->
     <section id="contentBets" class="tab-content hidden space-y-4">
       <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold">Recent Bets</h2>
-        <button onclick="loadBets()" class="text-xs text-[#24ee89]">
+        <h2 class="text-sm font-bold text-gray-900">Recent Bets</h2>
+        <button onclick="loadBets()" class="text-xs text-emerald-600 font-bold hover:underline">
           <i class="fa-solid fa-rotate-right mr-1"></i>Refresh
         </button>
       </div>
 
       <div class="table-wrap">
         <table class="w-full text-left text-xs min-w-[750px]">
-          <thead class="text-gray-400 bg-[#0f141c]">
+          <thead class="text-gray-500 bg-gray-50">
             <tr>
               <th class="p-3">User ID</th>
               <th class="p-3">Bet Amount</th>
@@ -323,8 +329,8 @@ function showMessage(message, isError = false) {
   box.className =
     "p-3 rounded-xl text-sm break-words " +
     (isError
-      ? "bg-red-500/10 text-red-400 border border-red-500/30"
-      : "bg-emerald-500/10 text-[#24ee89] border border-emerald-500/30");
+      ? "bg-rose-50 text-rose-600 border border-rose-200 font-medium"
+      : "bg-emerald-50 text-emerald-600 border border-emerald-200 font-medium");
 
   box.classList.remove("hidden");
 }
@@ -342,7 +348,6 @@ function switchTab(tab) {
 
   document.querySelectorAll(".tab-btn").forEach(button => {
     button.classList.remove("tab-active");
-    button.classList.add("bg-[#161b22]");
   });
 
   const suffix = tab.charAt(0).toUpperCase() + tab.slice(1);
@@ -351,7 +356,6 @@ function switchTab(tab) {
 
   const activeButton = document.getElementById("tab" + suffix);
   activeButton.classList.add("tab-active");
-  activeButton.classList.remove("bg-[#161b22]");
 
   if (tab === "deposits") loadDeposits();
   if (tab === "withdrawals") loadWithdrawals();
@@ -360,19 +364,48 @@ function switchTab(tab) {
 }
 
 /* =====================================
-   RIGHT SIDE DRAWER / MODAL TOGGLE
+   LEFT SIDE DRAWER / MODAL TOGGLE
 ===================================== */
 function toggleMenu() {
   const drawer = document.getElementById("sideModal");
   const overlay = document.getElementById("sideModalOverlay");
   
-  drawer.classList.toggle("translate-x-full");
+  drawer.classList.toggle("-translate-x-full");
   overlay.classList.toggle("hidden");
 }
 
 /* =====================================
-   HISTORY MANAGER LOGIC (29 UNMARKED, OTHERS MARKED)
+   AUTO & MANUAL HISTORY CLEANUP LOGIC
 ===================================== */
+async function autoCleanupOldHistory() {
+  const tables = ["color_game_history", "color_periods"];
+  try {
+    for (const tableName of tables) {
+      const { data: records, error } = await supabaseClient
+        .from(tableName)
+        .select("id")
+        .order("created_at", { ascending: false });
+
+      if (error) continue;
+
+      // If records exceed 29, delete older ones automatically in background
+      if (records && records.length > 29) {
+        const excessRecords = records.slice(29);
+        const idsToDelete = excessRecords.map(r => r.id);
+
+        if (idsToDelete.length > 0) {
+          await supabaseClient
+            .from(tableName)
+            .delete()
+            .in("id", idsToDelete);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Auto cleanup notice:", err.message);
+  }
+}
+
 let currentActiveTable = "";
 
 async function openHistoryManager(tableName) {
@@ -388,10 +421,9 @@ async function openHistoryManager(tableName) {
     : "Color Trading Period History Management";
 
   modal.classList.remove("hidden");
-  tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400">লোডিং হচ্ছে...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-500">Loading records...</td></tr>';
 
   try {
-    // Fetch records ordered by created_at desc
     const { data: records, error } = await supabaseClient
       .from(tableName)
       .select("*")
@@ -401,14 +433,12 @@ async function openHistoryManager(tableName) {
     if (error) throw error;
 
     if (!records || records.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400">কোনো হিস্ট্রি পাওয়া যায়নি।</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400">No history records found.</td></tr>';
       updateSelectedCount();
       return;
     }
 
     tbody.innerHTML = records.map((item, index) => {
-      // First 29 items (index 0 to 28) will NOT be checked (Non Mark)
-      // Remaining older items will be checked (Auto Mark)
       const isChecked = index >= 29 ? "checked" : "";
       const timeStr = item.created_at ? new Date(item.created_at).toLocaleString() : "-";
       
@@ -420,13 +450,13 @@ async function openHistoryManager(tableName) {
       }
 
       return `
-        <tr class="border-b border-gray-800/60 hover:bg-gray-800/30">
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
           <td class="p-3">
-            <input type="checkbox" class="history-checkbox w-4 h-4 accent-[#24ee89] cursor-pointer" value="${item.id}" ${isChecked} onchange="updateSelectedCount()">
+            <input type="checkbox" class="history-checkbox w-4 h-4 accent-emerald-600 cursor-pointer" value="${item.id}" ${isChecked} onchange="updateSelectedCount()">
           </td>
-          <td class="p-3 font-mono text-gray-400">${item.id.slice(0, 8)}...</td>
-          <td class="p-3">${escapeHTML(details)}</td>
-          <td class="p-3">${timeStr} ${index < 29 ? '<span class="ml-2 text-[10px] bg-emerald-500/10 text-[#24ee89] px-2 py-0.5 rounded">Latest 29</span>' : ''}</td>
+          <td class="p-3 font-mono text-gray-500">${item.id.slice(0, 8)}...</td>
+          <td class="p-3 text-gray-800">${escapeHTML(details)}</td>
+          <td class="p-3 text-gray-600">${timeStr} ${index < 29 ? '<span class="ml-2 text-[10px] bg-emerald-50 text-emerald-600 border border-emerald-200 px-2 py-0.5 rounded font-bold">Latest 29</span>' : ''}</td>
         </tr>
       `;
     }).join("");
@@ -434,7 +464,7 @@ async function openHistoryManager(tableName) {
     updateSelectedCount();
 
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-red-400">এরর: ${escapeHTML(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-rose-600">Error: ${escapeHTML(err.message)}</td></tr>`;
   }
 }
 
@@ -445,7 +475,6 @@ function closeHistoryManager() {
 function updateSelectedCount() {
   const checkboxes = document.querySelectorAll(".history-checkbox:checked");
   const count = checkboxes.length;
-  document.getElementById("selectedCountTextanalytical")?.textContent; // placeholder safety
   document.getElementById("selectedCountText").textContent = `${count} items selected for deletion`;
 }
 
@@ -454,19 +483,18 @@ async function confirmAndDeleteSelected() {
   const idsToDelete = Array.from(checkboxes).map(cb => cb.value);
 
   if (idsToDelete.length === 0) {
-    alert("ডিলিট করার জন্য কোনো রেকর্ড সিলেক্ট করা হয়নি!");
+    alert("No records selected for deletion!");
     return;
   }
 
-  // Double confirmation prompt
-  const firstConfirm = confirm(`আপনি কি নিশ্চিতভাবে ${idsToDelete.length} টি সিলেক্টেড হিস্ট্রি ডিলিট করতে চান?`);
+  const firstConfirm = confirm(`Are you sure you want to delete ${idsToDelete.length} selected history records?`);
   if (!firstConfirm) return;
 
-  const secondConfirm = confirm("⚠️ সতর্কবার্তা: একবার ডিলিট করলে এই ডেটা আর ফিরে পাওয়া যাবে না। আপনি কি চূড়ান্তভাবে ডিলিট করতে চান?");
+  const secondConfirm = confirm("⚠️ Warning: This action cannot be undone. Proceed with final deletion?");
   if (!secondConfirm) return;
 
   try {
-    showMessage("সিলেক্টেড হিস্ট্রি ডিলিট করা হচ্ছে...", false);
+    showMessage("Deleting selected history...", false);
 
     const { error } = await supabaseClient
       .from(currentActiveTable)
@@ -475,12 +503,12 @@ async function confirmAndDeleteSelected() {
 
     if (error) throw error;
 
-    showMessage("সফলভাবে সিলেক্টেড হিস্ট্রি মুছে ফেলা হয়েছে।");
+    showMessage("Selected history deleted successfully.");
     closeHistoryManager();
     await loadStats();
 
   } catch (err) {
-    showMessage("ডিলিট করতে সমস্যা হয়েছে: " + err.message, true);
+    showMessage("Deletion failed: " + err.message, true);
   }
 }
 
@@ -584,13 +612,13 @@ async function loadDeposits() {
       const total = amount + bonus;
 
       return `
-        <tr class="border-b border-gray-800/60">
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
           <td class="p-3">${escapeHTML(userLabel)}</td>
           <td class="p-3">${escapeHTML(dep.payment_method || "-")}</td>
           <td class="p-3">${money(amount)}</td>
-          <td class="p-3 text-[#24ee89]">${money(bonus)}</td>
+          <td class="p-3 text-emerald-600 font-semibold">${money(bonus)}</td>
           <td class="p-3 font-bold">${money(total)}</td>
-          <td class="p-3 text-amber-400">${money(dep.turnover_required)}</td>
+          <td class="p-3 text-amber-600">${money(dep.turnover_required)}</td>
           <td class="p-3">${escapeHTML(dep.transection_id || "-")}</td>
           <td class="p-3">${escapeHTML(status)}</td>
           <td class="p-3">
@@ -599,16 +627,16 @@ async function loadDeposits() {
               ? `<div class="flex gap-2">
                   <button
                     data-approve-id="${escapeHTML(dep.id)}"
-                    class="approve-btn bg-emerald-500 text-black px-3 py-2 rounded-lg font-bold">
+                    class="approve-btn bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-700 transition">
                     Approve
                   </button>
                   <button
                     data-reject-id="${escapeHTML(dep.id)}"
-                    class="reject-btn bg-red-500/20 text-red-400 px-3 py-2 rounded-lg font-bold">
+                    class="reject-btn bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg font-bold hover:bg-rose-100 transition">
                     Reject
                   </button>
                 </div>`
-              : '<span class="text-gray-500">Processed</span>'
+              : '<span class="text-gray-400 font-medium">Processed</span>'
             }
           </td>
         </tr>
@@ -631,16 +659,13 @@ async function loadDeposits() {
 
   } catch (error) {
     tbody.innerHTML =
-      `<tr><td colspan="9" class="p-6 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
+      `<tr><td colspan="9" class="p-6 text-center text-rose-600">${escapeHTML(error.message)}</td></tr>`;
     showMessage("Could not load deposits: " + error.message, true);
   }
 }
 
 async function approveDeposit(depositId) {
-  if (!confirm(
-    "এই ডিপোজিট অনুমোদন করবেন?\n\n" +
-    "Deposit + saved bonus ব্যালেন্সে যোগ হবে।"
-  )) return;
+  if (!confirm("Are you sure you want to approve this deposit?")) return;
 
   try {
     const { data, error } = await supabaseClient.rpc(
@@ -655,9 +680,7 @@ async function approveDeposit(depositId) {
     }
 
     showMessage(
-      "Deposit approved successfully. " +
-      "Credited: " + money(data.credited_amount) +
-      " | Required turnover: " + money(data.turnover_required)
+      "Deposit approved successfully. Credited: " + money(data.credited_amount)
     );
 
     await loadDeposits();
@@ -665,15 +688,12 @@ async function approveDeposit(depositId) {
     await loadStats();
 
   } catch (error) {
-    showMessage(
-      "Approval failed: " + error.message,
-      true
-    );
+    showMessage("Approval failed: " + error.message, true);
   }
 }
 
 async function rejectDeposit(depositId) {
-  if (!confirm("এই deposit request Reject করবেন?")) return;
+  if (!confirm("Are you sure you want to reject this deposit request?")) return;
 
   try {
     const { data, error } = await supabaseClient
@@ -728,7 +748,7 @@ async function loadWithdrawals() {
         String(item.status || "").toLowerCase() === "pending";
 
       return `
-        <tr class="border-b border-gray-800/60">
+        <tr class="border-b border-gray-100 hover:bg-gray-50">
           <td class="p-3">${escapeHTML(item.user_id)}</td>
           <td class="p-3">${escapeHTML(item.payment_method || "-")}</td>
           <td class="p-3">${escapeHTML(item.account_number || "-")}</td>
@@ -739,15 +759,15 @@ async function loadWithdrawals() {
               pending
               ? `<div class="flex gap-2">
                   <button data-id="${escapeHTML(item.id)}" data-status="approved"
-                    class="withdraw-action bg-emerald-500 text-black px-3 py-2 rounded-lg font-bold">
+                    class="withdraw-action bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-700 transition">
                     Mark Paid
                   </button>
                   <button data-id="${escapeHTML(item.id)}" data-status="rejected"
-                    class="withdraw-action bg-red-500/20 text-red-400 px-3 py-2 rounded-lg font-bold">
+                    class="withdraw-action bg-rose-50 text-rose-600 border border-rose-200 px-3 py-1.5 rounded-lg font-bold hover:bg-rose-100 transition">
                     Reject
                   </button>
                 </div>`
-              : '<span class="text-gray-500">Processed</span>'
+              : '<span class="text-gray-400 font-medium">Processed</span>'
             }
           </td>
         </tr>
@@ -764,18 +784,16 @@ async function loadWithdrawals() {
 
   } catch (error) {
     tbody.innerHTML =
-      `<tr><td colspan="6" class="p-6 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
+      `<tr><td colspan="6" class="p-6 text-center text-rose-600">${escapeHTML(error.message)}</td></tr>`;
     showMessage("Could not load withdrawals: " + error.message, true);
   }
 }
 
 async function updateWithdrawal(id, status) {
   if (status === "approved") {
-    if (!confirm(
-      "টাকা পাঠানো সম্পন্ন হয়েছে নিশ্চিত হলে তবেই Mark Paid করুন।"
-    )) return;
+    if (!confirm("Are you sure you want to mark this withdrawal as paid?")) return;
   } else {
-    if (!confirm("এই withdrawal request Reject করবেন?")) return;
+    if (!confirm("Are you sure you want to reject this withdrawal request?")) return;
   }
 
   try {
@@ -827,7 +845,7 @@ async function loadUsers() {
     }
 
     tbody.innerHTML = data.map(user => `
-      <tr class="border-b border-gray-800/60">
+      <tr class="border-b border-gray-100 hover:bg-gray-50">
         <td class="p-3">${escapeHTML(user.full_name || "-")}</td>
         <td class="p-3">${escapeHTML(user.phone_number || "-")}</td>
         <td class="p-3">${money(user.balance)}</td>
@@ -838,7 +856,7 @@ async function loadUsers() {
           <button
             data-user-id="${escapeHTML(user.id)}"
             data-user-label="${escapeHTML(user.phone_number || user.full_name || "")}"
-            class="balance-btn bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-3 py-2 rounded-lg font-bold">
+            class="balance-btn bg-cyan-50 text-cyan-600 border border-cyan-200 px-3 py-1.5 rounded-lg font-bold hover:bg-cyan-100 transition">
             Adjust
           </button>
         </td>
@@ -858,7 +876,7 @@ async function loadUsers() {
 
   } catch (error) {
     tbody.innerHTML =
-      `<tr><td colspan="5" class="p-6 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
+      `<tr><td colspan="5" class="p-6 text-center text-rose-600">${escapeHTML(error.message)}</td></tr>`;
     showMessage("Could not load users: " + error.message, true);
   }
 }
@@ -866,8 +884,7 @@ async function loadUsers() {
 async function adjustBalance(userId, userLabel) {
   const raw = prompt(
     "User: " + userLabel +
-    "\nকত টাকা যোগ/বিয়োগ করবেন?\n" +
-    "যোগের জন্য 100, বিয়োগের জন্য -100 লিখুন।"
+    "\nEnter amount to add/subtract (e.g. 100 for add, -100 for subtract):"
   );
 
   if (raw === null) return;
@@ -875,14 +892,11 @@ async function adjustBalance(userId, userLabel) {
   const amount = Number(raw);
 
   if (!Number.isFinite(amount) || amount === 0) {
-    alert("সঠিক non-zero amount লিখুন।");
+    alert("Please enter a valid non-zero amount.");
     return;
   }
 
-  if (!confirm(
-    (amount > 0 ? "যোগ" : "বিয়োগ") +
-    " করবেন: " + money(Math.abs(amount)) + "?"
-  )) return;
+  if (!confirm((amount > 0 ? "Add" : "Subtract") + " " + money(Math.abs(amount)) + "?")) return;
 
   try {
     const { data: profile, error: readError } = await supabaseClient
@@ -896,7 +910,7 @@ async function adjustBalance(userId, userLabel) {
     const newBalance = Number(profile.balance || 0) + amount;
 
     if (newBalance < 0) {
-      throw new Error("Balance শূন্যের নিচে যেতে পারবে না।");
+      throw new Error("Balance cannot go below zero.");
     }
 
     const { error: updateError } = await supabaseClient
@@ -906,7 +920,7 @@ async function adjustBalance(userId, userLabel) {
 
     if (updateError) throw updateError;
 
-    showMessage("Balance updated.");
+    showMessage("Balance updated successfully.");
     await loadUsers();
 
   } catch (error) {
@@ -940,13 +954,13 @@ async function loadBets() {
     }
 
     tbody.innerHTML = data.map(bet => `
-      <tr class="border-b border-gray-800/60">
+      <tr class="border-b border-gray-100 hover:bg-gray-50">
         <td class="p-3">${escapeHTML(bet.user_id)}</td>
         <td class="p-3">${money(bet.bet_amount)}</td>
         <td class="p-3">${escapeHTML(bet.target_number)}</td>
         <td class="p-3">${escapeHTML(bet.roll_result)}</td>
         <td class="p-3">${money(bet.payout)}</td>
-        <td class="p-3 ${bet.is_bool ? "text-[#24ee89]" : "text-rose-400"}">
+        <td class="p-3 ${bet.is_bool ? "text-emerald-600 font-bold" : "text-rose-600 font-bold"}">
           ${bet.is_bool ? "Win" : "Loss"}
         </td>
         <td class="p-3">${bet.created_at
@@ -959,7 +973,7 @@ async function loadBets() {
 
   } catch (error) {
     tbody.innerHTML =
-      `<tr><td colspan="7" class="p-6 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
+      `<tr><td colspan="7" class="p-6 text-center text-rose-600">${escapeHTML(error.message)}</td></tr>`;
     showMessage("Could not load bets: " + error.message, true);
   }
 }
@@ -971,11 +985,14 @@ async function loadBets() {
 (async function initAdminPanel() {
   if (!window.supabase || typeof supabaseClient === "undefined") {
     showMessage(
-      "Supabase client পাওয়া যায়নি। supabase-config.js path পরীক্ষা করুন।",
+      "Supabase client not found. Please check supabase-config.js path.",
       true
     );
     return;
   }
+
+  // Run auto cleanup in background on startup
+  await autoCleanupOldHistory();
 
   await loadStats();
   await loadDeposits();
