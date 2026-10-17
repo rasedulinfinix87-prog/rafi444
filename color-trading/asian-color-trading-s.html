@@ -87,7 +87,7 @@ button{font-family:inherit;touch-action:manipulation}
 /* Updated Original Card Design with Proper Theme Colors */
 .number-panel{background:transparent;padding:0;box-shadow:none}
 .number-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.bet-card-box{border-radius:16px;padding:12px;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:0 6px 16px rgba(0,0,0,0.3);overflow:hidden}
+.bet-card-box{border-radius:16px;padding:12px;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:0 6px 16px rgba(0,0,0,0.3);overflow:hidden;min-width:0}
 .card-small{background:linear-gradient(145deg,#3b82f6,#1d4ed8);border:2px solid #60a5fa}
 .card-big{background:linear-gradient(145deg,#f59e0b,#d97706);border:2px solid #fbbf24}
 .bet-card-header{font-size:17px;font-weight:950;text-transform:uppercase;color:#fff;border-bottom:2px solid rgba(255,255,255,0.25);width:100%;text-align:center;padding-bottom:5px;margin-bottom:10px;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
@@ -95,11 +95,25 @@ button{font-family:inherit;touch-action:manipulation}
 .number-button{width:52px;height:52px;border-radius:50%!important;border:2px solid #fff!important;font-size:20px!important;font-weight:950!important;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;line-height:1;color:#1e293b!important;background:#ffffff!important;box-shadow:0 4px 10px rgba(0,0,0,0.25);cursor:pointer;transition:transform 0.1s}
 .number-button:active{transform:scale(0.95)}
 .number-payout{font-size:7.5px!important;font-weight:800!important;color:#64748b;margin-top:1px}
-.violet-card-footer{width:100%;border-top:2px solid rgba(255,255,255,0.25);padding-top:7px;text-align:center;font-size:13px;font-weight:900;color:#fff;cursor:pointer;background:rgba(0,0,0,0.15);border-bottom-left-radius:12px;border-bottom-right-radius:12px;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
+.violet-card-footer{width:100%;min-height:34px;box-sizing:border-box;border-top:2px solid rgba(255,255,255,0.25);padding:7px 26px 2px;text-align:center;font-size:13px;font-weight:900;color:#fff;cursor:pointer;background:rgba(0,0,0,0.15);border-bottom-left-radius:12px;border-bottom-right-radius:12px;text-shadow:0 1px 2px rgba(0,0,0,0.3);position:relative;display:flex;align-items:center;justify-content:center}
+.size-bet-button{width:100%;min-height:36px;margin-top:8px;padding-left:27px;border:1px solid #ffffff80;border-radius:10px;display:flex;align-items:center;justify-content:center;position:relative;overflow:visible;font-size:12px;font-weight:950;letter-spacing:.5px;color:#fff;cursor:pointer;box-shadow:0 4px 9px #0003}
+.size-bet-small{background:linear-gradient(180deg,#60a5fa,#2563eb)}
+.size-bet-big{background:linear-gradient(180deg,#fbbf24,#d97706)}
+.color-bet-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.color-bet-button{height:43px;padding-left:27px;border-radius:12px;border:2px solid #ffffff70;color:#fff;font-size:14px;font-weight:950;letter-spacing:.5px;position:relative;overflow:visible;cursor:pointer;box-shadow:0 5px 12px #0004}
+.color-bet-green{background:linear-gradient(145deg,#18c96b,#078744);border-color:#58e99a}
+.color-bet-red{background:linear-gradient(145deg,#ff526b,#d91e3d);border-color:#ff8a9b}
+.number-button,.violet-card-footer,.size-bet-button,.color-bet-button{isolation:isolate}
+
 
 #game-status-text{padding:5px 6px;text-align:center;color:#93a3ad;font-size:9px}
 
-.bet-badge{position:absolute;top:-6px;right:-4px;background:#ffd039;color:#111;font-size:7px;font-weight:950;padding:2px 5px;border-radius:8px;border:2px solid #111b20;z-index:30}.win-payout-overlay{position:absolute;inset:0;background:#08b45cef;color:#fff;font-size:10px;font-weight:950;display:flex;align-items:center;justify-content:center;border-radius:inherit;z-index:40;animation:popWinAmount 2s ease forwards}@keyframes popWinAmount{0%{transform:scale(.8);opacity:0}20%{transform:scale(1.08);opacity:1}80%{transform:scale(1);opacity:1}100%{opacity:0}}@keyframes zoomOutResult{0%{transform:scale(1.2);opacity:1}80%{transform:scale(1);opacity:1}100%{transform:scale(.3);opacity:0}}.animate-zoom-out{animation:zoomOutResult 1.5s ease forwards}.winning-blink{position:relative;z-index:50;animation:winningBlink .45s ease-in-out 3}.win-blink-green{--win-glow:#22ff82}.win-blink-red{--win-glow:#ff415f}.win-blink-violet{--win-glow:#be82ff}.win-blink-number{--win-glow:#fff}.win-blink-big{--win-glow:#ffbe2d}.win-blink-small{--win-glow:#46a0ff}@keyframes winningBlink{50%{filter:brightness(1.45);box-shadow:0 0 12px var(--win-glow),0 0 24px var(--win-glow);outline:2px solid var(--win-glow)}}
+.bet-badge{position:absolute;top:2px;right:2px;background:#ffd039;color:#111;font-size:7px;font-weight:950;padding:2px 4px;border-radius:8px;border:1px solid #111b20;z-index:30;line-height:1.15;max-width:calc(100% - 5px);white-space:nowrap;pointer-events:none}
+.bet-chip-marker{--chip-color:var(--chip-red);position:absolute;left:2px;bottom:2px;width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--chip-color);color:#fff;font-size:7px;font-weight:950;border:1px solid #fff;box-shadow:0 2px 5px #0008,inset 0 1px 2px #fff8,inset 0 -2px 3px #0005;z-index:20;pointer-events:none;line-height:1}
+.bet-chip-marker:before{content:"";position:absolute;inset:1px;border-radius:50%;background:repeating-conic-gradient(from 0deg,#f9f5eb 0deg 9deg,transparent 9deg 30deg);-webkit-mask:radial-gradient(circle,transparent 0 66%,#000 67%);mask:radial-gradient(circle,transparent 0 66%,#000 67%);z-index:0}
+.bet-chip-marker:after{content:"";position:absolute;inset:4px;border-radius:50%;border:1px solid #fff7;z-index:0}
+.bet-chip-marker span{position:relative;z-index:2;text-shadow:0 1px 2px #0008}
+.win-payout-overlay{position:absolute;inset:0;background:#08b45cef;color:#fff;font-size:10px;font-weight:950;display:flex;align-items:center;justify-content:center;border-radius:inherit;z-index:40;animation:popWinAmount 2s ease forwards}@keyframes popWinAmount{0%{transform:scale(.8);opacity:0}20%{transform:scale(1.08);opacity:1}80%{transform:scale(1);opacity:1}100%{opacity:0}}@keyframes zoomOutResult{0%{transform:scale(1.2);opacity:1}80%{transform:scale(1);opacity:1}100%{transform:scale(.3);opacity:0}}.animate-zoom-out{animation:zoomOutResult 1.5s ease forwards}.winning-blink{position:relative;z-index:50;animation:winningBlink .45s ease-in-out 3}.win-blink-green{--win-glow:#22ff82}.win-blink-red{--win-glow:#ff415f}.win-blink-violet{--win-glow:#be82ff}.win-blink-number{--win-glow:#fff}.win-blink-big{--win-glow:#ffbe2d}.win-blink-small{--win-glow:#46a0ff}@keyframes winningBlink{50%{filter:brightness(1.45);box-shadow:0 0 12px var(--win-glow),0 0 24px var(--win-glow);outline:2px solid var(--win-glow)}}
 
 .modal-overlay,.chips-popup-overlay{position:fixed;inset:0;background:#000b;z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}.modal-overlay.show,.chips-popup-overlay.show{display:flex}.modal-content,.chips-popup-content{width:100%;max-width:430px;background:#101a21;border-top:1px solid #27363f;border-radius:20px 20px 0 0;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 -10px 30px #0008;animation:slideUpModal .3s ease-out}.chips-popup-content{padding:15px 12px 22px;align-items:center;gap:12px;max-height:none}@keyframes slideUpModal{from{transform:translateY(100%)}to{transform:translateY(0)}}.modal-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #1c2931}.modal-title{font-size:14px;font-weight:900}.modal-close-btn{background:#18252d;border:1px solid #2d3e48;color:#cbd5df;width:28px;height:28px;border-radius:50%;cursor:pointer}.modal-body{padding:12px;overflow-y:auto;flex:1;min-height:220px;max-height:60vh;contain:content;will-change:contents}.history-table,.my-history-table{border-collapse:collapse;white-space:nowrap}.history-table{min-width:100%}.history-table th,.history-table td{padding:8px 6px;text-align:center;font-size:10px;border-bottom:1px solid #1c2931}.history-table th,.my-history-table th{color:#7f909b;font-weight:800}.my-history-table{min-width:820px}.my-history-table th,.my-history-table td{padding:8px 7px;text-align:center;border-bottom:1px solid #1c2931;vertical-align:middle;font-size:10px}.history-scroll{width:100%;overflow:auto;-webkit-overflow-scrolling:touch}.result-number{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-size:11px;font-weight:950}.result-red{background:#df2444;border:2px solid #ff657c}.result-green{background:#0ba955;border:2px solid #58e99a}.result-violet{background:#8b2fd1;border:2px solid #d477fa}.result-badge{display:inline-block;padding:3px 6px;border-radius:20px;font-size:8px;font-weight:900}.date-cell{line-height:1.4;color:#cbd5e1;font-size:8.5px!important}.trend-grid-container{display:grid;grid-auto-flow:column;grid-template-rows:repeat(6,28px);gap:5px;overflow-x:auto;padding:6px}.trend-ball{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:950;box-shadow:inset 2px 2px 4px #fff6,inset -3px -3px 4px #0006}
 
@@ -168,6 +182,7 @@ button{font-family:inherit;touch-action:manipulation}
         <button onclick="placeDirectBet('4')" id="btn-4" class="number-button relative"><span>4</span><span class="number-payout">(9x)</span></button>
       </div>
       <div class="violet-card-footer" onclick="placeDirectBet('0')" id="btn-0">0 Violet</div>
+      <button class="size-bet-button size-bet-small" onclick="placeDirectBet('Small')" id="btn-Small">BET SMALL <span style="margin-left:5px;font-size:9px;opacity:.9">1.9x</span></button>
     </div>
 
     <!-- Big Card (Original Gold/Amber Theme) -->
@@ -180,7 +195,12 @@ button{font-family:inherit;touch-action:manipulation}
         <button onclick="placeDirectBet('9')" id="btn-9" class="number-button relative"><span>9</span><span class="number-payout">(9x)</span></button>
       </div>
       <div class="violet-card-footer" onclick="placeDirectBet('5')" id="btn-5">5 Violet</div>
+      <button class="size-bet-button size-bet-big" onclick="placeDirectBet('Big')" id="btn-Big">BET BIG <span style="margin-left:5px;font-size:9px;opacity:.9">1.9x</span></button>
     </div>
+  </div>
+  <div class="color-bet-row">
+    <button class="color-bet-button color-bet-green" onclick="placeDirectBet('Green')" id="btn-Green">GREEN <span style="font-size:10px;opacity:.9">2x</span></button>
+    <button class="color-bet-button color-bet-red" onclick="placeDirectBet('Red')" id="btn-Red">RED <span style="font-size:10px;opacity:.9">1.9x</span></button>
   </div>
 </div>
 
@@ -535,9 +555,31 @@ async function executeBetPlacement(target,amount){
 }
 
 function updateBetBadgesUI(){
- document.querySelectorAll('.bet-badge').forEach(el=>el.remove());let targetTotals={};
- userActiveBets.forEach(bet=>targetTotals[bet.target]=(targetTotals[bet.target]||0)+bet.amount);
- for(let target in targetTotals){const btn=document.getElementById(`btn-${target}`);if(btn){const badge=document.createElement('span');badge.className='bet-badge';badge.innerText=`৳${targetTotals[target]}`;btn.appendChild(badge)}}
+ document.querySelectorAll('.bet-badge,.bet-chip-marker').forEach(el=>el.remove());
+ let targetTotals={},latestTargetBet={};
+ userActiveBets.forEach(bet=>{
+   targetTotals[bet.target]=(targetTotals[bet.target]||0)+Number(bet.amount||0);
+   latestTargetBet[bet.target]=bet;
+ });
+ const chipColors={20:'#ed3b48',50:'#159653',100:'#f5a623',500:'#8fe65d',1000:'#278bd8',10000:'#b34bd4'};
+ for(let target in targetTotals){
+   const btn=document.getElementById(`btn-${target}`);
+   if(!btn)continue;
+   const badge=document.createElement('span');
+   badge.className='bet-badge';
+   badge.innerText=`৳${targetTotals[target]}`;
+   btn.appendChild(badge);
+   const lastBet=latestTargetBet[target];
+   if(lastBet){
+     const marker=document.createElement('span');
+     marker.className='bet-chip-marker';
+     marker.style.setProperty('--chip-color',chipColors[Number(lastBet.amount)]||'#ed3b48');
+     const label=Number(lastBet.amount)>=1000?(Number(lastBet.amount)/1000)+'K':String(lastBet.amount);
+     marker.innerHTML=`<span>${label}</span>`;
+     marker.title=`৳${lastBet.amount} chip`;
+     btn.appendChild(marker);
+   }
+ }
 }
 
 function playVoiceMessage(text){
