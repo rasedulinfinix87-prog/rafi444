@@ -145,7 +145,6 @@ button{font-family:inherit;touch-action:manipulation}
 </head>
 <body>
 
-<!-- Blue loading animation: only the loader visuals/animation are changed -->
 <div id="page-loader-overlay" role="status" aria-label="Loading game">
   <div class="loader-content">
     <div class="loader-reels" aria-hidden="true">
@@ -262,6 +261,9 @@ let currentWheelRotation = 0;
 let isSpinningActive = false;
 let audioCtx = null;
 let isRoundProcessing = false;
+
+// ফাইলের নিজস্ব ইউনিক অফসেট বা বীজ (অন্য ফাইলের সাথে ফলাফল আলাদা রাখার জন্য এটি পরিবর্তন করা হয়েছে)
+const FILE_UNIQUE_OFFSET = 3; 
 
 function initAudioContext() {
   if (!audioCtx) {
@@ -412,7 +414,6 @@ function selectChipFromPopup(amount,element){
  setTimeout(closeChipsPopup,200)
 }
 
-// Gold casino reel loader. Existing data-loading logic and timing remain unchanged.
 async function runPageLoaderAnimation(dataLoadPromise) {
   const loaderElem = document.getElementById('page-loader-overlay');
   if (!loaderElem) {
@@ -426,7 +427,6 @@ async function runPageLoaderAnimation(dataLoadPromise) {
   const startedAt = Date.now();
   let tick = 0;
 
-  // Start the progress bar from empty and fill it completely in 3.5 seconds.
   if (progressFill) {
     progressFill.style.transition = 'none';
     progressFill.style.width = '0%';
@@ -437,7 +437,6 @@ async function runPageLoaderAnimation(dataLoadPromise) {
     });
   }
 
-  // Cycle only through Color Trading digits 0-9, then settle on 058.
   const numberInterval = setInterval(() => {
     tick++;
     reelNumbers.forEach((el, index) => {
@@ -457,7 +456,6 @@ async function runPageLoaderAnimation(dataLoadPromise) {
     el.textContent = finalNumbers[index];
   });
 
-  // Keep the loader visible if the existing game data takes longer to load.
   const elapsed = Date.now() - startedAt;
   if (elapsed < 3500) await new Promise(resolve => setTimeout(resolve, 3500 - elapsed));
 
@@ -466,7 +464,6 @@ async function runPageLoaderAnimation(dataLoadPromise) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Existing data-loading logic is unchanged; it now starts together with the loader.
   const dataLoadPromise = (async () => {
     currentUser = await requireAuth();
     if(!currentUser){ window.location.href='../login-signup.html'; return; }
@@ -557,9 +554,12 @@ async function loadRecentWinsUI(){
  }
  let html='';
  data.forEach(row=>{
-  const n = Number(row.winning_number);
-  const bg = row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#9333ea';
-  html+=`<div class="mini-ball" style="background:${bg}">${Number.isFinite(n)?n:'?'}</div>`;
+  // লজিকে ইউনিক অফসেট প্রয়োগ করে এই ফাইলের ফলাফল স্বাধীন করা হয়েছে
+  const rawNum = Number(row.winning_number);
+  const n = Number.isFinite(rawNum) ? (rawNum + FILE_UNIQUE_OFFSET) % 10 : 0;
+  const col = (n === 0 || n === 5) ? 'Violet' : (n % 2 === 1 ? 'Green' : 'Red');
+  const bg = col==='Red'?'#e11d48':col==='Green'?'#059669':'#9333ea';
+  html+=`<div class="mini-ball" style="background:${bg}">${n}</div>`;
  });
  container.innerHTML=html;
 }
@@ -823,10 +823,12 @@ async function loadHistoryData(type){
   if(error||!data||!data.length){container.innerHTML=`<p class="text-center text-slate-500 py-3">No history found</p>`;return}
   let html=`<div class="overflow-x-auto"><table class="history-table"><thead><tr><th>Period</th><th>Number</th><th>Big/Small</th><th>Color</th></tr></thead><tbody>`;
   data.forEach(row=>{
-   const num = Number(row.winning_number);
-   const bs = Number.isFinite(num) ? (num >= 5 ? 'Big' : 'Small') : '—';
-   const cc = row.winning_color==='Green'?'text-emerald-400':row.winning_color==='Red'?'text-rose-500':'text-purple-400';
-   html+=`<tr><td class="font-mono text-amber-300">${escapeHtml(row.period_number)}</td><td class="font-bold">${escapeHtml(row.winning_number)}</td><td class="font-semibold">${bs}</td><td class="font-bold ${cc}">${escapeHtml(row.winning_color)}</td></tr>`;
+   const rawNum = Number(row.winning_number);
+   const num = Number.isFinite(rawNum) ? (rawNum + FILE_UNIQUE_OFFSET) % 10 : 0;
+   const col = (num === 0 || num === 5) ? 'Violet' : (num % 2 === 1 ? 'Green' : 'Red');
+   const bs = num >= 5 ? 'Big' : 'Small';
+   const cc = col==='Green'?'text-emerald-400':col==='Red'?'text-rose-500':'text-purple-400';
+   html+=`<tr><td class="font-mono text-amber-300">${escapeHtml(row.period_number)}</td><td class="font-bold">${num}</td><td class="font-semibold">${bs}</td><td class="font-bold ${cc}">${col}</td></tr>`;
   });
   html+=`</tbody></table></div>`;
   container.innerHTML=html;
@@ -847,24 +849,24 @@ async function loadHistoryData(type){
   let html=`<div class="p-2 text-[10px] text-slate-400">Showing your latest 10 bets.</div><div class="history-scroll max-h-64"><table class="my-history-table"><thead><tr><th>Period</th><th>Bet</th><th>Amount</th><th>Status</th><th>Result No.</th><th>Result Color</th><th>Big/Small</th><th>Date & Time</th></tr></thead><tbody>`;
   
   data.forEach(row=>{
-   const status=String(row.status||'pending').toLowerCase();
-   const statusColor=status==='win'?'text-emerald-400 font-bold':status==='loss'?'text-rose-400 font-bold':'text-amber-400 font-bold';
-   const statusLabel=status==='win'?'WIN':status==='loss'?'LOSS':'PENDING';
-   
    const pInfo = periodMap[row.period_number];
-   let num = pInfo && pInfo.winning_number !== null && pInfo.winning_number !== undefined ? Number(pInfo.winning_number) : null;
-   let color = pInfo && pInfo.winning_color ? pInfo.winning_color : '';
-   
-   if((num === null || !color) && row.winning_result){
-     const m = String(row.winning_result).match(/(Green|Red|Violet)\s*[-:]\s*(\d)/i);
-     if(m){
-       if(!color) color = m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase();
-       if(num === null) num = Number(m[2]);
-     }
-   }
+   let rawNum = pInfo && pInfo.winning_number !== null && pInfo.winning_number !== undefined ? Number(pInfo.winning_number) : null;
+   let num = rawNum !== null ? (rawNum + FILE_UNIQUE_OFFSET) % 10 : null;
+   let color = num !== null ? ((num === 0 || num === 5) ? 'Violet' : (num % 2 === 1 ? 'Green' : 'Red')) : '';
 
    const hasRes = num !== null && !Number.isNaN(num) && color !== '';
    const bigSmall = hasRes ? (num >= 5 ? 'Big' : 'Small') : '—';
+   
+   // ব্যবহারকারীর বেট অনুযায়ী নিজস্ব ফাইলের লজিকে উইন বা লস চেক করা
+   let isWin = false;
+   if(hasRes){
+     if(row.bet_type === color || row.bet_type === String(num) || row.bet_type === bigSmall) isWin = true;
+   }
+   
+   const status = (pInfo && pInfo.status === 'completed') ? (isWin ? 'win' : 'loss') : 'pending';
+   const statusColor = status==='win'?'text-emerald-400 font-bold':status==='loss'?'text-rose-400 font-bold':'text-amber-400 font-bold';
+   const statusLabel = status==='win'?'WIN':status==='loss'?'LOSS':'PENDING';
+
    const colorClass = color==='Red'?'result-red':color==='Green'?'result-green':color==='Violet'?'result-violet':'';
 
    const resultNumberHtml = hasRes ? `<span class="result-number ${colorClass}">${num}</span>` : `<span class="text-slate-500">—</span>`;
@@ -882,7 +884,15 @@ async function loadHistoryData(type){
  }else if(type==='chart'){
   const {data}=await supabaseClient.from('color_periods').select("*").eq("status","completed").eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(30);
   let trend='',big=0,small=0,green=0,red=0,violet=0;
-  if(data&&data.length)data.forEach(row=>{const n=Number(row.winning_number);n>=5?big++:small++;if(row.winning_color==='Green')green++;else if(row.winning_color==='Red')red++;else if(row.winning_color==='Violet')violet++;const bg=row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#9333ea';trend+=`<div class="trend-ball" style="background:${bg}">${n}</div>`});else trend=`<p class="text-slate-500 text-center py-2">কোনো ডাটা পাওয়া যায়নি</p>`;
+  if(data&&data.length)data.forEach(row=>{
+   const rawN=Number(row.winning_number);
+   const n=(rawN+FILE_UNIQUE_OFFSET)%10;
+   const col=(n===0||n===5)?'Violet':(n%2===1?'Green':'Red');
+   n>=5?big++:small++;
+   if(col==='Green')green++;else if(col==='Red')red++;else if(col==='Violet')violet++;
+   const bg=col==='Red'?'#e11d48':col==='Green'?'#059669':'#9333ea';
+   trend+=`<div class="trend-ball" style="background:${bg}">${n}</div>`;
+  });else trend=`<p class="text-slate-500 text-center py-2">কোনো ডাটা পাওয়া যায়নি</p>`;
   const total=(data?.length||0)||1,bigPct=Math.round(big/total*100),smallPct=100-bigPct,greenPct=Math.round(green/total*100),redPct=Math.round(red/total*100),violetPct=Math.max(0,100-greenPct-redPct);
   container.innerHTML=`<div class="p-2 space-y-4"><div class="overflow-x-auto"><div class="trend-grid-container">${trend}</div></div><div class="h-[1px] w-full bg-slate-800"></div><div class="space-y-3"><div><div class="flex justify-between text-[11px] font-bold mb-1"><span class="text-amber-400">Big: ${bigPct}%</span><span class="text-blue-400">Small: ${smallPct}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex"><div class="bg-amber-500 h-full" style="width:${bigPct}%"></div><div class="bg-blue-500 h-full" style="width:${smallPct}%"></div></div></div><div><div class="flex justify-between text-[10.5px] font-bold mb-1"><span class="text-emerald-400">Green: ${greenPct}%</span><span class="text-purple-400">Violet: ${violetPct}%</span><span class="text-rose-400">Red: ${redPct}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex"><div class="bg-emerald-600 h-full" style="width:${greenPct}%"></div><div class="bg-purple-600 h-full" style="width:${violetPct}%"></div><div class="bg-rose-600 h-full" style="width:${redPct}%"></div></div></div></div></div>`;
  }
@@ -923,18 +933,25 @@ async function processRoundResult(){
  
  const numbersMap={Green:[1,3,7,9],Red:[2,4,6,8],Violet:[0,5]};
  const possibleNums=numbersMap[winningColor];
- const winningNumber=possibleNums[Math.floor(Math.random()*possibleNums.length)];
- const winningBigSmall=winningNumber>=5?'Big':'Small';
- const winningResultString=`${winningColor}-${winningNumber}`;
+ const rawWinningNumber=possibleNums[Math.floor(Math.random()*possibleNums.length)];
  
- await supabaseClient.from('color_periods').update({winning_color:winningColor,winning_number:winningNumber,status:'completed'}).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's');
+ // ব্যাকএন্ড টেবিলে ডেটা সেভ করার জন্য রেন্ডম নাম্বার
+ await supabaseClient.from('color_periods').update({winning_color:winningColor,winning_number:rawWinningNumber,status:'completed'}).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's');
+
+ // এই ফাইলের নিজস্ব লজিক অনুযায়ী ফাইনাল নাম্বার ও কালার নির্ধারণ
+ const winningNumber = (rawWinningNumber + FILE_UNIQUE_OFFSET) % 10;
+ const winningColorThisFile = (winningNumber === 0 || winningNumber === 5) ? 'Violet' : (winningNumber % 2 === 1 ? 'Green' : 'Red');
+ const winningBigSmall = winningNumber >= 5 ? 'Big' : 'Small';
+ const winningResultString = `${winningColorThisFile}-${winningNumber}`;
 
  spinWheelToNumber(winningNumber, async () => {
    const {data:allBets}=await supabaseClient.from('color_game_history').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').eq("status",'pending');
    let userWonAmount=0,hasUserWon=false,userParticipated=false,userWinsMap={};
    if(allBets&&allBets.length)for(let bet of allBets){
     let isWin=false,multiplier=2;if(bet.bet_type==='Red')multiplier=1.9;else if(bet.bet_type==='Violet')multiplier=4.5;else if(bet.bet_type==='Big'||bet.bet_type==='Small')multiplier=1.9;else if(bet.bet_type==='0'||bet.bet_type==='5')multiplier=4.5;else if(!isNaN(bet.bet_type))multiplier=9;
-    if(bet.bet_type===winningColor||bet.bet_type===String(winningNumber)||bet.bet_type===winningBigSmall)isWin=true;
+    
+    // ফাইলের নিজস্ব লজিকের সাথে বেটের মিল চেক করা হচ্ছে
+    if(bet.bet_type===winningColorThisFile||bet.bet_type===String(winningNumber)||bet.bet_type===winningBigSmall)isWin=true;
     if(bet.user_id===currentUser.id)userParticipated=true;
     if(isWin){
      const payoutAmount=bet.bet_amount*multiplier;
@@ -947,8 +964,8 @@ async function processRoundResult(){
    currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";
    for(let target in userWinsMap){const btn=document.getElementById(`btn-${target}`);if(btn){const overlay=document.createElement('div');overlay.className='win-payout-overlay';overlay.innerText=`+৳${userWinsMap[target].toFixed(1)}`;btn.appendChild(overlay);setTimeout(()=>overlay.remove(),2000)}}
    document.getElementById("game-status-text").innerText=`Result: ${winningResultString} (${winningBigSmall})`;
-   updateRouletteResult(winningColor,winningNumber,winningBigSmall);
-   highlightWinningTargets(winningColor,winningNumber,winningBigSmall);await loadUserProfile();
+   updateRouletteResult(winningColorThisFile,winningNumber,winningBigSmall);
+   highlightWinningTargets(winningColorThisFile,winningNumber,winningBigSmall);await loadUserProfile();
    
    const winDisplay = document.getElementById("win-amount-design") || document.getElementById("win-amount-display");
    if(userParticipated){
