@@ -124,11 +124,11 @@ button{font-family:inherit;touch-action:manipulation}
 .popup-chips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px 8px;width:100%;max-width:320px;justify-items:center}.popup-chip-item{--chip-color:var(--chip-red);width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:950;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;background:var(--chip-color);border:0;box-shadow:0 6px 16px #0008,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;transition:transform .18s,filter .18s}.popup-chip-item.selected-chip{transform:scale(1.08);filter:brightness(1.12);box-shadow:0 0 15px #fff8,0 6px 15px #0009,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;z-index:10}.popup-chip-item span{position:relative;z-index:2;text-shadow:0 2px 3px #0009}.chip-20{--chip-color:#ed3b48}.chip-50{--chip-color:#159653}.chip-100{--chip-color:#f5a623}.chip-500{--chip-color:#8fe65d;color:#10150e!important}.chip-1k{--chip-color:#278bd8}.chip-10k{--chip-color:#b34bd4}
 @media(max-width:360px){.page-content{padding:8px}.roulette-wrap{width:82vw;height:82vw}.wallet-amount{font-size:20px}.mode-button{min-height:60px}.popup-chip-item{width:66px;height:66px;font-size:14px}.number-button{width:48px;height:48px;font-size:18px!important}}
 
-/* কাস্টম স্পিনিং সিম্বল ও প্রোগ্রেস বার স্টাইল (#007FFF ও #1C1C1C কালার এবং ছোট সাইজ) */
+/* ক্যাসিনো ভাইব এবং নির্দিষ্ট কালার কোড (#007FFF ও #1C1C1C) সহ ছোট সাইজের কাস্টম স্পিনিং অ্যানিমেশন */
 #page-loader-overlay {
   position: fixed;
   inset: 0;
-  background: #05090d;
+  background: rgba(28, 28, 28, 0.95);
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -136,52 +136,45 @@ button{font-family:inherit;touch-action:manipulation}
   justify-content: center;
   transition: opacity 0.5s ease;
 }
-.loader-symbol-wrap {
+.loader-chip-container {
   position: relative;
-  width: 90px;
-  height: 90px;
+  width: 95px;
+  height: 95px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.loader-chip-outer {
+.loader-outer-ring {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 4px solid #1C1C1C;
-  border-top: 4px solid #007FFF;
-  border-right: 4px solid #007FFF;
-  animation: symbolSpin 1.2s linear infinite;
-  box-shadow: 0 0 15px rgba(0, 127, 255, 0.4);
+  border: 3px solid #1C1C1C;
+  border-top: 3px solid #007FFF;
+  border-left: 3px solid #007FFF;
+  animation: casinoSpin 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+  box-shadow: 0 0 20px rgba(0, 127, 255, 0.6), inset 0 0 10px rgba(0, 127, 255, 0.4);
 }
-.loader-chip-inner {
-  width: 60px;
-  height: 60px;
+.loader-center-chip {
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
-  background: #1C1C1C;
+  background: radial-gradient(circle at 35% 28%, #2a2a2a 0%, #1C1C1C 40%, #080808 80%);
   border: 3px solid #007FFF;
-  box-shadow: inset 0 2px 5px #000, 0 0 10px rgba(0, 127, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 127, 255, 0.8), inset 0 2px 4px rgba(255,255,255,0.25);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.loader-chip-core {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #05090d;
-  border: 2px solid #007FFF;
-}
 .loader-progress-text {
-  margin-top: 18px;
+  margin-top: 16px;
   font-family: monospace;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 950;
   color: #007FFF;
-  letter-spacing: 1px;
-  text-shadow: 0 0 8px rgba(0, 127, 255, 0.6);
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 12px rgba(0, 127, 255, 0.8);
 }
-@keyframes symbolSpin {
+@keyframes casinoSpin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
@@ -189,12 +182,12 @@ button{font-family:inherit;touch-action:manipulation}
 </head>
 <body>
 
-<!-- পেজ লোডিং স্পিনার ও প্রোগ্রেস বার (১-১০০%, ৩.৫ সেকেন্ড) -->
+<!-- ক্যাসিনো ভাইবযুক্ত প্রোগ্রেস বার ও স্পিনিং অ্যানিমেশন ওভারলে -->
 <div id="page-loader-overlay">
-  <div class="loader-symbol-wrap">
-    <div class="loader-chip-outer"></div>
-    <div class="loader-chip-inner">
-      <div class="loader-chip-core"></div>
+  <div class="loader-chip-container">
+    <div class="loader-outer-ring"></div>
+    <div class="loader-center-chip">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#007FFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
     </div>
   </div>
   <div class="loader-progress-text" id="loader-progress-val">1%</div>
@@ -452,7 +445,7 @@ function selectChipFromPopup(amount,element){
  setTimeout(closeChipsPopup,200)
 }
 
-// ৩.৫ সেকেন্ডের প্রোগ্রেস বার ও স্পিনিং অ্যানিমেশন
+// ৩.৫ সেকেন্ডের প্রোগ্রেস বার অ্যানিমেশন (নির্দিষ্ট কালার ও ক্যাসিনো ভাইব সহ)
 function runPageLoaderAnimation(onComplete) {
   const loaderElem = document.getElementById('page-loader-overlay');
   const progressValElem = document.getElementById('loader-progress-val');
@@ -462,7 +455,7 @@ function runPageLoaderAnimation(onComplete) {
   }
   
   let currentProgress = 1;
-  const duration = 3500; // ৩.৫ সেকেন্ড
+  const duration = 3500; 
   const intervalTime = 35; 
   const totalSteps = duration / intervalTime;
   const increment = 99 / totalSteps;
