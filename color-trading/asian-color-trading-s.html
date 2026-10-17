@@ -43,13 +43,13 @@ button{font-family:inherit;touch-action:manipulation}
     #f43b56 288deg 324deg,    /* 8 - Red */
     #08a952 324deg 360deg     /* 9 - Green */
   );
-  border:9px solid #dcae2d;box-shadow:0 0 0 3px #5b4514,0 10px 30px #000b,inset 0 0 0 4px #f9df72,inset 0 0 35px #000;
+  border:9px solid #dcae2d;overflow:visible;box-shadow:0 0 0 3px #5b4514,0 10px 30px #000b,inset 0 0 0 4px #f9df72,inset 0 0 35px #000;
   transition: transform cubic-bezier(0.15, 0.85, 0.15, 1);
 }
 .wheel-number-badge {
   position: absolute;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -57,14 +57,26 @@ button{font-family:inherit;touch-action:manipulation}
   color: #fff;
   font-size: 12px;
   font-weight: 950;
-  border: 1.5px solid rgba(255,255,255,0.7);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.4);
+  font-family: Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background: radial-gradient(circle at 32% 27%, #4b5962 0%, #1b252c 38%, #070c10 78%);
+  border: 2px solid #d7dee2;
+  box-shadow: 0 3px 7px rgba(0,0,0,.75), inset 0 2px 3px rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.85), 0 0 0 2px rgba(0,0,0,.55);
+  text-shadow: 0 1px 2px #000;
   transform-origin: center;
-  z-index: 2;
+  z-index: 8;
+  pointer-events: none;
 }
-.wheel-badge-green { background: radial-gradient(circle at 30% 30%, #4ade80, #16a34a); }
-.wheel-badge-red { background: radial-gradient(circle at 30% 30%, #fb7185, #e11d48); }
-.wheel-badge-violet { background: radial-gradient(circle at 30% 30%, #c084fc, #9333ea); }
+.wheel-number-badge::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.18);
+  pointer-events: none;
+}
+.wheel-badge-green { border-color: #53e89a; box-shadow: 0 3px 7px rgba(0,0,0,.75), inset 0 2px 3px rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.85), 0 0 0 2px rgba(0,0,0,.55), 0 0 8px rgba(22,211,112,.22); }
+.wheel-badge-red { border-color: #ff6278; box-shadow: 0 3px 7px rgba(0,0,0,.75), inset 0 2px 3px rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.85), 0 0 0 2px rgba(0,0,0,.55), 0 0 8px rgba(244,59,86,.22); }
+.wheel-badge-violet { border-color: #d477fa; box-shadow: 0 3px 7px rgba(0,0,0,.75), inset 0 2px 3px rgba(255,255,255,.28), inset 0 -3px 5px rgba(0,0,0,.85), 0 0 0 2px rgba(0,0,0,.55), 0 0 8px rgba(180,65,242,.24); }
 
 .roulette-wheel:before{content:"";position:absolute;inset:18px;border-radius:50%;border:2px solid #f3cd55aa;box-shadow:inset 0 0 0 3px #0008;z-index:3;pointer-events:none}
 .roulette-wheel:after{content:"";position:absolute;inset:50%;width:82px;height:82px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 35% 28%,#ffe78b,#d99d22 40%,#8e5b0c 70%,#3b2507);border:5px solid #f3c84d;box-shadow:0 5px 15px #000b,inset 0 2px 4px #fff7;z-index:4}
@@ -74,7 +86,7 @@ button{font-family:inherit;touch-action:manipulation}
 .roulette-caption{text-align:center;color:#73828c;font-size:9px;font-weight:800;margin-top:-2px}
 
 .color-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.color-choice{height:48px;border:0;border-radius:13px;color:#fff;font-size:14px;font-weight:950;box-shadow:inset 0 1px #ffffff30,0 5px 10px #0005;position:relative;cursor:pointer}.green-choice{background:linear-gradient(#13c76a,#08a952)}.violet-choice{background:linear-gradient(#b441f2,#8b28d1)}.red-choice{background:linear-gradient(#f43b56,#dd1f3e)}
-.number-panel{background:#0b141a;border:1px solid #24343d;border-radius:18px;padding:10px}.number-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.number-card{min-width:0;overflow:hidden;border:1px solid #34454f;border-radius:18px;background:linear-gradient(180deg,#16232b,#0b141a);box-shadow:0 7px 16px #0006,inset 0 1px #ffffff0a}.number-card-title{height:38px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #3a4b55;background:linear-gradient(180deg,#1d2c35,#111c23);color:#fff;font-size:18px;font-weight:950;letter-spacing:.2px;text-transform:none}.number-card-body{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px}.number-button{width:100%;height:58px;border-radius:14px!important;border:1.5px solid rgba(255,255,255,.7)!important;font-size:23px!important;font-weight:950!important;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;line-height:1;color:#fff;text-shadow:0 2px 3px #0008;box-shadow:0 2px 5px #000a,inset 0 2px 3px rgba(255,255,255,.4),inset 0 -4px 7px #0005;cursor:pointer;transition:transform .15s,filter .15s,box-shadow .15s}.number-button:active{transform:scale(.96)}.number-payout{font-size:7px!important;font-weight:700!important;opacity:.9;margin-top:4px;text-shadow:none}.ruby-sphere{background:radial-gradient(circle at 30% 30%,#fb7185,#e11d48 68%)}.green-sphere{background:radial-gradient(circle at 30% 30%,#4ade80,#16a34a 68%)}.violet-sphere{background:radial-gradient(circle at 30% 30%,#c084fc,#9333ea 68%)}.number-card-footer{min-height:42px;display:flex;align-items:center;justify-content:center;border-top:1px solid #3a4b55;background:linear-gradient(180deg,#111c23,#0d171d);padding:5px}.number-footer-button{width:100%;height:34px;border:0;border-radius:11px;background:linear-gradient(180deg,#1e2d35,#121d24);color:#fff;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:950;cursor:pointer;box-shadow:inset 0 1px #fff2,0 2px 5px #0006}.number-footer-button .footer-number{width:23px;height:23px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:950;border:1px solid rgba(255,255,255,.65);box-shadow:0 1px 3px #0008,inset 0 1px 2px #fff5}.number-footer-button .footer-number.violet-footer{background:radial-gradient(circle at 30% 30%,#c084fc,#9333ea 68%)}.number-footer-button .footer-color{font-size:11px;letter-spacing:.2px;color:#e9d5ff}
+.number-panel{background:#0b141a;border:1px solid #24343d;border-radius:16px;padding:9px}.number-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.number-button{width:100%;aspect-ratio:1;border-radius:50%!important;border:0!important;font-size:18px!important;font-weight:950!important;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;line-height:1;color:#fff;box-shadow:inset 4px 5px 8px #fff6,inset -5px -6px 10px #0007,0 3px 6px #0008;cursor:pointer}.number-payout{font-size:7.5px!important;font-weight:700!important;opacity:.9;margin-top:2px}.ruby-sphere{background:radial-gradient(circle at 32% 25%,#ff7b8d,#f12d45 35%,#c71934 65%,#75101e);border:2px solid #ff5368!important}.green-sphere{background:radial-gradient(circle at 32% 25%,#65f39e,#19d66c 36%,#08a952 65%,#075c32);border:2px solid #52ec94!important}.violet-sphere{background:radial-gradient(circle at 32% 25%,#e09bff,#b536e8 36%,#8b22c7 65%,#511176);border:2px solid #d576f7!important}
 .size-row{display:grid;grid-template-columns:1fr 1fr;overflow:hidden;border-radius:18px;background:#18232b;border:1px solid #31404a}.size-button{height:46px;border:0;font-size:14px;font-weight:950;color:#fff;cursor:pointer}.big-choice{background:linear-gradient(90deg,#ffb51b,#f7a917)}.small-choice{background:linear-gradient(90deg,#3787ec,#438ef1)}#game-status-text{padding:5px 6px;text-align:center;color:#93a3ad;font-size:9px}
 
 .bet-badge{position:absolute;top:-6px;right:-4px;background:#ffd039;color:#111;font-size:7px;font-weight:950;padding:2px 5px;border-radius:8px;border:2px solid #111b20;z-index:30}.win-payout-overlay{position:absolute;inset:0;background:#08b45cef;color:#fff;font-size:10px;font-weight:950;display:flex;align-items:center;justify-content:center;border-radius:inherit;z-index:40;animation:popWinAmount 2s ease forwards}@keyframes popWinAmount{0%{transform:scale(.8);opacity:0}20%{transform:scale(1.08);opacity:1}80%{transform:scale(1);opacity:1}100%{opacity:0}}@keyframes zoomOutResult{0%{transform:scale(1.2);opacity:1}80%{transform:scale(1);opacity:1}100%{transform:scale(.3);opacity:0}}.animate-zoom-out{animation:zoomOutResult 1.5s ease forwards}.winning-blink{position:relative;z-index:50;animation:winningBlink .45s ease-in-out 3}.win-blink-green{--win-glow:#22ff82}.win-blink-red{--win-glow:#ff415f}.win-blink-violet{--win-glow:#be82ff}.win-blink-number{--win-glow:#fff}.win-blink-big{--win-glow:#ffbe2d}.win-blink-small{--win-glow:#46a0ff}@keyframes winningBlink{50%{filter:brightness(1.45);box-shadow:0 0 12px var(--win-glow),0 0 24px var(--win-glow);outline:2px solid var(--win-glow)}}
@@ -86,7 +98,7 @@ button{font-family:inherit;touch-action:manipulation}
 :root{--chip-red:#ed3b48;--chip-green:#159653;--chip-gold:#f5a623;--chip-lime:#8fe65d;--chip-blue:#278bd8;--chip-purple:#b34bd4}
 .bottom-fixed-bar{position:fixed;z-index:100;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:430px;background:linear-gradient(180deg,#101a21,#080f14);border-top:1px solid #27353d;padding:7px 12px 9px;display:flex;flex-direction:column;gap:5px;box-shadow:0 -8px 28px #000b}.bottom-bar-top-row{height:48px;display:flex;align-items:center;justify-content:space-between;position:relative}.bottom-action-btn,.bottom-rebet-btn{width:40px;height:40px;border-radius:11px;background:#18252d;border:1px solid #2d3e48;color:#d5dde2;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;position:relative}.center-chips-stack{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;cursor:pointer;height:46px;width:130px}.stacked-chip{--chip-color:var(--chip-red);width:43px;height:43px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:950;position:absolute;border:0;isolation:isolate;overflow:hidden;background:var(--chip-color);box-shadow:0 4px 12px #0009,inset 0 2px 3px #fff5,inset 0 -3px 4px #0005}.stacked-chip:before,.popup-chip-item:before{content:"";position:absolute;inset:1px;border-radius:50%;background:repeating-conic-gradient(from 0deg,#f9f5eb 0deg 9deg,transparent 9deg 30deg);-webkit-mask:radial-gradient(circle,transparent 0 66%,#000 67%);mask:radial-gradient(circle,transparent 0 66%,#000 67%);z-index:0}.stacked-chip:after,.popup-chip-item:after{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid #fff6;box-shadow:inset 0 1px 3px #0005,0 1px 2px #fff2;z-index:0}.stacked-chip>*{position:relative;z-index:2}.stack-back-1{--chip-color:var(--chip-gold);transform:translateX(-27px) scale(.86);z-index:1}.stack-back-2{--chip-color:var(--chip-blue);transform:translateX(27px) scale(.86);z-index:1}.stack-front{--chip-color:var(--chip-red);transform:scale(1.08);z-index:3}.bottom-bar-info-row{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:700;border-top:1px solid #ffffff0d;padding-top:4px}.info-box-left{display:flex;flex-direction:column}.info-title{color:#8997a0;font-size:7.5px;text-transform:uppercase;letter-spacing:.5px}.info-value{font-size:12px;font-family:monospace;font-weight:900}#bottom-bar-center-status{font-size:9px;white-space:nowrap}
 .popup-chips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px 8px;width:100%;max-width:320px;justify-items:center}.popup-chip-item{--chip-color:var(--chip-red);width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:950;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;background:var(--chip-color);border:0;box-shadow:0 6px 16px #0008,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;transition:transform .18s,filter .18s}.popup-chip-item.selected-chip{transform:scale(1.08);filter:brightness(1.12);box-shadow:0 0 15px #fff8,0 6px 15px #0009,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;z-index:10}.popup-chip-item span{position:relative;z-index:2;text-shadow:0 2px 3px #0009}.chip-20{--chip-color:#ed3b48}.chip-50{--chip-color:#159653}.chip-100{--chip-color:#f5a623}.chip-500{--chip-color:#8fe65d;color:#10150e!important}.chip-1k{--chip-color:#278bd8}.chip-10k{--chip-color:#b34bd4}
-@media(max-width:360px){.page-content{padding:8px}.roulette-wrap{width:82vw;height:82vw}.wallet-amount{font-size:20px}.mode-button{min-height:60px}.number-card-grid{gap:7px}.number-card-body{gap:6px;padding:8px}.number-button{height:54px;font-size:20px!important}.number-card-title{height:34px;font-size:16px}.number-card-footer{min-height:38px}.popup-chip-item{width:66px;height:66px;font-size:14px}}
+@media(max-width:360px){.page-content{padding:8px}.roulette-wrap{width:82vw;height:82vw}.wallet-amount{font-size:20px}.mode-button{min-height:60px}.number-grid{gap:5px}.number-button{font-size:16px!important}.popup-chip-item{width:66px;height:66px;font-size:14px}}
 </style>
 </head>
 <body>
@@ -140,35 +152,18 @@ button{font-family:inherit;touch-action:manipulation}
 <button onclick="placeDirectBet('Red')" id="btn-Red" class="color-choice red-choice">Red</button>
 </div>
 
-<div class="number-panel section-gap">
-  <div class="number-card-grid">
-    <div class="number-card">
-      <div class="number-card-title">Small</div>
-      <div class="number-card-body">
-        <button onclick="placeDirectBet('1')" id="btn-1" class="number-button green-sphere relative"><span>1</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('2')" id="btn-2" class="number-button ruby-sphere relative"><span>2</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('3')" id="btn-3" class="number-button green-sphere relative"><span>3</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('4')" id="btn-4" class="number-button ruby-sphere relative"><span>4</span><span class="number-payout">(9x)</span></button>
-      </div>
-      <div class="number-card-footer">
-        <button onclick="placeDirectBet('0')" id="btn-0" class="number-footer-button relative"><span class="footer-number violet-footer">0</span><span class="footer-color">Violet</span></button>
-      </div>
-    </div>
-
-    <div class="number-card">
-      <div class="number-card-title">Big</div>
-      <div class="number-card-body">
-        <button onclick="placeDirectBet('6')" id="btn-6" class="number-button ruby-sphere relative"><span>6</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('7')" id="btn-7" class="number-button green-sphere relative"><span>7</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('8')" id="btn-8" class="number-button ruby-sphere relative"><span>8</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('9')" id="btn-9" class="number-button green-sphere relative"><span>9</span><span class="number-payout">(9x)</span></button>
-      </div>
-      <div class="number-card-footer">
-        <button onclick="placeDirectBet('5')" id="btn-5" class="number-footer-button relative"><span class="footer-number violet-footer">5</span><span class="footer-color">Violet</span></button>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="number-panel section-gap"><div class="number-grid">
+<button onclick="placeDirectBet('0')" id="btn-0" class="number-button violet-sphere relative"><span>0</span><span class="number-payout">(9x)</span></button>
+<button onclick="placeDirectBet('1')" id="btn-1" class="number-button green-sphere relative"><span>1</span><span class="number-payout">(9x)</span></button>
+<button onclick="placeDirectBet('2')" id="btn-2" class="number-button ruby-sphere relative"><span>2</span><span class="number-payout">(9x)</span></button>
+<button onclick="placeDirectBet('3')" id="btn-3" class="number-button green-sphere relative"><span>3</span><span class="number-payout">(9x)</span></button>
+<button onclick="placeDirectBet('4')" id="btn-4" class="number-button ruby-sphere relative"><span>4</span><span class="number-payout">(9x)</span></button>
+<button onclick="placeDirectBet('5')" id="btn-5" class="number-button violet-sphere relative"><span>5</span><span class="number-payout">(9x)</span></button>
+<button onclick="placeDirectBet('6')" id="btn-6" class="number-button ruby-sphere relative"><span>6</span><span class="number-payout">(9x)</span></button>
+<button onclick="placeDirectBet('7')" id="btn-7" class="number-button green-sphere relative"><span>7</span><span class="number-payout">(9x)</span></button>
+<button onclick="placeDirectBet('8')" id="btn-8" class="number-button ruby-sphere relative"><span>8</span><span class="number-payout">(9x)</span></button>
+<button onclick="placeDirectBet('9')" id="btn-9" class="number-button green-sphere relative"><span>9</span><span class="number-payout">(9x)</span></button>
+</div></div>
 
 <div class="size-row section-gap"><button onclick="placeDirectBet('Big')" id="btn-Big" class="size-button big-choice relative">Big</button><button onclick="placeDirectBet('Small')" id="btn-Small" class="size-button small-choice relative">Small</button></div>
 <div id="game-status-text" class="hidden" aria-live="polite">Place your bet before timer ends...</div>
@@ -226,12 +221,14 @@ function buildWheelNumbers() {
   const wheel = document.getElementById('roulette-wheel');
   if(!wheel) return;
   wheel.querySelectorAll('.wheel-number-badge').forEach(el => el.remove());
-  
-  // 10 sectors, each 36 degrees.
+
+  // Original game order and 10 sectors are unchanged.
+  // This function only changes the visual position/style of the numbers.
   const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  const radius = 100; // Distance from center
-  const centerX = 155; 
-  const centerY = 155;
+  const wheelSize = wheel.clientWidth || 310;
+  const center = wheelSize / 2;
+  const badgeSize = wheelSize <= 280 ? 27 : 30;
+  const radius = wheelSize * 0.405;
 
   const colorClasses = {
     0: 'wheel-badge-violet',
@@ -247,19 +244,26 @@ function buildWheelNumbers() {
   };
 
   numbers.forEach((num, index) => {
-    const angleDeg = index * 36 + 18; // Center of slice
+    const angleDeg = index * 36 + 18;
     const angleRad = (angleDeg - 90) * (Math.PI / 180);
-    const x = centerX + radius * Math.cos(angleRad) - 13;
-    const y = centerY + radius * Math.sin(angleRad) - 13;
+    const x = center + radius * Math.cos(angleRad) - (badgeSize / 2);
+    const y = center + radius * Math.sin(angleRad) - (badgeSize / 2);
 
     const div = document.createElement('div');
     div.className = `wheel-number-badge ${colorClasses[num]}`;
+    div.style.width = badgeSize + 'px';
+    div.style.height = badgeSize + 'px';
     div.style.left = x + 'px';
     div.style.top = y + 'px';
+    // Tangential orientation matches the reference wheel style.
     div.style.transform = `rotate(${angleDeg + 90}deg)`;
     div.innerText = num;
     wheel.appendChild(div);
   });
+}
+
+function rebuildWheelNumbersOnResize(){
+  if(!isSpinningActive) buildWheelNumbers();
 }
 
 function getModeTimerColumn(){
@@ -309,6 +313,7 @@ window.addEventListener('click',e=>{
   if(m) m.classList.remove('show');
  }
 });
+window.addEventListener('resize', rebuildWheelNumbersOnResize);
 
 function openModal(tabName){
  activeModalTab=tabName;
