@@ -326,13 +326,13 @@ function showActionToast(message, targetElemId){
 }
 
 function handleWithdrawClick(){
-  if(!currentUser){ window.location.href='login-signup.html'; return; }
-  window.location.href='account/withdraw.html';
+  if(!currentUser){ window.location.href='../login-signup.html'; return; }
+  window.location.href='../account/withdraw.html';
 }
 
 function handleDepositClick(){
-  if(!currentUser){ window.location.href='login-signup.html'; return; }
-  window.location.href='account/deposit.html';
+  if(!currentUser){ window.location.href='../login-signup.html'; return; }
+  window.location.href='../account/deposit.html';
 }
 
 function toggleBetHistoryMenu(e){
@@ -377,7 +377,7 @@ function selectChipFromPopup(amount,element){
 
 document.addEventListener("DOMContentLoaded",async()=>{
  currentUser=await requireAuth();
- if(!currentUser){ window.location.href='login-signup.html'; return; }
+ if(!currentUser){ window.location.href='../login-signup.html'; return; }
  await loadUserProfile();
  await updatePeriodAndTimerState();
  await loadRecentWinsUI();
@@ -628,7 +628,6 @@ async function loadHistoryData(type){
  const container=document.getElementById("modal-body-content");
  if(!type)return;
  
- // শুধুমাত্র তখনই Loading দেখাবে যদি কন্টেইনারে আগে থেকেই কোনো ডাটা বা টেবিল না থাকে
  if(!container.querySelector('table') && !container.querySelector('.trend-grid-container')){
    container.innerHTML=`<p class="text-center text-slate-500 py-3">Loading...</p>`;
  }
