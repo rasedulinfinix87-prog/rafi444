@@ -84,15 +84,18 @@ button{font-family:inherit;touch-action:manipulation}
 .roulette-result{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;margin-top:38px;font-size:10px;font-weight:950;color:#fff;text-shadow:0 2px 4px #000;pointer-events:none;white-space:nowrap;display:none;}
 .roulette-caption{text-align:center;color:#73828c;font-size:9px;font-weight:800;margin-top:-2px}
 
-.number-panel{background:#fff;border:2px solid #000;border-radius:16px;padding:12px;box-shadow:0 8px 20px rgba(0,0,0,0.3)}
-.number-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.bet-card-box{background:#fff;border:2px solid #000;border-radius:14px;padding:10px;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:0 4px 10px rgba(0,0,0,0.08)}
-.bet-card-header{font-size:16px;font-weight:900;text-transform:uppercase;color:#000;border-bottom:2px solid #000;width:100%;text-align:center;padding-bottom:4px;margin-bottom:8px;letter-spacing:1px}
-.inner-nums-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%;justify-items:center;margin-bottom:8px}
-.number-button{width:52px;height:52px;border-radius:50%!important;border:2px solid #000!important;font-size:20px!important;font-weight:950!important;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;line-height:1;color:#000!important;background:#fff!important;box-shadow:0 3px 6px rgba(0,0,0,0.15);cursor:pointer;transition:transform 0.1s}
+/* Updated Original Card Design with Proper Theme Colors */
+.number-panel{background:transparent;padding:0;box-shadow:none}
+.number-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.bet-card-box{border-radius:16px;padding:12px;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:0 6px 16px rgba(0,0,0,0.3);overflow:hidden}
+.card-small{background:linear-gradient(145deg,#3b82f6,#1d4ed8);border:2px solid #60a5fa}
+.card-big{background:linear-gradient(145deg,#f59e0b,#d97706);border:2px solid #fbbf24}
+.bet-card-header{font-size:17px;font-weight:950;text-transform:uppercase;color:#fff;border-bottom:2px solid rgba(255,255,255,0.25);width:100%;text-align:center;padding-bottom:5px;margin-bottom:10px;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
+.inner-nums-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;justify-items:center;margin-bottom:10px}
+.number-button{width:52px;height:52px;border-radius:50%!important;border:2px solid #fff!important;font-size:20px!important;font-weight:950!important;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;line-height:1;color:#1e293b!important;background:#ffffff!important;box-shadow:0 4px 10px rgba(0,0,0,0.25);cursor:pointer;transition:transform 0.1s}
 .number-button:active{transform:scale(0.95)}
-.number-payout{font-size:7.5px!important;font-weight:700!important;color:#555;margin-top:1px}
-.violet-card-footer{width:100%;border-top:2px solid #000;padding-top:6px;text-align:center;font-size:14px;font-weight:900;color:#000;cursor:pointer;background:#f9f9f9;border-bottom-left-radius:12px;border-bottom-right-radius:12px}
+.number-payout{font-size:7.5px!important;font-weight:800!important;color:#64748b;margin-top:1px}
+.violet-card-footer{width:100%;border-top:2px solid rgba(255,255,255,0.25);padding-top:7px;text-align:center;font-size:13px;font-weight:900;color:#fff;cursor:pointer;background:rgba(0,0,0,0.15);border-bottom-left-radius:12px;border-bottom-right-radius:12px;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
 
 #game-status-text{padding:5px 6px;text-align:center;color:#93a3ad;font-size:9px}
 
@@ -155,7 +158,8 @@ button{font-family:inherit;touch-action:manipulation}
 
 <div class="number-panel section-gap">
   <div class="number-grid">
-    <div class="bet-card-box">
+    <!-- Small Card (Original Blue Theme) -->
+    <div class="bet-card-box card-small">
       <div class="bet-card-header">Small</div>
       <div class="inner-nums-grid">
         <button onclick="placeDirectBet('1')" id="btn-1" class="number-button relative"><span>1</span><span class="number-payout">(9x)</span></button>
@@ -166,8 +170,9 @@ button{font-family:inherit;touch-action:manipulation}
       <div class="violet-card-footer" onclick="placeDirectBet('0')" id="btn-0">0 Violet</div>
     </div>
 
-    <div class="bet-card-box">
-      <div class="bet-card-header">big</div>
+    <!-- Big Card (Original Gold/Amber Theme) -->
+    <div class="bet-card-box card-big">
+      <div class="bet-card-header">Big</div>
       <div class="inner-nums-grid">
         <button onclick="placeDirectBet('6')" id="btn-6" class="number-button relative"><span>6</span><span class="number-payout">(9x)</span></button>
         <button onclick="placeDirectBet('7')" id="btn-7" class="number-button relative"><span>7</span><span class="number-payout">(9x)</span></button>
