@@ -516,7 +516,6 @@
             border-radius: 8px;
         }
 
-        /* Chips & Action Buttons Styling (Clean, Small, No Neon/Glow Effect) */
         .chips-container {
             display: flex;
             align-items: center;
@@ -595,7 +594,6 @@
             border-color: #ffffff !important;
         }
 
-        /* Clean chips design without neon/glow */
         .chip-20 { 
             background: #0284c7;
             border: 1.5px solid #0369a1;
@@ -764,7 +762,6 @@
             font-size: 11px;
         }
 
-        /* Trend Grid Layout (6 items per column/row grid flowing rightwards) */
         .trend-grid-container {
             display: grid;
             grid-auto-flow: column;
@@ -787,10 +784,124 @@
             box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 2px 5px rgba(0,0,0,0.5);
             flex-shrink: 0;
         }
+
+        /* Loading Animation Styles */
+        #page-loader-overlay {
+          position: fixed;
+          inset: 0;
+          z-index: 999999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: radial-gradient(circle, #0d1728 0%, #050a13 100%);
+          font-family: Arial, sans-serif;
+          opacity: 1;
+          visibility: visible;
+          transition: opacity .4s ease, visibility .4s ease;
+        }
+        #page-loader-overlay.loader-hidden {
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+        }
+        #page-loader-overlay .loader-content {
+          width: 50%;
+          max-width: 285px;
+          min-width: 210px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        #page-loader-overlay .loader-reels {
+          display: flex;
+          width: 100%;
+          gap: 8px;
+          margin-bottom: 35px;
+        }
+        #page-loader-overlay .loader-reel {
+          position: relative;
+          flex: 1;
+          aspect-ratio: 0.72;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          border: 3px solid #c99a42;
+          border-radius: 17px;
+          background: linear-gradient(145deg, #101a2b, #050a13);
+          box-shadow: inset 0 0 0 2px #f5d58b, 0 3px 7px #0009;
+        }
+        #page-loader-overlay .loader-reel::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 50%;
+          height: 1px;
+          background: #c99a4233;
+        }
+        #page-loader-overlay .loader-reel-number {
+          position: relative;
+          z-index: 1;
+          font-size: clamp(48px, 12vw, 76px);
+          line-height: 1;
+          font-weight: 900;
+          color: #027DFF;
+          text-shadow: 0 2px 3px #000;
+          transition: transform .09s ease, opacity .09s ease;
+        }
+        #page-loader-overlay .loader-reel:nth-child(1) .loader-reel-number { color: #ff393f; }
+        #page-loader-overlay .loader-reel:nth-child(2) .loader-reel-number { color: #11d982; }
+        #page-loader-overlay .loader-reel:nth-child(3) .loader-reel-number { color: #a64af0; }
+        #page-loader-overlay .loader-reel-number.rolling {
+          transform: translateY(-8px);
+          opacity: .35;
+        }
+        #page-loader-overlay .loader-progress-text {
+          color: #027DFF;
+          font-size: 20px;
+          font-weight: 850;
+          letter-spacing: 1px;
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        #page-loader-overlay .loader-progress-track {
+          width: 100%;
+          height: 18px;
+          padding: 2px;
+          overflow: hidden;
+          border-radius: 999px;
+          background: #202b40;
+          border: 1px solid #344057;
+          box-shadow: inset 0 2px 5px #0009;
+        }
+        #page-loader-overlay .loader-progress-fill {
+          width: 0%;
+          height: 100%;
+          border-radius: 999px;
+          background: #027DFF;
+          box-shadow: 0 0 8px #027DFF55;
+          transition: width 3500ms linear;
+        }
     </style>
 </head>
 
 <body class="flex justify-center items-center min-h-screen bg-slate-950">
+
+    <!-- Loading Animation Overlay -->
+    <div id="page-loader-overlay" role="status" aria-label="Loading game">
+      <div class="loader-content">
+        <div class="loader-reels" aria-hidden="true">
+          <div class="loader-reel"><span class="loader-reel-number">0</span></div>
+          <div class="loader-reel"><span class="loader-reel-number">5</span></div>
+          <div class="loader-reel"><span class="loader-reel-number">8</span></div>
+        </div>
+        <div class="loader-progress-text">LOADING...</div>
+        <div class="loader-progress-track">
+          <div class="loader-progress-fill" id="loader-progress-fill"></div>
+        </div>
+      </div>
+    </div>
 
     <div class="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl border-x border-slate-800 relative overflow-hidden pb-12">
 
@@ -912,7 +1023,7 @@
                     </button>
                 </div>
 
-                <!-- Chips & Action Bar (Clean & Small Design without glow/neon) -->
+                <!-- Chips & Action Bar -->
                 <div class="game-section chips-container">
                     <div class="action-group">
                         <button onclick="undoLastBet()" class="action-chip" title="Undo Bet">↩</button>
@@ -993,6 +1104,9 @@
         let lastPlacedBet = null;
         let currentRoundTotalBet = 0;
         let userActiveBets = [];
+
+        // এই ফাইলের নিজস্ব ইউনিক অফসেট বা বীজ (অন্য ফাইলের সাথে ফলাফল আলাদা রাখার জন্য)
+        const FILE_UNIQUE_OFFSET = 7;
 
         document.addEventListener("DOMContentLoaded", async () => {
             renderPeriodNumber();
@@ -1469,11 +1583,7 @@
             let savedResult = String(row.winning_result || '');
             let resultMatch = savedResult.match(/(Green|Red|Violet)\s*[-:]\s*(\d)/i);
 
-            let color = resultMatch
-                ? resultMatch[1].charAt(0).toUpperCase() + resultMatch[1].slice(1).toLowerCase()
-                : (row.winning_color || '');
-
-            let number = resultMatch
+            let rawNum = resultMatch
                 ? Number(resultMatch[2])
                 : (row.winning_number !== null &&
                    row.winning_number !== undefined &&
@@ -1481,9 +1591,8 @@
                     ? Number(row.winning_number)
                     : null);
 
-            if (!['Green', 'Red', 'Violet'].includes(color)) {
-                color = '';
-            }
+            let number = rawNum !== null && Number.isFinite(rawNum) ? (rawNum + FILE_UNIQUE_OFFSET) % 10 : null;
+            let color = number !== null ? ((number === 0 || number === 5) ? 'Violet' : (number % 2 === 1 ? 'Green' : 'Red')) : '';
 
             let bigSmall = number !== null && Number.isFinite(number)
                 ? (number >= 5 ? 'Big' : 'Small')
@@ -1575,19 +1684,22 @@
                     </thead><tbody>`;
 
                 data.forEach(row => {
-                    let bs = Number(row.winning_number) >= 5 ? 'Big' : 'Small';
+                    let rawNum = Number(row.winning_number);
+                    let num = Number.isFinite(rawNum) ? (rawNum + FILE_UNIQUE_OFFSET) % 10 : 0;
+                    let col = (num === 0 || num === 5) ? 'Violet' : (num % 2 === 1 ? 'Green' : 'Red');
+                    let bs = num >= 5 ? 'Big' : 'Small';
 
-                    let colorClass = row.winning_color === 'Green'
+                    let colorClass = col === 'Green'
                         ? 'text-emerald-400'
-                        : (row.winning_color === 'Red'
+                        : (col === 'Red'
                             ? 'text-rose-500'
                             : 'text-purple-400');
 
                     html += `<tr class="border-b border-slate-800/40">
                         <td class="font-mono text-amber-300">${escapeHtml(row.period_number)}</td>
-                        <td class="font-bold">${escapeHtml(row.winning_number)}</td>
+                        <td class="font-bold">${num}</td>
                         <td class="font-semibold">${bs}</td>
-                        <td class="font-bold ${colorClass}">${escapeHtml(row.winning_color)}</td>
+                        <td class="font-bold ${colorClass}">${col}</td>
                     </tr>`;
                 });
 
@@ -1637,8 +1749,17 @@
                     </thead><tbody>`;
 
                 data.forEach(row => {
-                    let status = String(row.status || 'pending').toLowerCase();
+                    let result = getSavedBetResult(row);
 
+                    let isWin = false;
+                    if (result.hasResult) {
+                        if (row.bet_type === result.color || row.bet_type === String(result.number) || row.bet_type === result.bigSmall) {
+                            isWin = true;
+                        }
+                    }
+
+                    let status = row.status === 'completed' || row.status === 'win' || row.status === 'loss' ? (isWin ? 'win' : 'loss') : String(row.status || 'pending').toLowerCase();
+                    // যদি সার্বিক পিরিয়ড স্ট্যাটাস সম্পন্ন হয়ে থাকে
                     let statusColor = status === 'win'
                         ? 'text-emerald-400'
                         : status === 'loss'
@@ -1650,8 +1771,6 @@
                         : status === 'loss'
                             ? 'LOSS'
                             : 'PENDING';
-
-                    let result = getSavedBetResult(row);
 
                     let resultNumberHtml = result.hasResult
                         ? `<span class="result-number ${result.colorClass}">${result.number}</span>`
@@ -1721,14 +1840,17 @@
 
                 if (data && data.length > 0) {
                     data.forEach(row => {
-                        let num = Number(row.winning_number);
+                        let rawNum = Number(row.winning_number);
+                        let num = Number.isFinite(rawNum) ? (rawNum + FILE_UNIQUE_OFFSET) % 10 : 0;
+                        let col = (num === 0 || num === 5) ? 'Violet' : (num % 2 === 1 ? 'Green' : 'Red');
+                        
                         if (num >= 5) bigCount++; else smallCount++;
 
-                        if (row.winning_color === 'Green') greenCount++;
-                        else if (row.winning_color === 'Red') redCount++;
-                        else if (row.winning_color === 'Violet') violetCount++;
+                        if (col === 'Green') greenCount++;
+                        else if (col === 'Red') redCount++;
+                        else if (col === 'Violet') violetCount++;
 
-                        let bgStyle = row.winning_color === 'Red' ? '#e11d48' : (row.winning_color === 'Green' ? '#059669' : '#7c3aed');
+                        let bgStyle = col === 'Red' ? '#e11d48' : (col === 'Green' ? '#059669' : '#7c3aed');
                         trendBallsHtml += `<div class="trend-ball" style="background: ${bgStyle};">${num}</div>`;
                     });
                 } else {
@@ -1745,7 +1867,6 @@
 
                 container.innerHTML = `
                     <div class="bg-transparent p-1 space-y-3">
-                        <!-- Trend Bead Grid -->
                         <div class="overflow-x-auto pb-1">
                             <div class="trend-grid-container">
                                 ${trendBallsHtml}
@@ -1754,9 +1875,7 @@
 
                         <div class="h-[1px] w-full bg-slate-800"></div>
 
-                        <!-- Statistics Percentages -->
                         <div class="space-y-2.5">
-                            <!-- Big / Small Percent -->
                             <div>
                                 <div class="flex justify-between text-[11px] font-bold mb-1">
                                     <span class="text-amber-400">Big: ${bigPct}%</span>
@@ -1768,7 +1887,6 @@
                                 </div>
                             </div>
 
-                            <!-- Color Percentages -->
                             <div class="pt-1">
                                 <div class="flex justify-between text-[10.5px] font-bold mb-1">
                                     <span class="text-emerald-400">Green: ${greenPct}%</span>
@@ -1870,18 +1988,22 @@
             };
 
             let possibleNums = numbersMap[winningColor];
-            let winningNumber = possibleNums[Math.floor(Math.random() * possibleNums.length)];
-            let winningBigSmall = winningNumber >= 5 ? 'Big' : 'Small';
-            let winningResultString = `${winningColor}-${winningNumber}`;
-
+            let rawWinningNumber = possibleNums[Math.floor(Math.random() * possibleNums.length)];
+            
             await supabaseClient
                 .from("color_periods")
                 .update({
                     winning_color: winningColor,
-                    winning_number: winningNumber,
+                    winning_number: rawWinningNumber,
                     status: 'completed'
                 })
                 .eq("period_number", currentPeriodNumber);
+
+            // এই ফাইলের নিজস্ব লজিক অনুযায়ী ফাইনাল নাম্বার ও কালার নির্ধারণ
+            let winningNumber = (rawWinningNumber + FILE_UNIQUE_OFFSET) % 10;
+            let winningColorThisFile = (winningNumber === 0 || winningNumber === 5) ? 'Violet' : (winningNumber % 2 === 1 ? 'Green' : 'Red');
+            let winningBigSmall = winningNumber >= 5 ? 'Big' : 'Small';
+            let winningResultString = `${winningColorThisFile}-${winningNumber}`;
 
             let { data: allBets } = await supabaseClient
                 .from("color_game_history")
@@ -1907,7 +2029,7 @@
                     ) multiplier = 1.9;
                     else if (!isNaN(bet.bet_type)) multiplier = 9;
 
-                    if (bet.bet_type === winningColor) {
+                    if (bet.bet_type === winningColorThisFile) {
                         isWin = true;
                     } else if (bet.bet_type === String(winningNumber)) {
                         isWin = true;
@@ -1987,7 +2109,7 @@
                 `Result: ${winningResultString} (${winningBigSmall})`;
 
             highlightWinningTargets(
-                winningColor,
+                winningColorThisFile,
                 winningNumber,
                 winningBigSmall
             );
@@ -2021,5 +2143,80 @@
         }
     </script>
 
+    <!-- Loading Animation Script -->
+    <script>
+    (function () {
+      const loader = document.getElementById('page-loader-overlay');
+      if (!loader || loader.dataset.initialized === 'true') return;
+      loader.dataset.initialized = 'true';
+
+      const numbers = Array.from(loader.querySelectorAll('.loader-reel-number'));
+      const progress = loader.querySelector('.loader-progress-fill');
+      const finalNumbers = ['0', '5', '8'];
+      const duration = 3500;
+      let started = false;
+      let intervalId;
+
+      function startLoaderAnimation() {
+        if (started) return;
+        started = true;
+        const startTime = performance.now();
+
+        if (progress) {
+          progress.style.transition = 'none';
+          progress.style.width = '0%';
+          void progress.offsetWidth;
+          progress.style.transition = 'width 3500ms linear';
+          requestAnimationFrame(function () {
+            progress.style.width = '100%';
+          });
+        }
+
+        intervalId = setInterval(function () {
+          numbers.forEach(function (element) {
+            element.classList.add('rolling');
+            const current = Number(element.textContent) || 0;
+            element.textContent = String((current + 1) % 10);
+            setTimeout(function () {
+              element.classList.remove('rolling');
+            }, 70);
+          });
+        }, 110);
+
+        function finishLoader() {
+          const elapsed = performance.now() - startTime;
+          const remaining = Math.max(0, duration - elapsed);
+
+          if (remaining > 0) {
+            setTimeout(finishLoader, remaining);
+            return;
+          }
+
+          clearInterval(intervalId);
+          numbers.forEach(function (element, index) {
+            element.classList.remove('rolling');
+            element.textContent = finalNumbers[index];
+          });
+
+          if (progress) {
+            progress.style.width = '100%';
+          }
+
+          loader.classList.add('loader-hidden');
+          setTimeout(function () {
+            loader.style.display = 'none';
+          }, 450);
+        }
+
+        setTimeout(finishLoader, duration);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startLoaderAnimation, { once: true });
+      } else {
+        startLoaderAnimation();
+      }
+    })();
+    </script>
 </body>
 </html>
