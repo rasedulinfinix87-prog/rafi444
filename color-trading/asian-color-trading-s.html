@@ -100,6 +100,7 @@ button{font-family:inherit;touch-action:manipulation}
 .size-bet-small{background:linear-gradient(180deg,#60a5fa,#2563eb)}
 .size-bet-big{background:linear-gradient(180deg,#fbbf24,#d97706)}
 .color-bet-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.violet-bet-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}.color-bet-violet{background:linear-gradient(145deg,#b34bd4,#7426a8);border-color:#d9a0f4}
 .color-bet-button{height:43px;padding-left:27px;border-radius:12px;border:2px solid #ffffff70;color:#fff;font-size:14px;font-weight:950;letter-spacing:.5px;position:relative;overflow:visible;cursor:pointer;box-shadow:0 5px 12px #0004}
 .color-bet-green{background:linear-gradient(145deg,#18c96b,#078744);border-color:#58e99a}
 .color-bet-red{background:linear-gradient(145deg,#ff526b,#d91e3d);border-color:#ff8a9b}
@@ -172,35 +173,34 @@ button{font-family:inherit;touch-action:manipulation}
 
 <div class="number-panel section-gap">
   <div class="number-grid">
-    <!-- Small Card (Original Blue Theme) -->
+    <!-- Number cards: Small/Big headings removed; bet logic retained -->
     <div class="bet-card-box card-small">
-      <div class="bet-card-header">Small</div>
       <div class="inner-nums-grid">
         <button onclick="placeDirectBet('1')" id="btn-1" class="number-button relative"><span>1</span><span class="number-payout">(9x)</span></button>
         <button onclick="placeDirectBet('2')" id="btn-2" class="number-button relative"><span>2</span><span class="number-payout">(9x)</span></button>
         <button onclick="placeDirectBet('3')" id="btn-3" class="number-button relative"><span>3</span><span class="number-payout">(9x)</span></button>
         <button onclick="placeDirectBet('4')" id="btn-4" class="number-button relative"><span>4</span><span class="number-payout">(9x)</span></button>
       </div>
-      <div class="violet-card-footer" onclick="placeDirectBet('0')" id="btn-0">0 Violet</div>
       <button class="size-bet-button size-bet-small" onclick="placeDirectBet('Small')" id="btn-Small">BET SMALL <span style="margin-left:5px;font-size:9px;opacity:.9">1.9x</span></button>
     </div>
 
-    <!-- Big Card (Original Gold/Amber Theme) -->
     <div class="bet-card-box card-big">
-      <div class="bet-card-header">Big</div>
       <div class="inner-nums-grid">
         <button onclick="placeDirectBet('6')" id="btn-6" class="number-button relative"><span>6</span><span class="number-payout">(9x)</span></button>
         <button onclick="placeDirectBet('7')" id="btn-7" class="number-button relative"><span>7</span><span class="number-payout">(9x)</span></button>
         <button onclick="placeDirectBet('8')" id="btn-8" class="number-button relative"><span>8</span><span class="number-payout">(9x)</span></button>
         <button onclick="placeDirectBet('9')" id="btn-9" class="number-button relative"><span>9</span><span class="number-payout">(9x)</span></button>
       </div>
-      <div class="violet-card-footer" onclick="placeDirectBet('5')" id="btn-5">5 Violet</div>
       <button class="size-bet-button size-bet-big" onclick="placeDirectBet('Big')" id="btn-Big">BET BIG <span style="margin-left:5px;font-size:9px;opacity:.9">1.9x</span></button>
     </div>
   </div>
   <div class="color-bet-row">
     <button class="color-bet-button color-bet-green" onclick="placeDirectBet('Green')" id="btn-Green">GREEN <span style="font-size:10px;opacity:.9">2x</span></button>
     <button class="color-bet-button color-bet-red" onclick="placeDirectBet('Red')" id="btn-Red">RED <span style="font-size:10px;opacity:.9">1.9x</span></button>
+  </div>
+  <div class="violet-bet-row">
+    <button class="color-bet-button color-bet-violet" onclick="placeDirectBet('0')" id="btn-0">0 VIOLET <span style="font-size:10px;opacity:.9">9x</span></button>
+    <button class="color-bet-button color-bet-violet" onclick="placeDirectBet('5')" id="btn-5">5 VIOLET <span style="font-size:10px;opacity:.9">9x</span></button>
   </div>
 </div>
 
