@@ -124,11 +124,11 @@ button{font-family:inherit;touch-action:manipulation}
 .popup-chips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px 8px;width:100%;max-width:320px;justify-items:center}.popup-chip-item{--chip-color:var(--chip-red);width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:950;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;background:var(--chip-color);border:0;box-shadow:0 6px 16px #0008,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;transition:transform .18s,filter .18s}.popup-chip-item.selected-chip{transform:scale(1.08);filter:brightness(1.12);box-shadow:0 0 15px #fff8,0 6px 15px #0009,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;z-index:10}.popup-chip-item span{position:relative;z-index:2;text-shadow:0 2px 3px #0009}.chip-20{--chip-color:#ed3b48}.chip-50{--chip-color:#159653}.chip-100{--chip-color:#f5a623}.chip-500{--chip-color:#8fe65d;color:#10150e!important}.chip-1k{--chip-color:#278bd8}.chip-10k{--chip-color:#b34bd4}
 @media(max-width:360px){.page-content{padding:8px}.roulette-wrap{width:82vw;height:82vw}.wallet-amount{font-size:20px}.mode-button{min-height:60px}.popup-chip-item{width:66px;height:66px;font-size:14px}.number-button{width:48px;height:48px;font-size:18px!important}}
 
-/* কাস্টম স্পিনিং অ্যানিমেশন ও প্রোগ্রেস বার স্টাইল (চাহিদা অনুযায়ী যুক্ত) */
+/* কাস্টম স্পিনিং সিম্বল ও প্রোগ্রেস বার স্টাইল (#007FFF ও #1C1C1C কালার এবং ছোট সাইজ) */
 #page-loader-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 9, 13, 0.95);
+  background: #05090d;
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -136,43 +136,50 @@ button{font-family:inherit;touch-action:manipulation}
   justify-content: center;
   transition: opacity 0.5s ease;
 }
-.loader-chip-container {
+.loader-symbol-wrap {
   position: relative;
-  width: 130px;
-  height: 130px;
+  width: 90px;
+  height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.loader-outer-ring {
+.loader-chip-outer {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 4px solid #1e293b;
-  border-top: 4px solid #3b82f6;
-  border-left: 4px solid #3b82f6;
+  border: 4px solid #1C1C1C;
+  border-top: 4px solid #007FFF;
+  border-right: 4px solid #007FFF;
   animation: symbolSpin 1.2s linear infinite;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 15px rgba(0, 127, 255, 0.4);
 }
-.loader-center-chip {
-  width: 80px;
-  height: 80px;
+.loader-chip-inner {
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 28%, #4b5962 0%, #1b252c 38%, #070c10 78%);
-  border: 4px solid #dcae2d;
-  box-shadow: 0 0 20px rgba(220, 174, 45, 0.5), inset 0 2px 4px rgba(255,255,255,0.3);
+  background: #1C1C1C;
+  border: 3px solid #007FFF;
+  box-shadow: inset 0 2px 5px #000, 0 0 10px rgba(0, 127, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
 }
+.loader-chip-core {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #05090d;
+  border: 2px solid #007FFF;
+}
 .loader-progress-text {
-  margin-top: 20px;
+  margin-top: 18px;
   font-family: monospace;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 950;
-  color: #3b82f6;
+  color: #007FFF;
   letter-spacing: 1px;
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  text-shadow: 0 0 8px rgba(0, 127, 255, 0.6);
 }
 @keyframes symbolSpin {
   0% { transform: rotate(0deg); }
@@ -182,12 +189,12 @@ button{font-family:inherit;touch-action:manipulation}
 </head>
 <body>
 
-<!-- পেজ লোডিং স্পিনার ও প্রোগ্রেস বার ওভারলে -->
+<!-- পেজ লোডিং স্পিনার ও প্রোগ্রেস বার (১-১০০%, ৩.৫ সেকেন্ড) -->
 <div id="page-loader-overlay">
-  <div class="loader-chip-container">
-    <div class="loader-outer-ring"></div>
-    <div class="loader-center-chip">
-      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#dcae2d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
+  <div class="loader-symbol-wrap">
+    <div class="loader-chip-outer"></div>
+    <div class="loader-chip-inner">
+      <div class="loader-chip-core"></div>
     </div>
   </div>
   <div class="loader-progress-text" id="loader-progress-val">1%</div>
@@ -445,7 +452,7 @@ function selectChipFromPopup(amount,element){
  setTimeout(closeChipsPopup,200)
 }
 
-// ৩.৫ সেকেন্ডের প্রোগ্রেস বার অ্যানিমেশন লজিক
+// ৩.৫ সেকেন্ডের প্রোগ্রেস বার ও স্পিনিং অ্যানিমেশন
 function runPageLoaderAnimation(onComplete) {
   const loaderElem = document.getElementById('page-loader-overlay');
   const progressValElem = document.getElementById('loader-progress-val');
@@ -480,7 +487,6 @@ function runPageLoaderAnimation(onComplete) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // প্রোগ্রেস বার অ্যানিমেশন চালুকরণ
   runPageLoaderAnimation(async () => {
     currentUser = await requireAuth();
     if(!currentUser){ window.location.href='../login-signup.html'; return; }
