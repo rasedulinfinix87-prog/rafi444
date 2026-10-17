@@ -31,16 +31,16 @@ button{font-family:inherit;touch-action:manipulation}
 .roulette-wheel{
   width:100%;height:100%;border-radius:50%;position:relative;
   background: conic-gradient(
-    #b441f2 0deg 36deg,      /* 0 - Violet */
-    #08a952 36deg 72deg,      /* 1 - Green */
-    #f43b56 72deg 108deg,     /* 2 - Red */
-    #08a952 108deg 144deg,    /* 3 - Green */
-    #f43b56 144deg 180deg,    /* 4 - Red */
-    #b441f2 180deg 216deg,    /* 5 - Violet */
-    #f43b56 216deg 252deg,    /* 6 - Red */
-    #08a952 252deg 288deg,    /* 7 - Green */
-    #f43b56 288deg 324deg,    /* 8 - Red */
-    #08a952 324deg 360deg     /* 9 - Green */
+    #b441f2 0deg 36deg,
+    #08a952 36deg 72deg,
+    #f43b56 72deg 108deg,
+    #08a952 108deg 144deg,
+    #f43b56 144deg 180deg,
+    #b441f2 180deg 216deg,
+    #f43b56 216deg 252deg,
+    #08a952 252deg 288deg,
+    #f43b56 288deg 324deg,
+    #08a952 324deg 360deg
   );
   border:9px solid #dcae2d;overflow:visible;box-shadow:0 0 0 3px #5b4514,0 10px 30px #000b,inset 0 0 0 4px #f9df72,inset 0 0 35px #000;
   transition: transform cubic-bezier(0.15, 0.85, 0.15, 1);
@@ -81,10 +81,9 @@ button{font-family:inherit;touch-action:manipulation}
 .roulette-wheel:after{content:"";position:absolute;inset:50%;width:82px;height:82px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 35% 28%,#ffe78b,#d99d22 40%,#8e5b0c 70%,#3b2507);border:5px solid #f3c84d;box-shadow:0 5px 15px #000b,inset 0 2px 4px #fff7;z-index:4}
 .roulette-pointer{position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:22px solid #f8fafc;filter:drop-shadow(0 2px 2px #000);z-index:10}
 .roulette-pin{position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%);border-radius:50%;background:#f6cf5a;border:2px solid #fff2;z-index:5;box-shadow:0 2px 6px #000}
-.roulette-result{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;margin-top:38px;font-size:10px;font-weight:950;color:#fff;text-shadow:0 2px 4px #000;pointer-events:none;white-space:nowrap}
+.roulette-result{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;margin-top:38px;font-size:10px;font-weight:950;color:#fff;text-shadow:0 2px 4px #000;pointer-events:none;white-space:nowrap;display:none;}
 .roulette-caption{text-align:center;color:#73828c;font-size:9px;font-weight:800;margin-top:-2px}
 
-/* Updated Number Panel & Card Design matching the reference image style */
 .number-panel{background:#fff;border:2px solid #000;border-radius:16px;padding:12px;box-shadow:0 8px 20px rgba(0,0,0,0.3)}
 .number-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .bet-card-box{background:#fff;border:2px solid #000;border-radius:14px;padding:10px;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:0 4px 10px rgba(0,0,0,0.08)}
@@ -154,10 +153,8 @@ button{font-family:inherit;touch-action:manipulation}
   <div class="period-number-bar"><span class="period-lbl">Period</span><div id="period-number" class="period-digits-container"></div></div>
 </div>
 
-<!-- Updated Number Panel with Two Cards (Small and Big) matching the reference image style -->
 <div class="number-panel section-gap">
   <div class="number-grid">
-    <!-- Small Card -->
     <div class="bet-card-box">
       <div class="bet-card-header">Small</div>
       <div class="inner-nums-grid">
@@ -169,7 +166,6 @@ button{font-family:inherit;touch-action:manipulation}
       <div class="violet-card-footer" onclick="placeDirectBet('0')" id="btn-0">0 Violet</div>
     </div>
 
-    <!-- Big Card -->
     <div class="bet-card-box">
       <div class="bet-card-header">big</div>
       <div class="inner-nums-grid">
@@ -207,6 +203,7 @@ let activeModalTab='game-history',selectedChipAmount=20,lastPlacedBet=null,curre
 let currentWheelRotation = 0;
 let isSpinningActive = false;
 let audioCtx = null;
+let isRoundProcessing = false;
 
 function initAudioContext() {
   if (!audioCtx) {
@@ -465,11 +462,6 @@ function initRealtimeSubscription(){
       }).subscribe();
     } catch(e){}
  }
- setInterval(()=>{
-   loadRecentWinsUI();
-   const modal=document.getElementById('custom-popup-modal');
-   if(modal&&modal.classList.contains('show')&&activeModalTab&&(activeModalTab==='chart'||activeModalTab==='game-history'))loadHistoryData(activeModalTab);
- },5000);
 }
 
 async function undoLastBet(){
@@ -603,11 +595,11 @@ function spinWheelToNumber(targetNumber, callback) {
   currentWheelRotation = targetRotation;
   isSpinningActive = true;
   
-  wheel.style.transition = 'transform 6.5s cubic-bezier(0.15, 0.85, 0.15, 1)';
+  wheel.style.transition = 'transform 4.5s cubic-bezier(0.15, 0.85, 0.15, 1)';
   wheel.style.transform = `rotate(${currentWheelRotation}deg)`;
 
   let startTime = performance.now();
-  let spinDuration = 6500;
+  let spinDuration = 4500;
   let lastTickDeg = currentWheelRotation;
 
   function tickAnimation(currentTime) {
@@ -642,41 +634,29 @@ function startTimer(){
  function updateMainTimer(){
   const min=Math.floor(timerSeconds/60),sec=timerSeconds%60,timeText=`${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
   timerElem.innerHTML=`<span class="timer-digit">${timeText[0]}</span><span class="timer-digit">${timeText[1]}</span><span class="timer-colon">:</span><span class="timer-digit">${timeText[3]}</span><span class="timer-digit">${timeText[4]}</span>`;
-  
-  if (timerSeconds === 10) {
-    playTickSound(300, 0.05);
-    const wheel = document.getElementById('roulette-wheel');
-    if (wheel && !isSpinningActive) {
-      currentWheelRotation += 120;
-      wheel.style.transition = 'transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)';
-      wheel.style.transform = `rotate(${currentWheelRotation}deg)`;
-    }
-  } else if (timerSeconds === 7) {
-    playTickSound(400, 0.05);
-    const wheel = document.getElementById('roulette-wheel');
-    if (wheel && !isSpinningActive) {
-      currentWheelRotation += 240;
-      wheel.style.transition = 'transform 2.0s cubic-bezier(0.1, 0.9, 0.2, 1)';
-      wheel.style.transform = `rotate(${currentWheelRotation}deg)`;
-    }
-  }
 
   if(timerSeconds<=5){
     const center=document.getElementById("bottom-bar-center-status"),s=center.querySelector("span");
     if(s&&!s.classList.contains("animate-zoom-out")){s.classList.add("animate-zoom-out");setTimeout(()=>center.innerHTML="",1500)}
     timerElem.classList.add("timer-danger");timerLabel.innerText="NO MORE BET";timerLabel.classList.add("timer-label-danger");
-    if(timerSeconds===5)playVoiceMessage("No more bets");
+    if(timerSeconds===5) {
+      playVoiceMessage("No more bets");
+      if(!isRoundProcessing) {
+        isRoundProcessing = true;
+        processRoundResult();
+      }
+    }
   } else {
     timerElem.classList.remove("timer-danger");timerLabel.innerText="PLACE YOUR BET";timerLabel.classList.remove("timer-label-danger");
   }
  }
  
  updateMainTimer();
- timerInterval=setInterval(async ()=>{
+ timerInterval=setInterval(()=>{
    timerSeconds--;
-   if(timerSeconds<=0){
-     clearInterval(timerInterval);
-     await processRoundResult();
+   if(timerSeconds<0){
+     timerSeconds = selectedGameDuration;
+     updatePeriodAndTimerState();
    }
    updateMainTimer();
  },1000)
@@ -841,7 +821,8 @@ async function processRoundResult(){
    
    await updatePeriodAndTimerState();
    loadRecentWinsUI();
-   const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);startTimer()
+   const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);
+   isRoundProcessing = false;
  });
 }
 </script>
