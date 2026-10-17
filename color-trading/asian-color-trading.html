@@ -389,7 +389,8 @@ async function updatePeriodAndTimerState(){
  const now = Math.floor(Date.now() / 1000);
  const periodIndex = Math.floor(now / selectedGameDuration);
  
- const basePeriodId = 2026101500;
+ const prefixMap = { 15: '15', 30: '30', 60: '60', 300: '50' };
+ const basePeriodId = 202610150000 + (selectedGameDuration * 1000);
  currentPeriodNumber = String(basePeriodId + periodIndex);
  renderPeriodNumber();
  
@@ -432,7 +433,8 @@ async function ensureCurrentPeriodExists(){
  } else if(periodData.status === 'completed') {
    const now = Math.floor(Date.now() / 1000);
    const periodIndex = Math.floor(now / selectedGameDuration) + 1;
-   currentPeriodNumber = String(2026101500 + periodIndex);
+   const basePeriodId = 202610150000 + (selectedGameDuration * 1000);
+   currentPeriodNumber = String(basePeriodId + periodIndex);
    renderPeriodNumber();
    let {data:nextPeriodData} = await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
    if(!nextPeriodData){
