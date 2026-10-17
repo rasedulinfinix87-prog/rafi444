@@ -2,54 +2,40 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#030d12">
   <title>Super Ace Game</title>
   <style>
-    /* স্বাভাবিক রিসেট যাতে রিফ্রেশ বা ব্রাউজার ফিচারে সমস্যা না হয় */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
       width: 100%;
       height: 100%;
+      min-height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background-color: #030d12;
+      background: #030d12;
       font-family: Arial, sans-serif;
     }
 
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-    }
+    body { position: fixed; inset: 0; }
 
-    /* গেমের মূল কন্টেইনার (মোবাইল ফ্রেম ফিট করার জন্য) */
     .game-container {
-      /* Use the entire visible mobile viewport; no 410px/780px cap. */
-      width: 100vw;
-      height: 100vh;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       height: 100dvh;
-      max-width: none;
-      max-height: none;
-      flex: 0 0 100%;
-      background: #030d12 url('slot/image/full_layout.png') no-repeat center center;
-      background-size: 100% 100%;
-      position: relative;
       overflow: hidden;
-      box-shadow: none;
-    }
-
-    /* If this HTML is already inside the /slot folder, use its local image folder. */
-    .game-container.asset-local {
+      background-color: #030d12;
       background-image: url('image/full_layout.png');
+      background-repeat: no-repeat;
+      background-position: center center;
+      /* Fill the full phone screen as requested; this can stretch the background. */
+      background-size: 100% 100%;
     }
 
-    /* ৪x৫ গ্রিড বোর্ডের নিখুঁত পজিশন */
     .slot-board {
       position: absolute;
       top: 28.5%;
@@ -61,16 +47,17 @@
       z-index: 2;
     }
 
-    /* প্রতিটি কলাম (Reel Column) */
     .reel-column {
       width: 18%;
       height: 100%;
       position: relative;
       overflow: hidden;
+      flex: 0 0 18%;
     }
 
     .reel-inner {
       width: 100%;
+      height: 100%;
       position: absolute;
       top: 0;
       left: 0;
@@ -79,31 +66,23 @@
       gap: 4px;
     }
 
-    /* কার্ডের স্টাইল */
     .card {
       width: 100%;
-      height: 23.5%;
+      height: calc((100% - 12px) / 4);
+      flex: 0 0 calc((100% - 12px) / 4);
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
       border-radius: 4px;
     }
 
-    /* ড্রপ অ্যানিমেশন */
     @keyframes dropDown {
-      0% {
-        transform: translateY(-100%);
-      }
-      100% {
-        transform: translateY(0);
-      }
+      from { transform: translateY(-100%); }
+      to { transform: translateY(0); }
     }
 
-    .drop-animate {
-      animation: dropDown 0.3s ease-out forwards;
-    }
+    .drop-animate { animation: dropDown 0.3s ease-out forwards; }
 
-    /* স্পিন বাটন এরিয়া */
     .controls {
       position: absolute;
       bottom: 4.5%;
@@ -115,6 +94,7 @@
     }
 
     .spin-btn {
+      display: block;
       width: 100%;
       height: 100%;
       border-radius: 50%;
@@ -131,9 +111,7 @@
   </style>
 </head>
 <body>
-
   <div class="game-container">
-    <!-- ৪x৫ কার্ড গ্রিড বোর্ড -->
     <div class="slot-board">
       <div class="reel-column"><div class="reel-inner" id="col-0"></div></div>
       <div class="reel-column"><div class="reel-inner" id="col-1"></div></div>
@@ -141,26 +119,18 @@
       <div class="reel-column"><div class="reel-inner" id="col-3"></div></div>
       <div class="reel-column"><div class="reel-inner" id="col-4"></div></div>
     </div>
-
-    <!-- স্পিন বাটন -->
     <div class="controls">
-      <button class="spin-btn" onclick="spinReels()"></button>
+      <button class="spin-btn" type="button" onclick="spinReels()" aria-label="Spin"></button>
     </div>
   </div>
 
   <script>
-    // Try /slot/image/full_layout.png first, then image/full_layout.png for HTML hosted inside /slot.
-    (() => {
-      const game = document.querySelector('.game-container');
-      const test = new Image();
-      test.onload = () => {};
-      test.onerror = () => game.classList.add('asset-local');
-      test.src = new URL('slot/image/full_layout.png', document.baseURI).href;
-    })();
+    'use strict';
 
-    // কার্ড এবং সিম্বলের তালিকা
+    // This file expects the structure: /slot/index.html and /slot/image/*.png
+    // Relative URLs are intentional; no runtime URL probing or reload loop is used.
     const cardTypes = [
-      'image/card_ace.png',
+      'image/cards_ace.png',
       'image/card_king.png',
       'image/card_queen.png',
       'image/card_jack.png',
@@ -169,42 +139,57 @@
       'image/card_club.png'
     ];
 
-    // বোর্ড ইনিশিয়ালাইজেশন
+    function randomCard() {
+      return cardTypes[Math.floor(Math.random() * cardTypes.length)];
+    }
+
     function initBoard() {
       for (let col = 0; col < 5; col++) {
         const colDiv = document.getElementById(`col-${col}`);
-        colDiv.innerHTML = '';
+        if (!colDiv) continue;
+        colDiv.replaceChildren();
+
         for (let row = 0; row < 4; row++) {
           const card = document.createElement('div');
           card.className = 'card';
-          const randomCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
-          card.style.backgroundImage = `url('${randomCard}')`;
+          card.style.backgroundImage = `url("${randomCard()}")`;
           colDiv.appendChild(card);
         }
       }
     }
 
-    // স্পিন ফাংশন এবং অ্যানিমেশন
+    let spinning = false;
     function spinReels() {
+      if (spinning) return;
+      spinning = true;
+
       for (let col = 0; col < 5; col++) {
         const colDiv = document.getElementById(`col-${col}`);
-        
-        setTimeout(() => {
+        if (!colDiv) continue;
+
+        window.setTimeout(() => {
           colDiv.classList.remove('drop-animate');
           void colDiv.offsetWidth;
-          
-          const cards = colDiv.querySelectorAll('.card');
-          cards.forEach(card => {
-            const randomCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
-            card.style.backgroundImage = `url('${randomCard}')`;
+
+          colDiv.querySelectorAll('.card').forEach(card => {
+            card.style.backgroundImage = `url("${randomCard()}")`;
           });
 
           colDiv.classList.add('drop-animate');
+
+          if (col === 4) {
+            window.setTimeout(() => { spinning = false; }, 320);
+          }
         }, col * 60);
       }
     }
 
-    window.onload = initBoard;
+    // Initialize after DOM parsing; does not interfere with browser refresh.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initBoard, { once: true });
+    } else {
+      initBoard();
+    }
   </script>
 </body>
 </html>
