@@ -2,45 +2,47 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Super Ace Game</title>
   <style>
-    * {
-      box-sizing: border-box;
+    /* স্ক্রিন স্ক্রল ও পুল-টু-রিফ্রেশ বন্ধ করার জন্য */
+    html, body {
+      width: 100%;
+      height: 100%;
       margin: 0;
       padding: 0;
+      overflow: hidden;
+      background-color: #0b1a20;
+      font-family: Arial, sans-serif;
+      touch-action: none;
     }
 
     body {
-      background-color: #0b1a20;
-      font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      color: #fff;
+      position: fixed;
     }
 
-    /* গেমের মূল ফ্রেম */
+    /* গেমের মূল ফ্রেম (মোবাইল স্ক্রিন অনুযায়ী ফিট করা) */
     .game-container {
-      width: 360px;
-      height: 640px;
+      width: 100vw;
+      height: 100vh;
+      max-width: 450px;
+      max-height: 850px;
       background: url('image/full_layout.png') no-repeat center center;
-      background-size: cover;
+      background-size: 100% 100%; /* পুরো স্ক্রিন জুড়ে পারফেক্ট ফিট হবে */
       position: relative;
       overflow: hidden;
-      box-shadow: 0 0 20px rgba(0,0,0,0.9);
-      border-radius: 12px;
-      border: 3px solid #b8860b;
     }
 
-    /* ৪x৫ গ্রিড বোর্ড এর সঠিক পজিশন */
+    /* ৪x৫ গ্রিড বোর্ডের পজিশন */
     .slot-board {
       position: absolute;
-      top: 175px;
-      left: 10px;
-      width: 340px;
-      height: 290px;
+      top: 27%;
+      left: 7%;
+      width: 86%;
+      height: 45%;
       display: flex;
       justify-content: space-between;
       z-index: 2;
@@ -48,7 +50,7 @@
 
     /* প্রতিটি কলাম (Reel Column) */
     .reel-column {
-      width: 64px;
+      width: 18%;
       height: 100%;
       position: relative;
       overflow: hidden;
@@ -61,13 +63,13 @@
       left: 0;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
     }
 
     /* কার্ডের স্টাইল */
     .card {
-      width: 64px;
-      height: 68px;
+      width: 100%;
+      height: 23.5%;
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
@@ -77,7 +79,7 @@
     /* ড্রপ অ্যানিমেশন */
     @keyframes dropDown {
       0% {
-        transform: translateY(-290px);
+        transform: translateY(-100%);
       }
       100% {
         transform: translateY(0);
@@ -85,21 +87,23 @@
     }
 
     .drop-animate {
-      animation: dropDown 0.4s ease-out forwards;
+      animation: dropDown 0.35s ease-out forwards;
     }
 
     /* স্পিন বাটন এরিয়া */
     .controls {
       position: absolute;
-      bottom: 25px;
+      bottom: 4%;
       left: 50%;
       transform: translateX(-50%);
       z-index: 20;
+      width: 22%;
+      height: 12%;
     }
 
     .spin-btn {
-      width: 75px;
-      height: 75px;
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
       background: transparent;
       border: none;
@@ -168,7 +172,7 @@
           });
 
           colDiv.classList.add('drop-animate');
-        }, col * 80);
+        }, col * 70);
       }
     }
 
