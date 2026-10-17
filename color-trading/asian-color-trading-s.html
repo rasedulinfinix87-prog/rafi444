@@ -84,21 +84,22 @@ button{font-family:inherit;touch-action:manipulation}
 .roulette-result{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;margin-top:38px;font-size:10px;font-weight:950;color:#fff;text-shadow:0 2px 4px #000;pointer-events:none;white-space:nowrap;display:none;}
 .roulette-caption{text-align:center;color:#73828c;font-size:9px;font-weight:800;margin-top:-2px}
 
-/* Updated Original Card Design with Proper Theme Colors */
+/* Number betting area: keep the existing betting logic, but match the wheel badge design. */
 .number-panel{background:transparent;padding:0;box-shadow:none}
 .number-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.bet-card-box{border-radius:16px;padding:12px;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:0 6px 16px rgba(0,0,0,0.3);overflow:hidden;min-width:0}
-.card-small{background:linear-gradient(145deg,#3b82f6,#1d4ed8);border:2px solid #60a5fa}
-.card-big{background:linear-gradient(145deg,#f59e0b,#d97706);border:2px solid #fbbf24}
-.bet-card-header{font-size:17px;font-weight:950;text-transform:uppercase;color:#fff;border-bottom:2px solid rgba(255,255,255,0.25);width:100%;text-align:center;padding-bottom:5px;margin-bottom:10px;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
-.inner-nums-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;justify-items:center;margin-bottom:10px}
-.number-button{width:52px;height:52px;border-radius:50%!important;border:2px solid #fff!important;font-size:20px!important;font-weight:950!important;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;line-height:1;color:#1e293b!important;background:#ffffff!important;box-shadow:0 4px 10px rgba(0,0,0,0.25);cursor:pointer;transition:transform 0.1s}
+.bet-card-box{border-radius:0;padding:0;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:none;overflow:visible;min-width:0;background:transparent;border:0}
+.card-small,.card-big{background:transparent;border:0}
+.bet-card-header{font-size:17px;font-weight:950;text-transform:uppercase;color:#fff;width:100%;text-align:center;padding-bottom:5px;margin-bottom:10px;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
+.inner-nums-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;justify-items:center;margin-bottom:5px}
+.number-button{width:52px;height:52px;border-radius:50%!important;border:2px solid #d7dee2!important;font-size:20px!important;font-weight:950!important;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;line-height:1;color:#fff!important;background:radial-gradient(circle at 32% 27%,#4b5962 0%,#1b252c 38%,#070c10 78%)!important;box-shadow:0 3px 7px rgba(0,0,0,.75),inset 0 2px 3px rgba(255,255,255,.28),inset 0 -3px 5px rgba(0,0,0,.85),0 0 0 2px rgba(0,0,0,.55)!important;text-shadow:0 1px 2px #000;cursor:pointer;transition:transform 0.1s}
+.number-button::after{content:"";position:absolute;inset:5px;border-radius:50%;border:1px solid rgba(255,255,255,.18);pointer-events:none}
 .number-button:active{transform:scale(0.95)}
-.number-payout{font-size:7.5px!important;font-weight:800!important;color:#64748b;margin-top:1px}
-.violet-card-footer{width:100%;min-height:34px;box-sizing:border-box;border-top:2px solid rgba(255,255,255,0.25);padding:7px 26px 2px;text-align:center;font-size:13px;font-weight:900;color:#fff;cursor:pointer;background:rgba(0,0,0,0.15);border-bottom-left-radius:12px;border-bottom-right-radius:12px;text-shadow:0 1px 2px rgba(0,0,0,0.3);position:relative;display:flex;align-items:center;justify-content:center}
-.size-bet-button{width:100%;min-height:36px;margin-top:8px;padding-left:27px;border:1px solid #ffffff80;border-radius:10px;display:flex;align-items:center;justify-content:center;position:relative;overflow:visible;font-size:12px;font-weight:950;letter-spacing:.5px;color:#fff;cursor:pointer;box-shadow:0 4px 9px #0003}
-.size-bet-small{background:linear-gradient(180deg,#60a5fa,#2563eb)}
-.size-bet-big{background:linear-gradient(180deg,#fbbf24,#d97706)}
+.number-button .number-payout{font-size:7.5px!important;font-weight:800!important;color:#d6dee3;margin-top:2px;position:relative;z-index:2}
+#btn-1,#btn-3,#btn-7,#btn-9{border-color:#53e89a!important;box-shadow:0 3px 7px rgba(0,0,0,.75),inset 0 2px 3px rgba(255,255,255,.28),inset 0 -3px 5px rgba(0,0,0,.85),0 0 0 2px rgba(0,0,0,.55),0 0 8px rgba(22,211,112,.22)!important}
+#btn-2,#btn-4,#btn-6,#btn-8{border-color:#ff6278!important;box-shadow:0 3px 7px rgba(0,0,0,.75),inset 0 2px 3px rgba(255,255,255,.28),inset 0 -3px 5px rgba(0,0,0,.85),0 0 0 2px rgba(0,0,0,.55),0 0 8px rgba(244,59,86,.22)!important}
+.size-bet-button{width:100%;min-height:31px;margin-top:2px;padding:8px 0 1px;border:0;border-top:1px solid rgba(255,255,255,.28);border-radius:0;display:flex;align-items:center;justify-content:center;position:relative;overflow:visible;font-size:12px;font-weight:950;letter-spacing:.5px;color:#fff;cursor:pointer;box-shadow:none;background:transparent;text-shadow:0 1px 2px #000}
+.size-bet-small{color:#60a5fa}
+.size-bet-big{color:#fbbf24}
 .color-bet-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
 .violet-bet-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}.color-bet-violet{background:linear-gradient(145deg,#b34bd4,#7426a8);border-color:#d9a0f4}
 .color-bet-button{height:43px;padding-left:27px;border-radius:12px;border:2px solid #ffffff70;color:#fff;font-size:14px;font-weight:950;letter-spacing:.5px;position:relative;overflow:visible;cursor:pointer;box-shadow:0 5px 12px #0004}
@@ -121,9 +122,9 @@ button{font-family:inherit;touch-action:manipulation}
 .action-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#f8fafc;padding:8px 16px;border-radius:12px;font-size:12px;font-weight:800;border:1px solid #334155;box-shadow:0 8px 20px #000a;z-index:300;opacity:0;transition:all .3s;pointer-events:none}.action-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.action-toast.fade-out{opacity:0;transform:translateX(-50%) translateY(-25px);transition:all .5s ease-in}
 
 :root{--chip-red:#ed3b48;--chip-green:#159653;--chip-gold:#f5a623;--chip-lime:#8fe65d;--chip-blue:#278bd8;--chip-purple:#b34bd4}
-.bottom-fixed-bar{position:fixed;z-index:100;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:430px;background:linear-gradient(180deg,#101a21,#080f14);border-top:1px solid #27353d;padding:7px 12px 9px;display:flex;flex-direction:column;gap:5px;box-shadow:0 -8px 28px #000b}.bottom-bar-top-row{height:48px;display:flex;align-items:center;justify-content:space-between;position:relative}.bottom-action-btn,.bottom-rebet-btn{width:40px;height:40px;border-radius:11px;background:#18252d;border:1px solid #2d3e48;color:#d5dde2;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;position:relative}.center-chips-stack{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;cursor:pointer;height:46px;width:130px}.stacked-chip{--chip-color:var(--chip-red);width:43px;height:43px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:950;position:absolute;border:0;isolation:isolate;overflow:hidden;background:var(--chip-color);box-shadow:0 4px 12px #0009,inset 0 2px 3px #fff5,inset 0 -3px 4px #0005}.stacked-chip:before,.popup-chip-item:before{content:"";position:absolute;inset:1px;border-radius:50%;background:repeating-conic-gradient(from 0deg,#f9f5eb 0deg 9deg,transparent 9deg 30deg);-webkit-mask:radial-gradient(circle,transparent 0 66%,#000 67%);mask:radial-gradient(circle,transparent 0 66%,#000 67%);z-index:0}.stacked-chip:after,.popup-chip-item:after{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid #fff6;box-shadow:inset 0 1px 3px #0005,0 1px 2px #fff2;z-index:0}.stacked-chip>*{position:relative;z-index:2}.stack-back-1{--chip-color:var(--chip-gold);transform:translateX(-27px) scale(.86);z-index:1}.stack-back-2{--chip-color:var(--chip-blue);transform:translateX(27px) scale(.86);z-index:1}.stack-front{--chip-color:var(--chip-red);transform:scale(1.08);z-index:3}.bottom-bar-info-row{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:700;border-top:1px solid #ffffff0d;padding-top:4px}.info-box-left{display:flex;flex-direction:column}.info-title{color:#8997a0;font-size:7.5px;text-transform:uppercase;letter-spacing:.5px}.info-value{font-size:12px;font-family:monospace;font-weight:900}#bottom-bar-center-status{font-size:9px;white-space:nowrap}
+.bottom-fixed-bar{position:fixed;z-index:100;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:430px;background:linear-gradient(180deg,#101a21,#080f14);border-top:1px solid #27353d;padding:6px 12px 9px;display:flex;flex-direction:column;gap:4px;box-shadow:0 -8px 28px #000b}.bottom-total-bet-row{height:24px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #ffffff0d}.bottom-total-bet-row .info-title{margin-right:6px}.bottom-total-bet-row .info-value{font-size:13px;font-family:monospace;font-weight:900}.bottom-bar-top-row{height:48px;display:flex;align-items:center;justify-content:space-between;position:relative}.bottom-action-btn,.bottom-rebet-btn{width:40px;height:40px;border-radius:11px;background:#18252d;border:1px solid #2d3e48;color:#d5dde2;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;position:relative}.center-chips-stack{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;cursor:pointer;height:46px;width:130px}.stacked-chip{--chip-color:var(--chip-red);width:43px;height:43px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:950;position:absolute;border:0;isolation:isolate;overflow:hidden;background:var(--chip-color);box-shadow:0 4px 12px #0009,inset 0 2px 3px #fff5,inset 0 -3px 4px #0005}.stacked-chip:before,.popup-chip-item:before{content:"";position:absolute;inset:1px;border-radius:50%;background:repeating-conic-gradient(from 0deg,#f9f5eb 0deg 9deg,transparent 9deg 30deg);-webkit-mask:radial-gradient(circle,transparent 0 66%,#000 67%);mask:radial-gradient(circle,transparent 0 66%,#000 67%);z-index:0}.stacked-chip:after,.popup-chip-item:after{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid #fff6;box-shadow:inset 0 1px 3px #0005,0 1px 2px #fff2;z-index:0}.stacked-chip>*{position:relative;z-index:2}.stack-back-1{--chip-color:var(--chip-gold);transform:translateX(-27px) scale(.86);z-index:1}.stack-back-2{--chip-color:var(--chip-blue);transform:translateX(27px) scale(.86);z-index:1}.stack-front{--chip-color:var(--chip-red);transform:scale(1.08);z-index:3}.info-title{color:#8997a0;font-size:7.5px;text-transform:uppercase;letter-spacing:.5px}.info-value{font-size:12px;font-family:monospace;font-weight:900}#bottom-bar-center-status{font-size:9px;white-space:nowrap}
 .popup-chips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px 8px;width:100%;max-width:320px;justify-items:center}.popup-chip-item{--chip-color:var(--chip-red);width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:950;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;background:var(--chip-color);border:0;box-shadow:0 6px 16px #0008,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;transition:transform .18s,filter .18s}.popup-chip-item.selected-chip{transform:scale(1.08);filter:brightness(1.12);box-shadow:0 0 15px #fff8,0 6px 15px #0009,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;z-index:10}.popup-chip-item span{position:relative;z-index:2;text-shadow:0 2px 3px #0009}.chip-20{--chip-color:#ed3b48}.chip-50{--chip-color:#159653}.chip-100{--chip-color:#f5a623}.chip-500{--chip-color:#8fe65d;color:#10150e!important}.chip-1k{--chip-color:#278bd8}.chip-10k{--chip-color:#b34bd4}
-@media(max-width:360px){.page-content{padding:8px}.roulette-wrap{width:82vw;height:82vw}.wallet-amount{font-size:20px}.mode-button{min-height:60px}.popup-chip-item{width:66px;height:66px;font-size:14px}}
+@media(max-width:360px){.page-content{padding:8px}.roulette-wrap{width:82vw;height:82vw}.wallet-amount{font-size:20px}.mode-button{min-height:60px}.popup-chip-item{width:66px;height:66px;font-size:14px}.number-button{width:48px;height:48px;font-size:18px!important}}
 </style>
 </head>
 <body>
@@ -176,20 +177,20 @@ button{font-family:inherit;touch-action:manipulation}
     <!-- Number cards: Small/Big headings removed; bet logic retained -->
     <div class="bet-card-box card-small">
       <div class="inner-nums-grid">
-        <button onclick="placeDirectBet('1')" id="btn-1" class="number-button relative"><span>1</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('2')" id="btn-2" class="number-button relative"><span>2</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('3')" id="btn-3" class="number-button relative"><span>3</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('4')" id="btn-4" class="number-button relative"><span>4</span><span class="number-payout">(9x)</span></button>
+        <button onclick="placeDirectBet('1')" id="btn-1" class="number-button wheel-badge-green relative"><span>1</span><span class="number-payout">(9x)</span></button>
+        <button onclick="placeDirectBet('2')" id="btn-2" class="number-button wheel-badge-red relative"><span>2</span><span class="number-payout">(9x)</span></button>
+        <button onclick="placeDirectBet('3')" id="btn-3" class="number-button wheel-badge-green relative"><span>3</span><span class="number-payout">(9x)</span></button>
+        <button onclick="placeDirectBet('4')" id="btn-4" class="number-button wheel-badge-red relative"><span>4</span><span class="number-payout">(9x)</span></button>
       </div>
       <button class="size-bet-button size-bet-small" onclick="placeDirectBet('Small')" id="btn-Small">BET SMALL <span style="margin-left:5px;font-size:9px;opacity:.9">1.9x</span></button>
     </div>
 
     <div class="bet-card-box card-big">
       <div class="inner-nums-grid">
-        <button onclick="placeDirectBet('6')" id="btn-6" class="number-button relative"><span>6</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('7')" id="btn-7" class="number-button relative"><span>7</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('8')" id="btn-8" class="number-button relative"><span>8</span><span class="number-payout">(9x)</span></button>
-        <button onclick="placeDirectBet('9')" id="btn-9" class="number-button relative"><span>9</span><span class="number-payout">(9x)</span></button>
+        <button onclick="placeDirectBet('6')" id="btn-6" class="number-button wheel-badge-red relative"><span>6</span><span class="number-payout">(9x)</span></button>
+        <button onclick="placeDirectBet('7')" id="btn-7" class="number-button wheel-badge-green relative"><span>7</span><span class="number-payout">(9x)</span></button>
+        <button onclick="placeDirectBet('8')" id="btn-8" class="number-button wheel-badge-red relative"><span>8</span><span class="number-payout">(9x)</span></button>
+        <button onclick="placeDirectBet('9')" id="btn-9" class="number-button wheel-badge-green relative"><span>9</span><span class="number-payout">(9x)</span></button>
       </div>
       <button class="size-bet-button size-bet-big" onclick="placeDirectBet('Big')" id="btn-Big">BET BIG <span style="margin-left:5px;font-size:9px;opacity:.9">1.9x</span></button>
     </div>
@@ -199,8 +200,8 @@ button{font-family:inherit;touch-action:manipulation}
     <button class="color-bet-button color-bet-red" onclick="placeDirectBet('Red')" id="btn-Red">RED <span style="font-size:10px;opacity:.9">1.9x</span></button>
   </div>
   <div class="violet-bet-row">
-    <button class="color-bet-button color-bet-violet" onclick="placeDirectBet('0')" id="btn-0">0 VIOLET <span style="font-size:10px;opacity:.9">9x</span></button>
-    <button class="color-bet-button color-bet-violet" onclick="placeDirectBet('5')" id="btn-5">5 VIOLET <span style="font-size:10px;opacity:.9">9x</span></button>
+    <button class="color-bet-button color-bet-violet" onclick="placeDirectBet('0')" id="btn-0">0 VIOLET <span style="font-size:10px;opacity:.9">4.5x</span></button>
+    <button class="color-bet-button color-bet-violet" onclick="placeDirectBet('5')" id="btn-5">5 VIOLET <span style="font-size:10px;opacity:.9">4.5x</span></button>
   </div>
 </div>
 
@@ -213,12 +214,13 @@ button{font-family:inherit;touch-action:manipulation}
 <div id="action-toast" class="action-toast">Message</div>
 
 <div class="bottom-fixed-bar">
+<div class="bottom-total-bet-row"><span class="info-title">TOTAL BET</span><span class="info-value text-amber-400 font-bold">৳<span id="bar-total-bet">0.00</span></span></div>
 <div class="bottom-bar-top-row">
 <button onclick="undoLastBet()" class="bottom-action-btn" id="undo-btn-elem" title="Undo Bet"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 1-9-9 9 9 0 0 0-6.32 2.57L3 13"/></svg></button>
 <div class="center-chips-stack" onclick="openChipsPopup()" id="center-chips-display" title="Select chip amount"><div class="stacked-chip stack-front" id="active-stack-chip-label"><span class="chip-value">20</span></div></div>
 <button onclick="rebetLast()" class="bottom-rebet-btn" id="rebet-btn-elem" title="Rebet"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.23-5.19"/></svg></button>
 </div>
-<div class="bottom-bar-info-row"><div class="info-box-left"><span class="info-title">TOTAL BET</span><span class="info-value text-amber-400 font-bold">৳<span id="bar-total-bet">0.00</span></span></div><div id="bottom-bar-center-status" class="font-bold text-xs text-center"></div><div style="text-align:right"><span class="info-title">&nbsp;</span><span id="win-amount-display" class="info-value font-bold text-emerald-400"></span></div></div>
+<div id="bottom-bar-center-status" class="font-bold text-xs text-center"></div><span id="win-amount-display" class="sr-only" aria-hidden="true"></span>
 </div>
 </div>
 
@@ -292,7 +294,7 @@ function buildWheelNumbers() {
     div.style.height = badgeSize + 'px';
     div.style.left = x + 'px';
     div.style.top = y + 'px';
-    div.style.transform = 'rotate(0deg)';
+    div.style.transform = `rotate(${-currentWheelRotation}deg)`;
     div.innerText = num;
     wheel.appendChild(div);
   });
@@ -673,6 +675,10 @@ function spinWheelToNumber(targetNumber, callback) {
 
   setTimeout(() => {
     isSpinningActive = false;
+    // Lock every wheel label to the upright viewport orientation after the spin.
+    wheel.querySelectorAll('.wheel-number-badge').forEach(badge => {
+      badge.style.transform = `rotate(${-currentWheelRotation}deg)`;
+    });
     playTickSound(800, 0.08);
     if (callback) callback();
   }, spinDuration);
@@ -840,7 +846,7 @@ async function processRoundResult(){
    const {data:allBets}=await supabaseClient.from('color_game_history').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').eq("status",'pending');
    let userWonAmount=0,hasUserWon=false,userParticipated=false,userWinsMap={};
    if(allBets&&allBets.length)for(let bet of allBets){
-    let isWin=false,multiplier=2;if(bet.bet_type==='Red')multiplier=1.9;else if(bet.bet_type==='Violet')multiplier=4.5;else if(bet.bet_type==='Big'||bet.bet_type==='Small')multiplier=1.9;else if(!isNaN(bet.bet_type))multiplier=9;
+    let isWin=false,multiplier=2;if(bet.bet_type==='Red')multiplier=1.9;else if(bet.bet_type==='Violet')multiplier=4.5;else if(bet.bet_type==='Big'||bet.bet_type==='Small')multiplier=1.9;else if(bet.bet_type==='0'||bet.bet_type==='5')multiplier=4.5;else if(!isNaN(bet.bet_type))multiplier=9;
     if(bet.bet_type===winningColor||bet.bet_type===String(winningNumber)||bet.bet_type===winningBigSmall)isWin=true;
     if(bet.user_id===currentUser.id)userParticipated=true;
     if(isWin){
