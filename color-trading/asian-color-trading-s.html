@@ -215,7 +215,7 @@ button{font-family:inherit;touch-action:manipulation}
 <div class="bottom-fixed-bar">
 <div class="bottom-bar-top-row">
 <button onclick="undoLastBet()" class="bottom-action-btn" id="undo-btn-elem" title="Undo Bet"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 1-9-9 9 9 0 0 0-6.32 2.57L3 13"/></svg></button>
-<div class="center-chips-stack" onclick="openChipsPopup()" id="center-chips-display"><div class="stacked-chip stack-back-1"><span>100</span></div><div class="stacked-chip stack-back-2"><span>500</span></div><div class="stacked-chip stack-front" id="active-stack-chip-label"><span class="chip-value">20</span></div></div>
+<div class="center-chips-stack" onclick="openChipsPopup()" id="center-chips-display" title="Select chip amount"><div class="stacked-chip stack-front" id="active-stack-chip-label"><span class="chip-value">20</span></div></div>
 <button onclick="rebetLast()" class="bottom-rebet-btn" id="rebet-btn-elem" title="Rebet"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.23-5.19"/></svg></button>
 </div>
 <div class="bottom-bar-info-row"><div class="info-box-left"><span class="info-title">TOTAL BET</span><span class="info-value text-amber-400 font-bold">৳<span id="bar-total-bet">0.00</span></span></div><div id="bottom-bar-center-status" class="font-bold text-xs text-center"></div><div style="text-align:right"><span class="info-title">&nbsp;</span><span id="win-amount-display" class="info-value font-bold text-emerald-400"></span></div></div>
@@ -292,7 +292,7 @@ function buildWheelNumbers() {
     div.style.height = badgeSize + 'px';
     div.style.left = x + 'px';
     div.style.top = y + 'px';
-    div.style.transform = `rotate(${angleDeg + 90}deg)`;
+    div.style.transform = 'rotate(0deg)';
     div.innerText = num;
     wheel.appendChild(div);
   });
@@ -655,6 +655,10 @@ function spinWheelToNumber(targetNumber, callback) {
     const computedStyle = window.getComputedStyle(wheel);
     const matrix = new WebKitCSSMatrix(computedStyle.transform);
     const currentDeg = Math.round(Math.atan2(matrix.m21, matrix.m11) * (180 / Math.PI));
+    // Counter-rotate labels so digits remain upright during wheel rotation.
+    wheel.querySelectorAll('.wheel-number-badge').forEach(badge => {
+      badge.style.transform = `rotate(${-currentDeg}deg)`;
+    });
     
     if (Math.abs(currentDeg - lastTickDeg) >= 18) {
       playTickSound(450 + Math.random() * 200, 0.03);
