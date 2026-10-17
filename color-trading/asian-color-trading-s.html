@@ -124,40 +124,40 @@ button{font-family:inherit;touch-action:manipulation}
 .popup-chips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px 8px;width:100%;max-width:320px;justify-items:center}.popup-chip-item{--chip-color:var(--chip-red);width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:950;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;background:var(--chip-color);border:0;box-shadow:0 6px 16px #0008,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;transition:transform .18s,filter .18s}.popup-chip-item.selected-chip{transform:scale(1.08);filter:brightness(1.12);box-shadow:0 0 15px #fff8,0 6px 15px #0009,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;z-index:10}.popup-chip-item span{position:relative;z-index:2;text-shadow:0 2px 3px #0009}.chip-20{--chip-color:#ed3b48}.chip-50{--chip-color:#159653}.chip-100{--chip-color:#f5a623}.chip-500{--chip-color:#8fe65d;color:#10150e!important}.chip-1k{--chip-color:#278bd8}.chip-10k{--chip-color:#b34bd4}
 @media(max-width:360px){.page-content{padding:8px}.roulette-wrap{width:82vw;height:82vw}.wallet-amount{font-size:20px}.mode-button{min-height:60px}.popup-chip-item{width:66px;height:66px;font-size:14px}.number-button{width:48px;height:48px;font-size:18px!important}}
 
-/* Premium 1-9 loading animation */
-#page-loader-overlay{position:fixed;inset:0;background:#19202A;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease}
+/* Gold casino reel loading animation */
+#page-loader-overlay{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 35%,#111b2a 0%,#070d17 58%,#03070d 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px;opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease}
 #page-loader-overlay.loader-hidden{opacity:0;visibility:hidden;pointer-events:none}
-.loader-number-row{display:flex;align-items:center;justify-content:center;gap:6px;width:min(94vw,330px);margin-bottom:18px}
-.loader-number{width:28px;height:28px;flex:0 0 28px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;color:#fff;font-size:11px;font-weight:950;font-family:Inter,system-ui,sans-serif;border:2px solid rgba(255,255,255,.34);box-shadow:0 4px 9px rgba(0,0,0,.45),inset 2px 2px 4px rgba(255,255,255,.28),inset -2px -3px 4px rgba(0,0,0,.28);transform:scale(1);opacity:.88;transition:transform .28s cubic-bezier(.2,.8,.2,1),filter .28s ease,opacity .28s ease,box-shadow .28s ease}
-.loader-number::after{content:"";position:absolute;inset:5px;border-radius:50%;border:1px solid rgba(255,255,255,.16);pointer-events:none}
-.loader-number.green{background:linear-gradient(145deg,#18c96b,#078744);border-color:#58e99a}
-.loader-number.red{background:linear-gradient(145deg,#ff526b,#d91e3d);border-color:#ff8a9b}
-.loader-number.violet{background:linear-gradient(145deg,#b34bd4,#7426a8);border-color:#d9a0f4}
-.loader-number.active{transform:scale(1.22);opacity:1;filter:brightness(1.12);z-index:2;box-shadow:0 0 12px rgba(2,125,223,.42),0 5px 12px rgba(0,0,0,.5),inset 2px 2px 4px rgba(255,255,255,.3),inset -2px -3px 4px rgba(0,0,0,.3)}
-.loader-progress-text{color:#027DDF;font-size:13px;font-weight:950;letter-spacing:1.8px;font-family:Inter,system-ui,sans-serif;text-shadow:0 0 10px rgba(2,125,223,.35)}
-.loader-progress-line{width:min(180px,52vw);height:2px;margin-top:8px;border-radius:999px;background:rgba(2,125,223,.18);overflow:hidden;position:relative}
-.loader-progress-line::after{content:"";position:absolute;inset:0;background:#027DDF;transform-origin:left center;transform:scaleX(.15);animation:loaderLinePulse 1.35s ease-in-out infinite}
-@keyframes loaderLinePulse{0%{transform:scaleX(.08);opacity:.45}50%{transform:scaleX(1);opacity:1}100%{transform:scaleX(.08);opacity:.45}}
-@media(max-width:360px){.loader-number-row{gap:4px}.loader-number{width:25px;height:25px;flex-basis:25px;font-size:10px}.loader-progress-line{width:150px}}
+.loader-reels{width:min(92vw,370px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 auto 48px}
+.loader-reel{height:clamp(150px,34vw,210px);min-width:0;padding:7px;border-radius:25px;background:linear-gradient(135deg,#fff0ad 0%,#d99a31 13%,#6b3c0b 25%,#f7d46a 39%,#8a5218 57%,#f2c45a 74%,#5a310a 100%);box-shadow:0 7px 12px #000a,inset 0 2px 3px #fff9,inset 0 -3px 5px #3c2109;position:relative}
+.loader-reel:before{content:"";position:absolute;inset:7px;border-radius:19px;background:linear-gradient(180deg,#050912,#101827 48%,#050912);box-shadow:inset 0 3px 8px #000,inset 0 0 0 1px #d9a342;pointer-events:none}
+.loader-reel:after{content:"";position:absolute;left:8px;right:8px;top:50%;height:1px;background:#d7a84c26;box-shadow:0 1px 2px #000;pointer-events:none}
+.loader-reel-number{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;font-family:Inter,system-ui,sans-serif;font-size:clamp(86px,21vw,142px);line-height:1;font-weight:900;letter-spacing:-5px;color:#efbd52;text-shadow:0 3px 2px #000,0 0 2px currentColor;animation:reelNumberChange 1.2s ease-in-out infinite}
+.loader-reel:nth-child(1) .loader-reel-number{color:#ff393f;animation-delay:0s}
+.loader-reel:nth-child(2) .loader-reel-number{color:#11d982;animation-delay:.15s}
+.loader-reel:nth-child(3) .loader-reel-number{color:#a64af0;animation-delay:.3s}
+@keyframes reelNumberChange{0%,100%{transform:translateY(0);filter:brightness(1)}45%{transform:translateY(-3px);filter:brightness(1.12)}55%{transform:translateY(2px);filter:brightness(.96)}}
+.loader-progress-text{color:#f5c75a;font-size:clamp(23px,6vw,34px);font-weight:850;letter-spacing:1.4px;font-family:Inter,system-ui,sans-serif;text-align:center;margin-bottom:29px;text-shadow:0 2px 3px #0008}
+.loader-progress-track{width:min(92vw,570px);height:clamp(28px,6vw,40px);border-radius:999px;background:#202b40;border:1px solid #344057;overflow:hidden;box-shadow:inset 0 3px 7px #0009,0 2px 4px #0005;padding:2px}
+.loader-progress-fill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#ffdb70 0%,#f6c451 45%,#dfa333 100%);box-shadow:inset 0 2px 3px #fff8,inset 0 -2px 3px #9d650c55;transform-origin:left;animation:loaderFillGlow 1.8s ease-in-out infinite}
+@keyframes loaderFillGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.07)}}
+.loader-progress-percent{margin-top:17px;color:#f8fafc;font-size:clamp(32px,8vw,43px);font-weight:500;font-family:Inter,system-ui,sans-serif;text-align:center}
+@media(max-width:360px){.loader-reels{gap:8px;margin-bottom:38px}.loader-reel{padding:5px;border-radius:19px}.loader-reel:before{inset:5px;border-radius:14px}.loader-reel:after{left:6px;right:6px}.loader-progress-text{margin-bottom:23px}}
 </style>
 </head>
 <body>
 
-<!-- Premium 1-9 loading overlay: existing page stays underneath and continues loading -->
-<div id="page-loader-overlay">
-  <div class="loader-number-row" id="loader-number-row" aria-label="Loading">
-    <div class="loader-number green">1</div>
-    <div class="loader-number red">2</div>
-    <div class="loader-number green">3</div>
-    <div class="loader-number red">4</div>
-    <div class="loader-number violet">5</div>
-    <div class="loader-number red">6</div>
-    <div class="loader-number green">7</div>
-    <div class="loader-number red">8</div>
-    <div class="loader-number green">9</div>
+<!-- Gold casino reel loader: the existing game remains underneath and loads normally -->
+<div id="page-loader-overlay" role="status" aria-label="Loading game">
+  <div class="loader-reels" aria-hidden="true">
+    <div class="loader-reel"><span class="loader-reel-number">0</span></div>
+    <div class="loader-reel"><span class="loader-reel-number">5</span></div>
+    <div class="loader-reel"><span class="loader-reel-number">8</span></div>
   </div>
-  <div class="loader-progress-text">LOADING</div>
-  <div class="loader-progress-line"></div>
+  <div class="loader-progress-text">LOADING...</div>
+  <div class="loader-progress-track" aria-label="100 percent loaded">
+    <div class="loader-progress-fill"></div>
+  </div>
+  <div class="loader-progress-percent">100%</div>
 </div>
 
 <div class="app-shell">
@@ -412,32 +412,17 @@ function selectChipFromPopup(amount,element){
  setTimeout(closeChipsPopup,200)
 }
 
-// Premium 1-9 loader. Page data starts loading immediately, while the animation runs.
+// Gold casino reel loader. Existing data-loading logic and timing remain unchanged.
 async function runPageLoaderAnimation(dataLoadPromise) {
   const loaderElem = document.getElementById('page-loader-overlay');
-  const numberElems = Array.from(document.querySelectorAll('.loader-number'));
   if (!loaderElem) {
     await dataLoadPromise;
     return;
   }
 
-  let activeIndex = 0;
-  const stepTime = 360;
-  const animationStart = Date.now();
-  const numberInterval = setInterval(() => {
-    numberElems.forEach((el, index) => el.classList.toggle('active', index === activeIndex));
-    activeIndex = (activeIndex + 1) % numberElems.length;
-  }, stepTime);
-  numberElems.forEach((el, index) => el.classList.toggle('active', index === 0));
-
-  // One full 1->9 pass minimum; if data needs longer, the animation keeps looping.
   const minimumDisplayTime = new Promise(resolve => setTimeout(resolve, 3400));
   await Promise.all([dataLoadPromise, minimumDisplayTime]);
 
-  clearInterval(numberInterval);
-  numberElems.forEach(el => el.classList.remove('active'));
-  const elapsed = Date.now() - animationStart;
-  if (elapsed < 120) await new Promise(resolve => setTimeout(resolve, 120 - elapsed));
   loaderElem.classList.add('loader-hidden');
   setTimeout(() => { loaderElem.style.display = 'none'; }, 500);
 }
