@@ -84,7 +84,6 @@ button{font-family:inherit;touch-action:manipulation}
 .roulette-result{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;margin-top:38px;font-size:10px;font-weight:950;color:#fff;text-shadow:0 2px 4px #000;pointer-events:none;white-space:nowrap;display:none;}
 .roulette-caption{text-align:center;color:#73828c;font-size:9px;font-weight:800;margin-top:-2px}
 
-/* Number betting area: keep the existing betting logic, but match the wheel badge design. */
 .number-panel{background:transparent;padding:0;box-shadow:none}
 .number-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .bet-card-box{border-radius:0;padding:0;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:none;overflow:visible;min-width:0;background:transparent;border:0}
@@ -107,7 +106,6 @@ button{font-family:inherit;touch-action:manipulation}
 .color-bet-red{background:linear-gradient(145deg,#ff526b,#d91e3d);border-color:#ff8a9b}
 .number-button,.violet-card-footer,.size-bet-button,.color-bet-button{isolation:isolate}
 
-
 #game-status-text{padding:5px 6px;text-align:center;color:#93a3ad;font-size:9px}
 
 .bet-badge{position:absolute;top:2px;right:2px;background:#ffd039;color:#111;font-size:7px;font-weight:950;padding:2px 4px;border-radius:8px;border:1px solid #111b20;z-index:30;line-height:1.15;max-width:calc(100% - 5px);white-space:nowrap;pointer-events:none}
@@ -124,10 +122,107 @@ button{font-family:inherit;touch-action:manipulation}
 :root{--chip-red:#ed3b48;--chip-green:#159653;--chip-gold:#f5a623;--chip-lime:#8fe65d;--chip-blue:#278bd8;--chip-purple:#b34bd4}
 .bottom-fixed-bar{position:fixed;z-index:100;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:430px;background:linear-gradient(180deg,#101a21,#080f14);border-top:1px solid #27353d;padding:6px 12px 9px;display:flex;flex-direction:column;gap:4px;box-shadow:0 -8px 28px #000b}.bottom-total-bet-row{height:24px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #ffffff0d}.bottom-total-bet-row .info-title{margin-right:6px}.bottom-total-bet-row .info-value{font-size:13px;font-family:monospace;font-weight:900}.bottom-bar-top-row{height:48px;display:flex;align-items:center;justify-content:space-between;position:relative}.bottom-action-btn,.bottom-rebet-btn{width:40px;height:40px;border-radius:11px;background:#18252d;border:1px solid #2d3e48;color:#d5dde2;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;position:relative}.center-chips-stack{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;cursor:pointer;height:46px;width:130px}.stacked-chip{--chip-color:var(--chip-red);width:43px;height:43px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:950;position:absolute;border:0;isolation:isolate;overflow:hidden;background:var(--chip-color);box-shadow:0 4px 12px #0009,inset 0 2px 3px #fff5,inset 0 -3px 4px #0005}.stacked-chip:before,.popup-chip-item:before{content:"";position:absolute;inset:1px;border-radius:50%;background:repeating-conic-gradient(from 0deg,#f9f5eb 0deg 9deg,transparent 9deg 30deg);-webkit-mask:radial-gradient(circle,transparent 0 66%,#000 67%);mask:radial-gradient(circle,transparent 0 66%,#000 67%);z-index:0}.stacked-chip:after,.popup-chip-item:after{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid #fff6;box-shadow:inset 0 1px 3px #0005,0 1px 2px #fff2;z-index:0}.stacked-chip>*{position:relative;z-index:2}.stack-back-1{--chip-color:var(--chip-gold);transform:translateX(-27px) scale(.86);z-index:1}.stack-back-2{--chip-color:var(--chip-blue);transform:translateX(27px) scale(.86);z-index:1}.stack-front{--chip-color:var(--chip-red);transform:scale(1.08);z-index:3}.info-title{color:#8997a0;font-size:7.5px;text-transform:uppercase;letter-spacing:.5px}.info-value{font-size:12px;font-family:monospace;font-weight:900}#bottom-bar-center-status{font-size:9px;white-space:nowrap}
 .popup-chips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px 8px;width:100%;max-width:320px;justify-items:center}.popup-chip-item{--chip-color:var(--chip-red);width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:950;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;background:var(--chip-color);border:0;box-shadow:0 6px 16px #0008,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;transition:transform .18s,filter .18s}.popup-chip-item.selected-chip{transform:scale(1.08);filter:brightness(1.12);box-shadow:0 0 15px #fff8,0 6px 15px #0009,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;z-index:10}.popup-chip-item span{position:relative;z-index:2;text-shadow:0 2px 3px #0009}.chip-20{--chip-color:#ed3b48}.chip-50{--chip-color:#159653}.chip-100{--chip-color:#f5a623}.chip-500{--chip-color:#8fe65d;color:#10150e!important}.chip-1k{--chip-color:#278bd8}.chip-10k{--chip-color:#b34bd4}
+
+/* Custom Loader Overlay CSS */
+#custom-loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 9, 13, 0.92);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s ease;
+}
+.symbol-loader-container {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loader-symbol-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  border-top-color: #3b82f6;
+  border-bottom-color: #f5a623;
+  animation: symbolSpin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+.loader-symbol-inner {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #ffe78b, #d99d22 40%, #8e5b0c 70%, #3b2507);
+  border: 3px solid #f3c84d;
+  box-shadow: 0 5px 15px #000b, inset 0 2px 4px #fff7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: symbolPulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes symbolSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes symbolPulse {
+  0% { transform: scale(0.92); filter: brightness(0.9); }
+  100% { transform: scale(1.05); filter: brightness(1.2); }
+}
+.loader-progress-box {
+  margin-top: 25px;
+  width: 220px;
+  text-align: center;
+}
+.loader-progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: #111c24;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #2a3942;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+}
+.loader-progress-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #14c96a, #f5a623);
+  border-radius: 4px;
+  transition: width 0.1s linear;
+}
+.loader-percentage-text {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 950;
+  font-family: monospace;
+  color: #38bdf8;
+  letter-spacing: 1px;
+}
+
 @media(max-width:360px){.page-content{padding:8px}.roulette-wrap{width:82vw;height:82vw}.wallet-amount{font-size:20px}.mode-button{min-height:60px}.popup-chip-item{width:66px;height:66px;font-size:14px}.number-button{width:48px;height:48px;font-size:18px!important}}
 </style>
 </head>
 <body>
+<!-- Custom Loading & Progress Overlay -->
+<div id="custom-loading-overlay">
+  <div class="symbol-loader-container">
+    <div class="loader-symbol-ring"></div>
+    <div class="loader-symbol-inner">
+      <span style="font-size:20px;color:#fff;">♛</span>
+    </div>
+  </div>
+  <div class="loader-progress-box">
+    <div class="loader-progress-bar-bg">
+      <div id="loader-progress-bar-fill" class="loader-progress-bar-fill"></div>
+    </div>
+    <div id="loader-percentage-text" class="loader-percentage-text">0%</div>
+  </div>
+</div>
+
 <div class="app-shell">
 <div class="custom-topbar">
   <div class="brand"><span class="brand-crown">♛</span><span class="brand-text">COLOR <span class="brand-go">ROULETTE</span></span></div>
@@ -174,7 +269,6 @@ button{font-family:inherit;touch-action:manipulation}
 
 <div class="number-panel section-gap">
   <div class="number-grid">
-    <!-- Number cards: Small/Big headings removed; bet logic retained -->
     <div class="bet-card-box card-small">
       <div class="inner-nums-grid">
         <button onclick="placeDirectBet('1')" id="btn-1" class="number-button wheel-badge-green relative"><span>1</span><span class="number-payout">(9x)</span></button>
@@ -231,6 +325,38 @@ let currentWheelRotation = 0;
 let isSpinningActive = false;
 let audioCtx = null;
 let isRoundProcessing = false;
+
+// Progress & Loading Management Functions
+function updateLoaderProgress(percent, callback) {
+  const fill = document.getElementById('loader-progress-bar-fill');
+  const text = document.getElementById('loader-percentage-text');
+  if (fill && text) {
+    fill.style.width = percent + '%';
+    text.innerText = percent + '%';
+  }
+  if (percent >= 100 && callback) {
+    setTimeout(callback, 200);
+  }
+}
+
+function hideCustomLoader() {
+  const overlay = document.getElementById('custom-loading-overlay');
+  if (overlay) {
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 400);
+  }
+}
+
+function showCustomLoader() {
+  const overlay = document.getElementById('custom-loading-overlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
+    overlay.style.opacity = '1';
+    updateLoaderProgress(0);
+  }
+}
 
 function initAudioContext() {
   if (!audioCtx) {
@@ -381,15 +507,26 @@ function selectChipFromPopup(amount,element){
  setTimeout(closeChipsPopup,200)
 }
 
-document.addEventListener("DOMContentLoaded",async()=>{
- currentUser=await requireAuth();
- if(!currentUser){ window.location.href='../login-signup.html'; return; }
- buildWheelNumbers();
- await loadUserProfile();
- await updatePeriodAndTimerState();
- await loadRecentWinsUI();
- startTimer();
- initRealtimeSubscription();
+document.addEventListener("DOMContentLoaded", async () => {
+  showCustomLoader();
+  updateLoaderProgress(20);
+
+  currentUser = await requireAuth();
+  if(!currentUser){ window.location.href='../login-signup.html'; return; }
+  updateLoaderProgress(45);
+
+  buildWheelNumbers();
+  await loadUserProfile();
+  updateLoaderProgress(70);
+
+  await updatePeriodAndTimerState();
+  await loadRecentWinsUI();
+  updateLoaderProgress(100, () => {
+    hideCustomLoader();
+  });
+
+  startTimer();
+  initRealtimeSubscription();
 });
 
 async function updatePeriodAndTimerState(){
@@ -601,12 +738,19 @@ async function loadUserProfile(){
 }
 
 async function changeGameMode(duration,modeKey){
+ showCustomLoader();
+ updateLoaderProgress(30);
+
  selectedGameDuration=duration;
  currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";document.getElementById("bottom-bar-center-status").innerHTML="";
  ['15s','30s','1m','5m'].forEach(key=>{const btn=document.getElementById(`mode-${key}`),txt=document.getElementById(`text-${key}`);if(key===modeKey){btn.className="mode-button active-mode";txt.className="text-[10px] font-bold text-white"}else{btn.className="mode-button";txt.className="text-[10px] font-bold text-amber-400"}});
  
+ updateLoaderProgress(60);
  await updatePeriodAndTimerState();
  await loadRecentWinsUI();
+ updateLoaderProgress(100, () => {
+   hideCustomLoader();
+ });
  startTimer();
 }
 
@@ -657,7 +801,6 @@ function spinWheelToNumber(targetNumber, callback) {
     const computedStyle = window.getComputedStyle(wheel);
     const matrix = new WebKitCSSMatrix(computedStyle.transform);
     const currentDeg = Math.round(Math.atan2(matrix.m21, matrix.m11) * (180 / Math.PI));
-    // Counter-rotate labels so digits remain upright during wheel rotation.
     wheel.querySelectorAll('.wheel-number-badge').forEach(badge => {
       badge.style.transform = `rotate(${-currentDeg}deg)`;
     });
@@ -675,7 +818,6 @@ function spinWheelToNumber(targetNumber, callback) {
 
   setTimeout(() => {
     isSpinningActive = false;
-    // Lock every wheel label to the upright viewport orientation after the spin.
     wheel.querySelectorAll('.wheel-number-badge').forEach(badge => {
       badge.style.transform = `rotate(${-currentWheelRotation}deg)`;
     });
@@ -796,92 +938,4 @@ async function loadHistoryData(type){
   const {data}=await supabaseClient.from('color_periods').select("*").eq("status","completed").eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(30);
   let trend='',big=0,small=0,green=0,red=0,violet=0;
   if(data&&data.length)data.forEach(row=>{const n=Number(row.winning_number);n>=5?big++:small++;if(row.winning_color==='Green')green++;else if(row.winning_color==='Red')red++;else if(row.winning_color==='Violet')violet++;const bg=row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#9333ea';trend+=`<div class="trend-ball" style="background:${bg}">${n}</div>`});else trend=`<p class="text-slate-500 text-center py-2">কোনো ডাটা পাওয়া যায়নি</p>`;
-  const total=(data?.length||0)||1,bigPct=Math.round(big/total*100),smallPct=100-bigPct,greenPct=Math.round(green/total*100),redPct=Math.round(red/total*100),violetPct=Math.max(0,100-greenPct-redPct);
-  container.innerHTML=`<div class="p-2 space-y-4"><div class="overflow-x-auto"><div class="trend-grid-container">${trend}</div></div><div class="h-[1px] w-full bg-slate-800"></div><div class="space-y-3"><div><div class="flex justify-between text-[11px] font-bold mb-1"><span class="text-amber-400">Big: ${bigPct}%</span><span class="text-blue-400">Small: ${smallPct}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex"><div class="bg-amber-500 h-full" style="width:${bigPct}%"></div><div class="bg-blue-500 h-full" style="width:${smallPct}%"></div></div></div><div><div class="flex justify-between text-[10.5px] font-bold mb-1"><span class="text-emerald-400">Green: ${greenPct}%</span><span class="text-purple-400">Violet: ${violetPct}%</span><span class="text-rose-400">Red: ${redPct}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex"><div class="bg-emerald-600 h-full" style="width:${greenPct}%"></div><div class="bg-purple-600 h-full" style="width:${violetPct}%"></div><div class="bg-rose-600 h-full" style="width:${redPct}%"></div></div></div></div></div>`;
- }
-}
-
-async function updatePeriodAmounts(amount,target){
- const timerCol = getModeTimerColumn();
- let {data:periodData}=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
- if(!periodData){
-   let insertObj = {
-     period_number: currentPeriodNumber,
-     total_green_amount: target==='Green'?amount:0,
-     total_red_amount: target==='Red'?amount:0,
-     total_violet_amount: target==='Violet'?amount:0,
-     status: 'pending'
-   };
-   insertObj[timerCol] = selectedGameDuration + 's';
-   await supabaseClient.from('color_periods').insert([insertObj]);
- }
- else{
-   let f={};
-   if(target==='Green')f.total_green_amount=Number(periodData.total_green_amount)+amount;
-   else if(target==='Red')f.total_red_amount=Number(periodData.total_red_amount)+amount;
-   else if(target==='Violet')f.total_violet_amount=Number(periodData.total_violet_amount)+amount;
-   await supabaseClient.from('color_periods').update(f).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's');
- }
-}
-
-async function processRoundResult(){
- document.getElementById("game-status-text").innerText="Calculating result...";
- const timerCol = getModeTimerColumn();
- let {data:periodData}=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
- if(!periodData){await ensureCurrentPeriodExists();const res=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();periodData=res.data}
- const green=periodData?Number(periodData.total_green_amount||0):0,red=periodData?Number(periodData.total_red_amount||0):0,violet=periodData?Number(periodData.total_violet_amount||0):0;
- let winningColor='Green';
- if(green===0&&red===0&&violet===0){const rc=['Green','Red','Green','Red','Violet'];winningColor=rc[Math.floor(Math.random()*rc.length)]}
- else if(green<=red&&green<=violet)winningColor='Green';else if(red<=green&&red<=violet)winningColor='Red';else winningColor='Violet';
- 
- const numbersMap={Green:[1,3,7,9],Red:[2,4,6,8],Violet:[0,5]};
- const possibleNums=numbersMap[winningColor];
- const winningNumber=possibleNums[Math.floor(Math.random()*possibleNums.length)];
- const winningBigSmall=winningNumber>=5?'Big':'Small';
- const winningResultString=`${winningColor}-${winningNumber}`;
- 
- await supabaseClient.from('color_periods').update({winning_color:winningColor,winning_number:winningNumber,status:'completed'}).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's');
-
- spinWheelToNumber(winningNumber, async () => {
-   const {data:allBets}=await supabaseClient.from('color_game_history').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').eq("status",'pending');
-   let userWonAmount=0,hasUserWon=false,userParticipated=false,userWinsMap={};
-   if(allBets&&allBets.length)for(let bet of allBets){
-    let isWin=false,multiplier=2;if(bet.bet_type==='Red')multiplier=1.9;else if(bet.bet_type==='Violet')multiplier=4.5;else if(bet.bet_type==='Big'||bet.bet_type==='Small')multiplier=1.9;else if(bet.bet_type==='0'||bet.bet_type==='5')multiplier=4.5;else if(!isNaN(bet.bet_type))multiplier=9;
-    if(bet.bet_type===winningColor||bet.bet_type===String(winningNumber)||bet.bet_type===winningBigSmall)isWin=true;
-    if(bet.user_id===currentUser.id)userParticipated=true;
-    if(isWin){
-     const payoutAmount=bet.bet_amount*multiplier;
-     if(bet.user_id===currentUser.id){userWonAmount+=payoutAmount;hasUserWon=true;const totalTargetWinReturn=bet.bet_amount+payoutAmount;userWinsMap[bet.bet_type]=(userWinsMap[bet.bet_type]||0)+totalTargetWinReturn}
-     await supabaseClient.from('color_game_history').update({winning_result:winningResultString,payout:payoutAmount,status:'win'}).eq("id",bet.id);
-     const {data:targetProfile}=await supabaseClient.from("profiles").select("balance").eq("id",bet.user_id).single();
-     if(targetProfile){const updatedBal=Number(targetProfile.balance)+payoutAmount;await supabaseClient.from("profiles").update({balance:updatedBal}).eq("id",bet.user_id)}
-    }else await supabaseClient.from('color_game_history').update({winning_result:winningResultString,payout:0,status:'loss'}).eq("id",bet.id)
-   }
-   currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";
-   for(let target in userWinsMap){const btn=document.getElementById(`btn-${target}`);if(btn){const overlay=document.createElement('div');overlay.className='win-payout-overlay';overlay.innerText=`+৳${userWinsMap[target].toFixed(1)}`;btn.appendChild(overlay);setTimeout(()=>overlay.remove(),2000)}}
-   document.getElementById("game-status-text").innerText=`Result: ${winningResultString} (${winningBigSmall})`;
-   updateRouletteResult(winningColor,winningNumber,winningBigSmall);
-   highlightWinningTargets(winningColor,winningNumber,winningBigSmall);await loadUserProfile();
-   
-   const winDisplay = document.getElementById("win-amount-design") || document.getElementById("win-amount-display");
-   if(userParticipated){
-     if(hasUserWon){
-       winDisplay.innerHTML = `<span class="text-emerald-400 font-bold">Win ৳${userWonAmount.toFixed(2)}</span>`;
-       playVoiceMessage("congratulation winner");
-     } else {
-       winDisplay.innerHTML = `<span class="text-rose-500 font-bold">Lost</span>`;
-       playVoiceMessage("better luck next time");
-     }
-   } else {
-     winDisplay.innerHTML = "";
-   }
-   
-   await updatePeriodAndTimerState();
-   loadRecentWinsUI();
-   const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);
-   isRoundProcessing = false;
- });
-}
-</script>
-</body>
-</html>
+  const total=(data?.length||0)||1,bigPct=Math.round(big/total*100),smallPct=100-bigPct,greenPct=
