@@ -4,196 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#030d12">
-  <title>Super Ace Game</title>
+  <title>Super Ace Background</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
+    * { box-sizing: border-box; }
     html, body {
       width: 100%;
       height: 100%;
-      min-height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
       background: #030d12;
-      font-family: Arial, sans-serif;
     }
-
-    body { min-height: 100vh; }
-
-    .game-container {
-      position: relative;
+    .background {
+      position: fixed;
+      inset: 0;
       width: 100%;
-      height: 100vh;
+      height: 100%;
       height: 100dvh;
-      min-height: 100%;
-      overflow: hidden;
       background-color: #030d12;
       background-image: url('image/full_layout.png');
       background-repeat: no-repeat;
-      /* Enlarge the source image and crop its checkerboard padding at top/bottom. */
       background-position: center center;
-      background-size: 100% 122%;
+      background-size: 100% 100%;
     }
-
-    .slot-board {
-      position: absolute;
-      top: 28.5%;
-      left: 7.5%;
-      width: 85%;
-      height: 42%;
-      display: flex;
-      justify-content: space-between;
-      z-index: 2;
-    }
-
-    .reel-column {
-      width: 18%;
-      height: 100%;
-      position: relative;
-      overflow: hidden;
-      flex: 0 0 18%;
-    }
-
-    .reel-inner {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .card {
-      width: 100%;
-      height: calc((100% - 12px) / 4);
-      flex: 0 0 calc((100% - 12px) / 4);
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: center;
-      border-radius: 4px;
-    }
-
-    @keyframes dropDown {
-      from { transform: translateY(-100%); }
-      to { transform: translateY(0); }
-    }
-
-    .drop-animate { animation: dropDown 0.3s ease-out forwards; }
-
-    .controls {
-      position: absolute;
-      bottom: 4.5%;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 20;
-      width: 20%;
-      height: 11%;
-    }
-
-    .spin-btn {
-      display: block;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-
     @supports not (height: 100dvh) {
-      .game-container { height: 100vh; }
-    }
-
-    @media (max-height: 620px) {
-      .slot-board { top: 27%; height: 43%; }
-      .controls { bottom: 3%; height: 10%; }
+      .background { height: 100vh; }
     }
   </style>
 </head>
 <body>
-  <div class="game-container">
-    <div class="slot-board">
-      <div class="reel-column"><div class="reel-inner" id="col-0"></div></div>
-      <div class="reel-column"><div class="reel-inner" id="col-1"></div></div>
-      <div class="reel-column"><div class="reel-inner" id="col-2"></div></div>
-      <div class="reel-column"><div class="reel-inner" id="col-3"></div></div>
-      <div class="reel-column"><div class="reel-inner" id="col-4"></div></div>
-    </div>
-    <div class="controls">
-      <button class="spin-btn" type="button" onclick="spinReels()" aria-label="Spin"></button>
-    </div>
-  </div>
-
-  <script>
-    'use strict';
-
-    // This file expects the structure: /slot/index.html and /slot/image/*.png
-    // Relative URLs are intentional; no runtime URL probing or reload loop is used.
-    const cardTypes = [
-      'image/cards_ace.png',
-      'image/card_king.png',
-      'image/card_queen.png',
-      'image/card_jack.png',
-      'image/card_scatter.png',
-      'image/card_heart.png',
-      'image/card_club.png'
-    ];
-
-    function randomCard() {
-      return cardTypes[Math.floor(Math.random() * cardTypes.length)];
-    }
-
-    function initBoard() {
-      for (let col = 0; col < 5; col++) {
-        const colDiv = document.getElementById(`col-${col}`);
-        if (!colDiv) continue;
-        colDiv.replaceChildren();
-
-        for (let row = 0; row < 4; row++) {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.style.backgroundImage = `url("${randomCard()}")`;
-          colDiv.appendChild(card);
-        }
-      }
-    }
-
-    let spinning = false;
-    function spinReels() {
-      if (spinning) return;
-      spinning = true;
-
-      for (let col = 0; col < 5; col++) {
-        const colDiv = document.getElementById(`col-${col}`);
-        if (!colDiv) continue;
-
-        window.setTimeout(() => {
-          colDiv.classList.remove('drop-animate');
-          void colDiv.offsetWidth;
-
-          colDiv.querySelectorAll('.card').forEach(card => {
-            card.style.backgroundImage = `url("${randomCard()}")`;
-          });
-
-          colDiv.classList.add('drop-animate');
-
-          if (col === 4) {
-            window.setTimeout(() => { spinning = false; }, 320);
-          }
-        }, col * 60);
-      }
-    }
-
-    // Initialize after DOM parsing; does not interfere with browser refresh.
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initBoard, { once: true });
-    } else {
-      initBoard();
-    }
-  </script>
+  <div class="background" aria-label="Game background"></div>
 </body>
 </html>
