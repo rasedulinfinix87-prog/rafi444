@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Super Ace Game</title>
   <style>
-    /* স্ক্রিন স্ক্রল ও পুল-টু-রিফ্রেশ বন্ধ করার জন্য */
+    /* পেজ যেন কোনোভাবেই স্ক্রল না হয় */
     html, body {
       width: 100%;
       height: 100%;
@@ -15,34 +15,35 @@
       background-color: #0b1a20;
       font-family: Arial, sans-serif;
       touch-action: none;
+      position: fixed;
     }
 
     body {
       display: flex;
       justify-content: center;
       align-items: center;
-      position: fixed;
     }
 
-    /* গেমের মূল ফ্রেম (মোবাইল স্ক্রিন অনুযায়ী ফিট করা) */
+    /* গেমের মূল কন্টেইনার (মোবাইল ফ্রেম) */
     .game-container {
       width: 100vw;
       height: 100vh;
-      max-width: 450px;
-      max-height: 850px;
+      max-width: 410px;
+      max-height: 730px;
       background: url('image/full_layout.png') no-repeat center center;
-      background-size: 100% 100%; /* পুরো স্ক্রিন জুড়ে পারফেক্ট ফিট হবে */
+      background-size: cover; /* ব্যাকগ্রাউন্ড ইমেজ পারফেক্ট ফিট রাখার জন্য */
       position: relative;
       overflow: hidden;
+      box-shadow: 0 0 15px rgba(0,0,0,0.8);
     }
 
-    /* ৪x৫ গ্রিড বোর্ডের পজিশন */
+    /* ৪x৫ গ্রিড বোর্ডের নিখুঁত পজিশন */
     .slot-board {
       position: absolute;
-      top: 27%;
-      left: 7%;
-      width: 86%;
-      height: 45%;
+      top: 28.5%;
+      left: 7.5%;
+      width: 85%;
+      height: 42%;
       display: flex;
       justify-content: space-between;
       z-index: 2;
@@ -87,18 +88,18 @@
     }
 
     .drop-animate {
-      animation: dropDown 0.35s ease-out forwards;
+      animation: dropDown 0.3s ease-out forwards;
     }
 
     /* স্পিন বাটন এরিয়া */
     .controls {
       position: absolute;
-      bottom: 4%;
+      bottom: 4.5%;
       left: 50%;
       transform: translateX(-50%);
       z-index: 20;
-      width: 22%;
-      height: 12%;
+      width: 20%;
+      height: 11%;
     }
 
     .spin-btn {
@@ -172,7 +173,7 @@
           });
 
           colDiv.classList.add('drop-animate');
-        }, col * 70);
+        }, col * 60);
       }
     }
 
