@@ -5,17 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Super Ace Game</title>
   <style>
-    /* পেজ যেন কোনোভাবেই স্ক্রল না হয় */
-    html, body {
-      width: 100%;
-      height: 100%;
+    /* পেজ রিসেট এবং স্ক্রল সম্পূর্ণ বন্ধ করা */
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
       overflow: hidden;
-      background-color: #0b1a20;
+      background-color: #030d12;
       font-family: Arial, sans-serif;
-      touch-action: none;
       position: fixed;
+      touch-action: none;
     }
 
     body {
@@ -24,20 +28,19 @@
       align-items: center;
     }
 
-    /* গেমের মূল কন্টেইনার (মোবাইল ফ্রেম) */
+    /* গেমের মূল ফ্রেম (মোবাইল স্ক্রিনে একদম অ্যাপের মতো ফিক্সড থাকবে) */
     .game-container {
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       max-width: 410px;
-      max-height: 730px;
+      max-height: 100vh;
       background: url('image/full_layout.png') no-repeat center center;
-      background-size: cover; /* ব্যাকগ্রাউন্ড ইমেজ পারফেক্ট ফিট রাখার জন্য */
+      background-size: 100% 100%; /* ব্যাকগ্রাউন্ড ইমেজ পুরো ফ্রেমে নিখুঁতভাবে ফিট হবে */
       position: relative;
       overflow: hidden;
-      box-shadow: 0 0 15px rgba(0,0,0,0.8);
     }
 
-    /* ৪x৫ গ্রিড বোর্ডের নিখুঁত পজিশন */
+    /* ৪x৫ গ্রিড বোর্ডের পজিশন */
     .slot-board {
       position: absolute;
       top: 28.5%;
