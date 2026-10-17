@@ -73,9 +73,9 @@
             { id: 'keno', name: 'Keno', path: 'game/keno.html', category: 'original', players: 145, image: 'assets/images/keno.png', fallbackBg: 'from-amber-950 to-slate-950' }, 
             { id: 'coin-flip', name: 'Coin Flip', path: 'game/coin-flip.html', category: 'original', players: 180, image: 'assets/images/coin-flip.png', fallbackBg: 'from-yellow-900 to-slate-950' }, 
             
-            // Color Trading Cards (Formerly Roulette category/cards + additional cards)
-            { id: 'color-trade-win-go', name: 'Color Trade Win Go', path: 'color-trade/win-go.html', category: 'colortrading', players: 340, image: 'assets/images/color-trade.png', fallbackBg: 'from-emerald-950 to-slate-950' },
-            { id: 'roulette', name: 'Roulette', path: 'roulette/roulette.html', category: 'colortrading', players: 255, image: 'assets/images/roulette.png', fallbackBg: 'from-rose-950 to-slate-950' }, 
+            // Color Trading Cards (Updated Path)
+            { id: 'color-trade-win-go', name: 'Color Trade Win Go', path: 'color-trading/card/cards.html', category: 'colortrading', players: 340, image: 'assets/images/color-trade.png', fallbackBg: 'from-emerald-950 to-slate-950' },
+            { id: 'roulette', name: 'Roulette', path: 'color-trading/card/cards.html', category: 'colortrading', players: 255, image: 'assets/images/roulette.png', fallbackBg: 'from-rose-950 to-slate-950' }, 
             
             // Blackjack & Live Cards
             { id: 'blackjack', name: 'Blackjack', path: 'blackjack/blackjacktable.html', category: 'blackjack', players: 470, image: 'assets/images/blackjack.png', fallbackBg: 'from-blue-950 to-slate-950' },
@@ -204,7 +204,6 @@
             currentCategory = cat; 
             const categories = ['original', 'colortrading', 'blackjack', 'live']; 
             categories.forEach(c => { 
-                // Format ID safely matching camelCase logic
                 let idName = c;
                 if (c === 'colortrading') idName = 'Colortrading';
                 const btn = document.getElementById(`cat${idName.charAt(0).toUpperCase() + idName.slice(1)}`); 
