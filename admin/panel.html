@@ -33,14 +33,32 @@
 
 <div class="max-w-7xl mx-auto space-y-5">
 
-  <header class="flex items-center justify-between gap-3">
+  <!-- TOP BAR WITH HAMBURGER MENU -->
+  <header class="flex items-center justify-between gap-3 bg-[#161b22] border border-gray-800 p-4 rounded-2xl relative">
     <div>
       <h1 class="text-xl font-black">Admin Management Panel</h1>
       <p class="text-xs text-gray-400 mt-1">BDTMINER Dashboard</p>
     </div>
-    <span class="text-xs bg-emerald-500/10 text-[#24ee89] border border-[#24ee89]/30 px-3 py-2 rounded-full font-bold">
-      Live System
-    </span>
+    
+    <div class="flex items-center gap-3">
+      <span class="text-xs bg-emerald-500/10 text-[#24ee89] border border-[#24ee89]/30 px-3 py-2 rounded-full font-bold hidden sm:inline-block">
+        Live System
+      </span>
+
+      <!-- Hamburger / 3 Dot Menu Button -->
+      <div class="relative">
+        <button onclick="toggleMenu()" class="p-2.5 bg-[#0b0e14] border border-gray-800 rounded-xl hover:bg-gray-800 transition">
+          <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-52 bg-[#161b22] border border-gray-800 rounded-xl shadow-2xl z-50 overflow-hidden py-1">
+          <button onclick="cleanupBetHistory()" class="w-full text-left px-4 py-2.5 text-xs font-bold text-red-400 hover:bg-red-500/10 flex items-center gap-2">
+            <i class="fa-solid fa-trash-can"></i> Bet History Cleanup (29 Keep)
+          </button>
+        </div>
+      </div>
+    </div>
   </header>
 
   <div id="messageBox" class="hidden p-3 rounded-xl text-sm break-words"></div>
@@ -274,6 +292,68 @@ function switchTab(tab) {
 }
 
 /* =====================================
+   HAMBURGER MENU TOGGLE
+===================================== */
+function toggleMenu() {
+  const menu = document.getElementById("dropdownMenu");
+  menu.classList.toggle("hidden");
+}
+
+// Close dropdown when clicking outside
+window.addEventListener("click", function(e) {
+  if (!e.target.closest("button[onclick='toggleMenu()']") && !e.target.closest("#dropdownMenu")) {
+    document.getElementById("dropdownMenu").classList.add("hidden");
+  }
+});
+
+/* =====================================
+   BET HISTORY CLEANUP (KEEP LATEST 29)
+===================================== */
+async function cleanupBetHistory() {
+  toggleMenu();
+  if (!confirm("আপনি কি নিশ্চিত? এটি 'color_game_history' এবং 'color_periods' টেবিল থেকে লেটেস্ট ২৯টি ফলাফল রেখে বাকি সমস্ত হিস্ট্রি ডিলিট করে দেবে (ডিপোজিট, উইথড্র ও প্রফাইল অক্ষুণ্ণ থাকবে)।")) {
+    return;
+  }
+
+  try {
+    showMessage("বেট হিস্ট্রি পরিষ্কার করা হচ্ছে...", false);
+
+    const tablesToClean = ["color_game_history", "color_periods"];
+
+    for (const tableName of tablesToClean) {
+      // Fetch latest 29 records IDs to keep
+      const { data: latestRecords, error: fetchError } = await supabaseClient
+        .from(tableName)
+        .select("id")
+        .order("created_at", { ascending: false })
+        .limit(29);
+
+      if (fetchError) throw fetchError;
+
+      if (latestRecords && latestRecords.length > 0) {
+        const keepIds = latestRecords.map(r => r.id);
+
+        // Delete records not in keepIds
+        const { error: deleteError } = await supabaseClient
+          .from(tableName)
+          .delete()
+          .not("id", "in", `(${keepIds.map(id => `"${id}"`).join(",")})`);
+
+        if (deleteError) throw deleteError;
+      }
+    }
+
+    showMessage("সফলভাবে পুরনো বেট হিস্ট্রি মুছে ফেলা হয়েছে এবং লেটেস্ট ২৯টি ফলাফল সংরক্ষিত আছে।");
+    await loadStats();
+    if (!document.getElementById("contentBets").classList.contains("hidden")) {
+      loadBets();
+    }
+  } catch (error) {
+    showMessage("ক্লিনআপ ব্যর্থ হয়েছে: " + error.message, true);
+  }
+}
+
+/* =====================================
    DASHBOARD STATS
 ===================================== */
 
@@ -424,12 +504,6 @@ async function loadDeposits() {
     showMessage("Could not load deposits: " + error.message, true);
   }
 }
-
-/*
-  IMPORTANT:
-  Approval is processed through the SQL RPC function.
-  This page does not directly update the balance or turnover.
-*/
 
 async function approveDeposit(depositId) {
   if (!confirm(
@@ -633,149 +707,4 @@ async function loadUsers() {
           <button
             data-user-id="${escapeHTML(user.id)}"
             data-user-label="${escapeHTML(user.phone_number || user.full_name || "")}"
-            class="balance-btn bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-3 py-2 rounded-lg font-bold">
-            Adjust
-          </button>
-        </td>
-      </tr>
-    `).join("");
-
-    tbody.querySelectorAll(".balance-btn").forEach(button => {
-      button.addEventListener("click", () => {
-        adjustBalance(
-          button.dataset.userId,
-          button.dataset.userLabel
-        );
-      });
-    });
-
-    await loadStats();
-
-  } catch (error) {
-    tbody.innerHTML =
-      `<tr><td colspan="5" class="p-6 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
-    showMessage("Could not load users: " + error.message, true);
-  }
-}
-
-async function adjustBalance(userId, userLabel) {
-  const raw = prompt(
-    "User: " + userLabel +
-    "\nকত টাকা যোগ/বিয়োগ করবেন?\n" +
-    "যোগের জন্য 100, বিয়োগের জন্য -100 লিখুন।"
-  );
-
-  if (raw === null) return;
-
-  const amount = Number(raw);
-
-  if (!Number.isFinite(amount) || amount === 0) {
-    alert("সঠিক non-zero amount লিখুন।");
-    return;
-  }
-
-  if (!confirm(
-    (amount > 0 ? "যোগ" : "বিয়োগ") +
-    " করবেন: " + money(Math.abs(amount)) + "?"
-  )) return;
-
-  try {
-    const { data: profile, error: readError } = await supabaseClient
-      .from("profiles")
-      .select("balance")
-      .eq("id", userId)
-      .single();
-
-    if (readError) throw readError;
-
-    const newBalance = Number(profile.balance || 0) + amount;
-
-    if (newBalance < 0) {
-      throw new Error("Balance শূন্যের নিচে যেতে পারবে না।");
-    }
-
-    const { error: updateError } = await supabaseClient
-      .from("profiles")
-      .update({ balance: newBalance })
-      .eq("id", userId);
-
-    if (updateError) throw updateError;
-
-    showMessage("Balance updated.");
-    await loadUsers();
-
-  } catch (error) {
-    showMessage("Balance update failed: " + error.message, true);
-  }
-}
-
-/* =====================================
-   RECENT BETS
-===================================== */
-
-async function loadBets() {
-  const tbody = document.getElementById("betsTableBody");
-  tbody.innerHTML =
-    '<tr><td colspan="7" class="p-6 text-center text-gray-400">Loading...</td></tr>';
-
-  try {
-    const { data, error } = await supabaseClient
-      .from("bets")
-      .select("id,user_id,bet_amount,target_number,roll_result,payout,is_bool,created_at")
-      .order("created_at", { ascending: false })
-      .limit(100);
-
-    if (error) throw error;
-
-    if (!data || !data.length) {
-      tbody.innerHTML =
-        '<tr><td colspan="7" class="p-6 text-center text-gray-400">No bets found.</td></tr>';
-      await loadStats();
-      return;
-    }
-
-    tbody.innerHTML = data.map(bet => `
-      <tr class="border-b border-gray-800/60">
-        <td class="p-3">${escapeHTML(bet.user_id)}</td>
-        <td class="p-3">${money(bet.bet_amount)}</td>
-        <td class="p-3">${escapeHTML(bet.target_number)}</td>
-        <td class="p-3">${escapeHTML(bet.roll_result)}</td>
-        <td class="p-3">${money(bet.payout)}</td>
-        <td class="p-3 ${bet.is_bool ? "text-[#24ee89]" : "text-rose-400"}">
-          ${bet.is_bool ? "Win" : "Loss"}
-        </td>
-        <td class="p-3">${bet.created_at
-          ? escapeHTML(new Date(bet.created_at).toLocaleString())
-          : "-"}</td>
-      </tr>
-    `).join("");
-
-    await loadStats();
-
-  } catch (error) {
-    tbody.innerHTML =
-      `<tr><td colspan="7" class="p-6 text-center text-red-400">${escapeHTML(error.message)}</td></tr>`;
-    showMessage("Could not load bets: " + error.message, true);
-  }
-}
-
-/* =====================================
-   INITIAL LOAD
-===================================== */
-
-(async function initAdminPanel() {
-  if (!window.supabase || typeof supabaseClient === "undefined") {
-    showMessage(
-      "Supabase client পাওয়া যায়নি। supabase-config.js path পরীক্ষা করুন।",
-      true
-    );
-    return;
-  }
-
-  await loadStats();
-  await loadDeposits();
-})();
-</script>
-
-</body>
-</html>
+            class="balance-btn bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-3 py-2 rounded-lg
