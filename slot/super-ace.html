@@ -2,10 +2,10 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Super Ace Game</title>
   <style>
-    /* পেজ রিসেট এবং স্ক্রল সম্পূর্ণ বন্ধ করা */
+    /* স্বাভাবিক রিসেট যাতে রিফ্রেশ বা ব্রাউজার ফিচারে সমস্যা না হয় */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -13,34 +13,29 @@
     }
 
     html, body {
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
+      width: 100%;
+      min-height: 100vh;
       background-color: #030d12;
       font-family: Arial, sans-serif;
-      position: fixed;
-      touch-action: none;
-    }
-
-    body {
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
-    /* গেমের মূল ফ্রেম (মোবাইল স্ক্রিনে একদম অ্যাপের মতো ফিক্সড থাকবে) */
+    /* গেমের মূল কন্টেইনার (মোবাইল ফ্রেম ফিট করার জন্য) */
     .game-container {
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       max-width: 410px;
-      max-height: 100vh;
+      max-height: 780px;
       background: url('image/full_layout.png') no-repeat center center;
-      background-size: 100% 100%; /* ব্যাকগ্রাউন্ড ইমেজ পুরো ফ্রেমে নিখুঁতভাবে ফিট হবে */
+      background-size: 100% 100%; /* ব্যাকগ্রাউন্ড ইমেজ পুরো ফ্রেমে নিখুঁতভাবে টেনে ফিট করবে */
       position: relative;
       overflow: hidden;
+      box-shadow: 0 0 15px rgba(0,0,0,0.8);
     }
 
-    /* ৪x৫ গ্রিড বোর্ডের পজিশন */
+    /* ৪x৫ গ্রিড বোর্ডের নিখুঁত পজিশন */
     .slot-board {
       position: absolute;
       top: 28.5%;
