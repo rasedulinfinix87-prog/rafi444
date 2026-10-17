@@ -1,414 +1,210 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="bn">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#07131a">
-  <title>Super Ace — Responsive Game UI</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Ace Game</title>
   <style>
-    :root {
-      color-scheme: dark;
-      --gold: #ffd66b;
-      --gold-deep: #9d5711;
-      --panel: #102c35;
-      --felt: #087d83;
-      --card-bg: #e8edf5;
-      --ink: #17202b;
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    /* স্বাভাবিক রিসেট যাতে রিফ্রেশ বা ব্রাউজার ফিচারে সমস্যা না হয় */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    * { box-sizing: border-box; }
+
     html, body {
       width: 100%;
       height: 100%;
       margin: 0;
+      padding: 0;
       overflow: hidden;
-      background: #07131a;
-      font-family: Arial, Helvetica, sans-serif;
-      -webkit-tap-highlight-color: transparent;
+      background-color: #030d12;
+      font-family: Arial, sans-serif;
     }
-    body { display: grid; place-items: center; }
-    button { font: inherit; }
-    .game {
-      position: relative;
-      width: 100%;
-      height: 100%;
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    /* গেমের মূল কন্টেইনার (মোবাইল ফ্রেম ফিট করার জন্য) */
+    .game-container {
+      /* Use the entire visible mobile viewport; no 410px/780px cap. */
+      width: 100vw;
+      height: 100vh;
       height: 100dvh;
-      max-width: 520px;
+      max-width: none;
+      max-height: none;
+      flex: 0 0 100%;
+      background: #030d12 url('slot/image/full_layout.png') no-repeat center center;
+      background-size: 100% 100%;
+      position: relative;
       overflow: hidden;
-      isolation: isolate;
-      background:
-        radial-gradient(ellipse at 50% 40%, rgba(26, 177, 177, .5), transparent 50%),
-        linear-gradient(180deg, #300b08 0%, #140c15 28%, #07545c 50%, #06232d 78%, #111326 100%);
-      padding-top: var(--safe-top);
-      padding-bottom: var(--safe-bottom);
+      box-shadow: none;
     }
-    /* Decorative wood rails and game cabinet */
-    .wood {
-      position: absolute; left: 0; width: 100%; z-index: -1;
-      background:
-        repeating-linear-gradient(177deg, transparent 0 8px, rgba(255,255,255,.035) 9px 11px, transparent 12px 20px),
-        linear-gradient(180deg, #6d2a13, #2b0d09 48%, #71331a 54%, #210b08);
-      border-top: 2px solid #a75a2c;
-      border-bottom: 3px solid #120605;
-      box-shadow: 0 3px 9px #0009;
+
+    /* If this HTML is already inside the /slot folder, use its local image folder. */
+    .game-container.asset-local {
+      background-image: url('image/full_layout.png');
     }
-    .wood.top { top: 0; height: 17%; }
-    .wood.bottom { bottom: 0; height: 13%; transform: scaleY(-1); }
-    .header {
-      position: absolute; top: 15.8%; left: 0; width: 100%;
-      text-align: center; z-index: 3;
-      height: 10%;
-      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-      padding-top: 1%;
-    }
-    .brand {
-      color: #ffe3a0; font-weight: 1000; letter-spacing: -1.5px;
-      font-size: clamp(25px, 6.2vw, 38px);
-      line-height: 1.05;
-      -webkit-text-stroke: .8px #5b210a;
-      text-shadow: 0 2px 0 #8c3c13, 0 4px 0 #24100a, 0 0 12px #ffbf3b99;
-    }
-    .multiplier {
-      position: absolute; top: 23.2%; left: 17%; width: 66%; height: 5.4%;
-      display: flex; align-items: center; justify-content: space-around;
-      border-radius: 999px;
-      border: 3px solid #8b4915;
-      background: linear-gradient(#ffe79a, #f8b83e 46%, #a96313);
-      box-shadow: 0 3px 0 #311108, inset 0 2px 4px #fff9;
-      color: #24130a; font-weight: 900;
-      font-size: clamp(17px, 4.8vw, 29px);
-      z-index: 4;
-    }
-    .multiplier span:first-child { color: #fff1a7; text-shadow: 1px 2px 1px #a53a05; }
-    .feature {
-      position: absolute; top: 18.5%; right: 2.5%; z-index: 4;
-      color: #fff2b7; font-size: clamp(10px, 2.8vw, 16px);
-      line-height: 1.05; font-weight: 900; text-align: center;
-      text-shadow: 0 2px 2px #d32812, 0 0 8px #ffae29;
-    }
-    .feature.left { left: 2.5%; right: auto; writing-mode: vertical-rl; transform: rotate(180deg); }
-    .win-chance {
-      position: absolute; top: 28.3%; width: 100%; text-align: center;
-      color: #f9e9b8; font-weight: 800; font-size: clamp(12px, 3.7vw, 21px);
-      text-shadow: 0 2px 3px #000; z-index: 2;
-    }
-    .win-chance b { color: #ffdc57; }
-    .board-frame {
-      position: absolute; top: 30.8%; left: 1.3%; width: 97.4%; height: 48%;
-      border: 5px solid #334d58; border-radius: 7px;
-      background: linear-gradient(135deg, #d5e0e8, #7f98a5 48%, #dbe5ed);
-      box-shadow: 0 0 0 2px #111b25, 0 7px 12px #0008;
-      padding: 5px;
+
+    /* ৪x৫ গ্রিড বোর্ডের নিখুঁত পজিশন */
+    .slot-board {
+      position: absolute;
+      top: 28.5%;
+      left: 7.5%;
+      width: 85%;
+      height: 42%;
+      display: flex;
+      justify-content: space-between;
       z-index: 2;
     }
-    .board {
-      height: 100%; width: 100%; display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      grid-template-rows: repeat(4, minmax(0, 1fr));
-      gap: clamp(3px, .8vw, 6px);
+
+    /* প্রতিটি কলাম (Reel Column) */
+    .reel-column {
+      width: 18%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
     }
-    .tile {
-      min-width: 0; min-height: 0; position: relative; overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      border: 2px solid #9eabb8; border-radius: 4px;
-      background: linear-gradient(145deg, #f8f9fc, #dce3ef);
-      box-shadow: inset 0 0 0 1px #fff9, 0 1px 2px #16232e;
-      color: var(--ink);
+
+    .reel-inner {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-    .tile.empty {
-      background: linear-gradient(135deg, #078e91, #006b74);
-      border: 2px solid #42a7a8;
-      box-shadow: inset 0 0 9px #004c55aa;
+
+    /* কার্ডের স্টাইল */
+    .card {
+      width: 100%;
+      height: 23.5%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      border-radius: 4px;
     }
-    .rank {
-      position: absolute; top: 2px; left: 4px;
-      font-size: clamp(13px, 3.5vw, 23px); line-height: 1;
-      font-weight: 900; color: #111; z-index: 2;
+
+    /* ড্রপ অ্যানিমেশন */
+    @keyframes dropDown {
+      0% {
+        transform: translateY(-100%);
+      }
+      100% {
+        transform: translateY(0);
+      }
     }
-    .symbol {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: clamp(34px, 10vw, 64px);
-      line-height: 1;
-      filter: drop-shadow(0 2px 1px #0004);
-      user-select: none;
+
+    .drop-animate {
+      animation: dropDown 0.3s ease-out forwards;
     }
-    .suit-spade { color: #080f20; text-shadow: 0 1px #596273; }
-    .suit-heart { color: #df1f2d; -webkit-text-stroke: 1px #f5c35d; text-shadow: 0 2px 0 #8d1c22; }
-    .suit-club { color: #1477d4; -webkit-text-stroke: 1px #f4c95c; text-shadow: 0 2px 0 #124a85; }
-    .suit-diamond { color: #e7ac19; -webkit-text-stroke: 1px #fff0a6; text-shadow: 0 2px 0 #8b5b0a; }
-    .face {
-      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-      background: linear-gradient(145deg, #ffe9a0, #d99a2a);
-      border: 1px solid #c18a25;
-    }
-    .face.queen { background: linear-gradient(145deg, #f9f3e7, #d9dce4); }
-    .face.jack { background: linear-gradient(145deg, #fff, #d5d9e2); }
-    .face .portrait { font-size: clamp(32px, 9vw, 59px); line-height: 1; filter: sepia(.28); }
-    .face .rank { font-size: clamp(13px, 3.5vw, 23px); }
-    .face .crown {
-      position: absolute; top: 15%; font-size: clamp(20px, 6vw, 38px);
-      color: #ffcf4e; text-shadow: 0 1px #6b3708;
-    }
-    .ace-mark {
-      width: 74%; aspect-ratio: 1 / 1.05; display: grid; place-items: center;
-      clip-path: polygon(50% 0, 96% 58%, 80% 78%, 61% 74%, 50% 100%, 39% 74%, 20% 78%, 4% 58%);
-      background: linear-gradient(135deg, #fff0a0, #bd7b13);
-      padding: 4px;
-    }
-    .ace-inner {
-      width: 91%; height: 92%; clip-path: inherit;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: linear-gradient(145deg, #141622, #02030a);
-      color: #ffdb6c; font-family: Georgia, serif; font-weight: 900;
-      font-size: clamp(10px, 2.8vw, 17px); text-shadow: 0 1px #000;
-    }
-    .ace-inner .mini-spade { font-size: clamp(24px, 6.5vw, 42px); line-height: .8; }
-    .win-line {
-      position: absolute; left: 0; bottom: 19.4%; width: 100%; height: 3.4%;
-      display: flex; align-items: center; justify-content: center; gap: 9%;
-      z-index: 3; color: #ffda62; font-size: clamp(15px, 4vw, 22px); font-weight: 900;
-      text-shadow: 0 2px 2px #000;
-    }
-    .win-line strong { color: #fff; font-size: .95em; }
+
+    /* স্পিন বাটন এরিয়া */
     .controls {
-      position: absolute; left: 0; bottom: 5.5%; width: 100%; height: 10.5%;
-      display: flex; align-items: center; justify-content: space-evenly; z-index: 5;
+      position: absolute;
+      bottom: 4.5%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      width: 20%;
+      height: 11%;
     }
-    .round-btn {
-      width: clamp(39px, 10vw, 57px); aspect-ratio: 1; border-radius: 50%;
-      border: 2px solid #8a637a; color: #f4d5a2; font-size: clamp(20px, 5vw, 28px);
-      background: radial-gradient(circle at 35% 25%, #b98ba4, #57334e 72%, #24152c);
-      box-shadow: 0 3px 0 #211020, inset 0 2px 4px #fff4;
-      display: grid; place-items: center; cursor: pointer;
-    }
-    .round-btn:active, .spin-btn:active { transform: scale(.96); }
+
     .spin-btn {
-      width: clamp(92px, 25vw, 132px); aspect-ratio: 1; border-radius: 50%;
-      border: 5px solid #ffd956;
-      background: radial-gradient(circle at 36% 25%, #fff6a5 0 8%, #ffcf30 25%, #e68a00 52%, #9b4700 70%, #ffce39 75%, #d77a00 100%);
-      box-shadow: 0 0 0 3px #a84e00, inset 0 0 0 4px #fff5a4, 0 5px 9px #000b;
-      color: #fff1a0; font-size: clamp(30px, 8vw, 43px); font-weight: 900;
-      text-shadow: 0 2px 2px #753000; cursor: pointer; display: grid; place-items: center;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      touch-action: manipulation;
     }
-    .spin-symbol { transform: translateY(-2px); }
-    .bet {
-      position: absolute; left: 50%; bottom: 13.1%; transform: translateX(-50%);
-      z-index: 6; color: #eee; font-size: clamp(12px, 3.3vw, 17px); text-align: center;
-      white-space: nowrap; text-shadow: 0 2px 2px #000;
-    }
-    .balance {
-      position: absolute; left: 0; bottom: 1.3%; width: 100%; z-index: 6;
-      display: flex; align-items: center; justify-content: center; gap: 9px;
-      color: #ffd45d; font-size: clamp(13px, 3.6vw, 19px); font-weight: 700;
-      text-shadow: 0 2px 2px #000;
-    }
-    .balance strong { color: white; }
-    .level { background: #1498b9; color: white; padding: 2px 5px; border-radius: 3px; font-size: .72em; }
-    .wifi { position: absolute; right: 3%; bottom: 1.2%; color: #70db63; font-size: 22px; }
-    .version { position: absolute; left: 2%; bottom: .1%; color: #ddd; font-size: 10px; z-index: 7; }
-    .toast {
-      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-      z-index: 20; display: none; background: #07151eeF; border: 1px solid #ffce55;
-      color: #ffe5a0; padding: 10px 16px; border-radius: 10px; font-weight: 700;
-      box-shadow: 0 5px 25px #000a; white-space: nowrap;
-    }
-    .toast.show { display: block; }
-    @media (min-aspect-ratio: 3/4) and (min-width: 521px) {
-      .game { height: 100dvh; width: min(100vw, calc(100dvh * 0.52)); border-inline: 1px solid #31434a; }
-    }
+
     @media (max-height: 620px) {
-      .header { top: 14%; }
-      .multiplier { top: 21.5%; height: 6%; }
-      .win-chance { top: 27%; }
-      .board-frame { top: 30%; height: 46%; }
-      .win-line { bottom: 19%; }
-      .controls { bottom: 4%; height: 11%; }
-      .bet { bottom: 12%; }
-      .balance { bottom: .5%; }
+      .slot-board { top: 27%; height: 43%; }
+      .controls { bottom: 3%; height: 10%; }
     }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-    }
-    .tile.drop { animation: drop .24s ease-out; }
-    @keyframes drop { from { transform: translateY(-12px); opacity: .45; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 <body>
-  <main class="game" aria-label="Super Ace game interface">
-    <div class="wood top"></div>
-    <div class="wood bottom"></div>
-    <div class="feature left">MENU</div>
-    <div class="feature">BUY<br>BONUS</div>
-    <header class="header"><div class="brand">SuperAce</div></header>
-    <div class="multiplier" aria-label="Multipliers">
-      <span>×1</span><span>×2</span><span>×3</span><span>×5</span>
+
+  <div class="game-container">
+    <!-- ৪x৫ কার্ড গ্রিড বোর্ড -->
+    <div class="slot-board">
+      <div class="reel-column"><div class="reel-inner" id="col-0"></div></div>
+      <div class="reel-column"><div class="reel-inner" id="col-1"></div></div>
+      <div class="reel-column"><div class="reel-inner" id="col-2"></div></div>
+      <div class="reel-column"><div class="reel-inner" id="col-3"></div></div>
+      <div class="reel-column"><div class="reel-inner" id="col-4"></div></div>
     </div>
-    <div class="win-chance">Chance to win <b>✦ WILD ✦</b></div>
-    <section class="board-frame" aria-label="Game reels">
-      <div class="board" id="board"></div>
-    </section>
-    <div class="win-line"><span>WIN</span><strong id="win">0.000</strong></div>
-    <div class="bet">Bet <span id="betValue">0.5</span></div>
-    <nav class="controls" aria-label="Game controls">
-      <button class="round-btn" id="settingsBtn" aria-label="Settings" title="Settings">⚙</button>
-      <button class="round-btn" id="betBtn" aria-label="Increase bet" title="Increase bet">⊕</button>
-      <button class="spin-btn" id="spinBtn" aria-label="Spin" title="Spin"><span class="spin-symbol">↻</span></button>
-      <button class="round-btn" id="autoBtn" aria-label="Auto spin" title="Auto spin">⟳</button>
-      <button class="round-btn" id="fastBtn" aria-label="Fast mode" title="Fast mode">ϟ</button>
-    </nav>
-    <div class="balance"><span class="level">LV 3</span><span>Balance</span><strong id="balance">14.015</strong></div>
-    <div class="wifi" aria-hidden="true">◔</div>
-    <div class="version">v_192_0008</div>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  </main>
+
+    <!-- স্পিন বাটন -->
+    <div class="controls">
+      <button class="spin-btn" onclick="spinReels()"></button>
+    </div>
+  </div>
+
   <script>
+    // Try /slot/image/full_layout.png first, then image/full_layout.png for HTML hosted inside /slot.
     (() => {
-      'use strict';
-      const board = document.getElementById('board');
-      const spinBtn = document.getElementById('spinBtn');
-      const balanceEl = document.getElementById('balance');
-      const winEl = document.getElementById('win');
-      const betValueEl = document.getElementById('betValue');
-      const toast = document.getElementById('toast');
-      const symbols = ['ace', 'spade', 'heart', 'club', 'king', 'queen', 'jack', 'diamond'];
-      const faces = {
-        king: { rank: 'K', portrait: '♔', cls: 'king' },
-        queen: { rank: 'Q', portrait: '♕', cls: 'queen' },
-        jack: { rank: 'J', portrait: '♙', cls: 'jack' }
-      };
-      const initial = [
-        ['ace','ace','ace','king'],
-        ['spade','king','king','empty'],
-        ['heart','queen','queen','ace'],
-        ['club','jack','jack','ace'],
-        ['king','diamond','empty','empty']
-      ];
-      let balance = 14.015;
-      let bet = 0.5;
-      let spinning = false;
-      let autoTimer = null;
-      let fast = false;
-
-      function cardMarkup(type) {
-        if (type === 'empty') return '<div class="tile empty" aria-hidden="true"></div>';
-        if (type === 'ace') return '<div class="tile"><span class="rank">A</span><div class="ace-mark"><div class="ace-inner"><span class="mini-spade">♠</span><span>ACE</span></div></div></div>';
-        if (faces[type]) {
-          const f = faces[type];
-          return `<div class="tile"><div class="face ${f.cls}"><span class="rank">${f.rank}</span><span class="crown">${type === 'king' ? '♛' : type === 'queen' ? '♛' : '♜'}</span><span class="portrait">${f.portrait}</span></div></div>`;
-        }
-        const map = {
-          spade: ['♠', 'suit-spade'], heart: ['♥', 'suit-heart'],
-          club: ['♣', 'suit-club'], diamond: ['♠', 'suit-diamond']
-        };
-        const [symbol, cls] = map[type];
-        return `<div class="tile"><span class="symbol ${cls}">${symbol}</span></div>`;
-      }
-
-      function renderGrid(layout) {
-        board.innerHTML = '';
-        for (let row = 0; row < 4; row++) {
-          for (let col = 0; col < 5; col++) {
-            const type = layout[col][row];
-            const holder = document.createElement('div');
-            holder.innerHTML = cardMarkup(type);
-            const tile = holder.firstElementChild;
-            tile.dataset.col = col;
-            tile.dataset.row = row;
-            board.appendChild(tile);
-          }
-        }
-      }
-
-      function randomLayout() {
-        return Array.from({ length: 5 }, () =>
-          Array.from({ length: 4 }, () => {
-            // Empty cells are occasional, matching the reference's open teal slots.
-            return Math.random() < 0.12 ? 'empty' : symbols[Math.floor(Math.random() * symbols.length)];
-          })
-        );
-      }
-
-      function showToast(message) {
-        toast.textContent = message;
-        toast.classList.add('show');
-        window.setTimeout(() => toast.classList.remove('show'), 1500);
-      }
-
-      function spin() {
-        if (spinning) return;
-        if (balance < bet) {
-          showToast('Not enough balance');
-          stopAuto();
-          return;
-        }
-        spinning = true;
-        spinBtn.disabled = true;
-        balance -= bet;
-        balanceEl.textContent = balance.toFixed(3);
-        winEl.textContent = '0.000';
-        const layout = randomLayout();
-        const delay = fast ? 55 : 115;
-        for (let col = 0; col < 5; col++) {
-          window.setTimeout(() => {
-            for (let row = 0; row < 4; row++) {
-              const tile = board.querySelector(`[data-col="${col}"][data-row="${row}"]`);
-              if (!tile) continue;
-              const holder = document.createElement('div');
-              holder.innerHTML = cardMarkup(layout[col][row]);
-              const replacement = holder.firstElementChild;
-              replacement.dataset.col = col;
-              replacement.dataset.row = row;
-              replacement.classList.add('drop');
-              tile.replaceWith(replacement);
-            }
-            if (col === 4) {
-              // Demo-only outcome: this is a UI prototype, not a real-money game.
-              const payout = Math.random() < 0.28 ? bet * (1 + Math.floor(Math.random() * 4)) : 0;
-              balance += payout;
-              balanceEl.textContent = balance.toFixed(3);
-              winEl.textContent = payout.toFixed(3);
-              spinning = false;
-              spinBtn.disabled = false;
-              if (payout > 0) showToast(`You won ${payout.toFixed(3)}!`);
-              if (autoTimer) autoTimer = window.setTimeout(spin, fast ? 350 : 700);
-            }
-          }, col * delay);
-        }
-      }
-
-      function stopAuto() {
-        if (autoTimer) window.clearTimeout(autoTimer);
-        autoTimer = null;
-        document.getElementById('autoBtn').textContent = '⟳';
-      }
-
-      renderGrid(initial);
-      spinBtn.addEventListener('click', spin);
-      document.getElementById('betBtn').addEventListener('click', () => {
-        bet = bet >= 5 ? 0.5 : Math.round((bet + 0.5) * 1000) / 1000;
-        betValueEl.textContent = bet.toFixed(1);
-      });
-      document.getElementById('autoBtn').addEventListener('click', () => {
-        if (autoTimer) {
-          stopAuto();
-          showToast('Auto spin off');
-        } else {
-          showToast('Auto spin on');
-          spin();
-        }
-      });
-      document.getElementById('fastBtn').addEventListener('click', () => {
-        fast = !fast;
-        document.getElementById('fastBtn').style.filter = fast ? 'brightness(1.5)' : '';
-        showToast(fast ? 'Fast mode on' : 'Fast mode off');
-      });
-      document.getElementById('settingsBtn').addEventListener('click', () => showToast('Settings demo'));
-      window.addEventListener('resize', () => {
-        // Layout is CSS-responsive; no fixed pixel dimensions are needed.
-      });
+      const game = document.querySelector('.game-container');
+      const test = new Image();
+      test.onload = () => {};
+      test.onerror = () => game.classList.add('asset-local');
+      test.src = new URL('slot/image/full_layout.png', document.baseURI).href;
     })();
+
+    // কার্ড এবং সিম্বলের তালিকা
+    const cardTypes = [
+      'image/card_ace.png',
+      'image/card_king.png',
+      'image/card_queen.png',
+      'image/card_jack.png',
+      'image/card_scatter.png',
+      'image/card_heart.png',
+      'image/card_club.png'
+    ];
+
+    // বোর্ড ইনিশিয়ালাইজেশন
+    function initBoard() {
+      for (let col = 0; col < 5; col++) {
+        const colDiv = document.getElementById(`col-${col}`);
+        colDiv.innerHTML = '';
+        for (let row = 0; row < 4; row++) {
+          const card = document.createElement('div');
+          card.className = 'card';
+          const randomCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
+          card.style.backgroundImage = `url('${randomCard}')`;
+          colDiv.appendChild(card);
+        }
+      }
+    }
+
+    // স্পিন ফাংশন এবং অ্যানিমেশন
+    function spinReels() {
+      for (let col = 0; col < 5; col++) {
+        const colDiv = document.getElementById(`col-${col}`);
+        
+        setTimeout(() => {
+          colDiv.classList.remove('drop-animate');
+          void colDiv.offsetWidth;
+          
+          const cards = colDiv.querySelectorAll('.card');
+          cards.forEach(card => {
+            const randomCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
+            card.style.backgroundImage = `url('${randomCard}')`;
+          });
+
+          colDiv.classList.add('drop-animate');
+        }, col * 60);
+      }
+    }
+
+    window.onload = initBoard;
   </script>
 </body>
 </html>
