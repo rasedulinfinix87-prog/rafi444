@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -29,59 +28,35 @@ button{font-family:inherit;touch-action:manipulation}
 .period-number-bar{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:7px;border-top:1px solid #ffffff0b}.period-lbl{font-size:9px;font-weight:900;color:#74828c;text-transform:uppercase}.period-digits-container{display:flex;gap:2px}.period-digit{width:16px;height:21px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;background:#141d23;color:#fff;font-family:monospace;font-size:9px;font-weight:900}
 
 .roulette-wrap{position:relative;width:min(86vw,310px);height:min(86vw,310px);max-width:310px;max-height:310px;margin:3px auto 11px;display:flex;align-items:center;justify-content:center}
+/* Real-life Wheel with 10 exact slices (0 to 9 clockwise starting from top/0 degrees) */
 .roulette-wheel{
-  width:100%;
-  height:100%;
-  border-radius:50%;
-  position:relative;
-  /* Conic gradient for 10 slices (0 to 9), each 36 degrees:
-     0: 0deg-36deg (Violet: #8b22c7)
-     1: 36deg-72deg (Green: #08a952)
-     2: 72deg-108deg (Red: #dd1f3e)
-     3: 108deg-144deg (Green: #08a952)
-     4: 144deg-180deg (Red: #dd1f3e)
-     5: 180deg-216deg (Violet: #8b22c7)
-     6: 216deg-252deg (Red: #dd1f3e)
-     7: 252deg-288deg (Green: #08a952)
-     8: 288deg-324deg (Red: #dd1f3e)
-     9: 324deg-360deg (Green: #08a952)
-  */
-  background:conic-gradient(
-    #8b22c7 0deg 36deg,
-    #08a952 36deg 72deg,
-    #dd1f3e 72deg 108deg,
-    #08a952 108deg 144deg,
-    #dd1f3e 144deg 180deg,
-    #8b22c7 180deg 216deg,
-    #dd1f3e 216deg 252deg,
-    #08a952 252deg 288deg,
-    #dd1f3e 288deg 324deg,
-    #08a952 324deg 360deg
+  width:100%;height:100%;border-radius:50%;position:relative;
+  background: conic-gradient(
+    #8b22c7 0deg 36deg,      /* 0 - Violet */
+    #08a952 36deg 72deg,      /* 1 - Green */
+    #e11d48 72deg 108deg,     /* 2 - Red */
+    #08a952 108deg 144deg,    /* 3 - Green */
+    #e11d48 144deg 180deg,    /* 4 - Red */
+    #8b22c7 180deg 216deg,    /* 5 - Violet */
+    #e11d48 216deg 252deg,    /* 6 - Red */
+    #08a952 252deg 288deg,    /* 7 - Green */
+    #e11d48 288deg 324deg,    /* 8 - Red */
+    #08a952 324deg 360deg     /* 9 - Green */
   );
-  border:9px solid #dcae2d;
-  box-shadow:0 0 0 3px #5b4514,0 10px 30px #000b,inset 0 0 0 4px #f9df72,inset 0 0 35px #000;
-  transition: transform 4s cubic-bezier(0.15, 0.85, 0.15, 1);
-  transform:rotate(0deg);
-  transform-origin: center center;
+  border:9px solid #dcae2d;box-shadow:0 0 0 3px #5b4514,0 10px 30px #000b,inset 0 0 0 4px #f9df72,inset 0 0 35px #000;
+  transition: transform cubic-bezier(0.15, 0.85, 0.15, 1);
 }
-.wheel-number-label{
-  position:absolute;
-  width:30px;
-  height:30px;
-  left:50%;
-  top:50%;
-  margin-left:-15px;
-  margin-top:-15px;
-  text-align:center;
-  font-size:13px;
-  font-weight:950;
-  color:#fff;
-  text-shadow:0 1px 2px #000;
-  z-index:2;
-  pointer-events:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+.wheel-number-item {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 950;
+  color: #fff;
+  text-shadow: 0 1px 3px #000;
+  transform-origin: center;
+  z-index: 2;
 }
 .roulette-wheel:before{content:"";position:absolute;inset:18px;border-radius:50%;border:2px solid #f3cd55aa;box-shadow:inset 0 0 0 3px #0008;z-index:3;pointer-events:none}
 .roulette-wheel:after{content:"";position:absolute;inset:50%;width:82px;height:82px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 35% 28%,#ffe78b,#d99d22 40%,#8e5b0c 70%,#3b2507);border:5px solid #f3c84d;box-shadow:0 5px 15px #000b,inset 0 2px 4px #fff7;z-index:4}
@@ -143,19 +118,7 @@ button{font-family:inherit;touch-action:manipulation}
     <div class="timer-side"><div id="timer-label" class="timer-label">PLACE YOUR BET</div><div id="countdown-timer" class="digital-timer"><span class="timer-digit">0</span><span class="timer-digit">0</span><span class="timer-colon">:</span><span class="timer-digit">1</span><span class="timer-digit">5</span></div></div>
   </div>
   <div class="roulette-wrap">
-    <div class="roulette-wheel" id="roulette-wheel">
-      <!-- 10 Number Labels positioned at correct angles (0 to 9) -->
-      <div class="wheel-number-label" style="transform: rotate(18deg) translate(88px) rotate(-18deg)">0</div>
-      <div class="wheel-number-label" style="transform: rotate(54deg) translate(88px) rotate(-54deg)">1</div>
-      <div class="wheel-number-label" style="transform: rotate(90deg) translate(88px) rotate(-90deg)">2</div>
-      <div class="wheel-number-label" style="transform: rotate(126deg) translate(88px) rotate(-126deg)">3</div>
-      <div class="wheel-number-label" style="transform: rotate(162deg) translate(88px) rotate(-162deg)">4</div>
-      <div class="wheel-number-label" style="transform: rotate(198deg) translate(88px) rotate(-198deg)">5</div>
-      <div class="wheel-number-label" style="transform: rotate(234deg) translate(88px) rotate(-234deg)">6</div>
-      <div class="wheel-number-label" style="transform: rotate(270deg) translate(88px) rotate(-270deg)">7</div>
-      <div class="wheel-number-label" style="transform: rotate(306deg) translate(88px) rotate(-306deg)">8</div>
-      <div class="wheel-number-label" style="transform: rotate(342deg) translate(88px) rotate(-342deg)">9</div>
-    </div>
+    <div class="roulette-wheel" id="roulette-wheel"></div>
     <div class="roulette-pointer"></div><div class="roulette-pin"></div>
     <div id="roulette-result" class="roulette-result">COLOR • ROULETTE</div>
   </div>
@@ -204,40 +167,63 @@ button{font-family:inherit;touch-action:manipulation}
 <script>
 let currentUser=null,userProfile=null,selectedGameDuration=15,currentPeriodNumber="2026101501",timerSeconds=15,timerInterval=null;
 let activeModalTab='game-history',selectedChipAmount=20,lastPlacedBet=null,currentRoundTotalBet=0,userActiveBets=[];
-let wheelCurrentAngle = 0;
-let wheelAudioCtx = null;
+let currentWheelRotation = 0;
 let isSpinningActive = false;
+let audioCtx = null;
 
 function initAudioContext() {
-  if (!wheelAudioCtx) {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (AudioContext) {
-      wheelAudioCtx = new AudioContext();
-    }
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
 }
 
-function playTickSound() {
+function playTickSound(frequency = 600, duration = 0.04) {
   try {
     initAudioContext();
-    if (!wheelAudioCtx) return;
-    if (wheelAudioCtx.state === 'suspended') {
-      wheelAudioCtx.resume();
+    if (!audioCtx) return;
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
     }
-    const osc = wheelAudioCtx.createOscillator();
-    const gain = wheelAudioCtx.createGain();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(800, wheelAudioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(150, wheelAudioCtx.currentTime + 0.04);
-    
-    gain.gain.setValueAtTime(0.15, wheelAudioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, wheelAudioCtx.currentTime + 0.04);
-    
+    osc.frequency.value = frequency;
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
     osc.connect(gain);
-    gain.connect(wheelAudioCtx.destination);
+    gain.connect(audioCtx.destination);
     osc.start();
-    osc.stop(wheelAudioCtx.currentTime + 0.04);
+    osc.stop(audioCtx.currentTime + duration);
   } catch (e) {}
+}
+
+function buildWheelNumbers() {
+  const wheel = document.getElementById('roulette-wheel');
+  if(!wheel) return;
+  // Remove existing number items if any
+  wheel.querySelectorAll('.wheel-number-item').forEach(el => el.remove());
+  
+  // 10 sectors, each 36 degrees. Numbers ordered clockwise starting from top (0 deg):
+  // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+  const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const radius = 102; // px from center
+  const centerX = 155; // half of 310px wheel width
+  const centerY = 155;
+
+  numbers.forEach((num, index) => {
+    const angleDeg = index * 36 + 18; // center of the 36-degree slice
+    const angleRad = (angleDeg - 90) * (Math.PI / 180);
+    const x = centerX + radius * Math.cos(angleRad) - 12;
+    const y = centerY + radius * Math.sin(angleRad) - 12;
+
+    const div = document.createElement('div');
+    div.className = 'wheel-number-item';
+    div.style.left = x + 'px';
+    div.style.top = y + 'px';
+    div.style.transform = `rotate(${angleDeg + 90}deg)`;
+    div.innerText = num;
+    wheel.appendChild(div);
+  });
 }
 
 function getModeTimerColumn(){
@@ -319,6 +305,7 @@ function selectChipFromPopup(amount,element){
 document.addEventListener("DOMContentLoaded",async()=>{
  currentUser=await requireAuth();
  if(!currentUser){ window.location.href='../login-signup.html'; return; }
+ buildWheelNumbers();
  await loadUserProfile();
  await updatePeriodAndTimerState();
  await loadRecentWinsUI();
@@ -330,7 +317,6 @@ async function updatePeriodAndTimerState(){
  const now = Math.floor(Date.now() / 1000);
  const periodIndex = Math.floor(now / selectedGameDuration);
  
- const prefixMap = { 15: '15', 30: '30', 60: '60', 300: '50' };
  const basePeriodId = 202610150000 + (selectedGameDuration * 1000);
  currentPeriodNumber = String(basePeriodId + periodIndex);
  renderPeriodNumber();
@@ -404,7 +390,7 @@ async function loadRecentWinsUI(){
  let html='';
  data.forEach(row=>{
   const n = Number(row.winning_number);
-  const bg = row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#7c3aed';
+  const bg = row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#8b22c7';
   html+=`<div class="mini-ball" style="background:${bg}">${Number.isFinite(n)?n:'?'}</div>`;
  });
  container.innerHTML=html;
@@ -547,6 +533,57 @@ function highlightWinningTargets(winningColor,winningNumber,winningBigSmall){
  })
 }
 
+function spinWheelToNumber(targetNumber, callback) {
+  const wheel = document.getElementById('roulette-wheel');
+  if (!wheel) {
+    if(callback) callback();
+    return;
+  }
+  
+  // Each number has a 36-degree slice, center of slice is index * 36 + 18 degrees clockwise from 0.
+  const sliceAngle = 36;
+  const targetCenterAngle = targetNumber * sliceAngle + (sliceAngle / 2);
+  // To align target under top pointer (0 deg), we rotate wheel by -targetCenterAngle + extra full spins (e.g. 5 full rotations)
+  const fullSpins = 5 * 360;
+  const targetRotation = currentWheelRotation + fullSpins + (360 - (currentWheelRotation % 360)) - targetCenterAngle;
+  
+  currentWheelRotation = targetRotation;
+  isSpinningActive = true;
+  
+  // Set smooth cubic-bezier transition for real-life effect
+  wheel.style.transition = 'transform 6.5s cubic-bezier(0.15, 0.85, 0.15, 1)';
+  wheel.style.transform = `rotate(${currentWheelRotation}deg)`;
+
+  // Play ticks during spin using requestAnimationFrame or intervals
+  let startTime = performance.now();
+  let spinDuration = 6500;
+  let lastTickDeg = currentWheelRotation;
+
+  function tickAnimation(currentTime) {
+    if (!isSpinningActive) return;
+    const elapsed = currentTime - startTime;
+    const computedStyle = window.getComputedStyle(wheel);
+    const matrix = new WebKitCSSMatrix(computedStyle.transform);
+    const currentDeg = Math.round(Math.atan2(matrix.m21, matrix.m11) * (180 / Math.PI));
+    
+    if (Math.abs(currentDeg - lastTickDeg) >= 18) {
+      playTickSound(450 + Math.random() * 200, 0.03);
+      lastTickDeg = currentDeg;
+    }
+
+    if (elapsed < spinDuration) {
+      requestAnimationFrame(tickAnimation);
+    }
+  }
+  requestAnimationFrame(tickAnimation);
+
+  setTimeout(() => {
+    isSpinningActive = false;
+    playTickSound(800, 0.08); // landing tick
+    if (callback) callback();
+  }, spinDuration);
+}
+
 function startTimer(){
  clearInterval(timerInterval);
  const timerElem=document.getElementById("countdown-timer"),timerLabel=document.getElementById("timer-label");
@@ -554,18 +591,35 @@ function startTimer(){
  function updateMainTimer(){
   const min=Math.floor(timerSeconds/60),sec=timerSeconds%60,timeText=`${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
   timerElem.innerHTML=`<span class="timer-digit">${timeText[0]}</span><span class="timer-digit">${timeText[1]}</span><span class="timer-colon">:</span><span class="timer-digit">${timeText[3]}</span><span class="timer-digit">${timeText[4]}</span>`;
+  
+  if (timerSeconds === 10) {
+    // 10 seconds remaining: Wheel slowly starts rotating/warming up
+    playTickSound(300, 0.05);
+    const wheel = document.getElementById('roulette-wheel');
+    if (wheel && !isSpinningActive) {
+      currentWheelRotation += 120;
+      wheel.style.transition = 'transform 2.5s cubic-bezier(0.25, 1, 0.5, 1)';
+      wheel.style.transform = `rotate(${currentWheelRotation}deg)`;
+    }
+  } else if (timerSeconds === 7) {
+    // 7 seconds remaining: Wheel spinning speed increases slightly before slowing down for final result
+    playTickSound(400, 0.05);
+    const wheel = document.getElementById('roulette-wheel');
+    if (wheel && !isSpinningActive) {
+      currentWheelRotation += 240;
+      wheel.style.transition = 'transform 2.0s cubic-bezier(0.1, 0.9, 0.2, 1)';
+      wheel.style.transform = `rotate(${currentWheelRotation}deg)`;
+    }
+  }
+
   if(timerSeconds<=5){
     const center=document.getElementById("bottom-bar-center-status"),s=center.querySelector("span");
     if(s&&!s.classList.contains("animate-zoom-out")){s.classList.add("animate-zoom-out");setTimeout(()=>center.innerHTML="",1500)}
-    timerElem.classList.add("timer-danger");
-    timerLabel.innerText="NO MORE BET";
-    timerLabel.classList.add("timer-label-danger");
-    if(timerSeconds===5){
-      playVoiceMessage("No more bets");
-      triggerWheelSpinAnimation();
-    }
+    timerElem.classList.add("timer-danger");timerLabel.innerText="NO MORE BET";timerLabel.classList.add("timer-label-danger");
+    if(timerSeconds===5)playVoiceMessage("No more bets");
+  } else {
+    timerElem.classList.remove("timer-danger");timerLabel.innerText="PLACE YOUR BET";timerLabel.classList.remove("timer-label-danger");
   }
-  else{timerElem.classList.remove("timer-danger");timerLabel.innerText="PLACE YOUR BET";timerLabel.classList.remove("timer-label-danger")}
  }
  
  updateMainTimer();
@@ -577,37 +631,6 @@ function startTimer(){
    }
    updateMainTimer();
  },1000)
-}
-
-function triggerWheelSpinAnimation(){
-  if(isSpinningActive) return;
-  isSpinningActive = true;
-  const wheel = document.getElementById("roulette-wheel");
-  if(!wheel) return;
-  
-  // Pick a random target number 0-9 for animation preview, or get it from latest data
-  const targetNum = Math.floor(Math.random() * 10);
-  // Each sector is 36 degrees. Center of sector n is (n * 36 + 18) degrees.
-  // Pointer is at top (0 deg). To align sector n to top pointer, wheel needs rotation: 360 * 5 + (360 - (targetNum * 36 + 18))
-  const sectorCenterAngle = targetNum * 36 + 18;
-  const extraSpins = 360 * 5;
-  const targetAngle = wheelCurrentAngle + extraSpins + (360 - (sectorCenterAngle % 360));
-  
-  wheel.style.transition = "transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)";
-  wheel.style.transform = `rotate(${targetAngle}deg)`;
-  wheelCurrentAngle = targetAngle;
-
-  // Play ticking sound effects synchronized with rotation deceleration
-  let tickCount = 0;
-  const maxTicks = 25;
-  const tickInterval = setInterval(()=>{
-    playTickSound();
-    tickCount++;
-    if(tickCount >= maxTicks){
-      clearInterval(tickInterval);
-      isSpinningActive = false;
-    }
-  }, 160);
 }
 
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -686,7 +709,7 @@ async function loadHistoryData(type){
  }else if(type==='chart'){
   const {data}=await supabaseClient.from('color_periods').select("*").eq("status","completed").eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(30);
   let trend='',big=0,small=0,green=0,red=0,violet=0;
-  if(data&&data.length)data.forEach(row=>{const n=Number(row.winning_number);n>=5?big++:small++;if(row.winning_color==='Green')green++;else if(row.winning_color==='Red')red++;else if(row.winning_color==='Violet')violet++;const bg=row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#7c3aed';trend+=`<div class="trend-ball" style="background:${bg}">${n}</div>`});else trend=`<p class="text-slate-500 text-center py-2">কোনো ডাটা পাওয়া যায়নি</p>`;
+  if(data&&data.length)data.forEach(row=>{const n=Number(row.winning_number);n>=5?big++:small++;if(row.winning_color==='Green')green++;else if(row.winning_color==='Red')red++;else if(row.winning_color==='Violet')violet++;const bg=row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#8b22c7';trend+=`<div class="trend-ball" style="background:${bg}">${n}</div>`});else trend=`<p class="text-slate-500 text-center py-2">কোনো ডাটা পাওয়া যায়নি</p>`;
   const total=(data?.length||0)||1,bigPct=Math.round(big/total*100),smallPct=100-bigPct,greenPct=Math.round(green/total*100),redPct=Math.round(red/total*100),violetPct=Math.max(0,100-greenPct-redPct);
   container.innerHTML=`<div class="p-2 space-y-4"><div class="overflow-x-auto"><div class="trend-grid-container">${trend}</div></div><div class="h-[1px] w-full bg-slate-800"></div><div class="space-y-3"><div><div class="flex justify-between text-[11px] font-bold mb-1"><span class="text-amber-400">Big: ${bigPct}%</span><span class="text-blue-400">Small: ${smallPct}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex"><div class="bg-amber-500 h-full" style="width:${bigPct}%"></div><div class="bg-blue-500 h-full" style="width:${smallPct}%"></div></div></div><div><div class="flex justify-between text-[10.5px] font-bold mb-1"><span class="text-emerald-400">Green: ${greenPct}%</span><span class="text-purple-400">Violet: ${violetPct}%</span><span class="text-rose-400">Red: ${redPct}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex"><div class="bg-emerald-600 h-full" style="width:${greenPct}%"></div><div class="bg-purple-600 h-full" style="width:${violetPct}%"></div><div class="bg-rose-600 h-full" style="width:${redPct}%"></div></div></div></div></div>`;
  }
@@ -724,60 +747,55 @@ async function processRoundResult(){
  let winningColor='Green';
  if(green===0&&red===0&&violet===0){const rc=['Green','Red','Green','Red','Violet'];winningColor=rc[Math.floor(Math.random()*rc.length)]}
  else if(green<=red&&green<=violet)winningColor='Green';else if(red<=green&&red<=violet)winningColor='Red';else winningColor='Violet';
- const numbersMap={Green:[1,3,7,9],Red:[2,4,6,8],Violet:[0,5]},possibleNums=numbersMap[winningColor],winningNumber=possibleNums[Math.floor(Math.random()*possibleNums.length)],winningBigSmall=winningNumber>=5?'Big':'Small',winningResultString=`${winningColor}-${winningNumber}`;
+ 
+ const numbersMap={Green:[1,3,7,9],Red:[2,4,6,8],Violet:[0,5]};
+ const possibleNums=numbersMap[winningColor];
+ const winningNumber=possibleNums[Math.floor(Math.random()*possibleNums.length)];
+ const winningBigSmall=winningNumber>=5?'Big':'Small';
+ const winningResultString=`${winningColor}-${winningNumber}`;
  
  await supabaseClient.from('color_periods').update({winning_color:winningColor,winning_number:winningNumber,status:'completed'}).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's');
- 
- // Spin wheel precisely to the winning number index (0-9)
- const wheel = document.getElementById("roulette-wheel");
- if(wheel){
-   const sectorCenterAngle = winningNumber * 36 + 18;
-   const extraSpins = 360 * 5;
-   const targetAngle = wheelCurrentAngle + extraSpins + (360 - (sectorCenterAngle % 360) - (wheelCurrentAngle % 360));
-   wheel.style.transition = "transform 1.5s cubic-bezier(0.1, 0.8, 0.1, 1)";
-   wheel.style.transform = `rotate(${targetAngle}deg)`;
-   wheelCurrentAngle = targetAngle;
- }
 
- const {data:allBets}=await supabaseClient.from('color_game_history').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').eq("status",'pending');
- let userWonAmount=0,hasUserWon=false,userParticipated=false,userWinsMap={};
- if(allBets&&allBets.length)for(let bet of allBets){
-  let isWin=false,multiplier=2;if(bet.bet_type==='Red')multiplier=1.9;else if(bet.bet_type==='Violet')multiplier=4.5;else if(bet.bet_type==='Big'||bet.bet_type==='Small')multiplier=1.9;else if(!isNaN(bet.bet_type))multiplier=9;
-  if(bet.bet_type===winningColor||bet.bet_type===String(winningNumber)||bet.bet_type===winningBigSmall)isWin=true;
-  if(bet.user_id===currentUser.id)userParticipated=true;
-  if(isWin){
-   const payoutAmount=bet.bet_amount*multiplier;
-   if(bet.user_id===currentUser.id){userWonAmount+=payoutAmount;hasUserWon=true;const totalTargetWinReturn=bet.bet_amount+payoutAmount;userWinsMap[bet.bet_type]=(userWinsMap[bet.bet_type]||0)+totalTargetWinReturn}
-   await supabaseClient.from('color_game_history').update({winning_result:winningResultString,payout:payoutAmount,status:'win'}).eq("id",bet.id);
-   const {data:targetProfile}=await supabaseClient.from("profiles").select("balance").eq("id",bet.user_id).single();
-   if(targetProfile){const updatedBal=Number(targetProfile.balance)+payoutAmount;await supabaseClient.from("profiles").update({balance:updatedBal}).eq("id",bet.user_id)}
-  }else await supabaseClient.from('color_game_history').update({winning_result:winningResultString,payout:0,status:'loss'}).eq("id",bet.id)
- }
- currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";
- for(let target in userWinsMap){const btn=document.getElementById(`btn-${target}`);if(btn){const overlay=document.createElement('div');overlay.className='win-payout-overlay';overlay.innerText=`+৳${userWinsMap[target].toFixed(1)}`;btn.appendChild(overlay);setTimeout(()=>overlay.remove(),2000)}}
- document.getElementById("game-status-text").innerText=`Result: ${winningResultString} (${winningBigSmall})`;
- updateRouletteResult(winningColor,winningNumber,winningBigSmall);
- highlightWinningTargets(winningColor,winningNumber,winningBigSmall);await loadUserProfile();
- 
- const winDisplay = document.getElementById("win-amount-design") || document.getElementById("win-amount-display");
- if(userParticipated){
-   if(hasUserWon){
-     winDisplay.innerHTML = `<span class="text-emerald-400 font-bold">Win ৳${userWonAmount.toFixed(2)}</span>`;
-     playVoiceMessage("congratulation winner");
-   } else {
-     winDisplay.innerHTML = `<span class="text-rose-500 font-bold">Lost</span>`;
-     playVoiceMessage("better luck next time");
+ // Spin the wheel smoothly to the winning number
+ spinWheelToNumber(winningNumber, async () => {
+   const {data:allBets}=await supabaseClient.from('color_game_history').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').eq("status",'pending');
+   let userWonAmount=0,hasUserWon=false,userParticipated=false,userWinsMap={};
+   if(allBets&&allBets.length)for(let bet of allBets){
+    let isWin=false,multiplier=2;if(bet.bet_type==='Red')multiplier=1.9;else if(bet.bet_type==='Violet')multiplier=4.5;else if(bet.bet_type==='Big'||bet.bet_type==='Small')multiplier=1.9;else if(!isNaN(bet.bet_type))multiplier=9;
+    if(bet.bet_type===winningColor||bet.bet_type===String(winningNumber)||bet.bet_type===winningBigSmall)isWin=true;
+    if(bet.user_id===currentUser.id)userParticipated=true;
+    if(isWin){
+     const payoutAmount=bet.bet_amount*multiplier;
+     if(bet.user_id===currentUser.id){userWonAmount+=payoutAmount;hasUserWon=true;const totalTargetWinReturn=bet.bet_amount+payoutAmount;userWinsMap[bet.bet_type]=(userWinsMap[bet.bet_type]||0)+totalTargetWinReturn}
+     await supabaseClient.from('color_game_history').update({winning_result:winningResultString,payout:payoutAmount,status:'win'}).eq("id",bet.id);
+     const {data:targetProfile}=await supabaseClient.from("profiles").select("balance").eq("id",bet.user_id).single();
+     if(targetProfile){const updatedBal=Number(targetProfile.balance)+payoutAmount;await supabaseClient.from("profiles").update({balance:updatedBal}).eq("id",bet.user_id)}
+    }else await supabaseClient.from('color_game_history').update({winning_result:winningResultString,payout:0,status:'loss'}).eq("id",bet.id)
    }
- } else {
-   winDisplay.innerHTML = "";
- }
- 
- await updatePeriodAndTimerState();
- loadRecentWinsUI();
- const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);startTimer()
+   currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";
+   for(let target in userWinsMap){const btn=document.getElementById(`btn-${target}`);if(btn){const overlay=document.createElement('div');overlay.className='win-payout-overlay';overlay.innerText=`+৳${userWinsMap[target].toFixed(1)}`;btn.appendChild(overlay);setTimeout(()=>overlay.remove(),2000)}}
+   document.getElementById("game-status-text").innerText=`Result: ${winningResultString} (${winningBigSmall})`;
+   updateRouletteResult(winningColor,winningNumber,winningBigSmall);
+   highlightWinningTargets(winningColor,winningNumber,winningBigSmall);await loadUserProfile();
+   
+   const winDisplay = document.getElementById("win-amount-design") || document.getElementById("win-amount-display");
+   if(userParticipated){
+     if(hasUserWon){
+       winDisplay.innerHTML = `<span class="text-emerald-400 font-bold">Win ৳${userWonAmount.toFixed(2)}</span>`;
+       playVoiceMessage("congratulation winner");
+     } else {
+       winDisplay.innerHTML = `<span class="text-rose-500 font-bold">Lost</span>`;
+       playVoiceMessage("better luck next time");
+     }
+   } else {
+     winDisplay.innerHTML = "";
+   }
+   
+   await updatePeriodAndTimerState();
+   loadRecentWinsUI();
+   const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);startTimer()
+ });
 }
 </script>
 </body>
 </html>
-
-```
