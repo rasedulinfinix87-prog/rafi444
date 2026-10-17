@@ -125,39 +125,39 @@ button{font-family:inherit;touch-action:manipulation}
 @media(max-width:360px){.page-content{padding:8px}.roulette-wrap{width:82vw;height:82vw}.wallet-amount{font-size:20px}.mode-button{min-height:60px}.popup-chip-item{width:66px;height:66px;font-size:14px}.number-button{width:48px;height:48px;font-size:18px!important}}
 
 /* Gold casino reel loading animation */
-#page-loader-overlay{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 35%,#111b2a 0%,#070d17 58%,#03070d 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px;opacity:1;visibility:visible;transition:opacity .45s ease,visibility .45s ease}
+#page-loader-overlay{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 35%,#111b2a 0%,#070d17 58%,#03070d 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px;opacity:1;visibility:visible;transition:opacity .35s ease,visibility .35s ease}
 #page-loader-overlay.loader-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-content{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:scale(.5);transform-origin:center center}
 .loader-reels{width:min(92vw,370px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 auto 48px}
-.loader-reel{height:clamp(150px,34vw,210px);min-width:0;padding:7px;border-radius:25px;background:linear-gradient(135deg,#fff0ad 0%,#d99a31 13%,#6b3c0b 25%,#f7d46a 39%,#8a5218 57%,#f2c45a 74%,#5a310a 100%);box-shadow:0 7px 12px #000a,inset 0 2px 3px #fff9,inset 0 -3px 5px #3c2109;position:relative}
+.loader-reel{height:clamp(150px,34vw,210px);min-width:0;padding:7px;border-radius:25px;background:linear-gradient(135deg,#fff0ad 0%,#d99a31 13%,#6b3c0b 25%,#f7d46a 39%,#8a5218 57%,#f2c45a 74%,#5a310a 100%);box-shadow:0 7px 12px #000a,inset 0 2px 3px #fff9,inset 0 -3px 5px #3c2109;position:relative;overflow:hidden}
 .loader-reel:before{content:"";position:absolute;inset:7px;border-radius:19px;background:linear-gradient(180deg,#050912,#101827 48%,#050912);box-shadow:inset 0 3px 8px #000,inset 0 0 0 1px #d9a342;pointer-events:none}
 .loader-reel:after{content:"";position:absolute;left:8px;right:8px;top:50%;height:1px;background:#d7a84c26;box-shadow:0 1px 2px #000;pointer-events:none}
-.loader-reel-number{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;font-family:Inter,system-ui,sans-serif;font-size:clamp(86px,21vw,142px);line-height:1;font-weight:900;letter-spacing:-5px;color:#efbd52;text-shadow:0 3px 2px #000,0 0 2px currentColor;animation:reelNumberChange 1.2s ease-in-out infinite}
-.loader-reel:nth-child(1) .loader-reel-number{color:#ff393f;animation-delay:0s}
-.loader-reel:nth-child(2) .loader-reel-number{color:#11d982;animation-delay:.15s}
-.loader-reel:nth-child(3) .loader-reel-number{color:#a64af0;animation-delay:.3s}
-@keyframes reelNumberChange{0%,100%{transform:translateY(0);filter:brightness(1)}45%{transform:translateY(-3px);filter:brightness(1.12)}55%{transform:translateY(2px);filter:brightness(.96)}}
-.loader-progress-text{color:#f5c75a;font-size:clamp(23px,6vw,34px);font-weight:850;letter-spacing:1.4px;font-family:Inter,system-ui,sans-serif;text-align:center;margin-bottom:29px;text-shadow:0 2px 3px #0008}
+.loader-reel-number{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;font-family:Inter,system-ui,sans-serif;font-size:clamp(86px,21vw,142px);line-height:1;font-weight:900;letter-spacing:-5px;color:#027DFF;text-shadow:0 3px 2px #000,0 0 2px currentColor;transition:transform .1s ease-out,opacity .1s ease-out}
+.loader-reel-number.rolling{transform:translateY(-12px);opacity:.25}
+.loader-reel:nth-child(1) .loader-reel-number{color:#ff393f}
+.loader-reel:nth-child(2) .loader-reel-number{color:#11d982}
+.loader-reel:nth-child(3) .loader-reel-number{color:#a64af0}
+.loader-progress-text{color:#027DFF;font-size:clamp(23px,6vw,34px);font-weight:850;letter-spacing:1.4px;font-family:Inter,system-ui,sans-serif;text-align:center;margin-bottom:29px;text-shadow:0 2px 3px #0008}
 .loader-progress-track{width:min(92vw,570px);height:clamp(28px,6vw,40px);border-radius:999px;background:#202b40;border:1px solid #344057;overflow:hidden;box-shadow:inset 0 3px 7px #0009,0 2px 4px #0005;padding:2px}
-.loader-progress-fill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#ffdb70 0%,#f6c451 45%,#dfa333 100%);box-shadow:inset 0 2px 3px #fff8,inset 0 -2px 3px #9d650c55;transform-origin:left;animation:loaderFillGlow 1.8s ease-in-out infinite}
-@keyframes loaderFillGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.07)}}
-.loader-progress-percent{margin-top:17px;color:#f8fafc;font-size:clamp(32px,8vw,43px);font-weight:500;font-family:Inter,system-ui,sans-serif;text-align:center}
+.loader-progress-fill{height:100%;width:0%;border-radius:999px;background:#027DFF;box-shadow:inset 0 2px 3px #ffffff55,0 0 10px #027DFF44;transform-origin:left;transition:width 3.5s linear}
 @media(max-width:360px){.loader-reels{gap:8px;margin-bottom:38px}.loader-reel{padding:5px;border-radius:19px}.loader-reel:before{inset:5px;border-radius:14px}.loader-reel:after{left:6px;right:6px}.loader-progress-text{margin-bottom:23px}}
 </style>
 </head>
 <body>
 
-<!-- Gold casino reel loader: the existing game remains underneath and loads normally -->
+<!-- Blue loading animation: only the loader visuals/animation are changed -->
 <div id="page-loader-overlay" role="status" aria-label="Loading game">
-  <div class="loader-reels" aria-hidden="true">
-    <div class="loader-reel"><span class="loader-reel-number">0</span></div>
-    <div class="loader-reel"><span class="loader-reel-number">5</span></div>
-    <div class="loader-reel"><span class="loader-reel-number">8</span></div>
+  <div class="loader-content">
+    <div class="loader-reels" aria-hidden="true">
+      <div class="loader-reel"><span class="loader-reel-number">0</span></div>
+      <div class="loader-reel"><span class="loader-reel-number">5</span></div>
+      <div class="loader-reel"><span class="loader-reel-number">8</span></div>
+    </div>
+    <div class="loader-progress-text">LOADING...</div>
+    <div class="loader-progress-track" aria-label="Loading progress">
+      <div class="loader-progress-fill" id="loader-progress-fill"></div>
+    </div>
   </div>
-  <div class="loader-progress-text">LOADING...</div>
-  <div class="loader-progress-track" aria-label="100 percent loaded">
-    <div class="loader-progress-fill"></div>
-  </div>
-  <div class="loader-progress-percent">100%</div>
 </div>
 
 <div class="app-shell">
@@ -420,11 +420,49 @@ async function runPageLoaderAnimation(dataLoadPromise) {
     return;
   }
 
-  const minimumDisplayTime = new Promise(resolve => setTimeout(resolve, 3400));
-  await Promise.all([dataLoadPromise, minimumDisplayTime]);
+  const reelNumbers = Array.from(loaderElem.querySelectorAll('.loader-reel-number'));
+  const progressFill = document.getElementById('loader-progress-fill');
+  const finalNumbers = ['0', '5', '8'];
+  const startedAt = Date.now();
+  let tick = 0;
+
+  // Start the progress bar from empty and fill it completely in 3.5 seconds.
+  if (progressFill) {
+    progressFill.style.transition = 'none';
+    progressFill.style.width = '0%';
+    void progressFill.offsetWidth;
+    progressFill.style.transition = 'width 3.5s linear';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { progressFill.style.width = '100%'; });
+    });
+  }
+
+  // Cycle only through Color Trading digits 0-9, then settle on 058.
+  const numberInterval = setInterval(() => {
+    tick++;
+    reelNumbers.forEach((el, index) => {
+      el.classList.add('rolling');
+      const current = Number(el.textContent) || 0;
+      el.textContent = String((current + 1) % 10);
+      setTimeout(() => el.classList.remove('rolling'), 55);
+    });
+  }, 110);
+
+  const animationDuration = new Promise(resolve => setTimeout(resolve, 3500));
+  await Promise.all([dataLoadPromise, animationDuration]);
+
+  clearInterval(numberInterval);
+  reelNumbers.forEach((el, index) => {
+    el.classList.remove('rolling');
+    el.textContent = finalNumbers[index];
+  });
+
+  // Keep the loader visible if the existing game data takes longer to load.
+  const elapsed = Date.now() - startedAt;
+  if (elapsed < 3500) await new Promise(resolve => setTimeout(resolve, 3500 - elapsed));
 
   loaderElem.classList.add('loader-hidden');
-  setTimeout(() => { loaderElem.style.display = 'none'; }, 500);
+  setTimeout(() => { loaderElem.style.display = 'none'; }, 400);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
