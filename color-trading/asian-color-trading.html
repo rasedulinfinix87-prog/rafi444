@@ -625,8 +625,14 @@ function startTimer(){
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
 async function loadHistoryData(type){
- const container=document.getElementById("modal-body-content");if(!type)return;
- container.innerHTML=`<p class="text-center text-slate-500 py-3">Loading...</p>`;
+ const container=document.getElementById("modal-body-content");
+ if(!type)return;
+ 
+ // শুধুমাত্র তখনই Loading দেখাবে যদি কন্টেইনারে আগে থেকেই কোনো ডাটা বা টেবিল না থাকে
+ if(!container.querySelector('table') && !container.querySelector('.trend-grid-container')){
+   container.innerHTML=`<p class="text-center text-slate-500 py-3">Loading...</p>`;
+ }
+ 
  const timerCol = getModeTimerColumn();
  
  if(type==='game-history'){
