@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Super Ace Slot Game</title>
+  <title>Super Ace Game</title>
   <style>
     * {
       box-sizing: border-box;
@@ -21,44 +21,32 @@
       color: #fff;
     }
 
+    /* গেমের মূল ফ্রেম */
     .game-container {
       width: 360px;
       height: 640px;
-      background: linear-gradient(180deg, #0d2c38 0%, #03131a 100%);
-      border: 4px solid #b8860b;
-      border-radius: 12px;
+      background: url('image/full_layout.png') no-repeat center center;
+      background-size: cover;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 0 20px rgba(0,0,0,0.8);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.9);
+      border-radius: 12px;
+      border: 3px solid #b8860b;
     }
 
-    /* টপ ডিসপেন্সার এবং মাল্টিপ্লায়ার স্ট্রিপ হেডার (মোবাইল ফ্রেন্ডলি সাইজ) */
-    .dispenser-header {
-      position: absolute;
-      top: 5px;
-      left: 0;
-      width: 100%;
-      height: 110px;
-      background: url('image/dispenser_header.png') no-repeat center bottom;
-      background-size: contain;
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    /* মূল গ্রিড বোর্ড */
+    /* ৪x৫ গ্রিড বোর্ড এর সঠিক পজিশন */
     .slot-board {
       position: absolute;
-      top: 115px;
+      top: 175px;
+      left: 10px;
       width: 340px;
-      height: 380px;
+      height: 290px;
       display: flex;
       justify-content: space-between;
       z-index: 2;
     }
 
+    /* প্রতিটি কলাম (Reel Column) */
     .reel-column {
       width: 64px;
       height: 100%;
@@ -73,23 +61,23 @@
       left: 0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
+    /* কার্ডের স্টাইল */
     .card {
       width: 64px;
-      height: 85px;
+      height: 68px;
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
-      border-radius: 6px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-      background-color: #e6e6e6;
+      border-radius: 4px;
     }
 
+    /* ড্রপ অ্যানিমেশন */
     @keyframes dropDown {
       0% {
-        transform: translateY(-380px);
+        transform: translateY(-290px);
       }
       100% {
         transform: translateY(0);
@@ -97,42 +85,32 @@
     }
 
     .drop-animate {
-      animation: dropDown 0.5s ease-out forwards;
+      animation: dropDown 0.4s ease-out forwards;
     }
 
+    /* স্পিন বাটন এরিয়া */
     .controls {
       position: absolute;
-      bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
+      bottom: 25px;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 20;
     }
 
     .spin-btn {
-      width: 80px;
-      height: 80px;
+      width: 75px;
+      height: 75px;
       border-radius: 50%;
-      background: linear-gradient(180deg, #ffd700 0%, #ff8c00 100%);
-      border: 3px solid #fff;
-      font-size: 18px;
-      font-weight: bold;
-      color: #5a0000;
+      background: transparent;
+      border: none;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    }
-
-    .spin-btn:active {
-      transform: scale(0.95);
     }
   </style>
 </head>
 <body>
 
   <div class="game-container">
-    <div class="dispenser-header"></div>
-
+    <!-- ৪x৫ কার্ড গ্রিড বোর্ড -->
     <div class="slot-board">
       <div class="reel-column"><div class="reel-inner" id="col-0"></div></div>
       <div class="reel-column"><div class="reel-inner" id="col-1"></div></div>
@@ -141,12 +119,14 @@
       <div class="reel-column"><div class="reel-inner" id="col-4"></div></div>
     </div>
 
+    <!-- স্পিন বাটন -->
     <div class="controls">
-      <button class="spin-btn" onclick="spinReels()">SPIN</button>
+      <button class="spin-btn" onclick="spinReels()"></button>
     </div>
   </div>
 
   <script>
+    // কার্ড এবং সিম্বলের তালিকা
     const cardTypes = [
       'image/card_ace.png',
       'image/card_king.png',
@@ -157,6 +137,7 @@
       'image/card_club.png'
     ];
 
+    // বোর্ড ইনিশিয়ালাইজেশন
     function initBoard() {
       for (let col = 0; col < 5; col++) {
         const colDiv = document.getElementById(`col-${col}`);
@@ -171,6 +152,7 @@
       }
     }
 
+    // স্পিন ফাংশন এবং অ্যানিমেশন
     function spinReels() {
       for (let col = 0; col < 5; col++) {
         const colDiv = document.getElementById(`col-${col}`);
@@ -186,7 +168,7 @@
           });
 
           colDiv.classList.add('drop-animate');
-        }, col * 100);
+        }, col * 80);
       }
     }
 
