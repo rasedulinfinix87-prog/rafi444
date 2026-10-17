@@ -37,18 +37,9 @@
   <header class="flex items-center justify-between gap-3 bg-[#161b22] border border-gray-800 p-4 rounded-2xl relative">
     <div class="flex items-center gap-4">
       <!-- Hamburger Menu on Left -->
-      <div class="relative">
-        <button onclick="toggleMenu()" class="p-2.5 bg-[#0b0e14] border border-gray-800 rounded-xl hover:bg-gray-800 transition text-[#24ee89]">
-          <i class="fa-solid fa-bars text-lg"></i>
-        </button>
-
-        <!-- Dropdown Menu -->
-        <div id="dropdownMenu" class="hidden absolute left-0 mt-2 w-56 bg-[#161b22] border border-gray-800 rounded-xl shadow-2xl z-50 overflow-hidden py-1">
-          <button onclick="cleanupBetHistory()" class="w-full text-left px-4 py-3 text-xs font-bold text-red-400 hover:bg-red-500/10 flex items-center gap-2">
-            <i class="fa-solid fa-trash-can"></i> Bet History Cleanup (29 Keep)
-          </button>
-        </div>
-      </div>
+      <button onclick="toggleMenu()" class="p-2.5 bg-[#0b0e14] border border-gray-800 rounded-xl hover:bg-gray-800 transition text-[#24ee89]">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
 
       <div>
         <h1 class="text-xl font-black">Admin Management Panel</h1>
@@ -60,6 +51,83 @@
       Live System
     </span>
   </header>
+
+  <!-- RIGHT SIDE SLIDING MODAL / DRAWER -->
+  <div id="sideModalOverlay" class="fixed inset-0 bg-black/60 z-50 hidden transition-opacity" onclick="toggleMenu()"></div>
+  <div id="sideModal" class="fixed top-0 right-0 h-full w-80 bg-[#161b22] border-l border-gray-800 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col p-5 space-y-6">
+    <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+      <h3 class="text-sm font-bold flex items-center gap-2">
+        <i class="fa-solid fa-sliders text-[#24ee89]"></i> History Management
+      </h3>
+      <button onclick="toggleMenu()" class="text-gray-400 hover:text-white p-1">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <div class="space-y-3 flex-1 overflow-y-auto">
+      <p class="text-xs text-gray-400">সিলেক্ট করুন কোন হিস্ট্রি ম্যানেজ করতে চান:</p>
+      
+      <button onclick="openHistoryManager('color_game_history')" class="w-full text-left px-4 py-3 bg-[#0b0e14] border border-gray-800 rounded-xl text-xs font-bold hover:border-[#24ee89] transition flex items-center justify-between group">
+        <span class="text-gray-200 group-hover:text-[#24ee89]">Color Trading Bet History</span>
+        <i class="fa-solid fa-chevron-right text-gray-500 text-xs"></i>
+      </button>
+
+      <button onclick="openHistoryManager('color_periods')" class="w-full text-left px-4 py-3 bg-[#0b0e14] border border-gray-800 rounded-xl text-xs font-bold hover:border-[#24ee89] transition flex items-center justify-between group">
+        <span class="text-gray-200 group-hover:text-[#24ee89]">Color Trading Period History</span>
+        <i class="fa-solid fa-chevron-right text-gray-500 text-xs"></i>
+      </button>
+    </div>
+
+    <div class="border-t border-gray-800 pt-4 text-xs text-gray-500 text-center">
+      BDTMINER Security Panel
+    </div>
+  </div>
+
+  <!-- DYNAMIC HISTORY CLEANUP MODAL (POPUP VIEW) -->
+  <div id="historyManagerModal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#161b22] border border-gray-800 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="p-4 border-b border-gray-800 flex items-center justify-between bg-[#0f141c]">
+        <div>
+          <h3 id="managerModalTitle" class="text-sm font-bold">History Management</h3>
+          <p class="text-xs text-gray-400 mt-0.5">সর্বশেষ ২৯টি রেকর্ড আনমার্কড থাকবে, বাকি পুরোনো রেকর্ডগুলো অটো-মার্কড থাকবে।</p>
+        </div>
+        <button onclick="closeHistoryManager()" class="p-2 text-gray-400 hover:text-white rounded-lg bg-[#161b22] border border-gray-800">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Table) -->
+      <div class="p-4 flex-1 overflow-y-auto table-wrap">
+        <table class="w-full text-left text-xs">
+          <thead class="text-gray-400 bg-[#0f141c] sticky top-0">
+            <tr>
+              <th class="p-3 w-10">Select</th>
+              <th class="p-3">ID / Ref</th>
+              <th class="p-3">Details / Info</th>
+              <th class="p-3">Created Time</th>
+            </tr>
+          </thead>
+          <tbody id="managerTableBody">
+            <tr><td colspan="4" class="p-6 text-center text-gray-400">Loading records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-gray-800 bg-[#0f141c] flex items-center justify-between">
+        <span id="selectedCountText" class="text-xs text-gray-400 font-bold">0 items selected for deletion</span>
+        <div class="flex gap-2">
+          <button onclick="closeHistoryManager()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-xs font-bold rounded-xl">বাতিল</button>
+          <button onclick="confirmAndDeleteSelected()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5">
+            <i class="fa-solid fa-trash-can"></i> ডিলিট সিলেক্টেড হিস্ট্রি
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <div id="messageBox" class="hidden p-3 rounded-xl text-sm break-words"></div>
 
@@ -292,69 +360,127 @@ function switchTab(tab) {
 }
 
 /* =====================================
-   HAMBURGER MENU TOGGLE
+   RIGHT SIDE DRAWER / MODAL TOGGLE
 ===================================== */
 function toggleMenu() {
-  const menu = document.getElementById("dropdownMenu");
-  menu.classList.toggle("hidden");
+  const drawer = document.getElementById("sideModal");
+  const overlay = document.getElementById("sideModalOverlay");
+  
+  drawer.classList.toggle("translate-x-full");
+  overlay.classList.toggle("hidden");
 }
 
-// Close dropdown when clicking outside
-window.addEventListener("click", function(e) {
-  if (!e.target.closest("button[onclick='toggleMenu()']") && !e.target.closest("#dropdownMenu")) {
-    document.getElementById("dropdownMenu").classList.add("hidden");
-  }
-});
-
 /* =====================================
-   BET HISTORY CLEANUP (KEEP LATEST 29)
+   HISTORY MANAGER LOGIC (29 UNMARKED, OTHERS MARKED)
 ===================================== */
-async function cleanupBetHistory() {
-  toggleMenu();
-  if (!confirm("আপনি কি নিশ্চিত? এটি বেটিং টেবিলগুলো ('color_game_history', 'color_periods', 'bets') থেকে লেটেস্ট ২৯টি ফলাফল রেখে বাকি সমস্ত হিস্ট্রি ডিলিট করে দেবে (profiles, deposits, withdrawals সম্পূর্ণ সুরক্ষিত থাকবে)।")) {
+let currentActiveTable = "";
+
+async function openHistoryManager(tableName) {
+  toggleMenu(); // Close side menu
+  currentActiveTable = tableName;
+
+  const modal = document.getElementById("historyManagerModal");
+  const titleElem = document.getElementById("managerModalTitle");
+  const tbody = document.getElementById("managerTableBody");
+
+  titleElem.textContent = tableName === "color_game_history" 
+    ? "Color Trading Bet History Management" 
+    : "Color Trading Period History Management";
+
+  modal.classList.remove("hidden");
+  tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400">লোডিং হচ্ছে...</td></tr>';
+
+  try {
+    // Fetch records ordered by created_at desc
+    const { data: records, error } = await supabaseClient
+      .from(tableName)
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    if (error) throw error;
+
+    if (!records || records.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400">কোনো হিস্ট্রি পাওয়া যায়নি।</td></tr>';
+      updateSelectedCount();
+      return;
+    }
+
+    tbody.innerHTML = records.map((item, index) => {
+      // First 29 items (index 0 to 28) will NOT be checked (Non Mark)
+      // Remaining older items will be checked (Auto Mark)
+      const isChecked = index >= 29 ? "checked" : "";
+      const timeStr = item.created_at ? new Date(item.created_at).toLocaleString() : "-";
+      
+      let details = "";
+      if (tableName === "color_game_history") {
+        details = `Bet Type: ${item.bet_type || "-"}, Period: ${item.period_number || "-"}, Amount: ${money(item.bet_amount)}, Status: ${item.status || "-"}`;
+      } else {
+        details = `Period: ${item.period_number || "-"}, Color: ${item.winning_color || "-"}, Number: ${item.winning_number ?? "-"}, Status: ${item.status || "-"}`;
+      }
+
+      return `
+        <tr class="border-b border-gray-800/60 hover:bg-gray-800/30">
+          <td class="p-3">
+            <input type="checkbox" class="history-checkbox w-4 h-4 accent-[#24ee89] cursor-pointer" value="${item.id}" ${isChecked} onchange="updateSelectedCount()">
+          </td>
+          <td class="p-3 font-mono text-gray-400">${item.id.slice(0, 8)}...</td>
+          <td class="p-3">${escapeHTML(details)}</td>
+          <td class="p-3">${timeStr} ${index < 29 ? '<span class="ml-2 text-[10px] bg-emerald-500/10 text-[#24ee89] px-2 py-0.5 rounded">Latest 29</span>' : ''}</td>
+        </tr>
+      `;
+    }).join("");
+
+    updateSelectedCount();
+
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-red-400">এরর: ${escapeHTML(err.message)}</td></tr>`;
+  }
+}
+
+function closeHistoryManager() {
+  document.getElementById("historyManagerModal").classList.add("hidden");
+}
+
+function updateSelectedCount() {
+  const checkboxes = document.querySelectorAll(".history-checkbox:checked");
+  const count = checkboxes.length;
+  document.getElementById("selectedCountTextanalytical")?.textContent; // placeholder safety
+  document.getElementById("selectedCountText").textContent = `${count} items selected for deletion`;
+}
+
+async function confirmAndDeleteSelected() {
+  const checkboxes = document.querySelectorAll(".history-checkbox:checked");
+  const idsToDelete = Array.from(checkboxes).map(cb => cb.value);
+
+  if (idsToDelete.length === 0) {
+    alert("ডিলিট করার জন্য কোনো রেকর্ড সিলেক্ট করা হয়নি!");
     return;
   }
 
+  // Double confirmation prompt
+  const firstConfirm = confirm(`আপনি কি নিশ্চিতভাবে ${idsToDelete.length} টি সিলেক্টেড হিস্ট্রি ডিলিট করতে চান?`);
+  if (!firstConfirm) return;
+
+  const secondConfirm = confirm("⚠️ সতর্কবার্তা: একবার ডিলিট করলে এই ডেটা আর ফিরে পাওয়া যাবে না। আপনি কি চূড়ান্তভাবে ডিলিট করতে চান?");
+  if (!secondConfirm) return;
+
   try {
-    showMessage("বেট হিস্ট্রি পরিষ্কার করা হচ্ছে...", false);
+    showMessage("সিলেক্টেড হিস্ট্রি ডিলিট করা হচ্ছে...", false);
 
-    // বেটিং ও গেম হিস্ট্রি সম্পর্কিত টেবিলগুলোর তালিকা (profiles, deposits, withdrawals বাদে)
-    const tablesToClean = ["color_game_history", "color_periods", "bets"];
+    const { error } = await supabaseClient
+      .from(currentActiveTable)
+      .delete()
+      .in("id", idsToDelete);
 
-    for (const tableName of tablesToClean) {
-      // Fetch latest 29 records IDs to keep
-      const { data: latestRecords, error: fetchError } = await supabaseClient
-        .from(tableName)
-        .select("id")
-        .order("created_at", { ascending: false })
-        .limit(29);
+    if (error) throw error;
 
-      if (fetchError) {
-        // টেবিল যদি না থাকে তবে স্কিপ করবে
-        console.warn(`Table ${tableName} might not exist:`, fetchError.message);
-        continue;
-      }
-
-      if (latestRecords && latestRecords.length > 0) {
-        const keepIds = latestRecords.map(r => r.id);
-
-        // Delete records not in keepIds
-        const { error: deleteError } = await supabaseClient
-          .from(tableName)
-          .delete()
-          .not("id", "in", `(${keepIds.map(id => `"${id}"`).join(",")})`);
-
-        if (deleteError) throw deleteError;
-      }
-    }
-
-    showMessage("সফলভাবে পুরনো বেট হিস্ট্রি মুছে ফেলা হয়েছে এবং লেটেস্ট ২৯টি ফলাফল সংরক্ষিত আছে।");
+    showMessage("সফলভাবে সিলেক্টেড হিস্ট্রি মুছে ফেলা হয়েছে।");
+    closeHistoryManager();
     await loadStats();
-    if (!document.getElementById("contentBets").classList.contains("hidden")) {
-      loadBets();
-    }
-  } catch (error) {
-    showMessage("ক্লিনআপ ব্যর্থ হয়েছে: " + error.message, true);
+
+  } catch (err) {
+    showMessage("ডিলিট করতে সমস্যা হয়েছে: " + err.message, true);
   }
 }
 
