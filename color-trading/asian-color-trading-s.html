@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -27,7 +28,67 @@ button{font-family:inherit;touch-action:manipulation}
 
 .period-number-bar{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:7px;border-top:1px solid #ffffff0b}.period-lbl{font-size:9px;font-weight:900;color:#74828c;text-transform:uppercase}.period-digits-container{display:flex;gap:2px}.period-digit{width:16px;height:21px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;background:#141d23;color:#fff;font-family:monospace;font-size:9px;font-weight:900}
 
-.roulette-wrap{position:relative;width:min(86vw,310px);height:min(86vw,310px);max-width:310px;max-height:310px;margin:3px auto 11px;display:flex;align-items:center;justify-content:center}.roulette-wheel{width:100%;height:100%;border-radius:50%;position:relative;background:conic-gradient(from -15deg,#ef263f 0 30deg,#090d11 30deg 60deg,#ef263f 60deg 90deg,#090d11 90deg 120deg,#ef263f 120deg 150deg,#090d11 150deg 180deg,#10bd64 180deg 210deg,#090d11 210deg 240deg,#ef263f 240deg 270deg,#090d11 270deg 300deg,#ef263f 300deg 330deg,#090d11 330deg 360deg);border:9px solid #dcae2d;box-shadow:0 0 0 3px #5b4514,0 10px 30px #000b,inset 0 0 0 4px #f9df72,inset 0 0 35px #000;transform:rotate(8deg)}.roulette-wheel:before{content:"";position:absolute;inset:18px;border-radius:50%;border:2px solid #f3cd55aa;box-shadow:inset 0 0 0 3px #0008}.roulette-wheel:after{content:"";position:absolute;inset:50%;width:82px;height:82px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 35% 28%,#ffe78b,#d99d22 40%,#8e5b0c 70%,#3b2507);border:5px solid #f3c84d;box-shadow:0 5px 15px #000b,inset 0 2px 4px #fff7}.roulette-pointer{position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:22px solid #f8fafc;filter:drop-shadow(0 2px 2px #000)}.roulette-pin{position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%);border-radius:50%;background:#f6cf5a;border:2px solid #fff2;z-index:3;box-shadow:0 2px 6px #000}.roulette-result{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;margin-top:38px;font-size:10px;font-weight:950;color:#fff;text-shadow:0 2px 4px #000;pointer-events:none;white-space:nowrap}.roulette-caption{text-align:center;color:#73828c;font-size:9px;font-weight:800;margin-top:-2px}
+.roulette-wrap{position:relative;width:min(86vw,310px);height:min(86vw,310px);max-width:310px;max-height:310px;margin:3px auto 11px;display:flex;align-items:center;justify-content:center}
+.roulette-wheel{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  position:relative;
+  /* Conic gradient for 10 slices (0 to 9), each 36 degrees:
+     0: 0deg-36deg (Violet: #8b22c7)
+     1: 36deg-72deg (Green: #08a952)
+     2: 72deg-108deg (Red: #dd1f3e)
+     3: 108deg-144deg (Green: #08a952)
+     4: 144deg-180deg (Red: #dd1f3e)
+     5: 180deg-216deg (Violet: #8b22c7)
+     6: 216deg-252deg (Red: #dd1f3e)
+     7: 252deg-288deg (Green: #08a952)
+     8: 288deg-324deg (Red: #dd1f3e)
+     9: 324deg-360deg (Green: #08a952)
+  */
+  background:conic-gradient(
+    #8b22c7 0deg 36deg,
+    #08a952 36deg 72deg,
+    #dd1f3e 72deg 108deg,
+    #08a952 108deg 144deg,
+    #dd1f3e 144deg 180deg,
+    #8b22c7 180deg 216deg,
+    #dd1f3e 216deg 252deg,
+    #08a952 252deg 288deg,
+    #dd1f3e 288deg 324deg,
+    #08a952 324deg 360deg
+  );
+  border:9px solid #dcae2d;
+  box-shadow:0 0 0 3px #5b4514,0 10px 30px #000b,inset 0 0 0 4px #f9df72,inset 0 0 35px #000;
+  transition: transform 4s cubic-bezier(0.15, 0.85, 0.15, 1);
+  transform:rotate(0deg);
+  transform-origin: center center;
+}
+.wheel-number-label{
+  position:absolute;
+  width:30px;
+  height:30px;
+  left:50%;
+  top:50%;
+  margin-left:-15px;
+  margin-top:-15px;
+  text-align:center;
+  font-size:13px;
+  font-weight:950;
+  color:#fff;
+  text-shadow:0 1px 2px #000;
+  z-index:2;
+  pointer-events:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.roulette-wheel:before{content:"";position:absolute;inset:18px;border-radius:50%;border:2px solid #f3cd55aa;box-shadow:inset 0 0 0 3px #0008;z-index:3;pointer-events:none}
+.roulette-wheel:after{content:"";position:absolute;inset:50%;width:82px;height:82px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 35% 28%,#ffe78b,#d99d22 40%,#8e5b0c 70%,#3b2507);border:5px solid #f3c84d;box-shadow:0 5px 15px #000b,inset 0 2px 4px #fff7;z-index:4}
+.roulette-pointer{position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:22px solid #f8fafc;filter:drop-shadow(0 2px 2px #000);z-index:10}
+.roulette-pin{position:absolute;left:50%;top:50%;width:20px;height:20px;transform:translate(-50%,-50%);border-radius:50%;background:#f6cf5a;border:2px solid #fff2;z-index:5;box-shadow:0 2px 6px #000}
+.roulette-result{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;margin-top:38px;font-size:10px;font-weight:950;color:#fff;text-shadow:0 2px 4px #000;pointer-events:none;white-space:nowrap}
+.roulette-caption{text-align:center;color:#73828c;font-size:9px;font-weight:800;margin-top:-2px}
 
 .color-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.color-choice{height:48px;border:0;border-radius:13px;color:#fff;font-size:14px;font-weight:950;box-shadow:inset 0 1px #ffffff30,0 5px 10px #0005;position:relative;cursor:pointer}.green-choice{background:linear-gradient(#13c76a,#08a952)}.violet-choice{background:linear-gradient(#b441f2,#8b28d1)}.red-choice{background:linear-gradient(#f43b56,#dd1f3e)}
 .number-panel{background:#0b141a;border:1px solid #24343d;border-radius:16px;padding:9px}.number-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.number-button{width:100%;aspect-ratio:1;border-radius:50%!important;border:0!important;font-size:18px!important;font-weight:950!important;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;line-height:1;color:#fff;box-shadow:inset 4px 5px 8px #fff6,inset -5px -6px 10px #0007,0 3px 6px #0008;cursor:pointer}.number-payout{font-size:7.5px!important;font-weight:700!important;opacity:.9;margin-top:2px}.ruby-sphere{background:radial-gradient(circle at 32% 25%,#ff7b8d,#f12d45 35%,#c71934 65%,#75101e);border:2px solid #ff5368!important}.green-sphere{background:radial-gradient(circle at 32% 25%,#65f39e,#19d66c 36%,#08a952 65%,#075c32);border:2px solid #52ec94!important}.violet-sphere{background:radial-gradient(circle at 32% 25%,#e09bff,#b536e8 36%,#8b22c7 65%,#511176);border:2px solid #d576f7!important}
@@ -82,7 +143,19 @@ button{font-family:inherit;touch-action:manipulation}
     <div class="timer-side"><div id="timer-label" class="timer-label">PLACE YOUR BET</div><div id="countdown-timer" class="digital-timer"><span class="timer-digit">0</span><span class="timer-digit">0</span><span class="timer-colon">:</span><span class="timer-digit">1</span><span class="timer-digit">5</span></div></div>
   </div>
   <div class="roulette-wrap">
-    <div class="roulette-wheel" id="roulette-wheel"></div>
+    <div class="roulette-wheel" id="roulette-wheel">
+      <!-- 10 Number Labels positioned at correct angles (0 to 9) -->
+      <div class="wheel-number-label" style="transform: rotate(18deg) translate(88px) rotate(-18deg)">0</div>
+      <div class="wheel-number-label" style="transform: rotate(54deg) translate(88px) rotate(-54deg)">1</div>
+      <div class="wheel-number-label" style="transform: rotate(90deg) translate(88px) rotate(-90deg)">2</div>
+      <div class="wheel-number-label" style="transform: rotate(126deg) translate(88px) rotate(-126deg)">3</div>
+      <div class="wheel-number-label" style="transform: rotate(162deg) translate(88px) rotate(-162deg)">4</div>
+      <div class="wheel-number-label" style="transform: rotate(198deg) translate(88px) rotate(-198deg)">5</div>
+      <div class="wheel-number-label" style="transform: rotate(234deg) translate(88px) rotate(-234deg)">6</div>
+      <div class="wheel-number-label" style="transform: rotate(270deg) translate(88px) rotate(-270deg)">7</div>
+      <div class="wheel-number-label" style="transform: rotate(306deg) translate(88px) rotate(-306deg)">8</div>
+      <div class="wheel-number-label" style="transform: rotate(342deg) translate(88px) rotate(-342deg)">9</div>
+    </div>
     <div class="roulette-pointer"></div><div class="roulette-pin"></div>
     <div id="roulette-result" class="roulette-result">COLOR • ROULETTE</div>
   </div>
@@ -131,6 +204,41 @@ button{font-family:inherit;touch-action:manipulation}
 <script>
 let currentUser=null,userProfile=null,selectedGameDuration=15,currentPeriodNumber="2026101501",timerSeconds=15,timerInterval=null;
 let activeModalTab='game-history',selectedChipAmount=20,lastPlacedBet=null,currentRoundTotalBet=0,userActiveBets=[];
+let wheelCurrentAngle = 0;
+let wheelAudioCtx = null;
+let isSpinningActive = false;
+
+function initAudioContext() {
+  if (!wheelAudioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) {
+      wheelAudioCtx = new AudioContext();
+    }
+  }
+}
+
+function playTickSound() {
+  try {
+    initAudioContext();
+    if (!wheelAudioCtx) return;
+    if (wheelAudioCtx.state === 'suspended') {
+      wheelAudioCtx.resume();
+    }
+    const osc = wheelAudioCtx.createOscillator();
+    const gain = wheelAudioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(800, wheelAudioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(150, wheelAudioCtx.currentTime + 0.04);
+    
+    gain.gain.setValueAtTime(0.15, wheelAudioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, wheelAudioCtx.currentTime + 0.04);
+    
+    osc.connect(gain);
+    gain.connect(wheelAudioCtx.destination);
+    osc.start();
+    osc.stop(wheelAudioCtx.currentTime + 0.04);
+  } catch (e) {}
+}
 
 function getModeTimerColumn(){
   return selectedGameDuration === 15 ? 't_15_second_timer' : selectedGameDuration === 30 ? 't_30_second_timer' : selectedGameDuration === 60 ? 't_1_minute_timer' : 't_5_minute_timer';
@@ -446,7 +554,17 @@ function startTimer(){
  function updateMainTimer(){
   const min=Math.floor(timerSeconds/60),sec=timerSeconds%60,timeText=`${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
   timerElem.innerHTML=`<span class="timer-digit">${timeText[0]}</span><span class="timer-digit">${timeText[1]}</span><span class="timer-colon">:</span><span class="timer-digit">${timeText[3]}</span><span class="timer-digit">${timeText[4]}</span>`;
-  if(timerSeconds<=5){const center=document.getElementById("bottom-bar-center-status"),s=center.querySelector("span");if(s&&!s.classList.contains("animate-zoom-out")){s.classList.add("animate-zoom-out");setTimeout(()=>center.innerHTML="",1500)}timerElem.classList.add("timer-danger");timerLabel.innerText="NO MORE BET";timerLabel.classList.add("timer-label-danger");if(timerSeconds===5)playVoiceMessage("No more bets")}
+  if(timerSeconds<=5){
+    const center=document.getElementById("bottom-bar-center-status"),s=center.querySelector("span");
+    if(s&&!s.classList.contains("animate-zoom-out")){s.classList.add("animate-zoom-out");setTimeout(()=>center.innerHTML="",1500)}
+    timerElem.classList.add("timer-danger");
+    timerLabel.innerText="NO MORE BET";
+    timerLabel.classList.add("timer-label-danger");
+    if(timerSeconds===5){
+      playVoiceMessage("No more bets");
+      triggerWheelSpinAnimation();
+    }
+  }
   else{timerElem.classList.remove("timer-danger");timerLabel.innerText="PLACE YOUR BET";timerLabel.classList.remove("timer-label-danger")}
  }
  
@@ -459,6 +577,37 @@ function startTimer(){
    }
    updateMainTimer();
  },1000)
+}
+
+function triggerWheelSpinAnimation(){
+  if(isSpinningActive) return;
+  isSpinningActive = true;
+  const wheel = document.getElementById("roulette-wheel");
+  if(!wheel) return;
+  
+  // Pick a random target number 0-9 for animation preview, or get it from latest data
+  const targetNum = Math.floor(Math.random() * 10);
+  // Each sector is 36 degrees. Center of sector n is (n * 36 + 18) degrees.
+  // Pointer is at top (0 deg). To align sector n to top pointer, wheel needs rotation: 360 * 5 + (360 - (targetNum * 36 + 18))
+  const sectorCenterAngle = targetNum * 36 + 18;
+  const extraSpins = 360 * 5;
+  const targetAngle = wheelCurrentAngle + extraSpins + (360 - (sectorCenterAngle % 360));
+  
+  wheel.style.transition = "transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)";
+  wheel.style.transform = `rotate(${targetAngle}deg)`;
+  wheelCurrentAngle = targetAngle;
+
+  // Play ticking sound effects synchronized with rotation deceleration
+  let tickCount = 0;
+  const maxTicks = 25;
+  const tickInterval = setInterval(()=>{
+    playTickSound();
+    tickCount++;
+    if(tickCount >= maxTicks){
+      clearInterval(tickInterval);
+      isSpinningActive = false;
+    }
+  }, 160);
 }
 
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -576,7 +725,20 @@ async function processRoundResult(){
  if(green===0&&red===0&&violet===0){const rc=['Green','Red','Green','Red','Violet'];winningColor=rc[Math.floor(Math.random()*rc.length)]}
  else if(green<=red&&green<=violet)winningColor='Green';else if(red<=green&&red<=violet)winningColor='Red';else winningColor='Violet';
  const numbersMap={Green:[1,3,7,9],Red:[2,4,6,8],Violet:[0,5]},possibleNums=numbersMap[winningColor],winningNumber=possibleNums[Math.floor(Math.random()*possibleNums.length)],winningBigSmall=winningNumber>=5?'Big':'Small',winningResultString=`${winningColor}-${winningNumber}`;
+ 
  await supabaseClient.from('color_periods').update({winning_color:winningColor,winning_number:winningNumber,status:'completed'}).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's');
+ 
+ // Spin wheel precisely to the winning number index (0-9)
+ const wheel = document.getElementById("roulette-wheel");
+ if(wheel){
+   const sectorCenterAngle = winningNumber * 36 + 18;
+   const extraSpins = 360 * 5;
+   const targetAngle = wheelCurrentAngle + extraSpins + (360 - (sectorCenterAngle % 360) - (wheelCurrentAngle % 360));
+   wheel.style.transition = "transform 1.5s cubic-bezier(0.1, 0.8, 0.1, 1)";
+   wheel.style.transform = `rotate(${targetAngle}deg)`;
+   wheelCurrentAngle = targetAngle;
+ }
+
  const {data:allBets}=await supabaseClient.from('color_game_history').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').eq("status",'pending');
  let userWonAmount=0,hasUserWon=false,userParticipated=false,userWinsMap={};
  if(allBets&&allBets.length)for(let bet of allBets){
@@ -617,3 +779,5 @@ async function processRoundResult(){
 </script>
 </body>
 </html>
+
+```
