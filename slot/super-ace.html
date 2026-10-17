@@ -1,314 +1,210 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Super Ace Slot - JILI Style</title>
-
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Supabase Client & App Config -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-config.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Ace Slot Game</title>
   <style>
     * {
       box-sizing: border-box;
-      touch-action: manipulation;
-    }
-    body {
-      background: #090d16;
-      color: #ffffff;
-      font-family: sans-serif;
       margin: 0;
       padding: 0;
-      user-select: none;
     }
 
-    .slot-frame {
-      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
-      border: 3px solid #d4af37;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.8), inset 0 0 15px rgba(212,175,55,0.4);
-    }
-
-    .multiplier-bar {
-      background: linear-gradient(90deg, #b45309 0%, #f59e0b 50%, #b45309 100%);
-      border: 2px solid #fef08a;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    }
-
-    .mult-box {
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 900;
-      color: #78350f;
-      background: rgba(255,255,255,0.4);
-      transition: all 0.3s;
-    }
-    .mult-box.active {
-      background: #ffffff;
-      color: #b45309;
-      transform: scale(1.15);
-      box-shadow: 0 0 10px #fef08a;
-    }
-
-    .slot-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      grid-template-rows: repeat(4, 1fr);
-      gap: 5px;
-      background: #020617;
-      padding: 6px;
-      border-radius: 12px;
-      border: 2px solid #334155;
-    }
-
-    /* Falling Card Animation */
-    .slot-card {
-      aspect-ratio: 3/4;
-      background: #ffffff;
-      border-radius: 6px;
+    body {
+      background-color: #0b1a20;
+      font-family: Arial, sans-serif;
       display: flex;
-      align-items: center;
       justify-content: center;
-      overflow: hidden;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-      border: 1.5px solid #cbd5e1;
-      animation: dropDown 0.3s ease-out;
-    }
-    @keyframes dropDown {
-      0% { transform: translateY(-50px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
     }
 
-    .slot-card img {
+    .game-container {
+      width: 360px;
+      height: 640px;
+      background: linear-gradient(180deg, #0d2c38 0%, #03131a 100%);
+      border: 4px solid #b8860b;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ১. টপ ডিসপেন্সার এবং মাল্টিপ্লায়ার স্ট্রিপ (z-index: 10) */
+    .dispenser-header {
+      position: absolute;
+      top: 10px;
+      left: 0;
       width: 100%;
+      height: 110px;
+      background: url('dispenser_header.png') no-repeat center top;
+      background-size: contain;
+      z-index: 10; /* কার্ড যেন এর পেছন দিয়ে বের হয় */
+      pointer-events: none;
+    }
+
+    /* ২. মূল গ্রিড বোর্ড (৫ কলাম) */
+    .slot-board {
+      position: absolute;
+      top: 110px;
+      width: 340px;
+      height: 380px;
+      display: flex;
+      justify-content: space-between;
+      z-index: 2;
+    }
+
+    /* প্রতিটি কলাম (Reel Column) */
+    .reel-column {
+      width: 64px;
       height: 100%;
-      object-fit: contain;
+      position: relative;
+      overflow: hidden; /* বাইরে কার্ড দেখা যাবে না */
+    }
+
+    .reel-inner {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* ৩. কার্ড আইটেম */
+    .card {
+      width: 64px;
+      height: 85px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+      background-color: #e6e6e6;
+    }
+
+    /* কার্ড স্লাইড ডাউন অ্যানিমেশন */
+    @keyframes dropDown {
+      0% {
+        transform: translateY(-380px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    .drop-animate {
+      animation: dropDown 0.5s ease-out forwards;
+    }
+
+    /* ৪. স্পিন বাটন কন্ট্রোল */
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 20;
     }
 
     .spin-btn {
-      width: 75px;
-      height: 75px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
-      border: 4px solid #fef08a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 20px rgba(245, 158, 11, 0.8), inset 0 2px 5px rgba(255,255,255,0.6);
+      background: linear-gradient(180deg, #ffd700 0%, #ff8c00 100%);
+      border: 3px solid #fff;
+      font-size: 18px;
+      font-weight: bold;
+      color: #5a0000;
       cursor: pointer;
-      transition: transform 0.1s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
-    .spin-btn:active { transform: scale(0.92); }
 
-    .control-panel {
-      background: #111827;
-      border-top: 2px solid #1f2937;
+    .spin-btn:active {
+      transform: scale(0.95);
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body>
 
-  <!-- Top Bar Container -->
-  <div id="topBarContainer" class="sticky top-0 z-50"></div>
+  <div class="game-container">
+    <!-- ১. কার্ড ডিসপেন্সার ও মাল্টিপ্লায়ার হেডার -->
+    <div class="dispenser-header"></div>
 
-  <main class="max-w-md w-full mx-auto flex flex-col flex-1 p-2 gap-2 justify-between">
-
-    <!-- Super Ace Header & Multiplier Bar -->
-    <div class="flex flex-col gap-2">
-      <div class="flex justify-between items-center px-1">
-        <span class="text-xs font-black tracking-widest text-amber-400 bg-black/60 px-3 py-1 rounded-full border border-amber-500/40">SUPER ACE</span>
-        <div class="flex gap-2">
-          <span class="bg-red-900/80 text-red-200 text-[10px] font-bold px-2 py-0.5 rounded border border-red-500">BUY BONUS</span>
-          <span class="bg-amber-900/80 text-amber-200 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-500">JACKPOT</span>
-        </div>
-      </div>
-
-      <!-- Multiplier Bar matching JILI (x1, x2, x3, x5) -->
-      <div class="multiplier-bar flex justify-around items-center py-1.5 px-2 text-sm">
-        <span id="m1" class="mult-box active">×1</span>
-        <span id="m2" class="mult-box">×2</span>
-        <span id="m3" class="mult-box">×3</span>
-        <span id="m5" class="mult-box">×5</span>
-      </div>
+    <!-- ২. ৫ কলামের কার্ড স্লট বোর্ড -->
+    <div class="slot-board">
+      <div class="reel-column"><div class="reel-inner" id="col-0"></div></div>
+      <div class="reel-column"><div class="reel-inner" id="col-1"></div></div>
+      <div class="reel-column"><div class="reel-inner" id="col-2"></div></div>
+      <div class="reel-column"><div class="reel-inner" id="col-3"></div></div>
+      <div class="reel-column"><div class="reel-inner" id="col-4"></div></div>
     </div>
 
-    <!-- Main Slot Reels Grid (5x4) -->
-    <div class="slot-frame p-2">
-      <div class="slot-grid" id="slotGrid">
-        <!-- Rendered via JS -->
-      </div>
-      <div class="text-center py-1 font-bold text-xs text-amber-300 tracking-wider">
-        WIN: <span id="winAmount" class="text-white">0.000</span>
-      </div>
+    <!-- ৩. স্পিন বাটন -->
+    <div class="controls">
+      <button class="spin-btn" onclick="spinReels()">SPIN</button>
     </div>
-
-    <!-- Bottom Action Controls & Spin Panel -->
-    <div class="control-panel p-3 rounded-2xl flex flex-col gap-3 shadow-2xl">
-      <div class="flex justify-between items-center text-xs font-bold px-2">
-        <div class="flex flex-col">
-          <span class="text-gray-400 text-[10px]">BET</span>
-          <span id="betDisplay" class="text-amber-400">0.5</span>
-        </div>
-        <div class="flex flex-col text-right">
-          <span class="text-gray-400 text-[10px]">BALANCE</span>
-          <span id="slotBalance" class="text-white">1.750</span>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-between px-4">
-        <button class="w-11 h-11 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-gray-300 shadow">
-          <i class="fa-solid fa-gear text-sm"></i>
-        </button>
-
-        <button onclick="adjustBet(-0.5)" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-amber-400 font-bold text-lg shadow">-</button>
-
-        <div class="spin-btn" onclick="triggerSpin()">
-          <i class="fa-solid fa-rotate text-2xl text-white"></i>
-        </div>
-
-        <button onclick="adjustBet(0.5)" class="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-amber-400 font-bold text-lg shadow">+</button>
-
-        <button class="w-11 h-11 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-amber-400 shadow" title="Auto Spin">
-          <i class="fa-solid fa-bolt text-sm"></i>
-        </button>
-      </div>
-    </div>
-
-  </main>
+  </div>
 
   <script>
-    let currentUserId = null;
-    let userBalance = 1.750;
-    let currentBet = 0.5;
-    let isSpinning = false;
-
-    // Standard Real Playing Card CDN Image Links
-    const cardImages = [
-      "https://deckofcardsapi.com/static/img/AS.png", // Ace
-      "https://deckofcardsapi.com/static/img/KH.png", // King
-      "https://deckofcardsapi.com/static/img/QD.png", // Queen
-      "https://deckofcardsapi.com/static/img/JC.png", // Jack
-      "https://deckofcardsapi.com/static/img/10S.png" // 10
+    // কার্ডের ইমেজের ইউআরএল বা সোর্স (এখানে নমুনা হিসেবে কার্ডের নাম দেওয়া হলো)
+    const cardTypes = [
+      'card_ace.png',
+      'card_king.png',
+      'card_queen.png',
+      'card_jack.png',
+      'card_scatter.png',
+      'card_heart.png',
+      'card_club.png'
     ];
 
-    async function loadTopBar() {
-      try {
-        const res = await fetch('../bar/top.html');
-        if (res.ok) {
-          document.getElementById('topBarContainer').innerHTML = await res.text();
-          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-            a.href = '../account/deposit.html';
+    // বোর্ড প্রাথমিক তৈরি (Init)
+    function initBoard() {
+      for (let col = 0; col < 5; col++) {
+        const colDiv = document.getElementById(`col-${col}`);
+        colDiv.innerHTML = '';
+        for (let row = 0; row < 4; row++) {
+          const card = document.createElement('div');
+          card.className = 'card';
+          // র‍্যান্ডম কার্ড সেট করা
+          const randomCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
+          card.style.backgroundImage = `url('${randomCard}')`;
+          colDiv.appendChild(card);
+        }
+      }
+    }
+
+    // স্পিন বাটন ক্লিক করলে ড্রপ অ্যানিমেশন
+    function spinReels() {
+      for (let col = 0; col < 5; col++) {
+        const colDiv = document.getElementById(`col-${col}`);
+        
+        // কলাম অনুযায়ী কিছুটা সময়ের ব্যবধান (Stagger Effect)
+        setTimeout(() => {
+          colDiv.classList.remove('drop-animate');
+          void colDiv.offsetWidth; // Trigger Reflow
+          
+          // নতুন কার্ড সেট করা
+          const cards = colDiv.querySelectorAll('.card');
+          cards.forEach(card => {
+            const randomCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
+            card.style.backgroundImage = `url('${randomCard}')`;
           });
-        }
-      } catch (e) {
-        console.error('Top bar load error:', e);
+
+          colDiv.classList.add('drop-animate');
+        }, col * 100);
       }
     }
 
-    function updateBalances() {
-      document.getElementById('slotBalance').innerText = userBalance.toFixed(3);
-      document.getElementById('betDisplay').innerText = currentBet.toFixed(1);
-      const topBal = document.getElementById('topBarBalance');
-      if (topBal) topBal.innerText = userBalance.toFixed(2);
-    }
-
-    function initGrid() {
-      const grid = document.getElementById('slotGrid');
-      grid.innerHTML = '';
-      for (let i = 0; i < 20; i++) {
-        const randomImg = cardImages[Math.floor(Math.random() * cardImages.length)];
-        const cardDiv = document.createElement('div');
-        cardDiv.className = `slot-card`;
-        cardDiv.innerHTML = `<img src="${randomImg}" alt="Card">`;
-        grid.appendChild(cardDiv);
-      }
-    }
-
-    function adjustBet(amount) {
-      if (isSpinning) return;
-      currentBet = Math.max(0.5, currentBet + amount);
-      updateBalances();
-    }
-
-    // Super Ace Cascade & Payout Engine Logic
-    function triggerSpin() {
-      if (isSpinning) return;
-      if (userBalance < currentBet) {
-        alert('অপর্যাপ্ত ব্যালেন্স!');
-        return;
-      }
-
-      isSpinning = true;
-      userBalance -= currentBet;
-      updateBalances();
-      document.getElementById('winAmount').innerText = '0.000';
-
-      // Reset Multiplier Bar to x1
-      updateMultiplier(1);
-
-      // Initial Drop from Top Animation
-      initGrid();
-
-      // Simulate Super Ace Cascade (Tumble & Payout Mechanism)
-      setTimeout(() => {
-        let hasWon = Math.random() > 0.4; // 60% win chance
-        if (hasWon) {
-          let multiplierStage = 1;
-          let totalWin = currentBet * (Math.floor(Math.random() * 3) + 2);
-
-          // Progressive Multiplier Animation (x1 -> x2 -> x3 -> x5)
-          let interval = setInterval(() => {
-            if (multiplierStage < 5) {
-              multiplierStage = multiplierStage === 1 ? 2 : (multiplierStage === 2 ? 3 : 5);
-              updateMultiplier(multiplierStage);
-              totalWin *= 1.3;
-            } else {
-              clearInterval(interval);
-              userBalance += totalWin;
-              document.getElementById('winAmount').innerText = totalWin.toFixed(3);
-              updateBalances();
-              isSpinning = false;
-            }
-          }, 400);
-        } else {
-          isSpinning = false;
-        }
-      }, 500);
-    }
-
-    function updateMultiplier(stage) {
-      document.getElementById('m1').className = stage === 1 ? 'mult-box active' : 'mult-box';
-      document.getElementById('m2').className = stage === 2 ? 'mult-box active' : 'mult-box';
-      document.getElementById('m3').className = stage === 3 ? 'mult-box active' : 'mult-box';
-      document.getElementById('m5').className = stage === 5 ? 'mult-box active' : 'mult-box';
-    }
-
-    window.onload = async () => {
-      await loadTopBar();
-      initGrid();
-      updateBalances();
-
-      if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
-        const user = await getCurrentUser();
-        if (user) {
-          currentUserId = user.id;
-          const { data: profile } = await supabaseClient.from('profiles').select('balance').eq('id', user.id).single();
-          if (profile) {
-            userBalance = parseFloat(profile.balance) || 1.750;
-            updateBalances();
-          }
-        }
-      }
-    };
+    // গেম শুরু হওয়ার সাথে সাথে বোর্ড তৈরি
+    window.onload = initBoard;
   </script>
 </body>
 </html>
