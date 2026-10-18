@@ -196,16 +196,21 @@
     .cards-area { flex:1; justify-content:space-between; gap:24px; padding:0 3px; }
     .hand-container { gap:9px; min-width:0; width:100%; }
     .hand-title { color:#e0eee7; font-size:12px; font-weight:800; letter-spacing:1.1px; text-shadow:0 1px 2px #00251b; }
-    .cards-flex { gap:7px; min-height:94px; justify-content:center; flex-wrap:nowrap; }
+    .cards-flex { gap:9px; min-height:clamp(100px,25vw,124px); justify-content:center; flex-wrap:nowrap; align-items:flex-start; }
     .card {
-      flex:0 0 auto; width:clamp(48px,13vw,66px); height:clamp(70px,18vw,94px);
-      border-radius:7px; padding:5px 5px 4px; font-size:clamp(14px,3.8vw,19px);
-      box-shadow:0 5px 12px rgba(0,0,0,.32); border:1px solid #e5e7eb;
-      animation:dealFromDeck .32s cubic-bezier(.2,.8,.2,1) forwards;
+      flex:0 0 auto; width:clamp(58px,16vw,78px); height:clamp(86px,23vw,112px);
+      border-radius:8px; padding:6px 6px 5px; font-size:clamp(17px,4.5vw,23px);
+      box-shadow:0 6px 14px rgba(0,0,0,.34); border:1px solid #e5e7eb;
+      animation:dealFromDeck .42s cubic-bezier(.18,.75,.25,1) both; will-change:transform,opacity;
     }
+    .card > div:last-child { font-size:1.2em; }
+    .card.is-hidden { display:flex; align-items:center; justify-content:center; font-size:25px; background:linear-gradient(135deg,#173d5b,#0d263d); color:#f4d889; border:2px solid #d8bb70; }
+    .cards-flex .card { margin:0; }
+    @media (max-width:380px) { .cards-flex { gap:5px; min-height:96px; } .card { width:clamp(49px,14vw,60px); height:clamp(75px,21vw,88px); padding:4px; font-size:16px; } }
     .card > div:last-child { font-size:1.12em; }
     .card.black { color:#202b3a; }
     .card.red { color:#d92f42; }
+    @keyframes cardReveal { from { transform:rotateY(90deg) scale(.92); opacity:.65; } to { transform:rotateY(0) scale(1); opacity:1; } }
     .status-msg {
       width:100%; max-width:520px; min-height:34px; padding:7px 8px; border-radius:8px;
       background:rgba(2,24,17,.28); border:1px solid rgba(255,255,255,.08);
@@ -231,7 +236,7 @@
       .game-screen { min-height:400px; padding:14px 8px 18px; gap:18px; }
       .rules-badge { font-size:8px; margin-right:54px; }
       .cards-flex { gap:4px; }
-      .card { width:45px; height:66px; padding:4px; }
+      .card { width:clamp(49px,14vw,60px); height:clamp(75px,21vw,88px); padding:4px; font-size:16px; }
       .main-wrapper > .p-4 { padding:12px; }
     }
 
@@ -440,35 +445,74 @@
     function dealerHasNatural() { return dealerHand.length === 2 && isNatural(dealerHand); }
     function activeHand() { return playerHands[activeHandIndex]; }
 
-    function makeCardElement(card, hidden) {
-      const div = document.createElement('div');
-      if (hidden) { div.className = 'card black'; div.innerHTML = '🎴'; return div; }
+    function updateCardElement(div, card, hidden) {
+      if (hidden) {
+        div.className = 'card black is-hidden';
+        div.dataset.hidden = '1';
+        div.innerHTML = '♠';
+        return div;
+      }
       const red = ['♥','♦'].includes(card.suit);
       div.className = `card ${red ? 'red' : 'black'}`;
+      div.dataset.hidden = '0';
       div.innerHTML = `<div>${card.value}</div><div style="align-self:flex-end;">${card.suit}</div>`;
       return div;
     }
+    function makeCardElement(card, hidden) {
+      const div = document.createElement('div');
+      return updateCardElement(div, card, hidden);
+    }
+    // Reconcile existing card nodes instead of clearing the whole hand.
+    // This prevents old cards from replaying their deal animation on every draw.
     function renderHand(hand, elementId, hideFirstCard = false) {
       const container = document.getElementById(elementId);
-      container.innerHTML = '';
-      hand.forEach((card, index) => container.appendChild(makeCardElement(card, hideFirstCard && index === 0)));
+      while (container.children.length > hand.length) container.lastElementChild.remove();
+      hand.forEach((card, index) => {
+        let node = container.children[index];
+        const hidden = hideFirstCard && index === 0;
+        if (!node) {
+          node = makeCardElement(card, hidden);
+          node.style.animationDelay = '0ms';
+          container.appendChild(node);
+        } else {
+          const wasHidden = node.dataset.hidden === '1';
+          updateCardElement(node, card, hidden);
+          if (wasHidden && !hidden) {
+            node.classList.remove('is-hidden');
+            node.style.animation = 'cardReveal .32s ease-out both';
+          }
+        }
+      });
     }
     function renderPlayerHands() {
       const container = document.getElementById('playerCards');
-      container.innerHTML = '';
-      container.style.flexWrap = 'wrap';
+      container.style.flexWrap = playerHands.length > 1 ? 'wrap' : 'nowrap';
       container.style.justifyContent = 'center';
+      // Keep one persistent DOM slot per hand, so adding a card never removes/redeals prior cards.
+      while (container.children.length > playerHands.length) container.lastElementChild.remove();
       playerHands.forEach((hand, index) => {
-        const slot = document.createElement('div');
-        slot.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px;border-radius:8px;min-width:90px;' + (index === activeHandIndex && gameInProgress ? 'outline:1px solid #24ee89;background:rgba(36,238,137,.06);' : '');
-        const label = document.createElement('div');
-        label.style.cssText = 'font-size:10px;color:#8b9bb4;font-weight:700;';
-        label.textContent = (playerHands.length > 1 ? `HAND ${index + 1} · ` : '') + calculateScore(hand.cards) + (hand.done ? ' · DONE' : '');
-        const cards = document.createElement('div');
-        cards.className = 'cards-flex';
-        hand.cards.forEach(card => cards.appendChild(makeCardElement(card, false)));
-        slot.append(label, cards);
-        container.appendChild(slot);
+        let slot = container.children[index];
+        if (!slot) {
+          slot = document.createElement('div');
+          slot.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:5px;padding:5px;border-radius:9px;min-width:0;';
+          const label = document.createElement('div');
+          label.className = 'player-hand-label';
+          label.style.cssText = 'font-size:11px;color:#d7e5dd;font-weight:800;min-height:14px;';
+          const cards = document.createElement('div');
+          cards.className = 'cards-flex player-hand-cards';
+          slot.append(label, cards);
+          container.appendChild(slot);
+        }
+        slot.style.outline = index === activeHandIndex && gameInProgress ? '1px solid #e5c66f' : 'none';
+        slot.style.background = index === activeHandIndex && gameInProgress ? 'rgba(229,198,111,.07)' : 'transparent';
+        slot.querySelector('.player-hand-label').textContent = (playerHands.length > 1 ? `HAND ${index + 1} · ` : '') + calculateScore(hand.cards) + (hand.done ? ' · DONE' : '');
+        const cards = slot.querySelector('.player-hand-cards');
+        while (cards.children.length > hand.cards.length) cards.lastElementChild.remove();
+        hand.cards.forEach((card, cardIndex) => {
+          let node = cards.children[cardIndex];
+          if (!node) { node = makeCardElement(card, false); cards.appendChild(node); }
+          else updateCardElement(node, card, false);
+        });
       });
       const scoreEl = document.getElementById('playerScore');
       scoreEl.innerText = playerHands.length > 1 ? calculateScore(activeHand().cards) : (playerHands[0] ? calculateScore(playerHands[0].cards) : 0);
