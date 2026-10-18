@@ -23,21 +23,9 @@
         img { -webkit-user-drag: none; } 
     </style> 
 </head> 
-<body class="bg-[#0b0f19] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black"> 
+<body class="bg-[#0b0f19] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black pb-20"> 
     <!-- Top Navigation Bar Anchor Container --> 
     <div id="topBarContainer" class="sticky top-0 z-50"></div> 
-
-    <!-- Added Search Box Card directly under topBarContainer -->
-    <div class="max-w-7xl w-full mx-auto px-3 sm:px-4 pt-4">
-        <div class="bg-[#111827] border border-slate-800 rounded-2xl p-3 sm:p-4 flex items-center shadow-lg">
-            <div class="flex items-center gap-3 w-full">
-                <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                <input type="text" id="gameSearchCard" onkeyup="searchGamesCard()" placeholder="Search your favorite games..." class="bg-transparent text-white focus:outline-none w-full text-xs sm:text-sm placeholder-slate-500">
-            </div>
-        </div>
-    </div>
 
     <!-- Main Application Wrapper --> 
     <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5"> 
@@ -69,7 +57,7 @@
     </div> 
 
     <!-- Footer Section --> 
-    <footer class="bg-[#111827] border-t border-slate-800/80 mt-12 py-6 text-center text-xs text-slate-500 space-y-2"> 
+    <footer class="bg-[#111827] border-t border-slate-800/80 mt-12 py-6 text-center text-xs text-slate-500 space-y-2 mb-16"> 
         <p>&copy; 2026 Game Portal. All Rights Reserved.</p> 
     </footer> 
 
@@ -87,7 +75,7 @@
             { id: 'wheel', name: 'Wheel', path: 'game/wheel.html', category: 'original', players: 210, image: 'assets/images/wheel.png', fallbackBg: 'from-fuchsia-950 to-slate-950' }, 
             { id: 'keno', name: 'Keno', path: 'game/keno.html', category: 'original', players: 145, image: 'assets/images/keno.png', fallbackBg: 'from-amber-950 to-slate-950' }, 
             { id: 'coin-flip', name: 'Coin Flip', path: 'game/coin-flip.html', category: 'original', players: 180, image: 'assets/images/coin-flip.png', fallbackBg: 'from-yellow-900 to-slate-950' }, 
-             
+            
             // Color Trading Cards (Total 6 Cards)
             { id: 'color-trade-win-go', name: 'Color Trade Win Go', path: 'color-trading/card/cards.html', category: 'colortrading', players: 340, image: 'assets/images/color-trade.png', fallbackBg: 'from-emerald-950 to-slate-950' },
             { id: 'roulette', name: 'Roulette', path: 'color-trading/card/cards.html', category: 'colortrading', players: 255, image: 'assets/images/roulette.png', fallbackBg: 'from-rose-950 to-slate-950' }, 
@@ -95,7 +83,7 @@
             { id: 'color-trade-5d', name: '5D Lotter Trading', path: 'color-trading/card/cards.html', category: 'colortrading', players: 310, image: 'assets/images/5d.png', fallbackBg: 'from-purple-950 to-slate-950' },
             { id: 'color-trade-trx', name: 'TRX Win Go', path: 'color-trading/card/cards.html', category: 'colortrading', players: 420, image: 'assets/images/trx.png', fallbackBg: 'from-amber-950 to-slate-950' },
             { id: 'color-trade-parity', name: 'Parity Trading', path: 'color-trading/card/cards.html', category: 'colortrading', players: 195, image: 'assets/images/parity.png', fallbackBg: 'from-teal-950 to-slate-950' },
-             
+            
             // Blackjack & Live Cards
             { id: 'blackjack', name: 'Blackjack', path: 'blackjack/blackjacktable.html', category: 'blackjack', players: 470, image: 'assets/images/blackjack.png', fallbackBg: 'from-blue-950 to-slate-950' },
             { id: 'live-baccarat', name: 'Live Baccarat', path: 'live/baccarat.html', category: 'live', players: 520, image: 'assets/images/baccarat.png', fallbackBg: 'from-red-950 to-slate-950' },
@@ -155,12 +143,30 @@
                     document.getElementById('topBarContainer').innerHTML = html; 
                     syncRealtimeUserBalance(); 
                 } else {
-                    console.error('Error loading top bar component:', response.status);
+                    console.error('Top bar load failed with status:', response.status);
                 }
             } catch (err) { 
                 console.error('Error loading top bar component:', err); 
             } 
         } 
+
+        // Dynamic Bottom Bar Loader
+        async function loadBottomBar() {
+            try {
+                const response = await fetch('bar/bottom.html');
+                if (response.ok) {
+                    const html = await response.text();
+                    const bottomBarContainer = document.getElementById('bottomBarContainer');
+                    if (bottomBarContainer) {
+                        bottomBarContainer.innerHTML = html;
+                    }
+                } else {
+                    console.error('Bottom bar load failed with status:', response.status);
+                }
+            } catch (err) {
+                console.error('Error loading bottom bar component:', err);
+            }
+        }
 
         // Optimized Live Players Update 
         function startLivePlayerUpdates() { 
@@ -225,13 +231,9 @@
             currentCategory = cat; 
             const categories = ['original', 'colortrading', 'blackjack', 'live']; 
             categories.forEach(c => { 
-                let btnId = '';
-                if (c === 'original') btnId = 'catOriginal';
-                else if (c === 'colortrading') btnId = 'catColortrading';
-                else if (c === 'blackjack') btnId = 'catBlackjack';
-                else if (c === 'live') btnId = 'catLive';
-
-                const btn = document.getElementById(btnId); 
+                let idName = c;
+                if (c === 'colortrading') idName = 'Colortrading';
+                const btn = document.getElementById(`cat${idName.charAt(0).toUpperCase() + idName.slice(1)}`); 
                 if (btn) { 
                     if (c === cat) { 
                         btn.className = 'flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap'; 
@@ -250,48 +252,15 @@
             document.getElementById('sectionTitle').innerHTML = ` 
                 <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> ${titles[cat] || 'Games'} 
             `; 
-             
-            const searchCardInput = document.getElementById('gameSearchCard');
-            const searchBarInput = document.getElementById('gameSearch');
-            const activeQuery = searchCardInput ? searchCardInput.value : (searchBarInput ? searchBarInput.value : '');
-            renderGames(cat, activeQuery); 
+            renderGames(cat); 
         } 
 
-        // Search Filter (Original Navbar Input)
+        // Search Filter 
         function searchGames() { 
             const searchInput = document.getElementById('gameSearch'); 
-            const searchCardInput = document.getElementById('gameSearchCard');
             if (!searchInput) return; 
-            if (searchCardInput) searchCardInput.value = searchInput.value;
             renderGames(currentCategory, searchInput.value); 
         } 
-
-        // Search Filter Card (New Search Box Card Input)
-        function searchGamesCard() {
-            const searchCardInput = document.getElementById('gameSearchCard');
-            const searchInput = document.getElementById('gameSearch');
-            if (!searchCardInput) return;
-            if (searchInput) searchInput.value = searchCardInput.value;
-            renderGames(currentCategory, searchCardInput.value);
-        }
-
-        // Dynamic Bottom Bar Loader
-        async function loadBottomBar() {
-            try {
-                const response = await fetch('bar/bottom.html');
-                if (response.ok) {
-                    const html = await response.text();
-                    const bottomBarContainer = document.getElementById('bottomBarContainer');
-                    if (bottomBarContainer) {
-                        bottomBarContainer.innerHTML = html;
-                    }
-                } else {
-                    console.error('Error loading bottom bar component:', response.status);
-                }
-            } catch (err) {
-                console.error('Error loading bottom bar component:', err);
-            }
-        }
 
         // Initialization Logic 
         document.addEventListener('DOMContentLoaded', () => { 
