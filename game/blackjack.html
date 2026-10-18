@@ -400,6 +400,7 @@
       if (type === 'double') input.value = (val * 2).toFixed(2);
     }
 
+    // Sequential card dealing function with realistic delays
     async function startGame() {
       if (gameInProgress) return;
 
@@ -416,7 +417,6 @@
 
       currentBet = betVal;
       gameInProgress = true;
-      document.getElementById("statusMessageinnerText")?.remove();
       document.getElementById("statusMessage").innerText = "Dealing cards...";
 
       // Deduct balance locally & update database
@@ -431,15 +431,35 @@
       document.getElementById("mainBetBtn").innerText = "DEALING...";
 
       createDeck();
-      playerHand = [deck.pop(), deck.pop()];
-      dealerHand = [deck.pop(), deck.pop()];
+      playerHand = [];
+      dealerHand = [];
 
-      renderHand(playerHand, "playerCards");
-      renderHand(dealerHand, "dealerCards", true);
-
-      document.getElementById("playerScore").innerText = calculateScore(playerHand);
+      // Clear previous cards and scores
+      document.getElementById("playerCards").innerHTML = "";
+      document.getElementById("dealerCards").innerHTML = "";
+      document.getElementById("playerScore").innerText = "0";
       document.getElementById("dealerScore").innerText = "?";
 
+      // Sequential dealing: Player -> Dealer -> Player -> Dealer (Standard Blackjack rule)
+      await new Promise(resolve => setTimeout(resolve, 250));
+      playerHand.push(deck.pop());
+      renderHand(playerHand, "playerCards");
+      document.getElementById("playerScore").innerText = calculateScore(playerHand);
+
+      await new Promise(resolve => setTimeout(resolve, 300));
+      dealerHand.push(deck.pop());
+      renderHand(dealerHand, "dealerCards", true);
+
+      await new Promise(resolve => setTimeout(resolve, 300));
+      playerHand.push(deck.pop());
+      renderHand(playerHand, "playerCards");
+      document.getElementById("playerScore").innerText = calculateScore(playerHand);
+
+      await new Promise(resolve => setTimeout(resolve, 300));
+      dealerHand.push(deck.pop());
+      renderHand(dealerHand, "dealerCards", true);
+
+      document.getElementById("statusMessage").innerText = "";
       document.getElementById("hitBtn").disabled = false;
       document.getElementById("standBtn").disabled = false;
       document.getElementById("doubleActionBtn").disabled = false;
