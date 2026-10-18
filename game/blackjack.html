@@ -13,7 +13,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     body {
       background-color: #0f1923;
@@ -22,26 +22,74 @@
       flex-direction: column;
       height: 100vh;
       justify-content: space-between;
+      user-select: none;
     }
     .game-board {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-around;
+      padding: 20px;
       position: relative;
     }
     .rules-badge {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       padding: 8px 16px;
-      border-radius: 4px;
+      border-radius: 6px;
       text-align: center;
       font-size: 11px;
       letter-spacing: 1px;
       color: #8b9bb4;
       text-transform: uppercase;
     }
+    .cards-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+    }
+    .hand-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .hand-title {
+      font-size: 13px;
+      color: #8b9bb4;
+      font-weight: 600;
+    }
+    .cards-flex {
+      display: flex;
+      gap: 8px;
+      min-height: 70px;
+    }
+    .card {
+      background: white;
+      color: black;
+      width: 48px;
+      height: 68px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 4px;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .card.red { color: #e53935; }
+    .card.black { color: #1e293b; }
+    .status-msg {
+      font-size: 16px;
+      font-weight: bold;
+      color: #4caf50;
+      min-height: 24px;
+    }
+
     .control-panel {
       background-color: #17222d;
       padding: 16px;
@@ -61,9 +109,15 @@
       cursor: pointer;
       width: 100%;
       text-transform: uppercase;
+      transition: background 0.2s;
     }
-    .bet-btn:hover {
+    .bet-btn:hover:not(:disabled) {
       background-color: #1557b0;
+    }
+    .bet-btn:disabled {
+      background-color: #2c3a4a;
+      color: #6c7a89;
+      cursor: not-allowed;
     }
     .bet-info-row {
       display: flex;
@@ -84,7 +138,7 @@
       border: none;
       padding: 12px;
       color: white;
-      font-size: 16px;
+      font-size: 15px;
       outline: none;
     }
     .currency-flag {
@@ -135,7 +189,7 @@
       color: white;
     }
     .action-btn:disabled {
-      opacity: 0.5;
+      opacity: 0.4;
       cursor: not-allowed;
     }
   </style>
@@ -144,13 +198,27 @@
 
   <div class="game-board">
     <div class="rules-badge">
-      Blackjack Pays 3 to 2<br>
-      Insurance Pays 2 to 1
+      BLACKJACK PAYS 3 TO 2<br>
+      INSURANCE PAYS 2 TO 1
+    </div>
+
+    <div class="cards-area">
+      <div class="hand-container">
+        <div class="hand-title">DEALER (<span id="dealerScore">0</span>)</div>
+        <div class="cards-flex" id="dealerCards"></div>
+      </div>
+
+      <div class="status-msg" id="statusMessage"></div>
+
+      <div class="hand-container">
+        <div class="hand-title">PLAYER (<span id="playerScore">0</span>)</div>
+        <div class="cards-flex" id="playerCards"></div>
+      </div>
     </div>
   </div>
 
   <div class="control-panel">
-    <button class="bet-btn" id="mainBetBtn" onclick="placeBet()">Bet</button>
+    <button class="bet-btn" id="mainBetBtn" onclick="startGame()">DEAL</button>
     
     <div class="bet-info-row">
       <span>Bet Amount</span>
@@ -158,13 +226,13 @@
     </div>
 
     <div class="input-group">
-      <input type="text" id="betAmountInput" value="ARS 0.00">
+      <input type="number" id="betAmountInput" value="10.00" step="0.01" min="1">
       <div class="currency-flag">
         <span>🇦🇷</span>
       </div>
       <div class="multiplier-btns">
         <button onclick="halveBet()">½</button>
-        <button onclick="doubleBet()">2×</button>
+        <button onclick="doubleBetInput()">2×</button>
       </div>
     </div>
 
@@ -178,59 +246,271 @@
 
   <script>
     let currentUser = null;
+    let userProfile = null;
+    
+    // Game variables
+    let deck = [];
+    let playerHand = [];
+    let dealerHand = [];
+    let currentBet = 0;
+    let gameInProgress = false;
 
     window.addEventListener("DOMContentLoaded", async () => {
-      // Authentication check using global function from supabase-config.js
+      // Check auth from supabase-config.js
       currentUser = await requireAuth();
       if (currentUser) {
-        loadUserProfile();
+        await loadUserProfile();
       }
     });
 
     async function loadUserProfile() {
-      const profile = await getUserProfile(currentUser.id);
-      if (profile && profile.balance !== undefined) {
-        document.getElementById("balanceDisplay").innerText = profile.balance.toFixed(8) + " USDT";
+      userProfile = await getUserProfile(currentUser.id);
+      if (userProfile && userProfile.balance !== undefined) {
+        document.getElementById("balanceDisplay").innerText = parseFloat(userProfile.balance).toFixed(8) + " USDT";
       }
+    }
+
+    function createDeck() {
+      const suits = ['♠', '♥', '♦', '♣'];
+      const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+      deck = [];
+      for (let s of suits) {
+        for (let v of values) {
+          deck.push({ suit: s, value: v });
+        }
+      }
+      deck.sort(() => Math.random() - 0.5);
+    }
+
+    function getCardValue(card) {
+      if (['J', 'Q', 'K'].includes(card.value)) return 10;
+      if (card.value === 'A') return 11;
+      return parseInt(card.value);
+    }
+
+    function calculateScore(hand) {
+      let score = 0;
+      let aces = 0;
+      for (let c of hand) {
+        let val = getCardValue(c);
+        if (c.value === 'A') aces++;
+        score += val;
+      }
+      while (score > 21 && aces > 0) {
+        score -= 10;
+        aces--;
+      }
+      return score;
+    }
+
+    function renderHand(hand, elementId, hideFirstCard = false) {
+      const container = document.getElementById(elementId);
+      container.innerHTML = "";
+      hand.forEach((card, index) => {
+        const div = document.createElement("div");
+        if (hideFirstCard && index === 0) {
+          div.className = "card black";
+          div.innerHTML = "🎴";
+        } else {
+          const isRed = ['♥', '♦'].includes(card.suit);
+          div.className = `card ${isRed ? 'red' : 'black'}`;
+          div.innerHTML = `<div>${card.value}</div><div style="align-self:flex-end;">${card.suit}</div>`;
+        }
+        container.appendChild(div);
+      });
     }
 
     function halveBet() {
       let input = document.getElementById("betAmountInput");
-      // Basic numerical adjustment logic for input field value
-      let val = parseFloat(input.value.replace(/[^0-9.]/g, '')) || 0;
-      input.value = "ARS " + (val / 2).toFixed(2);
+      let val = parseFloat(input.value) || 0;
+      input.value = (val / 2).toFixed(2);
     }
 
-    function doubleBet() {
+    function doubleBetInput() {
       let input = document.getElementById("betAmountInput");
-      let val = parseFloat(input.value.replace(/[^0-9.]/g, '')) || 0;
-      input.value = "ARS " + (val * 2).toFixed(2);
+      let val = parseFloat(input.value) || 0;
+      input.value = (val * 2).toFixed(2);
     }
 
-    function placeBet() {
-      if (!currentUser) return;
-      // Enable game action controls after placing a bet
+    async function startGame() {
+      if (gameInProgress) return;
+
+      const betVal = parseFloat(document.getElementById("betAmountInput").value);
+      if (isNaN(betVal) || betVal <= 0) {
+        alert("Please enter a valid bet amount.");
+        return;
+      }
+
+      if (betVal > parseFloat(userProfile.balance)) {
+        alert("Insufficient balance!");
+        return;
+      }
+
+      currentBet = betVal;
+      gameInProgress = true;
+      document.getElementById("statusMessage").innerText = "";
+
+      // Deduct bet from profile balance
+      userProfile.balance = parseFloat(userProfile.balance) - currentBet;
+      document.getElementById("balanceDisplay").innerText = userProfile.balance.toFixed(8) + " USDT";
+
+      // Disable DEAL button and enable game actions
+      document.getElementById("mainBetBtn").disabled = true;
+      document.getElementById("mainBetBtn").innerText = "DEALING...";
+
+      createDeck();
+      playerHand = [deck.pop(), deck.pop()];
+      dealerHand = [deck.pop(), deck.pop()];
+
+      renderHand(playerHand, "playerCards");
+      renderHand(dealerHand, "dealerCards", true);
+
+      document.getElementById("playerScore").innerText = calculateScore(playerHand);
+      document.getElementById("dealerScore").innerText = "?";
+
       document.getElementById("hitBtn").disabled = false;
       document.getElementById("standBtn").disabled = false;
-      document.getElementById("splitBtn").disabled = false;
       document.getElementById("doubleActionBtn").disabled = false;
-      document.getElementById("mainBetBtn").innerText = "Dealing...";
+
+      // Check for Natural Blackjack
+      if (calculateScore(playerHand) === 21) {
+        endGame('win', 2.5); // 3 to 2 payout (1 + 1.5)
+      }
     }
 
     function hitCard() {
-      // Game logic for hit action
+      if (!gameInProgress) return;
+      playerHand.push(deck.pop());
+      renderHand(playerHand, "playerCards");
+      let pScore = calculateScore(playerHand);
+      document.getElementById("playerScore").innerText = pScore;
+
+      document.getElementById("doubleActionBtn").disabled = true;
+
+      if (pScore > 21) {
+        endGame('loss', 0);
+      }
     }
 
-    function standGame() {
-      // Game logic for stand action
+    async function doubleDown() {
+      if (!gameInProgress) return;
+      if (currentBet > userProfile.balance) {
+        alert("Insufficient balance to Double Down!");
+        return;
+      }
+
+      // Deduct additional bet
+      userProfile.balance -= currentBet;
+      currentBet *= 2;
+      document.getElementById("balanceDisplay").innerText = userProfile.balance.toFixed(8) + " USDT";
+
+      playerHand.push(deck.pop());
+      renderHand(playerHand, "playerCards");
+      let pScore = calculateScore(playerHand);
+      document.getElementById("playerScore").innerText = pScore;
+
+      if (pScore > 21) {
+        endGame('loss', 0);
+      } else {
+        await standGame();
+      }
+    }
+
+    async function standGame() {
+      if (!gameInProgress) return;
+
+      renderHand(dealerHand, "dealerCards", false);
+      let dScore = calculateScore(dealerHand);
+
+      while (dScore < 17) {
+        dealerHand.push(deck.pop());
+        renderHand(dealerHand, "dealerCards", false);
+        dScore = calculateScore(dealerHand);
+      }
+
+      document.getElementById("dealerScore").innerText = dScore;
+      let pScore = calculateScore(playerHand);
+
+      if (dScore > 21 || pScore > dScore) {
+        endGame('win', 2.0);
+      } else if (pScore === dScore) {
+        endGame('draw', 1.0);
+      } else {
+        endGame('loss', 0);
+      }
     }
 
     function splitGame() {
-      // Game logic for split action
+      alert("Split feature is coming soon!");
     }
 
-    function doubleDown() {
-      // Game logic for double down action
+    async function endGame(result, multiplier) {
+      gameInProgress = false;
+
+      document.getElementById("hitBtn").disabled = true;
+      document.getElementById("standBtn").disabled = true;
+      document.getElementById("splitBtn").disabled = true;
+      document.getElementById("doubleActionBtn").disabled = true;
+
+      document.getElementById("mainBetBtn").disabled = false;
+      document.getElementById("mainBetBtn").innerText = "DEAL";
+
+      let payout = currentBet * multiplier;
+      userProfile.balance += payout;
+
+      // Update local turnover tracker
+      let updatedTurnover = (parseFloat(userProfile.current_turnover) || 0) + currentBet;
+      userProfile.current_turnover = updatedTurnover;
+
+      if (result === 'win') {
+        document.getElementById("statusMessage").innerText = `YOU WON ${payout.toFixed(2)} USDT! 🎉`;
+        document.getElementById("statusMessage").style.color = "#4caf50";
+      } else if (result === 'draw') {
+        document.getElementById("statusMessage").innerText = "GAME DRAW!";
+        document.getElementById("statusMessage").style.color = "#ffb74d";
+      } else {
+        document.getElementById("statusMessage").innerText = "DEALER WINS!";
+        document.getElementById("statusMessage").style.color = "#f44336";
+      }
+
+      document.getElementById("balanceDisplay").innerText = userProfile.balance.toFixed(8) + " USDT";
+
+      // --- SUPABASE DATABASE UPDATES VIA JS CODE (NO TRIGGER) ---
+      try {
+        // 1. Update Profiles Table (Balance and Current Turnover)
+        const { error: profileErr } = await supabaseClient
+          .from("profiles")
+          .update({
+            balance: userProfile.balance,
+            current_turnover: userProfile.current_turnover
+          })
+          .eq("id", currentUser.id);
+
+        if (profileErr) console.error("Error updating profile:", profileErr);
+
+        // 2. Insert record into original_bets_history Table
+        const { error: betHistoryErr } = await supabaseClient
+          .from("original_bets_history")
+          .insert({
+            user_id: currentUser.id,
+            game_name: "Blackjack",
+            bet_amount: currentBet,
+            payout: payout,
+            multiplier: multiplier,
+            status: result,
+            game_details: {
+              player_hand: playerHand,
+              dealer_hand: dealerHand,
+              player_score: calculateScore(playerHand),
+              dealer_score: calculateScore(dealerHand)
+            }
+          });
+
+        if (betHistoryErr) console.error("Error inserting bet history:", betHistoryErr);
+
+      } catch (err) {
+        console.error("Database process error:", err);
+      }
     }
   </script>
 </body>
