@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blackjack Game</title>
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Main Supabase Configuration from Root -->
+  <script src="../supabase-config.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+    }
+    body {
+      background-color: #0f1923;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      justify-content: space-between;
+    }
+    .game-board {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .rules-badge {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 8px 16px;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: #8b9bb4;
+      text-transform: uppercase;
+    }
+    .control-panel {
+      background-color: #17222d;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .bet-btn {
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      text-transform: uppercase;
+    }
+    .bet-btn:hover {
+      background-color: #1557b0;
+    }
+    .bet-info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #8b9bb4;
+    }
+    .input-group {
+      display: flex;
+      background-color: #0f1923;
+      border: 1px solid #2a394a;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .input-group input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 12px;
+      color: white;
+      font-size: 16px;
+      outline: none;
+    }
+    .currency-flag {
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      background: #17222d;
+      border-left: 1px solid #2a394a;
+    }
+    .multiplier-btns {
+      display: flex;
+      border-left: 1px solid #2a394a;
+    }
+    .multiplier-btns button {
+      background: transparent;
+      border: none;
+      color: #8b9bb4;
+      padding: 0 12px;
+      font-size: 14px;
+      cursor: pointer;
+      border-left: 1px solid #2a394a;
+    }
+    .multiplier-btns button:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+    }
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .action-btn {
+      background-color: #212e3d;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: #8b9bb4;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .action-btn:hover:not(:disabled) {
+      background-color: #2a3a4d;
+      color: white;
+    }
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="game-board">
+    <div class="rules-badge">
+      Blackjack Pays 3 to 2<br>
+      Insurance Pays 2 to 1
+    </div>
+  </div>
+
+  <div class="control-panel">
+    <button class="bet-btn" id="mainBetBtn" onclick="placeBet()">Bet</button>
+    
+    <div class="bet-info-row">
+      <span>Bet Amount</span>
+      <span id="balanceDisplay">0.00000000 USDT</span>
+    </div>
+
+    <div class="input-group">
+      <input type="text" id="betAmountInput" value="ARS 0.00">
+      <div class="currency-flag">
+        <span>🇦🇷</span>
+      </div>
+      <div class="multiplier-btns">
+        <button onclick="halveBet()">½</button>
+        <button onclick="doubleBet()">2×</button>
+      </div>
+    </div>
+
+    <div class="action-grid">
+      <button class="action-btn" id="hitBtn" disabled onclick="hitCard()">Hit 🎴</button>
+      <button class="action-btn" id="standBtn" disabled onclick="standGame()">Stand ✋</button>
+      <button class="action-btn" id="splitBtn" disabled onclick="splitGame()">Split 🃏</button>
+      <button class="action-btn" id="doubleActionBtn" disabled onclick="doubleDown()">Double ×2</button>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      // Authentication check using global function from supabase-config.js
+      currentUser = await requireAuth();
+      if (currentUser) {
+        loadUserProfile();
+      }
+    });
+
+    async function loadUserProfile() {
+      const profile = await getUserProfile(currentUser.id);
+      if (profile && profile.balance !== undefined) {
+        document.getElementById("balanceDisplay").innerText = profile.balance.toFixed(8) + " USDT";
+      }
+    }
+
+    function halveBet() {
+      let input = document.getElementById("betAmountInput");
+      // Basic numerical adjustment logic for input field value
+      let val = parseFloat(input.value.replace(/[^0-9.]/g, '')) || 0;
+      input.value = "ARS " + (val / 2).toFixed(2);
+    }
+
+    function doubleBet() {
+      let input = document.getElementById("betAmountInput");
+      let val = parseFloat(input.value.replace(/[^0-9.]/g, '')) || 0;
+      input.value = "ARS " + (val * 2).toFixed(2);
+    }
+
+    function placeBet() {
+      if (!currentUser) return;
+      // Enable game action controls after placing a bet
+      document.getElementById("hitBtn").disabled = false;
+      document.getElementById("standBtn").disabled = false;
+      document.getElementById("splitBtn").disabled = false;
+      document.getElementById("doubleActionBtn").disabled = false;
+      document.getElementById("mainBetBtn").innerText = "Dealing...";
+    }
+
+    function hitCard() {
+      // Game logic for hit action
+    }
+
+    function standGame() {
+      // Game logic for stand action
+    }
+
+    function splitGame() {
+      // Game logic for split action
+    }
+
+    function doubleDown() {
+      // Game logic for double down action
+    }
+  </script>
+</body>
+</html>
