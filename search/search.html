@@ -87,7 +87,7 @@
             { id: 'wheel', name: 'Wheel', path: 'game/wheel.html', category: 'original', players: 210, image: 'assets/images/wheel.png', fallbackBg: 'from-fuchsia-950 to-slate-950' }, 
             { id: 'keno', name: 'Keno', path: 'game/keno.html', category: 'original', players: 145, image: 'assets/images/keno.png', fallbackBg: 'from-amber-950 to-slate-950' }, 
             { id: 'coin-flip', name: 'Coin Flip', path: 'game/coin-flip.html', category: 'original', players: 180, image: 'assets/images/coin-flip.png', fallbackBg: 'from-yellow-900 to-slate-950' }, 
-            
+             
             // Color Trading Cards (Total 6 Cards)
             { id: 'color-trade-win-go', name: 'Color Trade Win Go', path: 'color-trading/card/cards.html', category: 'colortrading', players: 340, image: 'assets/images/color-trade.png', fallbackBg: 'from-emerald-950 to-slate-950' },
             { id: 'roulette', name: 'Roulette', path: 'color-trading/card/cards.html', category: 'colortrading', players: 255, image: 'assets/images/roulette.png', fallbackBg: 'from-rose-950 to-slate-950' }, 
@@ -95,7 +95,7 @@
             { id: 'color-trade-5d', name: '5D Lotter Trading', path: 'color-trading/card/cards.html', category: 'colortrading', players: 310, image: 'assets/images/5d.png', fallbackBg: 'from-purple-950 to-slate-950' },
             { id: 'color-trade-trx', name: 'TRX Win Go', path: 'color-trading/card/cards.html', category: 'colortrading', players: 420, image: 'assets/images/trx.png', fallbackBg: 'from-amber-950 to-slate-950' },
             { id: 'color-trade-parity', name: 'Parity Trading', path: 'color-trading/card/cards.html', category: 'colortrading', players: 195, image: 'assets/images/parity.png', fallbackBg: 'from-teal-950 to-slate-950' },
-            
+             
             // Blackjack & Live Cards
             { id: 'blackjack', name: 'Blackjack', path: 'blackjack/blackjacktable.html', category: 'blackjack', players: 470, image: 'assets/images/blackjack.png', fallbackBg: 'from-blue-950 to-slate-950' },
             { id: 'live-baccarat', name: 'Live Baccarat', path: 'live/baccarat.html', category: 'live', players: 520, image: 'assets/images/baccarat.png', fallbackBg: 'from-red-950 to-slate-950' },
@@ -154,7 +154,9 @@
                     const html = await response.text(); 
                     document.getElementById('topBarContainer').innerHTML = html; 
                     syncRealtimeUserBalance(); 
-                } 
+                } else {
+                    console.error('Error loading top bar component:', response.status);
+                }
             } catch (err) { 
                 console.error('Error loading top bar component:', err); 
             } 
@@ -223,9 +225,13 @@
             currentCategory = cat; 
             const categories = ['original', 'colortrading', 'blackjack', 'live']; 
             categories.forEach(c => { 
-                let idName = c;
-                if (c === 'colortrading') idName = 'Colortrading';
-                const btn = document.getElementById(`cat${idName.charAt(0).toUpperCase() + idName.slice(1)}`); 
+                let btnId = '';
+                if (c === 'original') btnId = 'catOriginal';
+                else if (c === 'colortrading') btnId = 'catColortrading';
+                else if (c === 'blackjack') btnId = 'catBlackjack';
+                else if (c === 'live') btnId = 'catLive';
+
+                const btn = document.getElementById(btnId); 
                 if (btn) { 
                     if (c === cat) { 
                         btn.className = 'flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap'; 
@@ -244,8 +250,7 @@
             document.getElementById('sectionTitle').innerHTML = ` 
                 <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> ${titles[cat] || 'Games'} 
             `; 
-            
-            // Sync both search inputs during category switch
+             
             const searchCardInput = document.getElementById('gameSearchCard');
             const searchBarInput = document.getElementById('gameSearch');
             const activeQuery = searchCardInput ? searchCardInput.value : (searchBarInput ? searchBarInput.value : '');
