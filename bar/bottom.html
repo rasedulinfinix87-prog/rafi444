@@ -5,14 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bottom Navigation</title>
 
-  <!-- 1. Font Awesome CDN (Icons) -->
+  <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- 2. Supabase JS Client (Required before config) -->
+  <!-- Supabase JS Client & Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- 3. Your Supabase Config File -->
-  <!-- আপনার ফোল্ডার স্ট্রাকচার অনুযায়ী সঠিক পাথ দিন (যেমন: ./supabase-config.js বা ../supabase-config.js) -->
   <script src="supabase-config.js"></script>
 
   <style>
@@ -27,7 +24,7 @@
       background-color: #0d131d;
     }
 
-    /* Bottom Navigation Bar */
+    /* Bottom Navigation Bar Container */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -37,9 +34,9 @@
       display: flex;
       justify-content: space-around;
       align-items: center;
-      padding: 12px 0 16px 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      z-index: 1000;
+      padding: 10px 0 14px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 9999;
     }
 
     /* Navigation Item */
@@ -50,27 +47,27 @@
       justify-content: center;
       text-decoration: none;
       color: #8a99ad;
-      gap: 6px;
+      gap: 5px;
       flex: 1;
       cursor: pointer;
       background: none;
       border: none;
       outline: none;
+      -webkit-tap-highlight-color: transparent;
       transition: color 0.2s ease;
     }
 
     .nav-item:hover, .nav-item:active {
-      color: #b0c4de;
+      color: #ffffff;
     }
 
     .nav-item i {
-      font-size: 22px;
+      font-size: 20px;
     }
 
     .nav-item span {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
-      letter-spacing: 0.2px;
     }
 
     /* ---------------- Modal Drawer Styles ---------------- */
@@ -79,39 +76,39 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(3px);
-      z-index: 1001;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
       opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
     }
 
-    .drawer-overlay.active {
+    .drawer-overlay.show {
       opacity: 1;
-      visibility: visible;
+      pointer-events: auto;
     }
 
     /* Left Drawer Panel */
     .drawer {
       position: fixed;
       top: 0;
-      left: -280px; /* Hidden by default */
+      left: -280px;
       width: 280px;
-      height: 100%;
+      height: 100vh;
       background-color: #121a24;
-      z-index: 1002;
-      box-shadow: 4px 0 15px rgba(0, 0, 0, 0.5);
-      transition: left 0.3s ease;
+      z-index: 10001;
+      box-shadow: 5px 0 20px rgba(0, 0, 0, 0.6);
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
       padding: 20px;
     }
 
-    .drawer.active {
-      left: 0; /* Slide in from left */
+    .drawer.show {
+      left: 0;
     }
 
     /* Drawer Header */
@@ -134,8 +131,9 @@
       background: none;
       border: none;
       color: #8a99ad;
-      font-size: 20px;
+      font-size: 22px;
       cursor: pointer;
+      padding: 5px;
     }
 
     .close-btn:hover {
@@ -154,7 +152,7 @@
       align-items: center;
       gap: 12px;
       width: 100%;
-      padding: 12px 16px;
+      padding: 14px 16px;
       background-color: #1a2432;
       color: #e1e7ed;
       border: 1px solid rgba(255, 255, 255, 0.05);
@@ -173,92 +171,92 @@
 
     .drawer-btn i {
       font-size: 18px;
-      color: #f39c12; /* Golden Accent Icon */
+      color: #f39c12;
     }
   </style>
 </head>
 <body>
 
-  <!-- Bottom Navigation Component -->
+  <!-- Bottom Navigation -->
   <nav class="bottom-nav">
     <button type="button" class="nav-item" id="openDrawer">
       <i class="fa-solid fa-bars"></i>
       <span>Menu</span>
     </button>
 
-    <a href="/search/search.html" class="nav-item">
+    <a href="search/search.html" class="nav-item">
       <i class="fa-solid fa-magnifying-glass"></i>
       <span>Search</span>
     </a>
 
-    <a href="/reward/reward.html" class="nav-item">
+    <a href="reward/reward.html" class="nav-item">
       <i class="fa-solid fa-gift"></i>
       <span>Reward</span>
     </a>
 
-    <a href="/sports/sports.html" class="nav-item">
+    <a href="sports/sports.html" class="nav-item">
       <i class="fa-solid fa-trophy"></i>
       <span>Sports</span>
     </a>
   </nav>
 
-  <!-- Drawer Overlay -->
+  <!-- Overlay -->
   <div class="drawer-overlay" id="drawerOverlay"></div>
 
   <!-- Modal Drawer (Left Side) -->
   <div class="drawer" id="modalDrawer">
     <div class="drawer-header">
       <h3>Menu</h3>
-      <button class="close-btn" id="closeDrawer">
+      <button type="button" class="close-btn" id="closeDrawer">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
 
     <div class="drawer-menu">
-      <a href="/vip/vip.html" class="drawer-btn">
+      <a href="vip/vip.html" class="drawer-btn">
         <i class="fa-solid fa-crown"></i>
         <span>Vip</span>
       </a>
 
-      <a href="/collection/collection.html" class="drawer-btn">
+      <a href="collection/collection.html" class="drawer-btn">
         <i class="fa-solid fa-layer-group"></i>
         <span>Collection</span>
       </a>
     </div>
   </div>
 
-  <!-- JavaScript Logic -->
   <script>
-    // DOM Elements
-    const openDrawerBtn = document.getElementById('openDrawer');
-    const closeDrawerBtn = document.getElementById('closeDrawer');
-    const drawerOverlay = document.getElementById('drawerOverlay');
-    const modalDrawer = document.getElementById('modalDrawer');
+    document.addEventListener("DOMContentLoaded", function () {
+      const openDrawerBtn = document.getElementById('openDrawer');
+      const closeDrawerBtn = document.getElementById('closeDrawer');
+      const drawerOverlay = document.getElementById('drawerOverlay');
+      const modalDrawer = document.getElementById('modalDrawer');
 
-    // Drawer Open Logic
-    openDrawerBtn.addEventListener('click', () => {
-      modalDrawer.classList.add('active');
-      drawerOverlay.classList.add('active');
-    });
+      // Modal Drawer খোলার লজিক
+      function openDrawer() {
+        modalDrawer.classList.add('show');
+        drawerOverlay.classList.add('show');
+      }
 
-    // Drawer Close Function
-    const closeDrawer = () => {
-      modalDrawer.classList.remove('active');
-      drawerOverlay.classList.remove('active');
-    };
+      // Modal Drawer বন্ধ করার লজিক
+      function closeDrawer() {
+        modalDrawer.classList.remove('show');
+        drawerOverlay.classList.remove('show');
+      }
 
-    closeDrawerBtn.addEventListener('click', closeDrawer);
-    drawerOverlay.addEventListener('click', closeDrawer);
+      if (openDrawerBtn) {
+        openDrawerBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          openDrawer();
+        });
+      }
 
-    // Optional: Check Supabase Authentication Status on Page Load
-    document.addEventListener("DOMContentLoaded", async () => {
-      if (typeof getCurrentUser === "function") {
-        const user = await getCurrentUser();
-        if (user) {
-          console.log("Logged in user:", user.id || user.email);
-        } else {
-          console.log("No active user session found.");
-        }
+      if (closeDrawerBtn) {
+        closeDrawerBtn.addEventListener('click', closeDrawer);
+      }
+
+      if (drawerOverlay) {
+        drawerOverlay.addEventListener('click', closeDrawer);
       }
     });
   </script>
