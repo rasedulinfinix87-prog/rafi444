@@ -24,7 +24,7 @@
       background-color: #0d131d;
     }
 
-    /* Bottom Navigation Bar Container */
+    /* Bottom Navigation Bar */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -184,17 +184,17 @@
       <span>Menu</span>
     </button>
 
-    <a href="search/search.html" class="nav-item">
+    <a href="./search/search.html" class="nav-item">
       <i class="fa-solid fa-magnifying-glass"></i>
       <span>Search</span>
     </a>
 
-    <a href="reward/reward.html" class="nav-item">
+    <a href="./reward/reward.html" class="nav-item">
       <i class="fa-solid fa-gift"></i>
       <span>Reward</span>
     </a>
 
-    <a href="sports/sports.html" class="nav-item">
+    <a href="./sports/sports.html" class="nav-item">
       <i class="fa-solid fa-trophy"></i>
       <span>Sports</span>
     </a>
@@ -213,12 +213,12 @@
     </div>
 
     <div class="drawer-menu">
-      <a href="vip/vip.html" class="drawer-btn">
+      <a href="./vip/vip.html" class="drawer-btn">
         <i class="fa-solid fa-crown"></i>
         <span>Vip</span>
       </a>
 
-      <a href="collection/collection.html" class="drawer-btn">
+      <a href="./collection/collection.html" class="drawer-btn">
         <i class="fa-solid fa-layer-group"></i>
         <span>Collection</span>
       </a>
@@ -232,21 +232,26 @@
       const drawerOverlay = document.getElementById('drawerOverlay');
       const modalDrawer = document.getElementById('modalDrawer');
 
-      // Modal Drawer খোলার লজিক
+      // 1. Modal Drawer Open Logic
       function openDrawer() {
-        modalDrawer.classList.add('show');
-        drawerOverlay.classList.add('show');
+        if (modalDrawer && drawerOverlay) {
+          modalDrawer.classList.add('show');
+          drawerOverlay.classList.add('show');
+        }
       }
 
-      // Modal Drawer বন্ধ করার লজিক
+      // 2. Modal Drawer Close Logic
       function closeDrawer() {
-        modalDrawer.classList.remove('show');
-        drawerOverlay.classList.remove('show');
+        if (modalDrawer && drawerOverlay) {
+          modalDrawer.classList.remove('show');
+          drawerOverlay.classList.remove('show');
+        }
       }
 
       if (openDrawerBtn) {
         openDrawerBtn.addEventListener('click', function (e) {
           e.preventDefault();
+          e.stopPropagation();
           openDrawer();
         });
       }
