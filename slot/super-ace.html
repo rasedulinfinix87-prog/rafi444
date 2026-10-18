@@ -92,36 +92,39 @@
     }
     .win-chance b { color: #ffdc57; }
     .board-frame {
-      position: absolute; top: 30.8%; left: 1.3%; width: 97.4%; height: 48%;
-      border: 5px solid #334d58; border-radius: 7px;
-      background: linear-gradient(135deg, #d5e0e8, #7f98a5 48%, #dbe5ed);
-      box-shadow: 0 0 0 2px #111b25, 0 7px 12px #0008;
-      padding: 5px;
+      position: absolute; top: 30.8%; left: 1.5%; width: 97%; height: 48%;
+      border: 3px solid #334d58; border-radius: 6px;
+      background: rgba(0, 0, 0, 0.2);
+      box-shadow: 0 0 0 1px #111b25, 0 5px 10px #0008;
+      padding: 2px;
       z-index: 2;
     }
     .board {
       height: 100%; width: 100%; display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
       grid-template-rows: repeat(4, minmax(0, 1fr));
-      gap: clamp(3px, .8vw, 6px);
+      gap: 2px;
     }
     .tile {
       min-width: 0; min-height: 0; position: relative; overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      border: 2px solid #9eabb8; border-radius: 4px;
-      background: #000;
-      box-shadow: inset 0 0 0 1px #fff9, 0 1px 2px #16232e;
+      border: none;
+      border-radius: 3px;
+      background: transparent;
+      padding: 0;
+      margin: 0;
     }
     .tile img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: fill;
       display: block;
       pointer-events: none;
+      border-radius: 3px;
     }
     .tile.empty {
       background: linear-gradient(135deg, #078e91, #006b74);
-      border: 2px solid #42a7a8;
+      border: 1px solid #42a7a8;
       box-shadow: inset 0 0 9px #004c55aa;
     }
     .win-line {
@@ -232,7 +235,6 @@
       const betValueEl = document.getElementById('betValue');
       const toast = document.getElementById('toast');
 
-      // Relative path: root directory /slot/super-ace.html moves to /slot/image/
       const cardImages = {
         ace: 'image/ace.png',
         king: 'image/king.png',
