@@ -2,57 +2,87 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Blackjack Game</title>
-  <!-- Supabase CDN -->
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Main Supabase Configuration from Root -->
   <script src="../supabase-config.js"></script>
+
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: #0f141c; }
     body {
-      background-color: #0f1923;
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
+      margin: 0;
       min-height: 100vh;
-      justify-content: space-between;
-      user-select: none;
+      background: #0f141c;
+      color: #fff;
+      font-family: sans-serif;
       overflow-x: hidden;
+      overflow-y: auto;
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
     }
-
-    #top-bar-container, #bottom-bar-container {
+    #topBarContainer {
+      position: sticky;
+      top: 0;
+      z-index: 500;
       width: 100%;
-      z-index: 100;
     }
+    #bottomBarContainer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 5000;
+      isolation: isolate;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .game-page {
+      width: 100%;
+      max-width: 672px;
+      margin: 5px auto 0;
+      padding: 0 8px 100px;
+    }
+    .main-wrapper {
+      background: #171d28;
+      border: 1px solid #222b3a;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .divider { height: 1px; background: #222b3a; width: 100%; }
+    .input-box { background: #0f141c; border: 1px solid #222b3a; border-radius: 10px; }
+    .input-box:focus-within { border-color: #24ee89; }
+    .green-btn { background: #24ee89; color: #0f141c; font-weight: 800; }
+    .green-btn:hover { background: #1ed67a; }
+    .green-btn:disabled { opacity: .65; cursor: not-allowed; }
 
-    .game-board {
-      flex: 1;
+    .game-screen {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-around;
+      justify-content: space-between;
+      min-height: 320px;
+      width: 100%;
       padding: 15px;
-      position: relative;
+      background: radial-gradient(ellipse at center, #202a32 0%, #171d28 65%);
     }
 
-    /* Deck Shoe Box (Right Side) */
+    /* Deck Box Styling */
     .deck-container {
       position: absolute;
-      right: 20px;
-      top: 20px;
-      width: 60px;
-      height: 85px;
+      right: 15px;
+      top: 15px;
+      width: 55px;
+      height: 78px;
       border-radius: 6px;
       border: 2px solid #d4af37;
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
       background-color: #111;
       overflow: hidden;
+      z-index: 10;
     }
     .deck-container img {
       width: 100%;
@@ -63,10 +93,10 @@
     .rules-badge {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 8px 16px;
+      padding: 6px 12px;
       border-radius: 6px;
       text-align: center;
-      font-size: 11px;
+      font-size: 10px;
       letter-spacing: 1px;
       color: #8b9bb4;
       text-transform: uppercase;
@@ -76,42 +106,33 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
       width: 100%;
-      margin-top: 20px;
     }
     .hand-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
-    .hand-title {
-      font-size: 13px;
-      color: #8b9bb4;
-      font-weight: 600;
-    }
-    .cards-flex {
-      display: flex;
-      gap: 8px;
-      min-height: 75px;
-      position: relative;
-    }
+    .hand-title { font-size: 11px; color: #8b9bb4; font-weight: 600; }
+    .cards-flex { display: flex; gap: 6px; min-height: 65px; position: relative; }
 
+    /* Card Deal Animation from Deck Box */
     .card {
       background: #ffffff;
       color: #111111;
-      width: 50px;
-      height: 72px;
-      border-radius: 6px;
+      width: 44px;
+      height: 62px;
+      border-radius: 5px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 4px;
+      padding: 3px;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-      animation: dealFromDeck 0.4s ease-out forwards;
+      animation: dealFromDeck 0.35s ease-out forwards;
     }
     .card.red { color: #e53935; }
     .card.black { color: #1e293b; }
@@ -119,7 +140,7 @@
     @keyframes dealFromDeck {
       0% {
         opacity: 0;
-        transform: translate(120px, -120px) scale(0.4) rotate(20deg);
+        transform: translate(140px, -100px) scale(0.3) rotate(25deg);
       }
       100% {
         opacity: 1;
@@ -128,228 +149,198 @@
     }
 
     .status-msg {
-      font-size: 16px;
-      font-weight: bold;
-      color: #4caf50;
-      min-height: 24px;
-      text-align: center;
-    }
-
-    .control-panel {
-      background-color: #17222d;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .bet-btn {
-      background-color: #1a73e8;
-      color: white;
-      border: none;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-      text-transform: uppercase;
-      transition: background 0.2s;
-    }
-    .bet-btn:hover:not(:disabled) {
-      background-color: #1557b0;
-    }
-    .bet-btn:disabled {
-      background-color: #2c3a4a;
-      color: #6c7a89;
-      cursor: not-allowed;
-    }
-    .bet-info-row {
-      display: flex;
-      justify-content: space-between;
       font-size: 13px;
-      color: #8b9bb4;
-    }
-    .input-group {
-      display: flex;
-      background-color: #0f1923;
-      border: 1px solid #2a394a;
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    .input-group input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      padding: 12px;
-      color: white;
-      font-size: 15px;
-      outline: none;
-    }
-    .currency-flag {
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      background: #17222d;
-      border-left: 1px solid #2a394a;
-    }
-    .multiplier-btns {
-      display: flex;
-      border-left: 1px solid #2a394a;
-    }
-    .multiplier-btns button {
-      background: transparent;
-      border: none;
-      color: #8b9bb4;
-      padding: 0 12px;
-      font-size: 14px;
-      cursor: pointer;
-      border-left: 1px solid #2a394a;
-    }
-    .multiplier-btns button:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: white;
-    }
-    .action-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .action-btn {
-      background-color: #212e3d;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      color: #8b9bb4;
-      padding: 14px;
-      font-size: 14px;
       font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .action-btn:hover:not(:disabled) {
-      background-color: #2a3a4d;
-      color: white;
-    }
-    .action-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
+      color: #24ee89;
+      min-height: 20px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Bar Connection -->
-  <div id="top-bar-container"></div>
+  <div id="topBarContainer"></div>
 
-  <div class="game-board">
-    <!-- Deck Box with PNG Image -->
-    <div class="deck-container">
-      <img src="https://i.ibb.co/L535m47/black-golden-playing-card.png" alt="Card Deck" id="deckImage" onerror="this.src='../bar/top.html';">
-    </div>
+  <div class="game-page">
+    <main class="flex flex-col gap-3">
+      <div class="main-wrapper flex flex-col shadow-xl">
+        <div class="game-screen">
+          <!-- Deck Shoe Box with user provided PNG -->
+          <div class="deck-container">
+            <img src="https://i.ibb.co/L535m47/black-golden-playing-card.png" alt="Card Deck" onerror="this.src='https://via.placeholder.com/55x78/111/d4af37?text=ACE';">
+          </div>
 
-    <div class="rules-badge">
-      BLACKJACK PAYS 3 TO 2<br>
-      INSURANCE PAYS 2 TO 1
-    </div>
+          <div class="rules-badge">
+            BLACKJACK PAYS 3 TO 2 | INSURANCE PAYS 2 TO 1
+          </div>
 
-    <div class="cards-area">
-      <div class="hand-container">
-        <div class="hand-title">DEALER (<span id="dealerScore">0</span>)</div>
-        <div class="cards-flex" id="dealerCards"></div>
+          <div class="cards-area">
+            <div class="hand-container">
+              <div class="hand-title">DEALER (<span id="dealerScore">0</span>)</div>
+              <div class="cards-flex" id="dealerCards"></div>
+            </div>
+
+            <div class="status-msg" id="statusMessage">Place your bet and click Deal</div>
+
+            <div class="hand-container">
+              <div class="hand-title">PLAYER (<span id="playerScore">0</span>)</div>
+              <div class="cards-flex" id="playerCards"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="p-4 flex flex-col gap-3.5 bg-[#171d28]">
+          <div class="flex flex-col gap-1">
+            <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+              <span>Bet Amount (৳)</span>
+              <span class="text-gray-400 text-[10px]">Min: 1 ৳</span>
+            </div>
+
+            <div class="flex items-center input-box p-1">
+              <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
+              <input type="number" id="betAmount" value="10.00" min="1" step="0.01" inputmode="decimal"
+                class="w-full min-w-0 bg-transparent text-sm font-bold text-white focus:outline-none px-1">
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
+                <button type="button" onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" id="mainBetBtn" onclick="startGame()"
+            class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
+            DEAL
+          </button>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="hitBtn" disabled onclick="hitCard()"
+              class="py-3 rounded-xl bg-[#222b3a] text-gray-400 font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-40">
+              Hit 🎴
+            </button>
+            <button type="button" id="standBtn" disabled onclick="standGame()"
+              class="py-3 rounded-xl bg-[#222b3a] text-gray-400 font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-40">
+              Stand ✋
+            </button>
+            <button type="button" id="splitBtn" disabled onclick="splitGame()"
+              class="py-3 rounded-xl bg-[#222b3a] text-gray-400 font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-40">
+              Split 🃏
+            </button>
+            <button type="button" id="doubleActionBtn" disabled onclick="doubleDown()"
+              class="py-3 rounded-xl bg-[#222b3a] text-gray-400 font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-40">
+              Double ×2
+            </button>
+          </div>
+        </div>
       </div>
-
-      <div class="status-msg" id="statusMessage"></div>
-
-      <div class="hand-container">
-        <div class="hand-title">PLAYER (<span id="playerScore">0</span>)</div>
-        <div class="cards-flex" id="playerCards"></div>
-      </div>
-    </div>
+    </main>
   </div>
 
-  <div class="control-panel">
-    <button class="bet-btn" id="mainBetBtn" onclick="startGame()">DEAL</button>
-    
-    <div class="bet-info-row">
-      <span>Bet Amount</span>
-      <span id="balanceDisplay">0.00000000 USDT</span>
-    </div>
-
-    <div class="input-group">
-      <input type="number" id="betAmountInput" value="10.00" step="0.01" min="1">
-      <div class="currency-flag">
-        <span>🇦🇷</span>
-      </div>
-      <div class="multiplier-btns">
-        <button onclick="halveBet()">½</button>
-        <button onclick="doubleBetInput()">2×</button>
-      </div>
-    </div>
-
-    <div class="action-grid">
-      <button class="action-btn" id="hitBtn" disabled onclick="hitCard()">Hit 🎴</button>
-      <button class="action-btn" id="standBtn" disabled onclick="standGame()">Stand ✋</button>
-      <button class="action-btn" id="splitBtn" disabled onclick="splitGame()">Split 🃏</button>
-      <button class="action-btn" id="doubleActionBtn" disabled onclick="doubleDown()">Double ×2</button>
-    </div>
-  </div>
-
-  <!-- Bottom Bar Connection -->
-  <div id="bottom-bar-container"></div>
+  <div id="bottomBarContainer"></div>
 
   <script>
-    let currentUser = null;
-    let userProfile = null;
-    
+    let currentUserId = null;
+    let userBalance = 0;
+    let userTurnover = 0;
+    let profileChannel = null;
+
     let deck = [];
     let playerHand = [];
     let dealerHand = [];
     let currentBet = 0;
     let gameInProgress = false;
 
-    // Corrected Path Fetch for Top and Bottom Bars
-    async function loadNavigationBars() {
-      const paths = ['../bar/top.html', 'bar/top.html', '/bar/top.html'];
-      for (let path of paths) {
-        try {
-          const res = await fetch(path);
-          if (res.ok) {
-            document.getElementById('top-bar-container').innerHTML = await res.text();
-            break;
-          }
-        } catch (e) {}
-      }
-
-      const bottomPaths = ['../bar/bottom.html', 'bar/bottom.html', '/bar/bottom.html'];
-      for (let path of bottomPaths) {
-        try {
-          const res = await fetch(path);
-          if (res.ok) {
-            document.getElementById('bottom-bar-container').innerHTML = await res.text();
-            break;
-          }
-        } catch (e) {}
+    // Load top and bottom bars safely matching coin-flip logic
+    async function loadBars() {
+      try {
+        const topRes = await fetch('../bar/top.html');
+        if (topRes.ok) {
+          let topContent = await topRes.text();
+          topContent = topContent.replace(/game\/mem\/member\.html/g, 'mem/member.html');
+          topContent = topContent.replace(/href="mem\/member\.html"/g, 'href="mem/member.html"');
+          document.getElementById('topBarContainer').innerHTML = topContent;
+          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+            a.href = '../account/deposit.html';
+          });
+        }
+        const botRes = await fetch('../bar/bottom.html');
+        if (botRes.ok) {
+          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+        }
+      } catch (e) {
+        console.error('Bar load error:', e);
       }
     }
 
-    window.addEventListener("DOMContentLoaded", async () => {
-      loadNavigationBars();
+    async function syncUserProfile() {
+      if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
 
-      currentUser = await requireAuth();
-      if (currentUser) {
-        await loadUserProfile();
+      let storedUser = null;
+      try {
+        const storedValue = localStorage.getItem('current_user');
+        if (storedValue) storedUser = JSON.parse(storedValue);
+      } catch (e) {
+        console.error('Error reading current_user:', e);
       }
+
+      let userId = storedUser ? (storedUser.id || storedUser.user_id || storedUser.uid) : null;
+      if (!userId && typeof getCurrentUser === 'function') {
+        try {
+          const authUser = await getCurrentUser();
+          if (authUser) userId = authUser.id || authUser.user_id || authUser.uid;
+        } catch (e) {}
+      }
+
+      if (!userId) return;
+      currentUserId = userId;
+
+      try {
+        const { data: profile, error } = await supabaseClient
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (error || !profile) return;
+
+        userBalance = Number(profile.balance) || 0;
+        userTurnover = Number(profile.current_turnover) || 0;
+        updateBalanceDisplay();
+
+        if (profileChannel) {
+          try { await supabaseClient.removeChannel(profileChannel); } catch (e) {}
+        }
+
+        profileChannel = supabaseClient
+          .channel('blackjack-profile-' + userId)
+          .on('postgres_changes', {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `id=eq.${userId}`
+          }, payload => {
+            if (payload.new && payload.new.balance !== undefined) {
+              userBalance = Number(payload.new.balance) || 0;
+              userTurnover = Number(payload.new.current_turnover) || 0;
+              updateBalanceDisplay();
+            }
+          })
+          .subscribe();
+      } catch (e) {
+        console.error('Profile sync error:', e);
+      }
+    }
+
+    function updateBalanceDisplay() {
+      const topBal = document.getElementById('topBarBalance');
+      if (topBal) topBal.innerText = userBalance.toFixed(2);
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await loadBars();
+      await syncUserProfile();
     });
-
-    async function loadUserProfile() {
-      userProfile = await getUserProfile(currentUser.id);
-      if (userProfile && userProfile.balance !== undefined) {
-        document.getElementById("balanceDisplay").innerText = parseFloat(userProfile.balance).toFixed(8) + " USDT";
-      }
-    }
 
     function createDeck() {
       const suits = ['♠', '♥', '♦', '♣'];
@@ -401,38 +392,40 @@
       });
     }
 
-    function halveBet() {
-      let input = document.getElementById("betAmountInput");
+    function modifyBet(type) {
+      if (gameInProgress) return;
+      const input = document.getElementById('betAmount');
       let val = parseFloat(input.value) || 0;
-      input.value = (val / 2).toFixed(2);
-    }
-
-    function doubleBetInput() {
-      let input = document.getElementById("betAmountInput");
-      let val = parseFloat(input.value) || 0;
-      input.value = (val * 2).toFixed(2);
+      if (type === 'half') input.value = Math.max(1, val / 2).toFixed(2);
+      if (type === 'double') input.value = (val * 2).toFixed(2);
     }
 
     async function startGame() {
       if (gameInProgress) return;
 
-      const betVal = parseFloat(document.getElementById("betAmountInput").value);
+      const betVal = parseFloat(document.getElementById("betAmount").value);
       if (isNaN(betVal) || betVal <= 0) {
         alert("Please enter a valid bet amount.");
         return;
       }
 
-      if (betVal > parseFloat(userProfile.balance)) {
+      if (betVal > userBalance) {
         alert("Insufficient balance!");
         return;
       }
 
       currentBet = betVal;
       gameInProgress = true;
-      document.getElementById("statusMessage").innerText = "";
+      document.getElementById("statusMessageinnerText")?.remove();
+      document.getElementById("statusMessage").innerText = "Dealing cards...";
 
-      userProfile.balance = parseFloat(userProfile.balance) - currentBet;
-      document.getElementById("balanceDisplay").innerText = userProfile.balance.toFixed(8) + " USDT";
+      // Deduct balance locally & update database
+      userBalance -= currentBet;
+      updateBalanceDisplay();
+
+      if (currentUserId && typeof supabaseClient !== 'undefined') {
+        await supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
+      }
 
       document.getElementById("mainBetBtn").disabled = true;
       document.getElementById("mainBetBtn").innerText = "DEALING...";
@@ -452,7 +445,7 @@
       document.getElementById("doubleActionBtn").disabled = false;
 
       if (calculateScore(playerHand) === 21) {
-        endGame('win', 2.5);
+        await endGame('win', 2.5);
       }
     }
 
@@ -462,7 +455,6 @@
       renderHand(playerHand, "playerCards");
       let pScore = calculateScore(playerHand);
       document.getElementById("playerScore").innerText = pScore;
-
       document.getElementById("doubleActionBtn").disabled = true;
 
       if (pScore > 21) {
@@ -472,14 +464,14 @@
 
     async function doubleDown() {
       if (!gameInProgress) return;
-      if (currentBet > userProfile.balance) {
+      if (currentBet > userBalance) {
         alert("Insufficient balance to Double Down!");
         return;
       }
 
-      userProfile.balance -= currentBet;
+      userBalance -= currentBet;
       currentBet *= 2;
-      document.getElementById("balanceDisplay").innerText = userProfile.balance.toFixed(8) + " USDT";
+      updateBalanceDisplay();
 
       playerHand.push(deck.pop());
       renderHand(playerHand, "playerCards");
@@ -487,7 +479,7 @@
       document.getElementById("playerScore").innerText = pScore;
 
       if (pScore > 21) {
-        endGame('loss', 0);
+        await endGame('loss', 0);
       } else {
         await standGame();
       }
@@ -509,11 +501,11 @@
       let pScore = calculateScore(playerHand);
 
       if (dScore > 21 || pScore > dScore) {
-        endGame('win', 2.0);
+        await endGame('win', 2.0);
       } else if (pScore === dScore) {
-        endGame('draw', 1.0);
+        await endGame('draw', 1.0);
       } else {
-        endGame('loss', 0);
+        await endGame('loss', 0);
       }
     }
 
@@ -533,56 +525,49 @@
       document.getElementById("mainBetBtn").innerText = "DEAL";
 
       let payout = currentBet * multiplier;
-      userProfile.balance += payout;
+      userBalance += payout;
+      userTurnover += currentBet;
 
-      let updatedTurnover = (parseFloat(userProfile.current_turnover) || 0) + currentBet;
-      userProfile.current_turnover = updatedTurnover;
+      updateBalanceDisplay();
 
       if (result === 'win') {
-        document.getElementById("statusMessage").innerText = `YOU WON ${payout.toFixed(2)} USDT! 🎉`;
-        document.getElementById("statusMessage").style.color = "#4caf50";
+        document.getElementById("statusMessage").innerText = `YOU WON ৳ ${payout.toFixed(2)}! 🎉`;
       } else if (result === 'draw') {
         document.getElementById("statusMessage").innerText = "GAME DRAW!";
-        document.getElementById("statusMessage").style.color = "#ffb74d";
       } else {
         document.getElementById("statusMessage").innerText = "DEALER WINS!";
-        document.getElementById("statusMessage").style.color = "#f44336";
       }
 
-      document.getElementById("balanceDisplay").innerText = userProfile.balance.toFixed(8) + " USDT";
+      // Supabase Updates (Profiles & original_bets_history) without trigger
+      if (currentUserId && typeof supabaseClient !== 'undefined') {
+        try {
+          await supabaseClient
+            .from("profiles")
+            .update({
+              balance: userBalance,
+              current_turnover: userTurnover
+            })
+            .eq("id", currentUserId);
 
-      try {
-        const { error: profileErr } = await supabaseClient
-          .from("profiles")
-          .update({
-            balance: userProfile.balance,
-            current_turnover: userProfile.current_turnover
-          })
-          .eq("id", currentUser.id);
-
-        if (profileErr) console.error("Error updating profile:", profileErr);
-
-        const { error: betHistoryErr } = await supabaseClient
-          .from("original_bets_history")
-          .insert({
-            user_id: currentUser.id,
-            game_name: "Blackjack",
-            bet_amount: currentBet,
-            payout: payout,
-            multiplier: multiplier,
-            status: result,
-            game_details: {
-              player_hand: playerHand,
-              dealer_hand: dealerHand,
-              player_score: calculateScore(playerHand),
-              dealer_score: calculateScore(dealerHand)
-            }
-          });
-
-        if (betHistoryErr) console.error("Error inserting bet history:", betHistoryErr);
-
-      } catch (err) {
-        console.error("Database process error:", err);
+          await supabaseClient
+            .from("original_bets_history")
+            .insert({
+              user_id: currentUserId,
+              game_name: "Blackjack",
+              bet_amount: currentBet,
+              payout: payout,
+              multiplier: multiplier,
+              status: result,
+              game_details: {
+                player_hand: playerHand,
+                dealer_hand: dealerHand,
+                player_score: calculateScore(playerHand),
+                dealer_score: calculateScore(dealerHand)
+              }
+            });
+        } catch (err) {
+          console.error("Database error:", err);
+        }
       }
     }
   </script>
