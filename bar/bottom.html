@@ -4,8 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bottom Navigation</title>
-  <!-- Font Awesome Icons -->
+
+  <!-- 1. Font Awesome CDN (Icons) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- 2. Supabase JS Client (Required before config) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- 3. Your Supabase Config File -->
+  <!-- আপনার ফোল্ডার স্ট্রাকচার অনুযায়ী সঠিক পাথ দিন (যেমন: ./supabase-config.js বা ../supabase-config.js) -->
+  <script src="supabase-config.js"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -164,13 +173,13 @@
 
     .drawer-btn i {
       font-size: 18px;
-      color: #f39c12; /* Golden accent for icons */
+      color: #f39c12; /* Golden Accent Icon */
     }
   </style>
 </head>
 <body>
 
-  <!-- Bottom Navigation -->
+  <!-- Bottom Navigation Component -->
   <nav class="bottom-nav">
     <button type="button" class="nav-item" id="openDrawer">
       <i class="fa-solid fa-bars"></i>
@@ -206,40 +215,52 @@
     </div>
 
     <div class="drawer-menu">
-      <a href="#vip" class="drawer-btn">
+      <a href="/vip/vip.html" class="drawer-btn">
         <i class="fa-solid fa-crown"></i>
         <span>Vip</span>
       </a>
 
-      <a href="#collection" class="drawer-btn">
+      <a href="/collection/collection.html" class="drawer-btn">
         <i class="fa-solid fa-layer-group"></i>
         <span>Collection</span>
       </a>
     </div>
   </div>
 
-  <!-- JavaScript for Drawer Toggle -->
+  <!-- JavaScript Logic -->
   <script>
+    // DOM Elements
     const openDrawerBtn = document.getElementById('openDrawer');
     const closeDrawerBtn = document.getElementById('closeDrawer');
     const drawerOverlay = document.getElementById('drawerOverlay');
     const modalDrawer = document.getElementById('modalDrawer');
 
-    // Open Drawer
+    // Drawer Open Logic
     openDrawerBtn.addEventListener('click', () => {
       modalDrawer.classList.add('active');
       drawerOverlay.classList.add('active');
     });
 
-    // Close Drawer Function
+    // Drawer Close Function
     const closeDrawer = () => {
       modalDrawer.classList.remove('active');
       drawerOverlay.classList.remove('active');
     };
 
-    // Close on Close Button click or Overlay click
     closeDrawerBtn.addEventListener('click', closeDrawer);
     drawerOverlay.addEventListener('click', closeDrawer);
+
+    // Optional: Check Supabase Authentication Status on Page Load
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (typeof getCurrentUser === "function") {
+        const user = await getCurrentUser();
+        if (user) {
+          console.log("Logged in user:", user.id || user.email);
+        } else {
+          console.log("No active user session found.");
+        }
+      }
+    });
   </script>
 
 </body>
