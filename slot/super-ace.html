@@ -12,8 +12,6 @@
       --gold-deep: #9d5711;
       --panel: #102c35;
       --felt: #087d83;
-      --card-bg: #e8edf5;
-      --ink: #17202b;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -43,7 +41,6 @@
       padding-top: var(--safe-top);
       padding-bottom: var(--safe-bottom);
     }
-    /* Decorative wood rails and game cabinet */
     .wood {
       position: absolute; left: 0; width: 100%; z-index: -1;
       background:
@@ -112,59 +109,21 @@
       min-width: 0; min-height: 0; position: relative; overflow: hidden;
       display: flex; align-items: center; justify-content: center;
       border: 2px solid #9eabb8; border-radius: 4px;
-      background: linear-gradient(145deg, #f8f9fc, #dce3ef);
+      background: #000;
       box-shadow: inset 0 0 0 1px #fff9, 0 1px 2px #16232e;
-      color: var(--ink);
+    }
+    .tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
     }
     .tile.empty {
       background: linear-gradient(135deg, #078e91, #006b74);
       border: 2px solid #42a7a8;
       box-shadow: inset 0 0 9px #004c55aa;
     }
-    .rank {
-      position: absolute; top: 2px; left: 4px;
-      font-size: clamp(13px, 3.5vw, 23px); line-height: 1;
-      font-weight: 900; color: #111; z-index: 2;
-    }
-    .symbol {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: clamp(34px, 10vw, 64px);
-      line-height: 1;
-      filter: drop-shadow(0 2px 1px #0004);
-      user-select: none;
-    }
-    .suit-spade { color: #080f20; text-shadow: 0 1px #596273; }
-    .suit-heart { color: #df1f2d; -webkit-text-stroke: 1px #f5c35d; text-shadow: 0 2px 0 #8d1c22; }
-    .suit-club { color: #1477d4; -webkit-text-stroke: 1px #f4c95c; text-shadow: 0 2px 0 #124a85; }
-    .suit-diamond { color: #e7ac19; -webkit-text-stroke: 1px #fff0a6; text-shadow: 0 2px 0 #8b5b0a; }
-    .face {
-      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-      background: linear-gradient(145deg, #ffe9a0, #d99a2a);
-      border: 1px solid #c18a25;
-    }
-    .face.queen { background: linear-gradient(145deg, #f9f3e7, #d9dce4); }
-    .face.jack { background: linear-gradient(145deg, #fff, #d5d9e2); }
-    .face .portrait { font-size: clamp(32px, 9vw, 59px); line-height: 1; filter: sepia(.28); }
-    .face .rank { font-size: clamp(13px, 3.5vw, 23px); }
-    .face .crown {
-      position: absolute; top: 15%; font-size: clamp(20px, 6vw, 38px);
-      color: #ffcf4e; text-shadow: 0 1px #6b3708;
-    }
-    .ace-mark {
-      width: 74%; aspect-ratio: 1 / 1.05; display: grid; place-items: center;
-      clip-path: polygon(50% 0, 96% 58%, 80% 78%, 61% 74%, 50% 100%, 39% 74%, 20% 78%, 4% 58%);
-      background: linear-gradient(135deg, #fff0a0, #bd7b13);
-      padding: 4px;
-    }
-    .ace-inner {
-      width: 91%; height: 92%; clip-path: inherit;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: linear-gradient(145deg, #141622, #02030a);
-      color: #ffdb6c; font-family: Georgia, serif; font-weight: 900;
-      font-size: clamp(10px, 2.8vw, 17px); text-shadow: 0 1px #000;
-    }
-    .ace-inner .mini-spade { font-size: clamp(24px, 6.5vw, 42px); line-height: .8; }
     .win-line {
       position: absolute; left: 0; bottom: 19.4%; width: 100%; height: 3.4%;
       display: flex; align-items: center; justify-content: center; gap: 9%;
@@ -272,12 +231,21 @@
       const winEl = document.getElementById('win');
       const betValueEl = document.getElementById('betValue');
       const toast = document.getElementById('toast');
-      const symbols = ['ace', 'spade', 'heart', 'club', 'king', 'queen', 'jack', 'diamond'];
-      const faces = {
-        king: { rank: 'K', portrait: '♔', cls: 'king' },
-        queen: { rank: 'Q', portrait: '♕', cls: 'queen' },
-        jack: { rank: 'J', portrait: '♙', cls: 'jack' }
+
+      // Relative path: root directory /slot/super-ace.html moves to /slot/image/
+      const cardImages = {
+        ace: 'image/ace.png',
+        king: 'image/king.png',
+        queen: 'image/queen.png',
+        jack: 'image/jack.png',
+        spade: 'image/spade.png',
+        heart: 'image/heart.png',
+        club: 'image/club.png',
+        diamond: 'image/diamond.png'
       };
+
+      const symbols = Object.keys(cardImages);
+
       const initial = [
         ['ace','ace','ace','king'],
         ['spade','king','king','empty'],
@@ -285,6 +253,7 @@
         ['club','jack','jack','ace'],
         ['king','diamond','empty','empty']
       ];
+
       let balance = 14.015;
       let bet = 0.5;
       let spinning = false;
@@ -293,17 +262,8 @@
 
       function cardMarkup(type) {
         if (type === 'empty') return '<div class="tile empty" aria-hidden="true"></div>';
-        if (type === 'ace') return '<div class="tile"><span class="rank">A</span><div class="ace-mark"><div class="ace-inner"><span class="mini-spade">♠</span><span>ACE</span></div></div></div>';
-        if (faces[type]) {
-          const f = faces[type];
-          return `<div class="tile"><div class="face ${f.cls}"><span class="rank">${f.rank}</span><span class="crown">${type === 'king' ? '♛' : type === 'queen' ? '♛' : '♜'}</span><span class="portrait">${f.portrait}</span></div></div>`;
-        }
-        const map = {
-          spade: ['♠', 'suit-spade'], heart: ['♥', 'suit-heart'],
-          club: ['♣', 'suit-club'], diamond: ['♠', 'suit-diamond']
-        };
-        const [symbol, cls] = map[type];
-        return `<div class="tile"><span class="symbol ${cls}">${symbol}</span></div>`;
+        const imgPath = cardImages[type] || 'image/spade.png';
+        return `<div class="tile"><img src="${imgPath}" alt="${type}"></div>`;
       }
 
       function renderGrid(layout) {
@@ -324,7 +284,6 @@
       function randomLayout() {
         return Array.from({ length: 5 }, () =>
           Array.from({ length: 4 }, () => {
-            // Empty cells are occasional, matching the reference's open teal slots.
             return Math.random() < 0.12 ? 'empty' : symbols[Math.floor(Math.random() * symbols.length)];
           })
         );
@@ -364,7 +323,6 @@
               tile.replaceWith(replacement);
             }
             if (col === 4) {
-              // Demo-only outcome: this is a UI prototype, not a real-money game.
               const payout = Math.random() < 0.28 ? bet * (1 + Math.floor(Math.random() * 4)) : 0;
               balance += payout;
               balanceEl.textContent = balance.toFixed(3);
@@ -405,9 +363,6 @@
         showToast(fast ? 'Fast mode on' : 'Fast mode off');
       });
       document.getElementById('settingsBtn').addEventListener('click', () => showToast('Settings demo'));
-      window.addEventListener('resize', () => {
-        // Layout is CSS-responsive; no fixed pixel dimensions are needed.
-      });
     })();
   </script>
 </body>
