@@ -3,7 +3,7 @@
 <head> 
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Game Portal - Search Games</title> 
+    <title>Game Portal - Online Gaming Platform</title> 
     <!-- Tailwind CSS CDN --> 
     <script src="https://cdn.tailwindcss.com"></script> 
     <!-- Supabase JS Client & App Config --> 
@@ -27,6 +27,18 @@
     <!-- Top Navigation Bar Anchor Container --> 
     <div id="topBarContainer" class="sticky top-0 z-50"></div> 
 
+    <!-- Added Search Box Card directly under topBarContainer -->
+    <div class="max-w-7xl w-full mx-auto px-3 sm:px-4 pt-4">
+        <div class="bg-[#111827] border border-slate-800 rounded-2xl p-3 sm:p-4 flex items-center shadow-lg">
+            <div class="flex items-center gap-3 w-full">
+                <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" id="gameSearchCard" onkeyup="searchGamesCard()" placeholder="Search your favorite games..." class="bg-transparent text-white focus:outline-none w-full text-xs sm:text-sm placeholder-slate-500">
+            </div>
+        </div>
+    </div>
+
     <!-- Main Application Wrapper --> 
     <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5"> 
         <!-- Category Navigation Bar --> 
@@ -37,8 +49,8 @@
                 <button onclick="filterCategory('blackjack')" id="catBlackjack" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap"> Blackjack </button> 
                 <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap"> Live Casino </button> 
             </div> 
-            <div class="flex items-center bg-[#111827] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-400"> 
-                <input type="text" id="gameSearch" onkeyup="searchGames()" placeholder="Search game (min 3 words)..." class="bg-transparent text-white focus:outline-none w-36 lg:w-48"> 
+            <div class="hidden sm:flex items-center bg-[#111827] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-400"> 
+                <input type="text" id="gameSearch" onkeyup="searchGames()" placeholder="Search game..." class="bg-transparent text-white focus:outline-none w-28 lg:w-40"> 
             </div> 
         </div> 
 
@@ -46,7 +58,7 @@
         <section> 
             <div class="flex items-center justify-between mb-4"> 
                 <h2 id="sectionTitle" class="text-base font-bold text-white flex items-center gap-2"> 
-                    <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> Search Results (Please type at least 3 words)
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> Original Games 
                 </h2> 
             </div> 
             <!-- Exactly 3 Columns Grid --> 
@@ -166,25 +178,11 @@
             }, 8000); 
         } 
 
-        // Render Game Cards with 3-Word Search Validation
+        // Render Game Cards 
         function renderGames(filter = 'original', searchQuery = '') { 
             const grid = document.getElementById('gamesGrid'); 
             grid.innerHTML = ''; 
-
-            const trimmedQuery = searchQuery.trim();
-            const words = trimmedQuery === '' ? [] : trimmedQuery.split(/\s+/);
-
-            // যদি ইউজারের টাইপ করা শব্দের সংখ্যা ৩-এর কম হয়
-            if (words.length < 3) {
-                grid.innerHTML = ` 
-                    <div class="col-span-full text-center py-12 text-slate-400 text-xs bg-[#111827] rounded-2xl border border-slate-800"> 
-                        Please type at least 3 words to search games... 
-                    </div> 
-                `; 
-                return;
-            }
-
-            const normalizedQuery = trimmedQuery.toLowerCase(); 
+            const normalizedQuery = searchQuery.toLowerCase(); 
             const filteredGames = gameList.filter(game => { 
                 const matchesCategory = filter === 'all' || game.category === filter; 
                 const matchesSearch = game.name.toLowerCase().includes(normalizedQuery); 
@@ -194,7 +192,7 @@
             if (filteredGames.length === 0) { 
                 grid.innerHTML = ` 
                     <div class="col-span-full text-center py-12 text-slate-500 text-xs bg-[#111827] rounded-2xl border border-slate-800"> 
-                        No games found matching your 3+ words search. 
+                        No games found for the selected category. 
                     </div> 
                 `; 
                 return; 
@@ -247,16 +245,30 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> ${titles[cat] || 'Games'} 
             `; 
             
-            const searchInput = document.getElementById('gameSearch');
-            renderGames(cat, searchInput ? searchInput.value : ''); 
+            // Sync both search inputs during category switch
+            const searchCardInput = document.getElementById('gameSearchCard');
+            const searchBarInput = document.getElementById('gameSearch');
+            const activeQuery = searchCardInput ? searchCardInput.value : (searchBarInput ? searchBarInput.value : '');
+            renderGames(cat, activeQuery); 
         } 
 
-        // Search Filter Trigger
+        // Search Filter (Original Navbar Input)
         function searchGames() { 
             const searchInput = document.getElementById('gameSearch'); 
+            const searchCardInput = document.getElementById('gameSearchCard');
             if (!searchInput) return; 
+            if (searchCardInput) searchCardInput.value = searchInput.value;
             renderGames(currentCategory, searchInput.value); 
         } 
+
+        // Search Filter Card (New Search Box Card Input)
+        function searchGamesCard() {
+            const searchCardInput = document.getElementById('gameSearchCard');
+            const searchInput = document.getElementById('gameSearch');
+            if (!searchCardInput) return;
+            if (searchInput) searchInput.value = searchCardInput.value;
+            renderGames(currentCategory, searchCardInput.value);
+        }
 
         // Dynamic Bottom Bar Loader
         async function loadBottomBar() {
@@ -280,8 +292,7 @@
         document.addEventListener('DOMContentLoaded', () => { 
             loadTopBar(); 
             loadBottomBar();
-            // পেজ লোড হওয়ার সাথে সাথে চেক করবে যাতে শুরুতে মিনিমাম ৩ ওয়ার্ড না থাকায় নোটিশ দেখায়
-            renderGames('original', ''); 
+            renderGames('original'); 
             startLivePlayerUpdates(); 
         }); 
     </script> 
