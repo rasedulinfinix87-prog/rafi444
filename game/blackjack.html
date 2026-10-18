@@ -231,6 +231,10 @@
               class="py-3 rounded-xl bg-[#222b3a] text-gray-400 font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-40">
               Double ×2
             </button>
+            <button type="button" id="insuranceBtn" disabled onclick="takeInsurance()"
+              class="py-3 rounded-xl bg-[#222b3a] text-gray-400 font-bold text-xs flex items-center justify-center gap-2 transition disabled:opacity-40">
+              Insurance
+            </button>
           </div>
         </div>
       </div>
@@ -244,14 +248,18 @@
     let userBalance = 0;
     let userTurnover = 0;
     let profileChannel = null;
-
     let deck = [];
-    let playerHand = [];
     let dealerHand = [];
+    let playerHands = [];
+    let activeHandIndex = 0;
     let currentBet = 0;
+    let totalWagered = 0;
+    let insuranceBet = 0;
+    let insuranceResolved = false;
     let gameInProgress = false;
+    let settlementInProgress = false;
+    let roundId = null;
 
-    // Load top and bottom bars safely matching coin-flip logic
     async function loadBars() {
       try {
         const topRes = await fetch('../bar/top.html');
@@ -260,335 +268,327 @@
           topContent = topContent.replace(/game\/mem\/member\.html/g, 'mem/member.html');
           topContent = topContent.replace(/href="mem\/member\.html"/g, 'href="mem/member.html"');
           document.getElementById('topBarContainer').innerHTML = topContent;
-          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-            a.href = '../account/deposit.html';
-          });
+          document.querySelectorAll('a[href*="deposit"]').forEach(a => { a.href = '../account/deposit.html'; });
         }
         const botRes = await fetch('../bar/bottom.html');
-        if (botRes.ok) {
-          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
-        }
-      } catch (e) {
-        console.error('Bar load error:', e);
-      }
+        if (botRes.ok) document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+      } catch (e) { console.error('Bar load error:', e); }
     }
 
     async function syncUserProfile() {
-      if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
-
+      if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+        setStatus('Database configuration not found.');
+        return;
+      }
       let storedUser = null;
       try {
         const storedValue = localStorage.getItem('current_user');
         if (storedValue) storedUser = JSON.parse(storedValue);
-      } catch (e) {
-        console.error('Error reading current_user:', e);
-      }
-
+      } catch (e) { console.error('Error reading current_user:', e); }
       let userId = storedUser ? (storedUser.id || storedUser.user_id || storedUser.uid) : null;
       if (!userId && typeof getCurrentUser === 'function') {
-        try {
-          const authUser = await getCurrentUser();
-          if (authUser) userId = authUser.id || authUser.user_id || authUser.uid;
-        } catch (e) {}
+        try { const authUser = await getCurrentUser(); if (authUser) userId = authUser.id || authUser.user_id || authUser.uid; } catch (e) {}
       }
-
-      if (!userId) return;
+      if (!userId) { setStatus('Please sign in to play.'); return; }
       currentUserId = userId;
-
       try {
-        const { data: profile, error } = await supabaseClient
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .maybeSingle();
-
-        if (error || !profile) return;
-
+        const { data: profile, error } = await supabaseClient.from('profiles').select('id,balance,current_turnover').eq('id', userId).maybeSingle();
+        if (error) throw error;
+        if (!profile) { setStatus('Profile not found.'); return; }
         userBalance = Number(profile.balance) || 0;
         userTurnover = Number(profile.current_turnover) || 0;
         updateBalanceDisplay();
-
-        if (profileChannel) {
-          try { await supabaseClient.removeChannel(profileChannel); } catch (e) {}
-        }
-
-        profileChannel = supabaseClient
-          .channel('blackjack-profile-' + userId)
-          .on('postgres_changes', {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'profiles',
-            filter: `id=eq.${userId}`
-          }, payload => {
-            if (payload.new && payload.new.balance !== undefined) {
+        if (profileChannel) { try { await supabaseClient.removeChannel(profileChannel); } catch (e) {} }
+        profileChannel = supabaseClient.channel('blackjack-profile-' + userId)
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${userId}` }, payload => {
+            if (!payload.new || payload.new.balance === undefined) return;
+            // Avoid a realtime echo overwriting the balance while a round is being settled.
+            if (!gameInProgress && !settlementInProgress) {
               userBalance = Number(payload.new.balance) || 0;
               userTurnover = Number(payload.new.current_turnover) || 0;
               updateBalanceDisplay();
             }
-          })
-          .subscribe();
-      } catch (e) {
-        console.error('Profile sync error:', e);
-      }
+          }).subscribe();
+      } catch (e) { console.error('Profile sync error:', e); setStatus('Could not load profile balance.'); }
     }
 
     function updateBalanceDisplay() {
       const topBal = document.getElementById('topBarBalance');
       if (topBal) topBal.innerText = userBalance.toFixed(2);
     }
+    function setStatus(message) { document.getElementById('statusMessage').innerText = message; }
+    function money(n) { return '৳ ' + (Number(n) || 0).toFixed(2); }
+    function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-    window.addEventListener('DOMContentLoaded', async () => {
-      await loadBars();
-      await syncUserProfile();
-    });
+    window.addEventListener('DOMContentLoaded', async () => { await loadBars(); await syncUserProfile(); updateActionButtons(); });
 
     function createDeck() {
       const suits = ['♠', '♥', '♦', '♣'];
-      const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+      const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
       deck = [];
-      for (let s of suits) {
-        for (let v of values) {
-          deck.push({ suit: s, value: v });
-        }
+      for (const suit of suits) for (const value of values) deck.push({ suit, value });
+      // Fisher-Yates shuffle; crypto randomness when supported.
+      for (let i = deck.length - 1; i > 0; i--) {
+        let j;
+        if (window.crypto && crypto.getRandomValues) {
+          const range = i + 1, limit = Math.floor(4294967296 / range) * range;
+          const buf = new Uint32Array(1);
+          do { crypto.getRandomValues(buf); } while (buf[0] >= limit);
+          j = buf[0] % range;
+        } else j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
       }
-      deck.sort(() => Math.random() - 0.5);
     }
-
+    function drawCard() {
+      if (!deck.length) createDeck();
+      return deck.pop();
+    }
     function getCardValue(card) {
-      if (['J', 'Q', 'K'].includes(card.value)) return 10;
+      if (['J','Q','K'].includes(card.value)) return 10;
       if (card.value === 'A') return 11;
-      return parseInt(card.value);
+      return Number(card.value);
     }
-
     function calculateScore(hand) {
-      let score = 0;
-      let aces = 0;
-      for (let c of hand) {
-        let val = getCardValue(c);
-        if (c.value === 'A') aces++;
-        score += val;
-      }
-      while (score > 21 && aces > 0) {
-        score -= 10;
-        aces--;
-      }
+      let score = 0, aces = 0;
+      for (const c of hand) { score += getCardValue(c); if (c.value === 'A') aces++; }
+      while (score > 21 && aces > 0) { score -= 10; aces--; }
       return score;
     }
+    function isNatural(hand) { return hand.length === 2 && calculateScore(hand) === 21; }
+    function isPair(hand) { return hand.length === 2 && hand[0].value === hand[1].value; }
+    function dealerUpCard() { return dealerHand[1] || null; }
+    function dealerHasNatural() { return dealerHand.length === 2 && isNatural(dealerHand); }
+    function activeHand() { return playerHands[activeHandIndex]; }
 
+    function makeCardElement(card, hidden) {
+      const div = document.createElement('div');
+      if (hidden) { div.className = 'card black'; div.innerHTML = '🎴'; return div; }
+      const red = ['♥','♦'].includes(card.suit);
+      div.className = `card ${red ? 'red' : 'black'}`;
+      div.innerHTML = `<div>${card.value}</div><div style="align-self:flex-end;">${card.suit}</div>`;
+      return div;
+    }
     function renderHand(hand, elementId, hideFirstCard = false) {
       const container = document.getElementById(elementId);
-      container.innerHTML = "";
-      hand.forEach((card, index) => {
-        const div = document.createElement("div");
-        if (hideFirstCard && index === 0) {
-          div.className = "card black";
-          div.innerHTML = "🎴";
-        } else {
-          const isRed = ['♥', '♦'].includes(card.suit);
-          div.className = `card ${isRed ? 'red' : 'black'}`;
-          div.innerHTML = `<div>${card.value}</div><div style="align-self:flex-end;">${card.suit}</div>`;
-        }
-        container.appendChild(div);
-      });
+      container.innerHTML = '';
+      hand.forEach((card, index) => container.appendChild(makeCardElement(card, hideFirstCard && index === 0)));
     }
-
+    function renderPlayerHands() {
+      const container = document.getElementById('playerCards');
+      container.innerHTML = '';
+      container.style.flexWrap = 'wrap';
+      container.style.justifyContent = 'center';
+      playerHands.forEach((hand, index) => {
+        const slot = document.createElement('div');
+        slot.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px;border-radius:8px;min-width:90px;' + (index === activeHandIndex && gameInProgress ? 'outline:1px solid #24ee89;background:rgba(36,238,137,.06);' : '');
+        const label = document.createElement('div');
+        label.style.cssText = 'font-size:10px;color:#8b9bb4;font-weight:700;';
+        label.textContent = (playerHands.length > 1 ? `HAND ${index + 1} · ` : '') + calculateScore(hand.cards) + (hand.done ? ' · DONE' : '');
+        const cards = document.createElement('div');
+        cards.className = 'cards-flex';
+        hand.cards.forEach(card => cards.appendChild(makeCardElement(card, false)));
+        slot.append(label, cards);
+        container.appendChild(slot);
+      });
+      const scoreEl = document.getElementById('playerScore');
+      scoreEl.innerText = playerHands.length > 1 ? calculateScore(activeHand().cards) : (playerHands[0] ? calculateScore(playerHands[0].cards) : 0);
+    }
     function modifyBet(type) {
       if (gameInProgress) return;
       const input = document.getElementById('betAmount');
-      let val = parseFloat(input.value) || 0;
-      if (type === 'half') input.value = Math.max(1, val / 2).toFixed(2);
-      if (type === 'double') input.value = (val * 2).toFixed(2);
+      const val = Number.parseFloat(input.value) || 0;
+      input.value = (type === 'half' ? Math.max(1, val / 2) : val * 2).toFixed(2);
+    }
+    function updateActionButtons() {
+      const hand = activeHand();
+      const active = gameInProgress && !!hand && !hand.done && !settlementInProgress;
+      document.getElementById('hitBtn').disabled = !active || calculateScore(hand.cards) >= 21 || dealerHasNatural();
+      document.getElementById('standBtn').disabled = !active;
+      document.getElementById('splitBtn').disabled = !active || !isPair(hand.cards) || userBalance < hand.bet || playerHands.length >= 4 || hand.fromSplitAces;
+      document.getElementById('doubleActionBtn').disabled = !active || hand.cards.length !== 2 || userBalance < hand.bet || hand.doubled;
+      const up = dealerUpCard();
+      document.getElementById('insuranceBtn').disabled = !gameInProgress || !up || up.value !== 'A' || insuranceBet > 0 || insuranceResolved || settlementInProgress;
+      document.getElementById('mainBetBtn').disabled = gameInProgress || settlementInProgress;
     }
 
-    // Sequential card dealing function with realistic delays
+    async function saveBalanceAndTurnover() {
+      if (!currentUserId || typeof supabaseClient === 'undefined' || !supabaseClient) return;
+      const { error } = await supabaseClient.from('profiles').update({ balance: userBalance, current_turnover: userTurnover }).eq('id', currentUserId);
+      if (error) throw error;
+    }
     async function startGame() {
-      if (gameInProgress) return;
-
-      const betVal = parseFloat(document.getElementById("betAmount").value);
-      if (isNaN(betVal) || betVal <= 0) {
-        alert("Please enter a valid bet amount.");
-        return;
-      }
-
-      if (betVal > userBalance) {
-        alert("Insufficient balance!");
-        return;
-      }
-
-      currentBet = betVal;
+      if (gameInProgress || settlementInProgress) return;
+      if (!currentUserId) { alert('Please sign in first.'); return; }
+      const betVal = Number.parseFloat(document.getElementById('betAmount').value);
+      if (!Number.isFinite(betVal) || betVal < 1 || Math.round(betVal * 100) !== betVal * 100) { alert('Minimum bet is ৳1. Enter a valid amount with up to 2 decimal places.'); return; }
+      if (betVal > userBalance) { alert('Insufficient balance!'); return; }
+      currentBet = betVal; totalWagered = betVal; insuranceBet = 0; insuranceResolved = false;
+      roundId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + '-' + Math.random().toString(36).slice(2);
+      userBalance = Number((userBalance - betVal).toFixed(2));
       gameInProgress = true;
-      document.getElementById("statusMessage").innerText = "Dealing cards...";
-
-      // Deduct balance locally & update database
-      userBalance -= currentBet;
-      updateBalanceDisplay();
-
-      if (currentUserId && typeof supabaseClient !== 'undefined') {
-        await supabaseClient.from('profiles').update({ balance: userBalance }).eq('id', currentUserId);
-      }
-
-      document.getElementById("mainBetBtn").disabled = true;
-      document.getElementById("mainBetBtn").innerText = "DEALING...";
-
-      createDeck();
-      playerHand = [];
-      dealerHand = [];
-
-      // Clear previous cards and scores
-      document.getElementById("playerCards").innerHTML = "";
-      document.getElementById("dealerCards").innerHTML = "";
-      document.getElementById("playerScore").innerText = "0";
-      document.getElementById("dealerScore").innerText = "?";
-
-      // Sequential dealing: Player -> Dealer -> Player -> Dealer (Standard Blackjack rule)
-      await new Promise(resolve => setTimeout(resolve, 250));
-      playerHand.push(deck.pop());
-      renderHand(playerHand, "playerCards");
-      document.getElementById("playerScore").innerText = calculateScore(playerHand);
-
-      await new Promise(resolve => setTimeout(resolve, 300));
-      dealerHand.push(deck.pop());
-      renderHand(dealerHand, "dealerCards", true);
-
-      await new Promise(resolve => setTimeout(resolve, 300));
-      playerHand.push(deck.pop());
-      renderHand(playerHand, "playerCards");
-      document.getElementById("playerScore").innerText = calculateScore(playerHand);
-
-      await new Promise(resolve => setTimeout(resolve, 300));
-      dealerHand.push(deck.pop());
-      renderHand(dealerHand, "dealerCards", true);
-
-      document.getElementById("statusMessage").innerText = "";
-      document.getElementById("hitBtn").disabled = false;
-      document.getElementById("standBtn").disabled = false;
-      document.getElementById("doubleActionBtn").disabled = false;
-
-      if (calculateScore(playerHand) === 21) {
-        await endGame('win', 2.5);
-      }
+      document.getElementById('mainBetBtn').innerText = 'DEALING...';
+      setStatus('Dealing cards...'); updateBalanceDisplay(); updateActionButtons();
+      try { await saveBalanceAndTurnover(); }
+      catch (e) { userBalance = Number((userBalance + betVal).toFixed(2)); gameInProgress = false; updateBalanceDisplay(); document.getElementById('mainBetBtn').innerText = 'DEAL'; updateActionButtons(); alert('Could not reserve your bet. Please try again.'); console.error(e); return; }
+      createDeck(); playerHands = [{ cards: [], bet: betVal, done: false, doubled: false, splitHand: false, fromSplitAces: false, result: null, payout: 0 }]; activeHandIndex = 0; dealerHand = [];
+      renderPlayerHands(); renderHand(dealerHand, 'dealerCards');
+      document.getElementById('dealerScore').innerText = '?';
+      await delay(180); playerHands[0].cards.push(drawCard()); renderPlayerHands();
+      await delay(180); dealerHand.push(drawCard()); renderHand(dealerHand, 'dealerCards', true);
+      await delay(180); playerHands[0].cards.push(drawCard()); renderPlayerHands();
+      await delay(180); dealerHand.push(drawCard()); renderHand(dealerHand, 'dealerCards', true);
+      document.getElementById('mainBetBtn').innerText = 'DEAL';
+      if (isNatural(playerHands[0].cards) && dealerHasNatural()) { await settleRound(); return; }
+      if (isNatural(playerHands[0].cards) && dealerUpCard().value !== 'A') { await settleRound(); return; }
+      if (dealerHasNatural() && dealerUpCard().value !== 'A') { await settleRound(); return; }
+      if (dealerUpCard() && dealerUpCard().value === 'A') setStatus('Dealer shows Ace. Insurance is optional; Hit/Stand declines it.');
+      else setStatus('Choose Hit, Stand, Double or Split.');
+      updateActionButtons();
     }
-
     function hitCard() {
-      if (!gameInProgress) return;
-      playerHand.push(deck.pop());
-      renderHand(playerHand, "playerCards");
-      let pScore = calculateScore(playerHand);
-      document.getElementById("playerScore").innerText = pScore;
-      document.getElementById("doubleActionBtn").disabled = true;
-
-      if (pScore > 21) {
-        endGame('loss', 0);
-      }
+      if (!gameInProgress || !activeHand() || activeHand().done) return;
+      const hand = activeHand();
+      if (calculateScore(hand.cards) >= 21 || dealerHasNatural()) return;
+      hand.cards.push(drawCard());
+      const score = calculateScore(hand.cards);
+      if (score >= 21) { hand.done = true; hand.result = score > 21 ? 'bust' : 'stand'; advanceHand(); }
+      else setStatus(`Hand ${activeHandIndex + 1}: ${score}. Hit or Stand.`);
+      renderPlayerHands(); updateActionButtons();
     }
-
     async function doubleDown() {
-      if (!gameInProgress) return;
-      if (currentBet > userBalance) {
-        alert("Insufficient balance to Double Down!");
-        return;
-      }
-
-      userBalance -= currentBet;
-      currentBet *= 2;
+      if (!gameInProgress || !activeHand()) return;
+      const hand = activeHand();
+      if (hand.done || hand.cards.length !== 2 || hand.doubled || userBalance < hand.bet) { alert('Double Down is not available for this hand.'); return; }
+      userBalance = Number((userBalance - hand.bet).toFixed(2)); hand.bet = Number((hand.bet * 2).toFixed(2)); totalWagered = Number((totalWagered + hand.bet / 2).toFixed(2)); hand.doubled = true;
       updateBalanceDisplay();
-
-      playerHand.push(deck.pop());
-      renderHand(playerHand, "playerCards");
-      let pScore = calculateScore(playerHand);
-      document.getElementById("playerScore").innerText = pScore;
-
-      if (pScore > 21) {
-        await endGame('loss', 0);
-      } else {
-        await standGame();
-      }
+      try { await saveBalanceAndTurnover(); } catch (e) { const extraBet = hand.bet / 2; userBalance = Number((userBalance + extraBet).toFixed(2)); totalWagered = Number((totalWagered - extraBet).toFixed(2)); hand.bet = extraBet; hand.doubled = false; updateBalanceDisplay(); alert('Could not update balance; Double Down cancelled.'); return; }
+      hand.cards.push(drawCard()); const score = calculateScore(hand.cards); hand.done = true; hand.result = score > 21 ? 'bust' : 'stand';
+      renderPlayerHands(); await advanceHand();
     }
-
     async function standGame() {
-      if (!gameInProgress) return;
-
-      renderHand(dealerHand, "dealerCards", false);
+      if (!gameInProgress || !activeHand() || activeHand().done) return;
+      activeHand().done = true; activeHand().result = 'stand';
+      if (dealerUpCard() && dealerUpCard().value === 'A') insuranceResolved = true;
+      await advanceHand();
+    }
+    async function advanceHand() {
+      const next = playerHands.findIndex((h, i) => i > activeHandIndex && !h.done);
+      if (next !== -1) { activeHandIndex = next; renderPlayerHands(); setStatus(`Playing hand ${activeHandIndex + 1} of ${playerHands.length}.`); updateActionButtons(); return; }
+      const earlier = playerHands.findIndex(h => !h.done);
+      if (earlier !== -1) { activeHandIndex = earlier; renderPlayerHands(); updateActionButtons(); return; }
+      await playDealerAndSettle();
+    }
+    async function playDealerAndSettle() {
+      if (!gameInProgress || settlementInProgress) return;
+      renderHand(dealerHand, 'dealerCards', false);
       let dScore = calculateScore(dealerHand);
-
-      while (dScore < 17) {
-        dealerHand.push(deck.pop());
-        renderHand(dealerHand, "dealerCards", false);
-        dScore = calculateScore(dealerHand);
+      document.getElementById('dealerScore').innerText = dScore;
+      if (!dealerHasNatural() && playerHands.some(h => calculateScore(h.cards) <= 21)) {
+        while (dScore < 17) { await delay(250); dealerHand.push(drawCard()); renderHand(dealerHand, 'dealerCards', false); dScore = calculateScore(dealerHand); document.getElementById('dealerScore').innerText = dScore; }
       }
-
-      document.getElementById("dealerScore").innerText = dScore;
-      let pScore = calculateScore(playerHand);
-
-      if (dScore > 21 || pScore > dScore) {
-        await endGame('win', 2.0);
-      } else if (pScore === dScore) {
-        await endGame('draw', 1.0);
-      } else {
-        await endGame('loss', 0);
-      }
+      await settleRound();
     }
-
-    function splitGame() {
-      alert("Split feature is coming soon!");
-    }
-
-    async function endGame(result, multiplier) {
-      gameInProgress = false;
-
-      document.getElementById("hitBtn").disabled = true;
-      document.getElementById("standBtn").disabled = true;
-      document.getElementById("splitBtn").disabled = true;
-      document.getElementById("doubleActionBtn").disabled = true;
-
-      document.getElementById("mainBetBtn").disabled = false;
-      document.getElementById("mainBetBtn").innerText = "DEAL";
-
-      let payout = currentBet * multiplier;
-      userBalance += payout;
-      userTurnover += currentBet;
-
+    async function splitGame() {
+      if (!gameInProgress || !activeHand()) return;
+      const hand = activeHand();
+      if (!isPair(hand.cards) || userBalance < hand.bet || playerHands.length >= 4 || hand.fromSplitAces) return;
+      userBalance = Number((userBalance - hand.bet).toFixed(2)); totalWagered = Number((totalWagered + hand.bet).toFixed(2));
+      const first = hand.cards[0], second = hand.cards[1];
+      const splitAces = first.value === 'A';
+      hand.cards = [first]; hand.splitHand = true; hand.done = false; hand.fromSplitAces = splitAces;
+      const newHand = { cards: [second], bet: hand.bet, done: false, doubled: false, splitHand: true, fromSplitAces: splitAces, result: null, payout: 0 };
+      playerHands.splice(activeHandIndex + 1, 0, newHand);
       updateBalanceDisplay();
-
-      if (result === 'win') {
-        document.getElementById("statusMessage").innerText = `YOU WON ৳ ${payout.toFixed(2)}! 🎉`;
-      } else if (result === 'draw') {
-        document.getElementById("statusMessage").innerText = "GAME DRAW!";
-      } else {
-        document.getElementById("statusMessage").innerText = "DEALER WINS!";
+      try { await saveBalanceAndTurnover(); } catch (e) { // Restore the pre-split hand and balance on database failure.
+        playerHands.splice(activeHandIndex + 1, 1); hand.cards = [first, second]; hand.splitHand = false; hand.fromSplitAces = false;
+        userBalance = Number((userBalance + hand.bet).toFixed(2)); totalWagered = Number((totalWagered - hand.bet).toFixed(2)); updateBalanceDisplay(); alert('Could not update balance; Split cancelled.'); return;
       }
-
-      // Supabase Updates (Profiles & original_bets_history) without trigger
-      if (currentUserId && typeof supabaseClient !== 'undefined') {
-        try {
-          await supabaseClient
-            .from("profiles")
-            .update({
-              balance: userBalance,
-              current_turnover: userTurnover
-            })
-            .eq("id", currentUserId);
-
-          await supabaseClient
-            .from("original_bets_history")
-            .insert({
-              user_id: currentUserId,
-              game_name: "Blackjack",
-              bet_amount: currentBet,
-              payout: payout,
-              multiplier: multiplier,
-              status: result,
-              game_details: {
-                player_hand: playerHand,
-                dealer_hand: dealerHand,
-                player_score: calculateScore(playerHand),
-                dealer_score: calculateScore(dealerHand)
-              }
-            });
-        } catch (err) {
-          console.error("Database error:", err);
-        }
+      hand.cards.push(drawCard()); newHand.cards.push(drawCard());
+      if (splitAces) { hand.done = true; newHand.done = true; hand.result = 'stand'; newHand.result = 'stand'; }
+      else if (calculateScore(hand.cards) === 21) { hand.done = true; hand.result = 'stand'; }
+      renderPlayerHands();
+      if (splitAces) { activeHandIndex = playerHands.findIndex(h => !h.done); if (activeHandIndex < 0) await advanceHand(); else updateActionButtons(); }
+      else { activeHandIndex = calculateScore(hand.cards) >= 21 ? activeHandIndex + 1 : activeHandIndex; if (activeHandIndex >= playerHands.length) activeHandIndex = playerHands.findIndex(h => !h.done); if (activeHandIndex < 0) await advanceHand(); else { renderPlayerHands(); setStatus(`Playing hand ${activeHandIndex + 1} of ${playerHands.length}.`); updateActionButtons(); } }
+    }
+    async function takeInsurance() {
+      if (!gameInProgress || !dealerUpCard() || dealerUpCard().value !== 'A' || insuranceBet > 0 || insuranceResolved) return;
+      const amount = Math.round(currentBet * 50) / 100;
+      if (amount <= 0 || userBalance < amount) { alert('Insufficient balance for Insurance.'); return; }
+      insuranceBet = amount; totalWagered = Number((totalWagered + amount).toFixed(2)); userBalance = Number((userBalance - amount).toFixed(2));
+      updateBalanceDisplay();
+      try { await saveBalanceAndTurnover(); } catch (e) { userBalance = Number((userBalance + amount).toFixed(2)); totalWagered = Number((totalWagered - amount).toFixed(2)); insuranceBet = 0; updateBalanceDisplay(); alert('Could not place Insurance.'); return; }
+      setStatus(`Insurance placed: ${money(insuranceBet)}. Continue with Hit or Stand.`); updateActionButtons();
+    }
+    async function settleRound() {
+      if (settlementInProgress) return;
+      settlementInProgress = true;
+      gameInProgress = false;
+      document.getElementById('hitBtn').disabled = true; document.getElementById('standBtn').disabled = true;
+      document.getElementById('splitBtn').disabled = true; document.getElementById('doubleActionBtn').disabled = true; document.getElementById('insuranceBtn').disabled = true;
+      renderHand(dealerHand, 'dealerCards', false);
+      const dealerScore = calculateScore(dealerHand); document.getElementById('dealerScore').innerText = dealerScore;
+      const dealerBJ = dealerHasNatural();
+      let totalPayout = 0; const results = [];
+      for (const hand of playerHands) {
+        const score = calculateScore(hand.cards); let payout = 0, result = 'loss';
+        const playerBJ = !hand.splitHand && isNatural(hand.cards);
+        if (score > 21) { result = 'loss'; payout = 0; }
+        else if (dealerBJ && playerBJ) { result = 'draw'; payout = hand.bet; }
+        else if (dealerBJ) { result = 'loss'; payout = 0; }
+        else if (playerBJ) { result = 'blackjack'; payout = hand.bet * 2.5; }
+        else if (dealerScore > 21 || score > dealerScore) { result = 'win'; payout = hand.bet * 2; }
+        else if (score === dealerScore) { result = 'draw'; payout = hand.bet; }
+        else { result = 'loss'; payout = 0; }
+        hand.result = result; hand.payout = Number(payout.toFixed(2)); totalPayout += hand.payout;
+        results.push({ result, payout: hand.payout, bet: hand.bet, score });
       }
+      let insurancePayout = 0;
+      if (insuranceBet > 0 && dealerBJ) insurancePayout = insuranceBet * 3; // stake returned + 2:1 profit
+      totalPayout += insurancePayout;
+      totalPayout = Number(totalPayout.toFixed(2));
+      userBalance = Number((userBalance + totalPayout).toFixed(2));
+      userTurnover = Number((userTurnover + totalWagered).toFixed(2));
+      updateBalanceDisplay();
+      const wins = results.filter(r => r.result === 'win' || r.result === 'blackjack').length;
+      const losses = results.filter(r => r.result === 'loss').length;
+      const draws = results.filter(r => r.result === 'draw').length;
+      const overall = wins && !losses ? (results.some(r => r.result === 'blackjack') ? 'blackjack' : 'win') : losses && !wins && !draws ? 'loss' : wins || draws ? 'mixed' : 'loss';
+      const net = Number((totalPayout - totalWagered).toFixed(2));
+      if (overall === 'blackjack') setStatus(`BLACKJACK! Return ${money(totalPayout)} · Net ${net >= 0 ? '+' : ''}${money(net)}`);
+      else if (overall === 'win') setStatus(`YOU WON! Return ${money(totalPayout)} · Net +${money(net)}`);
+      else if (overall === 'loss') setStatus(`ROUND LOST · Return ${money(totalPayout)} · Net ${money(net)}`);
+      else setStatus(`ROUND COMPLETE · Return ${money(totalPayout)} · Net ${net >= 0 ? '+' : ''}${money(net)}`);
+      if (insuranceBet > 0) setStatus(document.getElementById('statusMessage').innerText + (dealerBJ ? ` · Insurance won ${money(insurancePayout)}` : ' · Insurance lost'));
+      let dbError = null;
+      try {
+        await saveBalanceAndTurnover();
+        const { error } = await supabaseClient.from('original_bets_history').insert({
+          user_id: currentUserId,
+          game_name: 'Blackjack',
+          bet_amount: Number(totalWagered.toFixed(2)),
+          payout: totalPayout,
+          multiplier: totalWagered > 0 ? Number((totalPayout / totalWagered).toFixed(4)) : 0,
+          status: overall,
+          game_details: {
+            round_id: roundId,
+            player_hands: playerHands.map((h, i) => ({ hand_number: i + 1, cards: h.cards, score: calculateScore(h.cards), bet: h.bet, result: h.result, payout: h.payout, split: h.splitHand, doubled: h.doubled })),
+            dealer_hand: dealerHand,
+            dealer_score: dealerScore,
+            dealer_blackjack: dealerBJ,
+            insurance_bet: insuranceBet,
+            insurance_payout: Number(insurancePayout.toFixed(2)),
+            total_wagered: totalWagered,
+            total_return: totalPayout,
+            net_profit: net,
+            rules: { blackjack_payout: '3:2', dealer_hits_soft_17: false }
+          }
+        });
+        if (error) throw error;
+      } catch (e) { dbError = e; console.error('Database settlement error:', e); }
+      settlementInProgress = false;
+      document.getElementById('mainBetBtn').disabled = false; document.getElementById('mainBetBtn').innerText = 'DEAL';
+      updateActionButtons();
+      if (dbError) setStatus(document.getElementById('statusMessage').innerText + ' · WARNING: history/balance sync failed; contact support.');
     }
   </script>
 </body>
