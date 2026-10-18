@@ -26,13 +26,11 @@
       overflow-x: hidden;
     }
 
-    /* Top and Bottom Bar Containers */
     #top-bar-container, #bottom-bar-container {
       width: 100%;
       z-index: 100;
     }
 
-    /* Game Board Layout */
     .game-board {
       flex: 1;
       display: flex;
@@ -100,7 +98,6 @@
       position: relative;
     }
 
-    /* Animated Card Style */
     .card {
       background: #ffffff;
       color: #111111;
@@ -119,11 +116,10 @@
     .card.red { color: #e53935; }
     .card.black { color: #1e293b; }
 
-    /* Card Deal Animation From Deck Box */
     @keyframes dealFromDeck {
       0% {
         opacity: 0;
-        transform: translate(100px, -100px) scale(0.5) rotate(15deg);
+        transform: translate(120px, -120px) scale(0.4) rotate(20deg);
       }
       100% {
         opacity: 1;
@@ -139,7 +135,6 @@
       text-align: center;
     }
 
-    /* Controls Layout */
     .control-panel {
       background-color: #17222d;
       padding: 16px;
@@ -250,9 +245,9 @@
   <div id="top-bar-container"></div>
 
   <div class="game-board">
-    <!-- Deck Box (Top Right Corner) -->
+    <!-- Deck Box with PNG Image -->
     <div class="deck-container">
-      <img src="https://i.ibb.co/L535m47/black-golden-playing-card.png" alt="Card Deck" id="deckImage" onerror="this.src='https://via.placeholder.com/60x85/111/d4af37?text=ACE';">
+      <img src="https://i.ibb.co/L535m47/black-golden-playing-card.png" alt="Card Deck" id="deckImage" onerror="this.src='../bar/top.html';">
     </div>
 
     <div class="rules-badge">
@@ -315,28 +310,34 @@
     let currentBet = 0;
     let gameInProgress = false;
 
-    // Load Navigation Bars Dynamic Load Function
+    // Corrected Path Fetch for Top and Bottom Bars
     async function loadNavigationBars() {
-      try {
-        const topRes = await fetch('../bar/top.html');
-        if (topRes.ok) {
-          document.getElementById('top-bar-container').innerHTML = await topRes.text();
-        }
-      } catch (e) { console.log('Top bar error:', e); }
+      const paths = ['../bar/top.html', 'bar/top.html', '/bar/top.html'];
+      for (let path of paths) {
+        try {
+          const res = await fetch(path);
+          if (res.ok) {
+            document.getElementById('top-bar-container').innerHTML = await res.text();
+            break;
+          }
+        } catch (e) {}
+      }
 
-      try {
-        const bottomRes = await fetch('../bar/bottom.html');
-        if (bottomRes.ok) {
-          document.getElementById('bottom-bar-container').innerHTML = await bottomRes.text();
-        }
-      } catch (e) { console.log('Bottom bar error:', e); }
+      const bottomPaths = ['../bar/bottom.html', 'bar/bottom.html', '/bar/bottom.html'];
+      for (let path of bottomPaths) {
+        try {
+          const res = await fetch(path);
+          if (res.ok) {
+            document.getElementById('bottom-bar-container').innerHTML = await res.text();
+            break;
+          }
+        } catch (e) {}
+      }
     }
 
     window.addEventListener("DOMContentLoaded", async () => {
-      // Load top and bottom bars
       loadNavigationBars();
 
-      // Check auth from supabase-config.js
       currentUser = await requireAuth();
       if (currentUser) {
         await loadUserProfile();
@@ -430,7 +431,6 @@
       gameInProgress = true;
       document.getElementById("statusMessage").innerText = "";
 
-      // Deduct balance
       userProfile.balance = parseFloat(userProfile.balance) - currentBet;
       document.getElementById("balanceDisplay").innerText = userProfile.balance.toFixed(8) + " USDT";
 
@@ -551,9 +551,7 @@
 
       document.getElementById("balanceDisplay").innerText = userProfile.balance.toFixed(8) + " USDT";
 
-      // --- SUPABASE DATABASE UPDATES ---
       try {
-        // 1. Update Profiles Table
         const { error: profileErr } = await supabaseClient
           .from("profiles")
           .update({
@@ -564,7 +562,6 @@
 
         if (profileErr) console.error("Error updating profile:", profileErr);
 
-        // 2. Insert into original_bets_history Table
         const { error: betHistoryErr } = await supabaseClient
           .from("original_bets_history")
           .insert({
