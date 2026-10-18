@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Color Trade - Win Go</title>
-<script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-<script src="[https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2](https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2)"></script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
+
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;min-height:100%}
@@ -17,17 +19,20 @@ button{font-family:inherit;touch-action:manipulation}
 .top-icon{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#17232c;border:1px solid #263640;color:#cbd5df;font-size:17px;cursor:pointer}
 .brand{display:flex;align-items:center;gap:6px;font-size:20px;font-weight:950;letter-spacing:-.8px}.brand-crown{color:#f7c933;font-size:25px}.brand-text{color:#eef3f7}.brand-go{color:#ffc42f}
 .header-actions{display:flex;gap:6px;position:relative}
+
 /* Top Dropdown Menu Styling */
 .top-dropdown{position:absolute;top:45px;left:0;background:#0d1519;border:1px solid #27363c;border-radius:12px;box-shadow:0 5px 20px #0009;display:none;flex-direction:column;overflow:hidden;z-index:100;min-width:140px}
 .top-dropdown.show{display:flex}
 .top-dropdown button{background:transparent;border:0;color:#cbd5e1;padding:10px 14px;text-align:left;font-size:12px;font-weight:700;border-bottom:1px solid #27363c66;cursor:pointer}
 .top-dropdown button:last-child{border-bottom:0}
 .top-dropdown button:hover,.top-dropdown button.active{background:#1a272e;color:#fff}
+
 .modal-overlay,.chips-popup-overlay{position:fixed;inset:0;background:#000b;z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}.modal-overlay.show,.chips-popup-overlay.show{display:flex}
 .modal-content,.chips-popup-content{width:100%;max-width:430px;background:#101a21;border-top:1px solid #27363f;border-radius:20px 20px 0 0;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 -10px 30px #0008;animation:slideUpModal .3s ease-out}.chips-popup-content{padding:15px 12px 22px;align-items:center;gap:12px;max-height:none}
 @keyframes slideUpModal{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #1c2931}.modal-title{font-size:14px;font-weight:900}.modal-close-btn{background:#18252d;border:1px solid #2d3e48;color:#cbd5df;width:28px;height:28px;border-radius:50%;cursor:pointer}.modal-body{padding:12px;overflow-y:auto;flex:1;min-height:220px;max-height:60vh;contain:content;will-change:contents}
 .page-content{padding:10px}.section-gap{margin-top:10px}
+
 /* Wallet Card - Compact & Clean */
 .wallet-card{padding:14px;border-radius:18px;background:linear-gradient(145deg,#17232b,#0d171e 72%);border:1px solid #35434b;box-shadow:inset 0 1px #ffffff0a,0 8px 20px #0003}
 .wallet-top{display:flex;align-items:center;gap:12px}
@@ -41,12 +46,14 @@ button{font-family:inherit;touch-action:manipulation}
 .wallet-btn{height:42px;border:0;border-radius:13px;color:#fff;font-size:15px;font-weight:850;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
 .wallet-withdraw{background:linear-gradient(#ef3152,#d91f43)}
 .wallet-deposit{background:linear-gradient(#10bd62,#09a852)}
+
 .mode-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .mode-button{min-height:75px;padding:7px 3px;border-radius:14px;border:1px solid #293740;background:linear-gradient(160deg,#142029,#0e171e);color:#9daab4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer}
 .mode-button.active-mode{background:linear-gradient(160deg,#ffe16b,#eebc24);border-color:#f9d65b;color:#17130a;box-shadow:0 5px 15px #eebc2430,inset 0 1px #fff7}
 .custom-clock-icon{width:30px;height:30px;border-radius:50%;position:relative;background:radial-gradient(circle,#dfe5e8 55%,#8b989f);border:2px solid #35434b;box-shadow:inset 0 2px 4px #fff7,0 3px 6px #0007}
 .custom-clock-icon:before{content:"";position:absolute;width:2px;height:10px;background:#10171c;left:13px;top:4px;border-radius:3px}
 .custom-clock-icon:after{content:"";position:absolute;width:8px;height:2px;background:#10171c;left:14px;top:13px;border-radius:3px;transform:rotate(25deg);transform-origin:left}
+
 /* Updated Round Card Design with Split Layout & Vertical Divider */
 .round-card{border-radius:18px;overflow:hidden;background:linear-gradient(150deg,#f4cf54,#f1c43a 52%,#e8b528);color:#141414;box-shadow:0 8px 20px #0003,inset 0 1px #fff7}
 .round-inner{padding:12px 14px}
@@ -64,14 +71,17 @@ button{font-family:inherit;touch-action:manipulation}
 .timer-colon{color:#171717;font-size:18px;font-weight:900}
 .timer-danger .timer-digit{background:#5e101c;border:1px solid #c52a42}
 .timer-danger .timer-colon{color:#9f1730}@keyframes dangerPulse{50%{opacity:.62}}
+
 /* Period Number Bar Below Timer/Recent Win */
 .period-number-bar{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid #0000001a}
 .period-lbl{font-size:11px;font-weight:900;color:#171717}
 .period-digits-container{display:flex;gap:2px}
 .period-digit{width:18px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;background:#171b1f;color:#fff;font-family:monospace;font-size:11px;font-weight:900}
+
 .color-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .color-choice{height:48px;border:0;border-radius:13px;color:#fff;font-size:15px;font-weight:900;box-shadow:inset 0 1px #ffffff30,0 4px 8px #0003;position:relative;cursor:pointer}
 .green-choice{background:linear-gradient(#13c76a,#08a952)}.violet-choice{background:linear-gradient(#b441f2,#8b28d1)}.red-choice{background:linear-gradient(#f43b56,#dd1f3e)}
+
 .number-panel{background:#0c151b;border:1px solid #24323a;border-radius:16px;padding:10px}
 .number-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .number-button{width:100%;aspect-ratio:1;border-radius:50%!important;border:0!important;font-size:20px!important;font-weight:950!important;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;line-height:1;color:#fff;box-shadow:inset 4px 5px 8px #fff6,inset -5px -6px 10px #0006,0 3px 6px #0007;cursor:pointer}
@@ -79,15 +89,19 @@ button{font-family:inherit;touch-action:manipulation}
 .ruby-sphere{background:radial-gradient(circle at 32% 25%,#ff7b8d,#f12d45 35%,#c71934 65%,#75101e);border:2px solid #ff5368!important}
 .green-sphere{background:radial-gradient(circle at 32% 25%,#65f39e,#19d66c 36%,#08a952 65%,#075c32);border:2px solid #52ec94!important}
 .violet-sphere{background:radial-gradient(circle at 32% 25%,#e09bff,#b536e8 36%,#8b22c7 65%,#511176);border:2px solid #d576f7!important}
+
 .size-row{display:grid;grid-template-columns:1fr 1fr;overflow:hidden;border-radius:20px;background:#18232b;border:1px solid #31404a}
 .size-button{height:48px;border:0;font-size:15px;font-weight:900;color:#fff;cursor:pointer}
 .big-choice{background:linear-gradient(90deg,#ffb51b,#f7a917)}.small-choice{background:linear-gradient(90deg,#3787ec,#438ef1)}
 #game-status-text{padding:4px 6px;text-align:center;color:#aab6bd;font-size:10px}
+
 .history-table,.my-history-table{border-collapse:collapse;white-space:nowrap}.history-table{min-width:100%}.history-table th,.history-table td{padding:8px 6px;text-align:center;font-size:10px;border-bottom:1px solid #1c2931}.history-table th,.my-history-table th{color:#7f909b;font-weight:800}.my-history-table{min-width:820px}.my-history-table th,.my-history-table td{padding:8px 7px;text-align:center;border-bottom:1px solid #1c2931;vertical-align:middle;font-size:10px}.history-scroll{width:100%;overflow:auto;-webkit-overflow-scrolling:touch}
 .result-number{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-size:11px;font-weight:950}.result-red{background:#df2444;border:2px solid #ff657c}.result-green{background:#0ba955;border:2px solid #58e99a}.result-violet{background:#8b2fd1;border:2px solid #d477fa}
 .result-badge{display:inline-block;padding:3px 6px;border-radius:20px;font-size:8px;font-weight:900}.date-cell{line-height:1.4;color:#cbd5e1;font-size:8.5px!important}
+
 .trend-grid-container{display:grid;grid-auto-flow:column;grid-template-rows:repeat(6,28px);gap:5px;overflow-x:auto;padding:6px}
 .trend-ball{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:950;box-shadow:inset 2px 2px 4px #fff6,inset -3px -3px 4px #0006}
+
 .bet-badge{position:absolute;top:-6px;right:-4px;background:#ffd039;color:#111;font-size:8px;font-weight:950;padding:2px 5px;border-radius:8px;border:2px solid #111b20;z-index:30}
 .win-payout-overlay{position:absolute;inset:0;background:#08b45cef;color:#fff;font-size:11px;font-weight:950;display:flex;align-items:center;justify-content:center;border-radius:inherit;z-index:40;animation:popWinAmount 2s ease forwards}
 @keyframes popWinAmount{0%{transform:scale(.8);opacity:0}20%{transform:scale(1.08);opacity:1}80%{transform:scale(1);opacity:1}100%{opacity:0}}
@@ -95,10 +109,12 @@ button{font-family:inherit;touch-action:manipulation}
 .winning-blink{position:relative;z-index:50;animation:winningBlink .45s ease-in-out 3}
 .win-blink-green{--win-glow:#22ff82}.win-blink-red{--win-glow:#ff415f}.win-blink-violet{--win-glow:#be82ff}.win-blink-number{--win-glow:#fff}.win-blink-big{--win-glow:#ffbe2d}.win-blink-small{--win-glow:#46a0ff}
 @keyframes winningBlink{50%{filter:brightness(1.45);box-shadow:0 0 12px var(--win-glow),0 0 24px var(--win-glow);outline:2px solid var(--win-glow)}}
+
 /* Slide Up Notification Toast for Rebet / Undo */
 .action-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#f8fafc;padding:8px 16px;border-radius:12px;font-size:12px;font-weight:800;border:1px solid #334155;box-shadow:0 8px 20px #000a;z-index:300;opacity:0;transition:all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);pointer-events:none}
 .action-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .action-toast.fade-out{opacity:0;transform:translateX(-50%) translateY(-25px);transition:all 0.5s ease-in}
+
 /* ===================== REAL CASINO CHIP DESIGN (Larger Chips) ===================== */
 :root{--chip-red:#ed3b48;--chip-green:#159653;--chip-gold:#f5a623;--chip-lime:#8fe65d;--chip-blue:#278bd8;--chip-purple:#b34bd4;--chip-ivory:#f7f3e8}
 .bottom-fixed-bar{position:fixed;z-index:100;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:430px;background:linear-gradient(180deg,#111a21,#0b141b);border-top:1px solid #27353d;padding:8px 14px 9px;display:flex;flex-direction:column;gap:6px;box-shadow:0 -8px 28px #000a}
@@ -112,11 +128,13 @@ button{font-family:inherit;touch-action:manipulation}
 .stack-back-1{--chip-color:var(--chip-gold);transform:translateX(-28px) scale(.88);z-index:1}
 .stack-back-2{--chip-color:var(--chip-blue);transform:translateX(28px) scale(.88);z-index:1}
 .stack-front{--chip-color:var(--chip-red);transform:scale(1.12);z-index:3}.stack-front .chip-value{position:relative;z-index:2}
+
 .bottom-bar-info-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;border-top:1px solid #ffffff0d;padding-top:5px}
 .info-box-left{display:flex;flex-direction:column}
 .info-title{color:#9ba9b5;font-size:8.5px;text-transform:uppercase;letter-spacing:.5px}
 .info-value{font-size:13px;font-family:monospace;font-weight:900}
 #bottom-bar-center-status{font-size:10px;white-space:nowrap}
+
 /* Popup chips: larger casino tokens with segmented outer edge */
 .popup-chips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px 8px;width:100%;max-width:320px;justify-items:center}
 .popup-chip-item{--chip-color:var(--chip-red);width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Georgia,serif;font-size:16px;font-weight:950;cursor:pointer;position:relative;overflow:hidden;isolation:isolate;background:var(--chip-color);border:0;box-shadow:0 6px 16px #0008,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;transition:transform .18s,filter .18s}
@@ -125,789 +143,832 @@ button{font-family:inherit;touch-action:manipulation}
 .popup-chip-item.selected-chip{transform:scale(1.08);filter:brightness(1.12);box-shadow:0 0 15px #fff8,0 6px 15px #0009,inset 0 2px 4px #fff5,inset 0 -4px 6px #0006;z-index:10}
 .popup-chip-item span{position:relative;z-index:2;text-shadow:0 2px 3px #0009}
 .chip-20{--chip-color:#ed3b48}.chip-50{--chip-color:#159653}.chip-100{--chip-color:#f5a623}.chip-500{--chip-color:#8fe65d;color:#10150e!important;text-shadow:0 1px 2px #fff8!important}.chip-1k{--chip-color:#278bd8}.chip-10k{--chip-color:#b34bd4}
+
 @media(max-width:360px){.page-content{padding:8px}.wallet-amount{font-size:22px}.wallet-symbol{width:45px;height:45px;flex-basis:45px}.mode-button{min-height:70px}.timer-digit{width:22px;height:30px;font-size:16px}.number-grid{gap:6px}.number-button{font-size:18px!important}.popup-chip-item{width:66px;height:66px;font-size:14px}}
-</style>
-<!-- ================= LOADING ANIMATION START ================= -->
-<style>
+
+/* ================= LOADING ANIMATION START ================= */
 #page-loader-overlay {
-position: fixed;
-inset: 0;
-z-index: 999999;
-display: flex;
-align-items: center;
-justify-content: center;
-background: radial-gradient(circle, #0d1728 0%, #050a13 100%);
-font-family: Arial, sans-serif;
-opacity: 1;
-visibility: visible;
-transition: opacity .4s ease, visibility .4s ease;
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, #0d1728 0%, #050a13 100%);
+  font-family: Arial, sans-serif;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .4s ease, visibility .4s ease;
 }
 #page-loader-overlay.loader-hidden {
-opacity: 0;
-visibility: hidden;
-pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 #page-loader-overlay .loader-content {
-width: 50%;
-max-width: 285px;
-min-width: 210px;
-display: flex;
-flex-direction: column;
-align-items: center;
+  width: 50%;
+  max-width: 285px;
+  min-width: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 #page-loader-overlay .loader-reels {
-display: flex;
-width: 100%;
-gap: 8px;
-margin-bottom: 35px;
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  margin-bottom: 35px;
 }
 #page-loader-overlay .loader-reel {
-position: relative;
-flex: 1;
-aspect-ratio: 0.72;
-display: flex;
-align-items: center;
-justify-content: center;
-overflow: hidden;
-border: 3px solid #c99a42;
-border-radius: 17px;
-background: linear-gradient(145deg, #101a2b, #050a13);
-box-shadow:
-inset 0 0 0 2px #f5d58b,
-0 3px 7px #0009;
+  position: relative;
+  flex: 1;
+  aspect-ratio: 0.72;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 3px solid #c99a42;
+  border-radius: 17px;
+  background: linear-gradient(145deg, #101a2b, #050a13);
+  box-shadow: inset 0 0 0 2px #f5d58b, 0 3px 7px #0009;
 }
 #page-loader-overlay .loader-reel::after {
-content: "";
-position: absolute;
-left: 0;
-right: 0;
-top: 50%;
-height: 1px;
-background: #c99a4233;
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: #c99a4233;
 }
 #page-loader-overlay .loader-reel-number {
-position: relative;
-z-index: 1;
-font-size: clamp(48px, 12vw, 76px);
-line-height: 1;
-font-weight: 900;
-color: #027DFF;
-text-shadow: 0 2px 3px #000;
-transition: transform .09s ease, opacity .09s ease;
+  position: relative;
+  z-index: 1;
+  font-size: clamp(48px, 12vw, 76px);
+  line-height: 1;
+  font-weight: 900;
+  color: #027DFF;
+  text-shadow: 0 2px 3px #000;
+  transition: transform .09s ease, opacity .09s ease;
 }
-#page-loader-overlay .loader-reel:nth-child(1)
-.loader-reel-number {
-color: #ff393f;
-}
-#page-loader-overlay .loader-reel:nth-child(2)
-.loader-reel-number {
-color: #11d982;
-}
-#page-loader-overlay .loader-reel:nth-child(3)
-.loader-reel-number {
-color: #a64af0;
-}
+#page-loader-overlay .loader-reel:nth-child(1) .loader-reel-number { color: #ff393f; }
+#page-loader-overlay .loader-reel:nth-child(2) .loader-reel-number { color: #11d982; }
+#page-loader-overlay .loader-reel:nth-child(3) .loader-reel-number { color: #a64af0; }
 #page-loader-overlay .loader-reel-number.rolling {
-transform: translateY(-8px);
-opacity: .35;
+  transform: translateY(-8px);
+  opacity: .35;
 }
 #page-loader-overlay .loader-progress-text {
-color: #027DFF;
-font-size: 20px;
-font-weight: 850;
-letter-spacing: 1px;
-text-align: center;
-margin-bottom: 20px;
+  color: #027DFF;
+  font-size: 20px;
+  font-weight: 850;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-bottom: 20px;
 }
 #page-loader-overlay .loader-progress-track {
-width: 100%;
-height: 18px;
-padding: 2px;
-overflow: hidden;
-border-radius: 999px;
-background: #202b40;
-border: 1px solid #344057;
-box-shadow: inset 0 2px 5px #0009;
+  width: 100%;
+  height: 18px;
+  padding: 2px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #202b40;
+  border: 1px solid #344057;
+  box-shadow: inset 0 2px 5px #0009;
 }
 #page-loader-overlay .loader-progress-fill {
-width: 0%;
-height: 100%;
-border-radius: 999px;
-background: #027DFF;
-box-shadow: 0 0 8px #027DFF55;
-transition: width 3500ms linear;
+  width: 0%;
+  height: 100%;
+  border-radius: 999px;
+  background: #027DFF;
+  box-shadow: 0 0 8px #027DFF55;
+  transition: width 3500ms linear;
 }
 @media (max-width: 360px) {
-#page-loader-overlay .loader-content {
-width: 60%;
-min-width: 0;
+  #page-loader-overlay .loader-content { width: 60%; min-width: 0; }
+  #page-loader-overlay .loader-reels { gap: 6px; }
 }
-#page-loader-overlay .loader-reels {
-gap: 6px;
-}
-}
+/* ================== LOADING ANIMATION END ================== */
+
 </style>
-<!-- ================== LOADING ANIMATION END ================== -->
 </head>
+
 <body>
+
 <!-- ================= LOADING ANIMATION START ================= -->
-<div id="page-loader-overlay" role="status"
-aria-label="Loading game">
-<div class="loader-content">
-<div class="loader-reels" aria-hidden="true">
-<div class="loader-reel">
-<span class="loader-reel-number">0</span>
-</div>
-<div class="loader-reel">
-<span class="loader-reel-number">5</span>
-</div>
-<div class="loader-reel">
-<span class="loader-reel-number">8</span>
-</div>
-</div>
-<div class="loader-progress-text">LOADING...</div>
-<div class="loader-progress-track">
-<div class="loader-progress-fill"
-id="loader-progress-fill"></div>
-</div>
-</div>
+<div id="page-loader-overlay" role="status" aria-label="Loading game">
+  <div class="loader-content">
+    <div class="loader-reels" aria-hidden="true">
+      <div class="loader-reel"><span class="loader-reel-number">0</span></div>
+      <div class="loader-reel"><span class="loader-reel-number">5</span></div>
+      <div class="loader-reel"><span class="loader-reel-number">8</span></div>
+    </div>
+    <div class="loader-progress-text">LOADING...</div>
+    <div class="loader-progress-track">
+      <div class="loader-progress-fill" id="loader-progress-fill"></div>
+    </div>
+  </div>
 </div>
 <!-- ================== LOADING ANIMATION END ================== -->
+
 <div class="app-shell">
+
 <div class="custom-topbar">
-<div class="brand"><span class="brand-crown">♛</span><span class="brand-text">COLOR <span class="brand-go">GO</span></span></div>
-<div class="header-actions">
-<div style="position:relative;">
-<div class="top-icon" onclick="toggleBetHistoryMenu(event)" title="Bet History">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+  <div class="brand"><span class="brand-crown">♛</span><span class="brand-text">COLOR <span class="brand-go">GO</span></span></div>
+  <div class="header-actions">
+    <div style="position:relative;">
+      <div class="top-icon" onclick="toggleBetHistoryMenu(event)" title="Bet History">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+      </div>
+      <div id="bet-history-dropdown" class="top-dropdown">
+        <button onclick="openModal('game-history');toggleBetHistoryMenu()">Bet History</button>
+        <button onclick="openModal('my-history');toggleBetHistoryMenu()">My History</button>
+      </div>
+    </div>
+    <div class="top-icon" onclick="openModal('chart')" title="Statistics">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/></svg>
+    </div>
+  </div>
 </div>
-<div id="bet-history-dropdown" class="top-dropdown">
-<button onclick="openModal('game-history');toggleBetHistoryMenu()">Bet History</button>
-<button onclick="openModal('my-history');toggleBetHistoryMenu()">My History</button>
-</div>
-</div>
-<div class="top-icon" onclick="openModal('chart')" title="Statistics">
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/></svg>
-</div>
-</div>
-</div>
+
 <main class="page-content">
 <section class="wallet-card">
-<div class="wallet-top">
-<div class="wallet-symbol">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
-</div>
-<div class="wallet-info">
-<div class="wallet-label">Wallet Balance</div>
-<div class="wallet-amount">৳<span id="wallet-main-balance">0.00</span></div>
-<div class="wallet-id">ID: <span id="wallet-user-id">Loading...</span></div>
-</div>
-<button class="wallet-refresh" onclick="loadUserProfile()">↻</button>
-</div>
-<div class="wallet-actions">
-<button class="wallet-btn wallet-withdraw" onclick="handleWithdrawClick()">
-<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-Withdraw
-</button>
-<button class="wallet-btn wallet-deposit" onclick="handleDepositClick()">
-<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 14 12 9 7 14"/><line x1="12" y1="9" x2="12" y2="21"/></svg>
-Deposit
-</button>
-</div>
+  <div class="wallet-top">
+    <div class="wallet-symbol">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"/></svg>
+    </div>
+    <div class="wallet-info">
+      <div class="wallet-label">Wallet Balance</div>
+      <div class="wallet-amount">৳<span id="wallet-main-balance">0.00</span></div>
+      <div class="wallet-id">ID: <span id="wallet-user-id">Loading...</span></div>
+    </div>
+    <button class="wallet-refresh" onclick="loadUserProfile()">↻</button>
+  </div>
+  <div class="wallet-actions">
+    <button class="wallet-btn wallet-withdraw" onclick="handleWithdrawClick()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Withdraw
+    </button>
+    <button class="wallet-btn wallet-deposit" onclick="handleDepositClick()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 14 12 9 7 14"/><line x1="12" y1="9" x2="12" y2="21"/></svg>
+      Deposit
+    </button>
+  </div>
 </section>
+
 <section class="section-gap">
 <div class="mode-strip">
-<button onclick="changeGameMode(15,'15s')" id="mode-15s" class="mode-button active-mode"><div class="custom-clock-icon"></div><div id="text-15s" class="text-[10px] font-bold text-white">Win 15s</div></button>
-<button onclick="changeGameMode(30,'30s')" id="mode-30s" class="mode-button"><div class="custom-clock-icon"></div><div id="text-30s" class="text-[10px] font-bold text-amber-400">Win 30s</div></button>
-<button onclick="changeGameMode(60,'1m')" id="mode-1m" class="mode-button"><div class="custom-clock-icon"></div><div id="text-1m" class="text-[10px] font-bold text-amber-400">Win 1m</div></button>
-<button onclick="changeGameMode(300,'5m')" id="mode-5m" class="mode-button"><div class="custom-clock-icon"></div><div id="text-5m" class="text-[10px] font-bold text-amber-400">Win 5m</div></button>
+  <button onclick="changeGameMode(15,'15s')" id="mode-15s" class="mode-button active-mode"><div class="custom-clock-icon"></div><div id="text-15s" class="text-[10px] font-bold text-white">Win 15s</div></button>
+  <button onclick="changeGameMode(30,'30s')" id="mode-30s" class="mode-button"><div class="custom-clock-icon"></div><div id="text-30s" class="text-[10px] font-bold text-amber-400">Win 30s</div></button>
+  <button onclick="changeGameMode(60,'1m')" id="mode-1m" class="mode-button"><div class="custom-clock-icon"></div><div id="text-1m" class="text-[10px] font-bold text-amber-400">Win 1m</div></button>
+  <button onclick="changeGameMode(300,'5m')" id="mode-5m" class="mode-button"><div class="custom-clock-icon"></div><div id="text-5m" class="text-[10px] font-bold text-amber-400">Win 5m</div></button>
 </div>
+
 <div class="round-card section-gap">
-<div class="round-inner">
-<div class="round-top">
-<div class="recent-win-side">
-<div class="recent-win-title">Recent Win</div>
-<div id="recent-win-balls" class="recent-win-balls">
-<span class="text-[10px] text-zinc-800">Loading...</span>
+  <div class="round-inner">
+    <div class="round-top">
+      <div class="recent-win-side">
+        <div class="recent-win-title">Recent Win</div>
+        <div id="recent-win-balls" class="recent-win-balls">
+          <span class="text-[10px] text-zinc-800">Loading...</span>
+        </div>
+      </div>
+      <div class="timer-side">
+        <p id="timer-label" class="timer-label">PLACE YOUR BET</p>
+        <div id="countdown-timer" class="digital-timer"><span class="timer-digit">0</span><span class="timer-digit">0</span><span class="timer-colon">:</span><span class="timer-digit">1</span><span class="timer-digit">5</span></div>
+      </div>
+    </div>
+    <div class="period-number-bar">
+      <span class="period-lbl">Period</span>
+      <div id="period-number" class="period-digits-container" aria-label="Period Number"></div>
+    </div>
+  </div>
 </div>
-</div>
-<div class="timer-side">
-<p id="timer-label" class="timer-label">PLACE YOUR BET</p>
-<div id="countdown-timer" class="digital-timer"><span class="timer-digit">0</span><span class="timer-digit">0</span><span class="timer-colon">:</span><span class="timer-digit">1</span><span class="timer-digit">5</span></div>
-</div>
-</div>
-<div class="period-number-bar">
-<span class="period-lbl">Period</span>
-<div id="period-number" class="period-digits-container" aria-label="Period Number"></div>
-</div>
-</div>
-</div>
+
 <div class="color-row section-gap">
-<button onclick="placeDirectBet('Green')" id="btn-Green" class="color-choice green-choice">Green</button>
-<button onclick="placeDirectBet('Violet')" id="btn-Violet" class="color-choice violet-choice">Violet</button>
-<button onclick="placeDirectBet('Red')" id="btn-Red" class="color-choice red-choice">Red</button>
+  <button onclick="placeDirectBet('Green')" id="btn-Green" class="color-choice green-choice">Green</button>
+  <button onclick="placeDirectBet('Violet')" id="btn-Violet" class="color-choice violet-choice">Violet</button>
+  <button onclick="placeDirectBet('Red')" id="btn-Red" class="color-choice red-choice">Red</button>
 </div>
+
 <div class="number-panel section-gap"><div class="number-grid">
-<button onclick="placeDirectBet('0')" id="btn-0" class="number-button violet-sphere relative"><span>0</span><span class="number-payout">(9x)</span></button>
-<button onclick="placeDirectBet('1')" id="btn-1" class="number-button green-sphere relative"><span>1</span><span class="number-payout">(9x)</span></button>
-<button onclick="placeDirectBet('2')" id="btn-2" class="number-button ruby-sphere relative"><span>2</span><span class="number-payout">(9x)</span></button>
-<button onclick="placeDirectBet('3')" id="btn-3" class="number-button green-sphere relative"><span>3</span><span class="number-payout">(9x)</span></button>
-<button onclick="placeDirectBet('4')" id="btn-4" class="number-button ruby-sphere relative"><span>4</span><span class="number-payout">(9x)</span></button>
-<button onclick="placeDirectBet('5')" id="btn-5" class="number-button violet-sphere relative"><span>5</span><span class="number-payout">(9x)</span></button>
-<button onclick="placeDirectBet('6')" id="btn-6" class="number-button ruby-sphere relative"><span>6</span><span class="number-payout">(9x)</span></button>
-<button onclick="placeDirectBet('7')" id="btn-7" class="number-button green-sphere relative"><span>7</span><span class="number-payout">(9x)</span></button>
-<button onclick="placeDirectBet('8')" id="btn-8" class="number-button ruby-sphere relative"><span>8</span><span class="number-payout">(9x)</span></button>
-<button onclick="placeDirectBet('9')" id="btn-9" class="number-button green-sphere relative"><span>9</span><span class="number-payout">(9x)</span></button>
+  <button onclick="placeDirectBet('0')" id="btn-0" class="number-button violet-sphere relative"><span>0</span><span class="number-payout">(9x)</span></button>
+  <button onclick="placeDirectBet('1')" id="btn-1" class="number-button green-sphere relative"><span>1</span><span class="number-payout">(9x)</span></button>
+  <button onclick="placeDirectBet('2')" id="btn-2" class="number-button ruby-sphere relative"><span>2</span><span class="number-payout">(9x)</span></button>
+  <button onclick="placeDirectBet('3')" id="btn-3" class="number-button green-sphere relative"><span>3</span><span class="number-payout">(9x)</span></button>
+  <button onclick="placeDirectBet('4')" id="btn-4" class="number-button ruby-sphere relative"><span>4</span><span class="number-payout">(9x)</span></button>
+  <button onclick="placeDirectBet('5')" id="btn-5" class="number-button violet-sphere relative"><span>5</span><span class="number-payout">(9x)</span></button>
+  <button onclick="placeDirectBet('6')" id="btn-6" class="number-button ruby-sphere relative"><span>6</span><span class="number-payout">(9x)</span></button>
+  <button onclick="placeDirectBet('7')" id="btn-7" class="number-button green-sphere relative"><span>7</span><span class="number-payout">(9x)</span></button>
+  <button onclick="placeDirectBet('8')" id="btn-8" class="number-button ruby-sphere relative"><span>8</span><span class="number-payout">(9x)</span></button>
+  <button onclick="placeDirectBet('9')" id="btn-9" class="number-button green-sphere relative"><span>9</span><span class="number-payout">(9x)</span></button>
 </div></div>
+
 <div class="size-row section-gap">
-<button onclick="placeDirectBet('Big')" id="btn-Big" class="size-button big-choice relative">Big</button>
-<button onclick="placeDirectBet('Small')" id="btn-Small" class="size-button small-choice relative">Small</button>
+  <button onclick="placeDirectBet('Big')" id="btn-Big" class="size-button big-choice relative">Big</button>
+  <button onclick="placeDirectBet('Small')" id="btn-Small" class="size-button small-choice relative">Small</button>
 </div>
 <div id="game-status-text" class="hidden" aria-live="polite">Place your bet before timer ends...</div>
 </section>
 </main>
+
 <div id="custom-popup-modal" class="modal-overlay">
-<div class="modal-content">
-<div class="modal-header"><span id="modal-title-text" class="modal-title">History & Statistics</span><button class="modal-close-btn" onclick="closeModal()">✕</button></div>
-<div id="modal-body-content" class="modal-body"><p class="text-center text-slate-500 py-3">Loading...</p></div>
+  <div class="modal-content">
+    <div class="modal-header"><span id="modal-title-text" class="modal-title">History & Statistics</span><button class="modal-close-btn" onclick="closeModal()">✕</button></div>
+    <div id="modal-body-content" class="modal-body"><p class="text-center text-slate-500 py-3">Loading...</p></div>
+  </div>
 </div>
-</div>
+
 <div id="chips-popup-modal" class="chips-popup-overlay" onclick="closeChipsPopupOnOutside(event)">
-<div class="chips-popup-content">
-<div class="popup-chips-grid">
-<div onclick="selectChipFromPopup(20,this)" class="popup-chip-item chip-20 selected-chip"><span>20</span></div>
-<div onclick="selectChipFromPopup(50,this)" class="popup-chip-item chip-50"><span>50</span></div>
-<div onclick="selectChipFromPopup(100,this)" class="popup-chip-item chip-100"><span>100</span></div>
-<div onclick="selectChipFromPopup(500,this)" class="popup-chip-item chip-500"><span>500</span></div>
-<div onclick="selectChipFromPopup(1000,this)" class="popup-chip-item chip-1k"><span>1K</span></div>
-<div onclick="selectChipFromPopup(10000,this)" class="popup-chip-item chip-10k"><span>10K</span></div>
+  <div class="chips-popup-content">
+    <div class="popup-chips-grid">
+      <div onclick="selectChipFromPopup(20,this)" class="popup-chip-item chip-20 selected-chip"><span>20</span></div>
+      <div onclick="selectChipFromPopup(50,this)" class="popup-chip-item chip-50"><span>50</span></div>
+      <div onclick="selectChipFromPopup(100,this)" class="popup-chip-item chip-100"><span>100</span></div>
+      <div onclick="selectChipFromPopup(500,this)" class="popup-chip-item chip-500"><span>500</span></div>
+      <div onclick="selectChipFromPopup(1000,this)" class="popup-chip-item chip-1k"><span>1K</span></div>
+      <div onclick="selectChipFromPopup(10000,this)" class="popup-chip-item chip-10k"><span>10K</span></div>
+    </div>
+  </div>
 </div>
-</div>
-</div>
+
 <!-- Action Toast Notification for Slide Animation -->
 <div id="action-toast" class="action-toast">Message</div>
+
 <div class="bottom-fixed-bar">
-<div class="bottom-bar-top-row">
-<button onclick="undoLastBet()" class="bottom-action-btn" id="undo-btn-elem" title="Undo Bet">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.32 2.57L3 13"/></svg>
-</button>
-<div class="center-chips-stack" onclick="openChipsPopup()" id="center-chips-display">
-<div class="stacked-chip stack-back-1"><span>100</span></div>
-<div class="stacked-chip stack-back-2"><span>500</span></div>
-<div class="stacked-chip stack-front" id="active-stack-chip-label"><span class="chip-value">20</span></div>
+  <div class="bottom-bar-top-row">
+    <button onclick="undoLastBet()" class="bottom-action-btn" id="undo-btn-elem" title="Undo Bet">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.32 2.57L3 13"/></svg>
+    </button>
+    <div class="center-chips-stack" onclick="openChipsPopup()" id="center-chips-display">
+      <div class="stacked-chip stack-back-1"><span>100</span></div>
+      <div class="stacked-chip stack-back-2"><span>500</span></div>
+      <div class="stacked-chip stack-front" id="active-stack-chip-label"><span class="chip-value">20</span></div>
+    </div>
+    <button onclick="rebetLast()" class="bottom-rebet-btn" id="rebet-btn-elem" title="Rebet">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.23-5.19"/></svg>
+    </button>
+  </div>
+  <div class="bottom-bar-info-row">
+    <div class="info-box-left"><span class="info-title">TOTAL BET</span><span class="info-value text-amber-400 font-bold">৳<span id="bar-total-bet">0.00</span></span></div>
+    <div id="bottom-bar-center-status" class="font-bold text-xs text-center"></div>
+    <div style="text-align:right"><span class="info-title">&nbsp;</span><span id="win-amount-display" class="info-value font-bold text-emerald-400"></span></div>
+  </div>
 </div>
-<button onclick="rebetLast()" class="bottom-rebet-btn" id="rebet-btn-elem" title="Rebet">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.23-5.19"/></svg>
-</button>
 </div>
-<div class="bottom-bar-info-row">
-<div class="info-box-left"><span class="info-title">TOTAL BET</span><span class="info-value text-amber-400 font-bold">৳<span id="bar-total-bet">0.00</span></span></div>
-<div id="bottom-bar-center-status" class="font-bold text-xs text-center"></div>
-<div style="text-align:right"><span class="info-title"> </span><span id="win-amount-display" class="info-value font-bold text-emerald-400"></span></div>
-</div>
-</div>
-</div>
+
 <script>
 let currentUser=null,userProfile=null,selectedGameDuration=15,currentPeriodNumber="2026101501",timerSeconds=15,timerInterval=null;
 let activeModalTab='game-history',selectedChipAmount=20,lastPlacedBet=null,currentRoundTotalBet=0,userActiveBets=[];
+
 function getModeTimerColumn(){
-return selectedGameDuration === 15 ? 't_15_second_timer' : selectedGameDuration === 30 ? 't_30_second_timer' : selectedGameDuration === 60 ? 't_1_minute_timer' : 't_5_minute_timer';
+  return selectedGameDuration === 15 ? 't_15_second_timer' : selectedGameDuration === 30 ? 't_30_second_timer' : selectedGameDuration === 60 ? 't_1_minute_timer' : 't_5_minute_timer';
 }
+
 function showActionToast(message, targetElemId){
-const toast = document.getElementById('action-toast');
-toast.innerText = message;
-const elem = document.getElementById(targetElemId);
-if(elem){
-const rect = elem.getBoundingClientRect();
-toast.style.left = (rect.left + rect.width / 2) + 'px';
-toast.style.bottom = (window.innerHeight - rect.top + 10) + 'px';
-toast.style.transform = 'translateX(-50%) translateY(0)';
-} else {
-toast.style.left = '50%';
-toast.style.bottom = '90px';
-toast.style.transform = 'translateX(-50%) translateY(0)';
+  const toast = document.getElementById('action-toast');
+  toast.innerText = message;
+  const elem = document.getElementById(targetElemId);
+  if(elem){
+    const rect = elem.getBoundingClientRect();
+    toast.style.left = (rect.left + rect.width / 2) + 'px';
+    toast.style.bottom = (window.innerHeight - rect.top + 10) + 'px';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+  } else {
+    toast.style.left = '50%';
+    toast.style.bottom = '90px';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+  }
+  toast.classList.add('show');
+  toast.classList.remove('fade-out');
+  setTimeout(()=>{
+    toast.classList.add('fade-out');
+    setTimeout(()=>{ toast.classList.remove('show','fade-out'); }, 500);
+  }, 2000);
 }
-toast.classList.add('show');
-toast.classList.remove('fade-out');
-setTimeout(()=>{
-toast.classList.add('fade-out');
-setTimeout(()=>{ toast.classList.remove('show','fade-out'); }, 500);
-}, 2000);
-}
+
 function handleWithdrawClick(){
-if(!currentUser){ window.location.href='../login-signup.html'; return; }
-window.location.href='../account/withdraw.html';
+  if(!currentUser){ window.location.href='../login-signup.html'; return; }
+  window.location.href='../account/withdraw.html';
 }
+
 function handleDepositClick(){
-if(!currentUser){ window.location.href='../login-signup.html'; return; }
-window.location.href='../account/deposit.html';
+  if(!currentUser){ window.location.href='../login-signup.html'; return; }
+  window.location.href='../account/deposit.html';
 }
+
 function toggleBetHistoryMenu(e){
-if(e) e.stopPropagation();
-const m=document.getElementById('bet-history-dropdown');
-if(m) m.classList.toggle('show');
+ if(e) e.stopPropagation();
+ const m=document.getElementById('bet-history-dropdown');
+ if(m) m.classList.toggle('show');
 }
 window.addEventListener('click',e=>{
-if(!e.target.closest('.header-actions')){
-const m=document.getElementById('bet-history-dropdown');
-if(m) m.classList.remove('show');
-}
+ if(!e.target.closest('.header-actions')){
+  const m=document.getElementById('bet-history-dropdown');
+  if(m) m.classList.remove('show');
+ }
 });
+
 function openModal(tabName){
-activeModalTab=tabName;
-const modal=document.getElementById('custom-popup-modal'),title=document.getElementById('modal-title-text');
-if(tabName==='game-history') title.innerText='Bet History';
-else if(tabName==='my-history') title.innerText='My History';
-else title.innerText='Statistics & Percentages';
-modal.classList.add('show');
-loadHistoryData(tabName);
+ activeModalTab=tabName;
+ const modal=document.getElementById('custom-popup-modal'),title=document.getElementById('modal-title-text');
+ if(tabName==='game-history') title.innerText='Bet History';
+ else if(tabName==='my-history') title.innerText='My History';
+ else title.innerText='Statistics & Percentages';
+ modal.classList.add('show');
+ loadHistoryData(tabName);
 }
 function closeModal(){document.getElementById('custom-popup-modal').classList.remove('show')}
 function openChipsPopup(){document.getElementById('chips-popup-modal').classList.add('show')}
 function closeChipsPopup(){document.getElementById('chips-popup-modal').classList.remove('show')}
 function closeChipsPopupOnOutside(e){if(e.target.id==='chips-popup-modal')closeChipsPopup()}
+
 function selectChipFromPopup(amount,element){
-selectedChipAmount=amount;
-document.querySelectorAll('.popup-chip-item').forEach(el=>el.classList.remove('selected-chip'));
-element.classList.add('selected-chip');
-const label=document.getElementById('active-stack-chip-label');
-if(label){const displayVal=amount>=1000?(amount/1000)+'K':amount;label.querySelector('.chip-value').innerText=displayVal}
-const front=document.querySelector('.stack-front');
-if(front){
-const colors={20:'#ed3b48',50:'#159653',100:'#f5a623',500:'#8fe65d',1000:'#278bd8',10000:'#b34bd4'};
-front.style.setProperty('--chip-color',colors[amount]||'#ed3b48');
+ selectedChipAmount=amount;
+ document.querySelectorAll('.popup-chip-item').forEach(el=>el.classList.remove('selected-chip'));
+ element.classList.add('selected-chip');
+ const label=document.getElementById('active-stack-chip-label');
+ if(label){const displayVal=amount>=1000?(amount/1000)+'K':amount;label.querySelector('.chip-value').innerText=displayVal}
+ const front=document.querySelector('.stack-front');
+ if(front){
+   const colors={20:'#ed3b48',50:'#159653',100:'#f5a623',500:'#8fe65d',1000:'#278bd8',10000:'#b34bd4'};
+   front.style.setProperty('--chip-color',colors[amount]||'#ed3b48');
+ }
+ setTimeout(closeChipsPopup,200)
 }
-setTimeout(closeChipsPopup,200)
-}
+
 document.addEventListener("DOMContentLoaded",async()=>{
-currentUser=await requireAuth();
-if(!currentUser){ window.location.href='../login-signup.html'; return; }
-await loadUserProfile();
-await updatePeriodAndTimerState();
-await loadRecentWinsUI();
-startTimer();
-initRealtimeSubscription();
+ currentUser=await requireAuth();
+ if(!currentUser){ window.location.href='../login-signup.html'; return; }
+ await loadUserProfile();
+ await updatePeriodAndTimerState();
+ await loadRecentWinsUI();
+ startTimer();
+ initRealtimeSubscription();
 });
+
 async function updatePeriodAndTimerState(){
-const now = Math.floor(Date.now() / 1000);
-const periodIndex = Math.floor(now / selectedGameDuration);
-const prefixMap = { 15: '15', 30: '30', 60: '60', 300: '50' };
-const basePeriodId = 202610150000 + (selectedGameDuration * 1000);
-currentPeriodNumber = String(basePeriodId + periodIndex);
-renderPeriodNumber();
-timerSeconds = selectedGameDuration - (now % selectedGameDuration);
-if(timerSeconds <= 0) timerSeconds = selectedGameDuration;
-await ensureCurrentPeriodExists();
-await restoreActiveBetsForCurrentPeriod();
+ const now = Math.floor(Date.now() / 1000);
+ const periodIndex = Math.floor(now / selectedGameDuration);
+ 
+ const prefixMap = { 15: '15', 30: '30', 60: '60', 300: '50' };
+ const basePeriodId = 202610150000 + (selectedGameDuration * 1000);
+ currentPeriodNumber = String(basePeriodId + periodIndex);
+ renderPeriodNumber();
+ 
+ timerSeconds = selectedGameDuration - (now % selectedGameDuration);
+ if(timerSeconds <= 0) timerSeconds = selectedGameDuration;
+
+ await ensureCurrentPeriodExists();
+ await restoreActiveBetsForCurrentPeriod();
 }
+
 async function restoreActiveBetsForCurrentPeriod(){
-userActiveBets = [];
-currentRoundTotalBet = 0;
-const timerCol = getModeTimerColumn();
-const {data, error} = await supabaseClient.from('color_game_history').select("*").eq("user_id",currentUser.id).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').eq("status","pending");
-if(data && data.length > 0){
-data.forEach(bet => {
-userActiveBets.push({ db_id: bet.id, target: bet.bet_type, amount: Number(bet.bet_amount) });
-currentRoundTotalBet += Number(bet.bet_amount);
-lastPlacedBet = { target: bet.bet_type, amount: Number(bet.bet_amount) };
-});
+ userActiveBets = [];
+ currentRoundTotalBet = 0;
+ const timerCol = getModeTimerColumn();
+ const {data, error} = await supabaseClient.from('color_game_history').select("*").eq("user_id",currentUser.id).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').eq("status","pending");
+ if(data && data.length > 0){
+   data.forEach(bet => {
+     userActiveBets.push({ db_id: bet.id, target: bet.bet_type, amount: Number(bet.bet_amount) });
+     currentRoundTotalBet += Number(bet.bet_amount);
+     lastPlacedBet = { target: bet.bet_type, amount: Number(bet.bet_amount) };
+   });
+ }
+ document.getElementById("bar-total-bet").innerText = currentRoundTotalBet.toFixed(2);
+ updateBetBadgesUI();
 }
-document.getElementById("bar-total-bet").innerText = currentRoundTotalBet.toFixed(2);
-updateBetBadgesUI();
-}
+
 async function ensureCurrentPeriodExists(){
-const timerCol = getModeTimerColumn();
-let {data:periodData}=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
-if(!periodData){
-let insertObj = {
-period_number: currentPeriodNumber,
-total_green_amount: 0,
-total_red_amount: 0,
-total_violet_amount: 0,
-status: 'pending'
-};
-insertObj[timerCol] = selectedGameDuration + 's';
-await supabaseClient.from('color_periods').insert([insertObj]);
-} else if(periodData.status === 'completed') {
-const now = Math.floor(Date.now() / 1000);
-const periodIndex = Math.floor(now / selectedGameDuration) + 1;
-const basePeriodId = 202610150000 + (selectedGameDuration * 1000);
-currentPeriodNumber = String(basePeriodId + periodIndex);
-renderPeriodNumber();
-let {data:nextPeriodData} = await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
-if(!nextPeriodData){
-let insertObj = {
-period_number: currentPeriodNumber,
-total_green_amount: 0,
-total_red_amount: 0,
-total_violet_amount: 0,
-status: 'pending'
-};
-insertObj[timerCol] = selectedGameDuration + 's';
-await supabaseClient.from('color_periods').insert([insertObj]);
+ const timerCol = getModeTimerColumn();
+ let {data:periodData}=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
+ if(!periodData){
+   let insertObj = {
+     period_number: currentPeriodNumber,
+     total_green_amount: 0,
+     total_red_amount: 0,
+     total_violet_amount: 0,
+     status: 'pending'
+   };
+   insertObj[timerCol] = selectedGameDuration + 's';
+   await supabaseClient.from('color_periods').insert([insertObj]);
+ } else if(periodData.status === 'completed') {
+   const now = Math.floor(Date.now() / 1000);
+   const periodIndex = Math.floor(now / selectedGameDuration) + 1;
+   const basePeriodId = 202610150000 + (selectedGameDuration * 1000);
+   currentPeriodNumber = String(basePeriodId + periodIndex);
+   renderPeriodNumber();
+   let {data:nextPeriodData} = await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
+   if(!nextPeriodData){
+     let insertObj = {
+       period_number: currentPeriodNumber,
+       total_green_amount: 0,
+       total_red_amount: 0,
+       total_violet_amount: 0,
+       status: 'pending'
+     };
+     insertObj[timerCol] = selectedGameDuration + 's';
+     await supabaseClient.from('color_periods').insert([insertObj]);
+   }
+ }
 }
-}
-}
+
 async function loadRecentWinsUI(){
-const container=document.getElementById("recent-win-balls");
-if(!container) return;
-const timerCol = getModeTimerColumn();
-const {data}=await supabaseClient.from('color_periods').select("*").eq("status","completed").eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(5);
-if(!data || !data.length){
-container.innerHTML=<span class="text-[10px] text-zinc-800">No data</span>;
-return;
+ const container=document.getElementById("recent-win-balls");
+ if(!container) return;
+ const timerCol = getModeTimerColumn();
+ const {data}=await supabaseClient.from('color_periods').select("*").eq("status","completed").eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(5);
+ if(!data || !data.length){
+  container.innerHTML=`<span class="text-[10px] text-zinc-800">No data</span>`;
+  return;
+ }
+ let html='';
+ data.forEach(row=>{
+  const n = Number(row.winning_number);
+  const bg = row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#7c3aed';
+  html+=`<div class="mini-ball" style="background:${bg}">${Number.isFinite(n)?n:'?'}</div>`;
+ });
+ container.innerHTML=html;
 }
-let html='';
-data.forEach(row=>{
-const n = Number(row.winning_number);
-const bg = row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#7c3aed';
-html+=<div class="mini-ball" style="background:${bg}">${Number.isFinite(n)?n:'?'}</div>;
-});
-container.innerHTML=html;
-}
+
 function initRealtimeSubscription(){
-if(typeof supabaseClient!=='undefined'&&supabaseClient.channel){
-try {
-supabaseClient.channel('public:color_periods').on('postgres_changes',{event:'UPDATE',schema:'public',table:'color_periods'},payload=>{
-if(payload.new && payload.new.status==='completed'){
-const timerCol = getModeTimerColumn();
-if(payload.new[timerCol] === selectedGameDuration + 's') {
-loadRecentWinsUI();
-const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);
+ if(typeof supabaseClient!=='undefined'&&supabaseClient.channel){
+    try {
+      supabaseClient.channel('public:color_periods').on('postgres_changes',{event:'UPDATE',schema:'public',table:'color_periods'},payload=>{
+       if(payload.new && payload.new.status==='completed'){
+         const timerCol = getModeTimerColumn();
+         if(payload.new[timerCol] === selectedGameDuration + 's') {
+           loadRecentWinsUI();
+           const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);
+         }
+       }
+      }).subscribe();
+    } catch(e){}
+ }
+ setInterval(()=>{
+   loadRecentWinsUI();
+   const modal=document.getElementById('custom-popup-modal');
+   if(modal&&modal.classList.contains('show')&&activeModalTab&&(activeModalTab==='chart'||activeModalTab==='game-history'))loadHistoryData(activeModalTab);
+ },5000);
 }
-}
-}).subscribe();
-} catch(e){}
-}
-setInterval(()=>{
-loadRecentWinsUI();
-const modal=document.getElementById('custom-popup-modal');
-if(modal&&modal.classList.contains('show')&&activeModalTab&&(activeModalTab==='chart'||activeModalTab==='game-history'))loadHistoryData(activeModalTab);
-},5000);
-}
+
 async function undoLastBet(){
-if(timerSeconds<=5)return alert("No More Bet! Undo is disabled.");
-if(!userActiveBets.length){
-showActionToast("No Bet For Undo", "undo-btn-elem");
-return;
+ if(timerSeconds<=5)return alert("No More Bet! Undo is disabled.");
+ if(!userActiveBets.length){
+  showActionToast("No Bet For Undo", "undo-btn-elem");
+  return;
+ }
+ const lastBet=userActiveBets.pop(),refundedBalance=Number(userProfile.balance)+lastBet.amount;
+ const {error:profileError}=await supabaseClient.from("profiles").update({balance:refundedBalance}).eq("id",currentUser.id);
+ if(profileError){alert("Failed to undo bet. Try again.");userActiveBets.push(lastBet);return}
+ userProfile.balance=refundedBalance;const bal=refundedBalance.toFixed(2);
+ document.getElementById("wallet-main-balance").innerText=bal;
+ currentRoundTotalBet=Math.max(0,currentRoundTotalBet-lastBet.amount);document.getElementById("bar-total-bet").innerText=currentRoundTotalBet.toFixed(2);
+ await supabaseClient.from('color_game_history').delete().eq("id",lastBet.db_id);await updatePeriodAmountsOnUndo(lastBet.amount,lastBet.target);updateBetBadgesUI();
+ document.getElementById("game-status-text").innerText="Last bet successfully undone."
 }
-const lastBet=userActiveBets.pop(),refundedBalance=Number(userProfile.balance)+lastBet.amount;
-const {error:profileError}=await supabaseClient.from("profiles").update({balance:refundedBalance}).eq("id",currentUser.id);
-if(profileError){alert("Failed to undo bet. Try again.");userActiveBets.push(lastBet);return}
-userProfile.balance=refundedBalance;const bal=refundedBalance.toFixed(2);
-document.getElementById("wallet-main-balance").innerText=bal;
-currentRoundTotalBet=Math.max(0,currentRoundTotalBet-lastBet.amount);document.getElementById("bar-total-bet").innerText=currentRoundTotalBet.toFixed(2);
-await supabaseClient.from('color_game_history').delete().eq("id",lastBet.db_id);await updatePeriodAmountsOnUndo(lastBet.amount,lastBet.target);updateBetBadgesUI();
-document.getElementById("game-status-text").innerText="Last bet successfully undone."
-}
+
 async function updatePeriodAmountsOnUndo(amount,target){
-const timerCol = getModeTimerColumn();
-let {data:periodData}=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
-if(periodData){let f={};if(target==='Green')f.total_green_amount=Math.max(0,Number(periodData.total_green_amount)-amount);else if(target==='Red')f.total_red_amount=Math.max(0,Number(periodData.total_red_amount)-amount);else if(target==='Violet')f.total_violet_amount=Math.max(0,Number(periodData.total_violet_amount)-amount);await supabaseClient.from('color_periods').update(f).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's')}
+ const timerCol = getModeTimerColumn();
+ let {data:periodData}=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
+ if(periodData){let f={};if(target==='Green')f.total_green_amount=Math.max(0,Number(periodData.total_green_amount)-amount);else if(target==='Red')f.total_red_amount=Math.max(0,Number(periodData.total_red_amount)-amount);else if(target==='Violet')f.total_violet_amount=Math.max(0,Number(periodData.total_violet_amount)-amount);await supabaseClient.from('color_periods').update(f).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's')}
 }
+
 async function rebetLast(){
-if(timerSeconds<=5)return alert("No More Bet! Rebet is disabled.");
-if(!lastPlacedBet){
-showActionToast("No previous bet to rebet", "rebet-btn-elem");
-return;
+ if(timerSeconds<=5)return alert("No More Bet! Rebet is disabled.");
+ if(!lastPlacedBet){
+  showActionToast("No previous bet to rebet", "rebet-btn-elem");
+  return;
+ }
+ const rebetAmount=lastPlacedBet.amount;
+ if(rebetAmount>Number(userProfile.balance))return alert("Insufficient balance for rebet!");
+ executeBetPlacement(lastPlacedBet.target,rebetAmount);
 }
-const rebetAmount=lastPlacedBet.amount;
-if(rebetAmount>Number(userProfile.balance))return alert("Insufficient balance for rebet!");
-executeBetPlacement(lastPlacedBet.target,rebetAmount);
-}
+
 function placeDirectBet(target){
-if(timerSeconds<=5){document.getElementById("game-status-text").innerText="No More Bet! Please wait for the next round.";return}
-executeBetPlacement(target,selectedChipAmount)
+ if(timerSeconds<=5){document.getElementById("game-status-text").innerText="No More Bet! Please wait for the next round.";return}
+ executeBetPlacement(target,selectedChipAmount)
 }
+
 async function executeBetPlacement(target,amount){
-if(amount>Number(userProfile.balance))return alert("Insufficient balance!");
-const newBalance=Number(userProfile.balance)-amount;
-const {error:profileError}=await supabaseClient.from("profiles").update({balance:newBalance}).eq("id",currentUser.id);
-if(profileError)return alert("Failed to place bet. Try again.");
-userProfile.balance=newBalance;const bal=newBalance.toFixed(2);
-document.getElementById("wallet-main-balance").innerText=bal;
-currentRoundTotalBet+=amount;document.getElementById("bar-total-bet").innerText=currentRoundTotalBet.toFixed(2);
-const timerCol = getModeTimerColumn();
-let betInsertObj = {
-user_id: currentUser.id,
-period_number: currentPeriodNumber,
-bet_type: target,
-bet_amount: amount,
-status: 'pending'
-};
-betInsertObj[timerCol] = selectedGameDuration + 's';
-const {data:insertedData,error:betInsertError}=await supabaseClient.from('color_game_history').insert([betInsertObj]).select();
-if(betInsertError){console.error("Bet history insert error:",betInsertError);alert("Bet history could not be saved. Please contact support.");return}
-const newDbId=insertedData&&insertedData[0]?insertedData[0].id:null;
-lastPlacedBet={target,amount};userActiveBets.push({db_id:newDbId,target,amount});updateBetBadgesUI();await updatePeriodAmounts(amount,target);
-document.getElementById("game-status-text").innerText=Successfully placed ৳${amount} on ${target}!;
-const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab==='my-history')loadHistoryData('my-history')
+ if(amount>Number(userProfile.balance))return alert("Insufficient balance!");
+ const newBalance=Number(userProfile.balance)-amount;
+ const {error:profileError}=await supabaseClient.from("profiles").update({balance:newBalance}).eq("id",currentUser.id);
+ if(profileError)return alert("Failed to place bet. Try again.");
+ userProfile.balance=newBalance;const bal=newBalance.toFixed(2);
+ document.getElementById("wallet-main-balance").innerText=bal;
+ currentRoundTotalBet+=amount;document.getElementById("bar-total-bet").innerText=currentRoundTotalBet.toFixed(2);
+ 
+ const timerCol = getModeTimerColumn();
+ let betInsertObj = {
+   user_id: currentUser.id,
+   period_number: currentPeriodNumber,
+   bet_type: target,
+   bet_amount: amount,
+   status: 'pending'
+ };
+ betInsertObj[timerCol] = selectedGameDuration + 's';
+
+ const {data:insertedData,error:betInsertError}=await supabaseClient.from('color_game_history').insert([betInsertObj]).select();
+ if(betInsertError){console.error("Bet history insert error:",betInsertError);alert("Bet history could not be saved. Please contact support.");return}
+ const newDbId=insertedData&&insertedData[0]?insertedData[0].id:null;
+ lastPlacedBet={target,amount};userActiveBets.push({db_id:newDbId,target,amount});updateBetBadgesUI();await updatePeriodAmounts(amount,target);
+ document.getElementById("game-status-text").innerText=`Successfully placed ৳${amount} on ${target}!`;
+ const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab==='my-history')loadHistoryData('my-history')
 }
+
 function updateBetBadgesUI(){
-document.querySelectorAll('.bet-badge').forEach(el=>el.remove());let targetTotals={};
-userActiveBets.forEach(bet=>targetTotals[bet.target]=(targetTotals[bet.target]||0)+bet.amount);
-for(let target in targetTotals){const btn=document.getElementById(btn-${target});if(btn){const badge=document.createElement('span');badge.className='bet-badge';badge.innerText=৳${targetTotals[target]};btn.appendChild(badge)}}
+ document.querySelectorAll('.bet-badge').forEach(el=>el.remove());let targetTotals={};
+ userActiveBets.forEach(bet=>targetTotals[bet.target]=(targetTotals[bet.target]||0)+bet.amount);
+ for(let target in targetTotals){const btn=document.getElementById(`btn-${target}`);if(btn){const badge=document.createElement('span');badge.className='bet-badge';badge.innerText=`৳${targetTotals[target]}`;btn.appendChild(badge)}}
 }
+
 function playVoiceMessage(text){
-if('speechSynthesis'in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.9;u.pitch=.4;const voices=window.speechSynthesis.getVoices();const male=voices.find(v=>v.lang.includes('en')&&(v.name.includes('Male')||v.name.includes('David')||v.name.includes('Mark')||v.name.includes('Google UK English Male')));if(male)u.voice=male;window.speechSynthesis.speak(u)}
+ if('speechSynthesis'in window){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=.9;u.pitch=.4;const voices=window.speechSynthesis.getVoices();const male=voices.find(v=>v.lang.includes('en')&&(v.name.includes('Male')||v.name.includes('David')||v.name.includes('Mark')||v.name.includes('Google UK English Male')));if(male)u.voice=male;window.speechSynthesis.speak(u)}
 }
+
 async function loadUserProfile(){
-userProfile=await getUserProfile(currentUser.id);
-if(userProfile){
-const bal=Number(userProfile.balance).toFixed(2);
-document.getElementById("wallet-main-balance").innerText=bal;
-const idElem=document.getElementById("wallet-user-id");
-if(idElem){
-idElem.innerText = userProfile.user_game_id ? userProfile.user_game_id : (currentUser.id ? String(currentUser.id).slice(-9) : "892736281");
+ userProfile=await getUserProfile(currentUser.id);
+ if(userProfile){
+   const bal=Number(userProfile.balance).toFixed(2);
+   document.getElementById("wallet-main-balance").innerText=bal;
+   const idElem=document.getElementById("wallet-user-id");
+   if(idElem){
+     idElem.innerText = userProfile.user_game_id ? userProfile.user_game_id : (currentUser.id ? String(currentUser.id).slice(-9) : "892736281");
+   }
+ }
 }
-}
-}
+
 async function changeGameMode(duration,modeKey){
-selectedGameDuration=duration;
-currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";document.getElementById("bottom-bar-center-status").innerHTML="";
-['15s','30s','1m','5m'].forEach(key=>{const btn=document.getElementById(mode-${key}),txt=document.getElementById(text-${key});if(key===modeKey){btn.className="mode-button active-mode";txt.className="text-[10px] font-bold text-white"}else{btn.className="mode-button";txt.className="text-[10px] font-bold text-amber-400"}});
-await updatePeriodAndTimerState();
-await loadRecentWinsUI();
-startTimer();
+ selectedGameDuration=duration;
+ currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";document.getElementById("bottom-bar-center-status").innerHTML="";
+ ['15s','30s','1m','5m'].forEach(key=>{const btn=document.getElementById(`mode-${key}`),txt=document.getElementById(`text-${key}`);if(key===modeKey){btn.className="mode-button active-mode";txt.className="text-[10px] font-bold text-white"}else{btn.className="mode-button";txt.className="text-[10px] font-bold text-amber-400"}});
+ 
+ await updatePeriodAndTimerState();
+ await loadRecentWinsUI();
+ startTimer();
 }
-function renderPeriodNumber(){const el=document.getElementById("period-number");if(!el)return;el.innerHTML=[...String(currentPeriodNumber)].map(d=><span class="period-digit">${d}</span>).join("")}
+
+function renderPeriodNumber(){const el=document.getElementById("period-number");if(!el)return;el.innerHTML=[...String(currentPeriodNumber)].map(d=>`<span class="period-digit">${d}</span>`).join("")}
+
 function clearWinningHighlights(){document.querySelectorAll('.winning-blink').forEach(b=>b.classList.remove('winning-blink','win-blink-green','win-blink-red','win-blink-violet','win-blink-number','win-blink-big','win-blink-small'))}
+
 function highlightWinningTargets(winningColor,winningNumber,winningBigSmall){
-clearWinningHighlights();const colorClass={Green:'win-blink-green',Red:'win-blink-red',Violet:'win-blink-violet'};
-document.querySelectorAll('button[onclick^="placeDirectBet("]').forEach(button=>{
-const match=button.getAttribute('onclick')?.match(/placeDirectBet('"['"])/);if(!match)return;const target=match[1];let hc='';
-if(target===winningColor)hc=colorClass[winningColor]||'';else if(target===String(winningNumber))hc='win-blink-number';else if(target===winningBigSmall)hc=winningBigSmall==='Big'?'win-blink-big':'win-blink-small';
-if(hc){button.classList.add('winning-blink',hc);button.addEventListener('animationend',function rm(e){if(e.animationName!=='winningBlink')return;button.classList.remove('winning-blink','win-blink-green','win-blink-red','win-blink-violet','win-blink-number','win-blink-big','win-blink-small');button.removeEventListener('animationend',rm)})}
-})
+ clearWinningHighlights();const colorClass={Green:'win-blink-green',Red:'win-blink-red',Violet:'win-blink-violet'};
+ document.querySelectorAll('button[onclick^="placeDirectBet("]').forEach(button=>{
+  const match=button.getAttribute('onclick')?.match(/placeDirectBet\(['"]([^'"]+)['"]\)/);if(!match)return;const target=match[1];let hc='';
+  if(target===winningColor)hc=colorClass[winningColor]||'';else if(target===String(winningNumber))hc='win-blink-number';else if(target===winningBigSmall)hc=winningBigSmall==='Big'?'win-blink-big':'win-blink-small';
+  if(hc){button.classList.add('winning-blink',hc);button.addEventListener('animationend',function rm(e){if(e.animationName!=='winningBlink')return;button.classList.remove('winning-blink','win-blink-green','win-blink-red','win-blink-violet','win-blink-number','win-blink-big','win-blink-small');button.removeEventListener('animationend',rm)})}
+ })
 }
+
 function startTimer(){
-clearInterval(timerInterval);
-const timerElem=document.getElementById("countdown-timer"),timerLabel=document.getElementById("timer-label");
-function updateMainTimer(){
-const min=Math.floor(timerSeconds/60),sec=timerSeconds%60,timeText=${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')};
-timerElem.innerHTML=<span class="timer-digit">${timeText[0]}</span><span class="timer-digit">${timeText[1]}</span><span class="timer-colon">:</span><span class="timer-digit">${timeText[3]}</span><span class="timer-digit">${timeText[4]}</span>;
-if(timerSeconds<=5){const center=document.getElementById("bottom-bar-center-status"),s=center.querySelector("span");if(s&&!s.classList.contains("animate-zoom-out")){s.classList.add("animate-zoom-out");setTimeout(()=>center.innerHTML="",1500)}timerElem.classList.add("timer-danger");timerLabel.innerText="NO MORE BET";timerLabel.classList.add("timer-label-danger");if(timerSeconds===5)playVoiceMessage("No more bets")}
-else{timerElem.classList.remove("timer-danger");timerLabel.innerText="PLACE YOUR BET";timerLabel.classList.remove("timer-label-danger")}
+ clearInterval(timerInterval);
+ const timerElem=document.getElementById("countdown-timer"),timerLabel=document.getElementById("timer-label");
+ 
+ function updateMainTimer(){
+  const min=Math.floor(timerSeconds/60),sec=timerSeconds%60,timeText=`${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  timerElem.innerHTML=`<span class="timer-digit">${timeText[0]}</span><span class="timer-digit">${timeText[1]}</span><span class="timer-colon">:</span><span class="timer-digit">${timeText[3]}</span><span class="timer-digit">${timeText[4]}</span>`;
+  if(timerSeconds<=5){const center=document.getElementById("bottom-bar-center-status"),s=center.querySelector("span");if(s&&!s.classList.contains("animate-zoom-out")){s.classList.add("animate-zoom-out");setTimeout(()=>center.innerHTML="",1500)}timerElem.classList.add("timer-danger");timerLabel.innerText="NO MORE BET";timerLabel.classList.add("timer-label-danger");if(timerSeconds===5)playVoiceMessage("No more bets")}
+  else{timerElem.classList.remove("timer-danger");timerLabel.innerText="PLACE YOUR BET";timerLabel.classList.remove("timer-label-danger")}
+ }
+ 
+ updateMainTimer();
+ timerInterval=setInterval(async ()=>{
+   timerSeconds--;
+   if(timerSeconds<=0){
+     clearInterval(timerInterval);
+     await processRoundResult();
+   }
+   updateMainTimer();
+ },1000)
 }
-updateMainTimer();
-timerInterval=setInterval(async ()=>{
-timerSeconds--;
-if(timerSeconds<=0){
-clearInterval(timerInterval);
-await processRoundResult();
-}
-updateMainTimer();
-},1000)
-}
-function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&','<':'<','>':'>','"':'"',"'":'''}[c]))}
+
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
 async function loadHistoryData(type){
-const container=document.getElementById("modal-body-content");
-if(!type)return;
-if(!container.querySelector('table') && !container.querySelector('.trend-grid-container')){
-container.innerHTML=<p class="text-center text-slate-500 py-3">Loading...</p>;
+ const container=document.getElementById("modal-body-content");
+ if(!type)return;
+ 
+ if(!container.querySelector('table') && !container.querySelector('.trend-grid-container')){
+   container.innerHTML=`<p class="text-center text-slate-500 py-3">Loading...</p>`;
+ }
+ 
+ const timerCol = getModeTimerColumn();
+ 
+ if(type==='game-history'){
+  const {data,error}=await supabaseClient.from('color_periods').select("*").eq("status","completed").eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(30);
+  if(error||!data||!data.length){container.innerHTML=`<p class="text-center text-slate-500 py-3">No history found</p>`;return}
+  let html=`<div class="overflow-x-auto"><table class="history-table"><thead><tr><th>Period</th><th>Number</th><th>Big/Small</th><th>Color</th></tr></thead><tbody>`;
+  data.forEach(row=>{
+   const num = Number(row.winning_number);
+   const bs = Number.isFinite(num) ? (num >= 5 ? 'Big' : 'Small') : '—';
+   const cc = row.winning_color==='Green'?'text-emerald-400':row.winning_color==='Red'?'text-rose-500':'text-purple-400';
+   html+=`<tr><td class="font-mono text-amber-300">${escapeHtml(row.period_number)}</td><td class="font-bold">${escapeHtml(row.winning_number)}</td><td class="font-semibold">${bs}</td><td class="font-bold ${cc}">${escapeHtml(row.winning_color)}</td></tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  container.innerHTML=html;
+ }else if(type==='my-history'){
+  const {data,error}=await supabaseClient.from('color_game_history').select("*").eq("user_id",currentUser.id).eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(10);
+  if(error){container.innerHTML=`<p class="text-center text-rose-400 py-4">Unable to load My History. Please check the database.</p>`;return}
+  if(!data||!data.length){container.innerHTML=`<p class="text-center text-slate-500 py-4">No bets found</p>`;return}
+  
+  const periodNumbers = [...new Set(data.map(item => item.period_number))];
+  let periodMap = {};
+  if(periodNumbers.length > 0){
+    const {data: pData} = await supabaseClient.from('color_periods').select("period_number, winning_number, winning_color").in("period_number", periodNumbers).eq(timerCol, selectedGameDuration + 's');
+    if(pData){
+      pData.forEach(p => { periodMap[p.period_number] = p; });
+    }
+  }
+
+  let html=`<div class="p-2 text-[10px] text-slate-400">Showing your latest 10 bets.</div><div class="history-scroll max-h-64"><table class="my-history-table"><thead><tr><th>Period</th><th>Bet</th><th>Amount</th><th>Status</th><th>Result No.</th><th>Result Color</th><th>Big/Small</th><th>Date & Time</th></tr></thead><tbody>`;
+  
+  data.forEach(row=>{
+   const status=String(row.status||'pending').toLowerCase();
+   const statusColor=status==='win'?'text-emerald-400 font-bold':status==='loss'?'text-rose-400 font-bold':'text-amber-400 font-bold';
+   const statusLabel=status==='win'?'WIN':status==='loss'?'LOSS':'PENDING';
+   
+   const pInfo = periodMap[row.period_number];
+   let num = pInfo && pInfo.winning_number !== null && pInfo.winning_number !== undefined ? Number(pInfo.winning_number) : null;
+   let color = pInfo && pInfo.winning_color ? pInfo.winning_color : '';
+   
+   if((num === null || !color) && row.winning_result){
+     const m = String(row.winning_result).match(/(Green|Red|Violet)\s*[-:]\s*(\d)/i);
+     if(m){
+       if(!color) color = m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase();
+       if(num === null) num = Number(m[2]);
+     }
+   }
+
+   const hasRes = num !== null && !Number.isNaN(num) && color !== '';
+   const bigSmall = hasRes ? (num >= 5 ? 'Big' : 'Small') : '—';
+   const colorClass = color==='Red'?'result-red':color==='Green'?'result-green':color==='Violet'?'result-violet':'';
+
+   const resultNumberHtml = hasRes ? `<span class="result-number ${colorClass}">${num}</span>` : `<span class="text-slate-500">—</span>`;
+   const resultColorHtml = hasRes ? `<span class="result-badge ${color==='Red'?'bg-rose-900/60 text-rose-300 border border-rose-700':color==='Green'?'bg-emerald-900/60 text-emerald-300 border border-emerald-700':'bg-purple-900/60 text-purple-300 border border-purple-700'}">${escapeHtml(color.toUpperCase())}</span>` : `<span class="text-slate-500">—</span>`;
+   const bsHtml = hasRes ? `<span class="result-badge ${bigSmall==='Big'?'bg-amber-900/60 text-amber-300 border border-amber-700':'bg-blue-900/60 text-blue-300 border border-blue-700'}">${bigSmall.toUpperCase()}</span>` : `<span class="text-slate-500">—</span>`;
+   
+   const dt = new Date(row.created_at);
+   const dateStr = Number.isNaN(dt.getTime()) ? 'N/A' : dt.toLocaleDateString('en-GB',{timeZone:'Asia/Dhaka',day:'2-digit',month:'2-digit',year:'numeric'});
+   const timeStr = Number.isNaN(dt.getTime()) ? 'N/A' : dt.toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
+
+   html+=`<tr><td class="font-mono text-amber-300">${escapeHtml(row.period_number||'—')}</td><td class="font-bold text-white">${escapeHtml(row.bet_type||'—')}</td><td class="font-mono text-slate-200">৳${Number(row.bet_amount||0).toFixed(2)}</td><td class="${statusColor}">${statusLabel}</td><td>${resultNumberHtml}</td><td>${resultColorHtml}</td><td>${bsHtml}</td><td class="date-cell"><div>${escapeHtml(dateStr)}</div><div class="text-slate-400">${escapeHtml(timeStr)}</div></td></tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  container.innerHTML=html;
+ }else if(type==='chart'){
+  const {data}=await supabaseClient.from('color_periods').select("*").eq("status","completed").eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(30);
+  let trend='',big=0,small=0,green=0,red=0,violet=0;
+  if(data&&data.length)data.forEach(row=>{const n=Number(row.winning_number);n>=5?big++:small++;if(row.winning_color==='Green')green++;else if(row.winning_color==='Red')red++;else if(row.winning_color==='Violet')violet++;const bg=row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#7c3aed';trend+=`<div class="trend-ball" style="background:${bg}">${n}</div>`});else trend=`<p class="text-slate-500 text-center py-2">কোনো ডাটা পাওয়া যায়নি</p>`;
+  const total=(data?.length||0)||1,bigPct=Math.round(big/total*100),smallPct=100-bigPct,greenPct=Math.round(green/total*100),redPct=Math.round(red/total*100),violetPct=Math.max(0,100-greenPct-redPct);
+  container.innerHTML=`<div class="p-2 space-y-4"><div class="overflow-x-auto"><div class="trend-grid-container">${trend}</div></div><div class="h-[1px] w-full bg-slate-800"></div><div class="space-y-3"><div><div class="flex justify-between text-[11px] font-bold mb-1"><span class="text-amber-400">Big: ${bigPct}%</span><span class="text-blue-400">Small: ${smallPct}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex"><div class="bg-amber-500 h-full" style="width:${bigPct}%"></div><div class="bg-blue-500 h-full" style="width:${smallPct}%"></div></div></div><div><div class="flex justify-between text-[10.5px] font-bold mb-1"><span class="text-emerald-400">Green: ${greenPct}%</span><span class="text-purple-400">Violet: ${violetPct}%</span><span class="text-rose-400">Red: ${redPct}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex"><div class="bg-emerald-600 h-full" style="width:${greenPct}%"></div><div class="bg-purple-600 h-full" style="width:${violetPct}%"></div><div class="bg-rose-600 h-full" style="width:${redPct}%"></div></div></div></div></div>`;
+ }
 }
-const timerCol = getModeTimerColumn();
-if(type==='game-history'){
-const {data,error}=await supabaseClient.from('color_periods').select("*").eq("status","completed").eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(30);
-if(error||!data||!data.length){container.innerHTML=<p class="text-center text-slate-500 py-3">No history found</p>;return}
-let html=<div class="overflow-x-auto"><table class="history-table"><thead><tr><th>Period</th><th>Number</th><th>Big/Small</th><th>Color</th></tr></thead><tbody>;
-data.forEach(row=>{
-const num = Number(row.winning_number);
-const bs = Number.isFinite(num) ? (num >= 5 ? 'Big' : 'Small') : '—';
-const cc = row.winning_color==='Green'?'text-emerald-400':row.winning_color==='Red'?'text-rose-500':'text-purple-400';
-html+=<tr><td class="font-mono text-amber-300">${escapeHtml(row.period_number)}</td><td class="font-bold">${escapeHtml(row.winning_number)}</td><td class="font-semibold">${bs}</td><td class="font-bold ${cc}">${escapeHtml(row.winning_color)}</td></tr>;
-});
-html+=</tbody></table></div>;
-container.innerHTML=html;
-}else if(type==='my-history'){
-const {data,error}=await supabaseClient.from('color_game_history').select("*").eq("user_id",currentUser.id).eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(10);
-if(error){container.innerHTML=<p class="text-center text-rose-400 py-4">Unable to load My History. Please check the database.</p>;return}
-if(!data||!data.length){container.innerHTML=<p class="text-center text-slate-500 py-4">No bets found</p>;return}
-const periodNumbers = [...new Set(data.map(item => item.period_number))];
-let periodMap = {};
-if(periodNumbers.length > 0){
-const {data: pData} = await supabaseClient.from('color_periods').select("period_number, winning_number, winning_color").in("period_number", periodNumbers).eq(timerCol, selectedGameDuration + 's');
-if(pData){
-pData.forEach(p => { periodMap[p.period_number] = p; });
-}
-}
-let html=<div class="p-2 text-[10px] text-slate-400">Showing your latest 10 bets.</div><div class="history-scroll max-h-64"><table class="my-history-table"><thead><tr><th>Period</th><th>Bet</th><th>Amount</th><th>Status</th><th>Result No.</th><th>Result Color</th><th>Big/Small</th><th>Date & Time</th></tr></thead><tbody>;
-data.forEach(row=>{
-const status=String(row.status||'pending').toLowerCase();
-const statusColor=status==='win'?'text-emerald-400 font-bold':status==='loss'?'text-rose-400 font-bold':'text-amber-400 font-bold';
-const statusLabel=status==='win'?'WIN':status==='loss'?'LOSS':'PENDING';
-const pInfo = periodMap[row.period_number];
-let num = pInfo && pInfo.winning_number !== null && pInfo.winning_number !== undefined ? Number(pInfo.winning_number) : null;
-let color = pInfo && pInfo.winning_color ? pInfo.winning_color : '';
-if((num === null || !color) && row.winning_result){
-const m = String(row.winning_result).match(/(Green|Red|Violet)\s*[-:]\s*(\d)/i);
-if(m){
-if(!color) color = m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase();
-if(num === null) num = Number(m[2]);
-}
-}
-const hasRes = num !== null && !Number.isNaN(num) && color !== '';
-const bigSmall = hasRes ? (num >= 5 ? 'Big' : 'Small') : '—';
-const colorClass = color==='Red'?'result-red':color==='Green'?'result-green':color==='Violet'?'result-violet':'';
-const resultNumberHtml = hasRes ? <span class="result-number ${colorClass}">${num}</span> : <span class="text-slate-500">—</span>;
-const resultColorHtml = hasRes ? <span class="result-badge ${color==='Red'?'bg-rose-900/60 text-rose-300 border border-rose-700':color==='Green'?'bg-emerald-900/60 text-emerald-300 border border-emerald-700':'bg-purple-900/60 text-purple-300 border border-purple-700'}">${escapeHtml(color.toUpperCase())}</span> : <span class="text-slate-500">—</span>;
-const bsHtml = hasRes ? <span class="result-badge ${bigSmall==='Big'?'bg-amber-900/60 text-amber-300 border border-amber-700':'bg-blue-900/60 text-blue-300 border border-blue-700'}">${bigSmall.toUpperCase()}</span> : <span class="text-slate-500">—</span>;
-const dt = new Date(row.created_at);
-const dateStr = Number.isNaN(dt.getTime()) ? 'N/A' : dt.toLocaleDateString('en-GB',{timeZone:'Asia/Dhaka',day:'2-digit',month:'2-digit',year:'numeric'});
-const timeStr = Number.isNaN(dt.getTime()) ? 'N/A' : dt.toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});
-html+=<tr><td class="font-mono text-amber-300">${escapeHtml(row.period_number||'—')}</td><td class="font-bold text-white">${escapeHtml(row.bet_type||'—')}</td><td class="font-mono text-slate-200">৳${Number(row.bet_amount||0).toFixed(2)}</td><td class="${statusColor}">${statusLabel}</td><td>${resultNumberHtml}</td><td>${resultColorHtml}</td><td>${bsHtml}</td><td class="date-cell"><div>${escapeHtml(dateStr)}</div><div class="text-slate-400">${escapeHtml(timeStr)}</div></td></tr>;
-});
-html+=</tbody></table></div>;
-container.innerHTML=html;
-}else if(type==='chart'){
-const {data}=await supabaseClient.from('color_periods').select("*").eq("status","completed").eq(timerCol, selectedGameDuration + 's').order("created_at",{ascending:false}).limit(30);
-let trend='',big=0,small=0,green=0,red=0,violet=0;
-if(data&&data.length)data.forEach(row=>{const n=Number(row.winning_number);n>=5?big++:small++;if(row.winning_color==='Green')green++;else if(row.winning_color==='Red')red++;else if(row.winning_color==='Violet')violet++;const bg=row.winning_color==='Red'?'#e11d48':row.winning_color==='Green'?'#059669':'#7c3aed';trend+=<div class="trend-ball" style="background:${bg}">${n}</div>});else trend=<p class="text-slate-500 text-center py-2">কোনো ডাটা পাওয়া যায়নি</p>;
-const total=(data?.length||0)||1,bigPct=Math.round(big/total*100),smallPct=100-bigPct,greenPct=Math.round(green/total*100),redPct=Math.round(red/total*100),violetPct=Math.max(0,100-greenPct-redPct);
-container.innerHTML=<div class="p-2 space-y-4"><div class="overflow-x-auto"><div class="trend-grid-container">${trend}</div></div><div class="h-[1px] w-full bg-slate-800"></div><div class="space-y-3"><div><div class="flex justify-between text-[11px] font-bold mb-1"><span class="text-amber-400">Big: ${bigPct}%</span><span class="text-blue-400">Small: ${smallPct}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex"><div class="bg-amber-500 h-full" style="width:${bigPct}%"></div><div class="bg-blue-500 h-full" style="width:${smallPct}%"></div></div></div><div><div class="flex justify-between text-[10.5px] font-bold mb-1"><span class="text-emerald-400">Green: ${greenPct}%</span><span class="text-purple-400">Violet: ${violetPct}%</span><span class="text-rose-400">Red: ${redPct}%</span></div><div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex"><div class="bg-emerald-600 h-full" style="width:${greenPct}%"></div><div class="bg-purple-600 h-full" style="width:${violetPct}%"></div><div class="bg-rose-600 h-full" style="width:${redPct}%"></div></div></div></div></div>;
-}
-}
+
 async function updatePeriodAmounts(amount,target){
-const timerCol = getModeTimerColumn();
-let {data:periodData}=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
-if(!periodData){
-let insertObj = {
-period_number: currentPeriodNumber,
-total_green_amount: target==='Green'?amount:0,
-total_red_amount: target==='Red'?amount:0,
-total_violet_amount: target==='Violet'?amount:0,
-status: 'pending'
-};
-insertObj[timerCol] = selectedGameDuration + 's';
-await supabaseClient.from('color_periods').insert([insertObj]);
+ const timerCol = getModeTimerColumn();
+ let {data:periodData}=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
+ if(!periodData){
+   let insertObj = {
+     period_number: currentPeriodNumber,
+     total_green_amount: target==='Green'?amount:0,
+     total_red_amount: target==='Red'?amount:0,
+     total_violet_amount: target==='Violet'?amount:0,
+     status: 'pending'
+   };
+   insertObj[timerCol] = selectedGameDuration + 's';
+   await supabaseClient.from('color_periods').insert([insertObj]);
+ }
+ else{
+   let f={};
+   if(target==='Green')f.total_green_amount=Number(periodData.total_green_amount)+amount;
+   else if(target==='Red')f.total_red_amount=Number(periodData.total_red_amount)+amount;
+   else if(target==='Violet')f.total_violet_amount=Number(periodData.total_violet_amount)+amount;
+   await supabaseClient.from('color_periods').update(f).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's');
+ }
 }
-else{
-let f={};
-if(target==='Green')f.total_green_amount=Number(periodData.total_green_amount)+amount;
-else if(target==='Red')f.total_red_amount=Number(periodData.total_red_amount)+amount;
-else if(target==='Violet')f.total_violet_amount=Number(periodData.total_violet_amount)+amount;
-await supabaseClient.from('color_periods').update(f).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's');
-}
-}
+
 async function processRoundResult(){
-document.getElementById("game-status-text").innerText="Calculating result...";
-const timerCol = getModeTimerColumn();
-let {data:periodData}=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
-if(!periodData){await ensureCurrentPeriodExists();const res=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();periodData=res.data}
-const green=periodData?Number(periodData.total_green_amount||0):0,red=periodData?Number(periodData.total_red_amount||0):0,violet=periodData?Number(periodData.total_violet_amount||0):0;
-let winningColor='Green';
-if(green===0&&red===0&&violet===0){const rc=['Green','Red','Green','Red','Violet'];winningColor=rc[Math.floor(Math.random()*rc.length)]}
-else if(green<=red&&green<=violet)winningColor='Green';else if(red<=green&&red<=violet)winningColor='Red';else winningColor='Violet';
-const numbersMap={Green:[1,3,7,9],Red:[2,4,6,8],Violet:[0,5]},possibleNums=numbersMap[winningColor],winningNumber=possibleNums[Math.floor(Math.random()*possibleNums.length)],winningBigSmall=winningNumber>=5?'Big':'Small',winningResultString=${winningColor}-${winningNumber};
-await supabaseClient.from('color_periods').update({winning_color:winningColor,winning_number:winningNumber,status:'completed'}).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's');
-const {data:allBets}=await supabaseClient.from('color_game_history').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').eq("status",'pending');
-let userWonAmount=0,hasUserWon=false,userParticipated=false,userWinsMap={};
-if(allBets&&allBets.length)for(let bet of allBets){
-let isWin=false,multiplier=2;if(bet.bet_type==='Red')multiplier=1.9;else if(bet.bet_type==='Violet')multiplier=4.5;else if(bet.bet_type==='Big'||bet.bet_type==='Small')multiplier=1.9;else if(!isNaN(bet.bet_type))multiplier=9;
-if(bet.bet_type===winningColor||bet.bet_type===String(winningNumber)||bet.bet_type===winningBigSmall)isWin=true;
-if(bet.user_id===currentUser.id)userParticipated=true;
-if(isWin){
-const payoutAmount=bet.bet_amount*multiplier;
-if(bet.user_id===currentUser.id){userWonAmount+=payoutAmount;hasUserWon=true;const totalTargetWinReturn=bet.bet_amount+payoutAmount;userWinsMap[bet.bet_type]=(userWinsMap[bet.bet_type]||0)+totalTargetWinReturn}
-await supabaseClient.from('color_game_history').update({winning_result:winningResultString,payout:payoutAmount,status:'win'}).eq("id",bet.id);
-const {data:targetProfile}=await supabaseClient.from("profiles").select("balance").eq("id",bet.user_id).single();
-if(targetProfile){const updatedBal=Number(targetProfile.balance)+payoutAmount;await supabaseClient.from("profiles").update({balance:updatedBal}).eq("id",bet.user_id)}
-}else await supabaseClient.from('color_game_history').update({winning_result:winningResultString,payout:0,status:'loss'}).eq("id",bet.id)
-}
-currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";
-for(let target in userWinsMap){const btn=document.getElementById(btn-${target});if(btn){const overlay=document.createElement('div');overlay.className='win-payout-overlay';overlay.innerText=+৳${userWinsMap[target].toFixed(1)};btn.appendChild(overlay);setTimeout(()=>overlay.remove(),2000)}}
-document.getElementById("game-status-text").innerText=Result: ${winningResultString} (${winningBigSmall});
-highlightWinningTargets(winningColor,winningNumber,winningBigSmall);await loadUserProfile();
-const winDisplay = document.getElementById("win-amount-design") || document.getElementById("win-amount-display");
-if(userParticipated){
-if(hasUserWon){
-winDisplay.innerHTML = <span class="text-emerald-400 font-bold">Win ৳${userWonAmount.toFixed(2)}</span>;
-playVoiceMessage("congratulation winner");
-} else {
-winDisplay.innerHTML = <span class="text-rose-500 font-bold">Lost</span>;
-playVoiceMessage("better luck next time");
-}
-} else {
-winDisplay.innerHTML = "";
-}
-await updatePeriodAndTimerState();
-loadRecentWinsUI();
-const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);startTimer()
+ document.getElementById("game-status-text").innerText="Calculating result...";
+ const timerCol = getModeTimerColumn();
+ let {data:periodData}=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();
+ if(!periodData){await ensureCurrentPeriodExists();const res=await supabaseClient.from('color_periods').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').maybeSingle();periodData=res.data}
+ const green=periodData?Number(periodData.total_green_amount||0):0,red=periodData?Number(periodData.total_red_amount||0):0,violet=periodData?Number(periodData.total_violet_amount||0):0;
+ let winningColor='Green';
+ if(green===0&&red===0&&violet===0){const rc=['Green','Red','Green','Red','Violet'];winningColor=rc[Math.floor(Math.random()*rc.length)]}
+ else if(green<=red&&green<=violet)winningColor='Green';else if(red<=green&&red<=violet)winningColor='Red';else winningColor='Violet';
+ const numbersMap={Green:[1,3,7,9],Red:[2,4,6,8],Violet:[0,5]},possibleNums=numbersMap[winningColor],winningNumber=possibleNums[Math.floor(Math.random()*possibleNums.length)],winningBigSmall=winningNumber>=5?'Big':'Small',winningResultString=`${winningColor}-${winningNumber}`;
+ await supabaseClient.from('color_periods').update({winning_color:winningColor,winning_number:winningNumber,status:'completed'}).eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's');
+ const {data:allBets}=await supabaseClient.from('color_game_history').select("*").eq("period_number",currentPeriodNumber).eq(timerCol, selectedGameDuration + 's').eq("status",'pending');
+ let userWonAmount=0,hasUserWon=false,userParticipated=false,userWinsMap={};
+ if(allBets&&allBets.length)for(let bet of allBets){
+  let isWin=false,multiplier=2;if(bet.bet_type==='Red')multiplier=1.9;else if(bet.bet_type==='Violet')multiplier=4.5;else if(bet.bet_type==='Big'||bet.bet_type==='Small')multiplier=1.9;else if(!isNaN(bet.bet_type))multiplier=9;
+  if(bet.bet_type===winningColor||bet.bet_type===String(winningNumber)||bet.bet_type===winningBigSmall)isWin=true;
+  if(bet.user_id===currentUser.id)userParticipated=true;
+  if(isWin){
+   const payoutAmount=bet.bet_amount*multiplier;
+   if(bet.user_id===currentUser.id){userWonAmount+=payoutAmount;hasUserWon=true;const totalTargetWinReturn=bet.bet_amount+payoutAmount;userWinsMap[bet.bet_type]=(userWinsMap[bet.bet_type]||0)+totalTargetWinReturn}
+   await supabaseClient.from('color_game_history').update({winning_result:winningResultString,payout:payoutAmount,status:'win'}).eq("id",bet.id);
+   const {data:targetProfile}=await supabaseClient.from("profiles").select("balance").eq("id",bet.user_id).single();
+   if(targetProfile){const updatedBal=Number(targetProfile.balance)+payoutAmount;await supabaseClient.from("profiles").update({balance:updatedBal}).eq("id",bet.user_id)}
+  }else await supabaseClient.from('color_game_history').update({winning_result:winningResultString,payout:0,status:'loss'}).eq("id",bet.id)
+ }
+ currentRoundTotalBet=0;userActiveBets=[];updateBetBadgesUI();document.getElementById("bar-total-bet").innerText="0.00";
+ for(let target in userWinsMap){const btn=document.getElementById(`btn-${target}`);if(btn){const overlay=document.createElement('div');overlay.className='win-payout-overlay';overlay.innerText=`+৳${userWinsMap[target].toFixed(1)}`;btn.appendChild(overlay);setTimeout(()=>overlay.remove(),2000)}}
+ document.getElementById("game-status-text").innerText=`Result: ${winningResultString} (${winningBigSmall})`;
+ highlightWinningTargets(winningColor,winningNumber,winningBigSmall);await loadUserProfile();
+ 
+ const winDisplay = document.getElementById("win-amount-design") || document.getElementById("win-amount-display");
+ if(userParticipated){
+   if(hasUserWon){
+     winDisplay.innerHTML = `<span class="text-emerald-400 font-bold">Win ৳${userWonAmount.toFixed(2)}</span>`;
+     playVoiceMessage("congratulation winner");
+   } else {
+     winDisplay.innerHTML = `<span class="text-rose-500 font-bold">Lost</span>`;
+     playVoiceMessage("better luck next time");
+   }
+ } else {
+   winDisplay.innerHTML = "";
+ }
+ 
+ await updatePeriodAndTimerState();
+ loadRecentWinsUI();
+ const modal=document.getElementById('custom-popup-modal');if(modal&&modal.classList.contains('show')&&activeModalTab)loadHistoryData(activeModalTab);startTimer()
 }
 </script>
-<!-- ================= LOADING ANIMATION SCRIPT ================= -->
+
+<!-- ================= LOADING ANIMATION SCRIPT START ================= -->
 <script>
 (function () {
-const loader = document.getElementById('page-loader-overlay');
-if (!loader || loader.dataset.initialized === 'true') return;
-loader.dataset.initialized = 'true';
-const numbers = Array.from(
-loader.querySelectorAll('.loader-reel-number')
-);
-const progress = loader.querySelector('.loader-progress-fill');
-const finalNumbers = ['0', '5', '8'];
-const duration = 3500;
-let started = false;
-let intervalId;
-function startLoaderAnimation() {
-if (started) return;
-started = true;
-const startTime = performance.now();
-// Progress Bar starts empty and fills over 3.5 seconds.
-if (progress) {
-progress.style.transition = 'none';
-progress.style.width = '0%';
-void progress.offsetWidth;
-progress.style.transition = 'width 3500ms linear';
-requestAnimationFrame(function () {
-progress.style.width = '100%';
-});
-}
-// Change each digit smoothly, using digits 0 through 9.
-intervalId = setInterval(function () {
-numbers.forEach(function (element) {
-element.classList.add('rolling');
-const current = Number(element.textContent) || 0;
-element.textContent = String((current + 1) % 10);
-setTimeout(function () {
-element.classList.remove('rolling');
-}, 70);
-});
-}, 110);
-// Finish after 3.5 seconds and settle on 058.
-function finishLoader() {
-const elapsed = performance.now() - startTime;
-const remaining = Math.max(0, duration - elapsed);
-if (remaining > 0) {
-setTimeout(finishLoader, remaining);
-return;
-}
-clearInterval(intervalId);
-numbers.forEach(function (element, index) {
-element.classList.remove('rolling');
-element.textContent = finalNumbers[index];
-});
-if (progress) {
-progress.style.width = '100%';
-}
-loader.classList.add('loader-hidden');
-setTimeout(function () {
-loader.style.display = 'none';
-}, 450);
-}
-setTimeout(finishLoader, duration);
-}
-if (document.readyState === 'loading') {
-document.addEventListener(
-'DOMContentLoaded',
-startLoaderAnimation,
-{ once: true }
-);
-} else {
-startLoaderAnimation();
-}
+  const loader = document.getElementById('page-loader-overlay');
+  if (!loader || loader.dataset.initialized === 'true') return;
+  loader.dataset.initialized = 'true';
+
+  const numbers = Array.from(loader.querySelectorAll('.loader-reel-number'));
+  const progress = loader.querySelector('.loader-progress-fill');
+  const finalNumbers = ['0', '5', '8'];
+  const duration = 3500;
+  let started = false;
+  let intervalId;
+
+  function startLoaderAnimation() {
+    if (started) return;
+    started = true;
+    const startTime = performance.now();
+
+    if (progress) {
+      progress.style.transition = 'none';
+      progress.style.width = '0%';
+      void progress.offsetWidth;
+      progress.style.transition = 'width 3500ms linear';
+      requestAnimationFrame(function () {
+        progress.style.width = '100%';
+      });
+    }
+
+    intervalId = setInterval(function () {
+      numbers.forEach(function (element) {
+        element.classList.add('rolling');
+        const current = Number(element.textContent) || 0;
+        element.textContent = String((current + 1) % 10);
+        setTimeout(function () {
+          element.classList.remove('rolling');
+        }, 70);
+      });
+    }, 110);
+
+    function finishLoader() {
+      const elapsed = performance.now() - startTime;
+      const remaining = Math.max(0, duration - elapsed);
+      if (remaining > 0) {
+        setTimeout(finishLoader, remaining);
+        return;
+      }
+
+      clearInterval(intervalId);
+      numbers.forEach(function (element, index) {
+        element.classList.remove('rolling');
+        element.textContent = finalNumbers[index];
+      });
+      if (progress) progress.style.width = '100%';
+      loader.classList.add('loader-hidden');
+      setTimeout(function () {
+        loader.style.display = 'none';
+      }, 450);
+    }
+
+    setTimeout(finishLoader, duration);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startLoaderAnimation, { once: true });
+  } else {
+    startLoaderAnimation();
+  }
 })();
 </script>
 <!-- ================== LOADING ANIMATION SCRIPT END ================== -->
+
 </body>
 </html>
