@@ -155,6 +155,86 @@
       min-height: 20px;
       text-align: center;
     }
+
+    /* Premium casino-table presentation */
+    body { background:#10151c; color:#f4f6f8; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .game-page { max-width:760px; padding:8px 10px 110px; }
+    .main-wrapper { background:#171d26; border:1px solid #29323e; border-radius:16px; box-shadow:0 12px 35px rgba(0,0,0,.28); }
+    .game-screen {
+      min-height:440px; padding:18px 12px 22px; justify-content:flex-start; gap:22px;
+      background:radial-gradient(ellipse at 50% 42%,#176b4d 0%,#10543e 48%,#0b3b2d 100%);
+      isolation:isolate;
+    }
+    .game-screen:before {
+      content:""; position:absolute; inset:12px 9px 13px; border:1px solid rgba(226,190,106,.62);
+      border-radius:48% / 17%; pointer-events:none; z-index:-1;
+      box-shadow:inset 0 0 0 5px rgba(0,0,0,.06), inset 0 0 30px rgba(0,0,0,.12);
+    }
+    .game-screen:after {
+      content:"BLACKJACK"; position:absolute; left:0; right:0; top:49%;
+      transform:translateY(-50%); text-align:center; color:rgba(255,255,255,.045);
+      font-size:clamp(28px,8vw,54px); font-weight:900; letter-spacing:5px; pointer-events:none; z-index:-1;
+    }
+    .rules-badge {
+      align-self:stretch; margin-right:62px; min-height:32px; display:flex; align-items:center; justify-content:center;
+      background:rgba(4,20,15,.3); border:1px solid rgba(234,205,139,.28); border-radius:8px;
+      padding:7px 8px; font-size:9px; line-height:1.5; letter-spacing:.7px; color:#d4e5db;
+    }
+    .deck-container {
+      top:17px; right:15px; width:46px; height:65px; border:1px solid #d9bc70;
+      border-radius:5px; background:#152b40; box-shadow:0 5px 12px #001b15a6;
+    }
+    .deck-container img { display:none; }
+    .deck-container:before {
+      content:""; position:absolute; inset:4px; border:1px solid #d6b96d; border-radius:3px;
+      background:repeating-linear-gradient(45deg,#183c5b 0 4px,#214f70 4px 7px);
+    }
+    .deck-container:after {
+      content:"♠"; position:absolute; inset:0; display:grid; place-items:center;
+      color:#f4d889; font-size:24px; text-shadow:0 1px 2px #000;
+    }
+    .cards-area { flex:1; justify-content:space-between; gap:24px; padding:0 3px; }
+    .hand-container { gap:9px; min-width:0; width:100%; }
+    .hand-title { color:#e0eee7; font-size:12px; font-weight:800; letter-spacing:1.1px; text-shadow:0 1px 2px #00251b; }
+    .cards-flex { gap:7px; min-height:94px; justify-content:center; flex-wrap:nowrap; }
+    .card {
+      flex:0 0 auto; width:clamp(48px,13vw,66px); height:clamp(70px,18vw,94px);
+      border-radius:7px; padding:5px 5px 4px; font-size:clamp(14px,3.8vw,19px);
+      box-shadow:0 5px 12px rgba(0,0,0,.32); border:1px solid #e5e7eb;
+      animation:dealFromDeck .32s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+    .card > div:last-child { font-size:1.12em; }
+    .card.black { color:#202b3a; }
+    .card.red { color:#d92f42; }
+    .status-msg {
+      width:100%; max-width:520px; min-height:34px; padding:7px 8px; border-radius:8px;
+      background:rgba(2,24,17,.28); border:1px solid rgba(255,255,255,.08);
+      color:#f4d889; font-size:13px; line-height:1.45; text-align:center;
+    }
+    .divider { background:#2b3441; }
+    .main-wrapper > .p-4 { padding:16px; background:#171d26; }
+    .input-box { background:#0e131a; border-color:#303a48; border-radius:12px; min-height:52px; }
+    .input-box:focus-within { border-color:#19c982; box-shadow:0 0 0 2px rgba(25,201,130,.12); }
+    #betAmount { font-size:16px; min-height:42px; }
+    .green-btn { background:#16c784; color:#071a13; font-weight:900; letter-spacing:.5px; }
+    .green-btn:hover { background:#20d994; }
+    #mainBetBtn { min-height:56px; border-radius:12px; font-size:16px; box-shadow:0 3px 0 #08794f; }
+    #hitBtn,#standBtn,#splitBtn,#doubleActionBtn,#insuranceBtn {
+      min-height:48px; border:1px solid #303a48; background:#202834; color:#e3e8ef;
+      border-radius:10px; font-size:13px; font-weight:800;
+    }
+    #hitBtn:not(:disabled),#standBtn:not(:disabled),#splitBtn:not(:disabled),#doubleActionBtn:not(:disabled),#insuranceBtn:not(:disabled) {
+      background:#273443; border-color:#435367; color:#fff;
+    }
+    button:disabled { cursor:not-allowed; }
+    @media (max-width:380px) {
+      .game-screen { min-height:400px; padding:14px 8px 18px; gap:18px; }
+      .rules-badge { font-size:8px; margin-right:54px; }
+      .cards-flex { gap:4px; }
+      .card { width:45px; height:66px; padding:4px; }
+      .main-wrapper > .p-4 { padding:12px; }
+    }
+
   </style>
 </head>
 <body>
