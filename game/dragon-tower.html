@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dragon Tower</title>
+<style>
+:root {
+  color-scheme: dark;
+  --page-bg: #0b1b27;
+  --panel-bg: #203646;
+  --panel-border: #304e60;
+  --blue: #1678e8;
+  --text: #d6e7f3;
+  --muted: #a9c2d2;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+body {
+  background: radial-gradient(ellipse at top, #163247 0, #0a1924 68%);
+}
+.app {
+  width: min(100%, 560px);
+  margin: 0 auto;
+  padding: 12px 12px 24px;
+}
+.board-card {
+  padding: 10px;
+  background: #102431;
+  border: 1px solid #294657;
+  border-radius: 22px;
+  box-shadow: 0 12px 32px #0003;
+}
+.board-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #061522;
+  line-height: 0;
+}
+.board-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+.board-overlay {
+  position: absolute;
+  left: 11.9%;
+  right: 11.9%;
+  top: 19.15%;
+  bottom: 8.45%;
+  display: grid;
+  grid-template-rows: repeat(9, minmax(0, 1fr));
+  row-gap: 2.35%;
+}
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 3.9%;
+  min-height: 0;
+}
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: transparent;
+  color: #e8faff;
+  font-size: clamp(15px, 4.2vw, 25px);
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, box-shadow .15s, transform .12s;
+}
+.tile:active { transform: scale(.97); }
+.tile:focus-visible { outline: 2px solid #8feaff; outline-offset: 1px; }
+.tile:disabled { cursor: default; }
+.tile.safe {
+  background: linear-gradient(145deg, #0bd7bd35, #00a8d235);
+  border-color: #32f4dc;
+  box-shadow: inset 0 0 12px #00d9ff44, 0 0 10px #00d9ff33;
+}
+.tile.trap {
+  background: linear-gradient(145deg, #ff536533, #9f234333);
+  border-color: #ff7280;
+  box-shadow: inset 0 0 12px #ff536644, 0 0 10px #ff536633;
+}
+.symbol { line-height: 1; text-shadow: 0 0 10px currentColor; }
+.status {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 4px 2px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.controls {
+  margin-top: 12px;
+  padding: 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  box-shadow: 0 12px 28px #0002;
+}
+.bet-heading {
+  margin: 0 0 16px;
+  padding: 14px 10px;
+  border-radius: 15px;
+  background: var(--blue);
+  color: #fff;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 750;
+}
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 9px 0 8px;
+  color: #bfd4e2;
+  font-size: 14px;
+}
+.amount-wrap {
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #4b687a;
+  border-radius: 13px;
+  background: #132733;
+}
+.amount-wrap input {
+  flex: 1;
+  width: 40px;
+  min-width: 0;
+  padding: 14px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #f0f8ff;
+  font-size: 20px;
+}
+.amount-buttons { display: flex; background: #3d5b70; }
+.amount-buttons button {
+  padding: 0 15px;
+  border: 0;
+  border-left: 1px solid #668093;
+  background: transparent;
+  color: white;
+  font-size: 17px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.random {
+  width: 100%;
+  margin: 12px 0 17px;
+  padding: 16px 10px;
+  border: 0;
+  border-radius: 14px;
+  background: #304b5d;
+  color: #dceaf4;
+  font-size: 19px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.random:active, .amount-buttons button:active { filter: brightness(1.15); }
+.profit-input {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #496779;
+  border-radius: 13px;
+  background: transparent;
+  color: #e8f4fb;
+  font-size: 20px;
+}
+.message {
+  min-height: 22px;
+  margin-top: 12px;
+  color: #b9d2e0;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.45;
+}
+@media (min-width: 480px) {
+  .app { padding: 18px 14px 28px; }
+  .controls { padding: 20px; }
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <section class="board-card">
+    <div class="board-wrap">
+      <!-- File is located at root/assets/image/dragon-tower-layout.png.
+           This HTML is located at root/game/dragon-tower.html. -->
+      <img
+        class="board-image"
+        src="../assets/image/dragon-tower-layout.png"
+        alt="Dragon Tower game board"
+        draggable="false"
+      >
+      <div class="board-overlay" id="board" aria-label="Dragon Tower tiles"></div>
+    </div>
+    <div class="status">
+      <span id="levelText">Level 0 / 9</span>
+      <span id="multiplierText">Multiplier: 1.00×</span>
+    </div>
+  </section>
+
+  <section class="controls">
+    <h1 class="bet-heading">Bet</h1>
+
+    <div class="meta">
+      <span>Bet Amount</span>
+      <span id="betUsdt">1.00000000 USDT</span>
+    </div>
+    <div class="amount-wrap">
+      <input id="betAmount" type="number" min="0.01" step="0.01" value="1.00" aria-label="Bet amount">
+      <div class="amount-buttons">
+        <button id="halfBtn" type="button" aria-label="Halve bet">½</button>
+        <button id="doubleBtn" type="button" aria-label="Double bet">2×</button>
+      </div>
+    </div>
+
+    <button class="random" id="randomBtn" type="button">Random Pick</button>
+
+    <div class="meta">
+      <span>Total Profit (<b id="multLabel">1.00×</b>)</span>
+      <span id="profitUsdt">1.00000000 USDT</span>
+    </div>
+    <input class="profit-input" id="profitAmount" value="1.00" readonly aria-label="Total return">
+
+    <div class="message" id="message" aria-live="polite">
+      Tap any tile in the bottom row to begin.
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const ROWS = 9;
+  const COLUMNS = 3;
+  const MULTIPLIER_PER_SAFE_ROW = 1.5;
+
+  const board = document.getElementById('board');
+  const amountInput = document.getElementById('betAmount');
+  const message = document.getElementById('message');
+
+  let active = false;
+  let level = 0;
+  let multiplier = 1;
+  let safeByRow = [];
+  let finished = false;
+
+  const getBet = () => Math.max(0, Number(amountInput.value) || 0);
+
+  function setMessage(text) {
+    message.textContent = text;
+  }
+
+  function updateInfo() {
+    document.getElementById('levelText').textContent = `Level ${level} / ${ROWS}`;
+    document.getElementById('multiplierText').textContent = `Multiplier: ${multiplier.toFixed(2)}×`;
+    document.getElementById('multLabel').textContent = `${multiplier.toFixed(2)}×`;
+    document.getElementById('betUsdt').textContent = `${getBet().toFixed(8)} USDT`;
+    document.getElementById('profitUsdt').textContent = `${(getBet() * multiplier).toFixed(8)} USDT`;
+    document.getElementById('profitAmount').value = (getBet() * multiplier).toFixed(2);
+  }
+
+  function renderBoard() {
+    board.innerHTML = '';
+
+    for (let rowIndex = 0; rowIndex < ROWS; rowIndex++) {
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      for (let columnIndex = 0; columnIndex < COLUMNS; columnIndex++) {
+        const tile = document.createElement('button');
+        tile.type = 'button';
+        tile.className = 'tile';
+        tile.setAttribute('aria-label', `Row ${rowIndex + 1}, tile ${columnIndex + 1}`);
+        tile.dataset.row = String(rowIndex);
+        tile.dataset.column = String(columnIndex);
+        tile.addEventListener('click', () => pickTile(rowIndex, columnIndex));
+        row.appendChild(tile);
+      }
+
+      board.appendChild(row);
+    }
+  }
+
+  function startRoundIfNeeded() {
+    if (active) return true;
+
+    if (finished) {
+      setMessage('This round has ended. Reload the page to start a new demo round.');
+      return false;
+    }
+
+    if (getBet() <= 0) {
+      setMessage('Enter a bet amount greater than zero.');
+      return false;
+    }
+
+    active = true;
+    level = 0;
+    multiplier = 1;
+    safeByRow = Array.from({ length: ROWS }, () => Math.floor(Math.random() * COLUMNS));
+    updateInfo();
+    setMessage('Choose one tile from the bottom row.');
+    return true;
+  }
+
+  function revealRow(rowIndex) {
+    board.querySelectorAll(`[data-row="${rowIndex}"]`).forEach(tile => {
+      const column = Number(tile.dataset.column);
+
+      if (column === safeByRow[rowIndex]) {
+        if (!tile.classList.contains('safe')) {
+          tile.classList.add('safe');
+          tile.innerHTML = '<span class="symbol">◆</span>';
+        }
+      } else if (!tile.classList.contains('trap')) {
+        tile.classList.add('trap');
+        tile.innerHTML = '<span class="symbol">✕</span>';
+      }
+
+      tile.disabled = true;
+    });
+  }
+
+  function pickTile(rowIndex, columnIndex) {
+    if (!startRoundIfNeeded()) return;
+
+    const expectedRow = ROWS - 1 - level;
+    if (rowIndex !== expectedRow) {
+      setMessage('Choose a tile from the current bottom row.');
+      return;
+    }
+
+    const tile = board.querySelector(
+      `[data-row="${rowIndex}"][data-column="${columnIndex}"]`
+    );
+    if (!tile || tile.disabled) return;
+
+    if (columnIndex !== safeByRow[rowIndex]) {
+      tile.classList.add('trap');
+      tile.innerHTML = '<span class="symbol">✕</span>';
+      revealRow(rowIndex);
+      active = false;
+      finished = true;
+      setMessage('Trap! This demo round has ended.');
+      return;
+    }
+
+    tile.classList.add('safe');
+    tile.innerHTML = '<span class="symbol">◆</span>';
+    tile.disabled = true;
+    revealRow(rowIndex);
+
+    level += 1;
+    multiplier *= MULTIPLIER_PER_SAFE_ROW;
+    updateInfo();
+
+    if (level >= ROWS) {
+      active = false;
+      finished = true;
+      setMessage('Tower completed! This is a demo; no real money is used.');
+    } else {
+      setMessage(`Safe tile! Continue to the next row (${ROWS - level} remaining).`);
+    }
+  }
+
+  document.getElementById('halfBtn').addEventListener('click', () => {
+    amountInput.value = (getBet() / 2).toFixed(2);
+    updateInfo();
+  });
+
+  document.getElementById('doubleBtn').addEventListener('click', () => {
+    amountInput.value = (getBet() * 2).toFixed(2);
+    updateInfo();
+  });
+
+  document.getElementById('randomBtn').addEventListener('click', () => {
+    if (finished) {
+      setMessage('This round has ended. Reload the page to play again.');
+      return;
+    }
+    const currentRow = ROWS - 1 - level;
+    const randomColumn = Math.floor(Math.random() * COLUMNS);
+    pickTile(currentRow, randomColumn);
+  });
+
+  amountInput.addEventListener('input', updateInfo);
+
+  renderBoard();
+  updateInfo();
+})();
+</script>
+</body>
+</html>
