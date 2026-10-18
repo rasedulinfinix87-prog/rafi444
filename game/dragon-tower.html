@@ -4,414 +4,230 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Dragon Tower</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../supabase-config.js"></script>
 <style>
-:root {
-  color-scheme: dark;
-  --page-bg: #0b1b27;
-  --panel-bg: #203646;
-  --panel-border: #304e60;
-  --blue: #1678e8;
-  --text: #d6e7f3;
-  --muted: #a9c2d2;
-}
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  min-height: 100%;
-  background: var(--page-bg);
-  color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
-}
-body {
-  background: radial-gradient(ellipse at top, #163247 0, #0a1924 68%);
-}
-.app {
-  width: min(100%, 560px);
-  margin: 0 auto;
-  padding: 12px 12px 24px;
-}
-.board-card {
-  padding: 10px;
-  background: #102431;
-  border: 1px solid #294657;
-  border-radius: 22px;
-  box-shadow: 0 12px 32px #0003;
-}
-.board-wrap {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 12px;
-  background: #061522;
-  line-height: 0;
-}
-.board-image {
-  display: block;
-  width: 100%;
-  height: auto;
-  user-select: none;
-  -webkit-user-drag: none;
-  pointer-events: none;
-}
-.board-overlay {
-  position: absolute;
-  left: 11.9%;
-  right: 11.9%;
-  top: 19.15%;
-  bottom: 8.45%;
-  display: grid;
-  grid-template-rows: repeat(9, minmax(0, 1fr));
-  row-gap: 2.35%;
-}
-.row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: 3.9%;
-  min-height: 0;
-}
-.tile {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
-  min-height: 0;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 18px;
-  background: transparent;
-  color: #e8faff;
-  font-size: clamp(15px, 4.2vw, 25px);
-  font-weight: 800;
-  cursor: pointer;
-  transition: background .15s, border-color .15s, box-shadow .15s, transform .12s;
-}
-.tile:active { transform: scale(.97); }
-.tile:focus-visible { outline: 2px solid #8feaff; outline-offset: 1px; }
-.tile:disabled { cursor: default; }
-.tile.safe {
-  background: linear-gradient(145deg, #0bd7bd35, #00a8d235);
-  border-color: #32f4dc;
-  box-shadow: inset 0 0 12px #00d9ff44, 0 0 10px #00d9ff33;
-}
-.tile.trap {
-  background: linear-gradient(145deg, #ff536533, #9f234333);
-  border-color: #ff7280;
-  box-shadow: inset 0 0 12px #ff536644, 0 0 10px #ff536633;
-}
-.symbol { line-height: 1; text-shadow: 0 0 10px currentColor; }
-.status {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 11px 4px 2px;
-  color: var(--muted);
-  font-size: 13px;
-}
-.controls {
-  margin-top: 12px;
-  padding: 16px;
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 20px;
-  box-shadow: 0 12px 28px #0002;
-}
-.bet-heading {
-  margin: 0 0 16px;
-  padding: 14px 10px;
-  border-radius: 15px;
-  background: var(--blue);
-  color: #fff;
-  text-align: center;
-  font-size: 26px;
-  font-weight: 750;
-}
-.meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin: 9px 0 8px;
-  color: #bfd4e2;
-  font-size: 14px;
-}
-.amount-wrap {
-  display: flex;
-  min-width: 0;
-  overflow: hidden;
-  border: 1px solid #4b687a;
-  border-radius: 13px;
-  background: #132733;
-}
-.amount-wrap input {
-  flex: 1;
-  width: 40px;
-  min-width: 0;
-  padding: 14px;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: #f0f8ff;
-  font-size: 20px;
-}
-.amount-buttons { display: flex; background: #3d5b70; }
-.amount-buttons button {
-  padding: 0 15px;
-  border: 0;
-  border-left: 1px solid #668093;
-  background: transparent;
-  color: white;
-  font-size: 17px;
-  font-weight: 750;
-  cursor: pointer;
-}
-.random {
-  width: 100%;
-  margin: 12px 0 17px;
-  padding: 16px 10px;
-  border: 0;
-  border-radius: 14px;
-  background: #304b5d;
-  color: #dceaf4;
-  font-size: 19px;
-  font-weight: 750;
-  cursor: pointer;
-}
-.random:active, .amount-buttons button:active { filter: brightness(1.15); }
-.profit-input {
-  width: 100%;
-  padding: 15px;
-  border: 1px solid #496779;
-  border-radius: 13px;
-  background: transparent;
-  color: #e8f4fb;
-  font-size: 20px;
-}
-.message {
-  min-height: 22px;
-  margin-top: 12px;
-  color: #b9d2e0;
-  text-align: center;
-  font-size: 13px;
-  line-height: 1.45;
-}
-@media (min-width: 480px) {
-  .app { padding: 18px 14px 28px; }
-  .controls { padding: 20px; }
-}
+:root{color-scheme:dark;--page-bg:#0b1b27;--panel-bg:#203646;--panel-border:#304e60;--blue:#1678e8;--text:#d6e7f3;--muted:#a9c2d2}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--page-bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}body{background:radial-gradient(ellipse at top,#163247 0,#0a1924 68%);padding-bottom:calc(78px + env(safe-area-inset-bottom));overflow-x:hidden}
+#topBarContainer{position:sticky;top:0;z-index:500;width:100%;max-width:560px;margin:0 auto}#bottomBarContainer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:600;width:100%;max-width:560px;padding-bottom:env(safe-area-inset-bottom)}
+.app{width:min(100%,560px);margin:0 auto;padding:12px 12px 24px}.board-card{padding:10px;background:#102431;border:1px solid #294657;border-radius:22px;box-shadow:0 12px 32px #0003}.board-wrap{position:relative;width:100%;overflow:hidden;border-radius:12px;background:#061522;line-height:0}.board-image{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none;pointer-events:none}.board-overlay{position:absolute;left:11.9%;right:11.9%;top:19.15%;bottom:8.45%;display:grid;grid-template-rows:repeat(9,minmax(0,1fr));row-gap:2.35%}.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:3.9%;min-height:0}.tile{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;width:100%;height:100%;padding:0;border:1px solid transparent;border-radius:18px;background:transparent;color:#e8faff;font-size:clamp(15px,4.2vw,25px);font-weight:800;cursor:pointer;transition:background .15s,border-color .15s,box-shadow .15s,transform .12s}.tile:active{transform:scale(.97)}.tile:focus-visible{outline:2px solid #8feaff;outline-offset:1px}.tile:disabled{cursor:default}.tile.safe{background:linear-gradient(145deg,#0bd7bd35,#00a8d235);border-color:#32f4dc;box-shadow:inset 0 0 12px #00d9ff44,0 0 10px #00d9ff33}.tile.trap{background:linear-gradient(145deg,#ff536533,#9f234333);border-color:#ff7280;box-shadow:inset 0 0 12px #ff536644,0 0 10px #ff536633}.symbol{line-height:1;text-shadow:0 0 10px currentColor}.status{display:flex;justify-content:space-between;gap:8px;padding:11px 4px 2px;color:var(--muted);font-size:13px}
+.controls{margin-top:12px;padding:16px;background:var(--panel-bg);border:1px solid var(--panel-border);border-radius:20px;box-shadow:0 12px 28px #0002}.bet-heading{margin:0 0 16px;padding:14px 10px;border-radius:15px;background:var(--blue);color:#fff;text-align:center;font-size:26px;font-weight:750}.meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:9px 0 8px;color:#bfd4e2;font-size:14px}.amount-wrap{display:flex;min-width:0;overflow:hidden;border:1px solid #4b687a;border-radius:13px;background:#132733}.amount-wrap input{flex:1;width:40px;min-width:0;padding:14px;border:0;outline:0;background:transparent;color:#f0f8ff;font-size:20px}.amount-buttons{display:flex;background:#3d5b70}.amount-buttons button{padding:0 15px;border:0;border-left:1px solid #668093;background:transparent;color:white;font-size:17px;font-weight:750;cursor:pointer}.random{width:100%;margin:12px 0 17px;padding:16px 10px;border:0;border-radius:14px;background:#304b5d;color:#dceaf4;font-size:19px;font-weight:750;cursor:pointer}.random:active,.amount-buttons button:active{filter:brightness(1.15)}.profit-input{width:100%;padding:15px;border:1px solid #496779;border-radius:13px;background:transparent;color:#e8f4fb;font-size:20px}.cashout{display:none;width:100%;margin-top:12px;padding:15px 12px;border:0;border-radius:14px;background:#12b981;color:#fff;font-size:18px;font-weight:800;cursor:pointer}.cashout:disabled{opacity:.55;cursor:wait}.message{min-height:22px;margin-top:12px;color:#b9d2e0;text-align:center;font-size:13px;line-height:1.45}.message.error{color:#ff9da5}.message.success{color:#6df3ce}.image-error{display:none;position:absolute;inset:0;align-items:center;justify-content:center;padding:24px;background:#061522;color:#ffb7bd;text-align:center;font-size:14px;line-height:1.5}
+@media(min-width:480px){.app{padding:18px 14px 28px}.controls{padding:20px}}
 </style>
 </head>
 <body>
+<div id="topBarContainer"></div>
 <main class="app">
   <section class="board-card">
     <div class="board-wrap">
-      <!-- File is located at root/assets/image/dragon-tower-layout.png.
-           This HTML is located at root/game/dragon-tower.html. -->
-      <img
-        class="board-image"
-        src="../assets/image/dragon-tower-layout.png"
-        alt="Dragon Tower game board"
-        draggable="false"
-      >
+      <img class="board-image" id="boardImage" src="../assets/images/dragon-tower-layout.png" alt="Dragon Tower game board" draggable="false">
+      <div class="image-error" id="imageError">Dragon Tower image could not be loaded.<br>Check that the file exists at <b>root/assets/images/dragon-tower-layout.png</b>.</div>
       <div class="board-overlay" id="board" aria-label="Dragon Tower tiles"></div>
     </div>
-    <div class="status">
-      <span id="levelText">Level 0 / 9</span>
-      <span id="multiplierText">Multiplier: 1.00×</span>
-    </div>
+    <div class="status"><span id="levelText">Level 0 / 9</span><span id="multiplierText">Multiplier: 1.00×</span></div>
   </section>
-
   <section class="controls">
     <h1 class="bet-heading">Bet</h1>
-
-    <div class="meta">
-      <span>Bet Amount</span>
-      <span id="betUsdt">1.00000000 USDT</span>
-    </div>
+    <div class="meta"><span>Bet Amount</span><span id="betBalanceText">Balance: —</span></div>
     <div class="amount-wrap">
-      <input id="betAmount" type="number" min="0.01" step="0.01" value="1.00" aria-label="Bet amount">
-      <div class="amount-buttons">
-        <button id="halfBtn" type="button" aria-label="Halve bet">½</button>
-        <button id="doubleBtn" type="button" aria-label="Double bet">2×</button>
-      </div>
+      <input id="betAmount" type="number" min="1" step="0.01" value="1.00" inputmode="decimal" aria-label="Bet amount">
+      <div class="amount-buttons"><button id="halfBtn" type="button" aria-label="Halve bet">½</button><button id="doubleBtn" type="button" aria-label="Double bet">2×</button></div>
     </div>
-
     <button class="random" id="randomBtn" type="button">Random Pick</button>
-
-    <div class="meta">
-      <span>Total Profit (<b id="multLabel">1.00×</b>)</span>
-      <span id="profitUsdt">1.00000000 USDT</span>
-    </div>
-    <input class="profit-input" id="profitAmount" value="1.00" readonly aria-label="Total return">
-
-    <div class="message" id="message" aria-live="polite">
-      Tap any tile in the bottom row to begin.
-    </div>
+    <div class="meta"><span>Total Profit (<b id="multLabel">1.00×</b>)</span><span id="profitBalanceText">Return: 0.00</span></div>
+    <input class="profit-input" id="profitAmount" value="0.00" readonly aria-label="Potential return">
+    <button class="cashout" id="cashoutBtn" type="button">Cash Out</button>
+    <div class="message" id="message" aria-live="polite">Choose a tile from the bottom row to begin.</div>
   </section>
 </main>
-
+<div id="bottomBarContainer"></div>
 <script>
 (() => {
   'use strict';
-
   const ROWS = 9;
   const COLUMNS = 3;
-  const MULTIPLIER_PER_SAFE_ROW = 1.5;
-
+  // Demo multiplier progression; adjust to match the game's approved payout table.
+  const MULTIPLIERS = [1.20, 1.50, 1.90, 2.45, 3.20, 4.25, 5.80, 8.10, 12.00];
   const board = document.getElementById('board');
   const amountInput = document.getElementById('betAmount');
   const message = document.getElementById('message');
-
+  const cashoutBtn = document.getElementById('cashoutBtn');
+  let currentUserId = null;
+  let balance = 0;
+  let profileChannel = null;
   let active = false;
+  let processing = false;
   let level = 0;
   let multiplier = 1;
   let safeByRow = [];
-  let finished = false;
+  let activeBetAmount = 0;
+  let roundId = null;
+  let roundFinished = false;
 
   const getBet = () => Math.max(0, Number(amountInput.value) || 0);
-
-  function setMessage(text) {
-    message.textContent = text;
+  const money = value => Number(value || 0).toFixed(2);
+  function setMessage(text, type='') { message.textContent = text; message.className = 'message' + (type ? ' ' + type : ''); }
+  function updateBalanceUI() {
+    const topBal1 = document.getElementById('topBarBalance');
+    const topBal2 = document.getElementById('userBalance');
+    if (topBal1) topBal1.innerText = money(balance);
+    if (topBal2) topBal2.innerText = `৳ ${money(balance)}`;
+    document.getElementById('betBalanceText').textContent = `Balance: ৳ ${money(balance)}`;
   }
-
   function updateInfo() {
     document.getElementById('levelText').textContent = `Level ${level} / ${ROWS}`;
     document.getElementById('multiplierText').textContent = `Multiplier: ${multiplier.toFixed(2)}×`;
     document.getElementById('multLabel').textContent = `${multiplier.toFixed(2)}×`;
-    document.getElementById('betUsdt').textContent = `${getBet().toFixed(8)} USDT`;
-    document.getElementById('profitUsdt').textContent = `${(getBet() * multiplier).toFixed(8)} USDT`;
-    document.getElementById('profitAmount').value = (getBet() * multiplier).toFixed(2);
+    document.getElementById('profitBalanceText').textContent = `Return: ৳ ${money(activeBetAmount ? activeBetAmount * multiplier : getBet() * multiplier)}`;
+    document.getElementById('profitAmount').value = money(activeBetAmount ? activeBetAmount * multiplier : getBet() * multiplier);
+    updateBalanceUI();
   }
-
+  async function loadBars() {
+    try {
+      const topRes = await fetch('../bar/top.html');
+      if (topRes.ok) {
+        let topContent = await topRes.text();
+        topContent = topContent.replace(/game\/mem\/member\.html/g, 'mem/member.html');
+        topContent = topContent.replace(/href="mem\/member\.html"/g, 'href="mem/member.html"');
+        document.getElementById('topBarContainer').innerHTML = topContent;
+        document.querySelectorAll('a[href*="deposit"]').forEach(a => { a.href = '../account/deposit.html'; });
+      } else console.error('Could not load ../bar/top.html:', topRes.status);
+      const botRes = await fetch('../bar/bottom.html');
+      if (botRes.ok) document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+      else console.error('Could not load ../bar/bottom.html:', botRes.status);
+    } catch (e) { console.error('Bar load error:', e); }
+  }
+  async function getStoredUserId() {
+    try {
+      const storedValue = localStorage.getItem('current_user');
+      if (storedValue) {
+        const storedUser = JSON.parse(storedValue);
+        const id = storedUser && (storedUser.id || storedUser.user_id || storedUser.uid);
+        if (id) return id;
+      }
+    } catch (e) { console.error('Unable to read current_user:', e); }
+    if (typeof getCurrentUser === 'function') {
+      try { const user = await getCurrentUser(); if (user) return user.id || user.user_id || user.uid || null; }
+      catch (e) { console.error('getCurrentUser error:', e); }
+    }
+    return null;
+  }
+  async function syncBalance() {
+    if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+      setMessage('Supabase client is unavailable. Check ../supabase-config.js.', 'error');
+      updateBalanceUI(); return;
+    }
+    const userId = await getStoredUserId();
+    if (!userId) { currentUserId = null; balance = 0; updateBalanceUI(); setMessage('Please log in before placing a bet.', 'error'); return; }
+    currentUserId = userId;
+    const { data: profile, error } = await supabaseClient.from('profiles').select('id,balance').eq('id', userId).maybeSingle();
+    if (error) { console.error('Profile balance query error:', error); setMessage('Could not load your balance. Please refresh.', 'error'); return; }
+    if (!profile) { setMessage('No profile balance was found for this user.', 'error'); return; }
+    balance = Number(profile.balance) || 0;
+    updateBalanceUI();
+    if (profileChannel) { try { await supabaseClient.removeChannel(profileChannel); } catch (e) { console.warn(e); } }
+    profileChannel = supabaseClient.channel('dragon-tower-profile-' + userId).on('postgres_changes', {event:'UPDATE',schema:'public',table:'profiles',filter:`id=eq.${userId}`}, payload => {
+      if (payload.new && payload.new.balance !== undefined) { balance = Number(payload.new.balance) || 0; updateBalanceUI(); }
+    }).subscribe();
+  }
+  async function saveProfileBalance() {
+    if (!currentUserId || typeof supabaseClient === 'undefined' || !supabaseClient) return false;
+    const { error } = await supabaseClient.from('profiles').update({balance}).eq('id', currentUserId);
+    if (error) { console.error('Balance update error:', error); return false; }
+    return true;
+  }
+  async function recordBet(payout, won) {
+    if (!currentUserId || !activeBetAmount || typeof supabaseClient === 'undefined' || !supabaseClient) return;
+    const record = { id: generateUUID(), user_id: currentUserId, target_number: level, roll_result: multiplier, bet_amount: activeBetAmount, payout: Number(payout || 0), is_bool: !!won };
+    const { error } = await supabaseClient.from('bets').insert([record]);
+    if (error) console.error('Dragon Tower bet record error:', error);
+  }
+  function generateUUID() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x'?r:(r&0x3|0x8)).toString(16); });
+  }
   function renderBoard() {
     board.innerHTML = '';
-
-    for (let rowIndex = 0; rowIndex < ROWS; rowIndex++) {
-      const row = document.createElement('div');
-      row.className = 'row';
-
-      for (let columnIndex = 0; columnIndex < COLUMNS; columnIndex++) {
-        const tile = document.createElement('button');
-        tile.type = 'button';
-        tile.className = 'tile';
-        tile.setAttribute('aria-label', `Row ${rowIndex + 1}, tile ${columnIndex + 1}`);
-        tile.dataset.row = String(rowIndex);
-        tile.dataset.column = String(columnIndex);
-        tile.addEventListener('click', () => pickTile(rowIndex, columnIndex));
-        row.appendChild(tile);
+    for (let r = 0; r < ROWS; r++) {
+      const row = document.createElement('div'); row.className = 'row';
+      for (let c = 0; c < COLUMNS; c++) {
+        const tile = document.createElement('button'); tile.type = 'button'; tile.className = 'tile';
+        tile.setAttribute('aria-label', `Row ${r+1}, tile ${c+1}`); tile.dataset.row = String(r); tile.dataset.column = String(c);
+        tile.addEventListener('click', () => pickTile(r,c)); row.appendChild(tile);
       }
-
       board.appendChild(row);
     }
   }
-
-  function startRoundIfNeeded() {
-    if (active) return true;
-
-    if (finished) {
-      setMessage('This round has ended. Reload the page to start a new demo round.');
-      return false;
-    }
-
-    if (getBet() <= 0) {
-      setMessage('Enter a bet amount greater than zero.');
-      return false;
-    }
-
-    active = true;
-    level = 0;
-    multiplier = 1;
-    safeByRow = Array.from({ length: ROWS }, () => Math.floor(Math.random() * COLUMNS));
-    updateInfo();
-    setMessage('Choose one tile from the bottom row.');
-    return true;
-  }
-
   function revealRow(rowIndex) {
     board.querySelectorAll(`[data-row="${rowIndex}"]`).forEach(tile => {
-      const column = Number(tile.dataset.column);
-
-      if (column === safeByRow[rowIndex]) {
-        if (!tile.classList.contains('safe')) {
-          tile.classList.add('safe');
-          tile.innerHTML = '<span class="symbol">◆</span>';
-        }
-      } else if (!tile.classList.contains('trap')) {
-        tile.classList.add('trap');
-        tile.innerHTML = '<span class="symbol">✕</span>';
-      }
-
+      const col = Number(tile.dataset.column);
+      if (col === safeByRow[rowIndex]) { tile.classList.add('safe'); tile.innerHTML = '<span class="symbol">◆</span>'; }
+      else { tile.classList.add('trap'); tile.innerHTML = '<span class="symbol">✕</span>'; }
       tile.disabled = true;
     });
   }
-
-  function pickTile(rowIndex, columnIndex) {
-    if (!startRoundIfNeeded()) return;
-
-    const expectedRow = ROWS - 1 - level;
-    if (rowIndex !== expectedRow) {
-      setMessage('Choose a tile from the current bottom row.');
-      return;
-    }
-
-    const tile = board.querySelector(
-      `[data-row="${rowIndex}"][data-column="${columnIndex}"]`
-    );
-    if (!tile || tile.disabled) return;
-
-    if (columnIndex !== safeByRow[rowIndex]) {
-      tile.classList.add('trap');
-      tile.innerHTML = '<span class="symbol">✕</span>';
-      revealRow(rowIndex);
-      active = false;
-      finished = true;
-      setMessage('Trap! This demo round has ended.');
-      return;
-    }
-
-    tile.classList.add('safe');
-    tile.innerHTML = '<span class="symbol">◆</span>';
-    tile.disabled = true;
-    revealRow(rowIndex);
-
-    level += 1;
-    multiplier *= MULTIPLIER_PER_SAFE_ROW;
-    updateInfo();
-
-    if (level >= ROWS) {
-      active = false;
-      finished = true;
-      setMessage('Tower completed! This is a demo; no real money is used.');
-    } else {
-      setMessage(`Safe tile! Continue to the next row (${ROWS - level} remaining).`);
-    }
+  async function beginRound() {
+    if (active) return true;
+    if (processing || roundFinished) return false;
+    if (!currentUserId) { setMessage('Please log in before placing a bet.', 'error'); return false; }
+    const bet = getBet();
+    if (!Number.isFinite(bet) || bet < 1) { setMessage('Minimum bet is ৳ 1.00.', 'error'); return false; }
+    if (bet > balance) { setMessage('Insufficient balance.', 'error'); return false; }
+    processing = true;
+    const previousBalance = balance;
+    balance = Number((balance - bet).toFixed(2));
+    updateBalanceUI();
+    const saved = await saveProfileBalance();
+    if (!saved) { balance = previousBalance; updateBalanceUI(); processing = false; setMessage('Bet could not be deducted. Please try again.', 'error'); return false; }
+    activeBetAmount = bet; active = true; level = 0; multiplier = 1; roundId = generateUUID();
+    safeByRow = Array.from({length:ROWS}, () => Math.floor(Math.random()*COLUMNS));
+    cashoutBtn.style.display = 'none';
+    amountInput.disabled = true;
+    document.getElementById('halfBtn').disabled = true; document.getElementById('doubleBtn').disabled = true;
+    updateInfo(); processing = false; setMessage('Bet placed. Choose one tile from the bottom row.'); return true;
   }
-
-  document.getElementById('halfBtn').addEventListener('click', () => {
-    amountInput.value = (getBet() / 2).toFixed(2);
-    updateInfo();
-  });
-
-  document.getElementById('doubleBtn').addEventListener('click', () => {
-    amountInput.value = (getBet() * 2).toFixed(2);
-    updateInfo();
-  });
-
-  document.getElementById('randomBtn').addEventListener('click', () => {
-    if (finished) {
-      setMessage('This round has ended. Reload the page to play again.');
-      return;
+  async function pickTile(rowIndex, columnIndex) {
+    if (processing || roundFinished) return;
+    if (!active && !(await beginRound())) return;
+    const expectedRow = ROWS - 1 - level;
+    if (rowIndex !== expectedRow) { setMessage('Choose a tile from the current bottom row.'); return; }
+    const tile = board.querySelector(`[data-row="${rowIndex}"][data-column="${columnIndex}"]`);
+    if (!tile || tile.disabled) return;
+    if (columnIndex !== safeByRow[rowIndex]) {
+      tile.classList.add('trap'); tile.innerHTML = '<span class="symbol">✕</span>'; revealRow(rowIndex);
+      active = false; roundFinished = true; cashoutBtn.style.display = 'none';
+      await recordBet(0, false); resetControls(); setMessage('Trap! Bet lost.', 'error'); return;
     }
-    const currentRow = ROWS - 1 - level;
-    const randomColumn = Math.floor(Math.random() * COLUMNS);
-    pickTile(currentRow, randomColumn);
-  });
-
+    tile.classList.add('safe'); tile.innerHTML = '<span class="symbol">◆</span>'; tile.disabled = true; revealRow(rowIndex);
+    level += 1; multiplier = MULTIPLIERS[level-1] || multiplier; updateInfo();
+    cashoutBtn.style.display = 'block'; cashoutBtn.textContent = `Cash Out · ৳ ${money(activeBetAmount * multiplier)}`;
+    if (level >= ROWS) { await cashOut(true); setMessage('Tower completed! Your payout has been credited.', 'success'); }
+    else setMessage(`Safe tile! ${ROWS-level} row(s) remaining. Cash out or continue.`, 'success');
+  }
+  function resetControls() {
+    amountInput.disabled = false; document.getElementById('halfBtn').disabled = false; document.getElementById('doubleBtn').disabled = false;
+    cashoutBtn.style.display = 'none'; activeBetAmount = 0; updateInfo();
+  }
+  async function cashOut(completed=false) {
+    if (!active || processing || level < 1) return;
+    processing = true; cashoutBtn.disabled = true;
+    const payout = Number((activeBetAmount * multiplier).toFixed(2));
+    const previousBalance = balance; balance = Number((balance + payout).toFixed(2)); updateBalanceUI();
+    const saved = await saveProfileBalance();
+    if (!saved) { balance = previousBalance; updateBalanceUI(); processing = false; cashoutBtn.disabled = false; setMessage('Payout failed to save. Please try cashing out again.', 'error'); return; }
+    await recordBet(payout, true);
+    active = false; roundFinished = true; processing = false; cashoutBtn.disabled = false; resetControls();
+    setMessage(completed ? 'Tower completed! Payout credited.' : `Cashed out ৳ ${money(payout)} successfully.`, 'success');
+  }
+  document.getElementById('halfBtn').addEventListener('click', () => { if (!active) { amountInput.value = (getBet()/2).toFixed(2); updateInfo(); } });
+  document.getElementById('doubleBtn').addEventListener('click', () => { if (!active) { amountInput.value = (getBet()*2).toFixed(2); updateInfo(); } });
+  document.getElementById('randomBtn').addEventListener('click', () => { if (processing || roundFinished) return; const currentRow = ROWS-1-level; pickTile(currentRow, Math.floor(Math.random()*COLUMNS)); });
+  cashoutBtn.addEventListener('click', () => cashOut(false));
   amountInput.addEventListener('input', updateInfo);
-
-  renderBoard();
-  updateInfo();
+  document.getElementById('boardImage').addEventListener('error', () => { document.getElementById('imageError').style.display = 'flex'; });
+  document.getElementById('boardImage').addEventListener('load', () => { document.getElementById('imageError').style.display = 'none'; });
+  renderBoard(); updateInfo();
+  window.addEventListener('load', async () => { await loadBars(); await syncBalance(); });
 })();
 </script>
 </body>
