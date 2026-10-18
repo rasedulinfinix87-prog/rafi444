@@ -1,441 +1,289 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Game Portal - Search Games</title> 
+    <!-- Tailwind CSS CDN --> 
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <!-- Supabase JS Client & App Config --> 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
+    <script src="supabase-config.js"></script> 
+    <style> 
+        /* Custom Scrollbar Styling */ 
+        ::-webkit-scrollbar { width: 6px; height: 6px; } 
+        ::-webkit-scrollbar-track { background: #0b0f19; } 
+        ::-webkit-scrollbar-thumb { background: #1b2438; border-radius: 4px; } 
+        ::-webkit-scrollbar-thumb:hover { background: #283552; } 
+        .no-scrollbar::-webkit-scrollbar { display: none; } 
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } 
+        /* Mobile scrolling optimization */ 
+        html { overflow-y: auto; -webkit-overflow-scrolling: touch; } 
+        body { overflow-x: hidden; } 
+        img { -webkit-user-drag: none; } 
+    </style> 
+</head> 
+<body class="bg-[#0b0f19] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black"> 
+    <!-- Top Navigation Bar Anchor Container --> 
+    <div id="topBarContainer" class="sticky top-0 z-50"></div> 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Games - Game Portal</title>
+    <!-- Main Application Wrapper --> 
+    <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5"> 
+        <!-- Category Navigation Bar --> 
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3"> 
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1"> 
+                <button onclick="filterCategory('original')" id="catOriginal" class="flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap"> Original Games </button> 
+                <button onclick="filterCategory('colortrading')" id="catColortrading" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap"> Color Trading </button> 
+                <button onclick="filterCategory('blackjack')" id="catBlackjack" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap"> Blackjack </button> 
+                <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap"> Live Casino </button> 
+            </div> 
+            <div class="flex items-center bg-[#111827] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-400"> 
+                <input type="text" id="gameSearch" onkeyup="searchGames()" placeholder="Search game (min 3 words)..." class="bg-transparent text-white focus:outline-none w-36 lg:w-48"> 
+            </div> 
+        </div> 
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
+        <!-- Games Grid Section --> 
+        <section> 
+            <div class="flex items-center justify-between mb-4"> 
+                <h2 id="sectionTitle" class="text-base font-bold text-white flex items-center gap-2"> 
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> Search Results (Please type at least 3 words)
+                </h2> 
+            </div> 
+            <!-- Exactly 3 Columns Grid --> 
+            <div id="gamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5"> 
+                <!-- Dynamic game cards rendered here --> 
+            </div> 
+        </section> 
+    </div> 
 
-    <style>
-        * { box-sizing: border-box; }
+    <!-- Footer Section --> 
+    <footer class="bg-[#111827] border-t border-slate-800/80 mt-12 py-6 text-center text-xs text-slate-500 space-y-2"> 
+        <p>&copy; 2026 Game Portal. All Rights Reserved.</p> 
+    </footer> 
 
-        body {
-            margin: 0;
-            background: #0b0f19;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            overflow-x: hidden;
-        }
+    <!-- Dynamic Bottom Bar Anchor Container -->
+    <div id="bottomBarContainer"></div>
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
+    <script> 
+        // Games List Configuration 
+        const gameList = [ 
+            { id: 'dice', name: 'Classic Dice', path: 'game/dice.html', category: 'original', players: 1077, image: 'assets/images/dice.png', fallbackBg: 'from-emerald-900 to-slate-950' }, 
+            { id: 'mines', name: 'Mines', path: 'game/mines.html', category: 'original', players: 710, image: 'assets/images/mines.png', fallbackBg: 'from-indigo-900 to-slate-950' }, 
+            { id: 'limbo', name: 'Limbo', path: 'game/limbo.html', category: 'original', players: 415, image: 'assets/images/limbo.png', fallbackBg: 'from-emerald-950 to-slate-950' }, 
+            { id: 'plinko', name: 'Plinko', path: 'game/plinko.html', category: 'original', players: 305, image: 'assets/images/plinko.png', fallbackBg: 'from-cyan-950 to-slate-950' }, 
+            { id: 'crash', name: 'Crash', path: 'game/crash.html', category: 'original', players: 1552, image: 'assets/images/crash.png', fallbackBg: 'from-purple-950 to-slate-950' }, 
+            { id: 'wheel', name: 'Wheel', path: 'game/wheel.html', category: 'original', players: 210, image: 'assets/images/wheel.png', fallbackBg: 'from-fuchsia-950 to-slate-950' }, 
+            { id: 'keno', name: 'Keno', path: 'game/keno.html', category: 'original', players: 145, image: 'assets/images/keno.png', fallbackBg: 'from-amber-950 to-slate-950' }, 
+            { id: 'coin-flip', name: 'Coin Flip', path: 'game/coin-flip.html', category: 'original', players: 180, image: 'assets/images/coin-flip.png', fallbackBg: 'from-yellow-900 to-slate-950' }, 
+            
+            // Color Trading Cards (Total 6 Cards)
+            { id: 'color-trade-win-go', name: 'Color Trade Win Go', path: 'color-trading/card/cards.html', category: 'colortrading', players: 340, image: 'assets/images/color-trade.png', fallbackBg: 'from-emerald-950 to-slate-950' },
+            { id: 'roulette', name: 'Roulette', path: 'color-trading/card/cards.html', category: 'colortrading', players: 255, image: 'assets/images/roulette.png', fallbackBg: 'from-rose-950 to-slate-950' }, 
+            { id: 'color-trade-k3', name: 'K3 Lotter Trading', path: 'color-trading/card/cards.html', category: 'colortrading', players: 290, image: 'assets/images/k3.png', fallbackBg: 'from-blue-950 to-slate-950' },
+            { id: 'color-trade-5d', name: '5D Lotter Trading', path: 'color-trading/card/cards.html', category: 'colortrading', players: 310, image: 'assets/images/5d.png', fallbackBg: 'from-purple-950 to-slate-950' },
+            { id: 'color-trade-trx', name: 'TRX Win Go', path: 'color-trading/card/cards.html', category: 'colortrading', players: 420, image: 'assets/images/trx.png', fallbackBg: 'from-amber-950 to-slate-950' },
+            { id: 'color-trade-parity', name: 'Parity Trading', path: 'color-trading/card/cards.html', category: 'colortrading', players: 195, image: 'assets/images/parity.png', fallbackBg: 'from-teal-950 to-slate-950' },
+            
+            // Blackjack & Live Cards
+            { id: 'blackjack', name: 'Blackjack', path: 'blackjack/blackjacktable.html', category: 'blackjack', players: 470, image: 'assets/images/blackjack.png', fallbackBg: 'from-blue-950 to-slate-950' },
+            { id: 'live-baccarat', name: 'Live Baccarat', path: 'live/baccarat.html', category: 'live', players: 520, image: 'assets/images/baccarat.png', fallbackBg: 'from-red-950 to-slate-950' },
+            { id: 'live-dragon-tiger', name: 'Dragon Tiger', path: 'live/dragon-tiger.html', category: 'live', players: 310, image: 'assets/images/dragon-tiger.png', fallbackBg: 'from-amber-900 to-slate-950' }
+        ]; 
 
-        .category-btn {
-            flex: 0 0 auto;
-            min-width: 100px;
-            padding: 12px 14px;
-            border: 1px solid #263247;
-            border-radius: 13px;
-            background: #111827;
-            color: #cbd5e1;
-            font-size: 12px;
-            font-weight: 700;
-            transition: .2s;
-        }
+        let currentCategory = 'original'; 
+        let balanceSubscription = null; 
+        let playerUpdateInterval = null; 
 
-        .category-btn.active {
-            background: #24ee89;
-            color: #06130c;
-            border-color: #24ee89;
-        }
+        // Supabase Realtime User Balance Sync 
+        async function syncRealtimeUserBalance() { 
+            try { 
+                if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') { 
+                    const user = await getCurrentUser(); 
+                    if (user) { 
+                        const { data: profile } = await supabaseClient 
+                            .from('profiles') 
+                            .select('balance') 
+                            .eq('id', user.id) 
+                            .single(); 
+                        const balanceElement = document.getElementById('topBarBalance'); 
+                        if (profile && balanceElement) { 
+                            balanceElement.innerText = parseFloat(profile.balance).toFixed(2); 
+                        } 
+                        if (!balanceSubscription) { 
+                            balanceSubscription = supabaseClient 
+                                .channel('public:profiles:' + user.id) 
+                                .on('postgres_changes', { 
+                                    event: 'UPDATE', 
+                                    schema: 'public', 
+                                    table: 'profiles', 
+                                    filter: `id=eq.${user.id}` 
+                                }, (payload) => { 
+                                    if (payload.new && payload.new.balance !== undefined) { 
+                                        const topBal = document.getElementById('topBarBalance'); 
+                                        if (topBal) { 
+                                            topBal.innerText = parseFloat(payload.new.balance).toFixed(2); 
+                                        } 
+                                    } 
+                                }) 
+                                .subscribe(); 
+                        } 
+                    } 
+                } 
+            } catch (err) { 
+                console.error('Balance Sync Error:', err); 
+            } 
+        } 
 
-        .game-card {
-            display: block;
-            min-width: 0;
-            overflow: hidden;
-            border: 1px solid #263247;
-            border-radius: 14px;
-            background: #111827;
-            color: white;
-            text-decoration: none;
-            transition: border-color .2s, transform .2s;
-        }
+        // Dynamic Top Bar Loader 
+        async function loadTopBar() { 
+            try { 
+                const response = await fetch('bar/top.html'); 
+                if (response.ok) { 
+                    const html = await response.text(); 
+                    document.getElementById('topBarContainer').innerHTML = html; 
+                    syncRealtimeUserBalance(); 
+                } 
+            } catch (err) { 
+                console.error('Error loading top bar component:', err); 
+            } 
+        } 
 
-        .game-card:active { transform: scale(.98); }
-        .game-card:hover { border-color: #24ee89; }
+        // Optimized Live Players Update 
+        function startLivePlayerUpdates() { 
+            if (playerUpdateInterval) { 
+                clearInterval(playerUpdateInterval); 
+            } 
+            playerUpdateInterval = setInterval(() => { 
+                const visibleCounts = document.querySelectorAll('[id^="player-count-"]'); 
+                visibleCounts.forEach((playerElem) => { 
+                    const gameId = playerElem.id.replace('player-count-', ''); 
+                    const game = gameList.find(item => item.id === gameId); 
+                    if (!game) return; 
+                    const variation = Math.floor(Math.random() * 7) - 3; 
+                    game.players = Math.max(50, game.players + variation); 
+                    playerElem.textContent = game.players.toLocaleString(); 
+                }); 
+            }, 8000); 
+        } 
 
-        .game-image {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
-            display: block;
-            background: #172033;
-        }
+        // Render Game Cards with 3-Word Search Validation
+        function renderGames(filter = 'original', searchQuery = '') { 
+            const grid = document.getElementById('gamesGrid'); 
+            grid.innerHTML = ''; 
 
-        .game-name {
-            padding: 9px 5px;
-            font-size: 12px;
-            font-weight: 700;
-            text-align: center;
-            overflow-wrap: anywhere;
-        }
+            const trimmedQuery = searchQuery.trim();
+            const words = trimmedQuery === '' ? [] : trimmedQuery.split(/\s+/);
 
-        .search-input:focus {
-            outline: none;
-            border-color: #24ee89;
-            box-shadow: 0 0 0 2px #24ee8920;
-        }
-    </style>
-</head>
-
-<body class="min-h-screen flex flex-col">
-
-    <!-- Existing Top Bar -->
-    <div id="topBarContainer" class="sticky top-0 z-50"></div>
-
-    <main class="w-full max-w-7xl mx-auto px-3 sm:px-5 py-5 flex-1">
-
-        <h1 class="text-xl font-extrabold mb-2">🔎 Search Games</h1>
-        <p class="text-xs text-slate-400 mb-5">
-            Search games by entering at least 3 words.
-        </p>
-
-        <!-- Search Box -->
-        <div class="relative mb-5">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2">🔍</span>
-
-            <input
-                type="search"
-                id="gameSearch"
-                class="search-input w-full rounded-2xl border border-slate-700 bg-[#111827] py-4 pl-11 pr-4 text-sm text-white"
-                placeholder="Enter at least 3 words..."
-                autocomplete="off"
-            >
-        </div>
-
-        <p id="searchMessage" class="text-xs text-slate-400 mb-5">
-            Enter at least 3 words to search games.
-        </p>
-
-        <!-- Category Buttons -->
-        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-5">
-            <button class="category-btn active" data-category="hot">
-                🔥 Hot Game
-            </button>
-
-            <button class="category-btn" data-category="original">
-                🎮 Arso Original
-            </button>
-
-            <button class="category-btn" data-category="slot">
-                🎰 Slot
-            </button>
-
-            <button class="category-btn" data-category="casino">
-                🃏 Casino
-            </button>
-
-            <button class="category-btn" data-category="blackjack">
-                ♠️ Blackjack
-            </button>
-        </div>
-
-        <!-- Results Heading -->
-        <div class="flex items-center justify-between mb-4">
-            <h2 id="resultsTitle" class="text-sm font-bold">
-                🔥 Hot Games
-            </h2>
-
-            <span id="resultCount" class="text-xs text-slate-400">0 games</span>
-        </div>
-
-        <!-- Games Results -->
-        <section
-            id="gamesGrid"
-            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"
-        ></section>
-
-        <p id="emptyMessage" class="hidden text-center text-sm text-slate-400 py-10">
-            No games found.
-        </p>
-
-    </main>
-
-    <footer class="border-t border-slate-800 bg-[#111827] py-5 text-center text-xs text-slate-500">
-        © 2026 Game Portal. All Rights Reserved.
-    </footer>
-
-    <script>
-        // ==========================================
-        // TOP BAR LOADER
-        // ==========================================
-        async function loadTopBar() {
-            try {
-                const response = await fetch('/bar/top.html');
-
-                if (!response.ok) {
-                    throw new Error('Top bar could not be loaded.');
-                }
-
-                document.getElementById('topBarContainer').innerHTML =
-                    await response.text();
-
-                if (typeof syncRealtimeUserBalance === 'function') {
-                    syncRealtimeUserBalance();
-                }
-            } catch (error) {
-                console.error('Top bar loading error:', error);
+            // যদি ইউজারের টাইপ করা শব্দের সংখ্যা ৩-এর কম হয়
+            if (words.length < 3) {
+                grid.innerHTML = ` 
+                    <div class="col-span-full text-center py-12 text-slate-400 text-xs bg-[#111827] rounded-2xl border border-slate-800"> 
+                        Please type at least 3 words to search games... 
+                    </div> 
+                `; 
+                return;
             }
-        }
 
-        // ==========================================
-        // GAME CONFIGURATION
-        // ==========================================
+            const normalizedQuery = trimmedQuery.toLowerCase(); 
+            const filteredGames = gameList.filter(game => { 
+                const matchesCategory = filter === 'all' || game.category === filter; 
+                const matchesSearch = game.name.toLowerCase().includes(normalizedQuery); 
+                return matchesCategory && matchesSearch; 
+            }); 
 
-        // Existing game paths from your index.html
-        const originalGames = [
-            { name: 'Classic Dice', path: '/game/dice.html', image: '/assets/images/dice.png' },
-            { name: 'Mines', path: '/game/mines.html', image: '/assets/images/mines.png' },
-            { name: 'Limbo', path: '/game/limbo.html', image: '/assets/images/limbo.png' },
-            { name: 'Plinko', path: '/game/plinko.html', image: '/assets/images/plinko.png' },
-            { name: 'Crash', path: '/game/crash.html', image: '/assets/images/crash.png' },
-            { name: 'Wheel', path: '/game/wheel.html', image: '/assets/images/wheel.png' },
-            { name: 'Keno', path: '/game/keno.html', image: '/assets/images/keno.png' },
-            { name: 'Coin Flip', path: '/game/coin-flip.html', image: '/assets/images/coin-flip.png' }
-        ];
+            if (filteredGames.length === 0) { 
+                grid.innerHTML = ` 
+                    <div class="col-span-full text-center py-12 text-slate-500 text-xs bg-[#111827] rounded-2xl border border-slate-800"> 
+                        No games found matching your 3+ words search. 
+                    </div> 
+                `; 
+                return; 
+            } 
 
-        // Add your actual slot games here if directory listing is disabled.
-        // Example:
-        // { name: 'Slot Game Name', path: '/slot/your-game.html',
-        //   image: '/assets/images/your-game.png' }
-        const slotGamesFallback = [];
+            const fragment = document.createDocumentFragment(); 
+            filteredGames.forEach((game) => { 
+                const card = document.createElement('a'); 
+                card.href = game.path; 
+                card.className = 'group relative bg-[#111827] border border-slate-800 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-52 md:h-56 transition-transform duration-100'; 
+                card.innerHTML = ` 
+                    <img src="${game.image}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" class="absolute inset-0 w-full h-full object-cover z-0" alt="${game.name}" loading="lazy" decoding="async" /> 
+                    <div class="hidden absolute inset-0 bg-gradient-to-b ${game.fallbackBg} opacity-90"></div> 
+                    <div class="relative z-20 flex justify-end items-center p-2.5"> 
+                        <span class="text-[10px] font-bold text-slate-200 bg-black/60 px-2 py-0.5 rounded-full border border-white/10"> 
+                            <span id="player-count-${game.id}">${game.players.toLocaleString()}</span> 
+                        </span> 
+                    </div> 
+                    <div></div> 
+                `; 
+                fragment.appendChild(card); 
+            }); 
+            grid.appendChild(fragment); 
+        } 
 
-        const dummyGames = {
-            slot: [],
-            casino: [],
-            blackjack: []
-        };
+        // Category Filter Switcher 
+        function filterCategory(cat) { 
+            currentCategory = cat; 
+            const categories = ['original', 'colortrading', 'blackjack', 'live']; 
+            categories.forEach(c => { 
+                let idName = c;
+                if (c === 'colortrading') idName = 'Colortrading';
+                const btn = document.getElementById(`cat${idName.charAt(0).toUpperCase() + idName.slice(1)}`); 
+                if (btn) { 
+                    if (c === cat) { 
+                        btn.className = 'flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap'; 
+                    } else { 
+                        btn.className = 'flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap'; 
+                    } 
+                } 
+            }); 
 
-        let activeCategory = 'hot';
-        let allGames = [];
-        let searchResults = [];
+            const titles = { 
+                original: 'Original Games', 
+                colortrading: 'Color Trading Games', 
+                blackjack: 'Blackjack Games', 
+                live: 'Live Casino' 
+            }; 
+            document.getElementById('sectionTitle').innerHTML = ` 
+                <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> ${titles[cat] || 'Games'} 
+            `; 
+            
+            const searchInput = document.getElementById('gameSearch');
+            renderGames(cat, searchInput ? searchInput.value : ''); 
+        } 
 
-        const grid = document.getElementById('gamesGrid');
-        const searchInput = document.getElementById('gameSearch');
-        const searchMessage = document.getElementById('searchMessage');
+        // Search Filter Trigger
+        function searchGames() { 
+            const searchInput = document.getElementById('gameSearch'); 
+            if (!searchInput) return; 
+            renderGames(currentCategory, searchInput.value); 
+        } 
 
-        // ==========================================
-        // TRY TO READ HTML FILES FROM A DIRECTORY
-        // Requires server directory listing to be enabled.
-        // ==========================================
-        async function getGamesFromDirectory(folder) {
+        // Dynamic Bottom Bar Loader
+        async function loadBottomBar() {
             try {
-                const response = await fetch(folder);
-
-                if (!response.ok) return [];
-
-                const html = await response.text();
-                const doc = new DOMParser().parseFromString(html, 'text/html');
-
-                const links = [...doc.querySelectorAll('a[href]')];
-                const games = [];
-
-                links.forEach(link => {
-                    const href = link.getAttribute('href');
-
-                    if (!href || href.startsWith('?') ||
-                        href.startsWith('#') || href.startsWith('../')) {
-                        return;
+                const response = await fetch('bar/bottom.html');
+                if (response.ok) {
+                    const html = await response.text();
+                    const bottomBarContainer = document.getElementById('bottomBarContainer');
+                    if (bottomBarContainer) {
+                        bottomBarContainer.innerHTML = html;
                     }
-
-                    // Only HTML files directly inside this folder.
-                    if (!/^[^/?#]+\.html?$/i.test(href)) return;
-
-                    const path = folder.replace(/\/?$/, '/') + href;
-                    const fileName = decodeURIComponent(href)
-                        .replace(/\.html?$/i, '')
-                        .replace(/[-_]/g, ' ');
-
-                    games.push({
-                        name: fileName.replace(/\b\w/g, c => c.toUpperCase()),
-                        path,
-                        image: '/assets/images/game-placeholder.png'
-                    });
-                });
-
-                return games;
-            } catch (error) {
-                console.warn('Could not read directory:', folder, error);
-                return [];
-            }
-        }
-
-        // ==========================================
-        // LOAD GAMES FOR SELECTED CATEGORY
-        // ==========================================
-        async function loadCategory(category) {
-            activeCategory = category;
-
-            document.querySelectorAll('.category-btn').forEach(button => {
-                button.classList.toggle(
-                    'active',
-                    button.dataset.category === category
-                );
-            });
-
-            const titles = {
-                hot: '🔥 Hot Games',
-                original: '🎮 Arso Original',
-                slot: '🎰 Slot Games',
-                casino: '🃏 Casino Games',
-                blackjack: '♠️ Blackjack Games'
-            };
-
-            document.getElementById('resultsTitle').textContent =
-                titles[category] || 'Games';
-
-            grid.innerHTML = `
-                <div class="col-span-full text-center text-sm text-slate-400 py-8">
-                    Loading games...
-                </div>
-            `;
-
-            if (category === 'hot') {
-                // Hot Game = games located in /slot/
-                allGames = await getGamesFromDirectory('/slot/');
-
-                if (allGames.length === 0) {
-                    allGames = slotGamesFallback;
+                } else {
+                    console.error('Error loading bottom bar component:', response.status);
                 }
-            } else if (category === 'original') {
-                // Arso Original = existing /game/ games
-                allGames = originalGames;
-
-                // Try directory listing and use it if available.
-                const directoryGames = await getGamesFromDirectory('/game/');
-
-                if (directoryGames.length > 0) {
-                    allGames = directoryGames;
-                }
-            } else {
-                // Temporary dummy categories
-                allGames = dummyGames[category] || [];
+            } catch (err) {
+                console.error('Error loading bottom bar component:', err);
             }
-
-            applySearch();
         }
 
-        // ==========================================
-        // SEARCH: REQUIRE AT LEAST 3 WORDS
-        // ==========================================
-        function applySearch() {
-            const query = searchInput.value.trim();
-            const words = query.split(/\s+/).filter(Boolean);
-
-            if (query && words.length < 3) {
-                searchResults = [];
-
-                searchMessage.textContent =
-                    `Please enter at least 3 words. Current words: ${words.length}.`;
-
-                renderGames([]);
-                return;
-            }
-
-            searchMessage.textContent = query
-                ? `Search results for: "${query}"`
-                : 'Browse games or enter at least 3 words to search.';
-
-            if (query) {
-                const terms = words.map(word => word.toLowerCase());
-
-                searchResults = allGames.filter(game => {
-                    const searchableText =
-                        `${game.name} ${game.path}`.toLowerCase();
-
-                    // Each query word must match the game's name or path.
-                    return terms.every(term => searchableText.includes(term));
-                });
-            } else {
-                searchResults = allGames;
-            }
-
-            renderGames(searchResults);
-        }
-
-        // ==========================================
-        // RENDER GAME CARDS
-        // ==========================================
-        function renderGames(games) {
-            grid.innerHTML = '';
-
-            document.getElementById('resultCount').textContent =
-                `${games.length} game${games.length === 1 ? '' : 's'}`;
-
-            document.getElementById('emptyMessage').classList.toggle(
-                'hidden',
-                games.length > 0
-            );
-
-            if (games.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full rounded-xl border border-slate-800
-                                bg-[#111827] p-6 text-center text-xs text-slate-400">
-                        ${searchInput.value.trim().split(/\s+/).filter(Boolean).length > 0
-                            ? 'No matching games found.'
-                            : 'No games available in this category yet.'}
-                    </div>
-                `;
-                return;
-            }
-
-            const fragment = document.createDocumentFragment();
-
-            games.forEach(game => {
-                const card = document.createElement('a');
-                card.className = 'game-card';
-                card.href = game.path;
-
-                const image = document.createElement('img');
-                image.className = 'game-image';
-                image.src = game.image || '/assets/images/game-placeholder.png';
-                image.alt = game.name;
-                image.loading = 'lazy';
-
-                image.onerror = function () {
-                    this.onerror = null;
-                    this.style.display = 'none';
-                };
-
-                const name = document.createElement('div');
-                name.className = 'game-name';
-                name.textContent = game.name;
-
-                card.append(image, name);
-                fragment.appendChild(card);
-            });
-
-            grid.appendChild(fragment);
-        }
-
-        // ==========================================
-        // EVENTS
-        // ==========================================
-        document.querySelectorAll('.category-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                loadCategory(button.dataset.category);
-            });
-        });
-
-        let searchTimer;
-
-        searchInput.addEventListener('input', () => {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(applySearch, 200);
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadTopBar();
-            loadCategory('hot');
-        });
-    </script>
-
-</body>
+        // Initialization Logic 
+        document.addEventListener('DOMContentLoaded', () => { 
+            loadTopBar(); 
+            loadBottomBar();
+            // পেজ লোড হওয়ার সাথে সাথে চেক করবে যাতে শুরুতে মিনিমাম ৩ ওয়ার্ড না থাকায় নোটিশ দেখায়
+            renderGames('original', ''); 
+            startLivePlayerUpdates(); 
+        }); 
+    </script> 
+</body> 
 </html>
