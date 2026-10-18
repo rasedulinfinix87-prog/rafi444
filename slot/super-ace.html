@@ -66,24 +66,23 @@
       text-shadow: 0 2px 0 #8c3c13, 0 4px 0 #24100a, 0 0 12px #ffbf3b99;
     }
     .header-mc-banner {
-      /* Match the reel board's horizontal bounds so each multiplier lines up
-         with the five grid columns on mobile and desktop. */
+      /* Match the board's left edge and width while allowing the PNG
+         to keep its original aspect ratio. */
       position: absolute;
       top: 22%;
       left: 1.5%;
       width: 97%;
-      height: 6.5%;
+      height: auto;
       z-index: 4;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: block;
       pointer-events: none;
     }
     .header-mc-banner img {
       display: block;
       width: 100%;
-      height: 100%;
-      object-fit: fill;
+      height: auto;
+      max-height: none;
+      object-fit: contain;
       object-position: center;
       pointer-events: none;
     }
@@ -94,12 +93,7 @@
       text-shadow: 0 2px 2px #d32812, 0 0 8px #ffae29;
     }
     .feature.left { left: 2.5%; right: auto; writing-mode: vertical-rl; transform: rotate(180deg); }
-    .win-chance {
-      position: absolute; top: 29.5%; width: 100%; text-align: center;
-      color: #f9e9b8; font-weight: 800; font-size: clamp(12px, 3.7vw, 21px);
-      text-shadow: 0 2px 3px #000; z-index: 2;
-    }
-    .win-chance b { color: #ffdc57; }
+    
     .board-frame {
       position: absolute; top: 33%; left: 1.5%; width: 97%; height: 48%;
       border: 3px solid #334d58; border-radius: 6px;
@@ -191,8 +185,7 @@
     }
     @media (max-height: 620px) {
       .header { top: 12%; }
-      .header-mc-banner { top: 20%; left: 1.5%; width: 97%; }
-      .win-chance { top: 27.5%; }
+      .header-mc-banner { top: 20%; left: 1.5%; width: 97%; height: auto; }
       .board-frame { top: 31%; height: 47%; }
       .win-line { bottom: 19%; }
       .controls { bottom: 4%; height: 11%; }
@@ -218,7 +211,6 @@
       <img src="image/header-mc.png" alt="Header MC">
     </div>
 
-    <div class="win-chance">Chance to win <b>✦ WILD ✦</b></div>
     <section class="board-frame" aria-label="Game reels">
       <div class="board" id="board"></div>
     </section>
