@@ -138,14 +138,9 @@
     .card.black { color: #1e293b; }
 
     @keyframes dealFromDeck {
-      0% {
-        opacity: 0;
-        transform: translate(140px, -100px) scale(0.3) rotate(25deg);
-      }
-      100% {
-        opacity: 1;
-        transform: translate(0, 0) scale(1) rotate(0deg);
-      }
+      0% { opacity:0; transform:translate3d(70px,-42px,0) scale(.72) rotate(9deg); }
+      65% { opacity:1; transform:translate3d(-3px,2px,0) scale(1.015) rotate(-1deg); }
+      100% { opacity:1; transform:translate3d(0,0,0) scale(1) rotate(0); }
     }
 
     .status-msg {
@@ -201,13 +196,30 @@
       flex:0 0 auto; width:clamp(58px,16vw,78px); height:clamp(86px,23vw,112px);
       border-radius:8px; padding:6px 6px 5px; font-size:clamp(17px,4.5vw,23px);
       box-shadow:0 6px 14px rgba(0,0,0,.34); border:1px solid #e5e7eb;
-      animation:dealFromDeck .42s cubic-bezier(.18,.75,.25,1) both; will-change:transform,opacity;
+      animation:dealFromDeck .52s cubic-bezier(.16,1,.3,1) both; will-change:transform,opacity; backface-visibility:hidden; transform:translateZ(0);
     }
     .card > div:last-child { font-size:1.2em; }
     .card.is-hidden { display:flex; align-items:center; justify-content:center; font-size:25px; background:linear-gradient(135deg,#173d5b,#0d263d); color:#f4d889; border:2px solid #d8bb70; }
     .cards-flex .card { margin:0; }
     @media (max-width:380px) { .cards-flex { gap:5px; min-height:96px; } .card { width:clamp(49px,14vw,60px); height:clamp(75px,21vw,88px); padding:4px; font-size:16px; } }
     .card > div:last-child { font-size:1.12em; }
+
+    /* Stake-inspired hand outcome badges and win/loss card borders */
+    .hand-title { display:flex; align-items:center; justify-content:center; gap:6px; }
+    .hand-title .score-badge, .player-hand-label .score-badge {
+      display:inline-flex; align-items:center; justify-content:center; min-width:42px;
+      padding:3px 13px; border-radius:999px; background:#273443; color:#f8fafc;
+      font-size:clamp(15px,4.4vw,21px); line-height:1.25; font-weight:900; letter-spacing:0;
+      box-shadow:0 3px 8px rgba(0,0,0,.24); transition:background-color .22s ease,color .22s ease,box-shadow .22s ease;
+    }
+    .hand-container.outcome-win .score-badge, .player-hand-slot.outcome-win .score-badge { background:#19e653; color:#06200e; box-shadow:0 0 12px rgba(25,230,83,.28); }
+    .hand-container.outcome-loss .score-badge, .player-hand-slot.outcome-loss .score-badge { background:#f20d43; color:#fff; box-shadow:0 0 12px rgba(242,13,67,.24); }
+    .hand-container.outcome-draw .score-badge, .player-hand-slot.outcome-draw .score-badge { background:#e6b84b; color:#1b1608; }
+    .hand-container.outcome-win .card, .player-hand-slot.outcome-win .card { border:2px solid #19e653; box-shadow:0 0 0 1px rgba(25,230,83,.18),0 5px 14px rgba(0,0,0,.3); }
+    .hand-container.outcome-loss .card, .player-hand-slot.outcome-loss .card { border:2px solid #f20d43; box-shadow:0 0 0 1px rgba(242,13,67,.16),0 5px 14px rgba(0,0,0,.3); }
+    .hand-container.outcome-draw .card, .player-hand-slot.outcome-draw .card { border:2px solid #e6b84b; }
+    .player-hand-slot { transition:background-color .2s ease,box-shadow .2s ease; }
+    @media (prefers-reduced-motion:reduce) { .card { animation-duration:.01ms !important; } * { scroll-behavior:auto !important; } }
     .card.black { color:#202b3a; }
     .card.red { color:#d92f42; }
     @keyframes cardReveal { from { transform:rotateY(90deg) scale(.92); opacity:.65; } to { transform:rotateY(0) scale(1); opacity:1; } }
@@ -261,14 +273,14 @@
 
           <div class="cards-area">
             <div class="hand-container">
-              <div class="hand-title">DEALER (<span id="dealerScore">0</span>)</div>
+              <div class="hand-title">DEALER <span id="dealerScore" class="score-badge">0</span></div>
               <div class="cards-flex" id="dealerCards"></div>
             </div>
 
             <div class="status-msg" id="statusMessage">Place your bet and click Deal</div>
 
             <div class="hand-container">
-              <div class="hand-title">PLAYER (<span id="playerScore">0</span>)</div>
+              <div class="hand-title">PLAYER <span id="playerScore" class="score-badge">0</span></div>
               <div class="cards-flex" id="playerCards"></div>
             </div>
           </div>
@@ -494,6 +506,7 @@
         let slot = container.children[index];
         if (!slot) {
           slot = document.createElement('div');
+          slot.className = 'player-hand-slot';
           slot.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:5px;padding:5px;border-radius:9px;min-width:0;';
           const label = document.createElement('div');
           label.className = 'player-hand-label';
@@ -505,7 +518,11 @@
         }
         slot.style.outline = index === activeHandIndex && gameInProgress ? '1px solid #e5c66f' : 'none';
         slot.style.background = index === activeHandIndex && gameInProgress ? 'rgba(229,198,111,.07)' : 'transparent';
-        slot.querySelector('.player-hand-label').textContent = (playerHands.length > 1 ? `HAND ${index + 1} · ` : '') + calculateScore(hand.cards) + (hand.done ? ' · DONE' : '');
+        slot.querySelector('.player-hand-label').innerHTML = (playerHands.length > 1 ? `HAND ${index + 1} · ` : '') + `<span class="score-badge">${calculateScore(hand.cards)}</span>` + (hand.done ? ' · DONE' : '');
+        slot.classList.remove('outcome-win','outcome-loss','outcome-draw');
+        if (hand.result === 'win' || hand.result === 'blackjack') slot.classList.add('outcome-win');
+        else if (hand.result === 'loss' || hand.result === 'bust') slot.classList.add('outcome-loss');
+        else if (hand.result === 'draw') slot.classList.add('outcome-draw');
         const cards = slot.querySelector('.player-hand-cards');
         while (cards.children.length > hand.cards.length) cards.lastElementChild.remove();
         hand.cards.forEach((card, cardIndex) => {
@@ -555,12 +572,14 @@
       try { await saveBalanceAndTurnover(); }
       catch (e) { userBalance = Number((userBalance + betVal).toFixed(2)); gameInProgress = false; updateBalanceDisplay(); document.getElementById('mainBetBtn').innerText = 'DEAL'; updateActionButtons(); alert('Could not reserve your bet. Please try again.'); console.error(e); return; }
       createDeck(); playerHands = [{ cards: [], bet: betVal, done: false, doubled: false, splitHand: false, fromSplitAces: false, result: null, payout: 0 }]; activeHandIndex = 0; dealerHand = [];
+      document.getElementById('dealerCards').closest('.hand-container').classList.remove('outcome-win','outcome-loss','outcome-draw'); document.getElementById('playerCards').closest('.hand-container').classList.remove('outcome-win','outcome-loss','outcome-draw');
       renderPlayerHands(); renderHand(dealerHand, 'dealerCards');
       document.getElementById('dealerScore').innerText = '?';
-      await delay(180); playerHands[0].cards.push(drawCard()); renderPlayerHands();
-      await delay(180); dealerHand.push(drawCard()); renderHand(dealerHand, 'dealerCards', true);
-      await delay(180); playerHands[0].cards.push(drawCard()); renderPlayerHands();
-      await delay(180); dealerHand.push(drawCard()); renderHand(dealerHand, 'dealerCards', true);
+      await delay(80); playerHands[0].cards.push(drawCard()); renderPlayerHands();
+      await delay(300); dealerHand.push(drawCard()); renderHand(dealerHand, 'dealerCards', true);
+      await delay(300); playerHands[0].cards.push(drawCard()); renderPlayerHands();
+      await delay(300); dealerHand.push(drawCard()); renderHand(dealerHand, 'dealerCards', true);
+      await delay(540);
       document.getElementById('mainBetBtn').innerText = 'DEAL';
       if (isNatural(playerHands[0].cards) && dealerHasNatural()) { await settleRound(); return; }
       if (isNatural(playerHands[0].cards) && dealerUpCard().value !== 'A') { await settleRound(); return; }
@@ -569,13 +588,15 @@
       else setStatus('Choose Hit, Stand, Double or Split.');
       updateActionButtons();
     }
-    function hitCard() {
+    async function hitCard() {
       if (!gameInProgress || !activeHand() || activeHand().done) return;
       const hand = activeHand();
       if (calculateScore(hand.cards) >= 21 || dealerHasNatural()) return;
       hand.cards.push(drawCard());
+      renderPlayerHands(); updateActionButtons();
+      await delay(540);
       const score = calculateScore(hand.cards);
-      if (score >= 21) { hand.done = true; hand.result = score > 21 ? 'bust' : 'stand'; advanceHand(); }
+      if (score >= 21) { hand.done = true; hand.result = score > 21 ? 'bust' : 'stand'; await advanceHand(); }
       else setStatus(`Hand ${activeHandIndex + 1}: ${score}. Hit or Stand.`);
       renderPlayerHands(); updateActionButtons();
     }
@@ -587,7 +608,7 @@
       updateBalanceDisplay();
       try { await saveBalanceAndTurnover(); } catch (e) { const extraBet = hand.bet / 2; userBalance = Number((userBalance + extraBet).toFixed(2)); totalWagered = Number((totalWagered - extraBet).toFixed(2)); hand.bet = extraBet; hand.doubled = false; updateBalanceDisplay(); alert('Could not update balance; Double Down cancelled.'); return; }
       hand.cards.push(drawCard()); const score = calculateScore(hand.cards); hand.done = true; hand.result = score > 21 ? 'bust' : 'stand';
-      renderPlayerHands(); await advanceHand();
+      renderPlayerHands(); await delay(540); await advanceHand();
     }
     async function standGame() {
       if (!gameInProgress || !activeHand() || activeHand().done) return;
@@ -608,7 +629,7 @@
       let dScore = calculateScore(dealerHand);
       document.getElementById('dealerScore').innerText = dScore;
       if (!dealerHasNatural() && playerHands.some(h => calculateScore(h.cards) <= 21)) {
-        while (dScore < 17) { await delay(250); dealerHand.push(drawCard()); renderHand(dealerHand, 'dealerCards', false); dScore = calculateScore(dealerHand); document.getElementById('dealerScore').innerText = dScore; }
+        while (dScore < 17) { await delay(180); dealerHand.push(drawCard()); renderHand(dealerHand, 'dealerCards', false); dScore = calculateScore(dealerHand); document.getElementById('dealerScore').innerText = dScore; await delay(540); }
       }
       await settleRound();
     }
@@ -666,6 +687,16 @@
         hand.result = result; hand.payout = Number(payout.toFixed(2)); totalPayout += hand.payout;
         results.push({ result, payout: hand.payout, bet: hand.bet, score });
       }
+      // Apply clear win/loss/draw colors to each player hand and the dealer hand.
+      const dealerBox = document.getElementById('dealerCards').closest('.hand-container');
+      dealerBox.classList.remove('outcome-win','outcome-loss','outcome-draw');
+      const playerWins = results.some(r => r.result === 'win' || r.result === 'blackjack');
+      const playerLosses = results.some(r => r.result === 'loss');
+      const playerDraws = results.some(r => r.result === 'draw');
+      if (playerWins && !playerLosses) dealerBox.classList.add('outcome-loss');
+      else if (playerLosses && !playerWins && !playerDraws) dealerBox.classList.add('outcome-win');
+      else if (playerDraws && !playerWins && !playerLosses) dealerBox.classList.add('outcome-draw');
+      renderPlayerHands();
       let insurancePayout = 0;
       if (insuranceBet > 0 && dealerBJ) insurancePayout = insuranceBet * 3; // stake returned + 2:1 profit
       totalPayout += insurancePayout;
