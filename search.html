@@ -120,11 +120,8 @@
 
       const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
 
-      // Supabase থেকে ডেটা ফেচ করার নিরাপদ ও নিশ্চিত লজিক
       async function fetchGamesFromSupabase() {
         try {
-          // supabase-config.js already creates the initialized client as `supabaseClient`.
-          // `window.supabase` is the CDN library, not the database client.
           const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
 
           if (!client || typeof client.from !== 'function') {
@@ -194,20 +191,24 @@
             const title = game.title || 'Untitled Game';
             const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
 
+            // Show/Hide লজিক (ডিফল্ট true বা ফলস চেক করে)
+            const showTitle = game.show_title !== false;
+            const showBadge = game.show_badge !== false;
+
             return `
               <a href="${pageUrl}" class="game-card group relative bg-[#171d28] border border-[#222b3a] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
                 <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#171d28] flex flex-col items-center justify-center p-1">
                   ${hasImg 
                     ? `<img src="${game.image_url}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
                     : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
-                       <div class="text-center font-black text-xs sm:text-sm text-white tracking-wide drop-shadow-lg px-2">${title}</div>`
+                       ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-white tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
                   }
                 </div>
                 <div class="relative z-10 flex justify-end items-center p-2">
-                  <span class="text-[9px] sm:text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>
+                  ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>` : ''}
                 </div>
                 <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                  <span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-white truncate block">${title}</span>
+                  ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-white truncate block">${title}</span>` : ''}
                 </div>
               </a>
             `;
@@ -225,7 +226,6 @@
         }
       }
 
-      // Event Listeners
       document.querySelectorAll('[data-category]').forEach(button => {
         button.addEventListener('click', () => {
           activeCategory = button.dataset.category;
@@ -255,7 +255,6 @@
         renderGrid();
       });
 
-      // Top and Bottom Bar Loading Function
       async function loadFragment(url, containerId) {
         const container = document.getElementById(containerId);
         try {
@@ -288,7 +287,6 @@
       loadFragment('bar/top.html', 'topBarContainer');
       loadFragment('bar/bottom.html', 'bottomBarContainer');
 
-      // Init Fetch with a small delay to ensure configuration is loaded
       window.addEventListener('DOMContentLoaded', () => {
         setTimeout(fetchGamesFromSupabase, 100);
       });
