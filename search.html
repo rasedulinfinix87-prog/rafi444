@@ -9,11 +9,22 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <style>
+    :root {
+      --font-xs: 11px;
+      --font-sm: 12px;
+      --font-base: 14px;
+      --font-md: 16px;
+      --font-lg: 18px;
+      --font-xl: 22px;
+      --font-2xl: 28px;
+      --font-3xl: 32px;
+    }
+
     * { box-sizing: border-box; }
-    body { margin: 0; background: #0f141c; color: #fff; }
+    body { margin: 0; background: #0F212E; color: #FFFFFF; font-size: var(--font-base); }
     ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: #0f141c; }
-    ::-webkit-scrollbar-thumb { background: #222b3a; border-radius: 4px; }
+    ::-webkit-scrollbar-track { background: #0F212E; }
+    ::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 4px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
     body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
@@ -27,76 +38,76 @@
     }
   </style>
 </head>
-<body class="font-sans antialiased">
+<body class="font-sans antialiased bg-[#0F212E] text-[#FFFFFF]">
   <!-- Top bar loaded from root /bar/top.html -->
   <div id="topBarContainer"></div>
 
   <main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
     <!-- Search -->
-    <div class="bg-[#171d28] border border-[#222b3a] rounded-2xl p-3 flex items-center gap-3">
-      <div class="flex items-center gap-1.5 px-3 py-2 bg-[#1f293a] rounded-xl text-xs font-semibold">
-        <span>Casino</span><i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
+    <div class="bg-[#1A2C38] border border-[#0F212E] rounded-2xl p-3 flex items-center gap-3">
+      <div class="flex items-center gap-1.5 px-3 py-2 bg-[#0F212E] rounded-xl text-[var(--font-xs)] font-semibold text-[#FFFFFF]">
+        <span>Casino</span><i class="fa-solid fa-chevron-down text-[10px] text-[#FFFFFF]/70"></i>
       </div>
-      <div class="h-6 w-px bg-[#2d3748]"></div>
-      <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm"></i>
+      <div class="h-6 w-px bg-[#0F212E]"></div>
+      <i class="fa-solid fa-magnifying-glass text-[#FFFFFF]/70 text-[var(--font-sm)]"></i>
       <input id="gameSearch" type="search" placeholder="Search games..." autocomplete="off"
-        class="bg-transparent text-white placeholder-gray-500 focus:outline-none w-full text-sm">
-      <button id="clearSearch" type="button" aria-label="Clear search" class="hidden text-gray-400 hover:text-white px-1">
+        class="bg-transparent text-[#FFFFFF] placeholder-[#FFFFFF]/50 focus:outline-none w-full text-[var(--font-sm)]">
+      <button id="clearSearch" type="button" aria-label="Clear search" class="hidden text-[#FFFFFF]/70 hover:text-[#FFFFFF] px-1">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
 
     <!-- Categories -->
     <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-      <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#24ee89] text-[#07120d] font-bold px-4 py-2.5 rounded-xl text-xs shadow-sm">
+      <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#24ee89] text-[#0F212E] font-bold px-4 py-2.5 rounded-xl text-[var(--font-xs)] shadow-sm">
         <i class="fa-solid fa-fire text-orange-500"></i> Hot Game
       </button>
-      <button type="button" data-category="original" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+      <button type="button" data-category="original" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
         <i class="fa-solid fa-bolt text-[#24ee89]"></i> Original
       </button>
-      <button type="button" data-category="lucky_lottery" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+      <button type="button" data-category="lucky_lottery" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
         <i class="fa-solid fa-ticket text-yellow-400"></i> Lucky Lottery
       </button>
-      <button type="button" data-category="slot" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+      <button type="button" data-category="slot" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
         <i class="fa-solid fa-dice text-blue-400"></i> Slot
       </button>
-      <button type="button" data-category="casino" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+      <button type="button" data-category="casino" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
         <i class="fa-solid fa-circle-dot text-red-400"></i> Casino
       </button>
-      <a href="/sports/sports.html" id="sportsBtn" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a] no-underline">
+      <a href="/sports/sports.html" id="sportsBtn" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E] no-underline">
         <i class="fa-solid fa-futbol text-green-400"></i> Sports
       </a>
     </div>
 
     <!-- Sort Filters -->
     <div class="grid grid-cols-1 gap-3">
-      <label class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3 py-2.5 flex items-center justify-between text-xs">
-        <span class="flex items-center gap-2 text-gray-400">Sort By:
-          <select id="sortGames" class="bg-transparent text-white font-semibold focus:outline-none">
-            <option value="default" class="bg-[#171d28]">Default</option>
-            <option value="az" class="bg-[#171d28]">A–Z</option>
-            <option value="za" class="bg-[#171d28]">Z–A</option>
+      <label class="bg-[#1A2C38] border border-[#0F212E] rounded-xl px-3 py-2.5 flex items-center justify-between text-[var(--font-xs)]">
+        <span class="flex items-center gap-2 text-[#FFFFFF]/70">Sort By:
+          <select id="sortGames" class="bg-transparent text-[#FFFFFF] font-semibold focus:outline-none">
+            <option value="default" class="bg-[#1A2C38]">Default</option>
+            <option value="az" class="bg-[#1A2C38]">A–Z</option>
+            <option value="za" class="bg-[#1A2C38]">Z–A</option>
           </select>
         </span>
-        <i class="fa-solid fa-arrow-down-wide-short text-gray-400"></i>
+        <i class="fa-solid fa-arrow-down-wide-short text-[#FFFFFF]/70"></i>
       </label>
     </div>
 
     <div class="flex items-center justify-between pt-1">
-      <h1 id="sectionTitle" class="text-base font-bold">Hot Game</h1>
-      <span id="gameCount" class="text-[11px] text-gray-400">0 games</span>
+      <h1 id="sectionTitle" class="text-[var(--font-base)] font-bold text-[#FFFFFF]">Hot Game</h1>
+      <span id="gameCount" class="text-[var(--font-xs)] text-[#FFFFFF]/70">0 games</span>
     </div>
 
     <!-- Cards populated via Supabase -->
     <div id="gamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4"></div>
     
     <!-- Loading & Empty state messages -->
-    <p id="loadingMessage" class="text-center text-sm text-gray-400 py-10">গেম লোড হচ্ছে...</p>
-    <p id="emptyMessage" class="hidden text-center text-sm text-gray-400 py-10">কোনো গেম পাওয়া যায়নি। অন্য নাম দিয়ে সার্চ করুন।</p>
+    <p id="loadingMessage" class="text-center text-[var(--font-sm)] text-[#FFFFFF]/70 py-10">গেম লোড হচ্ছে...</p>
+    <p id="emptyMessage" class="hidden text-center text-[var(--font-sm)] text-[#FFFFFF]/70 py-10">কোনো গেম পাওয়া যায়নি। অন্য নাম দিয়ে সার্চ করুন।</p>
 
     <!-- Load More Button -->
     <div class="text-center pt-2">
-      <button id="loadMoreBtn" class="hidden bg-[#1f293a] hover:bg-[#222b3a] text-[#24ee89] font-bold border border-[#24ee89]/40 px-6 py-2.5 rounded-xl text-xs transition-all">
+      <button id="loadMoreBtn" class="hidden bg-[#0F212E] hover:bg-[#1A2C38] text-[#24ee89] font-bold border border-[#24ee89]/40 px-6 py-2.5 rounded-xl text-[var(--font-xs)] transition-all">
         <i class="fa-solid fa-rotate-right mr-1"></i> Load More
       </button>
     </div>
@@ -112,7 +123,7 @@
       let allGames = [];
       let filteredGames = [];
       let visibleLimit = 12;
-      let activeCategory = 'hot'; // ডিফল্ট ক্যাটাগরি Hot Game করা হয়েছে
+      let activeCategory = 'hot';
 
       const grid = document.getElementById('gamesGrid');
       const searchInput = document.getElementById('gameSearch');
@@ -132,7 +143,6 @@
         casino: 'Casino' 
       };
 
-      // গিটহাব পেজেসের জন্য বেস পাথ ডিটেক্ট
       function getBasePath() {
         if (window.location.hostname.includes('github.io')) {
           const pathParts = window.location.pathname.split('/');
@@ -201,7 +211,6 @@
         const currentSlice = filteredGames.slice(0, visibleLimit);
         const basePath = getBasePath();
 
-        // যদি স্পোর্টস লিংক ডায়নামিক করতে চান:
         const sportsBtn = document.getElementById('sportsBtn');
         if (sportsBtn && basePath !== './') {
           sportsBtn.href = basePath.replace(/\/$/, '') + '/sports/sports.html';
@@ -235,19 +244,19 @@
             const showBadge = game.show_badge !== false;
 
             return `
-              <a href="${pageUrl}" class="game-card group relative bg-[#171d28] border border-[#222b3a] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
-                <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#171d28] flex flex-col items-center justify-center p-1">
+              <a href="${pageUrl}" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
+                <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center p-1">
                   ${hasImg 
                     ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
                     : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
-                       ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-white tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
+                       ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#FFFFFF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
                   }
                 </div>
                 <div class="relative z-10 flex justify-end items-center p-2">
-                  ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>` : ''}
+                  ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>` : ''}
                 </div>
                 <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                  ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-white truncate block">${title}</span>` : ''}
+                  ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-[#FFFFFF] truncate block">${title}</span>` : ''}
                 </div>
               </a>
             `;
@@ -271,11 +280,11 @@
           document.querySelectorAll('[data-category]').forEach(btn => {
             const active = btn === button;
             btn.classList.toggle('bg-[#24ee89]', active);
-            btn.classList.toggle('text-[#07120d]', active);
-            btn.classList.toggle('bg-[#171d28]', !active);
-            btn.classList.toggle('text-gray-300', !active);
+            btn.classList.toggle('text-[#0F212E]', active);
+            btn.classList.toggle('bg-[#1A2C38]', !active);
+            btn.classList.toggle('text-[#FFFFFF]', !active);
             btn.classList.toggle('border', !active);
-            btn.classList.toggle('border-[#222b3a]', !active);
+            btn.classList.toggle('border-[#0F212E]', !active);
           });
           applyFilters();
         });
@@ -294,7 +303,6 @@
         renderGrid();
       });
 
-      // টপবার এবং বটমবার লোড
       async function loadBars() {
         const basePath = getBasePath();
         
@@ -322,7 +330,6 @@
         }
       }
 
-      // চালু করা
       window.addEventListener('DOMContentLoaded', () => { 
         loadBars(); 
         setTimeout(fetchGamesFromSupabase, 100);
