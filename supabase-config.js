@@ -1,128 +1,298 @@
-// supabase-config.js
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Games</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0f141c; color: #fff; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #0f141c; }
+    ::-webkit-scrollbar-thumb { background: #222b3a; border-radius: 4px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+    body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+    #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
+    #bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
+    .category-btn { white-space: nowrap; }
+    .game-card { min-width: 0; min-height: 154px; }
+    .game-art { min-height: 154px; }
+    @media (min-width: 640px) {
+      .game-card, .game-art { min-height: 210px; }
+    }
+  </style>
+</head>
+<body class="font-sans antialiased">
+  <!-- Top bar loaded from root /bar/top.html -->
+  <div id="topBarContainer"></div>
 
-const SUPABASE_URL = "https://gccxrpvmokaqotywrtgx.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjY3hycHZtb2thcW90eXdydGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNTU5MDQsImV4cCI6MjEwNjgzMTkwNH0.QEaExOgv5dIX42KqCjdG258amvR0rXTYYjFs4-yxmaI";
+  <main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
+    <!-- Search -->
+    <div class="bg-[#171d28] border border-[#222b3a] rounded-2xl p-3 flex items-center gap-3">
+      <div class="flex items-center gap-1.5 px-3 py-2 bg-[#1f293a] rounded-xl text-xs font-semibold">
+        <span>Casino</span><i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
+      </div>
+      <div class="h-6 w-px bg-[#2d3748]"></div>
+      <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm"></i>
+      <input id="gameSearch" type="search" placeholder="Search games..." autocomplete="off"
+        class="bg-transparent text-white placeholder-gray-500 focus:outline-none w-full text-sm">
+      <button id="clearSearch" type="button" aria-label="Clear search" class="hidden text-gray-400 hover:text-white px-1">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
 
-// Initialize Supabase Client safely
-let supabaseClient;
-if (window.supabase && typeof window.supabase.createClient === 'function') {
-  supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-    {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
+    <!-- Categories -->
+    <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+      <button type="button" data-category="all" class="category-btn flex items-center gap-2 bg-[#24ee89] text-[#07120d] font-bold px-4 py-2.5 rounded-xl text-xs shadow-sm">
+        <i class="fa-solid fa-border-all"></i> All Game
+      </button>
+      <button type="button" data-category="original" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+        <i class="fa-solid fa-bolt text-[#24ee89]"></i> Original
+      </button>
+      <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+        <i class="fa-solid fa-fire text-orange-500"></i> Hot Game
+      </button>
+      <button type="button" data-category="slot" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+        <i class="fa-solid fa-dice text-blue-400"></i> Slot
+      </button>
+    </div>
+
+    <!-- Sort Filters -->
+    <div class="grid grid-cols-1 gap-3">
+      <label class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3 py-2.5 flex items-center justify-between text-xs">
+        <span class="flex items-center gap-2 text-gray-400">Sort By:
+          <select id="sortGames" class="bg-transparent text-white font-semibold focus:outline-none">
+            <option value="default" class="bg-[#171d28]">Default</option>
+            <option value="az" class="bg-[#171d28]">A–Z</option>
+            <option value="za" class="bg-[#171d28]">Z–A</option>
+          </select>
+        </span>
+        <i class="fa-solid fa-arrow-down-wide-short text-gray-400"></i>
+      </label>
+    </div>
+
+    <div class="flex items-center justify-between pt-1">
+      <h1 id="sectionTitle" class="text-base font-bold">All Game</h1>
+      <span id="gameCount" class="text-[11px] text-gray-400">0 games</span>
+    </div>
+
+    <!-- Cards populated via Supabase -->
+    <div id="gamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4"></div>
+    
+    <!-- Loading & Empty state messages -->
+    <p id="loadingMessage" class="text-center text-sm text-gray-400 py-10">গেম লোড হচ্ছে...</p>
+    <p id="emptyMessage" class="hidden text-center text-sm text-gray-400 py-10">কোনো গেম পাওয়া যায়নি। অন্য নাম দিয়ে সার্চ করুন।</p>
+
+    <!-- Load More Button -->
+    <div class="text-center pt-2">
+      <button id="loadMoreBtn" class="hidden bg-[#1f293a] hover:bg-[#222b3a] text-[#24ee89] font-bold border border-[#24ee89]/40 px-6 py-2.5 rounded-xl text-xs transition-all">
+        <i class="fa-solid fa-rotate-right mr-1"></i> Load More
+      </button>
+    </div>
+  </main>
+
+  <!-- Bottom bar loaded from root /bar/bottom.html -->
+  <div id="bottomBarContainer"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      let allGames = [];
+      let filteredGames = [];
+      let visibleLimit = 12;
+      let activeCategory = 'all';
+
+      const grid = document.getElementById('gamesGrid');
+      const searchInput = document.getElementById('gameSearch');
+      const clearSearch = document.getElementById('clearSearch');
+      const sortGames = document.getElementById('sortGames');
+      const gameCount = document.getElementById('gameCount');
+      const sectionTitle = document.getElementById('sectionTitle');
+      const emptyMessage = document.getElementById('emptyMessage');
+      const loadingMessage = document.getElementById('loadingMessage');
+      const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+      const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
+
+      // Supabase থেকে ডেটা ফেচ করার নিরাপদ ও নিশ্চিত লজিক
+      async function fetchGamesFromSupabase() {
+        try {
+          // supabase-config.js already creates the initialized client as `supabaseClient`.
+          // `window.supabase` is the CDN library, not the database client.
+          const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
+
+          if (!client || typeof client.from !== 'function') {
+            console.error('Supabase client is missing.');
+            loadingMessage.textContent = 'Supabase কনফিগারেশন পাওয়া যায়নি।';
+            return;
+          }
+
+          const { data, error } = await client
+            .from('grid_control_url_image')
+            .select('*')
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true });
+
+          if (error) throw error;
+
+          allGames = data || [];
+          loadingMessage.classList.add('hidden');
+          applyFilters();
+        } catch (err) {
+          console.error('Error fetching games from grid_control_url_image:', err);
+          grid.innerHTML = '';
+          grid.classList.add('hidden');
+          emptyMessage.classList.add('hidden');
+          loadingMessage.classList.remove('hidden');
+          loadingMessage.textContent = 'গেম লোড করতে সমস্যা হয়েছে: ' + (err.message || 'অজানা সমস্যা');
+        }
       }
-    }
-  );
-} else {
-  console.error("Supabase CDN library not loaded properly!");
-}
 
-// Get User From Local Storage
-function getStoredCurrentUser() {
-  try {
-    const stored = localStorage.getItem("current_user");
+      function applyFilters() {
+        const query = searchInput.value.trim().toLowerCase();
+        
+        filteredGames = allGames.filter(game => {
+          const gameCat = (game.category || '').trim().toLowerCase();
+          const activeCat = activeCategory.trim().toLowerCase();
+          const catMatch = activeCat === 'all' || gameCat === activeCat;
+          const searchMatch = (game.title && game.title.toLowerCase().includes(query));
+          return catMatch && searchMatch;
+        });
 
-    if (!stored) return null;
+        if (sortGames.value === 'az') {
+          filteredGames.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        } else if (sortGames.value === 'za') {
+          filteredGames.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+        } else {
+          filteredGames.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+        }
 
-    const parsed = JSON.parse(stored);
+        visibleLimit = 12;
+        renderGrid();
+      }
 
-    if (typeof parsed === "string") {
-      return { id: parsed };
-    }
+      function renderGrid() {
+        const currentSlice = filteredGames.slice(0, visibleLimit);
 
-    if (parsed && (parsed.id || parsed.user_id || parsed.uid)) {
-      return parsed;
-    }
+        if (currentSlice.length === 0) {
+          grid.innerHTML = '';
+          emptyMessage.classList.remove('hidden');
+          grid.classList.add('hidden');
+        } else {
+          emptyMessage.classList.add('hidden');
+          grid.classList.remove('hidden');
 
-    return null;
-  } catch (error) {
-    console.error("Error reading stored user:", error);
-    return null;
-  }
-}
+          grid.innerHTML = currentSlice.map(game => {
+            const hasImg = game.image_url && game.image_url.trim() !== '';
+            const pageUrl = game.page_url || '#';
+            const title = game.title || 'Untitled Game';
+            const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
 
-// Auth Helper Functions
-async function getCurrentUser() {
-  try {
-    // First check the actual Supabase login session
-    const { data, error } = await supabaseClient.auth.getSession();
+            return `
+              <a href="${pageUrl}" class="game-card group relative bg-[#171d28] border border-[#222b3a] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
+                <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#171d28] flex flex-col items-center justify-center p-1">
+                  ${hasImg 
+                    ? `<img src="${game.image_url}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
+                    : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
+                       <div class="text-center font-black text-xs sm:text-sm text-white tracking-wide drop-shadow-lg px-2">${title}</div>`
+                  }
+                </div>
+                <div class="relative z-10 flex justify-end items-center p-2">
+                  <span class="text-[9px] sm:text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>
+                </div>
+                <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                  <span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-white truncate block">${title}</span>
+                </div>
+              </a>
+            `;
+          }).join('');
+        }
 
-    if (!error && data && data.session && data.session.user) {
-      return data.session.user;
-    }
+        sectionTitle.textContent = searchInput.value.trim() ? 'Search Results' : (categoryTitles[activeCategory] || 'Games');
+        gameCount.textContent = `${filteredGames.length} games`;
+        clearSearch.classList.toggle('hidden', !searchInput.value);
 
-    // Fallback for projects that also store the logged-in user locally
-    const storedUser = getStoredCurrentUser();
+        if (visibleLimit < filteredGames.length) {
+          loadMoreBtn.classList.remove('hidden');
+        } else {
+          loadMoreBtn.classList.add('hidden');
+        }
+      }
 
-    if (storedUser) {
-      return storedUser;
-    }
+      // Event Listeners
+      document.querySelectorAll('[data-category]').forEach(button => {
+        button.addEventListener('click', () => {
+          activeCategory = button.dataset.category;
+          document.querySelectorAll('[data-category]').forEach(btn => {
+            const active = btn === button;
+            btn.classList.toggle('bg-[#24ee89]', active);
+            btn.classList.toggle('text-[#07120d]', active);
+            btn.classList.toggle('bg-[#171d28]', !active);
+            btn.classList.toggle('text-gray-300', !active);
+            btn.classList.toggle('border', !active);
+            btn.classList.toggle('border-[#222b3a]', !active);
+          });
+          applyFilters();
+        });
+      });
 
-    return null;
-  } catch (error) {
-    console.error("Error checking login session:", error);
+      searchInput.addEventListener('input', applyFilters);
+      clearSearch.addEventListener('click', () => { 
+        searchInput.value = ''; 
+        applyFilters(); 
+        searchInput.focus(); 
+      });
+      sortGames.addEventListener('change', applyFilters);
 
-    // Fallback to the locally stored user
-    return getStoredCurrentUser();
-  }
-}
+      loadMoreBtn.addEventListener('click', () => {
+        visibleLimit += 12;
+        renderGrid();
+      });
 
-// Get Login Page URL
-function getLoginPageUrl() {
-  const path = window.location.pathname;
+      // Top and Bottom Bar Loading Function
+      async function loadFragment(url, containerId) {
+        const container = document.getElementById(containerId);
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error('Could not load ' + url);
+          const markup = await response.text();
+          const parsed = new DOMParser().parseFromString(markup, 'text/html');
+          container.innerHTML = parsed.body.innerHTML;
 
-  // Pages inside the game folder
-  if (path.includes("/game/")) {
-    return "../login-signup.html";
-  }
+          if (containerId === 'topBarContainer') {
+            const logo = container.querySelector('a[href="index.html"]');
+            if (logo) logo.href = 'index.html';
+            const deposit = container.querySelector('#depositLinkBtn');
+            if (deposit) deposit.href = 'account/deposit.html';
+            const profile = container.querySelector('#profileLinkBtn');
+            if (profile) profile.href = 'mem/member.html';
+          }
 
-  // Pages at the website root
-  return "login-signup.html";
-}
+          parsed.querySelectorAll('script').forEach(oldScript => {
+            if (oldScript.src) return;
+            const script = document.createElement('script');
+            script.textContent = oldScript.textContent;
+            container.appendChild(script);
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
 
-// Require Authentication
-async function requireAuth() {
-  const user = await getCurrentUser();
+      loadFragment('bar/top.html', 'topBarContainer');
+      loadFragment('bar/bottom.html', 'bottomBarContainer');
 
-  if (!user) {
-    window.location.href = getLoginPageUrl();
-    return null;
-  }
-
-  return user;
-}
-
-// Get User Profile
-async function getUserProfile(userId) {
-  if (!userId) return null;
-
-  const { data, error } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (error) {
-    console.error("Error fetching profile:", error);
-    return null;
-  }
-
-  return data;
-}
-
-// Logout User
-async function logoutUser() {
-  try {
-    await supabaseClient.auth.signOut();
-  } catch (error) {
-    console.error("Error signing out:", error);
-  }
-
-  localStorage.removeItem("current_user");
-
-  window.location.href = getLoginPageUrl();
-}
+      // Init Fetch with a small delay to ensure configuration is loaded
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(fetchGamesFromSupabase, 100);
+      });
+    })();
+  </script>
+</body>
+</html>
