@@ -120,16 +120,14 @@
 
       const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
 
-      // Supabase থেকে ডেটা ফেচ করার নিরাপদ ও উন্নত লজিক
+      // Supabase থেকে ডেটা ফেচ করার নিরাপদ ও নিশ্চিত লজিক
       async function fetchGamesFromSupabase() {
         try {
-          let client = window.supabaseClient;
-          if (!client && window.supabase && typeof window.supabase.createClient === 'function') {
-            client = window.supabase;
-          }
-
+          // সুপাবেস ক্লায়েন্ট চেক করার জন্য একাধিক সোর্স ভেরিফিকেশন
+          const client = window.supabaseClient || (window.supabase && typeof window.supabase.createClient === 'function' ? window.supabase : null);
+          
           if (!client) {
-            console.error('Supabase client not found!');
+            console.error('Supabase client is missing.');
             loadingMessage.textContent = 'Supabase কনফিগারেশন পাওয়া যায়নি।';
             return;
           }
@@ -147,7 +145,7 @@
           applyFilters();
         } catch (err) {
           console.error('Error fetching games:', err);
-          loadingMessage.textContent = 'গেম লোড করতে সমস্যা হয়েছে।';
+          loadingMessage.textContent = 'গেম লোড করতে সমস্যা হয়েছে: ' + (err.message || '');
         }
       }
 
@@ -285,8 +283,10 @@
       loadFragment('bar/top.html', 'topBarContainer');
       loadFragment('bar/bottom.html', 'bottomBarContainer');
 
-      // Init Fetch
-      fetchGamesFromSupabase();
+      // Init Fetch with a small delay to ensure configuration is loaded
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(fetchGamesFromSupabase, 100);
+      });
     })();
   </script>
 </body>
