@@ -28,7 +28,7 @@
   </style>
 </head>
 <body class="font-sans antialiased">
-  <!-- Top bar loaded from /bar/top.html -->
+  <!-- Top bar loaded from root /bar/top.html -->
   <div id="topBarContainer"></div>
 
   <main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
@@ -96,7 +96,7 @@
     </div>
   </main>
 
-  <!-- Bottom bar loaded from /bar/bottom.html -->
+  <!-- Bottom bar loaded from root /bar/bottom.html -->
   <div id="bottomBarContainer"></div>
 
   <script>
@@ -119,33 +119,6 @@
       const loadMoreBtn = document.getElementById('loadMoreBtn');
 
       const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
-
-      /*
-        GitHub Pages বা subfolder সাপোর্টের জন্য নিরাপদ base path।
-        search.html root এ আছে → base = './'
-        কিন্তু GitHub Pages subfolder হলে (username.github.io/repo-name/search.html)
-        → base = '/repo-name/'
-      */
-      function getBasePath() {
-        const path = window.location.pathname;
-        const segments = path.split('/').filter(Boolean);
-
-        // GitHub Pages: username.github.io/repo-name/search.html
-        if (window.location.hostname.endsWith('github.io') && segments.length >= 2) {
-          return '/' + segments[0] + '/';
-        }
-
-        // Local server এ subfolder হলে
-        if (segments.length >= 2 && segments[0] !== '') {
-          // যদি প্রথম segment কোনো ফোল্ডার হয় (ফাইলে .html নেই)
-          if (!segments[0].includes('.')) {
-            return '/' + segments[0] + '/';
-          }
-        }
-
-        // root এ (যেমন: yoursite.com/search.html)
-        return './';
-      }
 
       async function fetchGamesFromSupabase() {
         try {
@@ -203,7 +176,6 @@
 
       function renderGrid() {
         const currentSlice = filteredGames.slice(0, visibleLimit);
-        const basePath = getBasePath();
 
         if (currentSlice.length === 0) {
           grid.innerHTML = '';
@@ -214,19 +186,8 @@
           grid.classList.remove('hidden');
 
           grid.innerHTML = currentSlice.map(game => {
-            let imageUrl = game.image_url ? game.image_url.trim() : '';
-            let pageUrl = game.page_url ? game.page_url.trim() : '#';
-
-            // leading slash থাকলে base path যোগ করো
-            if (imageUrl.startsWith('/') && basePath !== './' && !imageUrl.startsWith(basePath)) {
-              imageUrl = basePath.replace(/\/$/, '') + imageUrl;
-            }
-
-            if (pageUrl.startsWith('/') && basePath !== './' && !pageUrl.startsWith(basePath)) {
-              pageUrl = basePath.replace(/\/$/, '') + pageUrl;
-            }
-
-            const hasImg = imageUrl !== '';
+            const hasImg = game.image_url && game.image_url.trim() !== '';
+            const pageUrl = game.page_url || '#';
             const title = game.title || 'Untitled Game';
             const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
 
@@ -237,7 +198,7 @@
               <a href="${pageUrl}" class="game-card group relative bg-[#171d28] border border-[#222b3a] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
                 <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#171d28] flex flex-col items-center justify-center p-1">
                   ${hasImg 
-                    ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
+                    ? `<img src="${game.image_url}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
                     : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
                        ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-white tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
                   }
@@ -293,64 +254,39 @@
         renderGrid();
       });
 
-      // Top Bar Loader — index.html এর মতো simple relative path
-      async function loadTopBar() {
+      async function loadFragment(url, containerId) {
+        const container = document.getElementById(containerId);
         try {
-          const basePath = getBasePath();
-          const url = basePath + 'bar/top.html';
-          console.log('[search.html] Loading top bar from:', url);
-
           const response = await fetch(url);
-          if (response.ok) {
-            let topContent = await response.text();
+          if (!response.ok) throw new Error('Could not load ' + url);
+          const markup = await response.text();
+          const parsed = new DOMParser().parseFromString(markup, 'text/html');
+          container.innerHTML = parsed.body.innerHTML;
 
-            // coin-flip.html এর মতো path fix
-            topContent = topContent.replace(/game\/mem\/member\.html/g, 'mem/member.html');
-            topContent = topContent.replace(/href="mem\/member\.html"/g, 'href="mem/member.html"');
-
-            document.getElementById('topBarContainer').innerHTML = topContent;
-
-            // deposit link fix
-            document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-              a.href = basePath + 'account/deposit.html';
-            });
-
-            console.log('[search.html] ✅ Top bar loaded successfully');
-          } else {
-            console.error('[search.html] ❌ Top bar load failed. Status:', response.status, 'URL:', url);
+          if (containerId === 'topBarContainer') {
+            const logo = container.querySelector('a[href="index.html"]');
+            if (logo) logo.href = 'index.html';
+            const deposit = container.querySelector('#depositLinkBtn');
+            if (deposit) deposit.href = 'account/deposit.html';
+            const profile = container.querySelector('#profileLinkBtn');
+            if (profile) profile.href = 'mem/member.html';
           }
-        } catch (err) {
-          console.error('[search.html] ❌ Top bar fetch error:', err);
+
+          parsed.querySelectorAll('script').forEach(oldScript => {
+            if (oldScript.src) return;
+            const script = document.createElement('script');
+            script.textContent = oldScript.textContent;
+            container.appendChild(script);
+          });
+        } catch (error) {
+          console.error(error);
         }
       }
 
-      // Bottom Bar Loader
-      async function loadBottomBar() {
-        try {
-          const basePath = getBasePath();
-          const url = basePath + 'bar/bottom.html';
-          console.log('[search.html] Loading bottom bar from:', url);
+      loadFragment('bar/top.html', 'topBarContainer');
+      loadFragment('bar/bottom.html', 'bottomBarContainer');
 
-          const response = await fetch(url);
-          if (response.ok) {
-            const html = await response.text();
-            const bottomBarContainer = document.getElementById('bottomBarContainer');
-            if (bottomBarContainer) {
-              bottomBarContainer.innerHTML = html;
-              console.log('[search.html] ✅ Bottom bar loaded successfully');
-            }
-          } else {
-            console.error('[search.html] ❌ Bottom bar load failed. Status:', response.status, 'URL:', url);
-          }
-        } catch (err) {
-          console.error('[search.html] ❌ Bottom bar fetch error:', err);
-        }
-      }
-
-      // Initialization
-      window.addEventListener('DOMContentLoaded', () => { 
-        loadTopBar(); 
-        loadBottomBar();
+      window.addEventListener('DOMContentLoaded', () => {
         setTimeout(fetchGamesFromSupabase, 100);
       });
     })();
