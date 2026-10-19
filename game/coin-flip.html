@@ -43,9 +43,9 @@
       right: 0;
       bottom: 0;
       width: 100%;
+      height: 75px;
       z-index: 5000;
       isolation: isolate;
-      padding-bottom: env(safe-area-inset-bottom);
     }
 
     .game-page {
@@ -507,7 +507,10 @@
     </div>
   </div>
 
-  <div id="bottomBarContainer" class="w-full max-w-2xl fixed bottom-0 z-50"></div>
+  <!-- সরাসরি আইফ্রেম ব্যবহার করা হলো যাতে মেনু ও ড্রয়ার সবসময় কাজ করে -->
+  <div id="bottomBarContainer" class="w-full fixed bottom-0 z-[9999]">
+    <iframe src="../bar/bottom.html" style="width: 100%; height: 75px; border: none; display: block; background: transparent;" scrolling="no"></iframe>
+  </div>
 
   <script>
     let currentUserId = null;
@@ -846,7 +849,7 @@
       return `${part1}***${part2}`;
     }
 
-    async function loadBars() {
+    async function loadTopBar() {
       try {
         const topRes = await fetch('../bar/top.html');
 
@@ -862,22 +865,11 @@
             a.href = '../account/deposit.html';
           });
         }
-
-        const botRes = await fetch('../bar/bottom.html');
-
-        if (botRes.ok) {
-          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
-        }
       } catch (e) {
-        console.error('Bar load error:', e);
+        console.error('Top bar load error:', e);
       }
     }
 
-    /*
-      Balance fix:
-      Read the same current_user localStorage item used by member.html.
-      Then retrieve the actual balance from Supabase profiles.
-    */
     async function syncCoinFlipBalance() {
       if (typeof supabaseClient === 'undefined' || !supabaseClient) {
         console.error('Supabase client is not available.');
@@ -900,7 +892,6 @@
         ? (storedUser.id || storedUser.user_id || storedUser.uid)
         : null;
 
-      // Fallback to the existing helper if current_user has no usable ID.
       if (!userId && typeof getCurrentUser === 'function') {
         try {
           const authUser = await getCurrentUser();
@@ -916,7 +907,6 @@
         currentUserId = null;
         balance = 0;
         updateBalanceUI();
-        console.warn('No user ID found in current_user.');
         return;
       }
 
@@ -929,14 +919,7 @@
           .eq('id', userId)
           .maybeSingle();
 
-        if (error) {
-          console.error('Profile balance query error:', error);
-          updateBalanceUI();
-          return;
-        }
-
-        if (!profile) {
-          console.warn('No profiles row found for user:', userId);
+        if (error || !profile) {
           updateBalanceUI();
           return;
         }
@@ -944,13 +927,10 @@
         balance = Number(profile.balance) || 0;
         updateBalanceUI();
 
-        // Remove an older channel if the function is called again.
         if (profileChannel) {
           try {
             await supabaseClient.removeChannel(profileChannel);
-          } catch (e) {
-            console.warn('Old balance channel cleanup error:', e);
-          }
+          } catch (e) {}
         }
 
         profileChannel = supabaseClient
@@ -972,13 +952,12 @@
           )
           .subscribe();
       } catch (e) {
-        console.error('User/balance load error:', e);
         updateBalanceUI();
       }
     }
 
     async function initCoinFlipGame() {
-      await loadBars();
+      await loadTopBar();
       initRatingSystem();
 
       renderHistoryBar();
@@ -991,7 +970,6 @@
         validateBetInputStyle(amountInput);
       }
 
-      // Load the balance after the top bar has been inserted into the page.
       await syncCoinFlipBalance();
     }
 
@@ -1094,9 +1072,7 @@
 
       try {
         localStorage.setItem('coin_multiplier_history', JSON.stringify(previousResults));
-      } catch (e) {
-        console.warn('History save error:', e);
-      }
+      } catch (e) {}
     }
 
     function openHistoryModal() {
@@ -1173,7 +1149,6 @@
         .eq('id', currentUserId);
 
       if (error) {
-        console.error('Balance update error:', error);
         return false;
       }
 
@@ -1292,161 +1267,3 @@
             ? activeBetAmount * currentMultiplier
             : 0;
 
-          statusText.innerHTML =
-            '<span style="color:#24ee89;font-weight:800">(WIN) · ৳ ' +
-            potentialWin.toFixed(2) +
-            '</span>';
-
-          gameState = 'won_streak';
-          isFlipping = false;
-
-          setActionButton(
-            activeBetAmount > 0
-              ? 'Cash Out (৳ ' + potentialWin.toFixed(2) + ')'
-              : 'Continue (Demo)',
-            'red-btn'
-          );
-
-        } else {
-          statusText.innerHTML =
-            '<span style="color:#ed4245;font-weight:800">LOST! Better luck next time.</span>';
-
-          previousResults.push('0.00x');
-          if (previousResults.length > 50) previousResults.shift();
-          renderHistoryBar();
-
-          if (activeBetAmount > 0) {
-            updateLiveStatsUI(-activeBetAmount, activeBetAmount, false);
-          }
-
-          if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
-            const insertData = {
-              id: generateUUID(),
-              user_id: currentUserId,
-              target_number: selectedChoice === 'heads' ? 1 : 2,
-              roll_result: 0.00,
-              bet_amount: activeBetAmount,
-              payout: 0,
-              is_bool: false
-            };
-
-            const { error } = await supabaseClient
-              .from('bets')
-              .insert([insertData]);
-
-            if (error) {
-              console.error('Lost bet record error:', error);
-            }
-          }
-
-          resetGameUI();
-        }
-      }, flipDelay);
-    }
-
-    async function cashOut() {
-      if (isFlipping || isProcessingAction || gameState !== 'won_streak') {
-        return;
-      }
-
-      isProcessingAction = true;
-
-      const payoutAmount = activeBetAmount > 0
-        ? Number((activeBetAmount * currentMultiplier).toFixed(2))
-        : 0;
-
-      setActionButton('Processing Cash Out...', 'red-btn', true);
-
-      const recordedMultiplierStr = currentMultiplier.toFixed(2) + 'x';
-      previousResults.push(recordedMultiplierStr);
-      if (previousResults.length > 50) previousResults.shift();
-      renderHistoryBar();
-
-      const profit = payoutAmount - activeBetAmount;
-
-      if (activeBetAmount > 0) {
-        balance += payoutAmount;
-        updateBalanceUI();
-
-        const saved = await saveProfileBalance();
-
-        if (!saved) {
-          balance -= payoutAmount;
-          updateBalanceUI();
-
-          isProcessingAction = false;
-          setActionButton(
-            'Cash Out (৳ ' + payoutAmount.toFixed(2) + ')',
-            'red-btn'
-          );
-
-          document.getElementById('gameStatusText').innerHTML =
-            '<span style="color:#ed4245;font-weight:800">Balance update failed. Please try again.</span>';
-
-          return;
-        }
-
-        updateLiveStatsUI(profit, activeBetAmount, true);
-      }
-
-      if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
-        const insertData = {
-          id: generateUUID(),
-          user_id: currentUserId,
-          target_number: selectedChoice === 'heads' ? 1 : 2,
-          roll_result: currentMultiplier,
-          bet_amount: activeBetAmount,
-          payout: payoutAmount,
-          is_bool: true
-        };
-
-        const { error } = await supabaseClient
-          .from('bets')
-          .insert([insertData]);
-
-        if (error) {
-          console.error('Cashout bet record error:', error);
-        }
-      }
-
-      playClockBellSound();
-
-      document.getElementById('gameStatusText').innerHTML =
-        '<span style="color:#24ee89;font-weight:800">(Won): ৳ ' +
-        payoutAmount.toFixed(2) +
-        '</span>';
-
-      resetGameUI();
-    }
-
-    function resetGameUI() {
-      roundToken++;
-
-      gameState = 'ready';
-      isFlipping = false;
-      isProcessingAction = false;
-
-      activeBetAmount = 0;
-      resetStats();
-
-      const btn = document.getElementById('btnAction');
-      const coin = document.getElementById('coinElement');
-
-      coin.classList.remove('flipping-heads', 'flipping-tails');
-      void coin.offsetWidth;
-
-      btn.disabled = false;
-      btn.className =
-        'w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2';
-      btn.innerText = 'Bet';
-
-      const amountInput = document.getElementById('betAmount');
-      if (amountInput) {
-        validateBetInputStyle(amountInput);
-      }
-    }
-
-    window.addEventListener('load', initCoinFlipGame);
-  </script>
-</body>
-</html>
