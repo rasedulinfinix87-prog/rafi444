@@ -407,6 +407,13 @@
       '#a855f7'
     ];
 
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
     // Prevent Pinch-to-Zoom / Double-tap Zoom
     document.addEventListener('gesturestart', function(e) {
       e.preventDefault();
@@ -946,6 +953,7 @@
       const multiplier = winningSegment.multiplier;
       const winAmount = betVal > 0 ? (betVal * multiplier) : 0;
       const isWin = multiplier > 0;
+      const statusStr = isWin ? 'won' : 'lost';
 
       if (isWin && betVal > 0) {
         balance += winAmount;
@@ -963,14 +971,19 @@
         typeof supabaseClient !== 'undefined'
       ) {
         const { error: betError } = await supabaseClient
-          .from('bets')
+          .from('original_bets_history')
           .insert([{
+            id: generateUUID(),
             user_id: currentUserId,
-            target_number: segmentsCount,
-            roll_result: multiplier,
+            game_name: 'Wheel',
             bet_amount: betVal,
             payout: winAmount,
-            is_bool: isWin
+            multiplier: multiplier,
+            status: statusStr,
+            game_details: {
+              segments: segmentsCount,
+              risk_level: riskLevel
+            }
           }]);
 
         if (betError) {
