@@ -777,14 +777,17 @@
         const insertData = {
           id: generateUUID(),
           user_id: currentUserId,
-          target_number: parseFloat(document.getElementById('autoCashOut').value) || 0,
-          roll_result: mult,
+          game_name: 'Crash',
           bet_amount: activeBetAmount,
           payout: winAmount,
-          is_bool: true
+          multiplier: mult,
+          status: 'won',
+          game_details: {
+            auto_cash_out: parseFloat(document.getElementById('autoCashOut').value) || 0
+          }
         };
 
-        const { error } = await supabaseClient.from('bets').insert([insertData]);
+        const { error } = await supabaseClient.from('original_bets_history').insert([insertData]);
         if (error) console.error("Supabase Cashout Insert Error:", error);
 
         await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
@@ -826,14 +829,17 @@
           const insertData = {
             id: generateUUID(),
             user_id: currentUserId,
-            target_number: parseFloat(document.getElementById('autoCashOut').value) || 0,
-            roll_result: crashPoint,
+            game_name: 'Crash',
             bet_amount: activeBetAmount,
             payout: 0,
-            is_bool: false
+            multiplier: crashPoint,
+            status: 'lost',
+            game_details: {
+              auto_cash_out: parseFloat(document.getElementById('autoCashOut').value) || 0
+            }
           };
 
-          const { error } = await supabaseClient.from('bets').insert([insertData]);
+          const { error } = await supabaseClient.from('original_bets_history').insert([insertData]);
           if (error) console.error("Supabase Crash Insert Error:", error);
         }
 
