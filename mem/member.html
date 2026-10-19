@@ -11,41 +11,41 @@
   <script src="../supabase-config.js"></script>
 
   <style>
+    :root {
+      --font-xs: 11px;
+      --font-sm: 12px;
+      --font-base: 14px;
+      --font-md: 16px;
+      --font-lg: 18px;
+      --font-xl: 22px;
+      --font-2xl: 28px;
+      --font-3xl: 32px;
+    }
+
     * { -webkit-tap-highlight-color: transparent; }
-    html { background: #202526; }
-    body { background: #202526; color: #f5f7f7; }
+    html { background: #0F212E; }
+    body { background: #0F212E; color: #FFFFFF; font-size: var(--font-base); }
     ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: #202526; }
-    ::-webkit-scrollbar-thumb { background: #485052; border-radius: 8px; }
-    .profile-card-bg { background: linear-gradient(135deg, #303738 0%, #282f30 100%); }
-    .menu-card { background: #303738; border: 1px solid rgba(255,255,255,.025); border-radius: 15px; overflow: hidden; }
+    ::-webkit-scrollbar-track { background: #0F212E; }
+    ::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 8px; }
+    .profile-card-bg { background: #1A2C38; border: 1px solid #0F212E; }
+    .menu-card { background: #1A2C38; border: 1px solid #0F212E; border-radius: 15px; overflow: hidden; }
     .menu-row { min-height: 61px; display: flex; align-items: center; gap: 13px; padding: 12px 15px; width: 100%; text-align: left; }
-    .menu-row + .menu-row { border-top: 1px solid rgba(210,220,220,.075); }
-    .menu-icon { width: 24px; flex: 0 0 24px; color: #b5c0c2; text-align: center; font-size: 19px; }
-    .menu-label { color: #f4f6f6; font-size: 15px; font-weight: 650; flex: 1; }
-    .chevron-box { width: 35px; height: 35px; border-radius: 9px; background: #414a4c; color: #c9d1d2; display: flex; align-items: center; justify-content: center; font-size: 15px; }
-    .shortcut { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 78px; border-radius: 10px; color: #f4f6f6; font-size: 12px; font-weight: 650; }
-    .shortcut i { color: #b8c3c4; font-size: 23px; }
+    .menu-row + .menu-row { border-top: 1px solid #0F212E; }
+    .menu-icon { width: 24px; flex: 0 0 24px; color: #FFFFFF; text-align: center; font-size: var(--font-lg); }
+    .menu-label { color: #FFFFFF; font-size: var(--font-base); font-weight: 650; flex: 1; }
+    .chevron-box { width: 35px; height: 35px; border-radius: 9px; background: #0F212E; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: var(--font-base); }
+    .shortcut { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 78px; border-radius: 10px; color: #FFFFFF; font-size: var(--font-xs); font-weight: 650; }
+    .shortcut i { color: #FFFFFF; font-size: 23px; }
     .shortcut:active, .menu-row:active { background: rgba(255,255,255,.045); }
-    .theme-switch { display:flex; align-items:center; padding:3px; background:#252b2c; border-radius:12px; }
-    .theme-switch button { width:46px; height:42px; border-radius:10px; color:#899394; }
-    .theme-switch button.active { background:#41494a; color:#fff; box-shadow:0 1px 3px #1116; }
+    .theme-switch { display:flex; align-items:center; padding:3px; background:#0F212E; border-radius:12px; }
+    .theme-switch button { width:46px; height:42px; border-radius:10px; color:#FFFFFF; }
+    .theme-switch button.active { background:#1A2C38; color:#FFFFFF; box-shadow:0 1px 3px #1116; }
     .avatar-button { cursor:pointer; }
     .avatar-button:focus-visible { outline:2px solid #34d399; outline-offset:3px; }
-    .avatar-option { border:1px solid #485052; border-radius:13px; background:#252c2d; padding:10px 5px; display:flex; flex-direction:column; align-items:center; gap:7px; color:#f4f6f6; font-size:12px; font-weight:700; }
+    .avatar-option { border:1px solid #0F212E; border-radius:13px; background:#1A2C38; padding:10px 5px; display:flex; flex-direction:column; align-items:center; gap:7px; color:#FFFFFF; font-size: var(--font-xs); font-weight:700; }
     .avatar-option.selected { border-color:#34d399; background:#173d32; box-shadow:0 0 0 1px #34d399 inset; }
-    .avatar-option img { width:54px; height:54px; border-radius:50%; background:#303738; }
-    body.light-mode { background:#edf1f1; color:#182020; }
-    body.light-mode .menu-card, body.light-mode .profile-card-bg { background:#fff; border-color:#dce3e3; }
-    body.light-mode .menu-label, body.light-mode .shortcut { color:#1c2525; }
-    body.light-mode .menu-row + .menu-row { border-color:#e6ebeb; }
-    body.light-mode .menu-icon, body.light-mode .shortcut i { color:#667273; }
-    body.light-mode .chevron-box { background:#edf1f1; color:#566162; }
-    body.light-mode .theme-switch { background:#e6ebeb; }
-    body.light-mode .theme-switch button.active { background:#fff; color:#263030; }
-    body.light-mode .avatar-option { background:#f3f6f6; color:#1c2525; border-color:#dce3e3; }
-    body.light-mode .avatar-option.selected { background:#dcfce7; border-color:#059669; }
-    body.light-mode #avatarModal > div { background:#fff; color:#1c2525; }
+    .avatar-option img { width:54px; height:54px; border-radius:50%; background:#1A2C38; }
   </style>
 </head>
 
@@ -53,70 +53,70 @@
   <div class="w-full max-w-md min-h-screen flex flex-col overflow-x-hidden shadow-2xl relative">
 
     <!-- Top Header -->
-    <header class="flex items-center justify-between px-4 py-3 bg-[#292f30]/95 backdrop-blur-md sticky top-0 z-40 border-b border-white/5">
-      <a href="../index.html" class="p-2 text-gray-300 hover:text-white transition" aria-label="Back">
-        <i class="fa-solid fa-arrow-left text-lg"></i>
+    <header class="flex items-center justify-between px-4 py-3 bg-[#1A2C38]/95 backdrop-blur-md sticky top-0 z-40 border-b border-[#0F212E]">
+      <a href="../index.html" class="p-2 text-[#FFFFFF] hover:text-white transition" aria-label="Back">
+        <i class="fa-solid fa-arrow-left text-[var(--font-lg)]"></i>
       </a>
-      <h1 class="text-base font-bold text-white tracking-wide">My Account</h1>
+      <h1 class="text-[var(--font-base)] font-bold text-[#FFFFFF] tracking-wide">My Account</h1>
       <div class="w-8"></div>
     </header>
 
     <main class="px-3 py-3 flex-1 flex flex-col gap-4">
 
       <!-- Profile & Account Status Card -->
-      <div class="profile-card-bg border border-white/5 text-white rounded-2xl p-4 shadow-xl relative overflow-hidden">
+      <div class="profile-card-bg border border-[#0F212E] text-[#FFFFFF] rounded-2xl p-4 shadow-xl relative overflow-hidden">
         <div class="absolute -right-4 -bottom-4 text-white/5 text-8xl pointer-events-none">
           <i class="fa-solid fa-crown"></i>
         </div>
 
         <div class="flex items-center gap-3">
-          <button type="button" class="avatar-button relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#222a2b] shrink-0 flex items-center justify-center" onclick="openAvatarPicker()" aria-label="Choose avatar" title="Choose avatar">
+          <button type="button" class="avatar-button relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#1A2C38] shrink-0 flex items-center justify-center" onclick="openAvatarPicker()" aria-label="Choose avatar" title="Choose avatar">
             <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=male" alt="Selected avatar" class="w-full h-full object-cover">
-            <span class="absolute inset-0 bg-black/0 hover:bg-black/20 flex items-center justify-center"><i class="fa-solid fa-pen text-white text-xs opacity-0 hover:opacity-100"></i></span>
+            <span class="absolute inset-0 bg-black/0 hover:bg-black/20 flex items-center justify-center"><i class="fa-solid fa-pen text-[#FFFFFF] text-[var(--font-xs)] opacity-0 hover:opacity-100"></i></span>
           </button>
 
           <div class="flex flex-col gap-1 min-w-0">
-            <span class="bg-[#252c2d] text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/20 w-fit">
+            <span class="bg-[#0F212E] text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/20 w-fit">
               <i class="fa-solid fa-crown text-[9px] mr-1"></i> VIP 1
             </span>
 
             <div class="flex items-center gap-1.5 min-w-0">
-              <span class="text-[11px] text-slate-400 font-medium shrink-0">GAME ID:</span>
-              <span id="userGameId" class="text-xs text-emerald-400 font-bold truncate">----</span>
-              <button type="button" onclick="copyGameId()" class="text-slate-400 hover:text-white text-xs p-1" aria-label="Copy Game ID" title="Copy Game ID">
+              <span class="text-[var(--font-xs)] text-[#FFFFFF] font-medium shrink-0">GAME ID:</span>
+              <span id="userGameId" class="text-[var(--font-sm)] text-emerald-400 font-bold truncate">----</span>
+              <button type="button" onclick="copyGameId()" class="text-[#FFFFFF] hover:text-white text-[var(--font-sm)] p-1" aria-label="Copy Game ID" title="Copy Game ID">
                 <i class="fa-regular fa-copy"></i>
               </button>
             </div>
 
-            <span id="userJoined" class="text-[10px] text-slate-400 font-semibold">Joined: ----</span>
+            <span id="userJoined" class="text-[10px] text-[#FFFFFF] font-semibold">Joined: ----</span>
 
-            <button type="button" onclick="openAvatarPicker()" class="text-left text-[11px] text-emerald-400 font-semibold mt-0.5">
+            <button type="button" onclick="openAvatarPicker()" class="text-left text-[var(--font-xs)] text-emerald-400 font-semibold mt-0.5">
               <i class="fa-solid fa-user-pen mr-1"></i> Change Avatar
             </button>
           </div>
         </div>
 
-        <div class="flex items-center justify-between mt-4 border-t border-white/10 pt-3">
+        <div class="flex items-center justify-between mt-4 border-t border-[#0F212E] pt-3">
           <div class="flex items-baseline gap-1">
-            <span class="text-lg font-bold text-emerald-400">৳</span>
-            <span id="userBalance" class="text-2xl font-black text-emerald-400 tracking-tight">0.00</span>
+            <span class="text-[var(--font-lg)] font-bold text-emerald-400">৳</span>
+            <span id="userBalance" class="text-[var(--font-2xl)] font-black text-emerald-400 tracking-tight">0.00</span>
           </div>
 
-          <button type="button" onclick="syncMemberBalance()" class="text-slate-400 hover:text-white text-sm p-2 transition" aria-label="Refresh balance">
+          <button type="button" onclick="syncMemberBalance()" class="text-[#FFFFFF] hover:text-white text-[var(--font-base)] p-2 transition" aria-label="Refresh balance">
             <i class="fa-solid fa-rotate-right" id="refreshIcon"></i>
           </button>
         </div>
 
         <div class="grid grid-cols-3 gap-2 mt-4">
-          <a href="../account/deposit.html" class="bg-[#252d2e] text-white font-extrabold text-xs py-3 px-1 rounded-xl border border-white/5 text-center flex items-center justify-center gap-1.5 active:scale-95">
+          <a href="../account/deposit.html" class="bg-[#0F212E] text-[#FFFFFF] font-extrabold text-[var(--font-xs)] py-3 px-1 rounded-xl border border-[#0F212E] text-center flex items-center justify-center gap-1.5 active:scale-95">
             <i class="fa-solid fa-wallet text-emerald-400"></i> Deposit
           </a>
 
-          <a href="../account/withdraw.html" class="bg-[#252d2e] text-white font-extrabold text-xs py-3 px-1 rounded-xl border border-white/5 text-center flex items-center justify-center gap-1.5 active:scale-95">
+          <a href="../account/withdraw.html" class="bg-[#0F212E] text-[#FFFFFF] font-extrabold text-[var(--font-xs)] py-3 px-1 rounded-xl border border-[#0F212E] text-center flex items-center justify-center gap-1.5 active:scale-95">
             <i class="fa-solid fa-money-bill-transfer text-amber-400"></i> Withdrawal
           </a>
 
-          <a href="../account/profile.html" class="bg-[#252d2e] text-white font-extrabold text-[11px] py-3 px-1 rounded-xl border border-white/5 text-center flex items-center justify-center gap-1 leading-tight active:scale-95">
+          <a href="../account/profile.html" class="bg-[#0F212E] text-[#FFFFFF] font-extrabold text-[var(--font-xs)] py-3 px-1 rounded-xl border border-[#0F212E] text-center flex items-center justify-center gap-1 leading-tight active:scale-95">
             <i class="fa-solid fa-building-columns text-sky-400"></i> Bank Account
           </a>
         </div>
@@ -138,7 +138,7 @@
         <a href="../account/notifications.html" class="menu-row">
           <i class="menu-icon fa-regular fa-bell"></i>
           <span class="menu-label">Notification</span>
-          <span class="bg-emerald-400 text-[#062018] text-xs font-black rounded-full px-2 py-0.5">10</span>
+          <span class="bg-emerald-400 text-[#062018] text-[var(--font-xs)] font-black rounded-full px-2 py-0.5">10</span>
           <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
         </a>
       </section>
@@ -148,14 +148,14 @@
         <a href="../account/settings.html" class="menu-row">
           <i class="menu-icon fa-solid fa-gear"></i>
           <span class="menu-label">Global Setting</span>
-          <i class="fa-solid fa-circle-exclamation text-amber-400 text-sm mr-1"></i>
+          <i class="fa-solid fa-circle-exclamation text-amber-400 text-[var(--font-base)] mr-1"></i>
           <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
         </a>
 
         <button type="button" class="menu-row" onclick="cycleLanguage()">
           <i class="menu-icon fa-solid fa-language"></i>
           <span class="menu-label">Language</span>
-          <span id="languageValue" class="text-sm text-slate-300 mr-1">English</span>
+          <span id="languageValue" class="text-[var(--font-base)] text-[#FFFFFF] mr-1">English</span>
           <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
         </button>
 
@@ -184,17 +184,17 @@
 
     </main>
 
-    <footer class="py-4 text-center text-[11px] text-slate-500 border-t border-white/5">
+    <footer class="py-4 text-center text-[var(--font-xs)] text-[#FFFFFF] border-t border-[#0F212E]">
       &copy; 2026 Gaming Portal. All Rights Reserved.
     </footer>
   </div>
 
   <!-- Avatar Picker Modal -->
   <div id="avatarModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="avatarModalTitle" onclick="if(event.target===this) closeAvatarPicker()">
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-[#303738] p-4 shadow-2xl">
+    <div class="w-full max-w-sm rounded-2xl border border-[#0F212E] bg-[#1A2C38] p-4 shadow-2xl">
       <div class="flex items-center justify-between mb-4">
-        <h2 id="avatarModalTitle" class="text-base font-extrabold">Choose Your Avatar</h2>
-        <button type="button" onclick="closeAvatarPicker()" class="w-9 h-9 rounded-lg bg-[#414a4c] text-white" aria-label="Close avatar picker">
+        <h2 id="avatarModalTitle" class="text-[var(--font-base)] font-extrabold text-[#FFFFFF]">Choose Your Avatar</h2>
+        <button type="button" onclick="closeAvatarPicker()" class="w-9 h-9 rounded-lg bg-[#0F212E] text-[#FFFFFF]" aria-label="Close avatar picker">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -221,9 +221,9 @@
         </button>
       </div>
 
-      <p class="text-xs text-slate-400 mt-3">Your selection is saved on this device.</p>
+      <p class="text-[var(--font-xs)] text-[#FFFFFF] mt-3">Your selection is saved on this device.</p>
 
-      <button type="button" onclick="closeAvatarPicker()" class="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-sm font-extrabold text-[#062018]">
+      <button type="button" onclick="closeAvatarPicker()" class="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-[var(--font-base)] font-extrabold text-[#062018]">
         Done
       </button>
     </div>
@@ -301,11 +301,6 @@
       }
     }
 
-    // ==========================================
-    // MEMBER PROFILE AND BALANCE SYNCHRONIZATION
-    // Balance source: profiles.balance
-    // ==========================================
-
     let memberSyncInProgress = false;
 
     async function syncMemberBalance() {
@@ -320,7 +315,6 @@
       }
 
       try {
-        // Check logged-in member.
         const storedUser = localStorage.getItem('current_user');
 
         if (!storedUser) {
@@ -338,8 +332,6 @@
           return;
         }
 
-        // profiles.id is a UUID.
-        // Support the common user ID property names.
         const userId =
           currentUserObj.id ||
           currentUserObj.user_id ||
@@ -352,7 +344,6 @@
           return;
         }
 
-        // Verify Supabase client.
         if (
           typeof supabaseClient === 'undefined' ||
           !supabaseClient
@@ -363,7 +354,6 @@
           return;
         }
 
-        // Read only the columns needed by this page.
         const { data: profile, error } = await supabaseClient
           .from('profiles')
           .select(`
@@ -392,15 +382,12 @@
           return;
         }
 
-        // Update Game ID.
         const gameId = profile.user_game_id || profile.id || '';
 
         document.getElementById('userGameId').textContent = gameId
           ? String(gameId).slice(0, 8).toUpperCase()
           : '----';
 
-        // Update balance from the profiles.balance column.
-        // Do not add deposits.bonus_amount again here.
         const balanceElement = document.getElementById('userBalance');
 
         if (
@@ -410,14 +397,9 @@
         ) {
           balanceElement.textContent = Number(profile.balance).toFixed(2);
         } else {
-          console.error(
-            'Invalid balance value in profiles:',
-            profile.balance
-          );
           balanceElement.textContent = '0.00';
         }
 
-        // Update registration date.
         if (profile.created_at) {
           const joinedDate = new Date(profile.created_at);
 
@@ -433,8 +415,6 @@
           }
         }
 
-        // Keep these profile columns available for rollover integration.
-        // They are not added to the wallet balance.
         console.log('Member profile synchronized successfully.');
 
       } catch (err) {
