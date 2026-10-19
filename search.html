@@ -1,177 +1,248 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Casino Games Portal</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: #0f141c; }
-        ::-webkit-scrollbar-thumb { background: #222b3a; border-radius: 4px; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Games</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0f141c; color: #fff; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #0f141c; }
+    ::-webkit-scrollbar-thumb { background: #222b3a; border-radius: 4px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+    body { padding-bottom: 82px; }
+    .category-btn { white-space: nowrap; }
+    .game-card { min-width: 0; min-height: 154px; }
+    .game-art { min-height: 154px; }
+    @media (min-width: 640px) {
+      .game-card, .game-art { min-height: 210px; }
+    }
+  </style>
 </head>
-<body class="bg-[#0f141c] text-white min-h-screen font-sans antialiased p-3 sm:p-4">
+<body class="font-sans antialiased">
+  <!-- Top bar loaded from root /bar/top.html -->
+  <div id="topBarContainer"></div>
 
-    <div class="max-w-4xl mx-auto space-y-4">
-        
-        <!-- Top Search Bar Container -->
-        <div class="bg-[#171d28] border border-[#222b3a] rounded-2xl p-2.5 flex items-center gap-3">
-            <!-- Casino Dropdown -->
-            <div class="flex items-center gap-1.5 px-3 py-1.5 bg-[#1f293a] rounded-xl text-xs font-semibold cursor-pointer hover:bg-[#283548] transition">
-                <span>Casino</span>
-                <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
-            </div>
-            
-            <!-- Divider -->
-            <div class="h-5 w-[1px] bg-[#2d3748]"></div>
-
-            <!-- Search Input -->
-            <div class="flex items-center gap-2.5 flex-1">
-                <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm"></i>
-                <input type="text" placeholder="Search games" class="bg-transparent text-white placeholder-gray-500 focus:outline-none w-full text-xs sm:text-sm">
-            </div>
-        </div>
-
-        <!-- Categories Navigation Bar (Horizontal Scrollable) -->
-        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            <button class="flex items-center gap-2 bg-[#222b3a] text-white font-bold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap shadow-sm">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89] inline-block"></span> All Games
-            </button>
-            <button class="flex items-center gap-2 bg-[#171d28] hover:bg-[#222b3a] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap border border-[#222b3a] transition">
-                <i class="fa-solid fa-bolt text-[#24ee89]"></i> BC Originals
-            </button>
-            <button class="flex items-center gap-2 bg-[#171d28] hover:bg-[#222b3a] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap border border-[#222b3a] transition">
-                <i class="fa-solid fa-fire text-orange-500"></i> Hot Games
-            </button>
-            <button class="flex items-center gap-2 bg-[#171d28] hover:bg-[#222b3a] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap border border-[#222b3a] transition">
-                <i class="fa-solid fa-dice text-blue-400"></i> Slots
-            </button>
-        </div>
-
-        <!-- Sort By & Providers Filter Section -->
-        <div class="grid grid-cols-2 gap-3">
-            <!-- Sort By Dropdown -->
-            <div class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs cursor-pointer hover:border-gray-600 transition">
-                <div class="flex items-center gap-2 text-gray-400">
-                    <span>Sort By:</span>
-                    <span class="text-white font-semibold">Popular</span>
-                </div>
-                <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 bg-[#222b3a] p-1.5 rounded-lg"></i>
-            </div>
-
-            <!-- Providers Dropdown -->
-            <div class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs cursor-pointer hover:border-gray-600 transition">
-                <div class="flex items-center gap-2 text-gray-400">
-                    <span>Providers:</span>
-                    <span class="text-white font-semibold">All</span>
-                </div>
-                <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 bg-[#222b3a] p-1.5 rounded-lg"></i>
-            </div>
-        </div>
-
-        <!-- Game Cards Grid (3 Columns) -->
-        <div class="grid grid-cols-3 gap-2.5 sm:gap-4">
-            
-            <!-- Card 1: Crash -->
-            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
-                <div class="absolute inset-0 bg-gradient-to-b from-purple-800 to-[#171d28] flex items-center justify-center p-4">
-                    <div class="text-center font-black italic text-lg sm:text-2xl text-white tracking-wider drop-shadow-lg">CRASH</div>
-                </div>
-                <div class="relative z-20 flex justify-end items-center p-2">
-                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
-                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 1100
-                    </span>
-                </div>
-                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[9px] font-bold tracking-widest text-gray-300 uppercase">Original Game</span>
-                </div>
-            </a>
-
-            <!-- Card 2: Aviator -->
-            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
-                <div class="absolute inset-0 bg-gradient-to-b from-red-900 to-[#171d28] flex items-center justify-center p-4">
-                    <div class="text-center font-black italic text-base sm:text-xl text-white tracking-wider drop-shadow-lg">AVIATOR</div>
-                </div>
-                <div class="relative z-20 flex justify-end items-center p-2">
-                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
-                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 90
-                    </span>
-                </div>
-                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[9px] font-bold tracking-widest text-gray-300 uppercase">Spribe</span>
-                </div>
-            </a>
-
-            <!-- Card 3: Super Ace -->
-            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
-                <div class="absolute inset-0 bg-gradient-to-b from-amber-700 to-[#171d28] flex items-center justify-center p-4">
-                    <div class="text-center font-black italic text-sm sm:text-lg text-yellow-300 tracking-wider drop-shadow-lg">Super Ace</div>
-                </div>
-                <div class="relative z-20 flex justify-between items-center p-2">
-                    <span class="text-[9px] font-bold text-yellow-900 bg-yellow-400 px-1.5 py-0.5 rounded shadow">Bonus Buy</span>
-                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
-                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 30
-                    </span>
-                </div>
-                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[9px] font-bold tracking-widest text-yellow-500 uppercase">JILI</span>
-                </div>
-            </a>
-
-            <!-- Card 4: Super Elements -->
-            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
-                <div class="absolute inset-0 bg-gradient-to-b from-orange-800 to-[#171d28] flex items-center justify-center p-4">
-                    <div class="text-center font-black italic text-xs sm:text-base text-orange-200 tracking-wider drop-shadow-lg">Super Elements</div>
-                </div>
-                <div class="relative z-20 flex justify-end items-center p-2">
-                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
-                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 26
-                    </span>
-                </div>
-                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[9px] font-bold tracking-widest text-emerald-400 uppercase">FC</span>
-                </div>
-            </a>
-
-            <!-- Card 5: Circus Joker -->
-            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
-                <div class="absolute inset-0 bg-gradient-to-b from-fuchsia-900 to-[#171d28] flex items-center justify-center p-4">
-                    <div class="text-center font-black italic text-xs sm:text-sm text-fuchsia-200 tracking-wider drop-shadow-lg">CIRCUS JOKER</div>
-                </div>
-                <div class="relative z-20 flex justify-end items-center p-2">
-                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
-                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 31
-                    </span>
-                </div>
-                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[9px] font-bold tracking-widest text-yellow-400 uppercase">JILI</span>
-                </div>
-            </a>
-
-            <!-- Card 6: Lucky Neko -->
-            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
-                <div class="absolute inset-0 bg-gradient-to-b from-blue-900 to-[#171d28] flex items-center justify-center p-4">
-                    <div class="text-center font-black italic text-sm sm:text-lg text-pink-300 tracking-wider drop-shadow-lg">Lucky Neko</div>
-                </div>
-                <div class="relative z-20 flex justify-end items-center p-2">
-                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
-                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 34
-                    </span>
-                </div>
-                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
-                    <span class="text-[9px] font-bold tracking-widest text-yellow-300 uppercase">PG</span>
-                </div>
-            </a>
-
-        </div>
-
+  <main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
+    <!-- Search -->
+    <div class="bg-[#171d28] border border-[#222b3a] rounded-2xl p-3 flex items-center gap-3">
+      <div class="flex items-center gap-1.5 px-3 py-2 bg-[#1f293a] rounded-xl text-xs font-semibold">
+        <span>Casino</span><i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
+      </div>
+      <div class="h-6 w-px bg-[#2d3748]"></div>
+      <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm"></i>
+      <input id="gameSearch" type="search" placeholder="Search games..." autocomplete="off"
+        class="bg-transparent text-white placeholder-gray-500 focus:outline-none w-full text-sm">
+      <button id="clearSearch" type="button" aria-label="Clear search" class="hidden text-gray-400 hover:text-white px-1">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
 
+    <!-- Categories -->
+    <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+      <button type="button" data-category="all" class="category-btn flex items-center gap-2 bg-[#24ee89] text-[#07120d] font-bold px-4 py-2.5 rounded-xl text-xs shadow-sm">
+        <i class="fa-solid fa-border-all"></i> All Game
+      </button>
+      <button type="button" data-category="original" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+        <i class="fa-solid fa-bolt text-[#24ee89]"></i> Arsh
+      </button>
+      <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+        <i class="fa-solid fa-fire text-orange-500"></i> Hot Game
+      </button>
+      <button type="button" data-category="slot" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+        <i class="fa-solid fa-dice text-blue-400"></i> Slot
+      </button>
+    </div>
+
+    <!-- Sort and provider filters -->
+    <div class="grid grid-cols-2 gap-3">
+      <label class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3 py-2.5 flex items-center justify-between text-xs">
+        <span class="flex items-center gap-2 text-gray-400">Sort By:
+          <select id="sortGames" class="bg-transparent text-white font-semibold focus:outline-none">
+            <option value="popular" class="bg-[#171d28]">Popular</option>
+            <option value="az" class="bg-[#171d28]">A–Z</option>
+            <option value="za" class="bg-[#171d28]">Z–A</option>
+          </select>
+        </span>
+        <i class="fa-solid fa-arrow-down-wide-short text-gray-400"></i>
+      </label>
+      <label class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3 py-2.5 flex items-center justify-between text-xs">
+        <span class="flex items-center gap-2 text-gray-400">Providers:
+          <select id="providerFilter" class="bg-transparent text-white font-semibold focus:outline-none">
+            <option value="all" class="bg-[#171d28]">All</option>
+            <option value="Arsh" class="bg-[#171d28]">Arsh</option>
+            <option value="Spribe" class="bg-[#171d28]">Spribe</option>
+            <option value="JILI" class="bg-[#171d28]">JILI</option>
+            <option value="PG" class="bg-[#171d28]">PG</option>
+            <option value="FC" class="bg-[#171d28]">FC</option>
+          </select>
+        </span>
+        <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
+      </label>
+    </div>
+
+    <div class="flex items-center justify-between pt-1">
+      <h1 id="sectionTitle" class="text-base font-bold">All Game</h1>
+      <span id="gameCount" class="text-[11px] text-gray-400">10 games</span>
+    </div>
+
+    <!-- Cards are populated by the filtering logic below -->
+    <div id="gamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4"></div>
+    <p id="emptyMessage" class="hidden text-center text-sm text-gray-400 py-10">কোনো গেম পাওয়া যায়নি। অন্য নাম দিয়ে সার্চ করুন।</p>
+  </main>
+
+  <!-- Bottom bar loaded from root /bar/bottom.html and fixed at the bottom -->
+  <div id="bottomBarContainer"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const games = [
+        {name:'Crash', provider:'Arsh', category:'original', badge:'Original Game', color:'from-emerald-700', icon:'fa-chart-line', popular:100, href:'#'},
+        {name:'Dice', provider:'Arsh', category:'original', badge:'Original Game', color:'from-blue-800', icon:'fa-dice', popular:99, href:'#'},
+        {name:'Keno', provider:'Arsh', category:'original', badge:'Original Game', color:'from-teal-800', icon:'fa-table-cells', popular:98, href:'#'},
+        {name:'Roulette', provider:'Arsh', category:'original', badge:'Original Game', color:'from-purple-800', icon:'fa-circle-dot', popular:97, href:'#'},
+        {name:'Baccarat', provider:'Arsh', category:'original', badge:'Original Game', color:'from-indigo-800', icon:'fa-clone', popular:96, href:'#'},
+        {name:'Coin Flip', provider:'Arsh', category:'original', badge:'Original Game', color:'from-cyan-800', icon:'fa-coins', popular:95, href:'#'},
+        {name:'7 Under Over', provider:'Arsh', category:'original', badge:'Original Game', color:'from-green-800', icon:'fa-dice-two', popular:94, href:'#'},
+        {name:'Mines', provider:'Arsh', category:'original', badge:'Original Game', color:'from-slate-700', icon:'fa-bomb', popular:93, href:'#'},
+        {name:'Plinko', provider:'Arsh', category:'original', badge:'Original Game', color:'from-orange-800', icon:'fa-braille', popular:92, href:'#'},
+        {name:'Limbo', provider:'Arsh', category:'original', badge:'Original Game', color:'from-violet-800', icon:'fa-arrow-trend-up', popular:91, href:'#'},
+
+        {name:'Aviator', provider:'Spribe', category:'hot', badge:'Hot Game', color:'from-red-900', icon:'fa-plane', popular:90, href:'#'},
+        {name:'Super Ace', provider:'JILI', category:'hot', badge:'Hot Game', color:'from-amber-700', icon:'fa-star', popular:89, href:'#'},
+        {name:'Super Elements', provider:'FC', category:'hot', badge:'Hot Game', color:'from-orange-800', icon:'fa-gem', popular:88, href:'#'},
+        {name:'Circus Joker', provider:'JILI', category:'hot', badge:'Hot Game', color:'from-fuchsia-900', icon:'fa-masks-theater', popular:87, href:'#'},
+        {name:'Lucky Neko', provider:'PG', category:'hot', badge:'Hot Game', color:'from-blue-900', icon:'fa-cat', popular:86, href:'#'},
+        {name:'Dragon Tiger', provider:'JILI', category:'hot', badge:'Hot Game', color:'from-rose-900', icon:'fa-dragon', popular:85, href:'#'},
+        {name:'Fortune Gems', provider:'JILI', category:'hot', badge:'Hot Game', color:'from-pink-900', icon:'fa-gem', popular:84, href:'#'},
+        {name:'Wild Bandito', provider:'PG', category:'hot', badge:'Hot Game', color:'from-yellow-900', icon:'fa-hat-cowboy', popular:83, href:'#'},
+        {name:'Golden Empire', provider:'FC', category:'hot', badge:'Hot Game', color:'from-yellow-800', icon:'fa-crown', popular:82, href:'#'},
+        {name:'Fortune Tiger', provider:'PG', category:'hot', badge:'Hot Game', color:'from-red-800', icon:'fa-paw', popular:81, href:'#'},
+
+        {name:'Fortune Rabbit', provider:'PG', category:'slot', badge:'PG', color:'from-pink-900', icon:'fa-rabbit', popular:80, href:'#'},
+        {name:'Mahjong Ways', provider:'PG', category:'slot', badge:'PG', color:'from-emerald-900', icon:'fa-leaf', popular:79, href:'#'},
+        {name:'Treasures of Aztec', provider:'PG', category:'slot', badge:'PG', color:'from-amber-900', icon:'fa-landmark', popular:78, href:'#'},
+        {name:'Wild Bounty Showdown', provider:'PG', category:'slot', badge:'PG', color:'from-lime-900', icon:'fa-crosshairs', popular:77, href:'#'},
+        {name:'Candy Bonanza', provider:'PG', category:'slot', badge:'PG', color:'from-fuchsia-900', icon:'fa-candy-cane', popular:76, href:'#'},
+        {name:'Dragon Hatch', provider:'JILI', category:'slot', badge:'JILI', color:'from-red-900', icon:'fa-dragon', popular:75, href:'#'},
+        {name:'Fortune Coins', provider:'JILI', category:'slot', badge:'JILI', color:'from-yellow-800', icon:'fa-coins', popular:74, href:'#'},
+        {name:'Super Rich', provider:'FC', category:'slot', badge:'FC', color:'from-green-900', icon:'fa-sack-dollar', popular:73, href:'#'},
+        {name:'Jungle King', provider:'JILI', category:'slot', badge:'JILI', color:'from-teal-900', icon:'fa-tree', popular:72, href:'#'},
+        {name:'Lucky Gold', provider:'FC', category:'slot', badge:'FC', color:'from-yellow-900', icon:'fa-coins', popular:71, href:'#'}
+      ];
+
+      const grid = document.getElementById('gamesGrid');
+      const searchInput = document.getElementById('gameSearch');
+      const clearSearch = document.getElementById('clearSearch');
+      const providerFilter = document.getElementById('providerFilter');
+      const sortGames = document.getElementById('sortGames');
+      const gameCount = document.getElementById('gameCount');
+      const sectionTitle = document.getElementById('sectionTitle');
+      const emptyMessage = document.getElementById('emptyMessage');
+      let activeCategory = 'all';
+
+      const categoryTitles = { all: 'All Game', original: 'Arsh', hot: 'Hot Game', slot: 'Slot' };
+
+      function renderGames() {
+        const query = searchInput.value.trim().toLowerCase();
+        const provider = providerFilter.value;
+        let filtered = games.filter(game => {
+          const categoryMatch = activeCategory === 'all' || game.category === activeCategory;
+          const searchMatch = game.name.toLowerCase().includes(query) || game.provider.toLowerCase().includes(query);
+          const providerMatch = provider === 'all' || game.provider === provider;
+          return categoryMatch && searchMatch && providerMatch;
+        });
+
+        if (sortGames.value === 'az') filtered.sort((a,b) => a.name.localeCompare(b.name));
+        else if (sortGames.value === 'za') filtered.sort((a,b) => b.name.localeCompare(a.name));
+        else filtered.sort((a,b) => b.popular - a.popular);
+
+        grid.innerHTML = filtered.map(game => `
+          <a href="${game.href}" class="game-card group relative bg-[#171d28] border border-[#222b3a] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
+            <div class="game-art absolute inset-0 bg-gradient-to-b ${game.color} to-[#171d28] flex flex-col items-center justify-center gap-3 p-2">
+              <i class="fa-solid ${game.icon} text-3xl sm:text-4xl text-white/90 drop-shadow-lg"></i>
+              <div class="text-center font-black italic text-xs sm:text-base text-white tracking-wide drop-shadow-lg">${game.name}</div>
+            </div>
+            <div class="relative z-10 flex justify-end items-center p-2">
+              <span class="text-[9px] sm:text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-1 rounded-full border border-white/10">${game.provider}</span>
+            </div>
+            <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/85 to-transparent">
+              <span class="text-[8px] sm:text-[9px] font-bold tracking-wider text-gray-300 uppercase">${game.badge}</span>
+            </div>
+          </a>
+        `).join('');
+
+        sectionTitle.textContent = query ? 'Search Results' : categoryTitles[activeCategory];
+        gameCount.textContent = `${filtered.length} games`;
+        emptyMessage.classList.toggle('hidden', filtered.length !== 0);
+        grid.classList.toggle('hidden', filtered.length === 0);
+        clearSearch.classList.toggle('hidden', !searchInput.value);
+      }
+
+      document.querySelectorAll('[data-category]').forEach(button => {
+        button.addEventListener('click', () => {
+          activeCategory = button.dataset.category;
+          document.querySelectorAll('[data-category]').forEach(btn => {
+            const active = btn === button;
+            btn.classList.toggle('bg-[#24ee89]', active);
+            btn.classList.toggle('text-[#07120d]', active);
+            btn.classList.toggle('bg-[#171d28]', !active);
+            btn.classList.toggle('text-gray-300', !active);
+            btn.classList.toggle('border', !active);
+            btn.classList.toggle('border-[#222b3a]', !active);
+          });
+          renderGames();
+        });
+      });
+
+      searchInput.addEventListener('input', renderGames);
+      clearSearch.addEventListener('click', () => { searchInput.value = ''; renderGames(); searchInput.focus(); });
+      providerFilter.addEventListener('change', renderGames);
+      sortGames.addEventListener('change', renderGames);
+      renderGames();
+
+      // Load shared navigation fragments. Inline scripts are executed after insertion.
+      async function loadFragment(url, containerId) {
+        const container = document.getElementById(containerId);
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error('Could not load ' + url);
+          const markup = await response.text();
+          const parsed = new DOMParser().parseFromString(markup, 'text/html');
+          container.innerHTML = parsed.body.innerHTML;
+
+          // Correct root-relative navigation paths for this /search/ page.
+          if (containerId === 'topBarContainer') {
+            const logo = container.querySelector('a[href="index.html"]');
+            if (logo) logo.href = '../index.html';
+            const deposit = container.querySelector('#depositLinkBtn');
+            if (deposit) deposit.href = '../account/deposit.html';
+            const profile = container.querySelector('#profileLinkBtn');
+            if (profile) profile.href = '../mem/member.html';
+          }
+
+          parsed.querySelectorAll('script').forEach(oldScript => {
+            if (oldScript.src) return; // External libraries/config are already loaded by this page.
+            const script = document.createElement('script');
+            script.textContent = oldScript.textContent;
+            container.appendChild(script);
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      loadFragment('../bar/top.html', 'topBarContainer');
+      loadFragment('../bar/bottom.html', 'bottomBarContainer');
+    })();
+  </script>
 </body>
 </html>
