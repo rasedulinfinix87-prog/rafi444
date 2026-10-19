@@ -477,6 +477,13 @@
             return null;
         }
 
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
         async function loadTopBar() {
             try {
                 const res = await fetch('../bar/top.html');
@@ -818,6 +825,7 @@
 
             let isWin = randomRoll >= targetMultiplier;
             let payoutAmount = isWin ? betAmount * targetMultiplier : 0;
+            let statusStr = isWin ? 'won' : 'lost';
 
             playSound(isWin);
 
@@ -862,14 +870,19 @@
 
             if (client && currentUserId) {
                 try {
-                    await client.from('bets').insert([
+                    await client.from('original_bets_history').insert([
                         {
+                            id: generateUUID(),
                             user_id: currentUserId,
-                            target_number: targetMultiplier,
-                            roll_result: randomRoll,
+                            game_name: 'Limbo',
                             bet_amount: betAmount,
                             payout: payoutAmount,
-                            is_bool: isWin
+                            multiplier: randomRoll,
+                            status: statusStr,
+                            game_details: {
+                                target_multiplier: targetMultiplier,
+                                chance: (99 / targetMultiplier).toFixed(2) + '%'
+                            }
                         }
                     ]);
 
