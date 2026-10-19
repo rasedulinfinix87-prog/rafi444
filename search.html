@@ -120,6 +120,16 @@
 
       const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
 
+      // GitHub Pages এর সাব-ফোল্ডার বা ইউজারনেম প্রিফিক্স স্বয়ংক্রিয়ভাবে বের করার ফাংশন
+      function getRepoPrefix() {
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        // যদি প্রথম segmentটি কোনো html ফাইল না হয়, তবে সেটি রিপ্রোসিটরি বা ইউজারনেম ফোল্ডার হতে পারে
+        if (pathSegments.length > 0 && !pathSegments[pathSegments.length - 1].includes('.html')) {
+          return '/' + pathSegments[0];
+        }
+        return '';
+      }
+
       async function fetchGamesFromSupabase() {
         try {
           const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
@@ -176,6 +186,7 @@
 
       function renderGrid() {
         const currentSlice = filteredGames.slice(0, visibleLimit);
+        const repoPrefix = getRepoPrefix();
 
         if (currentSlice.length === 0) {
           grid.innerHTML = '';
@@ -185,17 +196,21 @@
           emptyMessage.classList.add('hidden');
           grid.classList.remove('hidden');
 
-          const pathSegments = window.location.pathname.split('/').filter(Boolean);
-          const repoPrefix = (pathSegments.length > 0 && !pathSegments[pathSegments.length - 1].includes('.html')) ? '/' + pathSegments[0] : '';
-
           grid.innerHTML = currentSlice.map(game => {
-            const hasImg = game.image_url && game.image_url.trim() !== '';
-            let pageUrl = game.page_url || '#';
-            
+            let imageUrl = game.image_url ? game.image_url.trim() : '';
+            let pageUrl = game.page_url ? game.page_url.trim() : '#';
+
+            // ইমেজ পাথ শর্ট হলে (যেমন: /assets/...) সঠিক প্রিফিক্স যুক্ত করা
+            if (imageUrl.startsWith('/') && repoPrefix && !imageUrl.startsWith(repoPrefix)) {
+              imageUrl = repoPrefix + imageUrl;
+            }
+
+            // পেজ ইউআরএল শর্ট হলে (যেমন: /game/plinko.html) সঠিক প্রিফিক্স যুক্ত করা
             if (pageUrl.startsWith('/') && repoPrefix && !pageUrl.startsWith(repoPrefix)) {
               pageUrl = repoPrefix + pageUrl;
             }
 
+            const hasImg = imageUrl !== '';
             const title = game.title || 'Untitled Game';
             const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
 
@@ -206,7 +221,7 @@
               <a href="${pageUrl}" class="game-card group relative bg-[#171d28] border border-[#222b3a] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
                 <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#171d28] flex flex-col items-center justify-center p-1">
                   ${hasImg 
-                    ? `<img src="${game.image_url}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
+                    ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
                     : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
                        ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-white tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
                   }
@@ -264,25 +279,24 @@
 
       async function loadFragment(url, containerId) {
         const container = document.getElementById(containerId);
-        try {
-          // ডাইনামিক ইউজারনেম/প্রিফিক্স পাথ হ্যান্ডেল করার লজিক
-          const pathSegments = window.location.pathname.split('/').filter(Boolean);
-          const repoPrefix = (pathSegments.length > 0 && !pathSegments[pathSegments.length - 1].includes('.html')) ? '/' + pathSegments[0] : '';
-          const fullUrl = repoPrefix ? repoPrefix + (url.startsWith('/') ? url : '/' + url) : url;
+        const repoPrefix = getRepoPrefix();
+        // ফ্র্যাগমেন্ট লোড করার সময়ও সাব-ফোল্ডার পাথ ঠিক রাখা হলো
+        const finalUrl = repoPrefix && !url.startsWith('/') ? repoPrefix + '/' + url : (repoPrefix && url.startsWith('/') ? repoPrefix + url : url);
 
-          const response = await fetch(fullUrl);
-          if (!response.ok) throw new Error('Could not load ' + fullUrl);
+        try {
+          const response = await fetch(finalUrl);
+          if (!response.ok) throw new Error('Could not load ' + finalUrl);
           const markup = await response.text();
           const parsed = new DOMParser().parseFromString(markup, 'text/html');
           container.innerHTML = parsed.body.innerHTML;
 
           if (containerId === 'topBarContainer') {
             const logo = container.querySelector('a[href="index.html"]');
-            if (logo) logo.href = repoPrefix + '/index.html';
+            if (logo) logo.href = (repoPrefix ? repoPrefix : '') + '/index.html';
             const deposit = container.querySelector('#depositLinkBtn');
-            if (deposit) deposit.href = repoPrefix + '/account/deposit.html';
+            if (deposit) deposit.href = (repoPrefix ? repoPrefix : '') + '/account/deposit.html';
             const profile = container.querySelector('#profileLinkBtn');
-            if (profile) profile.href = repoPrefix + '/mem/member.html';
+            if (profile) profile.href = (repoPrefix ? repoPrefix : '') + '/mem/member.html';
           }
 
           parsed.querySelectorAll('script').forEach(oldScript => {
