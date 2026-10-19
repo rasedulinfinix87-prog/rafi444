@@ -28,7 +28,7 @@
   </style>
 </head>
 <body class="font-sans antialiased">
-  <!-- Top bar loaded from root /bar/top.html -->
+  <!-- Top bar loaded from root bar/top.html -->
   <div id="topBarContainer"></div>
 
   <main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
@@ -120,6 +120,15 @@
       const loadMoreBtn = document.getElementById('loadMoreBtn');
 
       const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
+
+      // গিটহাব পেজের সাব-ফোল্ডার বা ইউজারনেম প্রিফিক্স স্বয়ংক্রিয়ভাবে বের করার ফাংশন
+      function getRepoPrefix() {
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        if (pathSegments.length > 0 && !pathSegments[pathSegments.length - 1].includes('.html')) {
+          return '/' + pathSegments[0];
+        }
+        return '';
+      }
 
       // Supabase Realtime User Balance Sync
       async function syncRealtimeUserBalance() { 
@@ -303,7 +312,6 @@
           const markup = await response.text();
           const parsed = new DOMParser().parseFromString(markup, 'text/html');
           
-          // ফেচ করা ফাইলের ভেତরে কোনো <style> ট্যাগ থাকলে তা হেডে বা কন্টেইনারে অ্যাপেন্ড করা যাতে স্টাইল মিসিং না হয়
           parsed.querySelectorAll('style').forEach(styleTag => {
             document.head.appendChild(styleTag.cloneNode(true));
           });
@@ -332,8 +340,10 @@
         }
       }
 
-      loadFragment('bar/top.html', 'topBarContainer');
-      loadFragment('bar/bottom.html', 'bottomBarContainer');
+      // গিটহাব পেজের পাথ বা সাব-ফোল্ডার হ্যান্ডেল করার জন্য সঠিক ইউআরএল তৈরি
+      const repoPrefix = getRepoPrefix();
+      loadFragment((repoPrefix ? repoPrefix : '') + '/bar/top.html', 'topBarContainer');
+      loadFragment((repoPrefix ? repoPrefix : '') + '/bar/bottom.html', 'bottomBarContainer');
 
       window.addEventListener('DOMContentLoaded', () => {
         setTimeout(fetchGamesFromSupabase, 100);
