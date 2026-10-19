@@ -135,6 +135,99 @@
     </div>
   </div>
 
+  <!-- GAME GRID UPDATE MODAL / POPUP -->
+  <div id="gameGridModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+        <div>
+          <h3 class="text-sm font-bold text-gray-900">Game Grid Control Management</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Manage grid_control_url_image table items</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openGameGridForm()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 transition">
+            <i class="fa-solid fa-plus"></i> Add New Game
+          </button>
+          <button onclick="closeGameGridModal()" class="p-2 text-gray-500 hover:text-gray-900 rounded-lg bg-white border border-gray-200">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body (Table) -->
+      <div class="p-4 flex-1 overflow-y-auto table-wrap">
+        <table class="w-full text-left text-xs">
+          <thead class="text-gray-500 bg-gray-50 sticky top-0">
+            <tr>
+              <th class="p-3">Title</th>
+              <th class="p-3">Category</th>
+              <th class="p-3">Image URL</th>
+              <th class="p-3">Page URL</th>
+              <th class="p-3">Status</th>
+              <th class="p-3">Sort Order</th>
+              <th class="p-3">Action</th>
+            </tr>
+          </thead>
+          <tbody id="gameGridTableBody">
+            <tr><td colspan="7" class="p-6 text-center text-gray-500">Loading grid items...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+        <button onclick="closeGameGridModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold rounded-xl transition">Close</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ADD / EDIT SUB-MODAL FOR GAME GRID -->
+  <div id="gameGridFormModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+        <h3 id="gameGridFormTitle" class="text-sm font-bold text-gray-900">Add New Game Grid</h3>
+        <button onclick="closeGameGridForm()" class="text-gray-400 hover:text-gray-700 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form id="gameGridForm" onsubmit="saveGameGridItem(event)" class="p-4 space-y-3">
+        <input type="hidden" id="ggId">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Title</label>
+          <input type="text" id="ggTitle" required class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-emerald-500" placeholder="e.g. Crash">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Category (original, hot, slot, etc.)</label>
+          <input type="text" id="ggCategory" required class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-emerald-500" placeholder="original">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Image URL</label>
+          <input type="text" id="ggImageUrl" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-emerald-500" placeholder="https://...">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Page URL</label>
+          <input type="text" id="ggPageUrl" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-emerald-500" placeholder="/games/crash.html">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Sort Order</label>
+            <input type="number" id="ggSortOrder" value="0" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-emerald-500">
+          </div>
+          <div class="flex items-center pt-5">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="ggIsActive" checked class="w-4 h-4 accent-emerald-600">
+              <span class="text-xs font-bold text-gray-700">Is Active</span>
+            </label>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-gray-100">
+          <button type="button" onclick="closeGameGridForm()" class="px-4 py-2 bg-gray-200 text-gray-800 text-xs font-bold rounded-xl">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-700">Save Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div id="messageBox" class="hidden p-3 rounded-xl text-sm break-words"></div>
 
   <!-- STAT CARDS -->
@@ -163,21 +256,28 @@
   </div>
 
   <!-- NAVIGATION -->
-  <nav class="flex gap-2 overflow-x-auto pb-2">
-    <button id="tabDeposits" onclick="switchTab('deposits')" class="tab-btn tab-active glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
-      <i class="fa-solid fa-wallet mr-1"></i> Deposits
-    </button>
+  <nav class="flex gap-2 overflow-x-auto pb-2 items-center justify-between">
+    <div class="flex gap-2 overflow-x-auto pb-1">
+      <button id="tabDeposits" onclick="switchTab('deposits')" class="tab-btn tab-active glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
+        <i class="fa-solid fa-wallet mr-1"></i> Deposits
+      </button>
 
-    <button id="tabWithdrawals" onclick="switchTab('withdrawals')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
-      <i class="fa-solid fa-money-bill-transfer mr-1"></i> Withdrawals
-    </button>
+      <button id="tabWithdrawals" onclick="switchTab('withdrawals')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
+        <i class="fa-solid fa-money-bill-transfer mr-1"></i> Withdrawals
+      </button>
 
-    <button id="tabUsers" onclick="switchTab('users')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
-      <i class="fa-solid fa-users mr-1"></i> Users
-    </button>
+      <button id="tabUsers" onclick="switchTab('users')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
+        <i class="fa-solid fa-users mr-1"></i> Users
+      </button>
 
-    <button id="tabBets" onclick="switchTab('bets')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
-      <i class="fa-solid fa-dice mr-1"></i> Recent Bets
+      <button id="tabBets" onclick="switchTab('bets')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
+        <i class="fa-solid fa-dice mr-1"></i> Recent Bets
+      </button>
+    </div>
+
+    <!-- Game Grid Update Button added in navigation bar -->
+    <button onclick="openGameGridModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm flex items-center gap-1.5 transition flex-shrink-0">
+      <i class="fa-solid fa-table-cells"></i> Game Grid Update
     </button>
   </nav>
 
@@ -509,6 +609,127 @@ async function confirmAndDeleteSelected() {
 
   } catch (err) {
     showMessage("Deletion failed: " + err.message, true);
+  }
+}
+
+/* =====================================
+   GAME GRID UPDATE MANAGEMENT
+===================================== */
+async function openGameGridModal() {
+  const modal = document.getElementById("gameGridModal");
+  modal.classList.remove("hidden");
+  await loadGameGridItems();
+}
+
+function closeGameGridModal() {
+  document.getElementById("gameGridModal").classList.add("hidden");
+}
+
+async function loadGameGridItems() {
+  const tbody = document.getElementById("gameGridTableBody");
+  tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-gray-400">Loading grid items...</td></tr>';
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("grid_control_url_image")
+      .select("*")
+      .order("sort_order", { ascending: true });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-gray-400">No grid items found.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.map(item => `
+      <tr class="border-b border-gray-100 hover:bg-gray-50">
+        <td class="p-3 font-bold text-gray-900">${escapeHTML(item.title)}</td>
+        <td class="p-3"><span class="bg-gray-100 text-gray-800 px-2 py-0.5 rounded font-semibold text-[10px]">${escapeHTML(item.category)}</span></td>
+        <td class="p-3 font-mono text-gray-500 max-w-[150px] truncate">${escapeHTML(item.image_url || "-")}</td>
+        <td class="p-3 font-mono text-gray-500 max-w-[150px] truncate">${escapeHTML(item.page_url || "-")}</td>
+        <td class="p-3">${item.is_active ? '<span class="text-emerald-600 font-bold">Active</span>' : '<span class="text-gray-400">Inactive</span>'}</td>
+        <td class="p-3">${item.sort_order ?? 0}</td>
+        <td class="p-3">
+          <div class="flex gap-2">
+            <button onclick='editGameGridItem(${JSON.stringify(item)})' class="px-2.5 py-1 bg-cyan-50 text-cyan-600 border border-cyan-200 rounded font-bold hover:bg-cyan-100">Edit</button>
+            <button onclick="deleteGameGridItem('${item.id}')" class="px-2.5 py-1 bg-rose-50 text-rose-600 border border-rose-200 rounded font-bold hover:bg-rose-100">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-rose-600">Error: ${escapeHTML(err.message)}</td></tr>`;
+  }
+}
+
+function openGameGridForm() {
+  document.getElementById("gameGridFormTitle").textContent = "Add New Game Grid";
+  document.getElementById("ggId").value = "";
+  document.getElementById("gameGridForm").reset();
+  document.getElementById("ggIsActive").checked = true;
+  document.getElementById("gameGridFormModal").classList.remove("hidden");
+}
+
+function closeGameGridForm() {
+  document.getElementById("gameGridFormModal").classList.add("hidden");
+}
+
+function editGameGridItem(item) {
+  document.getElementById("gameGridFormTitle").textContent = "Edit Game Grid";
+  document.getElementById("ggId").value = item.id;
+  document.getElementById("ggTitle").value = item.title || "";
+  document.getElementById("ggCategory").value = item.category || "";
+  document.getElementById("ggImageUrl").value = item.image_url || "";
+  document.getElementById("ggPageUrl").value = item.page_url || "";
+  document.getElementById("ggSortOrder").value = item.sort_order ?? 0;
+  document.getElementById("ggIsActive").checked = !!item.is_active;
+  document.getElementById("gameGridFormModal").classList.remove("hidden");
+}
+
+async function saveGameGridItem(event) {
+  event.preventDefault();
+  const id = document.getElementById("ggId").value;
+  const payload = {
+    title: document.getElementById("ggTitle").value.trim(),
+    category: document.getElementById("ggCategory").value.trim(),
+    image_url: document.getElementById("ggImageUrl").value.trim(),
+    page_url: document.getElementById("ggPageUrl").value.trim(),
+    sort_order: parseInt(document.getElementById("ggSortOrder").value) || 0,
+    is_active: document.getElementById("ggIsActive").checked
+  };
+
+  try {
+    let error;
+    if (id) {
+      const res = await supabaseClient.from("grid_control_url_image").update(payload).eq("id", id);
+      error = res.error;
+    } else {
+      const res = await supabaseClient.from("grid_control_url_image").insert([payload]);
+      error = res.error;
+    }
+
+    if (error) throw error;
+
+    closeGameGridForm();
+    await loadGameGridItems();
+    showMessage("Game grid item saved successfully.");
+  } catch (err) {
+    alert("Save failed: " + err.message);
+  }
+}
+
+async function deleteGameGridItem(id) {
+  if (!confirm("Are you sure you want to delete this game grid item?")) return;
+
+  try {
+    const { error } = await supabaseClient.from("grid_control_url_image").delete().eq("id", id);
+    if (error) throw error;
+    await loadGameGridItems();
+    showMessage("Game grid item deleted successfully.");
+  } catch (err) {
+    alert("Delete failed: " + err.message);
   }
 }
 
