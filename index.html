@@ -44,9 +44,9 @@
     <div id="topBarContainer" class="sticky top-0 z-50"></div> 
 
     <!-- Main Application Wrapper --> 
-    <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-3 sm:py-5 space-y-4"> 
+    <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-3 sm:py-5 space-y-5"> 
         
-        <!-- Shuffle Style Promotional Banner Container (Dynamic Supabase support) -->
+        <!-- Shuffle Style Promotional Banner Container -->
         <div id="bannerContainer" class="shuffle-banner rounded-2xl p-4 sm:p-6 flex flex-col justify-between relative shadow-xl min-h-[130px]">
             <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="relative z-10 space-y-1.5 max-w-sm">
@@ -56,31 +56,16 @@
             </div>
         </div>
 
-        <!-- Category Navigation Bar --> 
-        <div class="flex items-center justify-between border-b border-slate-800/80 pb-3"> 
-            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1"> 
-                <button onclick="filterCategory('original')" id="catOriginal" class="flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-4 py-2.5 rounded-xl text-xs transition shadow-md whitespace-nowrap"> Original Games </button> 
-                <button onclick="filterCategory('colortrading')" id="catColortrading" class="flex items-center gap-2 bg-[#151a23] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition whitespace-nowrap"> Color Trading </button> 
-                <button onclick="filterCategory('blackjack')" id="catBlackjack" class="flex items-center gap-2 bg-[#151a23] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition whitespace-nowrap"> Blackjack </button> 
-                <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#151a23] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition whitespace-nowrap"> Live Casino </button> 
-            </div> 
-            <div class="hidden sm:flex items-center bg-[#151a23] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-400"> 
-                <input type="text" id="gameSearch" onkeyup="searchGames()" placeholder="Search game..." class="bg-transparent text-white focus:outline-none w-28 lg:w-40"> 
-            </div> 
+        <!-- Search Bar Section for Mobile/Desktop --> 
+        <div class="flex items-center justify-between bg-[#151a23] border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400"> 
+            <input type="text" id="gameSearch" onkeyup="handleSearch()" placeholder="Search game..." class="bg-transparent text-white focus:outline-none w-full"> 
+            <i class="fa-solid fa-search text-slate-500"></i>
         </div> 
 
-        <!-- Games Grid Section --> 
-        <section> 
-            <div class="flex items-center justify-between mb-3.5"> 
-                <h2 id="sectionTitle" class="text-sm sm:text-base font-bold text-white flex items-center gap-2"> 
-                    <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> Original Games 
-                </h2> 
-            </div> 
-            <!-- Exactly 3 Columns Grid --> 
-            <div id="gamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5"> 
-                <!-- Dynamic game cards from Supabase grid_control_url_image rendered here --> 
-            </div> 
-        </section> 
+        <!-- Dynamic Categories Sections Container --> 
+        <div id="categoriesContainer" class="space-y-8">
+            <!-- Sections rendered dynamically from database -->
+        </div>
     </div> 
 
     <!-- Footer Section --> 
@@ -92,10 +77,9 @@
     <div id="bottomBarContainer" class="fixed bottom-0 left-0 right-0 z-50"></div>
 
     <script> 
-        let currentCategory = 'original'; 
         let balanceSubscription = null; 
-        let playerUpdateInterval = null; 
-        let dynamicGrids = [];
+        let allGridsData = [];
+        let categoryDisplayLimits = {}; // প্রতিটি ক্যাটাগরিতে কয়টি আইটেম দৃশ্যমান তা ট্র্যাক রাখবে
 
         // Supabase Realtime User Balance Sync 
         async function syncRealtimeUserBalance() { 
@@ -166,23 +150,10 @@
                 const bannerContainer = document.getElementById('bannerContainer');
                 if (!bannerContainer) return;
 
-                if (error || !banners || banners.length === 0) {
-                    bannerContainer.innerHTML = `
-                        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
-                        <div class="relative z-10 space-y-1.5 max-w-sm">
-                            <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
-                            <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic">Boost Your Level Up!</h1>
-                            <p class="text-xs text-slate-400 font-medium">Earn more rewards now when ranking up!</p>
-                        </div>
-                    `;
-                    return;
-                }
+                if (error || !banners || banners.length === 0) return;
 
                 const banner = banners[0];
-                let bgStyle = '';
-                if (banner.image_url) {
-                    bgStyle = `background-image: url('${banner.image_url}'); background-size: cover; background-position: center;`;
-                }
+                let bgStyle = banner.image_url ? `background-image: url('${banner.image_url}'); background-size: cover; background-position: center;` : '';
 
                 bannerContainer.style.cssText += bgStyle;
                 bannerContainer.innerHTML = `
@@ -212,98 +183,109 @@
                     .order('sort_order', { ascending: true });
 
                 if (!error && data) {
-                    dynamicGrids = data.map(item => ({
+                    allGridsData = data.map(item => ({
                         id: item.id,
-                        name: item.title,
-                        path: item.page_url,
-                        category: item.category ? item.category.toLowerCase().trim() : 'original',
-                        players: Math.floor(Math.random() * 800) + 150, // লাইভ প্লেয়ার কাউন্ট সিমুলেশন
-                        image: item.image_url,
-                        fallbackBg: 'from-emerald-900 to-slate-950'
+                        title: item.title,
+                        imageUrl: item.image_url,
+                        pageUrl: item.page_url,
+                        category: item.category ? item.category.trim() : 'Original Games',
+                        players: Math.floor(Math.random() * 1500) + 100
                     }));
-                    renderGames(currentCategory);
+
+                    // ক্যাটাগরিগুলো ইনিশিয়ালাইজ করা (প্রথমে ৩টি করে দেখাবে)
+                    const categories = [...new Set(allGridsData.map(item => item.category))];
+                    categories.forEach(cat => {
+                        if (!categoryDisplayLimits[cat]) {
+                            categoryDisplayLimits[cat] = 3; // শুরুতে ৩টি দেখাবে
+                        }
+                    });
+
+                    renderCategories();
                 }
             } catch (err) {
                 console.error('Grid Data Fetch Error:', err);
             }
         }
 
-        // Render Game Cards 
-        function renderGames(filter = 'original', searchQuery = '') { 
-            const grid = document.getElementById('gamesGrid'); 
-            grid.innerHTML = ''; 
-            const normalizedQuery = searchQuery.toLowerCase(); 
-            
-            const filteredGames = dynamicGrids.filter(game => { 
-                const matchesCategory = filter === 'all' || game.category === filter; 
-                const matchesSearch = game.name.toLowerCase().includes(normalizedQuery); 
-                return matchesCategory && matchesSearch; 
-            }); 
+        // ক্যাটাগরি ও গেম কার্ড রেন্ডার করার ফাংশন
+        function renderCategories(searchQuery = '') {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
 
-            if (filteredGames.length === 0) { 
-                grid.innerHTML = ` 
-                    <div class="col-span-full text-center py-12 text-slate-500 text-xs bg-[#151a23] rounded-2xl border border-slate-800"> 
-                        No games found for the selected category. 
+            const normalizedQuery = searchQuery.toLowerCase();
+            const categories = [...new Set(allGridsData.map(item => item.category))];
+
+            categories.forEach(cat => {
+                const catItems = allGridsData.filter(item => 
+                    item.category === cat && item.title.toLowerCase().includes(normalizedQuery)
+                );
+
+                if (catItems.length === 0) return;
+
+                const currentLimit = categoryDisplayLimits[cat] || 3;
+                const visibleItems = catItems.slice(0, currentLimit);
+                const hasMore = currentLimit < catItems.length;
+
+                const section = document.createElement('div');
+                section.className = 'space-y-3';
+                section.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2"> 
+                        <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2"> 
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> ${cat} 
+                        </h2> 
                     </div> 
-                `; 
-                return; 
-            } 
+                    <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5" id="grid-${CSS.escape(cat)}">
+                        <!-- Cards -->
+                    </div>
+                    ${hasMore ? `
+                        <div class="text-center pt-1">
+                            <button onclick="loadMore('${cat}')" class="w-full py-2.5 bg-[#151a23] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold text-xs rounded-xl transition">
+                                Load More
+                            </button>
+                        </div>
+                    ` : ''}
+                `;
 
-            const fragment = document.createDocumentFragment(); 
-            filteredGames.forEach((game) => { 
-                const card = document.createElement('a'); 
-                card.href = game.path; 
-                card.className = 'group relative bg-[#151a23] border border-slate-800/80 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-40 sm:h-48 md:h-52 transition-all duration-200 hover:scale-[1.02] shadow-lg'; 
-                card.innerHTML = ` 
-                    <img src="${game.image}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" class="absolute inset-0 w-full h-full object-cover z-0" alt="${game.name}" loading="lazy" decoding="async" /> 
-                    <div class="hidden absolute inset-0 bg-gradient-to-b ${game.fallbackBg} opacity-90"></div> 
-                    <div class="relative z-20 flex justify-end items-center p-2.5"> 
-                        <span class="text-[10px] font-bold text-slate-200 bg-black/60 px-2.5 py-0.5 rounded-full border border-white/10 backdrop-blur-md"> 
-                            <span id="player-count-${game.id}">${game.players.toLocaleString()}</span> playing
-                        </span> 
-                    </div> 
-                    <div></div> 
-                `; 
-                fragment.appendChild(card); 
-            }); 
-            grid.appendChild(fragment); 
-        } 
+                container.appendChild(section);
 
-        // Category Filter Switcher 
-        function filterCategory(cat) { 
-            currentCategory = cat; 
-            const categories = ['original', 'colortrading', 'blackjack', 'live']; 
-            categories.forEach(c => { 
-                let idName = c;
-                if (c === 'colortrading') idName = 'Colortrading';
-                const btn = document.getElementById(`cat${idName.charAt(0).toUpperCase() + idName.slice(1)}`); 
-                if (btn) { 
-                    if (c === cat) { 
-                        btn.className = 'flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-4 py-2.5 rounded-xl text-xs transition shadow-md whitespace-nowrap'; 
-                    } else { 
-                        btn.className = 'flex items-center gap-2 bg-[#151a23] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition whitespace-nowrap'; 
-                    } 
-                } 
-            }); 
+                const gridContainer = section.querySelector(`#grid-${CSS.escape(cat)}`);
+                const fragment = document.createDocumentFragment();
 
-            const titles = { 
-                original: 'Original Games', 
-                colortrading: 'Color Trading Games', 
-                blackjack: 'Blackjack Games', 
-                live: 'Live Casino' 
-            }; 
-            document.getElementById('sectionTitle').innerHTML = ` 
-                <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> ${titles[cat] || 'Games'} 
-            `; 
-            renderGames(cat); 
-        } 
+                visibleItems.forEach(game => {
+                    const card = document.createElement('a');
+                    card.href = game.pageUrl;
+                    card.className = 'group relative bg-[#151a23] border border-slate-800/80 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-40 sm:h-48 md:h-52 transition-all duration-200 hover:scale-[1.02] shadow-lg';
+                    card.innerHTML = ` 
+                        <img src="${game.imageUrl}" onerror="this.style.display='none';" class="absolute inset-0 w-full h-full object-cover z-0" alt="${game.title}" loading="lazy" decoding="async" /> 
+                        <div class="relative z-20 flex justify-start items-center p-2.5"> 
+                            <span class="text-[9px] sm:text-[10px] font-bold text-slate-200 bg-black/60 px-2.5 py-0.5 rounded-full border border-white/10 backdrop-blur-md flex items-center gap-1"> 
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#24ee89] inline-block"></span>
+                                <span>${game.players.toLocaleString()} playing</span> 
+                            </span> 
+                        </div> 
+                        <div></div> 
+                    `;
+                    fragment.appendChild(card);
+                });
 
-        // Search Filter 
-        function searchGames() { 
-            const searchInput = document.getElementById('gameSearch'); 
-            if (!searchInput) return; 
-            renderGames(currentCategory, searchInput.value); 
-        } 
+                gridContainer.appendChild(fragment);
+            });
+        }
+
+        // Load More বাটনে ক্লিক করলে আরও ৯টি গেম দেখানোর লজিক
+        function loadMore(category) {
+            if (!categoryDisplayLimits[category]) {
+                categoryDisplayLimits[category] = 3;
+            }
+            categoryDisplayLimits[category] += 9; // প্রতি ক্লিকে আরও ৯টি বাড়বে
+            renderCategories(document.getElementById('gameSearch').value);
+        }
+
+        // সার্চ ফাংশন
+        function handleSearch() {
+            const query = document.getElementById('gameSearch').value;
+            renderCategories(query);
+        }
 
         // Dynamic Bottom Bar Loader
         async function loadBottomBar() {
@@ -315,8 +297,6 @@
                     if (bottomBarContainer) {
                         bottomBarContainer.innerHTML = html;
                     }
-                } else {
-                    console.error('Error loading bottom bar component:', response.status);
                 }
             } catch (err) {
                 console.error('Error loading bottom bar component:', err);
@@ -328,7 +308,7 @@
             loadTopBar(); 
             loadBottomBar();
             loadDynamicBanner();
-            fetchGridData(); // Supabase থেকে গ্রিড ডেটা লোড
+            fetchGridData(); 
         }); 
     </script> 
 </body> 
