@@ -123,10 +123,11 @@
       // Supabase থেকে ডেটা ফেচ করার নিরাপদ ও নিশ্চিত লজিক
       async function fetchGamesFromSupabase() {
         try {
-          // সুপাবেস ক্লায়েন্ট চেক করার জন্য একাধিক সোর্স ভেরিফিকেশন
-          const client = window.supabaseClient || (window.supabase && typeof window.supabase.createClient === 'function' ? window.supabase : null);
-          
-          if (!client) {
+          // supabase-config.js already creates the initialized client as `supabaseClient`.
+          // `window.supabase` is the CDN library, not the database client.
+          const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
+
+          if (!client || typeof client.from !== 'function') {
             console.error('Supabase client is missing.');
             loadingMessage.textContent = 'Supabase কনফিগারেশন পাওয়া যায়নি।';
             return;
@@ -144,8 +145,12 @@
           loadingMessage.classList.add('hidden');
           applyFilters();
         } catch (err) {
-          console.error('Error fetching games:', err);
-          loadingMessage.textContent = 'গেম লোড করতে সমস্যা হয়েছে: ' + (err.message || '');
+          console.error('Error fetching games from grid_control_url_image:', err);
+          grid.innerHTML = '';
+          grid.classList.add('hidden');
+          emptyMessage.classList.add('hidden');
+          loadingMessage.classList.remove('hidden');
+          loadingMessage.textContent = 'গেম লোড করতে সমস্যা হয়েছে: ' + (err.message || 'অজানা সমস্যা');
         }
       }
 
