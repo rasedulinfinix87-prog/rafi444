@@ -567,6 +567,13 @@
       }
     }
 
+    function generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
     function toggleTurbo() {
       isTurboOn = !isTurboOn;
 
@@ -1095,13 +1102,18 @@
           .update({ balance: userBalance })
           .eq('id', currentUserId);
 
-        await supabaseClient.from('bets').insert([{
+        await supabaseClient.from('original_bets_history').insert([{
+          id: generateUUID(),
           user_id: currentUserId,
-          target_number: minesCount,
-          roll_result: openedTiles.length,
+          game_name: 'Mines',
           bet_amount: currentBet,
-          payout: currentMultiplier,
-          is_bool: true
+          payout: payout,
+          multiplier: currentMultiplier,
+          status: 'won',
+          game_details: {
+            mines_count: minesCount,
+            opened_tiles_count: openedTiles.length
+          }
         }]);
       }
 
@@ -1141,13 +1153,18 @@
 
         updateGraph();
 
-        await supabaseClient.from('bets').insert([{
+        await supabaseClient.from('original_bets_history').insert([{
+          id: generateUUID(),
           user_id: currentUserId,
-          target_number: minesCount,
-          roll_result: openedTiles.length,
+          game_name: 'Mines',
           bet_amount: currentBet,
           payout: 0,
-          is_bool: false
+          multiplier: currentMultiplier,
+          status: 'lost',
+          game_details: {
+            mines_count: minesCount,
+            opened_tiles_count: openedTiles.length
+          }
         }]);
       }
 
