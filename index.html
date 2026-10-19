@@ -10,16 +10,27 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
     <script src="supabase-config.js"></script> 
     <style> 
+        :root {
+            --font-xs: 11px;
+            --font-sm: 12px;
+            --font-base: 14px;
+            --font-md: 16px;
+            --font-lg: 18px;
+            --font-xl: 22px;
+            --font-2xl: 28px;
+            --font-3xl: 32px;
+        }
+
         /* Custom Scrollbar Styling */ 
         ::-webkit-scrollbar { width: 6px; height: 6px; } 
-        ::-webkit-scrollbar-track { background: #080B10; } 
-        ::-webkit-scrollbar-thumb { background: #1b2438; border-radius: 4px; } 
+        ::-webkit-scrollbar-track { background: #0F212E; } 
+        ::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 4px; } 
         ::-webkit-scrollbar-thumb:hover { background: #283552; } 
         .no-scrollbar::-webkit-scrollbar { display: none; } 
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } 
         /* Mobile scrolling optimization */ 
-        html { overflow-y: auto; -webkit-overflow-scrolling: touch; background: #080B10; } 
-        body { overflow-x: hidden; background: #080B10; color: #ffffff; } 
+        html { overflow-y: auto; -webkit-overflow-scrolling: touch; background: #0F212E; } 
+        body { overflow-x: hidden; background: #0F212E; color: #FFFFFF; font-size: var(--font-base); } 
         img { -webkit-user-drag: none; } 
 
         /* Shuffle Style Glass & Accents */
@@ -32,8 +43,8 @@
         }
 
         .shuffle-banner {
-            background: linear-gradient(135deg, #151a23 0%, #0d1118 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(135deg, #1A2C38 0%, #0F212E 100%);
+            border: 1px solid #0F212E;
             position: relative;
             overflow: hidden;
         }
@@ -44,7 +55,7 @@
         }
     </style> 
 </head> 
-<body class="bg-[#080B10] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black pb-24"> 
+<body class="bg-[#0F212E] text-[#FFFFFF] min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black pb-24"> 
     <!-- Top Navigation Bar Anchor Container --> 
     <div id="topBarContainer" class="sticky top-0 z-50"></div> 
 
@@ -56,9 +67,9 @@
             <!-- Dynamic Banners Rendered Here -->
             <div class="w-full p-4 sm:p-6 flex flex-col justify-between relative z-10">
                 <div class="space-y-1.5 max-w-sm">
-                    <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
-                    <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic">Boost Your Level Up!</h1>
-                    <p class="text-xs text-slate-300 font-medium">Earn more rewards now when ranking up!</p>
+                    <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
+                    <h1 class="text-[var(--font-2xl)] sm:text-[var(--font-3xl)] font-black tracking-tight text-[#FFFFFF] uppercase italic">Boost Your Level Up!</h1>
+                    <p class="text-[var(--font-xs)] text-[#FFFFFF] font-medium">Earn more rewards now when ranking up!</p>
                 </div>
             </div>
         </div>
@@ -66,9 +77,9 @@
         <div id="bannerDots" class="flex justify-center gap-1.5 -mt-2"></div>
 
         <!-- Search Bar Section --> 
-        <div class="flex items-center justify-between bg-[#151a23] border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400"> 
-            <input type="text" id="gameSearch" onkeyup="handleSearch()" placeholder="Search game..." class="bg-transparent text-white focus:outline-none w-full"> 
-            <i class="fa-solid fa-search text-slate-500"></i>
+        <div class="flex items-center justify-between bg-[#1A2C38] border border-[#0F212E] rounded-xl px-3 py-2 text-[var(--font-xs)] text-[#FFFFFF]"> 
+            <input type="text" id="gameSearch" onkeyup="handleSearch()" placeholder="Search game..." class="bg-transparent text-[#FFFFFF] focus:outline-none w-full"> 
+            <i class="fa-solid fa-search text-[#FFFFFF]"></i>
         </div> 
 
         <!-- Dynamic Categories Sections Container --> 
@@ -78,7 +89,7 @@
     </div> 
 
     <!-- Footer Section --> 
-    <footer class="bg-[#151a23] border-t border-slate-800/80 mt-12 py-6 text-center text-xs text-slate-500 space-y-2"> 
+    <footer class="bg-[#1A2C38] border-t border-[#0F212E] mt-12 py-6 text-center text-[var(--font-xs)] text-[#FFFFFF] space-y-2"> 
         <p>&copy; 2026 Game Portal. All Rights Reserved.</p> 
     </footer> 
 
@@ -186,16 +197,16 @@
             const banner = bannersList[index];
             let bgStyle = banner.image_url ? `background-image: url('${banner.image_url}'); background-size: cover; background-position: center;` : '';
 
-            bannerContainer.style.cssText = `background: linear-gradient(135deg, #151a23 0%, #0d1118 100%); ${bgStyle}`;
+            bannerContainer.style.cssText = `background: linear-gradient(135deg, #1A2C38 0%, #0F212E 100%); ${bgStyle}`;
             
             bannerContainer.innerHTML = `
                 <div class="absolute inset-0 bg-black/25 z-0"></div> <!-- হালকা শ্যাডো বা ওভারলে -->
                 <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="w-full p-4 sm:p-6 flex flex-col justify-between relative z-10 banner-slide">
                     <div class="space-y-1.5 max-w-sm">
-                        ${banner.badge_text ? `<span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">${banner.badge_text}</span>` : ''}
-                        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic drop-shadow-md">${banner.title}</h1>
-                        ${banner.subtitle ? `<p class="text-xs text-slate-200 font-medium drop-shadow">${banner.subtitle}</p>` : ''}
+                        ${banner.badge_text ? `<span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">${banner.badge_text}</span>` : ''}
+                        <h1 class="text-[var(--font-2xl)] sm:text-[var(--font-3xl)] font-black tracking-tight text-[#FFFFFF] uppercase italic drop-shadow-md">${banner.title}</h1>
+                        ${banner.subtitle ? `<p class="text-[var(--font-xs)] text-[#FFFFFF] font-medium drop-shadow">${banner.subtitle}</p>` : ''}
                     </div>
                 </div>
                 ${banner.link_url ? `<a href="${banner.link_url}" class="absolute inset-0 z-20"></a>` : ''}
@@ -204,7 +215,7 @@
             // ডটস বা ইন্ডিকেটর আপডেট করা
             if (dotsContainer && bannersList.length > 1) {
                 dotsContainer.innerHTML = bannersList.map((_, i) => `
-                    <button onclick="switchBanner(${i})" class="h-1.5 rounded-full transition-all duration-300 ${i === index ? 'w-6 bg-[#24ee89]' : 'w-1.5 bg-slate-700'}"></button>
+                    <button onclick="switchBanner(${i})" class="h-1.5 rounded-full transition-all duration-300 ${i === index ? 'w-6 bg-[#24ee89]' : 'w-1.5 bg-[#0F212E]'}"></button>
                 `).join('');
             }
         }
@@ -272,8 +283,8 @@
                 const section = document.createElement('div');
                 section.className = 'space-y-3';
                 section.innerHTML = `
-                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2"> 
-                        <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2"> 
+                    <div class="flex items-center justify-between border-b border-[#0F212E] pb-2"> 
+                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2"> 
                             <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> ${cat} 
                         </h2> 
                     </div> 
@@ -281,7 +292,7 @@
                     </div>
                     ${hasMore ? `
                         <div class="text-center pt-1">
-                            <button onclick="loadMore('${cat}')" class="w-full py-2.5 bg-[#151a23] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold text-xs rounded-xl transition">
+                            <button onclick="loadMore('${cat}')" class="w-full py-2.5 bg-[#1A2C38] hover:bg-[#0F212E] border border-[#0F212E] text-[#FFFFFF] font-bold text-[var(--font-xs)] rounded-xl transition">
                                 Load More
                             </button>
                         </div>
@@ -296,11 +307,11 @@
                 visibleItems.forEach(game => {
                     const card = document.createElement('a');
                     card.href = game.pageUrl;
-                    card.className = 'group relative bg-[#151a23] border border-slate-800/80 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-40 sm:h-48 md:h-52 transition-all duration-200 hover:scale-[1.02] shadow-lg';
+                    card.className = 'group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-40 sm:h-48 md:h-52 transition-all duration-200 hover:scale-[1.02] shadow-lg';
                     card.innerHTML = ` 
                         <img src="${game.imageUrl}" onerror="this.style.display='none';" class="absolute inset-0 w-full h-full object-cover z-0" alt="${game.title}" loading="lazy" decoding="async" /> 
                         <div class="relative z-20 flex justify-start items-center p-2.5"> 
-                            <span class="text-[9px] sm:text-[10px] font-bold text-slate-200 bg-black/60 px-2.5 py-0.5 rounded-full border border-white/10 backdrop-blur-md flex items-center gap-1"> 
+                            <span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2.5 py-0.5 rounded-full border border-white/10 backdrop-blur-md flex items-center gap-1"> 
                                 <span class="w-1.5 h-1.5 rounded-full bg-[#24ee89] inline-block"></span>
                                 <span>${game.players.toLocaleString()} playing</span> 
                             </span> 
