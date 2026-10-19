@@ -1,441 +1,177 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Games - Game Portal</title>
-
+    <title>Casino Games Portal</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { box-sizing: border-box; }
-
-        body {
-            margin: 0;
-            background: #0b0f19;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            overflow-x: hidden;
-        }
-
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #0f141c; }
+        ::-webkit-scrollbar-thumb { background: #222b3a; border-radius: 4px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .category-btn {
-            flex: 0 0 auto;
-            min-width: 100px;
-            padding: 12px 14px;
-            border: 1px solid #263247;
-            border-radius: 13px;
-            background: #111827;
-            color: #cbd5e1;
-            font-size: 12px;
-            font-weight: 700;
-            transition: .2s;
-        }
-
-        .category-btn.active {
-            background: #24ee89;
-            color: #06130c;
-            border-color: #24ee89;
-        }
-
-        .game-card {
-            display: block;
-            min-width: 0;
-            overflow: hidden;
-            border: 1px solid #263247;
-            border-radius: 14px;
-            background: #111827;
-            color: white;
-            text-decoration: none;
-            transition: border-color .2s, transform .2s;
-        }
-
-        .game-card:active { transform: scale(.98); }
-        .game-card:hover { border-color: #24ee89; }
-
-        .game-image {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
-            display: block;
-            background: #172033;
-        }
-
-        .game-name {
-            padding: 9px 5px;
-            font-size: 12px;
-            font-weight: 700;
-            text-align: center;
-            overflow-wrap: anywhere;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #24ee89;
-            box-shadow: 0 0 0 2px #24ee8920;
-        }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
+<body class="bg-[#0f141c] text-white min-h-screen font-sans antialiased p-3 sm:p-4">
 
-<body class="min-h-screen flex flex-col">
+    <div class="max-w-4xl mx-auto space-y-4">
+        
+        <!-- Top Search Bar Container -->
+        <div class="bg-[#171d28] border border-[#222b3a] rounded-2xl p-2.5 flex items-center gap-3">
+            <!-- Casino Dropdown -->
+            <div class="flex items-center gap-1.5 px-3 py-1.5 bg-[#1f293a] rounded-xl text-xs font-semibold cursor-pointer hover:bg-[#283548] transition">
+                <span>Casino</span>
+                <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
+            </div>
+            
+            <!-- Divider -->
+            <div class="h-5 w-[1px] bg-[#2d3748]"></div>
 
-    <!-- Existing Top Bar -->
-    <div id="topBarContainer" class="sticky top-0 z-50"></div>
-
-    <main class="w-full max-w-7xl mx-auto px-3 sm:px-5 py-5 flex-1">
-
-        <h1 class="text-xl font-extrabold mb-2">🔎 Search Games</h1>
-        <p class="text-xs text-slate-400 mb-5">
-            Search games by entering at least 3 words.
-        </p>
-
-        <!-- Search Box -->
-        <div class="relative mb-5">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2">🔍</span>
-
-            <input
-                type="search"
-                id="gameSearch"
-                class="search-input w-full rounded-2xl border border-slate-700 bg-[#111827] py-4 pl-11 pr-4 text-sm text-white"
-                placeholder="Enter at least 3 words..."
-                autocomplete="off"
-            >
+            <!-- Search Input -->
+            <div class="flex items-center gap-2.5 flex-1">
+                <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm"></i>
+                <input type="text" placeholder="Search games" class="bg-transparent text-white placeholder-gray-500 focus:outline-none w-full text-xs sm:text-sm">
+            </div>
         </div>
 
-        <p id="searchMessage" class="text-xs text-slate-400 mb-5">
-            Enter at least 3 words to search games.
-        </p>
-
-        <!-- Category Buttons -->
-        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-5">
-            <button class="category-btn active" data-category="hot">
-                🔥 Hot Game
+        <!-- Categories Navigation Bar (Horizontal Scrollable) -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <button class="flex items-center gap-2 bg-[#222b3a] text-white font-bold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap shadow-sm">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89] inline-block"></span> All Games
             </button>
-
-            <button class="category-btn" data-category="original">
-                🎮 Arso Original
+            <button class="flex items-center gap-2 bg-[#171d28] hover:bg-[#222b3a] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap border border-[#222b3a] transition">
+                <i class="fa-solid fa-bolt text-[#24ee89]"></i> BC Originals
             </button>
-
-            <button class="category-btn" data-category="slot">
-                🎰 Slot
+            <button class="flex items-center gap-2 bg-[#171d28] hover:bg-[#222b3a] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap border border-[#222b3a] transition">
+                <i class="fa-solid fa-fire text-orange-500"></i> Hot Games
             </button>
-
-            <button class="category-btn" data-category="casino">
-                🃏 Casino
-            </button>
-
-            <button class="category-btn" data-category="blackjack">
-                ♠️ Blackjack
+            <button class="flex items-center gap-2 bg-[#171d28] hover:bg-[#222b3a] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs whitespace-nowrap border border-[#222b3a] transition">
+                <i class="fa-solid fa-dice text-blue-400"></i> Slots
             </button>
         </div>
 
-        <!-- Results Heading -->
-        <div class="flex items-center justify-between mb-4">
-            <h2 id="resultsTitle" class="text-sm font-bold">
-                🔥 Hot Games
-            </h2>
-
-            <span id="resultCount" class="text-xs text-slate-400">0 games</span>
-        </div>
-
-        <!-- Games Results -->
-        <section
-            id="gamesGrid"
-            class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"
-        ></section>
-
-        <p id="emptyMessage" class="hidden text-center text-sm text-slate-400 py-10">
-            No games found.
-        </p>
-
-    </main>
-
-    <footer class="border-t border-slate-800 bg-[#111827] py-5 text-center text-xs text-slate-500">
-        © 2026 Game Portal. All Rights Reserved.
-    </footer>
-
-    <script>
-        // ==========================================
-        // TOP BAR LOADER
-        // ==========================================
-        async function loadTopBar() {
-            try {
-                const response = await fetch('/bar/top.html');
-
-                if (!response.ok) {
-                    throw new Error('Top bar could not be loaded.');
-                }
-
-                document.getElementById('topBarContainer').innerHTML =
-                    await response.text();
-
-                if (typeof syncRealtimeUserBalance === 'function') {
-                    syncRealtimeUserBalance();
-                }
-            } catch (error) {
-                console.error('Top bar loading error:', error);
-            }
-        }
-
-        // ==========================================
-        // GAME CONFIGURATION
-        // ==========================================
-
-        // Existing game paths from your index.html
-        const originalGames = [
-            { name: 'Classic Dice', path: '/game/dice.html', image: '/assets/images/dice.png' },
-            { name: 'Mines', path: '/game/mines.html', image: '/assets/images/mines.png' },
-            { name: 'Limbo', path: '/game/limbo.html', image: '/assets/images/limbo.png' },
-            { name: 'Plinko', path: '/game/plinko.html', image: '/assets/images/plinko.png' },
-            { name: 'Crash', path: '/game/crash.html', image: '/assets/images/crash.png' },
-            { name: 'Wheel', path: '/game/wheel.html', image: '/assets/images/wheel.png' },
-            { name: 'Keno', path: '/game/keno.html', image: '/assets/images/keno.png' },
-            { name: 'Coin Flip', path: '/game/coin-flip.html', image: '/assets/images/coin-flip.png' }
-        ];
-
-        // Add your actual slot games here if directory listing is disabled.
-        // Example:
-        // { name: 'Slot Game Name', path: '/slot/your-game.html',
-        //   image: '/assets/images/your-game.png' }
-        const slotGamesFallback = [];
-
-        const dummyGames = {
-            slot: [],
-            casino: [],
-            blackjack: []
-        };
-
-        let activeCategory = 'hot';
-        let allGames = [];
-        let searchResults = [];
-
-        const grid = document.getElementById('gamesGrid');
-        const searchInput = document.getElementById('gameSearch');
-        const searchMessage = document.getElementById('searchMessage');
-
-        // ==========================================
-        // TRY TO READ HTML FILES FROM A DIRECTORY
-        // Requires server directory listing to be enabled.
-        // ==========================================
-        async function getGamesFromDirectory(folder) {
-            try {
-                const response = await fetch(folder);
-
-                if (!response.ok) return [];
-
-                const html = await response.text();
-                const doc = new DOMParser().parseFromString(html, 'text/html');
-
-                const links = [...doc.querySelectorAll('a[href]')];
-                const games = [];
-
-                links.forEach(link => {
-                    const href = link.getAttribute('href');
-
-                    if (!href || href.startsWith('?') ||
-                        href.startsWith('#') || href.startsWith('../')) {
-                        return;
-                    }
-
-                    // Only HTML files directly inside this folder.
-                    if (!/^[^/?#]+\.html?$/i.test(href)) return;
-
-                    const path = folder.replace(/\/?$/, '/') + href;
-                    const fileName = decodeURIComponent(href)
-                        .replace(/\.html?$/i, '')
-                        .replace(/[-_]/g, ' ');
-
-                    games.push({
-                        name: fileName.replace(/\b\w/g, c => c.toUpperCase()),
-                        path,
-                        image: '/assets/images/game-placeholder.png'
-                    });
-                });
-
-                return games;
-            } catch (error) {
-                console.warn('Could not read directory:', folder, error);
-                return [];
-            }
-        }
-
-        // ==========================================
-        // LOAD GAMES FOR SELECTED CATEGORY
-        // ==========================================
-        async function loadCategory(category) {
-            activeCategory = category;
-
-            document.querySelectorAll('.category-btn').forEach(button => {
-                button.classList.toggle(
-                    'active',
-                    button.dataset.category === category
-                );
-            });
-
-            const titles = {
-                hot: '🔥 Hot Games',
-                original: '🎮 Arso Original',
-                slot: '🎰 Slot Games',
-                casino: '🃏 Casino Games',
-                blackjack: '♠️ Blackjack Games'
-            };
-
-            document.getElementById('resultsTitle').textContent =
-                titles[category] || 'Games';
-
-            grid.innerHTML = `
-                <div class="col-span-full text-center text-sm text-slate-400 py-8">
-                    Loading games...
+        <!-- Sort By & Providers Filter Section -->
+        <div class="grid grid-cols-2 gap-3">
+            <!-- Sort By Dropdown -->
+            <div class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs cursor-pointer hover:border-gray-600 transition">
+                <div class="flex items-center gap-2 text-gray-400">
+                    <span>Sort By:</span>
+                    <span class="text-white font-semibold">Popular</span>
                 </div>
-            `;
+                <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 bg-[#222b3a] p-1.5 rounded-lg"></i>
+            </div>
 
-            if (category === 'hot') {
-                // Hot Game = games located in /slot/
-                allGames = await getGamesFromDirectory('/slot/');
+            <!-- Providers Dropdown -->
+            <div class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3.5 py-2.5 flex items-center justify-between text-xs cursor-pointer hover:border-gray-600 transition">
+                <div class="flex items-center gap-2 text-gray-400">
+                    <span>Providers:</span>
+                    <span class="text-white font-semibold">All</span>
+                </div>
+                <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 bg-[#222b3a] p-1.5 rounded-lg"></i>
+            </div>
+        </div>
 
-                if (allGames.length === 0) {
-                    allGames = slotGamesFallback;
-                }
-            } else if (category === 'original') {
-                // Arso Original = existing /game/ games
-                allGames = originalGames;
+        <!-- Game Cards Grid (3 Columns) -->
+        <div class="grid grid-cols-3 gap-2.5 sm:gap-4">
+            
+            <!-- Card 1: Crash -->
+            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
+                <div class="absolute inset-0 bg-gradient-to-b from-purple-800 to-[#171d28] flex items-center justify-center p-4">
+                    <div class="text-center font-black italic text-lg sm:text-2xl text-white tracking-wider drop-shadow-lg">CRASH</div>
+                </div>
+                <div class="relative z-20 flex justify-end items-center p-2">
+                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
+                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 1100
+                    </span>
+                </div>
+                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
+                    <span class="text-[9px] font-bold tracking-widest text-gray-300 uppercase">Original Game</span>
+                </div>
+            </a>
 
-                // Try directory listing and use it if available.
-                const directoryGames = await getGamesFromDirectory('/game/');
+            <!-- Card 2: Aviator -->
+            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
+                <div class="absolute inset-0 bg-gradient-to-b from-red-900 to-[#171d28] flex items-center justify-center p-4">
+                    <div class="text-center font-black italic text-base sm:text-xl text-white tracking-wider drop-shadow-lg">AVIATOR</div>
+                </div>
+                <div class="relative z-20 flex justify-end items-center p-2">
+                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
+                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 90
+                    </span>
+                </div>
+                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
+                    <span class="text-[9px] font-bold tracking-widest text-gray-300 uppercase">Spribe</span>
+                </div>
+            </a>
 
-                if (directoryGames.length > 0) {
-                    allGames = directoryGames;
-                }
-            } else {
-                // Temporary dummy categories
-                allGames = dummyGames[category] || [];
-            }
+            <!-- Card 3: Super Ace -->
+            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
+                <div class="absolute inset-0 bg-gradient-to-b from-amber-700 to-[#171d28] flex items-center justify-center p-4">
+                    <div class="text-center font-black italic text-sm sm:text-lg text-yellow-300 tracking-wider drop-shadow-lg">Super Ace</div>
+                </div>
+                <div class="relative z-20 flex justify-between items-center p-2">
+                    <span class="text-[9px] font-bold text-yellow-900 bg-yellow-400 px-1.5 py-0.5 rounded shadow">Bonus Buy</span>
+                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
+                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 30
+                    </span>
+                </div>
+                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
+                    <span class="text-[9px] font-bold tracking-widest text-yellow-500 uppercase">JILI</span>
+                </div>
+            </a>
 
-            applySearch();
-        }
+            <!-- Card 4: Super Elements -->
+            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
+                <div class="absolute inset-0 bg-gradient-to-b from-orange-800 to-[#171d28] flex items-center justify-center p-4">
+                    <div class="text-center font-black italic text-xs sm:text-base text-orange-200 tracking-wider drop-shadow-lg">Super Elements</div>
+                </div>
+                <div class="relative z-20 flex justify-end items-center p-2">
+                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
+                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 26
+                    </span>
+                </div>
+                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
+                    <span class="text-[9px] font-bold tracking-widest text-emerald-400 uppercase">FC</span>
+                </div>
+            </a>
 
-        // ==========================================
-        // SEARCH: REQUIRE AT LEAST 3 WORDS
-        // ==========================================
-        function applySearch() {
-            const query = searchInput.value.trim();
-            const words = query.split(/\s+/).filter(Boolean);
+            <!-- Card 5: Circus Joker -->
+            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
+                <div class="absolute inset-0 bg-gradient-to-b from-fuchsia-900 to-[#171d28] flex items-center justify-center p-4">
+                    <div class="text-center font-black italic text-xs sm:text-sm text-fuchsia-200 tracking-wider drop-shadow-lg">CIRCUS JOKER</div>
+                </div>
+                <div class="relative z-20 flex justify-end items-center p-2">
+                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
+                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 31
+                    </span>
+                </div>
+                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
+                    <span class="text-[9px] font-bold tracking-widest text-yellow-400 uppercase">JILI</span>
+                </div>
+            </a>
 
-            if (query && words.length < 3) {
-                searchResults = [];
+            <!-- Card 6: Lucky Neko -->
+            <a href="#" class="group relative bg-[#171d28] border border-[#222b3a] hover:border-indigo-500/50 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-56 transition-transform duration-100">
+                <div class="absolute inset-0 bg-gradient-to-b from-blue-900 to-[#171d28] flex items-center justify-center p-4">
+                    <div class="text-center font-black italic text-sm sm:text-lg text-pink-300 tracking-wider drop-shadow-lg">Lucky Neko</div>
+                </div>
+                <div class="relative z-20 flex justify-end items-center p-2">
+                    <span class="text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full flex items-center gap-1 border border-white/10">
+                        <i class="fa-solid fa-user text-[9px] text-gray-300"></i> 34
+                    </span>
+                </div>
+                <div class="relative z-20 p-2 text-center bg-gradient-to-t from-black/80 to-transparent">
+                    <span class="text-[9px] font-bold tracking-widest text-yellow-300 uppercase">PG</span>
+                </div>
+            </a>
 
-                searchMessage.textContent =
-                    `Please enter at least 3 words. Current words: ${words.length}.`;
+        </div>
 
-                renderGames([]);
-                return;
-            }
-
-            searchMessage.textContent = query
-                ? `Search results for: "${query}"`
-                : 'Browse games or enter at least 3 words to search.';
-
-            if (query) {
-                const terms = words.map(word => word.toLowerCase());
-
-                searchResults = allGames.filter(game => {
-                    const searchableText =
-                        `${game.name} ${game.path}`.toLowerCase();
-
-                    // Each query word must match the game's name or path.
-                    return terms.every(term => searchableText.includes(term));
-                });
-            } else {
-                searchResults = allGames;
-            }
-
-            renderGames(searchResults);
-        }
-
-        // ==========================================
-        // RENDER GAME CARDS
-        // ==========================================
-        function renderGames(games) {
-            grid.innerHTML = '';
-
-            document.getElementById('resultCount').textContent =
-                `${games.length} game${games.length === 1 ? '' : 's'}`;
-
-            document.getElementById('emptyMessage').classList.toggle(
-                'hidden',
-                games.length > 0
-            );
-
-            if (games.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full rounded-xl border border-slate-800
-                                bg-[#111827] p-6 text-center text-xs text-slate-400">
-                        ${searchInput.value.trim().split(/\s+/).filter(Boolean).length > 0
-                            ? 'No matching games found.'
-                            : 'No games available in this category yet.'}
-                    </div>
-                `;
-                return;
-            }
-
-            const fragment = document.createDocumentFragment();
-
-            games.forEach(game => {
-                const card = document.createElement('a');
-                card.className = 'game-card';
-                card.href = game.path;
-
-                const image = document.createElement('img');
-                image.className = 'game-image';
-                image.src = game.image || '/assets/images/game-placeholder.png';
-                image.alt = game.name;
-                image.loading = 'lazy';
-
-                image.onerror = function () {
-                    this.onerror = null;
-                    this.style.display = 'none';
-                };
-
-                const name = document.createElement('div');
-                name.className = 'game-name';
-                name.textContent = game.name;
-
-                card.append(image, name);
-                fragment.appendChild(card);
-            });
-
-            grid.appendChild(fragment);
-        }
-
-        // ==========================================
-        // EVENTS
-        // ==========================================
-        document.querySelectorAll('.category-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                loadCategory(button.dataset.category);
-            });
-        });
-
-        let searchTimer;
-
-        searchInput.addEventListener('input', () => {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(applySearch, 200);
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadTopBar();
-            loadCategory('hot');
-        });
-    </script>
+    </div>
 
 </body>
 </html>
