@@ -120,14 +120,16 @@
 
       const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
 
-      // Supabase থেকে ডেটা ফেচ করা
+      // Supabase থেকে ডেটা ফেচ করার নিরাপদ ও উন্নত লজিক
       async function fetchGamesFromSupabase() {
         try {
-          // supabaseClient ইনিশিয়ালাইজড হওয়া নিশ্চিত করা
-          const client = window.supabaseClient || (window.supabase && window.supabase.createClient ? window.supabase : null);
-          
+          let client = window.supabaseClient;
+          if (!client && window.supabase && typeof window.supabase.createClient === 'function') {
+            client = window.supabase;
+          }
+
           if (!client) {
-            console.error('Supabase client found missing! Check supabase-config.js');
+            console.error('Supabase client not found!');
             loadingMessage.textContent = 'Supabase কনফিগারেশন পাওয়া যায়নি।';
             return;
           }
@@ -153,7 +155,9 @@
         const query = searchInput.value.trim().toLowerCase();
         
         filteredGames = allGames.filter(game => {
-          const catMatch = activeCategory === 'all' || (game.category && game.category.toLowerCase() === activeCategory.toLowerCase());
+          const gameCat = (game.category || '').trim().toLowerCase();
+          const activeCat = activeCategory.trim().toLowerCase();
+          const catMatch = activeCat === 'all' || gameCat === activeCat;
           const searchMatch = (game.title && game.title.toLowerCase().includes(query));
           return catMatch && searchMatch;
         });
@@ -166,7 +170,7 @@
           filteredGames.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
         }
 
-        visibleLimit = 12; // ফিল্টার পরিবর্তন হলে রি-সেট হবে ১২-তে
+        visibleLimit = 12;
         renderGrid();
       }
 
@@ -211,7 +215,6 @@
         gameCount.textContent = `${filteredGames.length} games`;
         clearSearch.classList.toggle('hidden', !searchInput.value);
 
-        // Load More বাটনের কন্ট্রোল
         if (visibleLimit < filteredGames.length) {
           loadMoreBtn.classList.remove('hidden');
         } else {
