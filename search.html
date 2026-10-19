@@ -185,22 +185,13 @@
           emptyMessage.classList.add('hidden');
           grid.classList.remove('hidden');
 
-          // ডাইনামিক বেস পাথ রিমলভ ও সঠিক ইউজারনেম পাথ তৈরির লজিক
-          const pathSegments = window.location.pathname.split('/').filter(Boolean);
-          const repoPrefix = (pathSegments.length > 0 && !pathSegments[pathSegments.length - 1].includes('.html')) ? '/' + pathSegments[0] : '';
-
           grid.innerHTML = currentSlice.map(game => {
             const hasImg = game.image_url && game.image_url.trim() !== '';
-            let pageUrl = game.page_url || '#';
-            
-            // যদি পেজ ইউআরএল স্ল্যাশ দিয়ে শুরু হয় কিন্তু প্রিফিক্স না থাকে, তবে সেটি ঠিক করে নেওয়া
-            if (pageUrl.startsWith('/') && repoPrefix && !pageUrl.startsWith(repoPrefix)) {
-              pageUrl = repoPrefix + pageUrl;
-            }
-
+            const pageUrl = game.page_url || '#';
             const title = game.title || 'Untitled Game';
             const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
 
+            // Show/Hide লজিক (ডিফল্ট true বা ফলস চেক করে)
             const showTitle = game.show_title !== false;
             const showBadge = game.show_badge !== false;
 
