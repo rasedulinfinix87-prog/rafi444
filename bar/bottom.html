@@ -239,58 +239,35 @@
   </div>
 
   <script>
-    // ডাইনামিক বা সাব-ফোল্ডার থেকে লোড হওয়া পেজে ইভেন্ট সঠিকভাবে ক্যাচ করার জন্য ফাংশন
-    (function () {
-      function setupDrawerEvents() {
-        const openDrawerBtn = document.getElementById('openDrawer');
-        const closeDrawerBtn = document.getElementById('closeDrawer');
-        const drawerOverlay = document.getElementById('drawerOverlay');
+    // ডাইনামিক বা ফেচ করা কন্টেন্টের জন্য গ্লোবাল ক্লিক লিসেনার
+    if (typeof window.drawerListenerAdded === 'undefined') {
+      window.drawerListenerAdded = true;
+
+      window.addEventListener('click', function (e) {
+        const openBtn = e.target.closest('#openDrawer');
+        const closeBtn = e.target.closest('#closeDrawer');
+        const overlayEl = e.target.closest('#drawerOverlay');
+
         const modalDrawer = document.getElementById('modalDrawer');
+        const drawerOverlay = document.getElementById('drawerOverlay');
 
-        if (openDrawerBtn && !openDrawerBtn.hasAttribute('data-listener-attached')) {
-          openDrawerBtn.setAttribute('data-listener-attached', 'true');
-          openDrawerBtn.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (modalDrawer && drawerOverlay) {
-              modalDrawer.classList.add('show');
-              drawerOverlay.classList.add('show');
-            }
-          });
+        if (openBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (modalDrawer && drawerOverlay) {
+            modalDrawer.classList.add('show');
+            drawerOverlay.classList.add('show');
+          }
         }
 
-        if (closeDrawerBtn && !closeDrawerBtn.hasAttribute('data-listener-attached')) {
-          closeDrawerBtn.setAttribute('data-listener-attached', 'true');
-          closeDrawerBtn.addEventListener('click', function () {
-            if (modalDrawer && drawerOverlay) {
-              modalDrawer.classList.remove('show');
-              drawerOverlay.classList.remove('show');
-            }
-          });
+        if (closeBtn || (overlayEl && drawerOverlay && e.target === drawerOverlay)) {
+          if (modalDrawer && drawerOverlay) {
+            modalDrawer.classList.remove('show');
+            drawerOverlay.classList.remove('show');
+          }
         }
-
-        if (drawerOverlay && !drawerOverlay.hasAttribute('data-listener-attached')) {
-          drawerOverlay.setAttribute('data-listener-attached', 'true');
-          drawerOverlay.addEventListener('click', function () {
-            if (modalDrawer && drawerOverlay) {
-              modalDrawer.classList.remove('show');
-              drawerOverlay.classList.remove('show');
-            }
-          });
-        }
-      }
-
-      // পেজ লোড হওয়ার সাথে সাথে এবং কিছুক্ষণ পর পর চেক করবে যেন এলিমেন্টগুলো মিস না হয়
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupDrawerEvents);
-      } else {
-        setupDrawerEvents();
-      }
-
-      // ফেচ (Fetch) বা ডাইনামিক ইনক্লুডের পর ইভেন্ট সেটআপ নিশ্চিত করতে
-      setTimeout(setupDrawerEvents, 200);
-      setTimeout(setupDrawerEvents, 600);
-    })();
+      }, true);
+    }
   </script>
 
 </body>
