@@ -13,6 +13,17 @@
   <script src="../supabase-config.js"></script>
 
   <style>
+    :root {
+      --font-xs: 11px;
+      --font-sm: 12px;
+      --font-base: 14px;
+      --font-md: 16px;
+      --font-lg: 18px;
+      --font-xl: 22px;
+      --font-2xl: 28px;
+      --font-3xl: 32px;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -21,7 +32,9 @@
     }
 
     body {
-      background-color: #0d131d;
+      background-color: #0F212E;
+      color: #FFFFFF;
+      font-size: var(--font-base);
     }
 
     /* Bottom Navigation Bar */
@@ -30,12 +43,12 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      background-color: #0e1520;
+      background-color: #1A2C38;
       display: flex;
       justify-content: space-around;
       align-items: center;
       padding: 10px 0 14px 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid #0F212E;
       z-index: 9999;
     }
 
@@ -46,7 +59,7 @@
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      color: #8a99ad;
+      color: #FFFFFF;
       gap: 5px;
       flex: 1;
       cursor: pointer;
@@ -58,15 +71,15 @@
     }
 
     .nav-item:hover, .nav-item:active {
-      color: #ffffff;
+      color: #24ee89;
     }
 
     .nav-item i {
-      font-size: 20px;
+      font-size: var(--font-lg);
     }
 
     .nav-item span {
-      font-size: 12px;
+      font-size: var(--font-xs);
       font-weight: 500;
     }
 
@@ -98,7 +111,7 @@
       left: 0;
       width: 100%;
       max-height: 50vh;
-      background-color: #121a24;
+      background-color: #1A2C38;
       z-index: 10001;
       box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.6);
       transition: bottom 0.2s cubic-bezier(0, 0, 0.2, 1);
@@ -108,6 +121,7 @@
       border-top-left-radius: 20px;
       border-top-right-radius: 20px;
       overflow-y: auto;
+      border-top: 1px solid #0F212E;
     }
 
     .drawer.show {
@@ -120,30 +134,30 @@
       justify-content: space-between;
       align-items: center;
       padding-bottom: 15px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid #0F212E;
       margin-bottom: 10px;
-      color: #ffffff;
+      color: #FFFFFF;
     }
 
     .drawer-header h3 {
-      font-size: 18px;
+      font-size: var(--font-lg);
       font-weight: 600;
     }
 
     .close-btn {
       background: none;
       border: none;
-      color: #ffffff;
-      font-size: 22px;
+      color: #FFFFFF;
+      font-size: var(--font-xl);
       cursor: pointer;
       padding: 5px;
     }
 
     .close-btn:hover {
-      color: #a855f7;
+      color: #24ee89;
     }
 
-    /* Drawer Menu List (Card Shape Removed & Thin Bottom Line Added) */
+    /* Drawer Menu List */
     .drawer-menu {
       display: flex;
       flex-direction: column;
@@ -156,11 +170,11 @@
       width: 100%;
       padding: 16px 10px;
       background: transparent;
-      color: #ffffff;
+      color: #FFFFFF;
       border: none;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid #0F212E;
       border-radius: 0;
-      font-size: 15px;
+      font-size: var(--font-base);
       font-weight: 500;
       text-decoration: none;
       cursor: pointer;
@@ -172,12 +186,12 @@
     }
 
     .drawer-btn i {
-      font-size: 18px;
-      color: #ffffff;
+      font-size: var(--font-md);
+      color: #FFFFFF;
     }
   </style>
 </head>
-<body>
+<body class="bg-[#0F212E] text-[#FFFFFF]">
 
   <!-- Bottom Navigation -->
   <nav class="bottom-nav">
@@ -186,7 +200,6 @@
       <span>Menu</span>
     </button>
 
-    <!-- সঠিক সার্চ পাথ যুক্ত করা হয়েছে -->
     <a href="/rafi444/search.html" class="nav-item">
       <i class="fa-solid fa-magnifying-glass"></i>
       <span>Search</span>
@@ -206,7 +219,7 @@
   <!-- Overlay -->
   <div class="drawer-overlay" id="drawerOverlay" onclick="this.classList.remove('show'); document.getElementById('modalDrawer').classList.remove('show');"></div>
 
-  <!-- Modal Drawer (Bottom Sheet - Half Screen & Fast) -->
+  <!-- Modal Drawer (Bottom Sheet) -->
   <div class="drawer" id="modalDrawer">
     <div class="drawer-header">
       <h3>Menu</h3>
