@@ -37,6 +37,11 @@
             position: relative;
             overflow: hidden;
         }
+
+        /* Banner Slide Animation */
+        .banner-slide {
+            transition: opacity 0.6s ease-in-out;
+        }
     </style> 
 </head> 
 <body class="bg-[#080B10] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black pb-24"> 
@@ -46,17 +51,21 @@
     <!-- Main Application Wrapper --> 
     <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-3 sm:py-5 space-y-5"> 
         
-        <!-- Shuffle Style Promotional Banner Container -->
-        <div id="bannerContainer" class="shuffle-banner rounded-2xl p-4 sm:p-6 flex flex-col justify-between relative shadow-xl min-h-[130px]">
-            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="relative z-10 space-y-1.5 max-w-sm">
-                <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
-                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic">Boost Your Level Up!</h1>
-                <p class="text-xs text-slate-400 font-medium">Earn more rewards now when ranking up!</p>
+        <!-- Multiple Dynamic Banner Slider Container -->
+        <div id="bannerContainer" class="shuffle-banner rounded-2xl relative shadow-xl min-h-[140px] flex items-center overflow-hidden">
+            <!-- Dynamic Banners Rendered Here -->
+            <div class="w-full p-4 sm:p-6 flex flex-col justify-between relative z-10">
+                <div class="space-y-1.5 max-w-sm">
+                    <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
+                    <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic">Boost Your Level Up!</h1>
+                    <p class="text-xs text-slate-300 font-medium">Earn more rewards now when ranking up!</p>
+                </div>
             </div>
         </div>
+        <!-- Banner Dots Indicator -->
+        <div id="bannerDots" class="flex justify-center gap-1.5 -mt-2"></div>
 
-        <!-- Search Bar Section for Mobile/Desktop --> 
+        <!-- Search Bar Section --> 
         <div class="flex items-center justify-between bg-[#151a23] border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400"> 
             <input type="text" id="gameSearch" onkeyup="handleSearch()" placeholder="Search game..." class="bg-transparent text-white focus:outline-none w-full"> 
             <i class="fa-solid fa-search text-slate-500"></i>
@@ -79,7 +88,10 @@
     <script> 
         let balanceSubscription = null; 
         let allGridsData = [];
-        let categoryDisplayLimits = {}; // প্রতিটি ক্যাটাগরিতে কয়টি আইটেম দৃশ্যমান তা ট্র্যাক রাখবে
+        let categoryDisplayLimits = {}; 
+        let bannersList = [];
+        let currentBannerIndex = 0;
+        let bannerIntervalTimer = null;
 
         // Supabase Realtime User Balance Sync 
         async function syncRealtimeUserBalance() { 
@@ -135,40 +147,72 @@
             } 
         } 
 
-        // Supabase থেকে ব্যানার ফেচ করার ফাংশন
-        async function loadDynamicBanner() {
+        // Supabase থেকে মাল্টিপল ব্যানার ফেচ করা এবং স্লাইড ইন্টারভ্যাল হ্যান্ডেল করা
+        async function loadDynamicBanners() {
             try {
                 if (typeof supabaseClient === 'undefined') return;
 
-                const { data: banners, error } = await supabaseClient
+                const { data, error } = await supabaseClient
                     .from('site_banners')
                     .select('*')
                     .eq('is_active', true)
-                    .order('created_at', { ascending: false })
-                    .limit(1);
+                    .order('created_at', { ascending: false });
 
-                const bannerContainer = document.getElementById('bannerContainer');
-                if (!bannerContainer) return;
+                if (!error && data && data.length > 0) {
+                    bannersList = data;
+                    renderBanner(0);
 
-                if (error || !banners || banners.length === 0) return;
+                    // টেবিল থেকে প্রাপ্ত প্রথম ব্যানারের slide_interval (সেকেন্ড) ব্যবহার করা, না থাকলে ডিফল্ট ৫ সেকেন্ড
+                    let intervalSec = bannersList[0].slide_interval ? parseInt(bannersList[0].slide_interval) : 5;
+                    if (intervalSec < 2) intervalSec = 3;
 
-                const banner = banners[0];
-                let bgStyle = banner.image_url ? `background-image: url('${banner.image_url}'); background-size: cover; background-position: center;` : '';
-
-                bannerContainer.style.cssText += bgStyle;
-                bannerContainer.innerHTML = `
-                    <div class="absolute inset-0 bg-black/40 z-0"></div>
-                    <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
-                    <div class="relative z-10 space-y-1.5 max-w-sm">
-                        ${banner.badge_text ? `<span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">${banner.badge_text}</span>` : ''}
-                        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic">${banner.title}</h1>
-                        ${banner.subtitle ? `<p class="text-xs text-slate-300 font-medium">${banner.subtitle}</p>` : ''}
-                    </div>
-                    ${banner.link_url ? `<a href="${banner.link_url}" class="absolute inset-0 z-20"></a>` : ''}
-                `;
+                    if (bannerIntervalTimer) clearInterval(bannerIntervalTimer);
+                    bannerIntervalTimer = setInterval(() => {
+                        currentBannerIndex = (currentBannerIndex + 1) % bannersList.length;
+                        renderBanner(currentBannerIndex);
+                    }, intervalSec * 1000);
+                }
             } catch (err) {
                 console.error('Banner Load Error:', err);
             }
+        }
+
+        // নির্দিষ্ট ইনডেক্সের ব্যানার রেন্ডার করা (হালকা ওভারলে সহ)
+        function renderBanner(index) {
+            const bannerContainer = document.getElementById('bannerContainer');
+            const dotsContainer = document.getElementById('bannerDots');
+            if (!bannerContainer || bannersList.length === 0) return;
+
+            const banner = bannersList[index];
+            let bgStyle = banner.image_url ? `background-image: url('${banner.image_url}'); background-size: cover; background-position: center;` : '';
+
+            bannerContainer.style.cssText = `background: linear-gradient(135deg, #151a23 0%, #0d1118 100%); ${bgStyle}`;
+            
+            bannerContainer.innerHTML = `
+                <div class="absolute inset-0 bg-black/25 z-0"></div> <!-- হালকা শ্যাডো বা ওভারলে -->
+                <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="w-full p-4 sm:p-6 flex flex-col justify-between relative z-10 banner-slide">
+                    <div class="space-y-1.5 max-w-sm">
+                        ${banner.badge_text ? `<span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">${banner.badge_text}</span>` : ''}
+                        <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic drop-shadow-md">${banner.title}</h1>
+                        ${banner.subtitle ? `<p class="text-xs text-slate-200 font-medium drop-shadow">${banner.subtitle}</p>` : ''}
+                    </div>
+                </div>
+                ${banner.link_url ? `<a href="${banner.link_url}" class="absolute inset-0 z-20"></a>` : ''}
+            `;
+
+            // ডটস বা ইন্ডিকেটর আপডেট করা
+            if (dotsContainer && bannersList.length > 1) {
+                dotsContainer.innerHTML = bannersList.map((_, i) => `
+                    <button onclick="switchBanner(${i})" class="h-1.5 rounded-full transition-all duration-300 ${i === index ? 'w-6 bg-[#24ee89]' : 'w-1.5 bg-slate-700'}"></button>
+                `).join('');
+            }
+        }
+
+        // ডটে ক্লিক করে ব্যানার পরিবর্তনের ফাংশন
+        function switchBanner(index) {
+            currentBannerIndex = index;
+            renderBanner(currentBannerIndex);
         }
 
         // Supabase থেকে `grid_control_url_image` টেবিল ডেটা ফেচ করা
@@ -192,11 +236,10 @@
                         players: Math.floor(Math.random() * 1500) + 100
                     }));
 
-                    // ক্যাটাগরিগুলো ইনিশিয়ালাইজ করা (প্রথমে ৩টি করে দেখাবে)
                     const categories = [...new Set(allGridsData.map(item => item.category))];
                     categories.forEach(cat => {
                         if (!categoryDisplayLimits[cat]) {
-                            categoryDisplayLimits[cat] = 3; // শুরুতে ৩টি দেখাবে
+                            categoryDisplayLimits[cat] = 3; 
                         }
                     });
 
@@ -235,7 +278,6 @@
                         </h2> 
                     </div> 
                     <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5" id="grid-${CSS.escape(cat)}">
-                        <!-- Cards -->
                     </div>
                     ${hasMore ? `
                         <div class="text-center pt-1">
@@ -272,22 +314,19 @@
             });
         }
 
-        // Load More বাটনে ক্লিক করলে আরও ৯টি গেম দেখানোর লজিক
         function loadMore(category) {
             if (!categoryDisplayLimits[category]) {
                 categoryDisplayLimits[category] = 3;
             }
-            categoryDisplayLimits[category] += 9; // প্রতি ক্লিকে আরও ৯টি বাড়বে
+            categoryDisplayLimits[category] += 9; 
             renderCategories(document.getElementById('gameSearch').value);
         }
 
-        // সার্চ ফাংশন
         function handleSearch() {
             const query = document.getElementById('gameSearch').value;
             renderCategories(query);
         }
 
-        // Dynamic Bottom Bar Loader
         async function loadBottomBar() {
             try {
                 const response = await fetch('bar/bottom.html');
@@ -307,7 +346,7 @@
         document.addEventListener('DOMContentLoaded', () => { 
             loadTopBar(); 
             loadBottomBar();
-            loadDynamicBanner();
+            loadDynamicBanners(); // মাল্টিপল ব্যানার এবং টাইমিং লোড
             fetchGridData(); 
         }); 
     </script> 
