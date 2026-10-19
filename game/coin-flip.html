@@ -11,289 +11,531 @@
   <script src="../supabase-config.js"></script>
 
   <style>
-    * { box-sizing: border-box; }
+/* =================================
+   STAKE-STYLE DESIGN SYSTEM
+================================= */
 
-    html {
-      min-height: 100%;
-      background: #0f141c;
-    }
+:root {
+  /* Background Colors */
+  --bg-primary: #0F212E;
+  --bg-secondary: #1A2C38;
+  --bg-card: #213743;
+  --bg-hover: #2F4553;
+  --bg-input: #0F212E;
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: #0f141c;
-      color: #fff;
-      font-family: sans-serif;
-      overflow-x: hidden;
-      overflow-y: auto;
-      padding-bottom: calc(100px + env(safe-area-inset-bottom));
-    }
+  /* Brand Colors */
+  --color-primary: #00E701;
+  --color-primary-hover: #00C900;
+  --color-primary-dark: #007A01;
 
-    #topBarContainer {
-      position: sticky;
-      top: 0;
-      z-index: 500;
-      width: 100%;
-      flex-shrink: 0;
-    }
+  /* Text Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #B1BAD3;
+  --text-muted: #557086;
+  --text-dark: #071824;
 
-    #bottomBarContainer {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      z-index: 5000;
-      isolation: isolate;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
+  /* Status Colors */
+  --color-success: #00E701;
+  --color-danger: #ED4163;
+  --color-warning: #FFB800;
+  --color-info: #2F80ED;
 
-    .game-page {
-      width: 100%;
-      max-width: 672px;
-      margin: 5px auto 0;
-      padding: 0 8px 100px;
-    }
+  /* Border Colors */
+  --border-color: #2F4553;
+  --border-focus: #00E701;
 
-    .main-wrapper {
-      background: #171d28;
-      border: 1px solid #222b3a;
-      border-radius: 14px;
-      overflow: hidden;
-    }
+  /* Font Family */
+  --font-family:
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
 
-    .divider {
-      height: 1px;
-      background: #222b3a;
-      width: 100%;
-    }
+  /* Font Sizes */
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-base: 14px;
+  --font-md: 16px;
+  --font-lg: 18px;
+  --font-xl: 22px;
+  --font-2xl: 28px;
+  --font-3xl: 32px;
 
-    .input-box {
-      background: #0f141c;
-      border: 1px solid #222b3a;
-      border-radius: 10px;
-    }
+  /* Font Weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
 
-    .input-box:focus-within {
-      border-color: #24ee89;
-    }
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
 
-    .green-btn {
-      background: #24ee89;
-      color: #0f141c;
-      font-weight: 800;
-    }
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 999px;
 
-    .green-btn:hover { background: #1ed67a; }
+  /* Shadows */
+  --shadow-card:
+    0 4px 12px rgba(0, 0, 0, 0.18);
 
-    .red-btn {
-      background: #ed4245;
-      color: #fff;
-      font-weight: 800;
-    }
+  --shadow-modal:
+    0 12px 32px rgba(0, 0, 0, 0.35);
+}
 
-    .red-btn:hover { background: #d3383b; }
+/* =================================
+   GLOBAL STYLES
+================================= */
 
-    .green-btn:disabled,
-    .red-btn:disabled {
-      opacity: .65;
-      cursor: not-allowed;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    .game-screen {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 270px;
-      width: 100%;
-      overflow: hidden;
-      background:
-        radial-gradient(ellipse at center, #202a32 0%, #171d28 65%);
-    }
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  min-height: 100%;
+  background: var(--bg-primary);
+}
 
-    .game-screen::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 12% 25%, rgba(255,255,255,.09) 1px, transparent 2px),
-        radial-gradient(circle at 85% 20%, rgba(255,255,255,.08) 1px, transparent 2px),
-        radial-gradient(circle at 20% 80%, rgba(255,255,255,.06) 1px, transparent 2px);
-    }
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: var(--font-base);
+  font-weight: var(--weight-normal);
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+  -webkit-user-select: none;
+  user-select: none;
+}
 
-    .game-stage {
-      position: absolute;
-      left: 2px;
-      right: 2px;
-      top: 51px;
-      bottom: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-    }
+/* Headings */
 
-    .coin-container {
-      perspective: 1000px;
-      width: 98px;
-      height: 98px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 5;
-    }
+h1 {
+  font-size: var(--font-3xl);
+  font-weight: var(--weight-bold);
+}
 
-    .coin {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-    }
+h2 {
+  font-size: var(--font-2xl);
+  font-weight: var(--weight-bold);
+}
 
-    .coin-face {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow:
-        0 0 15px rgba(0,0,0,.45),
-        inset 0 0 10px rgba(255,255,255,.3);
-      border: 3px solid #f59e0b;
-    }
+h3 {
+  font-size: var(--font-xl);
+  font-weight: var(--weight-semibold);
+}
 
-    .coin-heads {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-    }
+h1, h2, h3, h4, p {
+  margin-top: 0;
+}
 
-    .coin-tails {
-      background: linear-gradient(135deg, #94a3b8, #64748b);
-      border-color: #cbd5e1;
-      transform: rotateY(180deg);
-    }
+/* Text */
 
-    @keyframes flipHeads {
-      0% { transform: rotateY(0); }
-      100% { transform: rotateY(1800deg); }
-    }
+.text-primary {
+  color: var(--text-primary);
+}
 
-    @keyframes flipTails {
-      0% { transform: rotateY(0); }
-      100% { transform: rotateY(1980deg); }
-    }
+.text-secondary {
+  color: var(--text-secondary);
+}
 
-    .flipping-heads {
-      animation: flipHeads .8s forwards;
-    }
+.text-muted {
+  color: var(--text-muted);
+}
 
-    .flipping-tails {
-      animation: flipTails .8s forwards;
-    }
+.text-success {
+  color: var(--color-success);
+}
 
-    .game-status {
-      position: absolute;
-      left: 8px;
-      right: 8px;
-      bottom: 8px;
-      z-index: 10;
-      text-align: center;
-      font-size: 11px;
-      line-height: 1.4;
-      font-weight: 600;
-      color: #a7b2bf;
-    }
+.text-danger {
+  color: var(--color-danger);
+}
 
-    .history-bar-wrapper {
-      position: absolute;
-      top: 8px;
-      left: 10px;
-      right: 10px;
-      z-index: 20;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+/* =================================
+   CONTAINER
+================================= */
 
-    .history-bar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      flex: 1;
-    }
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-4);
+}
 
-    .history-bar::-webkit-scrollbar { display: none; }
+/* =================================
+   HEADER & LAYOUT OVERRIDES
+================================= */
 
-    .history-btn-icon {
-      background: #222b3a;
-      border: 1px solid #2a3548;
-      color: #cbd5e1;
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 11px;
-      flex-shrink: 0;
-      transition: background 0.2s;
-    }
+#topBarContainer {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  width: 100%;
+  flex-shrink: 0;
+}
 
-    .history-btn-icon:hover {
-      background: #2c3748;
-      color: #fff;
-    }
+#bottomBarContainer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 5000;
+  isolation: isolate;
+  padding-bottom: env(safe-area-inset-bottom);
+}
 
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      z-index: 6000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
+.game-page {
+  width: 100%;
+  max-width: 672px;
+  margin: 5px auto 0;
+  padding: 0 8px 100px;
+}
 
-    .modal-content {
-      background: #171d28;
-      border: 1px solid #222b3a;
-      width: 100%;
-      max-width: 420px;
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      max-height: 80vh;
-      overflow: hidden;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-    }
+.main-wrapper {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
 
-    ::-webkit-scrollbar {
-      height: 4px;
-      width: 4px;
-    }
+.divider {
+  height: 1px;
+  background: var(--border-color);
+  width: 100%;
+}
 
-    ::-webkit-scrollbar-track { background: #0f141c; }
+.input-box {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s ease;
+}
 
-    ::-webkit-scrollbar-thumb {
-      background: #222b3a;
-      border-radius: 2px;
-    }
+.input-box:focus-within {
+  border-color: var(--border-focus);
+}
+
+/* =================================
+   BUTTONS
+================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-base);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.green-btn {
+  background: var(--color-primary);
+  color: var(--text-dark);
+  font-weight: 800;
+}
+
+.green-btn:hover {
+  background: var(--color-primary-hover);
+}
+
+.red-btn {
+  background: var(--color-danger);
+  color: #fff;
+  font-weight: 800;
+}
+
+.red-btn:hover {
+  background: #d3383b;
+}
+
+.green-btn:disabled,
+.red-btn:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+/* =================================
+   GAME SCREEN & COIN ANIMATION
+================================= */
+
+.game-screen {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 270px;
+  width: 100%;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #202a32 0%, var(--bg-secondary) 65%);
+}
+
+.game-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 25%, rgba(255,255,255,.09) 1px, transparent 2px),
+    radial-gradient(circle at 85% 20%, rgba(255,255,255,.08) 1px, transparent 2px),
+    radial-gradient(circle at 20% 80%, rgba(255,255,255,.06) 1px, transparent 2px);
+}
+
+.game-stage {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 51px;
+  bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.coin-container {
+  perspective: 1000px;
+  width: 98px;
+  height: 98px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 5;
+}
+
+.coin {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.coin-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 15px rgba(0,0,0,.45),
+    inset 0 0 10px rgba(255,255,255,.3);
+  border: 3px solid #f59e0b;
+}
+
+.coin-heads {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.coin-tails {
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+  border-color: #cbd5e1;
+  transform: rotateY(180deg);
+}
+
+@keyframes flipHeads {
+  0% { transform: rotateY(0); }
+  100% { transform: rotateY(1800deg); }
+}
+
+@keyframes flipTails {
+  0% { transform: rotateY(0); }
+  100% { transform: rotateY(1980deg); }
+}
+
+.flipping-heads {
+  animation: flipHeads .8s forwards;
+}
+
+.flipping-tails {
+  animation: flipTails .8s forwards;
+}
+
+.game-status {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 10;
+  text-align: center;
+  font-size: var(--font-xs);
+  line-height: 1.4;
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+}
+
+.history-bar-wrapper {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.history-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+}
+
+.history-bar::-webkit-scrollbar { display: none; }
+
+.history-btn-icon {
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: var(--font-xs);
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.history-btn-icon:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* =================================
+   MODALS
+================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 6000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.modal-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 420px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: var(--shadow-modal);
+}
+
+/* =================================
+   LINKS & INPUTS
+================================= */
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font-family);
+  font-size: var(--font-base);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline-color: var(--color-primary);
+}
+
+/* =================================
+   SCROLLBAR
+================================= */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-hover) var(--bg-primary);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-hover);
+  border-radius: var(--radius-full);
+}
+
+/* =================================
+   RESPONSIVE DESIGN
+================================= */
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: var(--font-2xl);
+  }
+
+  h2 {
+    font-size: var(--font-xl);
+  }
+
+  .container {
+    padding: 12px;
+  }
+
+  .header {
+    padding: 10px 12px;
+  }
+}
   </style>
 </head>
 
-<body class="bg-[#0f141c] text-white font-sans min-h-screen flex flex-col items-center p-0 select-none">
+<body>
 
   <div id="topBarContainer" class="w-full max-w-2xl sticky top-0 z-50"></div>
 
@@ -1159,297 +1401,4 @@
         return false;
       }
 
-      const { error } = await supabaseClient
-        .from('profiles')
-        .update({ balance: balance })
-        .eq('id', currentUserId);
-
-      if (error) {
-        console.error('Balance update error:', error);
-        return false;
-      }
-
-      return true;
-    }
-
-    async function handleMainAction() {
-      if (isFlipping || isProcessingAction) return;
-
-      if (gameState === 'ready') {
-        isProcessingAction = true;
-        setActionButton('Starting...', 'green-btn', true);
-
-        const amountInput = document.getElementById('betAmount');
-        const enteredAmount = Number(amountInput.value);
-
-        if (!Number.isFinite(enteredAmount) || enteredAmount < 1) {
-          isProcessingAction = false;
-          setActionButton('Bet', 'green-btn');
-          return;
-        }
-
-        if (!currentUserId) {
-          isProcessingAction = false;
-          setActionButton('Bet', 'green-btn');
-          document.getElementById('gameStatusText').innerHTML =
-            '<span style="color:#ed4245;font-weight:800">Please log in to play.</span>';
-          return;
-        }
-
-        if (enteredAmount > balance) {
-          isProcessingAction = false;
-          setActionButton('Bet', 'green-btn');
-          return;
-        }
-
-        activeBetAmount = enteredAmount;
-        resetStats();
-
-        if (activeBetAmount > 0) {
-          balance -= activeBetAmount;
-          updateBalanceUI();
-
-          const saved = await saveProfileBalance();
-
-          if (!saved) {
-            balance += activeBetAmount;
-            updateBalanceUI();
-
-            activeBetAmount = 0;
-            isProcessingAction = false;
-
-            setActionButton('Bet', 'green-btn');
-            return;
-          }
-        }
-
-        currentMultiplier = 1.91;
-        gameState = 'playing';
-        isProcessingAction = false;
-
-        executeFlip(true);
-      } else if (gameState === 'won_streak') {
-        await cashOut();
-      }
-    }
-
-    async function executeFlip(isFirstBet) {
-      if (isFlipping || isProcessingAction) return;
-      if (gameState !== 'playing' && gameState !== 'won_streak') return;
-
-      isFlipping = true;
-
-      const thisRound = roundToken;
-      const btn = document.getElementById('btnAction');
-      const statusText = document.getElementById('gameStatusText');
-      const coin = document.getElementById('coinElement');
-
-      btn.disabled = true;
-      btn.className =
-        'w-full py-3.5 green-btn text-sm rounded-xl transition shadow flex items-center justify-center gap-2';
-      btn.innerText = 'Flipping...';
-
-      statusText.innerText = 'Coin is flipping...';
-
-      const outcome = Math.random() < 0.5 ? 'heads' : 'tails';
-
-      coin.classList.remove('flipping-heads', 'flipping-tails');
-      void coin.offsetWidth;
-
-      const flipDelay = isTurboOn ? 100 : 800;
-      coin.style.animationDuration = isTurboOn ? '0.1s' : '0.8s';
-
-      coin.classList.add(
-        outcome === 'heads' ? 'flipping-heads' : 'flipping-tails'
-      );
-
-      setTimeout(async () => {
-        if (thisRound !== roundToken) return;
-
-        const isWin = selectedChoice === outcome;
-        playClockBellSound();
-
-        if (isWin) {
-          if (isFirstBet) {
-            currentMultiplier = 1.91;
-            currentSeries = 1;
-          } else {
-            currentMultiplier = Number((currentMultiplier * 1.91).toFixed(2));
-            currentSeries++;
-          }
-
-          updateStatsUI();
-
-          const potentialWin = activeBetAmount > 0
-            ? activeBetAmount * currentMultiplier
-            : 0;
-
-          statusText.innerHTML =
-            '<span style="color:#24ee89;font-weight:800">(WIN) · ৳ ' +
-            potentialWin.toFixed(2) +
-            '</span>';
-
-          gameState = 'won_streak';
-          isFlipping = false;
-
-          setActionButton(
-            activeBetAmount > 0
-              ? 'Cash Out (৳ ' + potentialWin.toFixed(2) + ')'
-              : 'Continue (Demo)',
-            'red-btn'
-          );
-
-        } else {
-          statusText.innerHTML =
-            '<span style="color:#ed4245;font-weight:800">LOST! Better luck next time.</span>';
-
-          previousResults.push('0.00x');
-          if (previousResults.length > 50) previousResults.shift();
-          renderHistoryBar();
-
-          if (activeBetAmount > 0) {
-            updateLiveStatsUI(-activeBetAmount, activeBetAmount, false);
-          }
-
-          // হারলে 'original_bets_history' টেবিলে রেকর্ড সেভ হবে
-          if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
-            const insertData = {
-              id: generateUUID(),
-              user_id: currentUserId,
-              game_name: 'Coin Flip',
-              bet_amount: activeBetAmount,
-              payout: 0,
-              multiplier: 0.00,
-              status: 'lost',
-              game_details: {
-                selected_choice: selectedChoice,
-                outcome: outcome,
-                series: currentSeries
-              }
-            };
-
-            const { error } = await supabaseClient
-              .from('original_bets_history')
-              .insert([insertData]);
-
-            if (error) {
-              console.error('Lost bet record error:', error);
-            }
-          }
-
-          resetGameUI();
-        }
-      }, flipDelay);
-    }
-
-    async function cashOut() {
-      if (isFlipping || isProcessingAction || gameState !== 'won_streak') {
-        return;
-      }
-
-      isProcessingAction = true;
-
-      const payoutAmount = activeBetAmount > 0
-        ? Number((activeBetAmount * currentMultiplier).toFixed(2))
-        : 0;
-
-      setActionButton('Processing Cash Out...', 'red-btn', true);
-
-      const recordedMultiplierStr = currentMultiplier.toFixed(2) + 'x';
-      previousResults.push(recordedMultiplierStr);
-      if (previousResults.length > 50) previousResults.shift();
-      renderHistoryBar();
-
-      const profit = payoutAmount - activeBetAmount;
-
-      if (activeBetAmount > 0) {
-        balance += payoutAmount;
-        updateBalanceUI();
-
-        const saved = await saveProfileBalance();
-
-        if (!saved) {
-          balance -= payoutAmount;
-          updateBalanceUI();
-
-          isProcessingAction = false;
-          setActionButton(
-            'Cash Out (৳ ' + payoutAmount.toFixed(2) + ')',
-            'red-btn'
-          );
-
-          document.getElementById('gameStatusText').innerHTML =
-            '<span style="color:#ed4245;font-weight:800">Balance update failed. Please try again.</span>';
-
-          return;
-        }
-
-        updateLiveStatsUI(profit, activeBetAmount, true);
-      }
-
-      // জিতলে বা ক্যাশ আউট করলে 'original_bets_history' টেবিলে রেকর্ড সেভ হবে
-      if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
-        const insertData = {
-          id: generateUUID(),
-          user_id: currentUserId,
-          game_name: 'Coin Flip',
-          bet_amount: activeBetAmount,
-          payout: payoutAmount,
-          multiplier: currentMultiplier,
-          status: 'won',
-          game_details: {
-            selected_choice: selectedChoice,
-            series: currentSeries
-          }
-        };
-
-        const { error } = await supabaseClient
-          .from('original_bets_history')
-          .insert([insertData]);
-
-        if (error) {
-          console.error('Cashout bet record error:', error);
-        }
-      }
-
-      playClockBellSound();
-
-      document.getElementById('gameStatusText').innerHTML =
-        '<span style="color:#24ee89;font-weight:800">(Won): ৳ ' +
-        payoutAmount.toFixed(2) +
-        '</span>';
-
-      resetGameUI();
-    }
-
-    function resetGameUI() {
-      roundToken++;
-
-      gameState = 'ready';
-      isFlipping = false;
-      isProcessingAction = false;
-
-      activeBetAmount = 0;
-      resetStats();
-
-      const btn = document.getElementById('btnAction');
-      const coin = document.getElementById('coinElement');
-
-      coin.classList.remove('flipping-heads', 'flipping-tails');
-      void coin.offsetWidth;
-
-      btn.disabled = false;
-      btn.className =
-        'w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2';
-      btn.innerText = 'Bet';
-
-      const amountInput = document.getElementById('betAmount');
-      if (amountInput) {
-        validateBetInputStyle(amountInput);
-      }
-    }
-
-    window.addEventListener('load', initCoinFlipGame);
-  </script>
-</body>
-</html>
+      const { error } =
