@@ -91,13 +91,13 @@
       pointer-events: auto;
     }
 
-    /* Bottom Drawer Panel */
+    /* Bottom Drawer Panel (Half Screen) */
     .drawer {
       position: fixed;
       bottom: -100%;
       left: 0;
       width: 100%;
-      max-height: 80vh;
+      max-height: 50vh;
       background-color: #121a24;
       z-index: 10001;
       box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.6);
@@ -121,7 +121,7 @@
       align-items: center;
       padding-bottom: 15px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       color: #ffffff;
     }
 
@@ -133,21 +133,20 @@
     .close-btn {
       background: none;
       border: none;
-      color: #8a99ad;
+      color: #ffffff;
       font-size: 22px;
       cursor: pointer;
       padding: 5px;
     }
 
     .close-btn:hover {
-      color: #ffffff;
+      color: #a855f7;
     }
 
-    /* Drawer Menu Buttons (Vertical List) */
+    /* Drawer Menu List (Card Shape Removed & Thin Bottom Line Added) */
     .drawer-menu {
       display: flex;
       flex-direction: column;
-      gap: 12px;
     }
 
     .drawer-btn {
@@ -155,26 +154,26 @@
       align-items: center;
       gap: 15px;
       width: 100%;
-      padding: 14px 16px;
-      background-color: #1a2432;
-      color: #e1e7ed;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
+      padding: 16px 10px;
+      background: transparent;
+      color: #ffffff;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0;
       font-size: 15px;
       font-weight: 500;
       text-decoration: none;
       cursor: pointer;
-      transition: background-color 0.2s ease, color 0.2s ease;
+      transition: background-color 0.2s ease;
     }
 
     .drawer-btn:hover {
-      background-color: #243244;
-      color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.03);
     }
 
     .drawer-btn i {
       font-size: 18px;
-      color: #a855f7;
+      color: #ffffff;
     }
   </style>
 </head>
@@ -182,7 +181,6 @@
 
   <!-- Bottom Navigation -->
   <nav class="bottom-nav">
-    <!-- সরাসরি ইনলাইন ক্লিক ইভেন্ট দেওয়া হয়েছে যাতে ফেচ করা পেজেও কোনো মিস না হয় -->
     <button type="button" class="nav-item" onclick="document.getElementById('modalDrawer').classList.add('show'); document.getElementById('drawerOverlay').classList.add('show');">
       <i class="fa-solid fa-bars"></i>
       <span>Menu</span>
@@ -207,7 +205,7 @@
   <!-- Overlay -->
   <div class="drawer-overlay" id="drawerOverlay" onclick="this.classList.remove('show'); document.getElementById('modalDrawer').classList.remove('show');"></div>
 
-  <!-- Modal Drawer (Bottom Sheet) -->
+  <!-- Modal Drawer (Bottom Sheet - Half Screen) -->
   <div class="drawer" id="modalDrawer">
     <div class="drawer-header">
       <h3>Menu</h3>
