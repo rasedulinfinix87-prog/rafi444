@@ -12,40 +12,67 @@
     <style> 
         /* Custom Scrollbar Styling */ 
         ::-webkit-scrollbar { width: 6px; height: 6px; } 
-        ::-webkit-scrollbar-track { background: #0b0f19; } 
+        ::-webkit-scrollbar-track { background: #080B10; } 
         ::-webkit-scrollbar-thumb { background: #1b2438; border-radius: 4px; } 
         ::-webkit-scrollbar-thumb:hover { background: #283552; } 
         .no-scrollbar::-webkit-scrollbar { display: none; } 
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } 
         /* Mobile scrolling optimization */ 
-        html { overflow-y: auto; -webkit-overflow-scrolling: touch; } 
-        body { overflow-x: hidden; } 
+        html { overflow-y: auto; -webkit-overflow-scrolling: touch; background: #080B10; } 
+        body { overflow-x: hidden; background: #080B10; color: #ffffff; } 
         img { -webkit-user-drag: none; } 
+
+        /* Shuffle Style Glass & Accents */
+        .glass-card {
+            background: rgba(245, 207, 102, 0.04);
+            border: 1px solid rgba(245, 207, 102, 0.15);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 18px;
+        }
+
+        .shuffle-banner {
+            background: linear-gradient(135deg, #151a23 0%, #0d1118 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
     </style> 
 </head> 
-<body class="bg-[#0b0f19] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black"> 
+<body class="bg-[#080B10] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black pb-24"> 
     <!-- Top Navigation Bar Anchor Container --> 
     <div id="topBarContainer" class="sticky top-0 z-50"></div> 
 
     <!-- Main Application Wrapper --> 
-    <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-5"> 
+    <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-3 sm:py-5 space-y-4"> 
+        
+        <!-- Shuffle Style Promotional Banner -->
+        <div class="shuffle-banner rounded-2xl p-4 sm:p-6 flex flex-col justify-between relative shadow-xl">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10 space-y-1.5 max-w-sm">
+                <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase italic">Boost Your Level Up!</h1>
+                <p class="text-xs text-slate-400 font-medium">Earn more rewards now when ranking up!</p>
+            </div>
+        </div>
+
         <!-- Category Navigation Bar --> 
         <div class="flex items-center justify-between border-b border-slate-800/80 pb-3"> 
             <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1"> 
-                <button onclick="filterCategory('original')" id="catOriginal" class="flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap"> Original Games </button> 
-                <button onclick="filterCategory('colortrading')" id="catColortrading" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap"> Color Trading </button> 
-                <button onclick="filterCategory('blackjack')" id="catBlackjack" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap"> Blackjack </button> 
-                <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap"> Live Casino </button> 
+                <button onclick="filterCategory('original')" id="catOriginal" class="flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-4 py-2.5 rounded-xl text-xs transition shadow-md whitespace-nowrap"> Original Games </button> 
+                <button onclick="filterCategory('colortrading')" id="catColortrading" class="flex items-center gap-2 bg-[#151a23] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition whitespace-nowrap"> Color Trading </button> 
+                <button onclick="filterCategory('blackjack')" id="catBlackjack" class="flex items-center gap-2 bg-[#151a23] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition whitespace-nowrap"> Blackjack </button> 
+                <button onclick="filterCategory('live')" id="catLive" class="flex items-center gap-2 bg-[#151a23] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition whitespace-nowrap"> Live Casino </button> 
             </div> 
-            <div class="hidden sm:flex items-center bg-[#111827] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-400"> 
+            <div class="hidden sm:flex items-center bg-[#151a23] border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-400"> 
                 <input type="text" id="gameSearch" onkeyup="searchGames()" placeholder="Search game..." class="bg-transparent text-white focus:outline-none w-28 lg:w-40"> 
             </div> 
         </div> 
 
         <!-- Games Grid Section --> 
         <section> 
-            <div class="flex items-center justify-between mb-4"> 
-                <h2 id="sectionTitle" class="text-base font-bold text-white flex items-center gap-2"> 
+            <div class="flex items-center justify-between mb-3.5"> 
+                <h2 id="sectionTitle" class="text-sm sm:text-base font-bold text-white flex items-center gap-2"> 
                     <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> Original Games 
                 </h2> 
             </div> 
@@ -57,15 +84,15 @@
     </div> 
 
     <!-- Footer Section --> 
-    <footer class="bg-[#111827] border-t border-slate-800/80 mt-12 py-6 text-center text-xs text-slate-500 space-y-2"> 
+    <footer class="bg-[#151a23] border-t border-slate-800/80 mt-12 py-6 text-center text-xs text-slate-500 space-y-2"> 
         <p>&copy; 2026 Game Portal. All Rights Reserved.</p> 
     </footer> 
 
     <!-- Dynamic Bottom Bar Anchor Container -->
-    <div id="bottomBarContainer"></div>
+    <div id="bottomBarContainer" class="fixed bottom-0 left-0 right-0 z-50"></div>
 
     <script> 
-        // Games List Configuration 
+        // Games List Configuration[span_1](start_span)[span_1](end_span)
         const gameList = [ 
             { id: 'dice', name: 'Classic Dice', path: 'game/dice.html', category: 'original', players: 1077, image: 'assets/images/dice.png', fallbackBg: 'from-emerald-900 to-slate-950' }, 
             { id: 'mines', name: 'Mines', path: 'game/mines.html', category: 'original', players: 710, image: 'assets/images/mines.png', fallbackBg: 'from-indigo-900 to-slate-950' }, 
@@ -76,7 +103,7 @@
             { id: 'keno', name: 'Keno', path: 'game/keno.html', category: 'original', players: 145, image: 'assets/images/keno.png', fallbackBg: 'from-amber-950 to-slate-950' }, 
             { id: 'coin-flip', name: 'Coin Flip', path: 'game/coin-flip.html', category: 'original', players: 180, image: 'assets/images/coin-flip.png', fallbackBg: 'from-yellow-900 to-slate-950' }, 
             
-            // Color Trading Cards (Total 6 Cards)
+            // Color Trading Cards (Total 6 Cards)[span_2](start_span)[span_2](end_span)
             { id: 'color-trade-win-go', name: 'Color Trade Win Go', path: 'color-trading/card/cards.html', category: 'colortrading', players: 340, image: 'assets/images/color-trade.png', fallbackBg: 'from-emerald-950 to-slate-950' },
             { id: 'roulette', name: 'Roulette', path: 'color-trading/card/cards.html', category: 'colortrading', players: 255, image: 'assets/images/roulette.png', fallbackBg: 'from-rose-950 to-slate-950' }, 
             { id: 'color-trade-k3', name: 'K3 Lotter Trading', path: 'color-trading/card/cards.html', category: 'colortrading', players: 290, image: 'assets/images/k3.png', fallbackBg: 'from-blue-950 to-slate-950' },
@@ -84,7 +111,7 @@
             { id: 'color-trade-trx', name: 'TRX Win Go', path: 'color-trading/card/cards.html', category: 'colortrading', players: 420, image: 'assets/images/trx.png', fallbackBg: 'from-amber-950 to-slate-950' },
             { id: 'color-trade-parity', name: 'Parity Trading', path: 'color-trading/card/cards.html', category: 'colortrading', players: 195, image: 'assets/images/parity.png', fallbackBg: 'from-teal-950 to-slate-950' },
             
-            // Blackjack & Live Cards
+            // Blackjack & Live Cards[span_3](start_span)[span_3](end_span)
             { id: 'blackjack', name: 'Blackjack', path: 'blackjack/blackjacktable.html', category: 'blackjack', players: 470, image: 'assets/images/blackjack.png', fallbackBg: 'from-blue-950 to-slate-950' },
             { id: 'live-baccarat', name: 'Live Baccarat', path: 'live/baccarat.html', category: 'live', players: 520, image: 'assets/images/baccarat.png', fallbackBg: 'from-red-950 to-slate-950' },
             { id: 'live-dragon-tiger', name: 'Dragon Tiger', path: 'live/dragon-tiger.html', category: 'live', players: 310, image: 'assets/images/dragon-tiger.png', fallbackBg: 'from-amber-900 to-slate-950' }
@@ -94,7 +121,7 @@
         let balanceSubscription = null; 
         let playerUpdateInterval = null; 
 
-        // Supabase Realtime User Balance Sync 
+        // Supabase Realtime User Balance Sync[span_4](start_span)[span_4](end_span)
         async function syncRealtimeUserBalance() { 
             try { 
                 if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') { 
@@ -134,7 +161,7 @@
             } 
         } 
 
-        // Dynamic Top Bar Loader 
+        // Dynamic Top Bar Loader[span_5](start_span)[span_5](end_span)
         async function loadTopBar() { 
             try { 
                 const response = await fetch('bar/top.html'); 
@@ -148,7 +175,7 @@
             } 
         } 
 
-        // Optimized Live Players Update 
+        // Optimized Live Players Update[span_6](start_span)[span_6](end_span)
         function startLivePlayerUpdates() { 
             if (playerUpdateInterval) { 
                 clearInterval(playerUpdateInterval); 
@@ -166,7 +193,7 @@
             }, 8000); 
         } 
 
-        // Render Game Cards 
+        // Render Game Cards[span_7](start_span)[span_7](end_span)
         function renderGames(filter = 'original', searchQuery = '') { 
             const grid = document.getElementById('gamesGrid'); 
             grid.innerHTML = ''; 
@@ -179,7 +206,7 @@
 
             if (filteredGames.length === 0) { 
                 grid.innerHTML = ` 
-                    <div class="col-span-full text-center py-12 text-slate-500 text-xs bg-[#111827] rounded-2xl border border-slate-800"> 
+                    <div class="col-span-full text-center py-12 text-slate-500 text-xs bg-[#151a23] rounded-2xl border border-slate-800"> 
                         No games found for the selected category. 
                     </div> 
                 `; 
@@ -190,12 +217,12 @@
             filteredGames.forEach((game) => { 
                 const card = document.createElement('a'); 
                 card.href = game.path; 
-                card.className = 'group relative bg-[#111827] border border-slate-800 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-44 sm:h-52 md:h-56 transition-transform duration-100'; 
+                card.className = 'group relative bg-[#151a23] border border-slate-800/80 hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-40 sm:h-48 md:h-52 transition-all duration-200 hover:scale-[1.02] shadow-lg'; 
                 card.innerHTML = ` 
                     <img src="${game.image}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" class="absolute inset-0 w-full h-full object-cover z-0" alt="${game.name}" loading="lazy" decoding="async" /> 
                     <div class="hidden absolute inset-0 bg-gradient-to-b ${game.fallbackBg} opacity-90"></div> 
                     <div class="relative z-20 flex justify-end items-center p-2.5"> 
-                        <span class="text-[10px] font-bold text-slate-200 bg-black/60 px-2 py-0.5 rounded-full border border-white/10"> 
+                        <span class="text-[10px] font-bold text-slate-200 bg-black/60 px-2.5 py-0.5 rounded-full border border-white/10 backdrop-blur-md"> 
                             <span id="player-count-${game.id}">${game.players.toLocaleString()}</span> 
                         </span> 
                     </div> 
@@ -206,7 +233,7 @@
             grid.appendChild(fragment); 
         } 
 
-        // Category Filter Switcher 
+        // Category Filter Switcher[span_8](start_span)[span_8](end_span)
         function filterCategory(cat) { 
             currentCategory = cat; 
             const categories = ['original', 'colortrading', 'blackjack', 'live']; 
@@ -216,9 +243,9 @@
                 const btn = document.getElementById(`cat${idName.charAt(0).toUpperCase() + idName.slice(1)}`); 
                 if (btn) { 
                     if (c === cat) { 
-                        btn.className = 'flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-3.5 py-2 rounded-xl text-xs transition shadow-md whitespace-nowrap'; 
+                        btn.className = 'flex items-center gap-2 bg-[#24ee89] text-black font-extrabold px-4 py-2.5 rounded-xl text-xs transition shadow-md whitespace-nowrap'; 
                     } else { 
-                        btn.className = 'flex items-center gap-2 bg-[#111827] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-3.5 py-2 rounded-xl text-xs transition whitespace-nowrap'; 
+                        btn.className = 'flex items-center gap-2 bg-[#151a23] hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold px-4 py-2.5 rounded-xl text-xs transition whitespace-nowrap'; 
                     } 
                 } 
             }); 
@@ -235,14 +262,14 @@
             renderGames(cat); 
         } 
 
-        // Search Filter 
+        // Search Filter[span_9](start_span)[span_9](end_span)
         function searchGames() { 
             const searchInput = document.getElementById('gameSearch'); 
             if (!searchInput) return; 
             renderGames(currentCategory, searchInput.value); 
         } 
 
-        // Dynamic Bottom Bar Loader
+        // Dynamic Bottom Bar Loader[span_10](start_span)[span_10](end_span)
         async function loadBottomBar() {
             try {
                 const response = await fetch('bar/bottom.html');
@@ -260,7 +287,7 @@
             }
         }
 
-        // Initialization Logic 
+        // Initialization Logic[span_11](start_span)[span_11](end_span)
         document.addEventListener('DOMContentLoaded', () => { 
             loadTopBar(); 
             loadBottomBar();
