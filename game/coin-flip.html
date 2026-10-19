@@ -11,531 +11,301 @@
   <script src="../supabase-config.js"></script>
 
   <style>
-/* =================================
-   STAKE-STYLE DESIGN SYSTEM
-================================= */
-
-:root {
-  /* Background Colors */
-  --bg-primary: #0F212E;
-  --bg-secondary: #1A2C38;
-  --bg-card: #213743;
-  --bg-hover: #2F4553;
-  --bg-input: #0F212E;
-
-  /* Brand Colors */
-  --color-primary: #00E701;
-  --color-primary-hover: #00C900;
-  --color-primary-dark: #007A01;
-
-  /* Text Colors */
-  --text-primary: #FFFFFF;
-  --text-secondary: #B1BAD3;
-  --text-muted: #557086;
-  --text-dark: #071824;
-
-  /* Status Colors */
-  --color-success: #00E701;
-  --color-danger: #ED4163;
-  --color-warning: #FFB800;
-  --color-info: #2F80ED;
-
-  /* Border Colors */
-  --border-color: #2F4553;
-  --border-focus: #00E701;
-
-  /* Font Family */
-  --font-family:
-    "Helvetica Neue",
-    Arial,
-    sans-serif;
-
-  /* Font Sizes */
-  --font-xs: 11px;
-  --font-sm: 12px;
-  --font-base: 14px;
-  --font-md: 16px;
-  --font-lg: 18px;
-  --font-xl: 22px;
-  --font-2xl: 28px;
-  --font-3xl: 32px;
-
-  /* Font Weights */
-  --weight-normal: 400;
-  --weight-medium: 500;
-  --weight-semibold: 600;
-  --weight-bold: 700;
-
-  /* Spacing */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-
-  /* Border Radius */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-full: 999px;
-
-  /* Shadows */
-  --shadow-card:
-    0 4px 12px rgba(0, 0, 0, 0.18);
-
-  --shadow-modal:
-    0 12px 32px rgba(0, 0, 0, 0.35);
-}
-
-/* =================================
-   GLOBAL STYLES
-================================= */
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-  scroll-behavior: smooth;
-  min-height: 100%;
-  background: var(--bg-primary);
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-family);
-  font-size: var(--font-base);
-  font-weight: var(--weight-normal);
-  line-height: 1.5;
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding-bottom: calc(100px + env(safe-area-inset-bottom));
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-/* Headings */
-
-h1 {
-  font-size: var(--font-3xl);
-  font-weight: var(--weight-bold);
-}
-
-h2 {
-  font-size: var(--font-2xl);
-  font-weight: var(--weight-bold);
-}
-
-h3 {
-  font-size: var(--font-xl);
-  font-weight: var(--weight-semibold);
-}
-
-h1, h2, h3, h4, p {
-  margin-top: 0;
-}
-
-/* Text */
-
-.text-primary {
-  color: var(--text-primary);
-}
-
-.text-secondary {
-  color: var(--text-secondary);
-}
-
-.text-muted {
-  color: var(--text-muted);
-}
-
-.text-success {
-  color: var(--color-success);
-}
-
-.text-danger {
-  color: var(--color-danger);
-}
-
-/* =================================
-   CONTAINER
-================================= */
-
-.container {
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: var(--space-4);
-}
-
-/* =================================
-   HEADER & LAYOUT OVERRIDES
-================================= */
-
-#topBarContainer {
-  position: sticky;
-  top: 0;
-  z-index: 500;
-  width: 100%;
-  flex-shrink: 0;
-}
-
-#bottomBarContainer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  z-index: 5000;
-  isolation: isolate;
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.game-page {
-  width: 100%;
-  max-width: 672px;
-  margin: 5px auto 0;
-  padding: 0 8px 100px;
-}
-
-.main-wrapper {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
-}
-
-.divider {
-  height: 1px;
-  background: var(--border-color);
-  width: 100%;
-}
-
-.input-box {
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  transition: border-color 0.2s ease;
-}
-
-.input-box:focus-within {
-  border-color: var(--border-focus);
-}
-
-/* =================================
-   BUTTONS
-================================= */
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: none;
-  border-radius: var(--radius-md);
-  font-family: var(--font-family);
-  font-size: var(--font-base);
-  font-weight: var(--weight-semibold);
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.green-btn {
-  background: var(--color-primary);
-  color: var(--text-dark);
-  font-weight: 800;
-}
-
-.green-btn:hover {
-  background: var(--color-primary-hover);
-}
-
-.red-btn {
-  background: var(--color-danger);
-  color: #fff;
-  font-weight: 800;
-}
-
-.red-btn:hover {
-  background: #d3383b;
-}
-
-.green-btn:disabled,
-.red-btn:disabled {
-  opacity: .65;
-  cursor: not-allowed;
-}
-
-/* =================================
-   GAME SCREEN & COIN ANIMATION
-================================= */
-
-.game-screen {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 270px;
-  width: 100%;
-  overflow: hidden;
-  background: radial-gradient(ellipse at center, #202a32 0%, var(--bg-secondary) 65%);
-}
-
-.game-screen::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 12% 25%, rgba(255,255,255,.09) 1px, transparent 2px),
-    radial-gradient(circle at 85% 20%, rgba(255,255,255,.08) 1px, transparent 2px),
-    radial-gradient(circle at 20% 80%, rgba(255,255,255,.06) 1px, transparent 2px);
-}
-
-.game-stage {
-  position: absolute;
-  left: 2px;
-  right: 2px;
-  top: 51px;
-  bottom: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-}
-
-.coin-container {
-  perspective: 1000px;
-  width: 98px;
-  height: 98px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 5;
-}
-
-.coin {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  transform-style: preserve-3d;
-}
-
-.coin-face {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow:
-    0 0 15px rgba(0,0,0,.45),
-    inset 0 0 10px rgba(255,255,255,.3);
-  border: 3px solid #f59e0b;
-}
-
-.coin-heads {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.coin-tails {
-  background: linear-gradient(135deg, #94a3b8, #64748b);
-  border-color: #cbd5e1;
-  transform: rotateY(180deg);
-}
-
-@keyframes flipHeads {
-  0% { transform: rotateY(0); }
-  100% { transform: rotateY(1800deg); }
-}
-
-@keyframes flipTails {
-  0% { transform: rotateY(0); }
-  100% { transform: rotateY(1980deg); }
-}
-
-.flipping-heads {
-  animation: flipHeads .8s forwards;
-}
-
-.flipping-tails {
-  animation: flipTails .8s forwards;
-}
-
-.game-status {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  z-index: 10;
-  text-align: center;
-  font-size: var(--font-xs);
-  line-height: 1.4;
-  font-weight: var(--weight-semibold);
-  color: var(--text-secondary);
-}
-
-.history-bar-wrapper {
-  position: absolute;
-  top: 8px;
-  left: 10px;
-  right: 10px;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.history-bar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  flex: 1;
-}
-
-.history-bar::-webkit-scrollbar { display: none; }
-
-.history-btn-icon {
-  background: var(--bg-hover);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: var(--font-xs);
-  flex-shrink: 0;
-  transition: background 0.2s;
-}
-
-.history-btn-icon:hover {
-  background: var(--border-color);
-  color: var(--text-primary);
-}
-
-/* =================================
-   MODALS
-================================= */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  z-index: 6000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-4);
-}
-
-.modal-content {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  width: 100%;
-  max-width: 420px;
-  border-radius: var(--radius-xl);
-  display: flex;
-  flex-direction: column;
-  max-height: 80vh;
-  overflow: hidden;
-  box-shadow: var(--shadow-modal);
-}
-
-/* =================================
-   LINKS & INPUTS
-================================= */
-
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-input,
-select,
-textarea {
-  font-family: var(--font-family);
-  font-size: var(--font-base);
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  outline-color: var(--color-primary);
-}
-
-/* =================================
-   SCROLLBAR
-================================= */
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--bg-hover) var(--bg-primary);
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--bg-hover);
-  border-radius: var(--radius-full);
-}
-
-/* =================================
-   RESPONSIVE DESIGN
-================================= */
-
-@media (max-width: 600px) {
-  h1 {
-    font-size: var(--font-2xl);
-  }
-
-  h2 {
-    font-size: var(--font-xl);
-  }
-
-  .container {
-    padding: 12px;
-  }
-
-  .header {
-    padding: 10px 12px;
-  }
-}
+    :root {
+      --font-xs: 11px;
+      --font-sm: 12px;
+      --font-base: 14px;
+      --font-md: 16px;
+      --font-lg: 18px;
+      --font-xl: 22px;
+      --font-2xl: 28px;
+      --font-3xl: 32px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-height: 100%;
+      background: #0F212E;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #0F212E;
+      color: #FFFFFF;
+      font-family: sans-serif;
+      font-size: var(--font-base);
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    }
+
+    #topBarContainer {
+      position: sticky;
+      top: 0;
+      z-index: 500;
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    #bottomBarContainer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 5000;
+      isolation: isolate;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .game-page {
+      width: 100%;
+      max-width: 672px;
+      margin: 5px auto 0;
+      padding: 0 8px 100px;
+    }
+
+    .main-wrapper {
+      background: #1A2C38;
+      border: 1px solid #0F212E;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .divider {
+      height: 1px;
+      background: #0F212E;
+      width: 100%;
+    }
+
+    .input-box {
+      background: #0F212E;
+      border: 1px solid #0F212E;
+      border-radius: 10px;
+    }
+
+    .input-box:focus-within {
+      border-color: #24ee89;
+    }
+
+    .green-btn {
+      background: #24ee89;
+      color: #0F212E;
+      font-weight: 800;
+    }
+
+    .green-btn:hover { background: #1ed67a; }
+
+    .red-btn {
+      background: #ed4245;
+      color: #FFFFFF;
+      font-weight: 800;
+    }
+
+    .red-btn:hover { background: #d3383b; }
+
+    .green-btn:disabled,
+    .red-btn:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .game-screen {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 270px;
+      width: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse at center, #1A2C38 0%, #0F212E 65%);
+    }
+
+    .game-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 25%, rgba(255,255,255,.09) 1px, transparent 2px),
+        radial-gradient(circle at 85% 20%, rgba(255,255,255,.08) 1px, transparent 2px),
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,.06) 1px, transparent 2px);
+    }
+
+    .game-stage {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      top: 51px;
+      bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .coin-container {
+      perspective: 1000px;
+      width: 98px;
+      height: 98px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 5;
+    }
+
+    .coin {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .coin-face {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 15px rgba(0,0,0,.45),
+        inset 0 0 10px rgba(255,255,255,.3);
+      border: 3px solid #f59e0b;
+    }
+
+    .coin-heads {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .coin-tails {
+      background: linear-gradient(135deg, #94a3b8, #64748b);
+      border-color: #cbd5e1;
+      transform: rotateY(180deg);
+    }
+
+    @keyframes flipHeads {
+      0% { transform: rotateY(0); }
+      100% { transform: rotateY(1800deg); }
+    }
+
+    @keyframes flipTails {
+      0% { transform: rotateY(0); }
+      100% { transform: rotateY(1980deg); }
+    }
+
+    .flipping-heads {
+      animation: flipHeads .8s forwards;
+    }
+
+    .flipping-tails {
+      animation: flipTails .8s forwards;
+    }
+
+    .game-status {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      z-index: 10;
+      text-align: center;
+      font-size: var(--font-xs);
+      line-height: 1.4;
+      font-weight: 600;
+      color: #FFFFFF;
+    }
+
+    .history-bar-wrapper {
+      position: absolute;
+      top: 8px;
+      left: 10px;
+      right: 10px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .history-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex: 1;
+    }
+
+    .history-bar::-webkit-scrollbar { display: none; }
+
+    .history-btn-icon {
+      background: #1A2C38;
+      border: 1px solid #0F212E;
+      color: #FFFFFF;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: var(--font-xs);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .history-btn-icon:hover {
+      background: #283946;
+      color: #FFFFFF;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 6000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: #1A2C38;
+      border: 1px solid #0F212E;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    ::-webkit-scrollbar {
+      height: 4px;
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track { background: #0F212E; }
+
+    ::-webkit-scrollbar-thumb {
+      background: #1A2C38;
+      border-radius: 2px;
+    }
   </style>
 </head>
 
-<body>
+<body class="bg-[#0F212E] text-[#FFFFFF] font-sans min-h-screen flex flex-col items-center p-0 select-none">
 
   <div id="topBarContainer" class="w-full max-w-2xl sticky top-0 z-50"></div>
 
@@ -585,10 +355,10 @@ textarea:focus {
 
         <div class="divider"></div>
 
-        <div class="p-4 flex flex-col gap-3.5 bg-[#171d28]">
+        <div class="p-4 flex flex-col gap-3.5 bg-[#1A2C38]">
           <div class="grid grid-cols-2 gap-2">
             <button type="button" onclick="selectChoice('heads')" id="btnHeads"
-              class="py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition">
+              class="py-3 rounded-xl bg-[#0F212E] border-2 border-[#24ee89] text-[#FFFFFF] text-[var(--font-sm)] font-bold flex items-center justify-center gap-2 transition">
               <div class="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-[10px]">
                 <i class="fa-solid fa-dragon"></i>
               </div>
@@ -596,7 +366,7 @@ textarea:focus {
             </button>
 
             <button type="button" onclick="selectChoice('tails')" id="btnTails"
-              class="py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition">
+              class="py-3 rounded-xl bg-[#0F212E] border border-[#0F212E] text-[#FFFFFF] text-[var(--font-sm)] font-bold flex items-center justify-center gap-2 transition">
               <div class="w-5 h-5 rounded-full bg-slate-500 flex items-center justify-center text-[10px]">
                 <i class="fa-solid fa-coins"></i>
               </div>
@@ -605,47 +375,47 @@ textarea:focus {
           </div>
 
           <div class="flex flex-col gap-1" id="betAmountContainer">
-            <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+            <div class="flex justify-between items-center text-[var(--font-sm)] text-[#FFFFFF] font-medium">
               <span>Amount (৳)</span>
-              <span class="text-gray-400 text-[10px]">Min: 1 ৳</span>
+              <span class="text-[#FFFFFF] text-[var(--font-xs)]">Min: 1 ৳</span>
             </div>
 
             <div class="flex items-center input-box p-1">
-              <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
+              <div class="flex items-center px-2 text-[#FFFFFF] font-bold text-[var(--font-base)]">৳</div>
 
               <input type="number" id="betAmount" value="1.00" min="0" step="0.01"
                 inputmode="decimal" oninput="validateBetInputStyle(this)"
-                class="w-full min-w-0 bg-transparent text-sm font-bold text-white focus:outline-none px-1">
+                class="w-full min-w-0 bg-transparent text-[var(--font-base)] font-bold text-[#FFFFFF] focus:outline-none px-1">
 
               <div class="flex items-center gap-1">
-                <button type="button" onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
-                <button type="button" onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
-                <button type="button" onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-[#F5CF66] transition">Max</button>
+                <button type="button" onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#1A2C38] hover:bg-[#0F212E] text-[var(--font-sm)] font-bold text-[#FFFFFF] transition">1/2</button>
+                <button type="button" onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#1A2C38] hover:bg-[#0F212E] text-[var(--font-sm)] font-bold text-[#FFFFFF] transition">2x</button>
+                <button type="button" onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#1A2C38] hover:bg-[#0F212E] text-[var(--font-sm)] font-bold text-[#F5CF66] transition">Max</button>
               </div>
             </div>
           </div>
 
           <button type="button" id="btnAction" onclick="handleMainAction()"
-            class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
+            class="w-full py-3.5 green-btn text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
             Bet
           </button>
         </div>
 
         <div class="divider"></div>
 
-        <div class="flex items-center justify-between px-4 py-2.5 text-gray-400 text-sm bg-[#171d28]">
+        <div class="flex items-center justify-between px-4 py-2.5 text-[#FFFFFF] text-[var(--font-base)] bg-[#1A2C38]">
           <button onclick="toggleSettingsModal()" class="hover:text-[#24ee89] p-1.5" title="Settings">
             <i class="fa-solid fa-gear"></i>
           </button>
 
           <button onclick="handleRatingClick()" class="flex items-center gap-1.5 hover:text-[#24ee89] p-1.5 cursor-pointer" title="Rating">
-            <i class="fa-solid fa-star text-xs text-[#24ee89]"></i>
-            <span id="ratingDisplayCount" class="text-xs font-semibold">2635</span>
+            <i class="fa-solid fa-star text-[var(--font-xs)] text-[#24ee89]"></i>
+            <span id="ratingDisplayCount" class="text-[var(--font-sm)] font-semibold">2635</span>
           </button>
 
           <button id="turboBtn" onclick="toggleTurbo()" class="hover:text-[#24ee89] p-1.5 flex items-center gap-1" title="Turbo Mode">
-            <i id="turboIcon" class="fa-solid fa-bolt text-gray-400"></i>
-            <span id="turboText" class="text-[10px] font-bold">OFF</span>
+            <i id="turboIcon" class="fa-solid fa-bolt text-[#FFFFFF]"></i>
+            <span id="turboText" class="text-[var(--font-xs)] font-bold">OFF</span>
           </button>
 
           <button onclick="toggleLiveStatsModal()" class="hover:text-[#24ee89] p-1.5" title="Live Stats">
@@ -657,72 +427,72 @@ textarea:focus {
   </div>
 
   <div id="settingsModal" class="fixed inset-0 bg-black/60 z-[6000] hidden flex items-end justify-center backdrop-blur-sm">
-    <div class="main-wrapper w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 bg-[#171d28] border-t border-[#222b3a]">
-      <div class="flex justify-between items-center pb-2 border-b border-[#222b3a]">
-        <span class="font-bold text-white">Settings</span>
-        <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+    <div class="main-wrapper w-full max-w-md rounded-t-2xl p-4 flex flex-col gap-3 bg-[#1A2C38] border-t border-[#0F212E]">
+      <div class="flex justify-between items-center pb-2 border-b border-[#0F212E]">
+        <span class="font-bold text-[#FFFFFF]">Settings</span>
+        <button onclick="toggleSettingsModal()" class="text-[#FFFFFF] hover:text-[#24ee89]"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <button onclick="goToHelpPage()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
+      <button onclick="goToHelpPage()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#0F212E] rounded-lg text-left text-[var(--font-base)] text-[#FFFFFF]">
         <i class="fa-regular fa-circle-question w-5 text-[#24ee89]"></i> Help
       </button>
 
-      <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-sm text-[#24ee89]">
+      <button onclick="toggleSoundEffect()" id="soundSettingBtn" class="flex items-center justify-between py-2.5 px-3 hover:bg-[#0F212E] rounded-lg text-[var(--font-base)] text-[#24ee89]">
         <span class="flex items-center gap-3"><i class="fa-solid fa-volume-high w-5"></i> Sound Effects</span>
-        <span id="soundStatusText" class="text-xs font-bold">ON</span>
+        <span id="soundStatusText" class="text-[var(--font-sm)] font-bold">ON</span>
       </button>
 
-      <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
+      <button class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#0F212E] rounded-lg text-left text-[var(--font-base)] text-[#FFFFFF]">
         <i class="fa-solid fa-seedling w-5 text-[#24ee89]"></i> Seed
       </button>
 
-      <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-left text-sm text-gray-300">
+      <button onclick="shareGame()" class="flex items-center gap-3 py-2.5 px-3 hover:bg-[#0F212E] rounded-lg text-left text-[var(--font-base)] text-[#FFFFFF]">
         <i class="fa-solid fa-share-nodes w-5 text-[#24ee89]"></i> Share
       </button>
     </div>
   </div>
 
   <div id="liveStatsModal" class="fixed inset-0 bg-black/60 z-[6000] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="main-wrapper w-full max-w-sm rounded-2xl p-4 flex flex-col gap-3 shadow-2xl bg-[#171d28] border border-[#222b3a]">
+    <div class="main-wrapper w-full max-w-sm rounded-2xl p-4 flex flex-col gap-3 shadow-2xl bg-[#1A2C38] border border-[#0F212E]">
       <div class="flex justify-between items-center pb-2">
-        <span class="font-bold text-white text-base">Bet</span>
+        <span class="font-bold text-[#FFFFFF] text-[var(--font-md)]">Bet</span>
         <div class="flex items-center gap-2">
-          <button onclick="resetLiveStats()" class="text-gray-400 hover:text-white text-sm" title="Reset Stats">
+          <button onclick="resetLiveStats()" class="text-[#FFFFFF] hover:text-[#24ee89] text-[var(--font-base)]" title="Reset Stats">
             <i class="fa-solid fa-rotate-right"></i>
           </button>
-          <button onclick="toggleLiveStatsModal()" class="text-gray-400 hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+          <button onclick="toggleLiveStatsModal()" class="text-[#FFFFFF] hover:text-[#24ee89] text-[var(--font-base)]"><i class="fa-solid fa-xmark"></i></button>
         </div>
       </div>
 
-      <div class="bg-[#111620] border border-[#222b3a] rounded-xl p-3 grid grid-cols-2 gap-4 relative">
+      <div class="bg-[#0F212E] border border-[#0F212E] rounded-xl p-3 grid grid-cols-2 gap-4 relative">
         <div class="flex flex-col gap-1">
-          <span class="text-xs text-gray-400 font-medium">Profit</span>
-          <div class="flex items-center gap-1.5 text-sm font-extrabold text-[#24ee89]">
-            <span class="w-4 h-4 rounded-full bg-[#24ee89] text-[#0f141c] flex items-center justify-center text-[9px] font-black">৳</span>
+          <span class="text-[var(--font-sm)] text-[#FFFFFF] font-medium">Profit</span>
+          <div class="flex items-center gap-1.5 text-[var(--font-base)] font-extrabold text-[#24ee89]">
+            <span class="w-4 h-4 rounded-full bg-[#24ee89] text-[#0F212E] flex items-center justify-center text-[9px] font-black">৳</span>
             <span id="statsProfit">BDT 0.00</span>
           </div>
         </div>
 
-        <div class="flex flex-col gap-1 pl-3 border-l border-[#222b3a]">
-          <span class="text-xs text-gray-400 font-medium">WIN</span>
-          <span id="statsWin" class="text-sm font-extrabold text-[#24ee89]">0</span>
+        <div class="flex flex-col gap-1 pl-3 border-l border-[#0F212E]">
+          <span class="text-[var(--font-sm)] text-[#FFFFFF] font-medium">WIN</span>
+          <span id="statsWin" class="text-[var(--font-base)] font-extrabold text-[#24ee89]">0</span>
         </div>
 
-        <div class="flex flex-col gap-1 pt-2 border-t border-[#222b3a]/50">
-          <span class="text-xs text-gray-400 font-medium">Wagered</span>
-          <div class="flex items-center gap-1.5 text-sm font-extrabold text-white">
-            <span class="w-4 h-4 rounded-full bg-[#24ee89] text-[#0f141c] flex items-center justify-center text-[9px] font-black">৳</span>
+        <div class="flex flex-col gap-1 pt-2 border-t border-[#0F212E]/50">
+          <span class="text-[var(--font-sm)] text-[#FFFFFF] font-medium">Wagered</span>
+          <div class="flex items-center gap-1.5 text-[var(--font-base)] font-extrabold text-[#FFFFFF]">
+            <span class="w-4 h-4 rounded-full bg-[#24ee89] text-[#0F212E] flex items-center justify-center text-[9px] font-black">৳</span>
             <span id="statsWagered">BDT 0.00</span>
           </div>
         </div>
 
-        <div class="flex flex-col gap-1 pt-2 border-t border-[#222b3a]/50 pl-3 border-l border-[#222b3a]">
-          <span class="text-xs text-gray-400 font-medium">LOSE</span>
-          <span id="statsLose" class="text-sm font-extrabold text-[#ed4245]">0</span>
+        <div class="flex flex-col gap-1 pt-2 border-t border-[#0F212E]/50 pl-3 border-l border-[#0F212E]">
+          <span class="text-[var(--font-sm)] text-[#FFFFFF] font-medium">LOSE</span>
+          <span id="statsLose" class="text-[var(--font-base)] font-extrabold text-[#ed4245]">0</span>
         </div>
       </div>
 
-      <div class="bg-[#111620] border border-[#222b3a] rounded-xl h-44 relative overflow-hidden flex items-end">
+      <div class="bg-[#0F212E] border border-[#0F212E] rounded-xl h-44 relative overflow-hidden flex items-end">
         <svg id="statsAreaChart" class="w-full h-full" viewBox="0 0 320 140" preserveAspectRatio="none"></svg>
       </div>
     </div>
@@ -730,19 +500,19 @@ textarea:focus {
 
   <div id="historyModal" class="modal-overlay hidden">
     <div class="modal-content">
-      <div class="flex items-center justify-between p-4 border-b border-[#222b3a]">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+      <div class="flex items-center justify-between p-4 border-b border-[#0F212E]">
+        <h3 class="text-[var(--font-base)] font-bold text-[#FFFFFF] flex items-center gap-2">
           <i class="fa-solid fa-clock-rotate-left text-[#24ee89]"></i> Full History List
         </h3>
-        <button type="button" onclick="closeHistoryModal()" class="text-gray-400 hover:text-white px-2 py-1 text-sm font-bold">
+        <button type="button" onclick="closeHistoryModal()" class="text-[#FFFFFF] hover:text-[#24ee89] px-2 py-1 text-[var(--font-base)] font-bold">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <div class="p-4 overflow-y-auto flex-1 space-y-3" id="modalHistoryList"></div>
 
-      <div class="p-3 border-t border-[#222b3a] flex justify-center bg-[#0f141c]">
-        <button type="button" id="historyToggleBtn" onclick="toggleHistoryLimit()" class="px-4 py-1.5 rounded-lg bg-[#222b3a] hover:bg-[#2c3748] text-xs font-bold text-gray-300 transition">
+      <div class="p-3 border-t border-[#0F212E] flex justify-center bg-[#0F212E]">
+        <button type="button" id="historyToggleBtn" onclick="toggleHistoryLimit()" class="px-4 py-1.5 rounded-lg bg-[#1A2C38] hover:bg-[#283946] text-[var(--font-sm)] font-bold text-[#FFFFFF] transition">
           More
         </button>
       </div>
@@ -876,11 +646,11 @@ textarea:focus {
       if (isTurboOn) {
         icon.className = "fa-solid fa-bolt text-[#24ee89]";
         txt.innerText = "ON";
-        txt.className = "text-[10px] font-bold text-[#24ee89]";
+        txt.className = "text-[var(--font-xs)] font-bold text-[#24ee89]";
       } else {
-        icon.className = "fa-solid fa-bolt text-gray-400";
+        icon.className = "fa-solid fa-bolt text-[#FFFFFF]";
         txt.innerText = "OFF";
-        txt.className = "text-[10px] font-bold text-gray-400";
+        txt.className = "text-[var(--font-xs)] font-bold text-[#FFFFFF]";
       }
     }
 
@@ -890,10 +660,10 @@ textarea:focus {
       const txt = document.getElementById('soundStatusText');
 
       if (isSoundOn) {
-        btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-sm text-[#24ee89]";
+        btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#0F212E] rounded-lg text-[var(--font-base)] text-[#24ee89]";
         txt.innerText = "ON";
       } else {
-        btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#222b3a] rounded-lg text-sm text-gray-400";
+        btn.className = "flex items-center justify-between py-2.5 px-3 hover:bg-[#0F212E] rounded-lg text-[var(--font-base)] text-[#FFFFFF]";
         txt.innerText = "OFF";
       }
     }
@@ -952,7 +722,7 @@ textarea:focus {
           btnAction.classList.add('opacity-65', 'cursor-not-allowed');
         }
       } else {
-        inputElem.style.color = '#ffffff';
+        inputElem.style.color = '#FFFFFF';
         if (gameState === 'ready') {
           btnAction.disabled = false;
           btnAction.classList.remove('opacity-65', 'cursor-not-allowed');
@@ -1276,14 +1046,14 @@ textarea:focus {
 
       if (choice === 'heads') {
         btnHeads.className =
-          'py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition';
+          'py-3 rounded-xl bg-[#0F212E] border-2 border-[#24ee89] text-[#FFFFFF] text-[var(--font-sm)] font-bold flex items-center justify-center gap-2 transition';
         btnTails.className =
-          'py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition';
+          'py-3 rounded-xl bg-[#0F212E] border border-[#0F212E] text-[#FFFFFF] text-[var(--font-sm)] font-bold flex items-center justify-center gap-2 transition';
       } else {
         btnTails.className =
-          'py-3 rounded-xl bg-[#222b3a] border-2 border-[#24ee89] text-white text-xs font-bold flex items-center justify-center gap-2 transition';
+          'py-3 rounded-xl bg-[#0F212E] border-2 border-[#24ee89] text-[#FFFFFF] text-[var(--font-sm)] font-bold flex items-center justify-center gap-2 transition';
         btnHeads.className =
-          'py-3 rounded-xl bg-[#0f141c] border border-[#222b3a] text-gray-400 text-xs font-bold flex items-center justify-center gap-2 transition';
+          'py-3 rounded-xl bg-[#0F212E] border border-[#0F212E] text-[#FFFFFF] text-[var(--font-sm)] font-bold flex items-center justify-center gap-2 transition';
       }
 
       if (gameState === 'won_streak') {
@@ -1319,8 +1089,8 @@ textarea:focus {
         const isCrash = resStr === '0.00x';
 
         badge.className = isCrash
-          ? 'px-2 py-1 rounded-md text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 whitespace-nowrap'
-          : 'px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-500/20 text-[#24ee89] border border-emerald-500/30 whitespace-nowrap';
+          ? 'px-2 py-1 rounded-md text-[var(--font-xs)] font-bold bg-red-500/20 text-red-400 border border-red-500/30 whitespace-nowrap'
+          : 'px-2 py-1 rounded-md text-[var(--font-xs)] font-bold bg-emerald-500/20 text-[#24ee89] border border-emerald-500/30 whitespace-nowrap';
 
         badge.innerText = resStr;
         historyContainer.appendChild(badge);
@@ -1361,7 +1131,7 @@ textarea:focus {
 
       itemsToDisplay.forEach(resStr => {
         const row = document.createElement('div');
-        row.className = 'flex items-center justify-between border-b border-[#222b3a] py-2 px-1 text-xs';
+        row.className = 'flex items-center justify-between border-b border-[#0F212E] py-2 px-1 text-[var(--font-base)]';
 
         const isCrash = resStr === '0.00x';
         const gameId = 'GID-' + Math.floor(100000 + Math.random() * 900000);
@@ -1369,10 +1139,10 @@ textarea:focus {
 
         row.innerHTML = `
           <div class="flex flex-col gap-0.5">
-            <span class="text-gray-300 font-bold text-[11px]">${gameId}</span>
-            <span class="text-gray-500 font-mono text-[10px]">Hash: ${hashStr}</span>
+            <span class="text-[#FFFFFF] font-bold text-[var(--font-xs)]">${gameId}</span>
+            <span class="text-[#FFFFFF] font-mono text-[10px]">Hash: ${hashStr}</span>
           </div>
-          <span class="font-bold px-2 py-0.5 rounded text-[10px] border ${isCrash ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-[#24ee89] border-emerald-500/30'}">
+          <span class="font-bold px-2 py-0.5 rounded text-[var(--font-xs)] border ${isCrash ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-[#24ee89] border-emerald-500/30'}">
             ${resStr}
           </span>
         `;
@@ -1391,7 +1161,7 @@ textarea:focus {
       btn.disabled = disabled;
       btn.className =
         'w-full py-3.5 ' + color +
-        ' text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2';
+        ' text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2';
 
       btn.innerText = text;
     }
@@ -1401,4 +1171,295 @@ textarea:focus {
         return false;
       }
 
-      const { error } =
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({ balance: balance })
+        .eq('id', currentUserId);
+
+      if (error) {
+        console.error('Balance update error:', error);
+        return false;
+      }
+
+      return true;
+    }
+
+    async function handleMainAction() {
+      if (isFlipping || isProcessingAction) return;
+
+      if (gameState === 'ready') {
+        isProcessingAction = true;
+        setActionButton('Starting...', 'green-btn', true);
+
+        const amountInput = document.getElementById('betAmount');
+        const enteredAmount = Number(amountInput.value);
+
+        if (!Number.isFinite(enteredAmount) || enteredAmount < 1) {
+          isProcessingAction = false;
+          setActionButton('Bet', 'green-btn');
+          return;
+        }
+
+        if (!currentUserId) {
+          isProcessingAction = false;
+          setActionButton('Bet', 'green-btn');
+          document.getElementById('gameStatusText').innerHTML =
+            '<span style="color:#ed4245;font-weight:800">Please log in to play.</span>';
+          return;
+        }
+
+        if (enteredAmount > balance) {
+          isProcessingAction = false;
+          setActionButton('Bet', 'green-btn');
+          return;
+        }
+
+        activeBetAmount = enteredAmount;
+        resetStats();
+
+        if (activeBetAmount > 0) {
+          balance -= activeBetAmount;
+          updateBalanceUI();
+
+          const saved = await saveProfileBalance();
+
+          if (!saved) {
+            balance += activeBetAmount;
+            updateBalanceUI();
+
+            activeBetAmount = 0;
+            isProcessingAction = false;
+
+            setActionButton('Bet', 'green-btn');
+            return;
+          }
+        }
+
+        currentMultiplier = 1.91;
+        gameState = 'playing';
+        isProcessingAction = false;
+
+        executeFlip(true);
+      } else if (gameState === 'won_streak') {
+        await cashOut();
+      }
+    }
+
+    async function executeFlip(isFirstBet) {
+      if (isFlipping || isProcessingAction) return;
+      if (gameState !== 'playing' && gameState !== 'won_streak') return;
+
+      isFlipping = true;
+
+      const thisRound = roundToken;
+      const btn = document.getElementById('btnAction');
+      const statusText = document.getElementById('gameStatusText');
+      const coin = document.getElementById('coinElement');
+
+      btn.disabled = true;
+      btn.className =
+        'w-full py-3.5 green-btn text-[var(--font-base)] rounded-xl transition shadow flex items-center justify-center gap-2';
+      btn.innerText = 'Flipping...';
+
+      statusText.innerText = 'Coin is flipping...';
+
+      const outcome = Math.random() < 0.5 ? 'heads' : 'tails';
+
+      coin.classList.remove('flipping-heads', 'flipping-tails');
+      void coin.offsetWidth;
+
+      const flipDelay = isTurboOn ? 100 : 800;
+      coin.style.animationDuration = isTurboOn ? '0.1s' : '0.8s';
+
+      coin.classList.add(
+        outcome === 'heads' ? 'flipping-heads' : 'flipping-tails'
+      );
+
+      setTimeout(async () => {
+        if (thisRound !== roundToken) return;
+
+        const isWin = selectedChoice === outcome;
+        playClockBellSound();
+
+        if (isWin) {
+          if (isFirstBet) {
+            currentMultiplier = 1.91;
+            currentSeries = 1;
+          } else {
+            currentMultiplier = Number((currentMultiplier * 1.91).toFixed(2));
+            currentSeries++;
+          }
+
+          updateStatsUI();
+
+          const potentialWin = activeBetAmount > 0
+            ? activeBetAmount * currentMultiplier
+            : 0;
+
+          statusText.innerHTML =
+            '<span style="color:#24ee89;font-weight:800">(WIN) · ৳ ' +
+            potentialWin.toFixed(2) +
+            '</span>';
+
+          gameState = 'won_streak';
+          isFlipping = false;
+
+          setActionButton(
+            activeBetAmount > 0
+              ? 'Cash Out (৳ ' + potentialWin.toFixed(2) + ')'
+              : 'Continue (Demo)',
+            'red-btn'
+          );
+
+        } else {
+          statusText.innerHTML =
+            '<span style="color:#ed4245;font-weight:800">LOST! Better luck next time.</span>';
+
+          previousResults.push('0.00x');
+          if (previousResults.length > 50) previousResults.shift();
+          renderHistoryBar();
+
+          if (activeBetAmount > 0) {
+            updateLiveStatsUI(-activeBetAmount, activeBetAmount, false);
+          }
+
+          if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
+            const insertData = {
+              id: generateUUID(),
+              user_id: currentUserId,
+              game_name: 'Coin Flip',
+              bet_amount: activeBetAmount,
+              payout: 0,
+              multiplier: 0.00,
+              status: 'lost',
+              game_details: {
+                selected_choice: selectedChoice,
+                outcome: outcome,
+                series: currentSeries
+              }
+            };
+
+            const { error } = await supabaseClient
+              .from('original_bets_history')
+              .insert([insertData]);
+
+            if (error) {
+              console.error('Lost bet record error:', error);
+            }
+          }
+
+          resetGameUI();
+        }
+      }, flipDelay);
+    }
+
+    async function cashOut() {
+      if (isFlipping || isProcessingAction || gameState !== 'won_streak') {
+        return;
+      }
+
+      isProcessingAction = true;
+
+      const payoutAmount = activeBetAmount > 0
+        ? Number((activeBetAmount * currentMultiplier).toFixed(2))
+        : 0;
+
+      setActionButton('Processing Cash Out...', 'red-btn', true);
+
+      const recordedMultiplierStr = currentMultiplier.toFixed(2) + 'x';
+      previousResults.push(recordedMultiplierStr);
+      if (previousResults.length > 50) previousResults.shift();
+      renderHistoryBar();
+
+      const profit = payoutAmount - activeBetAmount;
+
+      if (activeBetAmount > 0) {
+        balance += payoutAmount;
+        updateBalanceUI();
+
+        const saved = await saveProfileBalance();
+
+        if (!saved) {
+          balance -= payoutAmount;
+          updateBalanceUI();
+
+          isProcessingAction = false;
+          setActionButton(
+            'Cash Out (৳ ' + payoutAmount.toFixed(2) + ')',
+            'red-btn'
+          );
+
+          document.getElementById('gameStatusText').innerHTML =
+            '<span style="color:#ed4245;font-weight:800">Balance update failed. Please try again.</span>';
+
+          return;
+        }
+
+        updateLiveStatsUI(profit, activeBetAmount, true);
+      }
+
+      if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
+        const insertData = {
+          id: generateUUID(),
+          user_id: currentUserId,
+          game_name: 'Coin Flip',
+          bet_amount: activeBetAmount,
+          payout: payoutAmount,
+          multiplier: currentMultiplier,
+          status: 'won',
+          game_details: {
+            selected_choice: selectedChoice,
+            series: currentSeries
+          }
+        };
+
+        const { error } = await supabaseClient
+          .from('original_bets_history')
+          .insert([insertData]);
+
+        if (error) {
+          console.error('Cashout bet record error:', error);
+        }
+      }
+
+      playClockBellSound();
+
+      document.getElementById('gameStatusText').innerHTML =
+        '<span style="color:#24ee89;font-weight:800">(Won): ৳ ' +
+        payoutAmount.toFixed(2) +
+        '</span>';
+
+      resetGameUI();
+    }
+
+    function resetGameUI() {
+      roundToken++;
+
+      gameState = 'ready';
+      isFlipping = false;
+      isProcessingAction = false;
+
+      activeBetAmount = 0;
+      resetStats();
+
+      const btn = document.getElementById('btnAction');
+      const coin = document.getElementById('coinElement');
+
+      coin.classList.remove('flipping-heads', 'flipping-tails');
+      void coin.offsetWidth;
+
+      btn.disabled = false;
+      btn.className =
+        'w-full py-3.5 green-btn text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2';
+      btn.innerText = 'Bet';
+
+      const amountInput = document.getElementById('betAmount');
+      if (amountInput) {
+        validateBetInputStyle(amountInput);
+      }
+    }
+
+    window.addEventListener('load', initCoinFlipGame);
+  </script>
+</body>
+</html>
