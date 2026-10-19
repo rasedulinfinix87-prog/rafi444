@@ -187,17 +187,17 @@
       <span>Menu</span>
     </button>
 
-    <a href="./search/search.html" class="nav-item">
+    <a href="/rafi444/search/search.html" class="nav-item">
       <i class="fa-solid fa-magnifying-glass"></i>
       <span>Search</span>
     </a>
 
-    <a href="./reward/reward.html" class="nav-item">
+    <a href="/rafi444/reward/reward.html" class="nav-item">
       <i class="fa-solid fa-gift"></i>
       <span>Reward</span>
     </a>
 
-    <a href="./sports/sports.html" class="nav-item">
+    <a href="/rafi444/sports/sports.html" class="nav-item">
       <i class="fa-solid fa-trophy"></i>
       <span>Sports</span>
     </a>
@@ -216,7 +216,7 @@
     </div>
 
     <div class="drawer-menu">
-      <a href="#" class="drawer-btn">
+      <a href="/rafi444/index.html" class="drawer-btn">
         <i class="fa-solid fa-house"></i>
         <span>Home</span>
       </a>
@@ -239,42 +239,30 @@
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const openDrawerBtn = document.getElementById('openDrawer');
-      const closeDrawerBtn = document.getElementById('closeDrawer');
-      const drawerOverlay = document.getElementById('drawerOverlay');
+    // ডাইনামিক বা রিমোটলি লোড হওয়ার সমস্যা এড়াতে গ্লোবাল ইভেন্ট লিসেনার ব্যবহার করা হলো
+    document.addEventListener("click", function (e) {
+      const openDrawerBtn = e.target.closest('#openDrawer');
+      const closeDrawerBtn = e.target.closest('#closeDrawer');
+      const drawerOverlay = e.target.closest('#drawerOverlay');
       const modalDrawer = document.getElementById('modalDrawer');
+      const drawerOverlayEl = document.getElementById('drawerOverlay');
 
-      // 1. Modal Drawer Open Logic
-      function openDrawer() {
-        if (modalDrawer && drawerOverlay) {
-          modalDrawer.classList.add('show');
-          drawerOverlay.classList.add('show');
-        }
-      }
-
-      // 2. Modal Drawer Close Logic
-      function closeDrawer() {
-        if (modalDrawer && drawerOverlay) {
-          modalDrawer.classList.remove('show');
-          drawerOverlay.classList.remove('show');
-        }
-      }
-
+      // মেনু বাটনে ক্লিক করলে ড্রয়ার ওপেন হবে
       if (openDrawerBtn) {
-        openDrawerBtn.addEventListener('click', function (e) {
-          e.preventDefault();
-          e.stopPropagation();
-          openDrawer();
-        });
+        e.preventDefault();
+        e.stopPropagation();
+        if (modalDrawer && drawerOverlayEl) {
+          modalDrawer.classList.add('show');
+          drawerOverlayEl.classList.add('show');
+        }
       }
 
-      if (closeDrawerBtn) {
-        closeDrawerBtn.addEventListener('click', closeDrawer);
-      }
-
-      if (drawerOverlay) {
-        drawerOverlay.addEventListener('click', closeDrawer);
+      // ক্লোজ বা ওভার্লেতে ক্লিক করলে ড্রয়ার বন্ধ হবে
+      if (closeDrawerBtn || (drawerOverlay && e.target === drawerOverlayEl)) {
+        if (modalDrawer && drawerOverlayEl) {
+          modalDrawer.classList.remove('show');
+          drawerOverlayEl.classList.remove('show');
+        }
       }
     });
   </script>
