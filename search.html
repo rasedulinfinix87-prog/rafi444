@@ -28,7 +28,7 @@
   </style>
 </head>
 <body class="font-sans antialiased">
-  <!-- Top bar loaded from root /bar/top.html -->
+  <!-- Top bar loaded from root bar/top.html -->
   <div id="topBarContainer"></div>
 
   <main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
@@ -96,7 +96,7 @@
     </div>
   </main>
 
-  <!-- Bottom bar loaded from root /bar/bottom.html -->
+  <!-- Bottom bar loaded from root bar/bottom.html -->
   <div id="bottomBarContainer"></div>
 
   <script>
@@ -107,6 +107,7 @@
       let filteredGames = [];
       let visibleLimit = 12;
       let activeCategory = 'all';
+      let balanceSubscription = null;
 
       const grid = document.getElementById('gamesGrid');
       const searchInput = document.getElementById('gameSearch');
@@ -120,13 +121,53 @@
 
       const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
 
-      // GitHub Pages এর সাব-ফোল্ডার বা ইউজারনেম প্রিফিক্স স্বয়ংক্রিয়ভাবে বের করার ফাংশন
+      // GitHub Pages বা রুট সাব-ফোল্ডারের জন্য প্রিফিক্স বের করা
       function getRepoPrefix() {
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
         if (pathSegments.length > 0 && !pathSegments[pathSegments.length - 1].includes('.html')) {
           return '/' + pathSegments[0];
         }
         return '';
+      }
+
+      // Supabase Realtime User Balance Sync (index.html এর আদলে যুক্ত করা হয়েছে)
+      async function syncRealtimeUserBalance() { 
+        try { 
+          if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') { 
+            const user = await getCurrentUser(); 
+            if (user) { 
+              const { data: profile } = await supabaseClient 
+                .from('profiles') 
+                .select('balance') 
+                .eq('id', user.id) 
+                .single(); 
+              const balanceElement = document.getElementById('topBarBalance'); 
+              if (profile && balanceElement) { 
+                balanceElement.innerText = parseFloat(profile.balance).toFixed(2); 
+              } 
+              if (!balanceSubscription) { 
+                balanceSubscription = supabaseClient 
+                  .channel('public:profiles:' + user.id) 
+                  .on('postgres_changes', { 
+                      event: 'UPDATE', 
+                      schema: 'public', 
+                      table: 'profiles', 
+                      filter: `id=eq.${user.id}` 
+                  }, (payload) => { 
+                      if (payload.new && payload.new.balance !== undefined) { 
+                          const topBal = document.getElementById('topBarBalance'); 
+                          if (topBal) { 
+                              topBal.innerText = parseFloat(payload.new.balance).toFixed(2); 
+                          } 
+                      } 
+                  }) 
+                  .subscribe(); 
+              } 
+            } 
+          } 
+        } catch (err) { 
+          console.error('Balance Sync Error:', err); 
+        } 
       }
 
       async function fetchGamesFromSupabase() {
@@ -274,15 +315,16 @@
         renderGrid();
       });
 
-      // Top Bar Loader (index.html ফাইলের মতো নিরাপদ ফেচ লজিক)
+      // Top Bar Loader (main root এর জন্য সঠিক পাথ bar/top.html)
       async function loadTopBar() {
         try {
           const repoPrefix = getRepoPrefix();
-          const url = (repoPrefix ? repoPrefix : '') + '/bar/top.html';
+          const url = (repoPrefix ? repoPrefix : '') + 'bar/top.html';
           const response = await fetch(url);
           if (response.ok) {
             const html = await response.text();
             document.getElementById('topBarContainer').innerHTML = html;
+            syncRealtimeUserBalance();
           } else {
             console.error('Error loading top bar:', response.status);
           }
@@ -291,11 +333,11 @@
         }
       }
 
-      // Bottom Bar Loader
+      // Bottom Bar Loader (main root এর জন্য সঠিক পাথ bar/bottom.html)
       async function loadBottomBar() {
         try {
           const repoPrefix = getRepoPrefix();
-          const url = (repoPrefix ? repoPrefix : '') + '/bar/bottom.html';
+          const url = (repoPrefix ? repoPrefix : '') + 'bar/bottom.html';
           const response = await fetch(url);
           if (response.ok) {
             const html = await response.text();
