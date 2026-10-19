@@ -30,8 +30,30 @@ function syncCalculations(source){let v=Number($('diceRange').value);if(source==
 $('diceRange').addEventListener('input',()=>syncCalculations('slider'));$('winChanceInput').addEventListener('change',()=>syncCalculations('chance'));$('payoutInput').addEventListener('change',()=>syncCalculations('payout'));
 function toggleDirection(){if(isRolling)return;rollDirection=rollDirection==='over'?'under':'over';$('dirToggleBtn').classList.toggle('text-[#24ee89]',rollDirection==='under');syncCalculations('chance')}function modifyBet(t){let n=Number($('betAmount').value)||0;if(t==='half')n=Math.max(1,Math.floor(n/2));if(t==='double')n=Math.floor(n*2);if(t==='max')n=Math.floor(balance);$('betAmount').value=n}
 function triggerBet(){if(activeTab==='auto'){if(isAutoRunning)stopAutoBet();else startAutoBet();return}executeRoll()}
+function generateUUID(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16)})}
+
 async function executeRoll(){if(isRolling)return false;const amount=Number($('betAmount').value)||0,target=Number($('diceRange').value);if(amount>0&&amount<1){alert('সর্বনিম্ন বেট ১ টাকা হতে হবে!');stopAutoBet();return false}if(amount>0&&!currentUserId){alert('বেট করার আগে লগইন করুন।');stopAutoBet();return false}if(amount>0&&amount>balance){alert('আপনার ব্যালেন্সে পর্যাপ্ত টাকা নেই।');stopAutoBet();return false}isRolling=true;$('btnBet').disabled=true;$('btnBet').textContent='Rolling...';let result,won,multiplier,payout=0,newBalance=balance;
 try{if(amount>0){const {data,error}=await supabaseClient.rpc('place_dice_bet',{p_bet_amount:amount,p_target_number:target,p_roll_direction:rollDirection});if(error)throw error;const d=Array.isArray(data)?data[0]:data;if(!d||d.success!==true)throw Error('বেটের ফলাফল পাওয়া যায়নি');result=Number(d.roll_result);won=!!d.is_win;multiplier=Number(d.payout_multiplier);newBalance=Number(d.balance);payout=won?amount*multiplier:0;updateUIBalance(newBalance)}else{result=Number((Math.random()*99.99).toFixed(2));won=rollDirection==='over'?result>target:result<target;multiplier=Number($('payoutInput').value)||1.98}
+
+// original_bets_history টেবিলে ডাটা সেভ করা হচ্ছে
+if(currentUserId&&amount>0&&typeof supabaseClient!=='undefined'){
+  const insertData={
+    id:generateUUID(),
+    user_id:currentUserId,
+    game_name:'Dice',
+    bet_amount:amount,
+    payout:payout,
+    multiplier:multiplier,
+    status:won?'won':'lost',
+    game_details:{
+      target_number:target,
+      roll_direction:rollDirection,
+      roll_result:result
+    }
+  };
+  await supabaseClient.from('original_bets_history').insert([insertData]);
+}
+
 $('diceResultBox').style.display='block';$('diceResultBox').style.left=result+'%';$('diceResultText').textContent=result.toFixed(2);$('diceResultText').className=won?'text-[#24ee89]':'text-red-500';await new Promise(r=>setTimeout(r,isTurboOn?50:400));playSound(won);totalWagered+=amount;if(won){consecutiveWins++;consecutiveLosses=0;totalWins++;totalProfit+=amount>0?payout-amount:0}else{consecutiveLosses++;consecutiveWins=0;totalLosses++;totalProfit-=amount}profitHistory.push(totalProfit);$('statsProfit').textContent='৳ '+totalProfit.toFixed(2);$('statsWagered').textContent='৳ '+totalWagered.toFixed(2);$('statsWin').textContent=totalWins;$('statsLose').textContent=totalLosses;updateGraph();addHistoryPill(result.toFixed(2),won);
 if(isAutoRunning){if(won&&autoWinStrategy==='increase'){const p=Number($('winIncPercent').value)||0;$('betAmount').value=Math.max(1,Math.floor((Number($('betAmount').value)||0)*(1+p/100)))}else if(won)$('betAmount').value=baseBetAmount;else if(autoLossStrategy==='increase'){const p=Number($('lossIncPercent').value)||0;$('betAmount').value=Math.max(1,Math.floor((Number($('betAmount').value)||0)*(1+p/100)))}else $('betAmount').value=baseBetAmount;
 const net=totalProfit;if(Number($('autoStopProfit').value)>0&&net>=Number($('autoStopProfit').value))stopAutoBet();if(Number($('autoStopLoss').value)>0&&net<=-Math.abs(Number($('autoStopLoss').value)))stopAutoBet();if(amount>0&&balance<Number($('betAmount').value))stopAutoBet()}
