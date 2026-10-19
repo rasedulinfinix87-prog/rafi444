@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,19 +13,30 @@
   <script src="../supabase-config.js"></script>
 
   <style>
+    :root {
+      --font-xs: 11px;
+      --font-sm: 12px;
+      --font-base: 14px;
+      --font-md: 16px;
+      --font-lg: 18px;
+      --font-xl: 22px;
+      --font-2xl: 28px;
+      --font-3xl: 32px;
+    }
+
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
-    ::-webkit-scrollbar-track { background: #0f141c; }
+    ::-webkit-scrollbar-track { background: #0F212E; }
     ::-webkit-scrollbar-thumb {
-      background: #21262d;
+      background: #1A2C38;
       border-radius: 4px;
     }
 
     .bonus-card {
-      background: #161b22;
-      border: 1px solid #252e3b;
+      background: #1A2C38;
+      border: 1px solid #0F212E;
       border-radius: 12px;
       padding: 12px 8px;
       text-align: center;
@@ -47,13 +57,13 @@
 
     .bonus-percent {
       color: #24ee89;
-      font-size: 15px;
+      font-size: var(--font-md);
       font-weight: 900;
     }
 
     .bonus-subtitle {
-      color: #9ca3af;
-      font-size: 10px;
+      color: #FFFFFF;
+      font-size: var(--font-xs);
       margin-top: 5px;
     }
 
@@ -62,75 +72,75 @@
       justify-content: space-between;
       align-items: center;
       gap: 10px;
-      font-size: 12px;
+      font-size: var(--font-sm);
     }
   </style>
 </head>
 
-<body class="bg-[#0f141c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
+<body class="bg-[#0F212E] text-[#FFFFFF] min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
 
   <!-- Header -->
-  <header class="bg-[#161b22] border-b border-gray-800/80 px-4 py-3.5 flex justify-between items-center sticky top-0 z-40">
-    <a href="profile.html" class="text-xs text-gray-400 hover:text-white transition flex items-center gap-1 font-semibold">
+  <header class="bg-[#1A2C38] border-b border-[#0F212E] px-4 py-3.5 flex justify-between items-center sticky top-0 z-40">
+    <a href="profile.html" class="text-[var(--font-xs)] text-[#FFFFFF] hover:text-white transition flex items-center gap-1 font-semibold">
       ← Profile
     </a>
-    <span class="font-black text-sm text-[#24ee89] tracking-wide uppercase">Deposit</span>
+    <span class="font-black text-[var(--font-sm)] text-[#24ee89] tracking-wide uppercase">Deposit</span>
     <div class="w-12"></div>
   </header>
 
   <main class="max-w-md w-full mx-auto p-4 space-y-6 flex-1 pb-10">
 
     <!-- Alert Box -->
-    <div id="alertBox" class="hidden p-3 rounded-xl text-xs font-semibold shadow-md transition-all"></div>
+    <div id="alertBox" class="hidden p-3 rounded-xl text-[var(--font-xs)] font-semibold shadow-md transition-all"></div>
 
     <!-- Deposit Method Section -->
     <section class="space-y-2">
-      <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
+      <div class="flex items-center gap-1.5 text-[var(--font-xs)] font-bold text-[#FFFFFF]">
         <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
         <span>Deposit Method</span>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="methodGrid">
-        <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card relative bg-[#161b22] border-2 border-[#24ee89] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 transition">
-          <span class="text-xs font-black text-pink-500">bKash</span>
-          <span class="text-[10px] font-bold text-gray-300">Send Money bKash</span>
+        <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card relative bg-[#1A2C38] border-2 border-[#24ee89] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 transition">
+          <span class="text-[var(--font-xs)] font-black text-pink-500">bKash</span>
+          <span class="text-[10px] font-bold text-[#FFFFFF]">Send Money bKash</span>
         </button>
 
-        <button type="button" onclick="selectMethod('Nagad')" id="method-Nagad" class="method-card relative bg-[#161b22] border border-gray-800 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 hover:border-gray-700 transition">
-          <span class="text-xs font-black text-orange-500">NAGAD</span>
-          <span class="text-[10px] font-bold text-gray-300">Send Money Nagad</span>
+        <button type="button" onclick="selectMethod('Nagad')" id="method-Nagad" class="method-card relative bg-[#1A2C38] border border-[#0F212E] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 hover:border-[#0F212E] transition">
+          <span class="text-[var(--font-xs)] font-black text-orange-500">NAGAD</span>
+          <span class="text-[10px] font-bold text-[#FFFFFF]">Send Money Nagad</span>
         </button>
 
-        <button type="button" onclick="selectMethod('Rocket')" id="method-Rocket" class="method-card relative bg-[#161b22] border border-gray-800 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 hover:border-gray-700 transition">
-          <span class="text-xs font-black text-purple-500">ROCKET</span>
-          <span class="text-[10px] font-bold text-gray-300">Rocket Pay</span>
+        <button type="button" onclick="selectMethod('Rocket')" id="method-Rocket" class="method-card relative bg-[#1A2C38] border border-[#0F212E] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 hover:border-[#0F212E] transition">
+          <span class="text-[var(--font-xs)] font-black text-purple-500">ROCKET</span>
+          <span class="text-[10px] font-bold text-[#FFFFFF]">Rocket Pay</span>
         </button>
       </div>
     </section>
 
     <!-- Deposit Amounts Quick Selection -->
     <section class="space-y-2">
-      <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
+      <div class="flex items-center gap-1.5 text-[var(--font-xs)] font-bold text-[#FFFFFF]">
         <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
         <span>Deposit Amounts</span>
       </div>
 
       <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
-        <button type="button" onclick="setAmount(100)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">100</button>
-        <button type="button" onclick="setAmount(200)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">200</button>
-        <button type="button" onclick="setAmount(500)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">500</button>
-        <button type="button" onclick="setAmount(1000)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">1,000</button>
-        <button type="button" onclick="setAmount(2000)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">2,000</button>
-        <button type="button" onclick="setAmount(5000)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">5,000</button>
-        <button type="button" onclick="setAmount(10000)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">10,000</button>
-        <button type="button" onclick="setAmount(25000)" class="amount-btn bg-[#161b22] border border-gray-800 hover:border-[#24ee89] rounded-xl py-2 text-xs font-bold transition">25,000</button>
+        <button type="button" onclick="setAmount(100)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2 text-[var(--font-xs)] font-bold transition">100</button>
+        <button type="button" onclick="setAmount(200)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2 text-[var(--font-xs)] font-bold transition">200</button>
+        <button type="button" onclick="setAmount(500)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2 text-[var(--font-xs)] font-bold transition">500</button>
+        <button type="button" onclick="setAmount(1000)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2 text-[var(--font-xs)] font-bold transition">1,000</button>
+        <button type="button" onclick="setAmount(2000)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2 text-[var(--font-xs)] font-bold transition">2,000</button>
+        <button type="button" onclick="setAmount(5000)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2 text-[var(--font-xs)] font-bold transition">5,000</button>
+        <button type="button" onclick="setAmount(10000)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2 text-[var(--font-xs)] font-bold transition">10,000</button>
+        <button type="button" onclick="setAmount(25000)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2 text-[var(--font-xs)] font-bold transition">25,000</button>
       </div>
 
       <!-- Custom Amount Input -->
       <div class="pt-2">
         <div class="relative flex items-center">
-          <span class="absolute left-3 text-xs text-gray-500 font-bold">৳</span>
-          <input type="number" id="customAmount" min="100" max="25000" step="1" placeholder="100 - 25,000 BDT" class="w-full bg-[#161b22] border border-gray-800 rounded-xl pl-7 pr-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#24ee89] font-semibold placeholder-gray-600">
+          <span class="absolute left-3 text-[var(--font-xs)] text-[#FFFFFF] font-bold">৳</span>
+          <input type="number" id="customAmount" min="100" max="25000" step="1" placeholder="100 - 25,000 BDT" class="w-full bg-[#1A2C38] border border-[#0F212E] rounded-xl pl-7 pr-3 py-2.5 text-[var(--font-xs)] text-[#FFFFFF] focus:outline-none focus:border-[#24ee89] font-semibold placeholder-[#FFFFFF]">
         </div>
       </div>
     </section>
@@ -138,60 +148,60 @@
     <!-- OPTIONAL DEPOSIT BONUS -->
     <section class="space-y-3">
       <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-1.5 text-xs font-bold text-gray-300">
+        <div class="flex items-center gap-1.5 text-[var(--font-xs)] font-bold text-[#FFFFFF]">
           <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
           <span>Deposit Bonus</span>
         </div>
-        <span class="text-[10px] text-gray-500">Optional</span>
+        <span class="text-[10px] text-[#FFFFFF]">Optional</span>
       </div>
 
       <!-- Bonus Options -->
       <div id="bonusGrid" class="grid grid-cols-2 gap-2">
         <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
-          <div class="text-sm font-black text-white">No Bonus</div>
+          <div class="text-[var(--font-sm)] font-black text-[#FFFFFF]">No Bonus</div>
           <div class="bonus-subtitle">1× Turnover</div>
         </button>
       </div>
 
-      <p id="bonusLoading" class="text-[10px] text-gray-500">
+      <p id="bonusLoading" class="text-[10px] text-[#FFFFFF]">
         Loading available bonuses...
       </p>
 
       <!-- Deposit Calculation -->
-      <div class="bg-[#161b22] border border-gray-800 rounded-xl p-3.5 space-y-3">
+      <div class="bg-[#1A2C38] border border-[#0F212E] rounded-xl p-3.5 space-y-3">
         <div class="summary-row">
-          <span class="text-gray-400">Deposit Amount</span>
-          <span id="summaryDeposit" class="font-bold text-white">৳0.00</span>
+          <span class="text-[#FFFFFF]">Deposit Amount</span>
+          <span id="summaryDeposit" class="font-bold text-[#FFFFFF]">৳0.00</span>
         </div>
 
         <div class="summary-row">
-          <span class="text-gray-400">Bonus Amount</span>
+          <span class="text-[#FFFFFF]">Bonus Amount</span>
           <span id="summaryBonus" class="font-bold text-[#24ee89]">+৳0.00</span>
         </div>
 
-        <div class="border-t border-gray-800 pt-3 summary-row">
-          <span class="font-bold text-gray-300">Total After Bonus</span>
-          <span id="summaryTotal" class="font-black text-lg text-[#24ee89]">৳0.00</span>
+        <div class="border-t border-[#0F212E] pt-3 summary-row">
+          <span class="font-bold text-[#FFFFFF]">Total After Bonus</span>
+          <span id="summaryTotal" class="font-black text-[var(--font-lg)] text-[#24ee89]">৳0.00</span>
         </div>
 
         <div class="summary-row">
-          <span class="text-gray-400">Turnover Multiplier</span>
+          <span class="text-[#FFFFFF]">Turnover Multiplier</span>
           <span id="summaryMultiplier" class="font-bold text-amber-400">1×</span>
         </div>
 
         <div class="summary-row">
-          <span class="text-gray-400">Required Turnover</span>
-          <span id="summaryTurnover" class="font-extrabold text-white">৳0.00</span>
+          <span class="text-[#FFFFFF]">Required Turnover</span>
+          <span id="summaryTurnover" class="font-extrabold text-[#FFFFFF]">৳0.00</span>
         </div>
 
-        <p class="text-[10px] text-gray-500 leading-relaxed">
+        <p class="text-[10px] text-[#FFFFFF] leading-relaxed">
           Turnover is calculated on the deposit amount plus bonus. The bonus and funds are subject to payment verification.
         </p>
       </div>
     </section>
 
     <!-- Next Action Button -->
-    <button type="button" onclick="openPaymentModal()" class="w-full bg-[#24ee89] text-black font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition shadow-lg shadow-[#24ee89]/10">
+    <button type="button" onclick="openPaymentModal()" class="w-full bg-[#24ee89] text-[#0F212E] font-extrabold py-3 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition shadow-lg shadow-[#24ee89]/10">
       Next
     </button>
 
@@ -199,58 +209,58 @@
 
   <!-- STEP 1: PAYMENT MODAL POPUP -->
   <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-[#161b22] border border-gray-800 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
-      <button type="button" onclick="closeModal('paymentModal')" class="absolute top-3 right-3 text-gray-500 hover:text-white text-base">✕</button>
+    <div class="bg-[#1A2C38] border border-[#0F212E] rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
+      <button type="button" onclick="closeModal('paymentModal')" class="absolute top-3 right-3 text-[#FFFFFF] hover:text-white text-[var(--font-base)]">✕</button>
 
-      <div class="text-center border-b border-gray-800/80 pb-3">
-        <h3 class="text-sm font-black text-[#24ee89]">Confirm Payment</h3>
-        <p class="text-[10px] text-gray-400 mt-0.5">Follow instructions to complete deposit</p>
+      <div class="text-center border-b border-[#0F212E] pb-3">
+        <h3 class="text-[var(--font-sm)] font-black text-[#24ee89]">Confirm Payment</h3>
+        <p class="text-[10px] text-[#FFFFFF] mt-0.5">Follow instructions to complete deposit</p>
       </div>
 
       <!-- Payment Information -->
-      <div class="bg-[#0f141c] border border-gray-800/80 rounded-xl p-3.5 space-y-2.5 text-xs">
+      <div class="bg-[#0F212E] border border-[#0F212E] rounded-xl p-3.5 space-y-2.5 text-[var(--font-xs)]">
         <div class="flex justify-between items-center">
-          <span class="text-gray-400">Method:</span>
-          <span id="modalMethod" class="font-bold text-white">bKash</span>
+          <span class="text-[#FFFFFF]">Method:</span>
+          <span id="modalMethod" class="font-bold text-[#FFFFFF]">bKash</span>
         </div>
 
         <div class="flex justify-between items-center">
-          <span class="text-gray-400">Deposit Amount:</span>
-          <span id="modalAmount" class="font-extrabold text-white">0 BDT</span>
+          <span class="text-[#FFFFFF]">Deposit Amount:</span>
+          <span id="modalAmount" class="font-extrabold text-[#FFFFFF]">0 BDT</span>
         </div>
 
         <div class="flex justify-between items-center">
-          <span class="text-gray-400">Bonus:</span>
+          <span class="text-[#FFFFFF]">Bonus:</span>
           <span id="modalBonus" class="font-bold text-[#24ee89]">0 BDT</span>
         </div>
 
-        <div class="flex justify-between items-center border-t border-gray-800/60 pt-2">
-          <span class="text-gray-400">Total After Bonus:</span>
+        <div class="flex justify-between items-center border-t border-[#0F212E] pt-2">
+          <span class="text-[#FFFFFF]">Total After Bonus:</span>
           <span id="modalTotal" class="font-black text-[#24ee89]">0 BDT</span>
         </div>
 
         <div class="flex justify-between items-center">
-          <span class="text-gray-400">Required Turnover:</span>
+          <span class="text-[#FFFFFF]">Required Turnover:</span>
           <span id="modalTurnover" class="font-bold text-amber-400">0 BDT</span>
         </div>
 
-        <div class="flex justify-between items-center border-t border-gray-800/60 pt-2">
-          <span class="text-gray-400">Send Money To:</span>
+        <div class="flex justify-between items-center border-t border-[#0F212E] pt-2">
+          <span class="text-[#FFFFFF]">Send Money To:</span>
           <div class="flex items-center gap-1.5">
             <span id="modalNumber" class="font-black text-amber-400 tracking-wider">Loading...</span>
-            <button type="button" onclick="copyNumber()" class="text-[10px] bg-gray-800 hover:bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">Copy</button>
+            <button type="button" onclick="copyNumber()" class="text-[10px] bg-[#1A2C38] hover:bg-[#0F212E] text-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#0F212E]">Copy</button>
           </div>
         </div>
       </div>
 
       <!-- Transaction ID Input Field -->
       <div class="space-y-1">
-        <label for="modalTrxId" class="block text-[11px] font-bold text-gray-300">Transaction ID (TrxID)</label>
-        <input type="text" id="modalTrxId" placeholder="e.g. 9J83KS92" class="w-full bg-[#0f141c] border border-gray-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-[#24ee89] tracking-wider uppercase font-mono">
+        <label for="modalTrxId" class="block text-[var(--font-xs)] font-bold text-[#FFFFFF]">Transaction ID (TrxID)</label>
+        <input type="text" id="modalTrxId" placeholder="e.g. 9J83KS92" class="w-full bg-[#0F212E] border border-[#0F212E] rounded-xl px-3 py-2.5 text-[var(--font-xs)] text-[#FFFFFF] focus:outline-none focus:border-[#24ee89] tracking-wider uppercase font-mono">
       </div>
 
       <!-- Modal Submit Button -->
-      <button type="button" id="submitDepositBtn" onclick="submitDeposit()" class="w-full bg-[#24ee89] text-black font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition">
+      <button type="button" id="submitDepositBtn" onclick="submitDeposit()" class="w-full bg-[#24ee89] text-[#0F212E] font-extrabold py-2.5 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition">
         Submit Request
       </button>
     </div>
@@ -258,17 +268,17 @@
 
   <!-- STEP 2: SUCCESS VERIFICATION MODAL POPUP -->
   <div id="verificationModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-[#161b22] border border-gray-800 rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
-      <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-xl">
+    <div class="bg-[#1A2C38] border border-[#0F212E] rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-[var(--font-lg)]">
         ✓
       </div>
 
       <div>
-        <h3 class="text-base font-black text-white">Payment Verification</h3>
-        <p class="text-xs text-gray-400 mt-1">Your deposit request is currently being verified. Your deposit and bonus will be credited only after the payment is approved.</p>
+        <h3 class="text-[var(--font-md)] font-black text-[#FFFFFF]">Payment Verification</h3>
+        <p class="text-[var(--font-xs)] text-[#FFFFFF] mt-1">Your deposit request is currently being verified. Your deposit and bonus will be credited only after the payment is approved.</p>
       </div>
 
-      <button type="button" onclick="finishDeposit()" class="w-full bg-[#24ee89] text-black font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wider hover:bg-emerald-400 transition">
+      <button type="button" onclick="finishDeposit()" class="w-full bg-[#24ee89] text-[#0F212E] font-extrabold py-2.5 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition">
         Done
       </button>
     </div>
@@ -315,7 +325,6 @@
 
       let bonusAmount = amount * percent / 100;
 
-      // A zero or NULL max_bonus means no bonus cap.
       if (maxBonus > 0) {
         bonusAmount = Math.min(bonusAmount, maxBonus);
       }
@@ -330,7 +339,6 @@
       };
     }
 
-    // Initialize Auth, payment numbers and bonus settings.
     async function init() {
       try {
         const storedUser = localStorage.getItem('current_user');
@@ -404,7 +412,7 @@
 
       alertBox.innerText = msg;
       alertBox.className =
-        `p-3 rounded-xl text-xs font-semibold ${
+        `p-3 rounded-xl text-[var(--font-xs)] font-semibold ${
           isSuccess
             ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700'
             : 'bg-red-900/50 text-red-300 border border-red-700'
@@ -418,13 +426,13 @@
 
       document.querySelectorAll('.method-card').forEach(card => {
         card.classList.remove('border-[#24ee89]', 'border-2');
-        card.classList.add('border-gray-800');
+        card.classList.add('border-[#0F212E]');
       });
 
       const activeBtn = document.getElementById(`method-${method}`);
 
       if (activeBtn) {
-        activeBtn.classList.remove('border-gray-800');
+        activeBtn.classList.remove('border-[#0F212E]');
         activeBtn.classList.add('border-[#24ee89]', 'border-2');
       }
     }
@@ -435,14 +443,13 @@
       updateCalculation();
     }
 
-    // Render optional bonus cards from Supabase.
     function renderBonusOptions() {
       const grid = document.getElementById('bonusGrid');
       const loading = document.getElementById('bonusLoading');
 
       grid.innerHTML = `
         <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
-          <div class="text-sm font-black text-white">No Bonus</div>
+          <div class="text-[var(--font-sm)] font-black text-[#FFFFFF]">No Bonus</div>
           <div class="bonus-subtitle">1× Turnover</div>
         </button>
       `;
@@ -455,7 +462,7 @@
         button.className = 'bonus-card';
 
         const title = document.createElement('div');
-        title.className = 'text-xs font-extrabold text-white';
+        title.className = 'text-[var(--font-xs)] font-extrabold text-[#FFFFFF]';
         title.textContent = bonus.title || `${bonus.bonus_percent}% Bonus`;
 
         const percent = document.createElement('div');
@@ -504,7 +511,6 @@
       const amount = getDepositAmount();
       const validAmount = Number.isFinite(amount) && amount > 0 ? amount : 0;
 
-      // Enforce the bonus's configured minimum deposit.
       if (selectedBonus && validAmount < Number(selectedBonus.min_deposit || 0)) {
         document.getElementById('bonusLoading').textContent =
           `This bonus requires a minimum deposit of ৳${money(selectedBonus.min_deposit)}. Select a higher amount or choose No Bonus.`;
@@ -641,7 +647,6 @@
       btn.innerText = 'Processing...';
 
       try {
-        // Check duplicate TrxID before inserting.
         const { data: existingTrx, error: duplicateError } =
           await supabaseClient
             .from('deposits')
@@ -658,8 +663,6 @@
           return;
         }
 
-        // Save bonus and turnover details with the pending deposit.
-        // Do not credit balance or bonus from this client-side page.
         const depositRecord = {
           user_id: currentUserId,
           amount: selectedAmount,
