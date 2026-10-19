@@ -1,304 +1,218 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search Games</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #0f141c; color: #fff; }
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: #0f141c; }
-    ::-webkit-scrollbar-thumb { background: #222b3a; border-radius: 4px; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-    body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
-    #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
-    #bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
-    .category-btn { white-space: nowrap; }
-    .game-card { min-width: 0; min-height: 154px; }
-    .game-art { min-height: 154px; }
-    @media (min-width: 640px) {
-      .game-card, .game-art { min-height: 210px; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Search - Game Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client & App Config (Path adjusted with ../) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-config.js"></script>
+    <style>
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1b2438; border-radius: 4px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body {
+            background-color: #0b0e14;
+            color: #ffffff;
+            font-family: sans-serif;
+        }
+    </style>
 </head>
-<body class="font-sans antialiased">
-  
-  <!-- Top bar -->
-  <div id="topBarContainer"></div>
+<body class="bg-[#0b0e14] text-white min-h-screen flex flex-col font-sans antialiased">
 
-  <main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
-    <!-- Search -->
-    <div class="bg-[#171d28] border border-[#222b3a] rounded-2xl p-3 flex items-center gap-3">
-      <div class="flex items-center gap-1.5 px-3 py-2 bg-[#1f293a] rounded-xl text-xs font-semibold">
-        <span>Casino</span><i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
-      </div>
-      <div class="h-6 w-px bg-[#2d3748]"></div>
-      <i class="fa-solid fa-magnifying-glass text-gray-400 text-sm"></i>
-      <input id="gameSearch" type="search" placeholder="Search games..." autocomplete="off"
-        class="bg-transparent text-white placeholder-gray-500 focus:outline-none w-full text-sm">
-      <button id="clearSearch" type="button" aria-label="Clear search" class="hidden text-gray-400 hover:text-white px-1">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+    <!-- Top Navigation Bar Container -->
+    <div id="topBarContainer" class="sticky top-0 z-50"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="flex-1 max-w-md w-full mx-auto p-4 pb-20">
+
+        <!-- Top Search & Close Section -->
+        <div class="flex items-center gap-3 mb-4">
+            <div class="flex-1 flex items-center bg-[#18202c] rounded-xl px-4 py-3 border border-gray-800">
+                <select class="bg-transparent text-white font-medium outline-none cursor-pointer pr-2 border-r border-gray-700">
+                    <option class="bg-[#18202c]">Casino</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Search games" class="bg-transparent w-full pl-3 text-sm text-gray-300 placeholder-gray-400 outline-none">
+            </div>
+            <a href="../index.html" class="bg-[#18202c] p-3 rounded-xl border border-gray-800 text-gray-400 hover:text-white flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Filter Dropdowns -->
+        <div class="grid grid-cols-2 gap-3 mb-5">
+            <div class="flex items-center justify-between bg-[#18202c] px-4 py-3 rounded-xl border border-gray-800 text-sm cursor-pointer">
+                <span class="text-gray-300">All Providers</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+            </div>
+            <div class="flex items-center justify-between bg-[#18202c] px-4 py-3 rounded-xl border border-gray-800 text-sm cursor-pointer">
+                <span class="text-gray-300">Sort by: <span class="text-white">Featu...</span></span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+            </div>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="relative mb-6">
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+                <!-- Active Tab -->
+                <button class="flex items-center gap-2 bg-[#1e1b3a] border border-[#635bff] text-white px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#a5a1ff]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                    All games
+                </button>
+                <!-- Normal Tab -->
+                <button class="flex items-center gap-2 bg-[#18202c] border border-gray-800 text-gray-300 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap hover:bg-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /></svg>
+                    Originals
+                </button>
+                <!-- Normal Tab -->
+                <button class="flex items-center gap-2 bg-[#18202c] border border-gray-800 text-gray-300 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap hover:bg-gray-800">
+                    Slots
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Cards Grid -->
+        <div class="grid grid-cols-3 gap-3">
+            
+            <!-- Card 1 -->
+            <div class="relative bg-gradient-to-b from-orange-500 to-red-600 rounded-xl overflow-hidden shadow-lg flex flex-col justify-between p-2 h-40 border border-orange-400/30">
+                <span class="text-[9px] font-bold bg-black/40 text-orange-200 px-1.5 py-0.5 rounded uppercase self-center tracking-wider">Pragmatic Play</span>
+                <div class="text-center font-black italic tracking-tighter text-white drop-shadow-md text-sm leading-tight">
+                    GATES OF OLYMPUS 2500
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="relative bg-gradient-to-b from-red-600 to-black rounded-xl overflow-hidden shadow-lg flex flex-col justify-between p-2 h-40 border border-red-500/30">
+                <span class="text-[9px] font-bold bg-black/40 text-red-200 px-1.5 py-0.5 rounded uppercase self-center tracking-wider">Hacksaw</span>
+                <div class="text-center font-black italic tracking-tighter text-white drop-shadow-md text-base leading-tight">
+                    LE VAMPIRE
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="relative bg-gradient-to-b from-orange-500 to-amber-600 rounded-xl overflow-hidden shadow-lg flex flex-col justify-between p-2 h-40 border border-orange-500/30">
+                <span class="text-[9px] font-bold bg-black/40 text-orange-200 px-1.5 py-0.5 rounded uppercase self-center tracking-wider">Pragmatic Play</span>
+                <div class="text-center font-black italic tracking-tighter text-white drop-shadow-md text-xs leading-tight">
+                    BIG BASS HALLOWEEN SPLASH 1000
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="relative bg-gradient-to-b from-rose-600 to-purple-900 rounded-xl overflow-hidden shadow-lg flex flex-col justify-between p-2 h-40 border border-rose-500/30">
+                <span class="text-[9px] font-bold bg-black/40 text-rose-200 px-1.5 py-0.5 rounded uppercase self-center tracking-wider">Peter & Sons</span>
+                <div class="text-center font-black italic tracking-tighter text-white drop-shadow-md text-xs leading-tight">
+                    BARBAROSSA BEYOND THE EDGE
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="relative bg-gradient-to-b from-amber-600 to-yellow-900 rounded-xl overflow-hidden shadow-lg flex flex-col justify-between p-2 h-40 border border-amber-500/30">
+                <span class="text-[9px] font-bold bg-black/40 text-amber-200 px-1.5 py-0.5 rounded uppercase self-center tracking-wider">Nolimit</span>
+                <div class="text-center font-black italic tracking-tighter text-white drop-shadow-md text-sm leading-tight">
+                    DUCK HUNTERS 2
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+-           <div class="relative bg-gradient-to-b from-red-900 to-black rounded-xl overflow-hidden shadow-lg flex flex-col justify-between p-2 h-40 border border-red-700/30">
+                <span class="text-[9px] font-bold bg-black/40 text-red-200 px-1.5 py-0.5 rounded uppercase self-center tracking-wider">Wicked Games</span>
+                <div class="text-center font-black italic tracking-tighter text-white drop-shadow-md text-sm leading-tight">
+                    WAR WHORES
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <!-- Categories -->
-    <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-      <button type="button" data-category="all" class="category-btn flex items-center gap-2 bg-[#24ee89] text-[#07120d] font-bold px-4 py-2.5 rounded-xl text-xs shadow-sm">
-        <i class="fa-solid fa-border-all"></i> All Game
-      </button>
-      <button type="button" data-category="original" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
-        <i class="fa-solid fa-bolt text-[#24ee89]"></i> Original
-      </button>
-      <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
-        <i class="fa-solid fa-fire text-orange-500"></i> Hot Game
-      </button>
-      <button type="button" data-category="slot" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
-        <i class="fa-solid fa-dice text-blue-400"></i> Slot
-      </button>
-    </div>
+    <!-- Dynamic Bottom Bar Container -->
+    <div id="bottomBarContainer"></div>
 
-    <!-- Sort Filters -->
-    <div class="grid grid-cols-1 gap-3">
-      <label class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3 py-2.5 flex items-center justify-between text-xs">
-        <span class="flex items-center gap-2 text-gray-400">Sort By:
-          <select id="sortGames" class="bg-transparent text-white font-semibold focus:outline-none">
-            <option value="default" class="bg-[#171d28]">Default</option>
-            <option value="az" class="bg-[#171d28]">A–Z</option>
-            <option value="za" class="bg-[#171d28]">Z–A</option>
-          </select>
-        </span>
-        <i class="fa-solid fa-arrow-down-wide-short text-gray-400"></i>
-      </label>
-    </div>
+    <script>
+        let balanceSubscription = null;
 
-    <div class="flex items-center justify-between pt-1">
-      <h1 id="sectionTitle" class="text-base font-bold">All Game</h1>
-      <span id="gameCount" class="text-[11px] text-gray-400">0 games</span>
-    </div>
-
-    <!-- Cards -->
-    <div id="gamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4"></div>
-    
-    <!-- Messages -->
-    <p id="loadingMessage" class="text-center text-sm text-gray-400 py-10">গেম লোড হচ্ছে...</p>
-    <p id="emptyMessage" class="hidden text-center text-sm text-gray-400 py-10">কোনো গেম পাওয়া যায়নি। অন্য নাম দিয়ে সার্চ করুন।</p>
-
-    <!-- Load More -->
-    <div class="text-center pt-2">
-      <button id="loadMoreBtn" class="hidden bg-[#1f293a] hover:bg-[#222b3a] text-[#24ee89] font-bold border border-[#24ee89]/40 px-6 py-2.5 rounded-xl text-xs transition-all">
-        <i class="fa-solid fa-rotate-right mr-1"></i> Load More
-      </button>
-    </div>
-  </main>
-
-  <!-- Bottom bar -->
-  <div id="bottomBarContainer"></div>
-
-  <script>
-    (function () {
-      'use strict';
-
-      let allGames = [];
-      let filteredGames = [];
-      let visibleLimit = 12;
-      let activeCategory = 'all';
-
-      const grid = document.getElementById('gamesGrid');
-      const searchInput = document.getElementById('gameSearch');
-      const clearSearch = document.getElementById('clearSearch');
-      const sortGames = document.getElementById('sortGames');
-      const gameCount = document.getElementById('gameCount');
-      const sectionTitle = document.getElementById('sectionTitle');
-      const emptyMessage = document.getElementById('emptyMessage');
-      const loadingMessage = document.getElementById('loadingMessage');
-      const loadMoreBtn = document.getElementById('loadMoreBtn');
-
-      const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
-
-      // 🔥 গিটহাব পেজেসের জন্য বেস পাথ অটো ডিটেক্ট
-      function getBasePath() {
-        if (window.location.hostname.includes('github.io')) {
-          const pathParts = window.location.pathname.split('/');
-          if (pathParts.length > 1 && pathParts[1] !== '') {
-            return '/' + pathParts[1] + '/';
-          }
-        }
-        return './';
-      }
-
-      async function fetchGamesFromSupabase() {
-        try {
-          const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
-
-          if (!client || typeof client.from !== 'function') {
-            console.error('Supabase client is missing.');
-            loadingMessage.textContent = 'Supabase কনফিগারেশন পাওয়া যায়নি।';
-            return;
-          }
-
-          const { data, error } = await client
-            .from('grid_control_url_image')
-            .select('*')
-            .eq('is_active', true)
-            .order('sort_order', { ascending: true });
-
-          if (error) throw error;
-
-          allGames = data || [];
-          loadingMessage.classList.add('hidden');
-          applyFilters();
-        } catch (err) {
-          console.error('Error fetching games:', err);
-          grid.innerHTML = '';
-          grid.classList.add('hidden');
-          emptyMessage.classList.add('hidden');
-          loadingMessage.classList.remove('hidden');
-          loadingMessage.textContent = 'গেম লোড করতে সমস্যা হয়েছে: ' + (err.message || 'অজানা সমস্যা');
-        }
-      }
-
-      function applyFilters() {
-        const query = searchInput.value.trim().toLowerCase();
-        
-        filteredGames = allGames.filter(game => {
-          const gameCat = (game.category || '').trim().toLowerCase();
-          const activeCat = activeCategory.trim().toLowerCase();
-          const catMatch = activeCat === 'all' || gameCat === activeCat;
-          const searchMatch = (game.title && game.title.toLowerCase().includes(query));
-          return catMatch && searchMatch;
-        });
-
-        if (sortGames.value === 'az') {
-          filteredGames.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-        } else if (sortGames.value === 'za') {
-          filteredGames.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
-        } else {
-          filteredGames.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-        }
-
-        visibleLimit = 12;
-        renderGrid();
-      }
-
-      function renderGrid() {
-        const currentSlice = filteredGames.slice(0, visibleLimit);
-        const basePath = getBasePath();
-
-        if (currentSlice.length === 0) {
-          grid.innerHTML = '';
-          emptyMessage.classList.remove('hidden');
-          grid.classList.add('hidden');
-        } else {
-          emptyMessage.classList.add('hidden');
-          grid.classList.remove('hidden');
-
-          grid.innerHTML = currentSlice.map(game => {
-            let imageUrl = game.image_url ? game.image_url.trim() : '';
-            let pageUrl = game.page_url ? game.page_url.trim() : '#';
-
-            if (imageUrl.startsWith('/') && basePath !== './' && !imageUrl.startsWith(basePath)) {
-              imageUrl = basePath.replace(/\/$/, '') + imageUrl;
+        // Sync Realtime User Balance for Top Bar
+        async function syncRealtimeUserBalance() {
+            try {
+                if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') {
+                    const user = await getCurrentUser();
+                    if (user) {
+                        const { data: profile } = await supabaseClient
+                            .from('profiles')
+                            .select('balance')
+                            .eq('id', user.id)
+                            .single();
+                        const balanceElement = document.getElementById('topBarBalance');
+                        if (profile && balanceElement) {
+                            balanceElement.innerText = parseFloat(profile.balance).toFixed(2);
+                        }
+                        if (!balanceSubscription) {
+                            balanceSubscription = supabaseClient
+                                .channel('public:profiles:' + user.id)
+                                .on('postgres_changes', {
+                                    event: 'UPDATE',
+                                    schema: 'public',
+                                    table: 'profiles',
+                                    filter: `id=eq.${user.id}`
+                                }, (payload) => {
+                                    if (payload.new && payload.new.balance !== undefined) {
+                                        const topBal = document.getElementById('topBarBalance');
+                                        if (topBal) {
+                                            topBal.innerText = parseFloat(payload.new.balance).toFixed(2);
+                                        }
+                                    }
+                                })
+                                .subscribe();
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Balance Sync Error:', err);
             }
-            if (pageUrl.startsWith('/') && basePath !== './' && !pageUrl.startsWith(basePath)) {
-              pageUrl = basePath.replace(/\/$/, '') + pageUrl;
+        }
+
+        // Load Top Bar from Root Folder
+        async function loadTopBar() {
+            try {
+                const response = await fetch('../top.html');
+                if (response.ok) {
+                    const html = await response.text();
+                    document.getElementById('topBarContainer').innerHTML = html;
+                    syncRealtimeUserBalance();
+                }
+            } catch (err) {
+                console.error('Error loading top bar component:', err);
             }
-
-            const hasImg = imageUrl !== '';
-            const title = game.title || 'Untitled Game';
-            const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
-            const showTitle = game.show_title !== false;
-            const showBadge = game.show_badge !== false;
-
-            return `
-              <a href="${pageUrl}" class="game-card group relative bg-[#171d28] border border-[#222b3a] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
-                <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#171d28] flex flex-col items-center justify-center p-1">
-                  ${hasImg 
-                    ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
-                    : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
-                       ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-white tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
-                  }
-                </div>
-                <div class="relative z-10 flex justify-end items-center p-2">
-                  ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>` : ''}
-                </div>
-                <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                  ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-white truncate block">${title}</span>` : ''}
-                </div>
-              </a>
-            `;
-          }).join('');
         }
 
-        sectionTitle.textContent = searchInput.value.trim() ? 'Search Results' : (categoryTitles[activeCategory] || 'Games');
-        gameCount.textContent = `${filteredGames.length} games`;
-        clearSearch.classList.toggle('hidden', !searchInput.value);
-        loadMoreBtn.classList.toggle('hidden', visibleLimit >= filteredGames.length);
-      }
-
-      // টপবার এবং বটমবার লোড করার ফাংশন
-      async function loadBars() {
-        const basePath = getBasePath();
-        
-        try {
-          // Top Bar লোড
-          const topRes = await fetch(basePath + 'bar/top.html');
-          if (topRes.ok) {
-            let topContent = await topRes.text();
-            topContent = topContent.replace(/game\/mem\/member\.html/g, basePath + 'mem/member.html');
-            document.getElementById('topBarContainer').innerHTML = topContent;
-            document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-              a.href = basePath + 'account/deposit.html';
-            });
-          } else {
-            console.error('Top bar load failed: 404');
-          }
-
-          // Bottom Bar লোড
-          const botRes = await fetch(basePath + 'bar/bottom.html');
-          if (botRes.ok) {
-            document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
-          } else {
-            console.error('Bottom bar load failed: 404');
-          }
-        } catch (err) {
-          console.error('Bar loading error:', err);
+        // Load Bottom Bar from Root Folder
+        async function loadBottomBar() {
+            try {
+                const response = await fetch('../bottom.html');
+                if (response.ok) {
+                    const html = await response.text();
+                    const bottomBarContainer = document.getElementById('bottomBarContainer');
+                    if (bottomBarContainer) {
+                        bottomBarContainer.innerHTML = html;
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading bottom bar component:', err);
+            }
         }
-      }
 
-      // ইভেন্ট লিসেনারসমূহ
-      document.querySelectorAll('[data-category]').forEach(button => {
-        button.addEventListener('click', () => {
-          activeCategory = button.dataset.category;
-          document.querySelectorAll('[data-category]').forEach(btn => {
-            const active = btn === button;
-            btn.classList.toggle('bg-[#24ee89]', active);
-            btn.classList.toggle('text-[#07120d]', active);
-            btn.classList.toggle('bg-[#171d28]', !active);
-            btn.classList.toggle('text-gray-300', !active);
-            btn.classList.toggle('border', !active);
-            btn.classList.toggle('border-[#222b3a]', !active);
-          });
-          applyFilters();
+        // Initialize on DOM Load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTopBar();
+            loadBottomBar();
         });
-      });
-
-      searchInput.addEventListener('input', applyFilters);
-      clearSearch.addEventListener('click', () => { searchInput.value = ''; applyFilters(); searchInput.focus(); });
-      sortGames.addEventListener('change', applyFilters);
-      loadMoreBtn.addEventListener('click', () => { visibleLimit += 12; renderGrid(); });
-
-      // চালু করা
-      window.addEventListener('DOMContentLoaded', () => { 
-        loadBars(); 
-        setTimeout(fetchGamesFromSupabase, 100);
-      });
-    })();
-  </script>
+    </script>
 </body>
 </html>
