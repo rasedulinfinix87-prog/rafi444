@@ -7,66 +7,98 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
+
+  <style>
+    :root {
+      --font-xs: 11px;
+      --font-sm: 12px;
+      --font-base: 14px;
+      --font-md: 16px;
+      --font-lg: 18px;
+      --font-xl: 22px;
+      --font-2xl: 28px;
+      --font-3xl: 32px;
+    }
+
+    body {
+      background: #0F212E;
+      color: #FFFFFF;
+      font-family: sans-serif;
+      font-size: var(--font-base);
+      min-height: 100vh;
+      margin: 0;
+      padding-bottom: 70px; /* Space for bottom bar */
+    }
+
+    .custom-card {
+      background: #1A2C38;
+      border: 1px solid #0F212E;
+      border-radius: 12px;
+    }
+  </style>
 </head>
-<body class="bg-[#0f141c] text-white min-h-screen">
+<body class="bg-[#0F212E] text-[#FFFFFF] min-h-screen">
 
   <!-- Top Bar Container (Loaded dynamically from bar/top.html) -->
   <div id="top-bar-container"></div>
 
   <main class="max-w-md mx-auto p-4 space-y-4">
     <!-- User Info Card -->
-    <div class="bg-[#161b22] border border-gray-800 rounded-xl p-5 relative overflow-hidden">
+    <div class="custom-card p-5 relative overflow-hidden">
       <div class="flex items-center justify-between">
         <div>
-          <h2 id="userName" class="text-lg font-bold">Loading...</h2>
-          <p id="userPhone" class="text-xs text-gray-400 mt-0.5">...</p>
-          <p id="userEmail" class="text-xs text-gray-500">...</p>
+          <h2 id="userName" class="text-[var(--font-lg)] font-bold">Loading...</h2>
+          <p id="userPhone" class="text-[var(--font-xs)] text-[#FFFFFF]/70 mt-0.5">...</p>
+          <p id="userEmail" class="text-[var(--font-xs)] text-[#FFFFFF]/50">...</p>
         </div>
         <div class="text-right">
-          <span class="text-xs text-gray-400 block">Balance</span>
-          <span id="userBalance" class="text-xl font-extrabold text-[#24ee89]">BDT 0.00</span>
+          <span class="text-[var(--font-xs)] text-[#FFFFFF]/70 block">Balance</span>
+          <span id="userBalance" class="text-[var(--font-xl)] font-extrabold text-[#24ee89]">BDT 0.00</span>
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="grid grid-cols-2 gap-3 mt-6">
-        <a href="deposit.html" class="bg-[#24ee89] text-black text-center font-bold py-2 rounded-lg text-sm hover:bg-emerald-400 transition">
+        <a href="deposit.html" class="bg-[#24ee89] text-[#0F212E] text-center font-bold py-2 rounded-lg text-[var(--font-sm)] hover:bg-emerald-400 transition">
           Deposit
         </a>
-        <a href="withdraw.html" class="bg-[#21262d] border border-gray-700 text-center font-bold py-2 rounded-lg text-sm hover:bg-gray-800 transition">
+        <a href="withdraw.html" class="bg-[#1A2C38] border border-[#0F212E] text-center font-bold py-2 rounded-lg text-[var(--font-sm)] hover:bg-[#0F212E] transition">
           Withdraw
         </a>
       </div>
     </div>
 
     <!-- Recent Deposit History -->
-    <div class="bg-[#161b22] border border-gray-800 rounded-xl p-4">
-      <h3 class="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">Recent Deposits</h3>
-      <div id="depositList" class="space-y-2 text-xs">
-        <p class="text-gray-500">Loading history...</p>
+    <div class="custom-card p-4">
+      <h3 class="text-[var(--font-xs)] font-semibold text-[#FFFFFF]/70 mb-3 uppercase tracking-wider">Recent Deposits</h3>
+      <div id="depositList" class="space-y-2 text-[var(--font-xs)]">
+        <p class="text-[#FFFFFF]/50">Loading history...</p>
       </div>
     </div>
 
     <!-- Recent Withdrawal History -->
-    <div class="bg-[#161b22] border border-gray-800 rounded-xl p-4">
-      <h3 class="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">Recent Withdrawals</h3>
-      <div id="withdrawList" class="space-y-2 text-xs">
-        <p class="text-gray-500">Loading history...</p>
+    <div class="custom-card p-4">
+      <h3 class="text-[var(--font-xs)] font-semibold text-[#FFFFFF]/70 mb-3 uppercase tracking-wider">Recent Withdrawals</h3>
+      <div id="withdrawList" class="space-y-2 text-[var(--font-xs)]">
+        <p class="text-[#FFFFFF]/50">Loading history...</p>
       </div>
     </div>
   </main>
 
+  <!-- Bottom Bar Container -->
+  <div id="bottom-bar-container" class="w-full max-w-md mx-auto fixed bottom-0 left-0 right-0 z-50"></div>
+
   <script>
-    // Load bar/top.html dynamically from correct parent folder
-    async function loadTopBar() {
+    // Load bar/top.html and bar/bottom.html dynamically
+    async function loadBars() {
       try {
-        const response = await fetch('../bar/top.html');
-        if (response.ok) {
-          const content = await response.text();
+        // Load Top Bar
+        const topResponse = await fetch('../bar/top.html');
+        if (topResponse.ok) {
+          const content = await topResponse.text();
           const container = document.getElementById('top-bar-container');
           container.innerHTML = content;
 
-          // Execute inner scripts manually because innerHTML doesn't execute <script> tags
           const scripts = container.querySelectorAll('script');
           scripts.forEach(script => {
             const newScript = document.createElement('script');
@@ -78,15 +110,19 @@
             document.body.appendChild(newScript);
           });
 
-          // Trigger balance sync for top bar
           if (typeof syncTopBarBalance === 'function') {
             syncTopBarBalance();
           }
-        } else {
-          console.error('Failed to load top bar:', response.status);
+        }
+
+        // Load Bottom Bar
+        const botResponse = await fetch('../bar/bottom.html');
+        if (botResponse.ok) {
+          const botContent = await botResponse.text();
+          document.getElementById('bottom-bar-container').innerHTML = botContent;
         }
       } catch (error) {
-        console.error('Error loading top bar:', error);
+        console.error('Error loading navigation bars:', error);
       }
     }
 
@@ -112,10 +148,10 @@
       const depList = document.getElementById('depositList');
       if (deposits && deposits.length > 0) {
         depList.innerHTML = deposits.map(d => `
-          <div class="flex justify-between items-center bg-[#0f141c] p-2.5 rounded-lg border border-gray-800/80">
+          <div class="flex justify-between items-center bg-[#0F212E] p-2.5 rounded-lg border border-[#0F212E]">
             <div>
-              <span class="font-bold text-white">${d.payment_method}</span>
-              <span class="text-[10px] text-gray-500 block">TrxID: ${d.transaction_id}</span>
+              <span class="font-bold text-[#FFFFFF]">${d.payment_method}</span>
+              <span class="text-[10px] text-[#FFFFFF]/55 block">TrxID: ${d.transaction_id}</span>
             </div>
             <div class="text-right">
               <span class="font-bold text-emerald-400">+${d.amount} BDT</span>
@@ -124,7 +160,7 @@
           </div>
         `).join('');
       } else {
-        depList.innerHTML = `<p class="text-gray-500">No deposit history found.</p>`;
+        depList.innerHTML = `<p class="text-[#FFFFFF]/50">No deposit history found.</p>`;
       }
 
       // Load Recent Withdrawals
@@ -138,9 +174,9 @@
       const withList = document.getElementById('withdrawList');
       if (withdrawals && withdrawals.length > 0) {
         withList.innerHTML = withdrawals.map(w => `
-          <div class="flex justify-between items-center bg-[#0f141c] p-2.5 rounded-lg border border-gray-800/80">
+          <div class="flex justify-between items-center bg-[#0F212E] p-2.5 rounded-lg border border-[#0F212E]">
             <div>
-              <span class="font-bold text-white">${w.payment_method} (${w.account_number})</span>
+              <span class="font-bold text-[#FFFFFF]">${w.payment_method} (${w.account_number})</span>
             </div>
             <div class="text-right">
               <span class="font-bold text-red-400">-${w.amount} BDT</span>
@@ -149,11 +185,11 @@
           </div>
         `).join('');
       } else {
-        withList.innerHTML = `<p class="text-gray-500">No withdrawal history found.</p>`;
+        withList.innerHTML = `<p class="text-[#FFFFFF]/50">No withdrawal history found.</p>`;
       }
     }
 
-    loadTopBar();
+    loadBars();
     loadProfile();
   </script>
 </body>
