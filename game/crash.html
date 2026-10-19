@@ -16,6 +16,17 @@
   <script src="../supabase-config.js"></script>
 
   <style>
+    :root {
+      --font-xs: 11px;
+      --font-sm: 12px;
+      --font-base: 14px;
+      --font-md: 16px;
+      --font-lg: 18px;
+      --font-xl: 22px;
+      --font-2xl: 28px;
+      --font-3xl: 32px;
+    }
+
     * {
       box-sizing: border-box;
       touch-action: manipulation;
@@ -23,35 +34,36 @@
 
     html {
       min-height: 100%;
-      background: #0f141c;
+      background: #0F212E;
       touch-action: pan-x pan-y;
     }
 
     body {
-      background: #0f141c;
-      color: #ffffff;
+      background: #0F212E;
+      color: #FFFFFF;
       font-family: sans-serif;
+      font-size: var(--font-base);
       overflow-y: auto;
       -webkit-text-size-adjust: 100%;
       user-select: none;
     }
 
     .bc-main-wrapper {
-      background: #171d28;
-      border: 1px solid #222b3a;
+      background: #1A2C38;
+      border: 1px solid #0F212E;
       border-radius: 14px;
       overflow: hidden;
     }
 
     .bc-divider {
       height: 1px;
-      background-color: #222b3a;
+      background-color: #0F212E;
       width: 100%;
     }
 
     .bc-input-box {
-      background: #0f141c;
-      border: 1px solid #222b3a;
+      background: #0F212E;
+      border: 1px solid #0F212E;
       border-radius: 10px;
     }
     .bc-input-box:focus-within {
@@ -60,7 +72,7 @@
 
     .green-btn {
       background: #24ee89;
-      color: #0f141c;
+      color: #0F212E;
       font-weight: 800;
     }
     .green-btn:hover {
@@ -69,7 +81,7 @@
 
     .red-btn {
       background: #ed4245;
-      color: #ffffff;
+      color: #FFFFFF;
       font-weight: 800;
     }
     .red-btn:hover {
@@ -94,15 +106,15 @@
       width: 4px;
     }
     ::-webkit-scrollbar-track {
-      background: #0f141c;
+      background: #0F212E;
     }
     ::-webkit-scrollbar-thumb {
-      background: #222b3a;
+      background: #1A2C38;
       border-radius: 2px;
     }
   </style>
 </head>
-<body class="bg-[#0f141c] text-white font-sans min-h-screen flex flex-col items-center justify-between p-0 select-none">
+<body class="bg-[#0F212E] text-[#FFFFFF] font-sans min-h-screen flex flex-col items-center justify-between p-0 select-none">
 
   <!-- Top Bar Container -->
   <div id="topBarContainer" class="w-full max-w-2xl sticky top-0 z-50"></div>
@@ -115,7 +127,7 @@
       <div class="bc-main-wrapper flex flex-col shadow-xl">
         
         <!-- Crash Game Screen Area -->
-        <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#171d28] pt-12">
+        <div class="relative flex flex-col items-center justify-center h-64 w-full overflow-hidden bg-[#1A2C38] pt-12">
           
           <!-- Sky and Cloud Background Layer -->
           <div class="absolute inset-0 pointer-events-none opacity-20 overflow-hidden z-0">
@@ -127,16 +139,16 @@
           <!-- History Bar & Icon -->
           <div class="absolute top-1.5 left-3 right-2 flex items-center justify-between z-30 pb-1 pr-1">
             <div id="historyBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-1 pr-6"></div>
-            <button onclick="openHistoryModal()" class="bg-[#222b3a] hover:bg-[#2c3748] text-gray-300 hover:text-white px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1 transition shadow shrink-0 -mt-1 mr-4">
+            <button onclick="openHistoryModal()" class="bg-[#1A2C38] hover:bg-[#283946] text-[#FFFFFF] px-2.5 py-1 rounded-md text-[var(--font-xs)] font-bold flex items-center gap-1 transition shadow shrink-0 -mt-1 mr-4 border border-[#0F212E]">
               <i class="fa-solid fa-clock-rotate-left"></i>
             </button>
           </div>
 
           <!-- Status / Multiplier Display -->
           <div id="gameStatusDisplay" class="flex flex-col items-center justify-center z-20 mt-8">
-            <span id="multiplierText" class="text-4xl sm:text-5xl font-black tracking-wider text-white hidden">1.00x</span>
-            <span id="winLossSubText" class="text-xs font-bold mt-1 text-gray-400 hidden"></span>
-            <span id="subStatusText" class="text-sm sm:text-base font-bold timer-colored mt-1">Starts in 10.0s</span>
+            <span id="multiplierText" class="text-4xl sm:text-5xl font-black tracking-wider text-[#FFFFFF] hidden">1.00x</span>
+            <span id="winLossSubText" class="text-[var(--font-xs)] font-bold mt-1 text-[#FFFFFF] hidden"></span>
+            <span id="subStatusText" class="text-[var(--font-base)] sm:text-[var(--font-md)] font-bold timer-colored mt-1">Starts in 10.0s</span>
           </div>
 
           <!-- Canvas for Vector Airplane -->
@@ -146,85 +158,85 @@
         <div class="bc-divider"></div>
 
         <!-- Game Controls Section -->
-        <div class="p-4 flex flex-col gap-3.5 bg-[#171d28]">
+        <div class="p-4 flex flex-col gap-3.5 bg-[#1A2C38]">
           
           <!-- Manual / Auto Tabs Switcher -->
-          <div class="bg-[#0f141c] p-1 rounded-xl flex justify-around text-sm font-medium text-gray-400 border border-[#222b3a]">
-            <button onclick="switchTab('manual')" id="tabManual" class="py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition">Manual</button>
-            <button onclick="switchTab('auto')" id="tabAuto" class="py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition">Auto</button>
+          <div class="bg-[#0F212E] p-1 rounded-xl flex justify-around text-[var(--font-base)] font-medium text-[#FFFFFF] border border-[#0F212E]">
+            <button onclick="switchTab('manual')" id="tabManual" class="py-2 flex-1 rounded-lg bg-[#1A2C38] text-[#FFFFFF] text-[var(--font-xs)] font-bold transition">Manual</button>
+            <button onclick="switchTab('auto')" id="tabAuto" class="py-2 flex-1 rounded-lg hover:text-[#FFFFFF] text-[#FFFFFF] text-[var(--font-xs)] font-bold transition">Auto</button>
           </div>
 
           <!-- Bet Amount Controls -->
           <div class="flex flex-col gap-1">
-            <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+            <div class="flex justify-between items-center text-[var(--font-xs)] text-[#FFFFFF] font-medium">
               <span>Amount (৳)</span>
-              <span class="text-gray-400 text-[10px]">Min: 0.1 ৳</span>
+              <span class="text-[#FFFFFF] text-[10px]">Min: 0.1 ৳</span>
             </div>
             <div class="flex items-center bc-input-box p-1">
-              <div class="flex items-center px-2 text-gray-400 font-bold text-sm">৳</div>
-              <input type="number" id="betAmount" value="1" min="0.1" step="any" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-1">
+              <div class="flex items-center px-2 text-[#FFFFFF] font-bold text-[var(--font-base)]">৳</div>
+              <input type="number" id="betAmount" value="1" min="0.1" step="any" class="w-full bg-transparent text-[var(--font-base)] font-bold text-[#FFFFFF] focus:outline-none px-1">
               
               <div class="flex items-center gap-1" id="betModifiers">
-                <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">1/2</button>
-                <button onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-gray-300 transition">2x</button>
-                <button onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#171d28] hover:bg-[#222b3a] text-xs font-bold text-[#F5CF66] transition">Max</button>
+                <button onclick="modifyBet('half')" class="px-2.5 py-1 rounded-lg bg-[#1A2C38] hover:bg-[#0F212E] text-[var(--font-xs)] font-bold text-[#FFFFFF] transition">1/2</button>
+                <button onclick="modifyBet('double')" class="px-2.5 py-1 rounded-lg bg-[#1A2C38] hover:bg-[#0F212E] text-[var(--font-xs)] font-bold text-[#FFFFFF] transition">2x</button>
+                <button onclick="modifyBet('max')" class="px-2.5 py-1 rounded-lg bg-[#1A2C38] hover:bg-[#0F212E] text-[var(--font-xs)] font-bold text-[#F5CF66] transition">Max</button>
               </div>
             </div>
           </div>
 
           <!-- Auto Cash Out Controls -->
           <div class="flex flex-col gap-1">
-            <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+            <div class="flex justify-between items-center text-[var(--font-xs)] text-[#FFFFFF] font-medium">
               <span>Auto Cash Out</span>
-              <span id="chancePercentText" class="text-gray-400 text-[10px]">Chance: 49.50%</span>
+              <span id="chancePercentText" class="text-[#FFFFFF] text-[10px]">Chance: 49.50%</span>
             </div>
             <div id="autoCashBox" class="flex items-center bc-input-box p-1">
-              <input type="number" id="autoCashOut" value="2.00" min="1.001" step="0.1" oninput="validateAutoCashOut()" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-3">
-              <span class="px-3 text-gray-400 font-bold text-xs">×</span>
+              <input type="number" id="autoCashOut" value="2.00" min="1.001" step="0.1" oninput="validateAutoCashOut()" class="w-full bg-transparent text-[var(--font-base)] font-bold text-[#FFFFFF] focus:outline-none px-3">
+              <span class="px-3 text-[#FFFFFF] font-bold text-[var(--font-xs)]">×</span>
             </div>
           </div>
 
           <!-- Auto Bet Specific & Advanced Options Section -->
           <div id="autoBetSettings" class="flex flex-col gap-3 hidden">
             <div class="flex flex-col gap-1">
-              <div class="flex justify-between items-center text-xs text-gray-400 font-medium">
+              <div class="flex justify-between items-center text-[var(--font-xs)] text-[#FFFFFF] font-medium">
                 <span>Number of Bets (Rounds)</span>
               </div>
               <div class="flex items-center bc-input-box p-1">
-                <input type="number" id="autoRounds" value="10" min="1" max="1000" class="w-full bg-transparent text-sm font-bold text-white focus:outline-none px-3">
+                <input type="number" id="autoRounds" value="10" min="1" max="1000" class="w-full bg-transparent text-[var(--font-base)] font-bold text-[#FFFFFF] focus:outline-none px-3">
               </div>
             </div>
 
             <!-- Advanced Options -->
-            <div class="flex flex-col gap-2.5 pt-1 border-t border-[#222b3a]">
-              <span class="text-xs font-bold text-gray-300">Advanced Options</span>
+            <div class="flex flex-col gap-2.5 pt-1 border-t border-[#0F212E]">
+              <span class="text-[var(--font-xs)] font-bold text-[#FFFFFF]">Advanced Options</span>
 
               <!-- On Win -->
-              <div class="flex flex-col gap-1 bg-[#0f141c] p-2.5 rounded-xl border border-[#222b3a]">
-                <span class="text-[11px] text-gray-400">On win</span>
+              <div class="flex flex-col gap-1 bg-[#0F212E] p-2.5 rounded-xl border border-[#0F212E]">
+                <span class="text-[var(--font-xs)] text-[#FFFFFF]">On win</span>
                 <div class="flex items-center gap-2">
-                  <div class="flex flex-1 bg-[#171d28] p-1 rounded-lg border border-[#222b3a]">
-                    <button onclick="setAdvancedAction('win', 'reset')" id="winResetBtn" class="flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95">Reset</button>
-                    <button onclick="setAdvancedAction('win', 'increase')" id="winIncBtn" class="flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95">Increase by</button>
+                  <div class="flex flex-1 bg-[#1A2C38] p-1 rounded-lg border border-[#0F212E]">
+                    <button onclick="setAdvancedAction('win', 'reset')" id="winResetBtn" class="flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold bg-[#1A2C38] text-[#FFFFFF] transition active:scale-95">Reset</button>
+                    <button onclick="setAdvancedAction('win', 'increase')" id="winIncBtn" class="flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold text-[#FFFFFF] hover:text-[#FFFFFF] transition active:scale-95">Increase by</button>
                   </div>
                   <div class="w-24 flex items-center bc-input-box px-2 py-1">
-                    <input type="number" id="winIncVal" value="0" step="any" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none text-right">
-                    <span class="text-xs text-gray-400 ml-1">%</span>
+                    <input type="number" id="winIncVal" value="0" step="any" class="w-full bg-transparent text-[var(--font-xs)] font-bold text-[#FFFFFF] focus:outline-none text-right">
+                    <span class="text-[var(--font-xs)] text-[#FFFFFF] ml-1">%</span>
                   </div>
                 </div>
               </div>
 
               <!-- On Loss -->
-              <div class="flex flex-col gap-1 bg-[#0f141c] p-2.5 rounded-xl border border-[#222b3a]">
-                <span class="text-[11px] text-gray-400">On loss</span>
+              <div class="flex flex-col gap-1 bg-[#0F212E] p-2.5 rounded-xl border border-[#0F212E]">
+                <span class="text-[var(--font-xs)] text-[#FFFFFF]">On loss</span>
                 <div class="flex items-center gap-2">
-                  <div class="flex flex-1 bg-[#171d28] p-1 rounded-lg border border-[#222b3a]">
-                    <button onclick="setAdvancedAction('loss', 'reset')" id="lossResetBtn" class="flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95">Reset</button>
-                    <button onclick="setAdvancedAction('loss', 'increase')" id="lossIncBtn" class="flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95">Increase by</button>
+                  <div class="flex flex-1 bg-[#1A2C38] p-1 rounded-lg border border-[#0F212E]">
+                    <button onclick="setAdvancedAction('loss', 'reset')" id="lossResetBtn" class="flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold bg-[#1A2C38] text-[#FFFFFF] transition active:scale-95">Reset</button>
+                    <button onclick="setAdvancedAction('loss', 'increase')" id="lossIncBtn" class="flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold text-[#FFFFFF] hover:text-[#FFFFFF] transition active:scale-95">Increase by</button>
                   </div>
                   <div class="w-24 flex items-center bc-input-box px-2 py-1">
-                    <input type="number" id="lossIncVal" value="0" step="any" class="w-full bg-transparent text-xs font-bold text-white focus:outline-none text-right">
-                    <span class="text-xs text-gray-400 ml-1">%</span>
+                    <input type="number" id="lossIncVal" value="0" step="any" class="w-full bg-transparent text-[var(--font-xs)] font-bold text-[#FFFFFF] focus:outline-none text-right">
+                    <span class="text-[var(--font-xs)] text-[#FFFFFF] ml-1">%</span>
                   </div>
                 </div>
               </div>
@@ -232,7 +244,7 @@
           </div>
 
           <!-- Action Button -->
-          <button id="btnAction" onclick="handleMainAction()" class="w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
+          <button id="btnAction" onclick="handleMainAction()" class="w-full py-3.5 green-btn text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2">
             <span>Bet (Next Round)</span>
           </button>
 
@@ -245,10 +257,10 @@
 
   <!-- History Popup Modal -->
   <div id="historyModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden p-3">
-    <div class="bg-[#171d28] border border-[#222b3a] w-full max-w-lg rounded-2xl p-4 flex flex-col max-h-[85vh] shadow-2xl">
-      <div class="flex justify-between items-center pb-3 border-b border-[#222b3a]">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-history text-[#24ee89]"></i> 30 Crash History & Details</h3>
-        <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-white px-2 py-1 text-sm font-bold"><i class="fa-solid fa-xmark"></i></button>
+    <div class="bg-[#1A2C38] border border-[#0F212E] w-full max-w-lg rounded-2xl p-4 flex flex-col max-h-[85vh] shadow-2xl">
+      <div class="flex justify-between items-center pb-3 border-b border-[#0F212E]">
+        <h3 class="text-[var(--font-base)] font-bold text-[#FFFFFF] flex items-center gap-2"><i class="fa-solid fa-history text-[#24ee89]"></i> 30 Crash History & Details</h3>
+        <button onclick="closeHistoryModal()" class="text-[#FFFFFF] hover:text-[#24ee89] px-2 py-1 text-[var(--font-base)] font-bold"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div class="overflow-y-auto flex-1 mt-3 space-y-2 pr-1" id="modalHistoryList"></div>
     </div>
@@ -321,10 +333,10 @@
         chanceText.innerText = "Invalid Multiplier";
         chanceText.style.color = "#ed4245";
       } else {
-        box.style.borderColor = '#222b3a';
+        box.style.borderColor = '#0F212E';
         let chance = Math.min(99, Math.max(1, (99 / val))).toFixed(2);
         chanceText.innerText = `Chance: ${chance}%`;
-        chanceText.style.color = "#9ca3af";
+        chanceText.style.color = "#FFFFFF";
       }
     }
 
@@ -412,7 +424,7 @@
       previousResults.slice(-30).reverse().forEach(res => {
         let badge = document.createElement('span');
         let styleInfo = getMultiplierStyle(res);
-        badge.className = `px-2 py-0.5 rounded-md text-[11px] font-bold border ${styleInfo.textColor} ${styleInfo.bgClass} whitespace-nowrap`;
+        badge.className = `px-2 py-0.5 rounded-md text-[var(--font-xs)] font-bold border ${styleInfo.textColor} ${styleInfo.bgClass} whitespace-nowrap`;
         badge.innerText = res.toFixed(2) + 'x';
         historyContainer.appendChild(badge);
       });
@@ -430,15 +442,15 @@
       thirtyResults.forEach((res, index) => {
         let styleInfo = getMultiplierStyle(res);
         let row = document.createElement('div');
-        row.className = "flex items-center justify-between bg-[#0f141c] border border-[#222b3a] px-3 py-2 rounded-xl text-xs";
+        row.className = "flex items-center justify-between bg-[#0F212E] border border-[#0F212E] px-3 py-2 rounded-xl text-[var(--font-base)]";
         
         let uniqueHash = generateMaskedHash(index + res);
         let gameIdDisplay = userRealGameId + "-" + (1000 + index);
 
         row.innerHTML = `
           <div class="flex flex-col gap-0.5">
-            <span class="text-gray-400 text-[10px]">Game ID: <b class="text-gray-200">${gameIdDisplay}</b></span>
-            <span class="text-gray-500 font-mono text-[10px]">Hash: ${uniqueHash}</span>
+            <span class="text-[#FFFFFF] text-[10px]">Game ID: <b class="text-[#FFFFFF]">${gameIdDisplay}</b></span>
+            <span class="text-[#FFFFFF] font-mono text-[10px]">Hash: ${uniqueHash}</span>
           </div>
           <div class="px-2.5 py-1 rounded-lg font-black border ${styleInfo.textColor} ${styleInfo.bgClass}">
             ${res.toFixed(2)}x
@@ -475,22 +487,22 @@
         const resetBtn = document.getElementById('winResetBtn');
         const incBtn = document.getElementById('winIncBtn');
         if (action === 'reset') {
-          resetBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95';
-          incBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95';
+          resetBtn.className = 'flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold bg-[#1A2C38] text-[#FFFFFF] transition active:scale-95';
+          incBtn.className = 'flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold text-[#FFFFFF] hover:text-[#FFFFFF] transition active:scale-95';
         } else {
-          incBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95';
-          resetBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95';
+          incBtn.className = 'flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold bg-[#1A2C38] text-[#FFFFFF] transition active:scale-95';
+          resetBtn.className = 'flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold text-[#FFFFFF] hover:text-[#FFFFFF] transition active:scale-95';
         }
       } else {
         lossAction = action;
         const resetBtn = document.getElementById('lossResetBtn');
         const incBtn = document.getElementById('lossIncBtn');
         if (action === 'reset') {
-          resetBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95';
-          incBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95';
+          resetBtn.className = 'flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold bg-[#1A2C38] text-[#FFFFFF] transition active:scale-95';
+          incBtn.className = 'flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold text-[#FFFFFF] hover:text-[#FFFFFF] transition active:scale-95';
         } else {
-          incBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold bg-[#222b3a] text-white transition active:scale-95';
-          resetBtn.className = 'flex-1 py-1 rounded-md text-xs font-bold text-gray-400 hover:text-white transition active:scale-95';
+          incBtn.className = 'flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold bg-[#1A2C38] text-[#FFFFFF] transition active:scale-95';
+          resetBtn.className = 'flex-1 py-1 rounded-md text-[var(--font-xs)] font-bold text-[#FFFFFF] hover:text-[#FFFFFF] transition active:scale-95';
         }
       }
     }
@@ -504,13 +516,13 @@
       const btn = document.getElementById('btnAction');
 
       if (tab === 'manual') {
-        tabManual.className = 'py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition';
-        tabAuto.className = 'py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition';
+        tabManual.className = 'py-2 flex-1 rounded-lg bg-[#1A2C38] text-[#FFFFFF] text-[var(--font-xs)] font-bold transition';
+        tabAuto.className = 'py-2 flex-1 rounded-lg hover:text-[#FFFFFF] text-[#FFFFFF] text-[var(--font-xs)] font-bold transition';
         autoSettings.classList.add('hidden');
         btn.innerText = "Bet (Next Round)";
       } else {
-        tabAuto.className = 'py-2 flex-1 rounded-lg bg-[#222b3a] text-white text-xs font-bold transition';
-        tabManual.className = 'py-2 flex-1 rounded-lg hover:text-white text-xs font-bold transition';
+        tabAuto.className = 'py-2 flex-1 rounded-lg bg-[#1A2C38] text-[#FFFFFF] text-[var(--font-xs)] font-bold transition';
+        tabManual.className = 'py-2 flex-1 rounded-lg hover:text-[#FFFFFF] text-[#FFFFFF] text-[var(--font-xs)] font-bold transition';
         autoSettings.classList.remove('hidden');
         btn.innerText = "Start Auto Bet";
       }
@@ -538,7 +550,7 @@
 
       multText.classList.add('hidden');
       winLossText.classList.add('hidden');
-      subText.className = "text-sm sm:text-base font-bold timer-colored mt-1";
+      subText.className = "text-[var(--font-base)] sm:text-[var(--font-md)] font-bold timer-colored mt-1";
 
       if (!isSynced) {
         localStorage.setItem('bc_round_start_time', Date.now());
@@ -551,14 +563,14 @@
 
       if (isPlayingNext) {
         if (isAutoRunning) {
-          btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+          btn.className = "w-full py-3.5 red-btn text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
           btn.innerText = `Stop Auto (${remainingAutoRounds})`;
         } else {
-          btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+          btn.className = "w-full py-3.5 red-btn text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
           btn.innerText = "Cancel Bet";
         }
       } else {
-        btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+        btn.className = "w-full py-3.5 green-btn text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
         btn.innerText = activeTab === 'auto' ? "Start Auto Bet" : "Bet (Next Round)";
       }
 
@@ -632,18 +644,18 @@
       const btn = document.getElementById('btnAction');
 
       multText.classList.remove('hidden');
-      subText.className = "text-xs text-gray-400 font-semibold mt-1 hidden";
+      subText.className = "text-[var(--font-xs)] text-[#FFFFFF] font-semibold mt-1 hidden";
 
       if (isPlayingNext) {
         if (isAutoRunning) {
-          btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
+          btn.className = "w-full py-3.5 bg-[#1A2C38] text-[#FFFFFF] font-bold text-[var(--font-base)] rounded-xl cursor-not-allowed";
           btn.innerText = `Auto Running... (${remainingAutoRounds})`;
         } else if (activeTab === 'manual') {
-          btn.className = "w-full py-3.5 bg-[#24ee89] text-[#0f141c] font-black text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+          btn.className = "w-full py-3.5 bg-[#24ee89] text-[#0F212E] font-black text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
           btn.innerText = "Cash Out";
         }
       } else {
-        btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
+        btn.className = "w-full py-3.5 bg-[#1A2C38] text-[#FFFFFF] font-bold text-[var(--font-base)] rounded-xl cursor-not-allowed";
         btn.innerText = "Running...";
       }
 
@@ -724,7 +736,7 @@
         ctx.translate(currentX, currentY);
         ctx.rotate(-Math.PI / 5);
 
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#FFFFFF';
         ctx.strokeStyle = currentStyle.hex;
         ctx.lineWidth = 2;
 
@@ -764,13 +776,13 @@
       multText.innerText = mult.toFixed(2) + 'x';
       
       if (activeBetAmount > 0) {
-        winLossText.className = "text-xs font-bold mt-1 text-[#24ee89]";
+        winLossText.className = "text-[var(--font-xs)] font-bold mt-1 text-[#24ee89]";
         winLossText.innerText = `Won ৳ ${winAmount.toFixed(2)}`;
         winLossText.classList.remove('hidden');
       }
 
       const btn = document.getElementById('btnAction');
-      btn.className = "w-full py-3.5 bg-[#222b3a] text-gray-400 font-bold text-sm rounded-xl cursor-not-allowed";
+      btn.className = "w-full py-3.5 bg-[#1A2C38] text-[#FFFFFF] font-bold text-[var(--font-base)] rounded-xl cursor-not-allowed";
       btn.innerText = `Cashed Out (৳ ${winAmount.toFixed(2)})`;
 
       if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
@@ -793,7 +805,6 @@
         await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
       }
 
-      // Apply Advanced Option on Win
       if (isAutoRunning) {
         let curBet = parseFloat(document.getElementById('betAmount').value) || 1;
         if (winAction === 'reset') {
@@ -815,13 +826,13 @@
       let crashStyle = getMultiplierStyle(crashPoint);
       multText.className = `text-4xl sm:text-5xl font-black tracking-wider ${crashStyle.textColor}`;
       multText.innerText = crashPoint.toFixed(2) + 'x';
-      subText.className = "text-xs text-gray-400 font-semibold mt-1";
+      subText.className = "text-[var(--font-xs)] text-[#FFFFFF] font-semibold mt-1";
       subText.innerText = "Crashed!";
 
       let isWinRound = hasCashedOut;
 
       if (isPlayingNext && !hasCashedOut && activeBetAmount > 0) {
-        winLossText.className = "text-xs font-bold mt-1 text-red-500";
+        winLossText.className = "text-[var(--font-xs)] font-bold mt-1 text-red-500";
         winLossText.innerText = "Lost";
         winLossText.classList.remove('hidden');
 
@@ -843,7 +854,6 @@
           if (error) console.error("Supabase Crash Insert Error:", error);
         }
 
-        // Apply Advanced Option on Loss
         if (isAutoRunning) {
           let curBet = parseFloat(document.getElementById('betAmount').value) || 1;
           if (lossAction === 'reset') {
@@ -904,14 +914,14 @@
           tabManual.classList.add('opacity-50', 'cursor-not-allowed');
 
           const btn = document.getElementById('btnAction');
-          btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+          btn.className = "w-full py-3.5 red-btn text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
           btn.innerText = `Stop Auto (${remainingAutoRounds})`;
           await processBetDeduction();
         } else {
           isPlayingNext = !isPlayingNext;
           const btn = document.getElementById('btnAction');
           if (isPlayingNext) {
-            btn.className = "w-full py-3.5 red-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+            btn.className = "w-full py-3.5 red-btn text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
             btn.innerText = "Cancel Bet";
             await processBetDeduction();
           } else {
@@ -922,7 +932,7 @@
                 await supabaseClient.from('profiles').update({ balance: balance }).eq('id', currentUserId);
               }
             }
-            btn.className = "w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
+            btn.className = "w-full py-3.5 green-btn text-[var(--font-base)] rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2";
             btn.innerText = "Bet (Next Round)";
           }
         }
