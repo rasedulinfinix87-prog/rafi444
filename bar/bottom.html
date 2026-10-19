@@ -10,7 +10,7 @@
 
   <!-- Supabase JS Client & Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
+  <script src="../supabase-config.js"></script>
 
   <style>
     * {
@@ -182,7 +182,7 @@
 
   <!-- Bottom Navigation -->
   <nav class="bottom-nav">
-    <button type="button" class="nav-item" id="openDrawer">
+    <button type="button" class="nav-item" id="openDrawer" onclick="openBottomDrawer(event)">
       <i class="fa-solid fa-bars"></i>
       <span>Menu</span>
     </button>
@@ -204,13 +204,13 @@
   </nav>
 
   <!-- Overlay -->
-  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeBottomDrawer()"></div>
 
   <!-- Modal Drawer (Bottom Sheet) -->
   <div class="drawer" id="modalDrawer">
     <div class="drawer-header">
       <h3>Menu</h3>
-      <button type="button" class="close-btn" id="closeDrawer">
+      <button type="button" class="close-btn" id="closeDrawer" onclick="closeBottomDrawer()">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
@@ -239,34 +239,27 @@
   </div>
 
   <script>
-    // ডাইনামিক বা ফেচ করা কন্টেন্টের জন্য গ্লোবাল ক্লিক লিসেনার
-    if (typeof window.drawerListenerAdded === 'undefined') {
-      window.drawerListenerAdded = true;
+    // ইনলাইন ফাংশন যা ফেচ করা ফাইলেও ১০০% কাজ করবে
+    function openBottomDrawer(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      const drawer = document.getElementById('modalDrawer');
+      const overlay = document.getElementById('drawerOverlay');
+      if (drawer && overlay) {
+        drawer.classList.add('show');
+        overlay.classList.add('show');
+      }
+    }
 
-      window.addEventListener('click', function (e) {
-        const openBtn = e.target.closest('#openDrawer');
-        const closeBtn = e.target.closest('#closeDrawer');
-        const overlayEl = e.target.closest('#drawerOverlay');
-
-        const modalDrawer = document.getElementById('modalDrawer');
-        const drawerOverlay = document.getElementById('drawerOverlay');
-
-        if (openBtn) {
-          e.preventDefault();
-          e.stopPropagation();
-          if (modalDrawer && drawerOverlay) {
-            modalDrawer.classList.add('show');
-            drawerOverlay.classList.add('show');
-          }
-        }
-
-        if (closeBtn || (overlayEl && drawerOverlay && e.target === drawerOverlay)) {
-          if (modalDrawer && drawerOverlay) {
-            modalDrawer.classList.remove('show');
-            drawerOverlay.classList.remove('show');
-          }
-        }
-      }, true);
+    function closeBottomDrawer() {
+      const drawer = document.getElementById('modalDrawer');
+      const overlay = document.getElementById('drawerOverlay');
+      if (drawer && overlay) {
+        drawer.classList.remove('show');
+        overlay.classList.remove('show');
+      }
     }
   </script>
 
