@@ -14,6 +14,7 @@
     body {
       background: #f8fafc;
       color: #0f172a;
+      zoom: 0.7; /* পেজ ৩০% জুম আউট */
     }
     .glass-card {
       background: rgba(255, 255, 255, 0.85);
@@ -40,20 +41,26 @@
 <div class="max-w-7xl mx-auto space-y-5">
 
   <!-- TOP BAR WITH LEFT HAMBURGER MENU -->
-  <header class="flex items-center justify-between gap-3 glass-card p-4 rounded-2xl relative">
+  <header class="flex items-center justify-between gap-3 glass-card p-3 rounded-none border-x-0 border-t-0 border-b-2 border-emerald-500 relative">
     <div class="flex items-center gap-4">
       <!-- Hamburger Menu on Left -->
-      <button onclick="toggleMenu()" class="p-2.5 bg-gray-100 border border-gray-200 rounded-xl hover:bg-gray-200 transition text-emerald-600">
-        <i class="fa-solid fa-bars text-lg"></i>
+      <button onclick="toggleMenu()" class="p-2 bg-gray-100 border border-gray-200 rounded-lg hover:bg-gray-200 transition text-emerald-600">
+        <i class="fa-solid fa-bars text-base"></i>
       </button>
 
-      <div>
-        <h1 class="text-xl font-black text-gray-900">Admin Management Panel</h1>
-        <p class="text-xs text-gray-500 mt-0.5">BDTMINER Dashboard</p>
+      <div class="flex items-center gap-3">
+        <div>
+          <h1 class="text-lg font-black text-gray-900">Panel</h1>
+          <p class="text-[10px] text-gray-500 mt-0.5">BDTMINER Dashboard</p>
+        </div>
+        <!-- Panel নামের ডান পাশে সিম্বলসহ Game Grid Update বাটন -->
+        <button onclick="openGameGridModal()" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 rounded-lg transition text-sm" title="Game Grid Update">
+          <i class="fa-solid fa-table-cells"></i>
+        </button>
       </div>
     </div>
 
-    <span class="text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-2 rounded-full font-bold hidden sm:inline-block">
+    <span class="text-xs bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1.5 rounded-full font-bold hidden sm:inline-block">
       Live System
     </span>
   </header>
@@ -284,11 +291,6 @@
         <i class="fa-solid fa-dice mr-1"></i> Recent Bets
       </button>
     </div>
-
-    <!-- Game Grid Update Button added in navigation bar -->
-    <button onclick="openGameGridModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm flex items-center gap-1.5 transition flex-shrink-0">
-      <i class="fa-solid fa-table-cells"></i> Game Grid Update
-    </button>
   </nav>
 
   <main class="glass-card rounded-2xl p-4">
