@@ -507,8 +507,7 @@
     </div>
   </div>
 
-  <!-- ডাইনামিক বটম বার কন্টেইনার -->
-  <div id="bottomBarContainer"></div>
+  <div id="bottomBarContainer" class="w-full max-w-2xl fixed bottom-0 z-50"></div>
 
   <script>
     let currentUserId = null;
@@ -847,21 +846,25 @@
       return `${part1}***${part2}`;
     }
 
-    // টপ বার এবং বটম বার ডাইনামিক্যালি লোড করার ফাংশন
     async function loadBars() {
       try {
         const topRes = await fetch('../bar/top.html');
+
         if (topRes.ok) {
           let topContent = await topRes.text();
+
           topContent = topContent.replace(/game\/mem\/member\.html/g, 'mem/member.html');
           topContent = topContent.replace(/href="mem\/member\.html"/g, 'href="mem/member.html"');
+
           document.getElementById('topBarContainer').innerHTML = topContent;
+
           document.querySelectorAll('a[href*="deposit"]').forEach(a => {
             a.href = '../account/deposit.html';
           });
         }
 
         const botRes = await fetch('../bar/bottom.html');
+
         if (botRes.ok) {
           document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
         }
@@ -870,35 +873,50 @@
       }
     }
 
+    /*
+      Balance fix:
+      Read the same current_user localStorage item used by member.html.
+      Then retrieve the actual balance from Supabase profiles.
+    */
     async function syncCoinFlipBalance() {
       if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+        console.error('Supabase client is not available.');
         updateBalanceUI();
         return;
       }
 
       let storedUser = null;
+
       try {
         const storedValue = localStorage.getItem('current_user');
         if (storedValue) {
           storedUser = JSON.parse(storedValue);
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('Unable to read current_user:', e);
+      }
 
-      let userId = storedUser ? (storedUser.id || storedUser.user_id || storedUser.uid) : null;
+      let userId = storedUser
+        ? (storedUser.id || storedUser.user_id || storedUser.uid)
+        : null;
 
+      // Fallback to the existing helper if current_user has no usable ID.
       if (!userId && typeof getCurrentUser === 'function') {
         try {
           const authUser = await getCurrentUser();
           if (authUser) {
             userId = authUser.id || authUser.user_id || authUser.uid;
           }
-        } catch (e) {}
+        } catch (e) {
+          console.error('getCurrentUser error:', e);
+        }
       }
 
       if (!userId) {
         currentUserId = null;
         balance = 0;
         updateBalanceUI();
+        console.warn('No user ID found in current_user.');
         return;
       }
 
@@ -911,7 +929,14 @@
           .eq('id', userId)
           .maybeSingle();
 
-        if (error || !profile) {
+        if (error) {
+          console.error('Profile balance query error:', error);
+          updateBalanceUI();
+          return;
+        }
+
+        if (!profile) {
+          console.warn('No profiles row found for user:', userId);
           updateBalanceUI();
           return;
         }
@@ -919,10 +944,13 @@
         balance = Number(profile.balance) || 0;
         updateBalanceUI();
 
+        // Remove an older channel if the function is called again.
         if (profileChannel) {
           try {
             await supabaseClient.removeChannel(profileChannel);
-          } catch (e) {}
+          } catch (e) {
+            console.warn('Old balance channel cleanup error:', e);
+          }
         }
 
         profileChannel = supabaseClient
@@ -944,6 +972,7 @@
           )
           .subscribe();
       } catch (e) {
+        console.error('User/balance load error:', e);
         updateBalanceUI();
       }
     }
@@ -962,6 +991,7 @@
         validateBetInputStyle(amountInput);
       }
 
+      // Load the balance after the top bar has been inserted into the page.
       await syncCoinFlipBalance();
     }
 
@@ -1064,7 +1094,9 @@
 
       try {
         localStorage.setItem('coin_multiplier_history', JSON.stringify(previousResults));
-      } catch (e) {}
+      } catch (e) {
+        console.warn('History save error:', e);
+      }
     }
 
     function openHistoryModal() {
@@ -1141,6 +1173,7 @@
         .eq('id', currentUserId);
 
       if (error) {
+        console.error('Balance update error:', error);
         return false;
       }
 
@@ -1297,7 +1330,13 @@
               is_bool: false
             };
 
-            await supabaseClient.from('bets').insert([insertData]);
+            const { error } = await supabaseClient
+              .from('bets')
+              .insert([insertData]);
+
+            if (error) {
+              console.error('Lost bet record error:', error);
+            }
           }
 
           resetGameUI();
@@ -1361,7 +1400,13 @@
           is_bool: true
         };
 
-        await supabaseClient.from('bets').insert([insertData]);
+        const { error } = await supabaseClient
+          .from('bets')
+          .insert([insertData]);
+
+        if (error) {
+          console.error('Cashout bet record error:', error);
+        }
       }
 
       playClockBellSound();
