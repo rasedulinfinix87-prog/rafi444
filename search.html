@@ -48,14 +48,17 @@
 
     <!-- Categories -->
     <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-      <button type="button" data-category="all" class="category-btn flex items-center gap-2 bg-[#24ee89] text-[#07120d] font-bold px-4 py-2.5 rounded-xl text-xs shadow-sm">
-        <i class="fa-solid fa-border-all"></i> All Game
+      <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#24ee89] text-[#07120d] font-bold px-4 py-2.5 rounded-xl text-xs shadow-sm">
+        <i class="fa-solid fa-fire text-orange-500"></i> Hot Game
       </button>
       <button type="button" data-category="original" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
         <i class="fa-solid fa-bolt text-[#24ee89]"></i> Original
       </button>
-      <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
-        <i class="fa-solid fa-fire text-orange-500"></i> Hot Game
+      <button type="button" data-category="color_trading" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+        <i class="fa-solid fa-chart-line text-emerald-400"></i> Color Trading
+      </button>
+      <button type="button" data-category="lucky_lotteey" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
+        <i class="fa-solid fa-ticket text-purple-400"></i> Lucky Lotteey
       </button>
       <button type="button" data-category="slot" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
         <i class="fa-solid fa-dice text-blue-400"></i> Slot
@@ -77,7 +80,7 @@
     </div>
 
     <div class="flex items-center justify-between pt-1">
-      <h1 id="sectionTitle" class="text-base font-bold">All Game</h1>
+      <h1 id="sectionTitle" class="text-base font-bold">Hot Game</h1>
       <span id="gameCount" class="text-[11px] text-gray-400">0 games</span>
     </div>
 
@@ -106,7 +109,7 @@
       let allGames = [];
       let filteredGames = [];
       let visibleLimit = 12;
-      let activeCategory = 'all';
+      let activeCategory = 'hot'; // ডিফল্ট ক্যাটাগরি হট গেম সেট করা হয়েছে
 
       const grid = document.getElementById('gamesGrid');
       const searchInput = document.getElementById('gameSearch');
@@ -118,7 +121,7 @@
       const loadingMessage = document.getElementById('loadingMessage');
       const loadMoreBtn = document.getElementById('loadMoreBtn');
 
-      const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
+      const categoryTitles = { hot: 'Hot Game', original: 'Original', color_trading: 'Color Trading', lucky_lotteey: 'Lucky Lotteey', slot: 'Slot' };
 
       async function fetchGamesFromSupabase() {
         try {
@@ -157,7 +160,7 @@
         filteredGames = allGames.filter(game => {
           const gameCat = (game.category || '').trim().toLowerCase();
           const activeCat = activeCategory.trim().toLowerCase();
-          const catMatch = activeCat === 'all' || gameCat === activeCat;
+          const catMatch = gameCat === activeCat;
           const searchMatch = (game.title && game.title.toLowerCase().includes(query));
           return catMatch && searchMatch;
         });
@@ -185,13 +188,20 @@
           emptyMessage.classList.add('hidden');
           grid.classList.remove('hidden');
 
+          const pathSegments = window.location.pathname.split('/').filter(Boolean);
+          const repoPrefix = (pathSegments.length > 0 && !pathSegments[pathSegments.length - 1].includes('.html')) ? '/' + pathSegments[0] : '';
+
           grid.innerHTML = currentSlice.map(game => {
             const hasImg = game.image_url && game.image_url.trim() !== '';
-            const pageUrl = game.page_url || '#';
+            let pageUrl = game.page_url || '#';
+            
+            if (pageUrl.startsWith('/') && repoPrefix && !pageUrl.startsWith(repoPrefix)) {
+              pageUrl = repoPrefix + pageUrl;
+            }
+
             const title = game.title || 'Untitled Game';
             const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
 
-            // Show/Hide লজিক (ডিফল্ট true বা ফলস চেক করে)
             const showTitle = game.show_title !== false;
             const showBadge = game.show_badge !== false;
 
@@ -258,8 +268,12 @@
       async function loadFragment(url, containerId) {
         const container = document.getElementById(containerId);
         try {
-          const response = await fetch(url);
-          if (!response.ok) throw new Error('Could not load ' + url);
+          const pathSegments = window.location.pathname.split('/').filter(Boolean);
+          const repoPrefix = (pathSegments.length > 0 && !pathSegments[pathSegments.length - 1].includes('.html')) ? '/' + pathSegments[0] : '';
+          const resolvedUrl = (url.startsWith('/') && repoPrefix && !url.startsWith(repoPrefix)) ? repoPrefix + url : url;
+
+          const response = await fetch(resolvedUrl);
+          if (!response.ok) throw new Error('Could not load ' + resolvedUrl);
           const markup = await response.text();
           const parsed = new DOMParser().parseFromString(markup, 'text/html');
           container.innerHTML = parsed.body.innerHTML;
@@ -284,8 +298,8 @@
         }
       }
 
-      loadFragment('bar/top.html', 'topBarContainer');
-      loadFragment('bar/bottom.html', 'bottomBarContainer');
+      loadFragment('/bar/top.html', 'topBarContainer');
+      loadFragment('/bar/bottom.html', 'bottomBarContainer');
 
       window.addEventListener('DOMContentLoaded', () => {
         setTimeout(fetchGamesFromSupabase, 100);
