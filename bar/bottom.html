@@ -182,7 +182,8 @@
 
   <!-- Bottom Navigation -->
   <nav class="bottom-nav">
-    <button type="button" class="nav-item" id="openDrawer" onclick="openBottomDrawer(event)">
+    <!-- সরাসরি ইনলাইন ক্লিক ফাংশন ব্যবহার করা হলো যাতে কোনো মিস না হয় -->
+    <button type="button" class="nav-item" onclick="document.getElementById('modalDrawer').classList.add('show'); document.getElementById('drawerOverlay').classList.add('show');">
       <i class="fa-solid fa-bars"></i>
       <span>Menu</span>
     </button>
@@ -204,13 +205,13 @@
   </nav>
 
   <!-- Overlay -->
-  <div class="drawer-overlay" id="drawerOverlay" onclick="closeBottomDrawer()"></div>
+  <div class="drawer-overlay" id="drawerOverlay" onclick="this.classList.remove('show'); document.getElementById('modalDrawer').classList.remove('show');"></div>
 
   <!-- Modal Drawer (Bottom Sheet) -->
   <div class="drawer" id="modalDrawer">
     <div class="drawer-header">
       <h3>Menu</h3>
-      <button type="button" class="close-btn" id="closeDrawer" onclick="closeBottomDrawer()">
+      <button type="button" class="close-btn" onclick="document.getElementById('modalDrawer').classList.remove('show'); document.getElementById('drawerOverlay').classList.remove('show');">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
@@ -237,31 +238,6 @@
       </a>
     </div>
   </div>
-
-  <script>
-    // ইনলাইন ফাংশন যা ফেচ করা ফাইলেও ১০০% কাজ করবে
-    function openBottomDrawer(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      const drawer = document.getElementById('modalDrawer');
-      const overlay = document.getElementById('drawerOverlay');
-      if (drawer && overlay) {
-        drawer.classList.add('show');
-        overlay.classList.add('show');
-      }
-    }
-
-    function closeBottomDrawer() {
-      const drawer = document.getElementById('modalDrawer');
-      const overlay = document.getElementById('drawerOverlay');
-      if (drawer && overlay) {
-        drawer.classList.remove('show');
-        overlay.classList.remove('show');
-      }
-    }
-  </script>
 
 </body>
 </html>
