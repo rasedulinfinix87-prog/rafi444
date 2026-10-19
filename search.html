@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase-config.js"></script>
+  <script src="supabase-config.js"></script>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; background: #0f141c; color: #fff; }
@@ -16,7 +16,9 @@
     ::-webkit-scrollbar-thumb { background: #222b3a; border-radius: 4px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-    body { padding-bottom: 82px; }
+    body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+    #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
+    #bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
     .category-btn { white-space: nowrap; }
     .game-card { min-width: 0; min-height: 154px; }
     .game-art { min-height: 154px; }
@@ -222,11 +224,11 @@
           // Correct root-relative navigation paths for this /search/ page.
           if (containerId === 'topBarContainer') {
             const logo = container.querySelector('a[href="index.html"]');
-            if (logo) logo.href = '../index.html';
+            if (logo) logo.href = 'index.html';
             const deposit = container.querySelector('#depositLinkBtn');
-            if (deposit) deposit.href = '../account/deposit.html';
+            if (deposit) deposit.href = 'account/deposit.html';
             const profile = container.querySelector('#profileLinkBtn');
-            if (profile) profile.href = '../mem/member.html';
+            if (profile) profile.href = 'mem/member.html';
           }
 
           parsed.querySelectorAll('script').forEach(oldScript => {
@@ -240,8 +242,8 @@
         }
       }
 
-      loadFragment('../bar/top.html', 'topBarContainer');
-      loadFragment('../bar/bottom.html', 'bottomBarContainer');
+      loadFragment('bar/top.html', 'topBarContainer');
+      loadFragment('bar/bottom.html', 'bottomBarContainer');
     })();
   </script>
 </body>
