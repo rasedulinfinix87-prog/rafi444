@@ -123,7 +123,6 @@
       // GitHub Pages এর সাব-ফোল্ডার বা ইউজারনেম প্রিফিক্স স্বয়ংক্রিয়ভাবে বের করার ফাংশন
       function getRepoPrefix() {
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
-        // যদি প্রথম segmentটি কোনো html ফাইল না হয়, তবে সেটি রিপ্রোসিটরি বা ইউজারনেম ফোল্ডার হতে পারে
         if (pathSegments.length > 0 && !pathSegments[pathSegments.length - 1].includes('.html')) {
           return '/' + pathSegments[0];
         }
@@ -200,12 +199,10 @@
             let imageUrl = game.image_url ? game.image_url.trim() : '';
             let pageUrl = game.page_url ? game.page_url.trim() : '#';
 
-            // ইমেজ পাথ শর্ট হলে (যেমন: /assets/...) সঠিক প্রিফিক্স যুক্ত করা
             if (imageUrl.startsWith('/') && repoPrefix && !imageUrl.startsWith(repoPrefix)) {
               imageUrl = repoPrefix + imageUrl;
             }
 
-            // পেজ ইউআরএল শর্ট হলে (যেমন: /game/plinko.html) সঠিক প্রিফিক্স যুক্ত করা
             if (pageUrl.startsWith('/') && repoPrefix && !pageUrl.startsWith(repoPrefix)) {
               pageUrl = repoPrefix + pageUrl;
             }
@@ -277,43 +274,45 @@
         renderGrid();
       });
 
-      async function loadFragment(url, containerId) {
-        const container = document.getElementById(containerId);
-        const repoPrefix = getRepoPrefix();
-        // ফ্র্যাগমেন্ট লোড করার সময়ও সাব-ফোল্ডার পাথ ঠিক রাখা হলো
-        const finalUrl = repoPrefix && !url.startsWith('/') ? repoPrefix + '/' + url : (repoPrefix && url.startsWith('/') ? repoPrefix + url : url);
-
+      // Top Bar Loader
+      async function loadTopBar() {
         try {
-          const response = await fetch(finalUrl);
-          if (!response.ok) throw new Error('Could not load ' + finalUrl);
-          const markup = await response.text();
-          const parsed = new DOMParser().parseFromString(markup, 'text/html');
-          container.innerHTML = parsed.body.innerHTML;
-
-          if (containerId === 'topBarContainer') {
-            const logo = container.querySelector('a[href="index.html"]');
-            if (logo) logo.href = (repoPrefix ? repoPrefix : '') + '/index.html';
-            const deposit = container.querySelector('#depositLinkBtn');
-            if (deposit) deposit.href = (repoPrefix ? repoPrefix : '') + '/account/deposit.html';
-            const profile = container.querySelector('#profileLinkBtn');
-            if (profile) profile.href = (repoPrefix ? repoPrefix : '') + '/mem/member.html';
+          const repoPrefix = getRepoPrefix();
+          const url = (repoPrefix ? repoPrefix : '') + '/bar/top.html';
+          const response = await fetch(url);
+          if (response.ok) {
+            const html = await response.text();
+            document.getElementById('topBarContainer').innerHTML = html;
           }
-
-          parsed.querySelectorAll('script').forEach(oldScript => {
-            if (oldScript.src) return;
-            const script = document.createElement('script');
-            script.textContent = oldScript.textContent;
-            container.appendChild(script);
-          });
-        } catch (error) {
-          console.error(error);
+        } catch (err) {
+          console.error('Error loading top bar component:', err);
         }
       }
 
-      loadFragment('bar/top.html', 'topBarContainer');
-      loadFragment('bar/bottom.html', 'bottomBarContainer');
+      // Dynamic Bottom Bar Loader (index (24).html ফাইলের আদলে তৈরি)
+      async function loadBottomBar() {
+        try {
+          const repoPrefix = getRepoPrefix();
+          const url = (repoPrefix ? repoPrefix : '') + '/bar/bottom.html';
+          const response = await fetch(url);
+          if (response.ok) {
+            const html = await response.text();
+            const bottomBarContainer = document.getElementById('bottomBarContainer');
+            if (bottomBarContainer) {
+              bottomBarContainer.innerHTML = html;
+            }
+          } else {
+            console.error('Error loading bottom bar component:', response.status);
+          }
+        } catch (err) {
+          console.error('Error loading bottom bar component:', err);
+        }
+      }
 
-      window.addEventListener('DOMContentLoaded', () => {
+      // Initialization Logic 
+      window.addEventListener('DOMContentLoaded', () => { 
+        loadTopBar(); 
+        loadBottomBar();
         setTimeout(fetchGamesFromSupabase, 100);
       });
     })();
