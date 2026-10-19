@@ -274,7 +274,7 @@
         renderGrid();
       });
 
-      // Top Bar Loader
+      // Top Bar Loader (index.html ফাইলের মতো নিরাপদ ফেচ লজিক)
       async function loadTopBar() {
         try {
           const repoPrefix = getRepoPrefix();
@@ -283,13 +283,15 @@
           if (response.ok) {
             const html = await response.text();
             document.getElementById('topBarContainer').innerHTML = html;
+          } else {
+            console.error('Error loading top bar:', response.status);
           }
         } catch (err) {
           console.error('Error loading top bar component:', err);
         }
       }
 
-      // Dynamic Bottom Bar Loader (index (24).html ফাইলের আদলে তৈরি)
+      // Bottom Bar Loader
       async function loadBottomBar() {
         try {
           const repoPrefix = getRepoPrefix();
@@ -302,7 +304,7 @@
               bottomBarContainer.innerHTML = html;
             }
           } else {
-            console.error('Error loading bottom bar component:', response.status);
+            console.error('Error loading bottom bar:', response.status);
           }
         } catch (err) {
           console.error('Error loading bottom bar component:', err);
