@@ -52,7 +52,7 @@
         <i class="fa-solid fa-border-all"></i> All Game
       </button>
       <button type="button" data-category="original" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
-        <i class="fa-solid fa-bolt text-[#24ee89]"></i> Arsh
+        <i class="fa-solid fa-bolt text-[#24ee89]"></i> Original
       </button>
       <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#171d28] text-gray-300 font-semibold px-4 py-2.5 rounded-xl text-xs border border-[#222b3a]">
         <i class="fa-solid fa-fire text-orange-500"></i> Hot Game
@@ -62,133 +62,164 @@
       </button>
     </div>
 
-    <!-- Sort and provider filters -->
-    <div class="grid grid-cols-2 gap-3">
+    <!-- Sort Filters -->
+    <div class="grid grid-cols-1 gap-3">
       <label class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3 py-2.5 flex items-center justify-between text-xs">
         <span class="flex items-center gap-2 text-gray-400">Sort By:
           <select id="sortGames" class="bg-transparent text-white font-semibold focus:outline-none">
-            <option value="popular" class="bg-[#171d28]">Popular</option>
+            <option value="default" class="bg-[#171d28]">Default</option>
             <option value="az" class="bg-[#171d28]">A–Z</option>
             <option value="za" class="bg-[#171d28]">Z–A</option>
           </select>
         </span>
         <i class="fa-solid fa-arrow-down-wide-short text-gray-400"></i>
       </label>
-      <label class="bg-[#171d28] border border-[#222b3a] rounded-xl px-3 py-2.5 flex items-center justify-between text-xs">
-        <span class="flex items-center gap-2 text-gray-400">Providers:
-          <select id="providerFilter" class="bg-transparent text-white font-semibold focus:outline-none">
-            <option value="all" class="bg-[#171d28]">All</option>
-            <option value="Arsh" class="bg-[#171d28]">Arsh</option>
-            <option value="Spribe" class="bg-[#171d28]">Spribe</option>
-            <option value="JILI" class="bg-[#171d28]">JILI</option>
-            <option value="PG" class="bg-[#171d28]">PG</option>
-            <option value="FC" class="bg-[#171d28]">FC</option>
-          </select>
-        </span>
-        <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
-      </label>
     </div>
 
     <div class="flex items-center justify-between pt-1">
       <h1 id="sectionTitle" class="text-base font-bold">All Game</h1>
-      <span id="gameCount" class="text-[11px] text-gray-400">10 games</span>
+      <span id="gameCount" class="text-[11px] text-gray-400">0 games</span>
     </div>
 
-    <!-- Cards are populated by the filtering logic below -->
+    <!-- Cards populated via Supabase -->
     <div id="gamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4"></div>
-    <p id="emptyMessage" class="hidden text-center text-sm text-gray-400 py-10">কোনো গেম পাওয়া যায়নি। অন্য নাম দিয়ে সার্চ করুন।</p>
+    
+    <!-- Loading & Empty state messages -->
+    <p id="loadingMessage" class="text-center text-sm text-gray-400 py-10">গেম লোড হচ্ছে...</p>
+    <p id="emptyMessage" class="hidden text-center text-sm text-gray-400 py-10">কোনো গেম পাওয়া যায়নি। অন্য নাম দিয়ে সার্চ করুন।</p>
+
+    <!-- Load More Button -->
+    <div class="text-center pt-2">
+      <button id="loadMoreBtn" class="hidden bg-[#1f293a] hover:bg-[#222b3a] text-[#24ee89] font-bold border border-[#24ee89]/40 px-6 py-2.5 rounded-xl text-xs transition-all">
+        <i class="fa-solid fa-rotate-right mr-1"></i> Load More
+      </button>
+    </div>
   </main>
 
-  <!-- Bottom bar loaded from root /bar/bottom.html and fixed at the bottom -->
+  <!-- Bottom bar loaded from root /bar/bottom.html -->
   <div id="bottomBarContainer"></div>
 
   <script>
     (function () {
       'use strict';
 
-      const games = [
-        {name:'Crash', provider:'Arsh', category:'original', badge:'Original Game', color:'from-emerald-700', icon:'fa-chart-line', popular:100, href:'#'},
-        {name:'Dice', provider:'Arsh', category:'original', badge:'Original Game', color:'from-blue-800', icon:'fa-dice', popular:99, href:'#'},
-        {name:'Keno', provider:'Arsh', category:'original', badge:'Original Game', color:'from-teal-800', icon:'fa-table-cells', popular:98, href:'#'},
-        {name:'Roulette', provider:'Arsh', category:'original', badge:'Original Game', color:'from-purple-800', icon:'fa-circle-dot', popular:97, href:'#'},
-        {name:'Baccarat', provider:'Arsh', category:'original', badge:'Original Game', color:'from-indigo-800', icon:'fa-clone', popular:96, href:'#'},
-        {name:'Coin Flip', provider:'Arsh', category:'original', badge:'Original Game', color:'from-cyan-800', icon:'fa-coins', popular:95, href:'#'},
-        {name:'7 Under Over', provider:'Arsh', category:'original', badge:'Original Game', color:'from-green-800', icon:'fa-dice-two', popular:94, href:'#'},
-        {name:'Mines', provider:'Arsh', category:'original', badge:'Original Game', color:'from-slate-700', icon:'fa-bomb', popular:93, href:'#'},
-        {name:'Plinko', provider:'Arsh', category:'original', badge:'Original Game', color:'from-orange-800', icon:'fa-braille', popular:92, href:'#'},
-        {name:'Limbo', provider:'Arsh', category:'original', badge:'Original Game', color:'from-violet-800', icon:'fa-arrow-trend-up', popular:91, href:'#'},
-
-        {name:'Aviator', provider:'Spribe', category:'hot', badge:'Hot Game', color:'from-red-900', icon:'fa-plane', popular:90, href:'#'},
-        {name:'Super Ace', provider:'JILI', category:'hot', badge:'Hot Game', color:'from-amber-700', icon:'fa-star', popular:89, href:'#'},
-        {name:'Super Elements', provider:'FC', category:'hot', badge:'Hot Game', color:'from-orange-800', icon:'fa-gem', popular:88, href:'#'},
-        {name:'Circus Joker', provider:'JILI', category:'hot', badge:'Hot Game', color:'from-fuchsia-900', icon:'fa-masks-theater', popular:87, href:'#'},
-        {name:'Lucky Neko', provider:'PG', category:'hot', badge:'Hot Game', color:'from-blue-900', icon:'fa-cat', popular:86, href:'#'},
-        {name:'Dragon Tiger', provider:'JILI', category:'hot', badge:'Hot Game', color:'from-rose-900', icon:'fa-dragon', popular:85, href:'#'},
-        {name:'Fortune Gems', provider:'JILI', category:'hot', badge:'Hot Game', color:'from-pink-900', icon:'fa-gem', popular:84, href:'#'},
-        {name:'Wild Bandito', provider:'PG', category:'hot', badge:'Hot Game', color:'from-yellow-900', icon:'fa-hat-cowboy', popular:83, href:'#'},
-        {name:'Golden Empire', provider:'FC', category:'hot', badge:'Hot Game', color:'from-yellow-800', icon:'fa-crown', popular:82, href:'#'},
-        {name:'Fortune Tiger', provider:'PG', category:'hot', badge:'Hot Game', color:'from-red-800', icon:'fa-paw', popular:81, href:'#'},
-
-        {name:'Fortune Rabbit', provider:'PG', category:'slot', badge:'PG', color:'from-pink-900', icon:'fa-rabbit', popular:80, href:'#'},
-        {name:'Mahjong Ways', provider:'PG', category:'slot', badge:'PG', color:'from-emerald-900', icon:'fa-leaf', popular:79, href:'#'},
-        {name:'Treasures of Aztec', provider:'PG', category:'slot', badge:'PG', color:'from-amber-900', icon:'fa-landmark', popular:78, href:'#'},
-        {name:'Wild Bounty Showdown', provider:'PG', category:'slot', badge:'PG', color:'from-lime-900', icon:'fa-crosshairs', popular:77, href:'#'},
-        {name:'Candy Bonanza', provider:'PG', category:'slot', badge:'PG', color:'from-fuchsia-900', icon:'fa-candy-cane', popular:76, href:'#'},
-        {name:'Dragon Hatch', provider:'JILI', category:'slot', badge:'JILI', color:'from-red-900', icon:'fa-dragon', popular:75, href:'#'},
-        {name:'Fortune Coins', provider:'JILI', category:'slot', badge:'JILI', color:'from-yellow-800', icon:'fa-coins', popular:74, href:'#'},
-        {name:'Super Rich', provider:'FC', category:'slot', badge:'FC', color:'from-green-900', icon:'fa-sack-dollar', popular:73, href:'#'},
-        {name:'Jungle King', provider:'JILI', category:'slot', badge:'JILI', color:'from-teal-900', icon:'fa-tree', popular:72, href:'#'},
-        {name:'Lucky Gold', provider:'FC', category:'slot', badge:'FC', color:'from-yellow-900', icon:'fa-coins', popular:71, href:'#'}
-      ];
+      let allGames = [];
+      let filteredGames = [];
+      let visibleLimit = 12;
+      let activeCategory = 'all';
 
       const grid = document.getElementById('gamesGrid');
       const searchInput = document.getElementById('gameSearch');
       const clearSearch = document.getElementById('clearSearch');
-      const providerFilter = document.getElementById('providerFilter');
       const sortGames = document.getElementById('sortGames');
       const gameCount = document.getElementById('gameCount');
       const sectionTitle = document.getElementById('sectionTitle');
       const emptyMessage = document.getElementById('emptyMessage');
-      let activeCategory = 'all';
+      const loadingMessage = document.getElementById('loadingMessage');
+      const loadMoreBtn = document.getElementById('loadMoreBtn');
 
-      const categoryTitles = { all: 'All Game', original: 'Arsh', hot: 'Hot Game', slot: 'Slot' };
+      const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
 
-      function renderGames() {
-        const query = searchInput.value.trim().toLowerCase();
-        const provider = providerFilter.value;
-        let filtered = games.filter(game => {
-          const categoryMatch = activeCategory === 'all' || game.category === activeCategory;
-          const searchMatch = game.name.toLowerCase().includes(query) || game.provider.toLowerCase().includes(query);
-          const providerMatch = provider === 'all' || game.provider === provider;
-          return categoryMatch && searchMatch && providerMatch;
-        });
+      // Supabase থেকে ডেটা ফেচ করা
+      async function fetchGamesFromSupabase() {
+        try {
+          // supabaseClient ইনিশিয়ালাইজড হওয়া নিশ্চিত করা
+          const client = window.supabaseClient || (window.supabase && window.supabase.createClient ? window.supabase : null);
+          
+          if (!client) {
+            console.error('Supabase client found missing! Check supabase-config.js');
+            loadingMessage.textContent = 'Supabase কনফিগারেশন পাওয়া যায়নি।';
+            return;
+          }
 
-        if (sortGames.value === 'az') filtered.sort((a,b) => a.name.localeCompare(b.name));
-        else if (sortGames.value === 'za') filtered.sort((a,b) => b.name.localeCompare(a.name));
-        else filtered.sort((a,b) => b.popular - a.popular);
+          const { data, error } = await client
+            .from('grid_control_url_image')
+            .select('*')
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true });
 
-        grid.innerHTML = filtered.map(game => `
-          <a href="${game.href}" class="game-card group relative bg-[#171d28] border border-[#222b3a] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
-            <div class="game-art absolute inset-0 bg-gradient-to-b ${game.color} to-[#171d28] flex flex-col items-center justify-center gap-3 p-2">
-              <i class="fa-solid ${game.icon} text-3xl sm:text-4xl text-white/90 drop-shadow-lg"></i>
-              <div class="text-center font-black italic text-xs sm:text-base text-white tracking-wide drop-shadow-lg">${game.name}</div>
-            </div>
-            <div class="relative z-10 flex justify-end items-center p-2">
-              <span class="text-[9px] sm:text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-1 rounded-full border border-white/10">${game.provider}</span>
-            </div>
-            <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/85 to-transparent">
-              <span class="text-[8px] sm:text-[9px] font-bold tracking-wider text-gray-300 uppercase">${game.badge}</span>
-            </div>
-          </a>
-        `).join('');
+          if (error) throw error;
 
-        sectionTitle.textContent = query ? 'Search Results' : categoryTitles[activeCategory];
-        gameCount.textContent = `${filtered.length} games`;
-        emptyMessage.classList.toggle('hidden', filtered.length !== 0);
-        grid.classList.toggle('hidden', filtered.length === 0);
-        clearSearch.classList.toggle('hidden', !searchInput.value);
+          allGames = data || [];
+          loadingMessage.classList.add('hidden');
+          applyFilters();
+        } catch (err) {
+          console.error('Error fetching games:', err);
+          loadingMessage.textContent = 'গেম লোড করতে সমস্যা হয়েছে।';
+        }
       }
 
+      function applyFilters() {
+        const query = searchInput.value.trim().toLowerCase();
+        
+        filteredGames = allGames.filter(game => {
+          const catMatch = activeCategory === 'all' || (game.category && game.category.toLowerCase() === activeCategory.toLowerCase());
+          const searchMatch = (game.title && game.title.toLowerCase().includes(query));
+          return catMatch && searchMatch;
+        });
+
+        if (sortGames.value === 'az') {
+          filteredGames.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        } else if (sortGames.value === 'za') {
+          filteredGames.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+        } else {
+          filteredGames.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+        }
+
+        visibleLimit = 12; // ফিল্টার পরিবর্তন হলে রি-সেট হবে ১২-তে
+        renderGrid();
+      }
+
+      function renderGrid() {
+        const currentSlice = filteredGames.slice(0, visibleLimit);
+
+        if (currentSlice.length === 0) {
+          grid.innerHTML = '';
+          emptyMessage.classList.remove('hidden');
+          grid.classList.add('hidden');
+        } else {
+          emptyMessage.classList.add('hidden');
+          grid.classList.remove('hidden');
+
+          grid.innerHTML = currentSlice.map(game => {
+            const hasImg = game.image_url && game.image_url.trim() !== '';
+            const pageUrl = game.page_url || '#';
+            const title = game.title || 'Untitled Game';
+            const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
+
+            return `
+              <a href="${pageUrl}" class="game-card group relative bg-[#171d28] border border-[#222b3a] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
+                <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#171d28] flex flex-col items-center justify-center p-1">
+                  ${hasImg 
+                    ? `<img src="${game.image_url}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
+                    : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
+                       <div class="text-center font-black text-xs sm:text-sm text-white tracking-wide drop-shadow-lg px-2">${title}</div>`
+                  }
+                </div>
+                <div class="relative z-10 flex justify-end items-center p-2">
+                  <span class="text-[9px] sm:text-[10px] font-bold text-gray-200 bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>
+                </div>
+                <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                  <span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-white truncate block">${title}</span>
+                </div>
+              </a>
+            `;
+          }).join('');
+        }
+
+        sectionTitle.textContent = searchInput.value.trim() ? 'Search Results' : (categoryTitles[activeCategory] || 'Games');
+        gameCount.textContent = `${filteredGames.length} games`;
+        clearSearch.classList.toggle('hidden', !searchInput.value);
+
+        // Load More বাটনের কন্ট্রোল
+        if (visibleLimit < filteredGames.length) {
+          loadMoreBtn.classList.remove('hidden');
+        } else {
+          loadMoreBtn.classList.add('hidden');
+        }
+      }
+
+      // Event Listeners
       document.querySelectorAll('[data-category]').forEach(button => {
         button.addEventListener('click', () => {
           activeCategory = button.dataset.category;
@@ -201,17 +232,24 @@
             btn.classList.toggle('border', !active);
             btn.classList.toggle('border-[#222b3a]', !active);
           });
-          renderGames();
+          applyFilters();
         });
       });
 
-      searchInput.addEventListener('input', renderGames);
-      clearSearch.addEventListener('click', () => { searchInput.value = ''; renderGames(); searchInput.focus(); });
-      providerFilter.addEventListener('change', renderGames);
-      sortGames.addEventListener('change', renderGames);
-      renderGames();
+      searchInput.addEventListener('input', applyFilters);
+      clearSearch.addEventListener('click', () => { 
+        searchInput.value = ''; 
+        applyFilters(); 
+        searchInput.focus(); 
+      });
+      sortGames.addEventListener('change', applyFilters);
 
-      // Load shared navigation fragments. Inline scripts are executed after insertion.
+      loadMoreBtn.addEventListener('click', () => {
+        visibleLimit += 12;
+        renderGrid();
+      });
+
+      // Top and Bottom Bar Loading Function
       async function loadFragment(url, containerId) {
         const container = document.getElementById(containerId);
         try {
@@ -221,7 +259,6 @@
           const parsed = new DOMParser().parseFromString(markup, 'text/html');
           container.innerHTML = parsed.body.innerHTML;
 
-          // Correct root-relative navigation paths for this /search/ page.
           if (containerId === 'topBarContainer') {
             const logo = container.querySelector('a[href="index.html"]');
             if (logo) logo.href = 'index.html';
@@ -232,7 +269,7 @@
           }
 
           parsed.querySelectorAll('script').forEach(oldScript => {
-            if (oldScript.src) return; // External libraries/config are already loaded by this page.
+            if (oldScript.src) return;
             const script = document.createElement('script');
             script.textContent = oldScript.textContent;
             container.appendChild(script);
@@ -244,6 +281,9 @@
 
       loadFragment('bar/top.html', 'topBarContainer');
       loadFragment('bar/bottom.html', 'bottomBarContainer');
+
+      // Init Fetch
+      fetchGamesFromSupabase();
     })();
   </script>
 </body>
