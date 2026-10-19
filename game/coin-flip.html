@@ -43,9 +43,9 @@
       right: 0;
       bottom: 0;
       width: 100%;
-      height: 75px;
       z-index: 5000;
       isolation: isolate;
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     .game-page {
@@ -507,10 +507,8 @@
     </div>
   </div>
 
-  <!-- সরাসরি আইফ্রেম ব্যবহার করা হলো যাতে মেনু ও ড্রয়ার সবসময় কাজ করে -->
-  <div id="bottomBarContainer" class="w-full fixed bottom-0 z-[9999]">
-    <iframe src="../bar/bottom.html" style="width: 100%; height: 75px; border: none; display: block; background: transparent;" scrolling="no"></iframe>
-  </div>
+  <!-- ডাইনামিক বটম বার কন্টেইনার -->
+  <div id="bottomBarContainer"></div>
 
   <script>
     let currentUserId = null;
@@ -849,48 +847,44 @@
       return `${part1}***${part2}`;
     }
 
-    async function loadTopBar() {
+    // টপ বার এবং বটম বার ডাইনামিক্যালি লোড করার ফাংশন
+    async function loadBars() {
       try {
         const topRes = await fetch('../bar/top.html');
-
         if (topRes.ok) {
           let topContent = await topRes.text();
-
           topContent = topContent.replace(/game\/mem\/member\.html/g, 'mem/member.html');
           topContent = topContent.replace(/href="mem\/member\.html"/g, 'href="mem/member.html"');
-
           document.getElementById('topBarContainer').innerHTML = topContent;
-
           document.querySelectorAll('a[href*="deposit"]').forEach(a => {
             a.href = '../account/deposit.html';
           });
         }
+
+        const botRes = await fetch('../bar/bottom.html');
+        if (botRes.ok) {
+          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+        }
       } catch (e) {
-        console.error('Top bar load error:', e);
+        console.error('Bar load error:', e);
       }
     }
 
     async function syncCoinFlipBalance() {
       if (typeof supabaseClient === 'undefined' || !supabaseClient) {
-        console.error('Supabase client is not available.');
         updateBalanceUI();
         return;
       }
 
       let storedUser = null;
-
       try {
         const storedValue = localStorage.getItem('current_user');
         if (storedValue) {
           storedUser = JSON.parse(storedValue);
         }
-      } catch (e) {
-        console.error('Unable to read current_user:', e);
-      }
+      } catch (e) {}
 
-      let userId = storedUser
-        ? (storedUser.id || storedUser.user_id || storedUser.uid)
-        : null;
+      let userId = storedUser ? (storedUser.id || storedUser.user_id || storedUser.uid) : null;
 
       if (!userId && typeof getCurrentUser === 'function') {
         try {
@@ -898,9 +892,7 @@
           if (authUser) {
             userId = authUser.id || authUser.user_id || authUser.uid;
           }
-        } catch (e) {
-          console.error('getCurrentUser error:', e);
-        }
+        } catch (e) {}
       }
 
       if (!userId) {
@@ -957,7 +949,7 @@
     }
 
     async function initCoinFlipGame() {
-      await loadTopBar();
+      await loadBars();
       initRatingSystem();
 
       renderHistoryBar();
@@ -1267,3 +1259,149 @@
             ? activeBetAmount * currentMultiplier
             : 0;
 
+          statusText.innerHTML =
+            '<span style="color:#24ee89;font-weight:800">(WIN) · ৳ ' +
+            potentialWin.toFixed(2) +
+            '</span>';
+
+          gameState = 'won_streak';
+          isFlipping = false;
+
+          setActionButton(
+            activeBetAmount > 0
+              ? 'Cash Out (৳ ' + potentialWin.toFixed(2) + ')'
+              : 'Continue (Demo)',
+            'red-btn'
+          );
+
+        } else {
+          statusText.innerHTML =
+            '<span style="color:#ed4245;font-weight:800">LOST! Better luck next time.</span>';
+
+          previousResults.push('0.00x');
+          if (previousResults.length > 50) previousResults.shift();
+          renderHistoryBar();
+
+          if (activeBetAmount > 0) {
+            updateLiveStatsUI(-activeBetAmount, activeBetAmount, false);
+          }
+
+          if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
+            const insertData = {
+              id: generateUUID(),
+              user_id: currentUserId,
+              target_number: selectedChoice === 'heads' ? 1 : 2,
+              roll_result: 0.00,
+              bet_amount: activeBetAmount,
+              payout: 0,
+              is_bool: false
+            };
+
+            await supabaseClient.from('bets').insert([insertData]);
+          }
+
+          resetGameUI();
+        }
+      }, flipDelay);
+    }
+
+    async function cashOut() {
+      if (isFlipping || isProcessingAction || gameState !== 'won_streak') {
+        return;
+      }
+
+      isProcessingAction = true;
+
+      const payoutAmount = activeBetAmount > 0
+        ? Number((activeBetAmount * currentMultiplier).toFixed(2))
+        : 0;
+
+      setActionButton('Processing Cash Out...', 'red-btn', true);
+
+      const recordedMultiplierStr = currentMultiplier.toFixed(2) + 'x';
+      previousResults.push(recordedMultiplierStr);
+      if (previousResults.length > 50) previousResults.shift();
+      renderHistoryBar();
+
+      const profit = payoutAmount - activeBetAmount;
+
+      if (activeBetAmount > 0) {
+        balance += payoutAmount;
+        updateBalanceUI();
+
+        const saved = await saveProfileBalance();
+
+        if (!saved) {
+          balance -= payoutAmount;
+          updateBalanceUI();
+
+          isProcessingAction = false;
+          setActionButton(
+            'Cash Out (৳ ' + payoutAmount.toFixed(2) + ')',
+            'red-btn'
+          );
+
+          document.getElementById('gameStatusText').innerHTML =
+            '<span style="color:#ed4245;font-weight:800">Balance update failed. Please try again.</span>';
+
+          return;
+        }
+
+        updateLiveStatsUI(profit, activeBetAmount, true);
+      }
+
+      if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
+        const insertData = {
+          id: generateUUID(),
+          user_id: currentUserId,
+          target_number: selectedChoice === 'heads' ? 1 : 2,
+          roll_result: currentMultiplier,
+          bet_amount: activeBetAmount,
+          payout: payoutAmount,
+          is_bool: true
+        };
+
+        await supabaseClient.from('bets').insert([insertData]);
+      }
+
+      playClockBellSound();
+
+      document.getElementById('gameStatusText').innerHTML =
+        '<span style="color:#24ee89;font-weight:800">(Won): ৳ ' +
+        payoutAmount.toFixed(2) +
+        '</span>';
+
+      resetGameUI();
+    }
+
+    function resetGameUI() {
+      roundToken++;
+
+      gameState = 'ready';
+      isFlipping = false;
+      isProcessingAction = false;
+
+      activeBetAmount = 0;
+      resetStats();
+
+      const btn = document.getElementById('btnAction');
+      const coin = document.getElementById('coinElement');
+
+      coin.classList.remove('flipping-heads', 'flipping-tails');
+      void coin.offsetWidth;
+
+      btn.disabled = false;
+      btn.className =
+        'w-full py-3.5 green-btn text-sm rounded-xl transition shadow active:scale-[0.99] flex items-center justify-center gap-2';
+      btn.innerText = 'Bet';
+
+      const amountInput = document.getElementById('betAmount');
+      if (amountInput) {
+        validateBetInputStyle(amountInput);
+      }
+    }
+
+    window.addEventListener('load', initCoinFlipGame);
+  </script>
+</body>
+</html>
