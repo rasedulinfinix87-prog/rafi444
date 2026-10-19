@@ -120,16 +120,15 @@
 
       const categoryTitles = { all: 'All Game', original: 'Original', hot: 'Hot Game', slot: 'Slot' };
 
-      // 🔥 গিটহাব পেজেসের জন্য সঠিক পাথ বের করার ফাংশন (rafi444 ফোল্ডার ধরবে)
-      function getRepoPrefix() {
-        const pathSegments = window.location.pathname.split('/').filter(Boolean);
-        if (window.location.hostname.includes('github.io') && pathSegments.length > 0) {
-          return '/' + pathSegments[0]; // রিটার্ন করবে: /rafi444
+      // গিটহাব পেজেসের জন্য বেস পাথ ডিটেক্ট
+      function getBasePath() {
+        if (window.location.hostname.includes('github.io')) {
+          const pathParts = window.location.pathname.split('/');
+          if (pathParts.length > 1 && pathParts[1] !== '') {
+            return '/' + pathParts[1] + '/';
+          }
         }
-        if (pathSegments.length > 0 && !pathSegments[pathSegments.length - 1].includes('.html')) {
-          return '/' + pathSegments[0];
-        }
-        return '';
+        return './';
       }
 
       async function fetchGamesFromSupabase() {
@@ -154,7 +153,7 @@
           loadingMessage.classList.add('hidden');
           applyFilters();
         } catch (err) {
-          console.error('Error fetching games from grid_control_url_image:', err);
+          console.error('Error fetching games:', err);
           grid.innerHTML = '';
           grid.classList.add('hidden');
           emptyMessage.classList.add('hidden');
@@ -188,7 +187,7 @@
 
       function renderGrid() {
         const currentSlice = filteredGames.slice(0, visibleLimit);
-        const repoPrefix = getRepoPrefix();
+        const basePath = getBasePath();
 
         if (currentSlice.length === 0) {
           grid.innerHTML = '';
@@ -202,12 +201,12 @@
             let imageUrl = game.image_url ? game.image_url.trim() : '';
             let pageUrl = game.page_url ? game.page_url.trim() : '#';
 
-            if (imageUrl.startsWith('/') && repoPrefix && !imageUrl.startsWith(repoPrefix)) {
-              imageUrl = repoPrefix + imageUrl;
+            if (imageUrl.startsWith('/') && basePath !== './' && !imageUrl.startsWith(basePath)) {
+              imageUrl = basePath.replace(/\/$/, '') + imageUrl;
             }
 
-            if (pageUrl.startsWith('/') && repoPrefix && !pageUrl.startsWith(repoPrefix)) {
-              pageUrl = repoPrefix + pageUrl;
+            if (pageUrl.startsWith('/') && basePath !== './' && !pageUrl.startsWith(basePath)) {
+              pageUrl = basePath.replace(/\/$/, '') + pageUrl;
             }
 
             const hasImg = imageUrl !== '';
@@ -277,47 +276,37 @@
         renderGrid();
       });
 
-      // Top Bar Loader 
-      async function loadTopBar() {
+      // টপবার এবং বটমবার লোড
+      async function loadBars() {
+        const basePath = getBasePath();
+        
         try {
-          const repoPrefix = getRepoPrefix();
-          const url = (repoPrefix ? repoPrefix : '') + '/bar/top.html';
-          const response = await fetch(url);
-          if (response.ok) {
-            const html = await response.text();
-            document.getElementById('topBarContainer').innerHTML = html;
+          const topRes = await fetch(basePath + 'bar/top.html');
+          if (topRes.ok) {
+            let topContent = await topRes.text();
+            topContent = topContent.replace(/game\/mem\/member\.html/g, basePath + 'mem/member.html');
+            document.getElementById('topBarContainer').innerHTML = topContent;
+            document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+              a.href = basePath + 'account/deposit.html';
+            });
           } else {
-            console.error('Error loading top bar:', response.status);
+            console.error('Top bar failed:', topRes.status);
+          }
+
+          const botRes = await fetch(basePath + 'bar/bottom.html');
+          if (botRes.ok) {
+            document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+          } else {
+            console.error('Bottom bar failed:', botRes.status);
           }
         } catch (err) {
-          console.error('Error loading top bar component:', err);
+          console.error('Bar loading error:', err);
         }
       }
 
-      // Bottom Bar Loader
-      async function loadBottomBar() {
-        try {
-          const repoPrefix = getRepoPrefix();
-          const url = (repoPrefix ? repoPrefix : '') + '/bar/bottom.html';
-          const response = await fetch(url);
-          if (response.ok) {
-            const html = await response.text();
-            const bottomBarContainer = document.getElementById('bottomBarContainer');
-            if (bottomBarContainer) {
-              bottomBarContainer.innerHTML = html;
-            }
-          } else {
-            console.error('Error loading bottom bar:', response.status);
-          }
-        } catch (err) {
-          console.error('Error loading bottom bar component:', err);
-        }
-      }
-
-      // Initialization Logic 
+      // চালু করা
       window.addEventListener('DOMContentLoaded', () => { 
-        loadTopBar(); 
-        loadBottomBar();
+        loadBars(); 
         setTimeout(fetchGamesFromSupabase, 100);
       });
     })();
