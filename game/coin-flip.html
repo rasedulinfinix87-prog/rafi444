@@ -873,11 +873,6 @@
       }
     }
 
-    /*
-      Balance fix:
-      Read the same current_user localStorage item used by member.html.
-      Then retrieve the actual balance from Supabase profiles.
-    */
     async function syncCoinFlipBalance() {
       if (typeof supabaseClient === 'undefined' || !supabaseClient) {
         console.error('Supabase client is not available.');
@@ -900,7 +895,6 @@
         ? (storedUser.id || storedUser.user_id || storedUser.uid)
         : null;
 
-      // Fallback to the existing helper if current_user has no usable ID.
       if (!userId && typeof getCurrentUser === 'function') {
         try {
           const authUser = await getCurrentUser();
@@ -944,7 +938,6 @@
         balance = Number(profile.balance) || 0;
         updateBalanceUI();
 
-        // Remove an older channel if the function is called again.
         if (profileChannel) {
           try {
             await supabaseClient.removeChannel(profileChannel);
@@ -991,7 +984,6 @@
         validateBetInputStyle(amountInput);
       }
 
-      // Load the balance after the top bar has been inserted into the page.
       await syncCoinFlipBalance();
     }
 
@@ -1319,19 +1311,25 @@
             updateLiveStatsUI(-activeBetAmount, activeBetAmount, false);
           }
 
+          // হারলে 'original_bets_history' টেবিলে রেকর্ড সেভ হবে
           if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
             const insertData = {
               id: generateUUID(),
               user_id: currentUserId,
-              target_number: selectedChoice === 'heads' ? 1 : 2,
-              roll_result: 0.00,
+              game_name: 'Coin Flip',
               bet_amount: activeBetAmount,
               payout: 0,
-              is_bool: false
+              multiplier: 0.00,
+              status: 'lost',
+              game_details: {
+                selected_choice: selectedChoice,
+                outcome: outcome,
+                series: currentSeries
+              }
             };
 
             const { error } = await supabaseClient
-              .from('bets')
+              .from('original_bets_history')
               .insert([insertData]);
 
             if (error) {
@@ -1389,19 +1387,24 @@
         updateLiveStatsUI(profit, activeBetAmount, true);
       }
 
+      // জিতলে বা ক্যাশ আউট করলে 'original_bets_history' টেবিলে রেকর্ড সেভ হবে
       if (currentUserId && activeBetAmount > 0 && typeof supabaseClient !== 'undefined') {
         const insertData = {
           id: generateUUID(),
           user_id: currentUserId,
-          target_number: selectedChoice === 'heads' ? 1 : 2,
-          roll_result: currentMultiplier,
+          game_name: 'Coin Flip',
           bet_amount: activeBetAmount,
           payout: payoutAmount,
-          is_bool: true
+          multiplier: currentMultiplier,
+          status: 'won',
+          game_details: {
+            selected_choice: selectedChoice,
+            series: currentSeries
+          }
         };
 
         const { error } = await supabaseClient
-          .from('bets')
+          .from('original_bets_history')
           .insert([insertData]);
 
         if (error) {
