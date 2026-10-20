@@ -50,9 +50,23 @@
             overflow: hidden;
         }
 
-        /* Banner Slide Animation */
         .banner-slide {
             transition: opacity 0.6s ease-in-out;
+        }
+
+        /* Smooth Slide Animation for Grid */
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .slide-anim {
+            animation: fadeInSlide 0.35s ease-in-out forwards;
         }
     </style> 
 </head> 
@@ -65,7 +79,6 @@
         
         <!-- Multiple Dynamic Banner Slider Container -->
         <div id="bannerContainer" class="shuffle-banner rounded-2xl relative shadow-xl min-h-[140px] flex items-center overflow-hidden">
-            <!-- Dynamic Banners Rendered Here -->
             <div class="w-full p-4 sm:p-6 flex flex-col justify-between relative z-10">
                 <div class="space-y-1.5 max-w-sm">
                     <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
@@ -74,7 +87,6 @@
                 </div>
             </div>
         </div>
-        <!-- Banner Dots Indicator -->
         <div id="bannerDots" class="flex justify-center gap-1.5 -mt-2"></div>
 
         <!-- Dynamic Categories Sections Container --> 
@@ -94,12 +106,12 @@
     <script> 
         let balanceSubscription = null; 
         let allGridsData = [];
-        let categoryIndices = {}; // ক্যাটাগরির বর্তমান স্লাইড ইনডেক্স ট্র্যাক করার জন্য
+        let categoryIndices = {}; 
+        let selectedFilterCategory = null; // নির্দিষ্ট ক্যাটাগরি ফিল터 করার জন্য
         let bannersList = [];
         let currentBannerIndex = 0;
         let bannerIntervalTimer = null;
 
-        // Supabase Realtime User Balance Sync 
         async function syncRealtimeUserBalance() { 
             try { 
                 if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') { 
@@ -139,7 +151,6 @@
             } 
         } 
 
-        // Dynamic Top Bar Loader 
         async function loadTopBar() { 
             try { 
                 const response = await fetch('bar/top.html'); 
@@ -153,7 +164,6 @@
             } 
         } 
 
-        // Supabase থেকে মাল্টিপল ব্যানার ফেচ করা এবং স্লাইড ইন্টারভ্যাল হ্যান্ডেল করা
         async function loadDynamicBanners() {
             try {
                 if (typeof supabaseClient === 'undefined') return;
@@ -182,7 +192,6 @@
             }
         }
 
-        // নির্দিষ্ট ইনডেক্সের ব্যানার রেন্ডার করা
         function renderBanner(index) {
             const bannerContainer = document.getElementById('bannerContainer');
             const dotsContainer = document.getElementById('bannerDots');
@@ -218,7 +227,6 @@
             renderBanner(currentBannerIndex);
         }
 
-        // Supabase থেকে `grid_control_url_image` টেবিল ডেটা ফেচ করা
         async function fetchGridData() {
             try {
                 if (typeof supabaseClient === 'undefined') return;
@@ -241,7 +249,7 @@
 
                     const categories = [...new Set(allGridsData.map(item => item.category))];
                     categories.forEach(cat => {
-                        categoryIndices[cat] = 0; // প্রতিটি ক্যাটাগরির জন্য স্টার্টিং ইনডেক্স ০
+                        categoryIndices[cat] = 0; 
                     });
 
                     renderCategories();
@@ -251,27 +259,53 @@
             }
         }
 
-        // ক্যাটাগরি ও গেম কার্ড রেন্ডার এবং অ্যারো নেভিগেশন সহ রেন্ডার করার ফাংশন
+        // ক্যাসিনো বেসড ক্যাটাগরি অনুযায়ী সাদা কালারের সিম্বল বা আইকন রিটার্ন করার ফাংশন
+        function getCategorySymbol(categoryName) {
+            const name = categoryName.toLowerCase();
+            if (name.includes('slot') || name.includes('slots')) return '<i class="fa-solid fa-dice text-white"></i>';
+            if (name.includes('casino') || name.includes('live')) return '<i class="fa-solid fa-circle-dot text-white"></i>';
+            if (name.includes('original') || name.includes('shuffle')) return '<i class="fa-solid fa-bolt text-white"></i>';
+            if (name.includes('lottery') || name.includes('lucky')) return '<i class="fa-solid fa-ticket text-white"></i>';
+            if (name.includes('sport') || name.includes('sports')) return '<i class="fa-solid fa-futbol text-white"></i>';
+            return '<i class="fa-solid fa-gamepad text-white"></i>';
+        }
+
+        // ক্যাটাগরি ফিল্টার করার জন্য টগল ফাংশন (নামে ক্লিক করলে নির্দিষ্ট গেম শো করবে)
+        function filterCategory(catName) {
+            if (selectedFilterCategory === catName) {
+                selectedFilterCategory = null; // আবার ক্লিক করলে সব ক্যাটাগরি দেখাবে
+            } else {
+                selectedFilterCategory = catName;
+            }
+            renderCategories();
+        }
+
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
 
-            const categories = [...new Set(allGridsData.map(item => item.category))];
+            let categories = [...new Set(allGridsData.map(item => item.category))];
+            
+            // যদি কোনো নির্দিষ্ট ক্যাটাগরি সিলেক্ট করা থাকে, তবে শুধুমাত্র সেই ক্যাটাগরিই দেখাবে
+            if (selectedFilterCategory) {
+                categories = categories.filter(cat => cat === selectedFilterCategory);
+            }
 
             categories.forEach(cat => {
                 const catItems = allGridsData.filter(item => item.category === cat);
                 if (catItems.length === 0) return;
 
                 const currentIndex = categoryIndices[cat] || 0;
-                // ৩টি করে আইটেম দেখানোর জন্য স্লাইস করা
                 const visibleItems = catItems.slice(currentIndex, currentIndex + 3);
+                const symbolIcon = getCategorySymbol(cat);
 
                 const section = document.createElement('div');
                 section.className = 'space-y-3';
                 section.innerHTML = `
                     <div class="flex items-center justify-between border-b border-[#0F212E] pb-2"> 
-                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2"> 
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> ${cat} 
+                        <h2 onclick="filterCategory('${cat}')" class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition"> 
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> 
+                            <span class="flex items-center gap-1.5">${symbolIcon} ${cat} ${selectedFilterCategory === cat ? '<span class="text-xs text-[#24ee89] ml-2 font-normal">(Showing Filtered - Click to Reset)</span>' : ''}</span> 
                         </h2> 
                         <div class="flex items-center gap-1.5">
                             <button onclick="slideCategory('${cat}', -1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
@@ -282,7 +316,7 @@
                             </button>
                         </div>
                     </div> 
-                    <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5" id="grid-${CSS.escape(cat)}">
+                    <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 slide-anim" id="grid-${CSS.escape(cat)}">
                     </div>
                 `;
 
@@ -312,19 +346,18 @@
             });
         }
 
-        // অ্যারোতে ক্লিক করলে ৩টি করে গেম স্লাইড বা পরিবর্তন করার ফাংশন
+        // স্লাইড অ্যানিমেশন সহ ৩টি করে গেম পরিবর্তন করার ফাংশন
         function slideCategory(category, direction) {
             const catItems = allGridsData.filter(item => item.category === category);
-            if (catItems.length <= 3) return; // যদি ৩ বা তার কম গেম থাকে তবে স্লাইড করার প্রয়োজন নেই
+            if (catItems.length <= 3) return; 
 
             let currentIndex = categoryIndices[category] || 0;
             currentIndex += direction * 3;
 
-            // লুপ বা লিমিট চেক করা যাতে শেষ বা শুরুর বাইরে না যায়
             if (currentIndex >= catItems.length) {
-                currentIndex = 0; // আবার শুরুতে ফিরে আসবে
+                currentIndex = 0; 
             } else if (currentIndex < 0) {
-                currentIndex = Math.max(0, catItems.length - 3); // একেবারে শেষের দিকে চলে যাবে
+                currentIndex = Math.max(0, catItems.length - 3); 
             }
 
             categoryIndices[category] = currentIndex;
@@ -346,7 +379,6 @@
             }
         }
 
-        // Initialization Logic 
         document.addEventListener('DOMContentLoaded', () => { 
             loadTopBar(); 
             loadBottomBar();
