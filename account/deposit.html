@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1076,7 +1075,6 @@
             ? Number(selectedBonus.bonus_percent)
             : 0,
           bonus_amount: calculation.bonusAmount,
-          turnover_multiplier: calculation.multiplier,
           turnover_required: calculation.turnoverRequired
         };
 
@@ -1091,6 +1089,23 @@
             alert('Error: ' + insertError.message);
           }
           return;
+        }
+
+        // প্রোফাইলের turnover_required আপডেট করার লজিক (profiles table update)
+        const { data: currentProfile, error: profileFetchError } = await supabaseClient
+          .from('profiles')
+          .select('turnover_required')
+          .eq('id', currentUserId)
+          .maybeSingle();
+
+        if (!profileFetchError) {
+          const existingRequired = Number(currentProfile?.turnover_required || 0);
+          const newTurnoverRequired = existingRequired + Number(calculation.turnoverRequired);
+
+          await supabaseClient
+            .from('profiles')
+            .update({ turnover_required: newTurnoverRequired })
+            .eq('id', currentUserId);
         }
 
         closeModal('paymentModal');
