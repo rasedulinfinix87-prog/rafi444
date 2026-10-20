@@ -93,7 +93,7 @@
             <i class="fa-solid fa-circle-info text-[#24ee89]"></i> Calculation Rules
           </h2>
           <p class="text-xs text-[#a9b3b5] leading-relaxed">
-            আপনার প্রোফাইল থেকে বর্তমান টার্নওভার (<code class="text-white">current_turnover</code>) এবং প্রয়োজনীয় টার্নওভার (<code class="text-white">turnover_required</code>) হিসাব করে প্রোগ্রেস দেখানো হচ্ছে। রিকয়ারমেন্ট পূরণ না হলে উইথড্র করতে সমস্যা হতে পারে।
+            গেম খেলার সময় আপনার প্রতিটি সফল বেট অ্যামাউন্ট স্বয়ংক্রিয়ভাবে <code class="text-white">current_turnover</code>-এর সাথে যুক্ত হয়। রিকোয়ারমেন্ট পূর্ণ না হওয়া পর্যন্ত উইথড্র করা যাবে না।
           </p>
         </div>
 
@@ -127,6 +127,36 @@
         maximumFractionDigits: 2
       });
     }
+
+    // গেম খেলার পর টার্নওভার আপডেট করার গ্লোবাল ফাংশন
+    window.updateUserTurnover = async function(userId, betAmount) {
+      try {
+        if (!userId || !betAmount || betAmount <= 0) return;
+
+        // ১. বর্তমান টার্নওভার ফেচ করা
+        const { data: profile, error: fetchError } = await supabaseClient
+          .from('profiles')
+          .select('current_turnover')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (fetchError) throw fetchError;
+
+        const current = Number(profile?.current_turnover || 0);
+        const updatedTurnover = current + Number(betAmount);
+
+        // ২. ডেটাবেজে আপডেট করা
+        const { error: updateError } = await supabaseClient
+          .from('profiles')
+          .update({ current_turnover: updatedTurnover })
+          .eq('id', userId);
+
+        if (updateError) throw updateError;
+        console.log('Turnover updated successfully to:', updatedTurnover);
+      } catch (err) {
+        console.error('Failed to update turnover:', err);
+      }
+    };
 
     async function loadRolloverData() {
       const loadingState = document.getElementById('loadingState');
