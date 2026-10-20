@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rollover & Turnover Progress</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    html { background: #0F212E; }
+    body { background: #0F212E; color: #FFFFFF; font-size: 14px; padding-bottom: 70px; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #0F212E; }
+    ::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 8px; }
+
+    .card-bg { background: #1A2C38; border: 1px solid #243542; border-radius: 16px; }
+    .progress-bar-bg { background: #0F212E; border: 1px solid #243542; }
+    .progress-fill { background: linear-gradient(90deg, #16a765, #2ed573); transition: width 0.4s ease; }
+  </style>
+</head>
+
+<body class="font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none antialiased">
+  <div class="w-full max-w-md min-h-screen flex flex-col overflow-x-hidden shadow-2xl relative">
+
+    <!-- Top Header -->
+    <header class="px-4 py-4 bg-[#1A2C38] border-b border-[#243542] flex items-center justify-between sticky top-0 z-50">
+      <div class="flex items-center gap-3">
+        <a href="/rafi444/account/member.html" class="text-white hover:text-[#24ee89] text-lg p-1">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h1 class="text-xl font-extrabold tracking-wide text-white">Rollover & Turnover</h1>
+      </div>
+      <button type="button" onclick="loadRolloverData()" class="p-2 text-white/70 hover:text-[#24ee89] transition">
+        <i class="fa-solid fa-rotate-right text-lg"></i>
+      </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="px-4 py-4 flex-1 flex flex-col gap-4">
+
+      <!-- Loading State -->
+      <div id="loadingState" class="text-center py-20 text-[#a9b3b5]">
+        <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 text-[#24ee89]"></i>
+        <p class="font-bold">Loading turnover details...</p>
+      </div>
+
+      <!-- Content Container (Hidden initially) -->
+      <div id="mainContent" class="flex flex-col gap-4" style="display: none;">
+
+        <!-- Overview Card -->
+        <div class="card-bg p-5 flex flex-col gap-4 shadow-xl relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 text-white/5 text-8xl pointer-events-none">
+            <i class="fa-solid fa-chart-column"></i>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-[#a9b3b5] uppercase font-bold tracking-wider">Overall Progress</span>
+            <span id="badgeStatus" class="bg-emerald-500/10 text-emerald-400 text-xs font-extrabold px-2.5 py-1 rounded-full border border-emerald-500/25">Active</span>
+          </div>
+
+          <!-- Progress Bar Area -->
+          <div class="flex flex-col gap-2">
+            <div class="w-full h-3.5 rounded-full progress-bar-bg overflow-hidden p-0.5">
+              <div id="progressFill" class="h-full rounded-full progress-fill" style="width: 0%;"></div>
+            </div>
+            <div class="flex justify-between text-xs font-bold">
+              <span id="txtPercentage" class="text-emerald-400">0% completed</span>
+              <span id="txtRemaining" class="text-[#a9b3b5]">৳0.00 remaining</span>
+            </div>
+          </div>
+
+          <!-- Grid Stats -->
+          <div class="grid grid-cols-2 gap-3 mt-2">
+            <div class="bg-[#0F212E] p-3.5 rounded-xl border border-[#243542]">
+              <span class="text-[11px] text-[#a9b3b5] block">Completed Turnover</span>
+              <span id="txtCompleted" class="text-base font-extrabold text-white mt-1 block">৳0.00</span>
+            </div>
+            <div class="bg-[#0F212E] p-3.5 rounded-xl border border-[#243542]">
+              <span class="text-[11px] text-[#a9b3b5] block">Required Turnover</span>
+              <span id="txtRequired" class="text-base font-extrabold text-amber-400 mt-1 block">৳0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Details Info Card -->
+        <div class="card-bg p-4 flex flex-col gap-3">
+          <h2 class="font-bold text-sm text-white flex items-center gap-2">
+            <i class="fa-solid fa-circle-info text-[#24ee89]"></i> Calculation Rules
+          </h2>
+          <p class="text-xs text-[#a9b3b5] leading-relaxed">
+            আপনার প্রোফাইল থেকে বর্তমান টার্নওভার (<code class="text-white">current_turnover</code>) এবং প্রয়োজনীয় টার্নওভার (<code class="text-white">turnover_required</code>) হিসাব করে প্রোগ্রেস দেখানো হচ্ছে। রিকয়ারমেন্ট পূরণ না হলে উইথড্র করতে সমস্যা হতে পারে।
+          </p>
+        </div>
+
+        <!-- Deposit Turnover Breakdown -->
+        <div class="card-bg p-4 flex flex-col gap-3">
+          <div class="flex justify-between items-center">
+            <h2 class="font-bold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-wallet text-emerald-400"></i> Deposit Requirements
+            </h2>
+            <span class="text-[10px] text-[#a9b3b5]">Recent Deposits</span>
+          </div>
+          
+          <div id="depositListContainer" class="flex flex-col gap-2.5 mt-1">
+            <!-- Dynamically populated deposits -->
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- Bottom Navigation Bar Container -->
+    <div id="bottomBarContainer"></div>
+
+  </div>
+
+  <script>
+    function formatMoney(amount) {
+      return '৳' + Number(amount || 0).toLocaleString('en-BD', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    async function loadRolloverData() {
+      const loadingState = document.getElementById('loadingState');
+      const mainContent = document.getElementById('mainContent');
+
+      loadingState.style.display = 'block';
+      mainContent.style.display = 'none';
+
+      try {
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) {
+          window.location.href = '../login-signup.html';
+          return;
+        }
+
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
+        if (!userId) throw new Error('Invalid user session');
+
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+          throw new Error('Supabase client is not configured.');
+        }
+
+        // Fetch user profile for turnover data
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('current_turnover, turnover_required, balance')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (profileError) throw profileError;
+
+        // Fetch deposits for breakdown list
+        const { data: deposits, error: depositError } = await supabaseClient
+          .from('deposits')
+          .select('amount, payment_method, turnover_required, status, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        if (depositError) console.error('Error fetching deposits:', depositError);
+
+        const completed = Math.max(0, Number(profile?.current_turnover || 0));
+        const required = Math.max(0, Number(profile?.turnover_required || 0));
+        const remaining = Math.max(0, required - completed);
+        
+        let percentage = required > 0 ? (completed / required) * 100 : (completed > 0 ? 100 : 0);
+        if (percentage > 100) percentage = 100;
+
+        // Update DOM values
+        document.getElementById('txtCompleted').textContent = formatMoney(completed);
+        document.getElementById('txtRequired').textContent = formatMoney(required);
+        document.getElementById('txtRemaining').textContent = formatMoney(remaining) + ' remaining';
+        document.getElementById('txtPercentage').textContent = percentage.toFixed(1) + '% completed';
+        document.getElementById('progressFill').style.width = percentage.toFixed(2) + '%';
+
+        const badgeStatus = document.getElementById('badgeStatus');
+        if (remaining <= 0 && required > 0) {
+          badgeStatus.textContent = 'Completed';
+          badgeStatus.className = 'bg-emerald-500/20 text-emerald-400 text-xs font-extrabold px-2.5 py-1 rounded-full border border-emerald-500/30';
+        } else {
+          badgeStatus.textContent = 'In Progress';
+          badgeStatus.className = 'bg-amber-500/20 text-amber-400 text-xs font-extrabold px-2.5 py-1 rounded-full border border-amber-500/30';
+        }
+
+        // Render deposit items
+        const depositContainer = document.getElementById('depositListContainer');
+        const depositRows = deposits || [];
+
+        if (depositRows.length === 0) {
+          depositContainer.innerHTML = '<p class="text-xs text-[#a9b3b5] text-center py-3">No deposit records found.</p>';
+        } else {
+          depositContainer.innerHTML = depositRows.map(dep => {
+            const dateStr = dep.created_at ? new Date(dep.created_at).toLocaleDateString() : '';
+            return `
+              <div class="bg-[#0F212E] p-3 rounded-xl border border-[#243542] flex justify-between items-center">
+                <div>
+                  <div class="font-bold text-xs text-white">${dep.payment_method || 'Deposit'}</div>
+                  <div class="text-[10px] text-[#a9b3b5] mt-0.5">${dateStr} · Status: <span class="capitalize text-emerald-400">${dep.status || 'pending'}</span></div>
+                </div>
+                <div class="text-right">
+                  <div class="font-extrabold text-xs text-white">${formatMoney(dep.amount)}</div>
+                  <div class="text-[10px] text-amber-400">Req: ${formatMoney(dep.turnover_required)}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        loadingState.style.display = 'none';
+        mainContent.style.display = 'flex';
+
+      } catch (err) {
+        console.error('Error loading rollover data:', err);
+        loadingState.innerHTML = `
+          <div class="text-red-400 flex flex-col items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+            <p class="text-xs">Failed to load turnover information.</p>
+            <button onclick="loadRolloverData()" class="mt-2 px-3 py-1.5 bg-[#243542] text-white rounded-lg text-xs font-bold">Retry</button>
+          </div>
+        `;
+      }
+    }
+
+    // Load bottom navigation bar
+    async function loadBottomBar() {
+      try {
+        const res = await fetch('../bar/bottom.html');
+        if (res.ok) {
+          document.getElementById('bottomBarContainer').innerHTML = await res.text();
+        }
+      } catch (e) {
+        console.error('Bottom bar error:', e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadBottomBar();
+      loadRolloverData();
+    });
+  </script>
+</body>
+</html>
