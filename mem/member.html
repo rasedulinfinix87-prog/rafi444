@@ -167,7 +167,7 @@
         </a>
       </div>
 
-      <!-- Balance, Deposit, Notifications and Profile -->
+      <!-- Balance, Deposit, and Notifications (Profile Icon Removed) -->
       <div class="flex items-center gap-2 sm:gap-3">
 
         <!-- Balance and Deposit -->
@@ -221,37 +221,27 @@
           </div>
         </div>
 
-        <!-- Profile Icon -> Opens Drawer -->
-        <button
-          type="button"
-          id="profileLinkBtn"
-          onclick="openProfileDrawer()"
-          class="p-2 text-[#FFFFFF] hover:text-[#24ee89] rounded-lg hover:bg-[#0F212E] transition border border-[#0F212E] flex items-center justify-center bg-[#0F212E] cursor-pointer"
-          aria-label="My Profile"
-        >
-          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-[#FFFFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-        </button>
       </div>
     </header>
 
     <main class="px-3 py-3 flex-1 flex flex-col gap-4">
 
-      <!-- Profile & Account Status Card -->
+      <!-- Profile & Account Status Card with White ID Symbol Icon -->
       <div class="profile-card-bg border border-[#0F212E] text-[#FFFFFF] rounded-2xl p-4 shadow-xl relative overflow-hidden">
         <div class="absolute -right-4 -bottom-4 text-white/5 text-8xl pointer-events-none">
           <i class="fa-solid fa-crown"></i>
         </div>
 
         <div class="flex items-center gap-3">
-          <div class="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#1A2C38] shrink-0 flex items-center justify-center text-emerald-400 text-2xl shadow-inner">
+          <div class="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#1A2C38] shrink-0 flex items-center justify-center text-emerald-400 text-2xl shadow-inner cursor-pointer" onclick="openProfileDrawer()" title="Open Profile Drawer">
             <i class="fa-solid fa-user-shield"></i>
           </div>
 
           <div class="flex flex-col gap-1 min-w-0">
             <div class="flex items-center gap-1.5 min-w-0">
-              <span class="text-[var(--font-xs)] text-[#FFFFFF] font-medium shrink-0">ID:</span>
+              <span class="text-[var(--font-xs)] text-[#FFFFFF] font-medium shrink-0 flex items-center gap-1">
+                <i class="fa-solid fa-id-card text-white"></i> ID:
+              </span>
               <span id="userGameId" class="text-[var(--font-sm)] text-emerald-400 font-bold truncate">----</span>
               <button type="button" onclick="copyGameId()" class="text-[#FFFFFF] hover:text-white text-[var(--font-sm)] p-1" aria-label="Copy ID" title="Copy ID">
                 <i class="fa-regular fa-copy"></i>
@@ -282,7 +272,7 @@
         </a>
       </div>
 
-      <!-- Account shortcuts (Free Plays removed) -->
+      <!-- Account shortcuts -->
       <section class="menu-card px-3 py-3">
         <div class="grid grid-cols-4 gap-x-1 gap-y-2">
           <a href="../account/vault.html" class="shortcut"><i class="fa-solid fa-vault"></i><span>Vault Pro</span></a>
@@ -340,7 +330,7 @@
     <div id="bottomBarContainer"></div>
   </div>
 
-  <!-- Profile Right-Side Drawer Modal (Updated according to specifications) -->
+  <!-- Profile Right-Side Drawer Modal -->
   <div id="profileDrawerModal" role="dialog" aria-modal="true" onclick="if(event.target===this) closeProfileDrawer()">
     <section class="drawer-panel">
       <header class="drawer-head">
@@ -349,7 +339,6 @@
       </header>
       <div class="drawer-body">
         
-        <!-- Stacked buttons without unwanted links, renamed Wallet to Account Info -->
         <div class="flex flex-col gap-2">
           <a href="../account/profile.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
             <span>Account Info</span>
