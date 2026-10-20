@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Transactions - Gaming Portal</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    html { background: #0F212E; }
+    body { background: #0F212E; color: #FFFFFF; font-size: 14px; padding-bottom: 70px; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #0F212E; }
+    ::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 8px; }
+
+    .card-bg { background: #1A2C38; border: 1px solid #243542; }
+    .tab-btn { background: #1A2C38; color: #a9b3b5; border: 1px solid #243542; transition: all 0.2s; }
+    .tab-btn.active { background: #24ee89; color: #0F212E; font-weight: 800; border-color: #24ee89; }
+    .filter-select { background: #1A2C38; color: #f4f5f5; border: 1px solid #243542; outline: none; }
+  </style>
+</head>
+
+<body class="font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none antialiased">
+  <div class="w-full max-w-md min-h-screen flex flex-col overflow-x-hidden shadow-2xl relative">
+
+    <!-- Top Header -->
+    <header class="px-4 py-4 bg-[#1A2C38] border-b border-[#243542] flex items-center justify-between sticky top-0 z-50">
+      <div class="flex items-center gap-3">
+        <a href="/rafi444/account/member.html" class="text-white hover:text-[#24ee89] text-lg p-1">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h1 class="text-xl font-extrabold tracking-wide text-white">Transactions</h1>
+      </div>
+      <button type="button" onclick="loadTransactions()" class="p-2 text-white/70 hover:text-[#24ee89] transition">
+        <i class="fa-solid fa-rotate-right text-lg"></i>
+      </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="px-4 py-4 flex-1 flex flex-col gap-4">
+
+      <!-- Tabs (Deposits / Withdrawals) matching the screenshot layout -->
+      <div class="grid grid-cols-2 gap-2 p-1 card-bg rounded-xl">
+        <button type="button" id="tabDeposit" onclick="switchTab('deposits')" class="tab-btn active py-2.5 rounded-lg text-center font-bold text-sm">
+          Deposits
+        </button>
+        <button type="button" id="tabWithdrawal" onclick="switchTab('withdrawals')" class="tab-btn py-2.5 rounded-lg text-center font-bold text-sm">
+          Withdrawals
+        </button>
+      </div>
+
+      <!-- Filters Section -->
+      <div class="grid grid-cols-2 gap-2">
+        <select id="statusFilter" class="filter-select text-xs rounded-xl p-2.5" onchange="loadTransactions()">
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved / Success</option>
+          <option value="completed">Completed</option>
+          <option value="rejected">Rejected / Failed</option>
+        </select>
+        <select id="timeFilter" class="filter-select text-xs rounded-xl p-2.5" onchange="loadTransactions()">
+          <option value="24">Past 24 hours</option>
+          <option value="7">Past 7 days</option>
+          <option value="30">Past 30 days</option>
+          <option value="all">All time</option>
+        </select>
+      </div>
+
+      <!-- Table Header Style matching screenshot -->
+      <div class="flex justify-between items-center px-3 py-2.5 card-bg rounded-xl text-xs font-bold text-[#a9b3b5]">
+        <span>Date & Method</span>
+        <span class="text-right">Amount</span>
+      </div>
+
+      <!-- Transaction List Container -->
+      <div id="transactionList" class="flex flex-col gap-2.5 min-h-[250px]">
+        <div class="text-center py-12 text-[#a9b3b5]">
+          <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-[#24ee89]"></i>
+          <p>Loading transactions...</p>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Bottom Navigation Bar Container -->
+    <div id="bottomBarContainer"></div>
+
+  </div>
+
+  <script>
+    let currentTab = 'deposits';
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabDeposit').classList.toggle('active', tab === 'deposits');
+      document.getElementById('tabWithdrawal').classList.toggle('active', tab === 'withdrawals');
+      loadTransactions();
+    }
+
+    function formatMoney(amount) {
+      return '৳' + Number(amount || 0).toLocaleString('en-BD', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    async function loadTransactions() {
+      const container = document.getElementById('transactionList');
+      container.innerHTML = '<div class="text-center py-12 text-[#a9b3b5]"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-[#24ee89]"></i><p>Loading transactions...</p></div>';
+
+      try {
+        // user authentication check from localStorage/Supabase session
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) {
+          container.innerHTML = '<div class="text-center py-12 text-[#a9b3b5]">Please log in to view transactions.</div>';
+          return;
+        }
+
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
+        if (!userId) {
+          container.innerHTML = '<div class="text-center py-12 text-[#a9b3b5]">User session invalid. Please log in again.</div>';
+          return;
+        }
+
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+          throw new Error('Supabase client not initialized.');
+        }
+
+        const statusFilter = document.getElementById('statusFilter').value;
+        const timeFilter = document.getElementById('timeFilter').value;
+
+        let query = supabaseClient
+          .from(currentTab) // 'deposits' or 'withdrawals'
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+
+        const { data, error } = await query;
+
+        if (error) throw error;
+
+        let rows = data || [];
+
+        // Time filtering
+        if (timeFilter !== 'all') {
+          const hours = timeFilter === '24' ? 24 : Number(timeFilter) * 24;
+          const cutoff = Date.now() - hours * 60 * 60 * 1000;
+          rows = rows.filter(item => item.created_at && new Date(item.created_at).getTime() >= cutoff);
+        }
+
+        // Status filtering
+        if (statusFilter !== 'all') {
+          rows = rows.filter(item => String(item.status || 'pending').toLowerCase() === statusFilter);
+        }
+
+        if (rows.length === 0) {
+          container.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-16 text-center text-[#a9b3b5] gap-2 card-bg rounded-2xl">
+              <i class="fa-solid fa-receipt text-4xl text-[#243542] mb-1"></i>
+              <p class="font-bold text-sm">No ${currentTab} found</p>
+              <span class="text-xs text-white/50">Your transaction history will appear here</span>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = rows.map(item => {
+          const dateStr = item.created_at ? new Date(item.created_at).toLocaleString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true
+          }) : 'Date N/A';
+
+          const method = item.payment_method || (currentTab === 'deposits' ? 'Deposit' : 'Withdrawal');
+          const detailInfo = currentTab === 'deposits' ? (item.transection_id ? `TrxID: ${item.transection_id}` : '') : (item.account_number ? `Acc: ${item.account_number}` : '');
+          
+          const amountVal = Number(item.amount || 0);
+          const isDeposit = currentTab === 'deposits';
+          const amountClass = isDeposit ? 'text-[#2ed573]' : 'text-[#ff7474]';
+          const signSymbol = isDeposit ? '+' : '-';
+
+          let statusColor = 'text-yellow-400';
+          const st = String(item.status || 'pending').toLowerCase();
+          if (['approved', 'completed', 'success', 'paid'].includes(st)) statusColor = 'text-[#2ed573]';
+          if (['rejected', 'failed', 'cancelled'].includes(st)) statusColor = 'text-[#ff7474]';
+
+          return `
+            <div class="card-bg p-3.5 rounded-xl flex items-center justify-between gap-3">
+              <div class="flex flex-col gap-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-xs text-white bg-[#0F212E] px-2 py-0.5 rounded border border-[#243542]">${method}</span>
+                  <span class="text-[10px] uppercase font-bold ${statusColor}">${item.status || 'Pending'}</span>
+                </div>
+                <span class="text-[11px] text-[#a9b3b5] truncate">${detailInfo}</span>
+                <span class="text-[10px] text-white/60">${dateStr}</span>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="font-extrabold text-sm ${amountClass}">${signSymbol}${formatMoney(amountVal)}</div>
+                ${currentTab === 'deposits' && Number(item.bonus_amount || 0) > 0 ? `<div class="text-[10px] text-emerald-400">+ Bonus: ${formatMoney(item.bonus_amount)}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error('Error loading transactions:', err);
+        container.innerHTML = `
+          <div class="card-bg p-6 rounded-2xl text-center text-red-400 text-xs flex flex-col items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+            <p>Failed to load transaction history.</p>
+            <button onclick="loadTransactions()" class="mt-2 px-3 py-1.5 bg-[#243542] text-white rounded-lg font-bold">Retry</button>
+          </div>`;
+      }
+    }
+
+    // Load bottom navigation bar
+    async function loadBottomBar() {
+      try {
+        const res = await fetch('../bar/bottom.html');
+        if (res.ok) {
+          document.getElementById('bottomBarContainer').innerHTML = await res.text();
+        }
+      } catch (e) {
+        console.error('Bottom bar error:', e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadBottomBar();
+      loadTransactions();
+    });
+  </script>
+</body>
+</html>
