@@ -93,7 +93,7 @@
             <i class="fa-solid fa-circle-info text-[#24ee89]"></i> Calculation Rules
           </h2>
           <p class="text-xs text-[#a9b3b5] leading-relaxed">
-            গেম খেলার সময় আপনার প্রতিটি সফল বেট অ্যামাউন্ট স্বয়ংক্রিয়ভাবে <code class="text-white">current_turnover</code>-এর সাথে যুক্ত হয়। রিকোয়ারমেন্ট পূর্ণ না হওয়া পর্যন্ত উইথড্র করা যাবে না।
+            আপনার গেম খেলার হিস্ট্রি থেকে মোট বেট অ্যামাউন্ট স্বয়ংক্রিয়ভাবে হিসাব করে টার্নওভার প্রোগ্রেস দেখানো হচ্ছে।
           </p>
         </div>
 
@@ -128,36 +128,6 @@
       });
     }
 
-    // গেম খেলার পর টার্নওভার আপডেট করার গ্লোবাল ফাংশন
-    window.updateUserTurnover = async function(userId, betAmount) {
-      try {
-        if (!userId || !betAmount || betAmount <= 0) return;
-
-        // ১. বর্তমান টার্নওভার ফেচ করা
-        const { data: profile, error: fetchError } = await supabaseClient
-          .from('profiles')
-          .select('current_turnover')
-          .eq('id', userId)
-          .maybeSingle();
-
-        if (fetchError) throw fetchError;
-
-        const current = Number(profile?.current_turnover || 0);
-        const updatedTurnover = current + Number(betAmount);
-
-        // ২. ডেটাবেজে আপডেট করা
-        const { error: updateError } = await supabaseClient
-          .from('profiles')
-          .update({ current_turnover: updatedTurnover })
-          .eq('id', userId);
-
-        if (updateError) throw updateError;
-        console.log('Turnover updated successfully to:', updatedTurnover);
-      } catch (err) {
-        console.error('Failed to update turnover:', err);
-      }
-    };
-
     async function loadRolloverData() {
       const loadingState = document.getElementById('loadingState');
       const mainContent = document.getElementById('mainContent');
@@ -180,16 +150,16 @@
           throw new Error('Supabase client is not configured.');
         }
 
-        // Fetch user profile for turnover data
+        // ১. Fetch user profile for required turnover
         const { data: profile, error: profileError } = await supabaseClient
           .from('profiles')
-          .select('current_turnover, turnover_required, balance')
+          .select('turnover_required')
           .eq('id', userId)
           .maybeSingle();
 
         if (profileError) throw profileError;
 
-        // Fetch deposits for breakdown list
+        // ২. Fetch deposits for breakdown list & total required check if needed
         const { data: deposits, error: depositError } = await supabaseClient
           .from('deposits')
           .select('amount, payment_method, turnover_required, status, created_at')
@@ -199,7 +169,34 @@
 
         if (depositError) console.error('Error fetching deposits:', depositError);
 
-        const completed = Math.max(0, Number(profile?.current_turnover || 0));
+        // ৩. Fetch original bets history and sum up bet_amount
+        const { data: originalBets, error: originalError } = await supabaseClient
+          .from('original_bets_history')
+          .select('bet_amount')
+          .eq('user_id', userId);
+
+        if (originalError) console.error('Error fetching original bets:', originalError);
+
+        // ৪. Fetch color game history and sum up bet_amount
+        const { data: colorBets, error: colorError } = await supabaseClient
+          .from('color_game_history')
+          .select('bet_amount')
+          .eq('user_id', userId);
+
+        if (colorError) console.error('Error fetching color bets:', colorError);
+
+        // Calculate total completed turnover from both bet histories
+        let totalCompletedTurnover = 0;
+
+        if (originalBets && originalBets.length > 0) {
+          totalCompletedTurnover += originalBets.reduce((sum, item) => sum + Number(item.bet_amount || 0), 0);
+        }
+
+        if (colorBets && colorBets.length > 0) {
+          totalCompletedTurnover += colorBets.reduce((sum, item) => sum + Number(item.bet_amount || 0), 0);
+        }
+
+        const completed = Math.max(0, totalCompletedTurnover);
         const required = Math.max(0, Number(profile?.turnover_required || 0));
         const remaining = Math.max(0, required - completed);
         
