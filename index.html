@@ -60,6 +60,12 @@
                 transform: translateX(0);
             }
         }
+
+        .game-card { min-width: 0; min-height: 154px; }
+        .game-art { min-height: 154px; }
+        @media (min-width: 640px) {
+          .game-card, .game-art { min-height: 210px; }
+        }
     </style> 
 </head> 
 <body class="bg-[#0F212E] text-[#FFFFFF] min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black pb-24"> 
@@ -261,7 +267,9 @@
                         title: item.title,
                         imageUrl: item.image_url,
                         pageUrl: item.page_url,
-                        category: item.category ? item.category.trim() : 'Original Games'
+                        category: item.category ? item.category.trim() : 'Original Games',
+                        show_title: item.show_title,
+                        show_badge: item.show_badge
                     }));
 
                     const categories = [...new Set(allGridsData.map(item => item.category))];
@@ -290,7 +298,7 @@
                 const visibleItems = catItems.slice(currentIndex, currentIndex + 3);
 
                 const section = document.createElement('div');
-                section.className = 'space-y-3 pb-4 border-b border-[#1A2C38]'; // প্রতিটি ক্যাটাগরির নিচে চিকন লম্বা দাগ
+                section.className = 'space-y-3 pb-4 border-b border-[#1A2C38]';
                 section.innerHTML = `
                     <div class="flex items-center justify-between border-b border-[#0F212E] pb-2"> 
                         <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="openCategoryModal('${cat}')" title="Click to view all"> 
@@ -315,11 +323,31 @@
                 const fragment = document.createDocumentFragment();
 
                 visibleItems.forEach(game => {
+                    let imageUrl = game.imageUrl ? game.imageUrl.trim() : '';
+                    let pageUrl = game.pageUrl ? game.pageUrl.trim() : '#';
+                    const hasImg = imageUrl !== '';
+                    const title = game.title || 'Untitled Game';
+                    const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
+                    const showTitle = game.show_title !== false;
+                    const showBadge = game.show_badge !== false;
+
                     const card = document.createElement('a');
-                    card.href = game.pageUrl;
-                    card.className = 'group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-40 sm:h-48 md:h-52 transition-all duration-200 hover:scale-[1.02] shadow-lg';
+                    card.href = pageUrl;
+                    card.className = 'game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 shadow-lg';
                     card.innerHTML = ` 
-                        <img src="${game.imageUrl}" onerror="this.style.display='none';" class="absolute inset-0 w-full h-full object-cover z-0" alt="${game.title}" loading="lazy" decoding="async" /> 
+                        <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center p-1">
+                          ${hasImg 
+                            ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
+                            : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
+                               ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#FFFFFF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
+                          }
+                        </div>
+                        <div class="relative z-10 flex justify-end items-center p-2">
+                          ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>` : ''}
+                        </div>
+                        <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                          ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-[#FFFFFF] truncate block">${title}</span>` : ''}
+                        </div>
                     `;
                     fragment.appendChild(card);
                 });
@@ -345,7 +373,6 @@
             renderCategories();
         }
 
-        // মডাল ওপেন এবং ২.৫ সেকেন্ড লোডিং অ্যানিমেশন হ্যান্ডেল করার ফাংশন
         async function openCategoryModal(categoryName) {
             const modal = document.getElementById('categoryModal');
             const modalLoader = document.getElementById('modalLoader');
@@ -353,20 +380,40 @@
 
             document.getElementById('modalTitleText').innerText = categoryName;
 
-            // প্রথমে মডাল ওপেন করে লোডার দেখাবে এবং গ্রিড হাইচ রাখবে
             modal.classList.remove('hidden');
             modalLoader.classList.remove('hidden');
             modalGrid.classList.add('hidden');
 
             const catItems = allGridsData.filter(item => item.category === categoryName);
 
-            modalGrid.innerHTML = catItems.map(game => `
-                <a href="${game.pageUrl}" class="group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-40 sm:h-48 md:h-52 transition-all duration-200 hover:scale-[1.02] shadow-lg">
-                    <img src="${game.imageUrl}" onerror="this.style.display='none';" class="absolute inset-0 w-full h-full object-cover z-0" alt="${game.title}" loading="lazy" decoding="async" /> 
-                </a>
-            `).join('');
+            modalGrid.innerHTML = catItems.map(game => {
+                let imageUrl = game.imageUrl ? game.imageUrl.trim() : '';
+                let pageUrl = game.pageUrl ? game.pageUrl.trim() : '#';
+                const hasImg = imageUrl !== '';
+                const title = game.title || 'Untitled Game';
+                const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
+                const showTitle = game.show_title !== false;
+                const showBadge = game.show_badge !== false;
 
-            // ২.৫ সেকেন্ড (2500ms) পর লোডার হাইড করে গেম গ্রিড শো করবে
+                return `
+                    <a href="${pageUrl}" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 shadow-lg">
+                        <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center p-1">
+                          ${hasImg 
+                            ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
+                            : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
+                               ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#FFFFFF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
+                          }
+                        </div>
+                        <div class="relative z-10 flex justify-end items-center p-2">
+                          ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>` : ''}
+                        </div>
+                        <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                          ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-[#FFFFFF] truncate block">${title}</span>` : ''}
+                        </div>
+                    </a>
+                `;
+            }).join('');
+
             setTimeout(() => {
                 modalLoader.classList.add('hidden');
                 modalGrid.classList.remove('hidden');
