@@ -410,13 +410,12 @@
       list.innerHTML = '<div class="bh-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading bet history...</div>';
 
       try {
-        const storedUser = localStorage.getItem('current_user');
-        if (!storedUser) {
+        const user = await getCurrentUser();
+        if (!user) {
           list.innerHTML = '<div class="bh-empty"><i class="fa-regular fa-user"></i><div>Please log in to view bet history.</div></div>';
           return;
         }
-        const userObj = JSON.parse(storedUser);
-        const userId = userObj.id || userObj.user_id || userObj.uid;
+        const userId = user.id || user.user_id || user.uid;
         if (!userId) {
           list.innerHTML = '<div class="bh-empty"><i class="fa-regular fa-user"></i><div>User session is invalid. Please log in again.</div></div>';
           return;
@@ -511,13 +510,12 @@
       const token = ++transactionsRequestToken;
       list.innerHTML = '<div class="tx-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading transactions...</div>';
       try {
-        const storedUser = localStorage.getItem('current_user');
-        if (!storedUser) {
+        const user = await getCurrentUser();
+        if (!user) {
           list.innerHTML = '<div class="tx-empty"><i class="fa-regular fa-user"></i><div>Please log in to view your transactions.</div></div>';
           return;
         }
-        const userObj = JSON.parse(storedUser);
-        const userId = userObj.id || userObj.user_id || userObj.uid;
+        const userId = user.id || user.user_id || user.uid;
         if (!userId) throw new Error('User session is invalid. Please log in again.');
         if (typeof supabaseClient === 'undefined' || !supabaseClient) throw new Error('Supabase client is unavailable. Check supabase-config.js.');
 
@@ -621,10 +619,9 @@
       errorBox.style.display = 'none';
 
       try {
-        const storedUser = localStorage.getItem('current_user');
-        if (!storedUser) throw new Error('Please log in to view rollover details.');
-        const userObj = JSON.parse(storedUser);
-        const userId = userObj.id || userObj.user_id || userObj.uid;
+        const user = await getCurrentUser();
+        if (!user) throw new Error('Please log in to view rollover details.');
+        const userId = user.id || user.user_id || user.uid;
         if (!userId) throw new Error('User session is invalid. Please log in again.');
         if (typeof supabaseClient === 'undefined' || !supabaseClient) {
           throw new Error('Supabase client is unavailable. Check supabase-config.js.');
@@ -702,27 +699,14 @@
 
     async function loadMemberProfile() {
       try {
-        const storedUser = localStorage.getItem('current_user');
+        const user = await getCurrentUser();
 
-        if (!storedUser) {
+        if (!user) {
           window.location.href = '../login-signup.html';
           return;
         }
 
-        let currentUserObj;
-
-        try {
-          currentUserObj = JSON.parse(storedUser);
-        } catch (parseError) {
-          console.error('Invalid current_user data:', parseError);
-          window.location.href = '../login-signup.html';
-          return;
-        }
-
-        const userId =
-          currentUserObj.id ||
-          currentUserObj.user_id ||
-          currentUserObj.uid;
+        const userId = user.id || user.user_id || user.uid;
 
         if (!userId) {
           console.error('Logged-in user UUID was not found.');
@@ -825,11 +809,10 @@
         const balanceElement = document.getElementById('topBarBalance');
         if (!balanceElement) return;
 
-        const storedUser = localStorage.getItem('current_user');
-        if (!storedUser) return;
+        const user = await getCurrentUser();
+        if (!user) return;
 
-        const userObj = JSON.parse(storedUser);
-        const userId = userObj.id || userObj.user_id || userObj.uid;
+        const userId = user.id || user.user_id || user.uid;
         if (!userId) return;
 
         if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
