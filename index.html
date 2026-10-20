@@ -73,33 +73,36 @@
     <div id="topBarContainer" class="sticky top-0 z-50"></div> 
 
     <!-- Main Application Wrapper --> 
-    <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-3 sm:py-5 space-y-5"> 
+    <div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-4 py-3 sm:py-5 space-y-4"> 
         
-        <!-- Multiple Dynamic Banner Slider Container -->
-        <div id="bannerContainer" class="shuffle-banner rounded-2xl relative shadow-xl min-h-[140px] flex items-center overflow-hidden">
-            <div class="w-full p-4 sm:p-6 flex flex-col justify-between relative z-10">
-                <div class="space-y-1.5 max-w-sm">
-                    <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
-                    <h1 class="text-[var(--font-2xl)] sm:text-[var(--font-3xl)] font-black tracking-tight text-[#FFFFFF] uppercase italic">Boost Your Level Up!</h1>
+        <!-- ব্যানার কার্ডের উপরে চিকন একটি দাগ -->
+        <div class="w-full h-[2px] bg-[#1A2C38] rounded-full"></div>
+
+        <!-- Multiple Dynamic Banner Slider Container (উচ্চতা কিছুটা কমানো হয়েছে) -->
+        <div id="bannerContainer" class="shuffle-banner rounded-2xl relative shadow-xl min-h-[110px] sm:min-h-[130px] flex items-center overflow-hidden">
+            <div class="w-full p-3 sm:p-5 flex flex-col justify-between relative z-10">
+                <div class="space-y-1 max-w-sm">
+                    <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-tight text-[#FFFFFF] uppercase italic">Boost Your Level Up!</h1>
                     <p class="text-[var(--font-xs)] text-[#FFFFFF] font-medium">Earn more rewards now when ranking up!</p>
                 </div>
             </div>
         </div>
         <!-- Banner Dots Indicator -->
-        <div id="bannerDots" class="flex justify-center gap-1.5 -mt-2"></div>
+        <div id="bannerDots" class="flex justify-center gap-1.5 -mt-1"></div>
 
-        <!-- Banner Card এর ঠিক নিচে পাশাপাশি স্লাইডার অ্যানিমেশনযুক্ত ক্যাটাগরি বাটন বার -->
+        <!-- ক্যাটাগরি বাটন বার -->
         <div id="categorySliderBar" class="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
             <!-- Dynamic Category Buttons Rendered Here -->
         </div>
 
         <!-- Dynamic Categories Sections Container --> 
-        <div id="categoriesContainer" class="space-y-8">
+        <div id="categoriesContainer" class="space-y-6">
             <!-- Sections rendered dynamically from database -->
         </div>
     </div> 
 
-    <!-- Category All Games Modal with Loading Animation -->
+    <!-- Category All Games Modal with Loading Animation & Search Icon -->
     <div id="categoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10000] hidden flex flex-col">
         <!-- Modal Top Bar -->
         <div id="modalTopBar" class="sticky top-0 z-50"></div>
@@ -107,9 +110,15 @@
         <!-- Modal Content Area -->
         <div class="flex-1 overflow-y-auto max-w-7xl w-full mx-auto p-3 sm:p-5 space-y-4">
             <div class="flex items-center justify-between border-b border-[#0F212E] pb-3">
-                <h2 id="modalCategoryTitle" class="text-lg sm:text-xl font-black text-[#FFFFFF] flex items-center gap-2">
-                    <i class="fa-solid fa-gamepad text-[#24ee89]"></i> <span id="modalTitleText">Category Games</span>
-                </h2>
+                <div class="flex items-center gap-3">
+                    <h2 id="modalCategoryTitle" class="text-lg sm:text-xl font-black text-[#FFFFFF] flex items-center gap-2">
+                        <i class="fa-solid fa-gamepad text-[#24ee89]"></i> <span id="modalTitleText">Category Games</span>
+                    </h2>
+                    <!-- ক্যাটাগরি নামের ডান পাশে অ্যালাইন করা Search Symbol Icon -->
+                    <a href="/rafi444/search.html" title="Search Games" class="w-8 h-8 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:text-[#24ee89] transition">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </a>
+                </div>
                 <button onclick="closeCategoryModal()" class="w-9 h-9 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-red-500 hover:border-red-500 transition">
                     <i class="fa-solid fa-xmark text-base"></i>
                 </button>
@@ -235,10 +244,10 @@
             bannerContainer.innerHTML = `
                 <div class="absolute inset-0 bg-black/25 z-0"></div>
                 <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="w-full p-4 sm:p-6 flex flex-col justify-between relative z-10 banner-slide">
-                    <div class="space-y-1.5 max-w-sm">
-                        ${banner.badge_text ? `<span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">${banner.badge_text}</span>` : ''}
-                        <h1 class="text-[var(--font-2xl)] sm:text-[var(--font-3xl)] font-black tracking-tight text-[#FFFFFF] uppercase italic drop-shadow-md">${banner.title}</h1>
+                <div class="w-full p-3 sm:p-5 flex flex-col justify-between relative z-10 banner-slide">
+                    <div class="space-y-1 max-w-sm">
+                        ${banner.badge_text ? `<span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${banner.badge_text}</span>` : ''}
+                        <h1 class="text-xl sm:text-2xl font-black tracking-tight text-[#FFFFFF] uppercase italic drop-shadow-md">${banner.title}</h1>
                         ${banner.subtitle ? `<p class="text-[var(--font-xs)] text-[#FFFFFF] font-medium drop-shadow">${banner.subtitle}</p>` : ''}
                     </div>
                 </div>
@@ -291,13 +300,12 @@
             }
         }
 
-        // ব্যানার কার্ডের নিচে ক্যাটাগরি বাটন বার রেন্ডার করা
         function renderCategorySliderButtons(categories) {
             const barContainer = document.getElementById('categorySliderBar');
             if (!barContainer) return;
 
             let html = `
-                <button type="button" onclick="filterCategoryButton('all')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-xl text-[var(--font-xs)] font-bold transition ${activeFilterCategory === 'all' ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="all">
+                <button type="button" onclick="filterCategoryButton('all')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${activeFilterCategory === 'all' ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="all">
                     <i class="fa-solid fa-fire text-orange-500"></i> All Games
                 </button>
             `;
@@ -305,7 +313,7 @@
             categories.forEach(cat => {
                 const isActive = activeFilterCategory === cat;
                 html += `
-                    <button type="button" onclick="filterCategoryButton('${cat}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${cat}">
+                    <button type="button" onclick="filterCategoryButton('${cat}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${cat}">
                         <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${cat}
                     </button>
                 `;
@@ -314,16 +322,15 @@
             barContainer.innerHTML = html;
         }
 
-        // ক্যাটাগরি বাটন ক্লিক করলে ফিল্টার করার লজিক
         function filterCategoryButton(category) {
             activeFilterCategory = category;
             
             document.querySelectorAll('.category-filter-btn').forEach(btn => {
                 const isSelected = btn.getAttribute('data-cat') === category;
                 if (isSelected) {
-                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#24ee89] text-[#0F212E] shadow-sm';
+                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#24ee89] text-[#0F212E] shadow-sm';
                 } else {
-                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]';
+                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]';
                 }
             });
 
@@ -345,7 +352,8 @@
                 if (catItems.length === 0) return;
 
                 const currentIndex = categoryIndices[cat] || 0;
-                const visibleItems = catItems.slice(currentIndex, currentIndex + 3);
+                // যদি বাটন ফিল্টার 'all' থাকে তবে ৩টি করে দেখাবে, নতুবা সংশ্লিষ্ট ক্যাটাগরির সমস্ত গেম দেখাবে
+                const visibleItems = activeFilterCategory === 'all' ? catItems.slice(currentIndex, currentIndex + 3) : catItems;
 
                 const section = document.createElement('div');
                 section.className = 'space-y-3 pb-4 border-b border-[#1A2C38]';
@@ -354,6 +362,7 @@
                         <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="openCategoryModal('${cat}')" title="Click to view all"> 
                             <span class="w-2.5 h-2.5 rounded-full bg-white inline-block"></span> ${cat} 
                         </h2> 
+                        ${activeFilterCategory === 'all' ? `
                         <div class="flex items-center gap-1.5">
                             <button onclick="slideCategory('${cat}', -1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
                                 <i class="fa-solid fa-chevron-left text-[10px]"></i>
@@ -361,7 +370,7 @@
                             <button onclick="slideCategory('${cat}', 1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
                                 <i class="fa-solid fa-chevron-right text-[10px]"></i>
                             </button>
-                        </div>
+                        </div>` : ''}
                     </div> 
                     <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 slide-animate" id="grid-${CSS.escape(cat)}">
                     </div>
