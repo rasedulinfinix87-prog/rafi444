@@ -93,7 +93,7 @@
             <i class="fa-solid fa-circle-info text-[#24ee89]"></i> Calculation Rules
           </h2>
           <p class="text-xs text-[#a9b3b5] leading-relaxed">
-            আপনার গেম খেলার হিস্ট্রি থেকে মোট বেট অ্যামাউন্ট স্বয়ংক্রিয়ভাবে হিসাব করে টার্নওভার প্রোগ্রেস দেখানো হচ্ছে। নতুন ডিপোজিট বা বোনাসের ক্ষেত্রে টার্নওভার রিসেট হবে।
+            আপনার গেম খেলার হিস্ট্রি থেকে মোট বেট অ্যামাউন্ট স্বয়ংক্রিয়ভাবে হিসাব করে টার্নওভার প্রোগ্রেস দেখানো হচ্ছে। নতুন ডিপোজিট বা বোনাসের ক্ষেত্রে টার্নওভার রিকোয়ারমেন্ট যোগ হয়ে হিসাব করা হবে।
           </p>
         </div>
 
@@ -150,10 +150,10 @@
           throw new Error('Supabase client is not configured.');
         }
 
-        // ১. Fetch user profile for required turnover
+        // ১. Fetch user profile for active required turnover from 'active_turnover_required' column
         const { data: profile, error: profileError } = await supabaseClient
           .from('profiles')
-          .select('turnover_required')
+          .select('active_turnover_required')
           .eq('id', userId)
           .maybeSingle();
 
@@ -198,7 +198,7 @@
         if (originalBets && originalBets.length > 0) {
           totalCompletedTurnover += originalBets.reduce((sum, item) => {
             const betTime = item.created_at ? new Date(item.created_at).getTime() : 0;
-            // শুধুমাত্র সর্বশেষ ডিপোজিটের পরের গেমের বেটগুলো কাউন্ট হবে, আগেরগুলো স্বয়ংক্রিয়ভাবে বাদ (রিসেট) হয়ে যাবে
+            // শুধুমাত্র সর্বশেষ ডিপোজিটের পরের গেমের বেটগুলো কাউন্ট হবে
             if (betTime >= latestDepositTime) {
               return sum + Number(item.bet_amount || 0);
             }
@@ -217,7 +217,8 @@
         }
 
         const completed = Math.max(0, totalCompletedTurnover);
-        const required = Math.max(0, Number(profile?.turnover_required || 0));
+        // profiles টেবিলের নতুন কলাম active_turnover_required থেকে রিকোয়ারমেন্ট নেওয়া হলো
+        const required = Math.max(0, Number(profile?.active_turnover_required || 0));
         const remaining = Math.max(0, required - completed);
         
         let percentage = required > 0 ? (completed / required) * 100 : (completed > 0 ? 100 : 0);
