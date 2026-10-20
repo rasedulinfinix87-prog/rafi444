@@ -45,6 +45,7 @@
             transition: opacity 0.6s ease-in-out;
         }
 
+        /* Slide Animation Class */
         .slide-animate {
             animation: fadeInSlide 0.35s ease-in-out;
         }
@@ -87,14 +88,14 @@
         </div>
     </div> 
 
-    <!-- Loading Overlay (2.5 Seconds Animation) -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[20000] hidden flex flex-col items-center justify-center space-y-3">
-        <div class="w-12 h-12 border-4 border-[#24ee89] border-t-transparent rounded-full animate-spin"></div>
-        <p class="text-[var(--font-sm)] font-bold text-[#FFFFFF] tracking-wider">Loading Category Games...</p>
+    <!-- Loading Overlay (2.5 Seconds) -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-[#0F212E] z-[99999] hidden flex flex-col items-center justify-center space-y-3">
+        <div class="w-10 h-10 border-4 border-[#24ee89] border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-[var(--font-sm)] text-[#FFFFFF] font-semibold tracking-wider">Loading Games...</p>
     </div>
 
     <!-- Category All Games Modal -->
-    <div id="categoryModal" class="fixed inset-0 bg-[#0F212E] z-[10000] hidden flex flex-col">
+    <div id="categoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10000] hidden flex flex-col">
         <!-- Modal Top Bar -->
         <div id="modalTopBar" class="sticky top-0 z-50"></div>
 
@@ -289,9 +290,9 @@
                 const visibleItems = catItems.slice(currentIndex, currentIndex + 3);
 
                 const section = document.createElement('div');
-                section.className = 'space-y-3';
+                section.className = 'space-y-3 pb-4 border-b border-[#0F212E]'; // প্রতিটি ক্যাটাগরির নিচে চিকন লম্বা দাগ
                 section.innerHTML = `
-                    <div class="flex items-center justify-between border-b border-white/10 pb-2"> 
+                    <div class="flex items-center justify-between pb-2"> 
                         <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="handleCategoryClick('${cat}')" title="Click to view all"> 
                             <span class="w-2.5 h-2.5 rounded-full bg-white inline-block"></span> ${cat} 
                         </h2> 
@@ -304,9 +305,6 @@
                             </button>
                         </div>
                     </div> 
-                    <!-- ক্যাটাগরির নিচে চিকন লম্বা বর্ডার দাগ -->
-                    <div class="w-full h-[1px] bg-white/10 -mt-2 mb-2"></div>
-                    
                     <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 slide-animate" id="grid-${CSS.escape(cat)}">
                     </div>
                 `;
@@ -349,7 +347,7 @@
             renderCategories();
         }
 
-        // ২.৫ সেকেন্ড লোডিং অ্যানিমেশন সহ মডাল ওপেন করার লজিক
+        // ২.৫ সেকেন্ড লোডিং অ্যানিমেশন সহ ক্যাটাগরি মডাল ওপেন করা
         function handleCategoryClick(categoryName) {
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.classList.remove('hidden');
@@ -357,7 +355,7 @@
             setTimeout(() => {
                 loadingOverlay.classList.add('hidden');
                 openCategoryModal(categoryName);
-            }, 2500); // ২.৫ সেকেন্ড সময়
+            }, 2500);
         }
 
         async function openCategoryModal(categoryName) {
