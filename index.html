@@ -45,7 +45,6 @@
             transition: opacity 0.6s ease-in-out;
         }
 
-        /* Slide Animation Class */
         .slide-animate {
             animation: fadeInSlide 0.35s ease-in-out;
         }
@@ -88,8 +87,14 @@
         </div>
     </div> 
 
+    <!-- Loading Overlay (2.5 Seconds Animation) -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[20000] hidden flex flex-col items-center justify-center space-y-3">
+        <div class="w-12 h-12 border-4 border-[#24ee89] border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-[var(--font-sm)] font-bold text-[#FFFFFF] tracking-wider">Loading Category Games...</p>
+    </div>
+
     <!-- Category All Games Modal -->
-    <div id="categoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10000] hidden flex flex-col">
+    <div id="categoryModal" class="fixed inset-0 bg-[#0F212E] z-[10000] hidden flex flex-col">
         <!-- Modal Top Bar -->
         <div id="modalTopBar" class="sticky top-0 z-50"></div>
 
@@ -97,7 +102,7 @@
         <div class="flex-1 overflow-y-auto max-w-7xl w-full mx-auto p-3 sm:p-5 space-y-4">
             <div class="flex items-center justify-between border-b border-[#0F212E] pb-3">
                 <h2 id="modalCategoryTitle" class="text-lg sm:text-xl font-black text-[#FFFFFF] flex items-center gap-2">
-                    <i class="fa-solid fa-gamepad text-[#24ee89]"></i> <span id="modalTitleText">Category Games</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-white inline-block"></span> <span id="modalTitleText">Category Games</span>
                 </h2>
                 <button onclick="closeCategoryModal()" class="w-9 h-9 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-red-500 hover:border-red-500 transition">
                     <i class="fa-solid fa-xmark text-base"></i>
@@ -112,11 +117,6 @@
         <!-- Modal Bottom Bar -->
         <div id="modalBottomBar" class="fixed bottom-0 left-0 right-0 z-50"></div>
     </div>
-
-    <!-- Footer Section --> 
-    <footer class="bg-[#1A2C38] border-t border-[#0F212E] mt-12 py-6 text-center text-[var(--font-xs)] text-[#FFFFFF] space-y-2"> 
-        <p>&copy; 2026 Game Portal. All Rights Reserved.</p> 
-    </footer> 
 
     <!-- Dynamic Bottom Bar Anchor Container -->
     <div id="bottomBarContainer" class="fixed bottom-0 left-0 right-0 z-50"></div>
@@ -260,8 +260,7 @@
                         title: item.title,
                         imageUrl: item.image_url,
                         pageUrl: item.page_url,
-                        category: item.category ? item.category.trim() : 'Original Games',
-                        players: Math.floor(Math.random() * 1500) + 100
+                        category: item.category ? item.category.trim() : 'Original Games'
                     }));
 
                     const categories = [...new Set(allGridsData.map(item => item.category))];
@@ -292,8 +291,8 @@
                 const section = document.createElement('div');
                 section.className = 'space-y-3';
                 section.innerHTML = `
-                    <div class="flex items-center justify-between border-b border-[#0F212E] pb-2"> 
-                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="openCategoryModal('${cat}')" title="Click to view all"> 
+                    <div class="flex items-center justify-between border-b border-white/10 pb-2"> 
+                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="handleCategoryClick('${cat}')" title="Click to view all"> 
                             <span class="w-2.5 h-2.5 rounded-full bg-white inline-block"></span> ${cat} 
                         </h2> 
                         <div class="flex items-center gap-1.5">
@@ -305,6 +304,9 @@
                             </button>
                         </div>
                     </div> 
+                    <!-- ক্যাটাগরির নিচে চিকন লম্বা বর্ডার দাগ -->
+                    <div class="w-full h-[1px] bg-white/10 -mt-2 mb-2"></div>
+                    
                     <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 slide-animate" id="grid-${CSS.escape(cat)}">
                     </div>
                 `;
@@ -320,12 +322,7 @@
                     card.className = 'group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-40 sm:h-48 md:h-52 transition-all duration-200 hover:scale-[1.02] shadow-lg';
                     card.innerHTML = ` 
                         <img src="${game.imageUrl}" onerror="this.style.display='none';" class="absolute inset-0 w-full h-full object-cover z-0" alt="${game.title}" loading="lazy" decoding="async" /> 
-                        <div class="relative z-20 flex justify-start items-center p-2.5"> 
-                            <span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2.5 py-0.5 rounded-full border border-white/10 backdrop-blur-md flex items-center gap-1"> 
-                                <span class="w-1.5 h-1.5 rounded-full bg-[#24ee89] inline-block"></span>
-                                <span>${game.players.toLocaleString()} playing</span> 
-                            </span> 
-                        </div> 
+                        <div class="relative z-20 flex justify-start items-center p-2.5"></div> 
                         <div></div> 
                     `;
                     fragment.appendChild(card);
@@ -352,7 +349,17 @@
             renderCategories();
         }
 
-        // মডাল ওপেন এবং টপবার ও বটমবার লোড করার ফাংশন
+        // ২.৫ সেকেন্ড লোডিং অ্যানিমেশন সহ মডাল ওপেন করার লজিক
+        function handleCategoryClick(categoryName) {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+                openCategoryModal(categoryName);
+            }, 2500); // ২.৫ সেকেন্ড সময়
+        }
+
         async function openCategoryModal(categoryName) {
             const modal = document.getElementById('categoryModal');
             document.getElementById('modalTitleText').innerText = categoryName;
@@ -363,19 +370,13 @@
             modalGrid.innerHTML = catItems.map(game => `
                 <a href="${game.pageUrl}" class="group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-40 sm:h-48 md:h-52 transition-all duration-200 hover:scale-[1.02] shadow-lg">
                     <img src="${game.imageUrl}" onerror="this.style.display='none';" class="absolute inset-0 w-full h-full object-cover z-0" alt="${game.title}" loading="lazy" decoding="async" /> 
-                    <div class="relative z-20 flex justify-start items-center p-2.5"> 
-                        <span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2.5 py-0.5 rounded-full border border-white/10 backdrop-blur-md flex items-center gap-1"> 
-                            <span class="w-1.5 h-1.5 rounded-full bg-[#24ee89] inline-block"></span>
-                            <span>${game.players.toLocaleString()} playing</span> 
-                        </span> 
-                    </div> 
+                    <div class="relative z-20 flex justify-start items-center p-2.5"></div> 
                     <div></div> 
                 </a>
             `).join('');
 
             modal.classList.remove('hidden');
 
-            // মডালের ভেতরে টপবার ও বটমবার কানেক্ট করা
             try {
                 const topRes = await fetch('bar/top.html');
                 if (topRes.ok) {
