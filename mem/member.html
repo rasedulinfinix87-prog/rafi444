@@ -41,11 +41,6 @@
     .theme-switch { display:flex; align-items:center; padding:3px; background:#0F212E; border-radius:12px; }
     .theme-switch button { width:46px; height:42px; border-radius:10px; color:#FFFFFF; }
     .theme-switch button.active { background:#1A2C38; color:#FFFFFF; box-shadow:0 1px 3px #1116; }
-    .avatar-button { cursor:pointer; }
-    .avatar-button:focus-visible { outline:2px solid #34d399; outline-offset:3px; }
-    .avatar-option { border:1px solid #0F212E; border-radius:13px; background:#1A2C38; padding:10px 5px; display:flex; flex-direction:column; align-items:center; gap:7px; color:#FFFFFF; font-size: var(--font-xs); font-weight:700; }
-    .avatar-option.selected { border-color:#34d399; background:#173d32; box-shadow:0 0 0 1px #34d399 inset; }
-    .avatar-option img { width:54px; height:54px; border-radius:50%; background:#1A2C38; }
   </style>
 </head>
 
@@ -70,10 +65,10 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <button type="button" class="avatar-button relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#1A2C38] shrink-0 flex items-center justify-center" onclick="openAvatarPicker()" aria-label="Choose avatar" title="Choose avatar">
-            <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=male" alt="Selected avatar" class="w-full h-full object-cover">
-            <span class="absolute inset-0 bg-black/0 hover:bg-black/20 flex items-center justify-center"><i class="fa-solid fa-pen text-[#FFFFFF] text-[var(--font-xs)] opacity-0 hover:opacity-100"></i></span>
-          </button>
+          <!-- Account Symbol (Avatar লজিক সরিয়ে অ্যাকাউন্ট সিম্বল আইকন রাখা হয়েছে) -->
+          <div class="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#1A2C38] shrink-0 flex items-center justify-center text-emerald-400 text-2xl shadow-inner">
+            <i class="fa-solid fa-user-shield"></i>
+          </div>
 
           <div class="flex flex-col gap-1 min-w-0">
             <span class="bg-[#0F212E] text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/20 w-fit">
@@ -89,35 +84,17 @@
             </div>
 
             <span id="userJoined" class="text-[10px] text-[#FFFFFF] font-semibold">Joined: ----</span>
-
-            <button type="button" onclick="openAvatarPicker()" class="text-left text-[var(--font-xs)] text-emerald-400 font-semibold mt-0.5">
-              <i class="fa-solid fa-user-pen mr-1"></i> Change Avatar
-            </button>
           </div>
         </div>
 
-        <div class="flex items-center justify-between mt-4 border-t border-[#0F212E] pt-3">
-          <div class="flex items-baseline gap-1">
-            <span class="text-[var(--font-lg)] font-bold text-emerald-400">৳</span>
-            <span id="userBalance" class="text-[var(--font-2xl)] font-black text-emerald-400 tracking-tight">0.00</span>
-          </div>
-
-          <button type="button" onclick="syncMemberBalance()" class="text-[#FFFFFF] hover:text-white text-[var(--font-base)] p-2 transition" aria-label="Refresh balance">
-            <i class="fa-solid fa-rotate-right" id="refreshIcon"></i>
-          </button>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2 mt-4">
-          <a href="../account/deposit.html" class="bg-[#0F212E] text-[#FFFFFF] font-extrabold text-[var(--font-xs)] py-3 px-1 rounded-xl border border-[#0F212E] text-center flex items-center justify-center gap-1.5 active:scale-95">
-            <i class="fa-solid fa-wallet text-emerald-400"></i> Deposit
+        <!-- Deposit & Withdrawal Buttons (Bank Account অপশন এবং ব্যালান্স লজিক সম্পূর্ণ বাদ দেওয়া হয়েছে) -->
+        <div class="grid grid-cols-2 gap-3 mt-5">
+          <a href="../account/deposit.html" class="bg-[#0F212E] text-[#FFFFFF] font-extrabold text-[var(--font-xs)] py-3.5 px-2 rounded-xl border border-[#0F212E] text-center flex items-center justify-center gap-2 active:scale-95 shadow-sm">
+            <i class="fa-solid fa-wallet text-emerald-400 text-base"></i> Deposit
           </a>
 
-          <a href="../account/withdraw.html" class="bg-[#0F212E] text-[#FFFFFF] font-extrabold text-[var(--font-xs)] py-3 px-1 rounded-xl border border-[#0F212E] text-center flex items-center justify-center gap-1.5 active:scale-95">
-            <i class="fa-solid fa-money-bill-transfer text-amber-400"></i> Withdrawal
-          </a>
-
-          <a href="../account/profile.html" class="bg-[#0F212E] text-[#FFFFFF] font-extrabold text-[var(--font-xs)] py-3 px-1 rounded-xl border border-[#0F212E] text-center flex items-center justify-center gap-1 leading-tight active:scale-95">
-            <i class="fa-solid fa-building-columns text-sky-400"></i> Bank Account
+          <a href="../account/withdraw.html" class="bg-[#0F212E] text-[#FFFFFF] font-extrabold text-[var(--font-xs)] py-3.5 px-2 rounded-xl border border-[#0F212E] text-center flex items-center justify-center gap-2 active:scale-95 shadow-sm">
+            <i class="fa-solid fa-money-bill-transfer text-amber-400 text-base"></i> Withdrawal
           </a>
         </div>
       </div>
@@ -189,105 +166,7 @@
     </footer>
   </div>
 
-  <!-- Avatar Picker Modal -->
-  <div id="avatarModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="avatarModalTitle" onclick="if(event.target===this) closeAvatarPicker()">
-    <div class="w-full max-w-sm rounded-2xl border border-[#0F212E] bg-[#1A2C38] p-4 shadow-2xl">
-      <div class="flex items-center justify-between mb-4">
-        <h2 id="avatarModalTitle" class="text-[var(--font-base)] font-extrabold text-[#FFFFFF]">Choose Your Avatar</h2>
-        <button type="button" onclick="closeAvatarPicker()" class="w-9 h-9 rounded-lg bg-[#0F212E] text-[#FFFFFF]" aria-label="Close avatar picker">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="grid grid-cols-3 gap-2">
-        <button type="button" class="avatar-option" data-avatar="male" onclick="selectAvatar('male')">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=male&top=shortHair" alt="Male avatar"><span>Male</span>
-        </button>
-
-        <button type="button" class="avatar-option" data-avatar="female" onclick="selectAvatar('female')">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=female&top=longHair" alt="Female avatar"><span>Female</span>
-        </button>
-
-        <button type="button" class="avatar-option" data-avatar="queen" onclick="selectAvatar('queen')">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=queen&accessories=round" alt="Queen avatar"><span>Queen</span>
-        </button>
-
-        <button type="button" class="avatar-option" data-avatar="king" onclick="selectAvatar('king')">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=king&top=hat" alt="King avatar"><span>King</span>
-        </button>
-
-        <button type="button" class="avatar-option" data-avatar="rockman" onclick="selectAvatar('rockman')">
-          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=rockman" alt="Rockman avatar"><span>Rockman</span>
-        </button>
-      </div>
-
-      <p class="text-[var(--font-xs)] text-[#FFFFFF] mt-3">Your selection is saved on this device.</p>
-
-      <button type="button" onclick="closeAvatarPicker()" class="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-[var(--font-base)] font-extrabold text-[#062018]">
-        Done
-      </button>
-    </div>
-  </div>
-
   <script>
-    const AVATAR_URLS = {
-      male: 'https://api.dicebear.com/7.x/avataaars/svg?seed=male&top=shortHair',
-      female: 'https://api.dicebear.com/7.x/avataaars/svg?seed=female&top=longHair',
-      queen: 'https://api.dicebear.com/7.x/avataaars/svg?seed=queen&accessories=round',
-      king: 'https://api.dicebear.com/7.x/avataaars/svg?seed=king&top=hat',
-      rockman: 'https://api.dicebear.com/7.x/bottts/svg?seed=rockman'
-    };
-
-    function applySavedAvatar() {
-      let selected = 'male';
-
-      try {
-        const saved = localStorage.getItem('selected_account_avatar');
-
-        if (saved && Object.prototype.hasOwnProperty.call(AVATAR_URLS, saved)) {
-          selected = saved;
-        }
-      } catch (e) {
-        console.error('Avatar preference error:', e);
-      }
-
-      document.getElementById('userAvatar').src = AVATAR_URLS[selected];
-
-      document.querySelectorAll('.avatar-option').forEach(option => {
-        option.classList.toggle('selected', option.dataset.avatar === selected);
-      });
-    }
-
-    function openAvatarPicker() {
-      applySavedAvatar();
-
-      const modal = document.getElementById('avatarModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeAvatarPicker() {
-      const modal = document.getElementById('avatarModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    function selectAvatar(type) {
-      if (!Object.prototype.hasOwnProperty.call(AVATAR_URLS, type)) return;
-
-      document.getElementById('userAvatar').src = AVATAR_URLS[type];
-
-      document.querySelectorAll('.avatar-option').forEach(option => {
-        option.classList.toggle('selected', option.dataset.avatar === type);
-      });
-
-      try {
-        localStorage.setItem('selected_account_avatar', type);
-      } catch (e) {
-        console.error('Avatar save error:', e);
-      }
-    }
-
     async function copyGameId() {
       const gameId = document.getElementById('userGameId').textContent.trim();
 
@@ -301,19 +180,7 @@
       }
     }
 
-    let memberSyncInProgress = false;
-
-    async function syncMemberBalance() {
-      const refreshIcon = document.getElementById('refreshIcon');
-
-      if (memberSyncInProgress) return;
-
-      memberSyncInProgress = true;
-
-      if (refreshIcon) {
-        refreshIcon.classList.add('fa-spin');
-      }
-
+    async function loadMemberProfile() {
       try {
         const storedUser = localStorage.getItem('current_user');
 
@@ -358,13 +225,8 @@
           .from('profiles')
           .select(`
             id,
-            full_name,
-            phone_number,
-            balance,
             created_at,
-            user_game_id,
-            turnover_required,
-            current_turnover
+            user_game_id
           `)
           .eq('id', userId)
           .maybeSingle();
@@ -388,18 +250,6 @@
           ? String(gameId).slice(0, 8).toUpperCase()
           : '----';
 
-        const balanceElement = document.getElementById('userBalance');
-
-        if (
-          profile.balance !== null &&
-          profile.balance !== undefined &&
-          Number.isFinite(Number(profile.balance))
-        ) {
-          balanceElement.textContent = Number(profile.balance).toFixed(2);
-        } else {
-          balanceElement.textContent = '0.00';
-        }
-
         if (profile.created_at) {
           const joinedDate = new Date(profile.created_at);
 
@@ -415,16 +265,10 @@
           }
         }
 
-        console.log('Member profile synchronized successfully.');
+        console.log('Member profile loaded successfully.');
 
       } catch (err) {
-        console.error('Member synchronization error:', err);
-      } finally {
-        memberSyncInProgress = false;
-
-        if (refreshIcon) {
-          refreshIcon.classList.remove('fa-spin');
-        }
+        console.error('Member loading error:', err);
       }
     }
 
@@ -448,8 +292,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      applySavedAvatar();
-      syncMemberBalance();
+      loadMemberProfile();
     });
   </script>
 </body>
