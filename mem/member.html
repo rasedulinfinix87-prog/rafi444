@@ -45,13 +45,13 @@
     #bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; }
 
     /* Bet History modal */
-    #betHistoryModal { position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; padding:12px; background:rgba(0,0,0,.72); }
+    #betHistoryModal { position:fixed; inset:0; z-index:10000; display:none; align-items:stretch; justify-content:stretch; padding:0; background:#202628; }
     #betHistoryModal.show { display:flex; }
-    .bh-modal { width:100%; max-width:560px; max-height:88dvh; display:flex; flex-direction:column; background:#202628; color:#f5f7f8; border:1px solid #343b3d; border-radius:16px; overflow:hidden; box-shadow:0 20px 60px #0009; }
+    .bh-modal { width:100%; max-width:none; height:100%; height:100dvh; max-height:none; display:flex; flex-direction:column; background:#202628; color:#f5f7f8; border:0; border-radius:0; overflow:hidden; box-shadow:none; }
     .bh-head { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; background:#303638; border-bottom:1px solid #3a4143; }
     .bh-head h2 { font-size:19px; font-weight:750; margin:0; }
     .bh-close { width:34px; height:34px; border-radius:50%; background:#41494b; color:white; font-size:19px; }
-    .bh-content { overflow:auto; padding:16px; }
+    .bh-content { flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; padding:16px; padding-bottom:max(16px, env(safe-area-inset-bottom)); }
     .bh-filters { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .bh-select { width:100%; min-width:0; appearance:auto; background:#252b2d; color:#f4f5f5; border:1px solid #3a4244; border-radius:9px; padding:13px 10px; font-size:14px; outline:none; }
     .bh-help { display:inline-block; margin:16px 2px; color:#b7c0c2; text-decoration:underline; font-size:13px; }
@@ -60,7 +60,9 @@
     .bh-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; padding:13px 10px; border-bottom:1px solid #343b3d; align-items:center; }
     .bh-primary { font-size:14px; font-weight:650; overflow-wrap:anywhere; }
     .bh-muted { font-size:11px; color:#a9b3b5; margin-top:5px; }
-    .bh-amount { font-size:14px; text-align:right; font-weight:700; white-space:nowrap; }
+    .bh-amount { font-size:14px; text-align:right; font-weight:800; white-space:nowrap; }
+    .bh-amount.won { color:#2ed573; }
+    .bh-amount.lost { color:#ff7474; }
     .bh-status { display:inline-block; margin-top:5px; font-size:11px; color:#b9c3c4; text-transform:capitalize; }
     .bh-empty { display:flex; min-height:245px; align-items:center; justify-content:center; flex-direction:column; text-align:center; gap:12px; color:#d7dddd; padding:22px 10px; }
     .bh-empty i { font-size:48px; color:#586365; }
@@ -258,10 +260,17 @@
       return '৳' + number.toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 
+    function bhStatusKind(status) {
+      const value = String(status || 'pending').toLowerCase().trim();
+      if (['won','win','success','completed'].includes(value)) return 'won';
+      if (['lost','loss','lose','failed'].includes(value)) return 'lost';
+      return 'pending';
+    }
+
     function bhStatusClass(status) {
-      const value = String(status || 'unknown').toLowerCase();
-      if (['won','win','success','completed'].includes(value)) return 'color:#2ed573';
-      if (['lost','loss','failed'].includes(value)) return 'color:#ff7474';
+      const kind = bhStatusKind(status);
+      if (kind === 'won') return 'color:#2ed573';
+      if (kind === 'lost') return 'color:#ff7474';
       return 'color:#f5cf66';
     }
 
@@ -350,12 +359,16 @@
           const detail = item._source === 'color'
             ? (item._detail || 'Color Game') + (item.winning_result ? ' · Result: ' + item.winning_result : '')
             : (item.game_details && typeof item.game_details === 'object' ? (item.game_details.result || item.game_details.bet_type || '') : '');
+          const kind = bhStatusKind(status);
+          const amountClass = kind === 'won' ? 'won' : (kind === 'lost' ? 'lost' : '');
+          const amountValue = kind === 'lost' ? '- ' + bhMoney(bet) : (kind === 'won' ? '+ ' + bhMoney(payout) : bhMoney(payout));
+          const statusLabel = kind === 'won' ? 'Won' : (kind === 'lost' ? 'Loss' : status);
           return '<div class="bh-row">' +
             '<div><div class="bh-primary">' + bhEscape(item._game) + '</div>' +
             '<div class="bh-muted">' + bhEscape(detail) + '</div>' +
             '<div class="bh-muted">' + bhEscape(date) + multiplier + '</div>' +
-            '<span class="bh-status" style="' + bhStatusClass(status) + '">' + bhEscape(status) + '</span></div>' +
-            '<div class="bh-amount">' + bhMoney(payout) +
+            '<span class="bh-status" style="' + bhStatusClass(status) + '">' + bhEscape(statusLabel) + '</span></div>' +
+            '<div class="bh-amount ' + amountClass + '">' + amountValue +
             '<div class="bh-muted">Bet ' + bhMoney(bet) + '</div></div></div>';
         }).join('');
 
