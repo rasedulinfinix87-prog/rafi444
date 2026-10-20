@@ -29,19 +29,10 @@
         ::-webkit-scrollbar-thumb:hover { background: #283552; } 
         .no-scrollbar::-webkit-scrollbar { display: none; } 
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } 
-        /* Mobile scrolling optimization */ 
+        
         html { overflow-y: auto; -webkit-overflow-scrolling: touch; background: #0F212E; } 
         body { overflow-x: hidden; background: #0F212E; color: #FFFFFF; font-size: var(--font-base); } 
         img { -webkit-user-drag: none; } 
-
-        /* Shuffle Style Glass & Accents */
-        .glass-card {
-            background: rgba(245, 207, 102, 0.04);
-            border: 1px solid rgba(245, 207, 102, 0.15);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border-radius: 18px;
-        }
 
         .shuffle-banner {
             background: linear-gradient(135deg, #1A2C38 0%, #0F212E 100%);
@@ -54,19 +45,20 @@
             transition: opacity 0.6s ease-in-out;
         }
 
-        /* Smooth Slide Animation for Grid */
+        /* Slide Animation Class */
+        .slide-animate {
+            animation: fadeInSlide 0.35s ease-in-out;
+        }
+
         @keyframes fadeInSlide {
             from {
                 opacity: 0;
-                transform: translateX(20px);
+                transform: translateX(15px);
             }
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
-        }
-        .slide-anim {
-            animation: fadeInSlide 0.35s ease-in-out forwards;
         }
     </style> 
 </head> 
@@ -87,6 +79,7 @@
                 </div>
             </div>
         </div>
+        <!-- Banner Dots Indicator -->
         <div id="bannerDots" class="flex justify-center gap-1.5 -mt-2"></div>
 
         <!-- Dynamic Categories Sections Container --> 
@@ -94,6 +87,31 @@
             <!-- Sections rendered dynamically from database -->
         </div>
     </div> 
+
+    <!-- Category All Games Modal -->
+    <div id="categoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10000] hidden flex flex-col">
+        <!-- Modal Top Bar -->
+        <div id="modalTopBar" class="sticky top-0 z-50"></div>
+
+        <!-- Modal Content Area -->
+        <div class="flex-1 overflow-y-auto max-w-7xl w-full mx-auto p-3 sm:p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-[#0F212E] pb-3">
+                <h2 id="modalCategoryTitle" class="text-lg sm:text-xl font-black text-[#FFFFFF] flex items-center gap-2">
+                    <i class="fa-solid fa-gamepad text-[#24ee89]"></i> <span id="modalTitleText">Category Games</span>
+                </h2>
+                <button onclick="closeCategoryModal()" class="w-9 h-9 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-red-500 hover:border-red-500 transition">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            
+            <div id="modalGamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 pb-16">
+                <!-- All games of this category will render here -->
+            </div>
+        </div>
+
+        <!-- Modal Bottom Bar -->
+        <div id="modalBottomBar" class="fixed bottom-0 left-0 right-0 z-50"></div>
+    </div>
 
     <!-- Footer Section --> 
     <footer class="bg-[#1A2C38] border-t border-[#0F212E] mt-12 py-6 text-center text-[var(--font-xs)] text-[#FFFFFF] space-y-2"> 
@@ -107,7 +125,6 @@
         let balanceSubscription = null; 
         let allGridsData = [];
         let categoryIndices = {}; 
-        let selectedFilterCategory = null; // নির্দিষ্ট ক্যাটাগরি ফিল터 করার জন্য
         let bannersList = [];
         let currentBannerIndex = 0;
         let bannerIntervalTimer = null;
@@ -259,37 +276,11 @@
             }
         }
 
-        // ক্যাসিনো বেসড ক্যাটাগরি অনুযায়ী সাদা কালারের সিম্বল বা আইকন রিটার্ন করার ফাংশন
-        function getCategorySymbol(categoryName) {
-            const name = categoryName.toLowerCase();
-            if (name.includes('slot') || name.includes('slots')) return '<i class="fa-solid fa-dice text-white"></i>';
-            if (name.includes('casino') || name.includes('live')) return '<i class="fa-solid fa-circle-dot text-white"></i>';
-            if (name.includes('original') || name.includes('shuffle')) return '<i class="fa-solid fa-bolt text-white"></i>';
-            if (name.includes('lottery') || name.includes('lucky')) return '<i class="fa-solid fa-ticket text-white"></i>';
-            if (name.includes('sport') || name.includes('sports')) return '<i class="fa-solid fa-futbol text-white"></i>';
-            return '<i class="fa-solid fa-gamepad text-white"></i>';
-        }
-
-        // ক্যাটাগরি ফিল্টার করার জন্য টগল ফাংশন (নামে ক্লিক করলে নির্দিষ্ট গেম শো করবে)
-        function filterCategory(catName) {
-            if (selectedFilterCategory === catName) {
-                selectedFilterCategory = null; // আবার ক্লিক করলে সব ক্যাটাগরি দেখাবে
-            } else {
-                selectedFilterCategory = catName;
-            }
-            renderCategories();
-        }
-
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
 
-            let categories = [...new Set(allGridsData.map(item => item.category))];
-            
-            // যদি কোনো নির্দিষ্ট ক্যাটাগরি সিলেক্ট করা থাকে, তবে শুধুমাত্র সেই ক্যাটাগরিই দেখাবে
-            if (selectedFilterCategory) {
-                categories = categories.filter(cat => cat === selectedFilterCategory);
-            }
+            const categories = [...new Set(allGridsData.map(item => item.category))];
 
             categories.forEach(cat => {
                 const catItems = allGridsData.filter(item => item.category === cat);
@@ -297,15 +288,13 @@
 
                 const currentIndex = categoryIndices[cat] || 0;
                 const visibleItems = catItems.slice(currentIndex, currentIndex + 3);
-                const symbolIcon = getCategorySymbol(cat);
 
                 const section = document.createElement('div');
                 section.className = 'space-y-3';
                 section.innerHTML = `
                     <div class="flex items-center justify-between border-b border-[#0F212E] pb-2"> 
-                        <h2 onclick="filterCategory('${cat}')" class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition"> 
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> 
-                            <span class="flex items-center gap-1.5">${symbolIcon} ${cat} ${selectedFilterCategory === cat ? '<span class="text-xs text-[#24ee89] ml-2 font-normal">(Showing Filtered - Click to Reset)</span>' : ''}</span> 
+                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="openCategoryModal('${cat}')" title="Click to view all"> 
+                            <span class="w-2.5 h-2.5 rounded-full bg-white inline-block"></span> ${cat} 
                         </h2> 
                         <div class="flex items-center gap-1.5">
                             <button onclick="slideCategory('${cat}', -1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
@@ -316,7 +305,7 @@
                             </button>
                         </div>
                     </div> 
-                    <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 slide-anim" id="grid-${CSS.escape(cat)}">
+                    <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 slide-animate" id="grid-${CSS.escape(cat)}">
                     </div>
                 `;
 
@@ -346,7 +335,6 @@
             });
         }
 
-        // স্লাইড অ্যানিমেশন সহ ৩টি করে গেম পরিবর্তন করার ফাংশন
         function slideCategory(category, direction) {
             const catItems = allGridsData.filter(item => item.category === category);
             if (catItems.length <= 3) return; 
@@ -362,6 +350,48 @@
 
             categoryIndices[category] = currentIndex;
             renderCategories();
+        }
+
+        // মডাল ওপেন এবং টপবার ও বটমবার লোড করার ফাংশন
+        async function openCategoryModal(categoryName) {
+            const modal = document.getElementById('categoryModal');
+            document.getElementById('modalTitleText').innerText = categoryName;
+
+            const modalGrid = document.getElementById('modalGamesGrid');
+            const catItems = allGridsData.filter(item => item.category === categoryName);
+
+            modalGrid.innerHTML = catItems.map(game => `
+                <a href="${game.pageUrl}" class="group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/60 rounded-2xl overflow-hidden flex flex-col justify-between h-40 sm:h-48 md:h-52 transition-all duration-200 hover:scale-[1.02] shadow-lg">
+                    <img src="${game.imageUrl}" onerror="this.style.display='none';" class="absolute inset-0 w-full h-full object-cover z-0" alt="${game.title}" loading="lazy" decoding="async" /> 
+                    <div class="relative z-20 flex justify-start items-center p-2.5"> 
+                        <span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2.5 py-0.5 rounded-full border border-white/10 backdrop-blur-md flex items-center gap-1"> 
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#24ee89] inline-block"></span>
+                            <span>${game.players.toLocaleString()} playing</span> 
+                        </span> 
+                    </div> 
+                    <div></div> 
+                </a>
+            `).join('');
+
+            modal.classList.remove('hidden');
+
+            // মডালের ভেতরে টপবার ও বটমবার কানেক্ট করা
+            try {
+                const topRes = await fetch('bar/top.html');
+                if (topRes.ok) {
+                    document.getElementById('modalTopBar').innerHTML = await topRes.text();
+                }
+                const botRes = await fetch('bar/bottom.html');
+                if (botRes.ok) {
+                    document.getElementById('modalBottomBar').innerHTML = await botRes.text();
+                }
+            } catch (err) {
+                console.error('Modal Bars Load Error:', err);
+            }
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.add('hidden');
         }
 
         async function loadBottomBar() {
