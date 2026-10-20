@@ -88,6 +88,11 @@
         <!-- Banner Dots Indicator -->
         <div id="bannerDots" class="flex justify-center gap-1.5 -mt-2"></div>
 
+        <!-- Banner Card এর ঠিক নিচে পাশাপাশি স্লাইডার অ্যানিমেশনযুক্ত ক্যাটাগরি বাটন বার -->
+        <div id="categorySliderBar" class="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
+            <!-- Dynamic Category Buttons Rendered Here -->
+        </div>
+
         <!-- Dynamic Categories Sections Container --> 
         <div id="categoriesContainer" class="space-y-8">
             <!-- Sections rendered dynamically from database -->
@@ -132,6 +137,7 @@
         let balanceSubscription = null; 
         let allGridsData = [];
         let categoryIndices = {}; 
+        let activeFilterCategory = 'all';
         let bannersList = [];
         let currentBannerIndex = 0;
         let bannerIntervalTimer = null;
@@ -277,6 +283,7 @@
                         categoryIndices[cat] = 0; 
                     });
 
+                    renderCategorySliderButtons(categories);
                     renderCategories();
                 }
             } catch (err) {
@@ -284,11 +291,54 @@
             }
         }
 
+        // ব্যানার কার্ডের নিচে ক্যাটাগরি বাটন বার রেন্ডার করা
+        function renderCategorySliderButtons(categories) {
+            const barContainer = document.getElementById('categorySliderBar');
+            if (!barContainer) return;
+
+            let html = `
+                <button type="button" onclick="filterCategoryButton('all')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-xl text-[var(--font-xs)] font-bold transition ${activeFilterCategory === 'all' ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="all">
+                    <i class="fa-solid fa-fire text-orange-500"></i> All Games
+                </button>
+            `;
+
+            categories.forEach(cat => {
+                const isActive = activeFilterCategory === cat;
+                html += `
+                    <button type="button" onclick="filterCategoryButton('${cat}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${cat}">
+                        <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${cat}
+                    </button>
+                `;
+            });
+
+            barContainer.innerHTML = html;
+        }
+
+        // ক্যাটাগরি বাটন ক্লিক করলে ফিল্টার করার লজিক
+        function filterCategoryButton(category) {
+            activeFilterCategory = category;
+            
+            document.querySelectorAll('.category-filter-btn').forEach(btn => {
+                const isSelected = btn.getAttribute('data-cat') === category;
+                if (isSelected) {
+                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#24ee89] text-[#0F212E] shadow-sm';
+                } else {
+                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]';
+                }
+            });
+
+            renderCategories();
+        }
+
         function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
 
-            const categories = [...new Set(allGridsData.map(item => item.category))];
+            let categories = [...new Set(allGridsData.map(item => item.category))];
+            
+            if (activeFilterCategory !== 'all') {
+                categories = categories.filter(cat => cat === activeFilterCategory);
+            }
 
             categories.forEach(cat => {
                 const catItems = allGridsData.filter(item => item.category === cat);
