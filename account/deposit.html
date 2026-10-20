@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deposit Funds - Secure Banking</title>
+  <title>Deposit Funds</title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,272 +11,510 @@
   <!-- Supabase JS Client & App Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 
   <style>
     :root {
-      --font-xs: 10px;
-      --font-sm: 11px;
-      --font-base: 12px;
-      --font-md: 14px;
-      --font-lg: 16px;
+      --font-xs: 12px;
+      --font-sm: 13px;
+      --font-base: 14px;
+      --font-md: 16px;
+      --font-lg: 18px;
+      --font-xl: 22px;
+      --font-2xl: 28px;
+      --font-3xl: 32px;
+      --bg: #07131d;
+      --panel: #0b1b27;
+      --card: #102330;
+      --line: #263d4d;
+      --muted: #9fb3c3;
+      --green: #24ee89;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background:
+        radial-gradient(ellipse at 50% -15%, rgba(36,238,137,.10), transparent 48%),
+        linear-gradient(145deg, #07131d 0%, #0a1924 48%, #06111a 100%);
+      color: #f5f9fc;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #07131d; }
+    ::-webkit-scrollbar-thumb { background: #263d4d; border-radius: 8px; }
+    .deposit-shell {
+      width: min(100% - 24px, 760px);
+      margin: 22px auto 34px;
+      padding: clamp(18px, 4vw, 32px);
+      border: 1px solid #294253;
+      border-radius: 24px;
+      background: linear-gradient(150deg, rgba(14,31,44,.97), rgba(6,20,30,.98));
+      box-shadow: 0 20px 65px rgba(0,0,0,.32), inset 0 1px rgba(255,255,255,.035);
+    }
+    .topbar {
+      max-width: 760px;
+      margin: 0 auto;
+      background: rgba(8,22,32,.88);
+      border-bottom: 1px solid #203746;
+      backdrop-filter: blur(14px);
+    }
+    .section-block { padding: 4px 0 24px; }
+    .section-block + .section-block {
+      border-top: 1px solid #233b4b;
+      padding-top: 24px;
+    }
+    .section-heading {
+      display: flex; align-items: center; gap: 13px;
+      margin-bottom: 18px;
+    }
+    .heading-icon {
+      display: grid; place-items: center; flex: 0 0 42px;
+      width: 42px; height: 42px; border-radius: 14px;
+      color: var(--green); font-size: 22px; font-weight: 900;
+      background: rgba(36,238,137,.09);
+      border: 1px solid rgba(36,238,137,.24);
+      box-shadow: inset 0 0 18px rgba(36,238,137,.05);
+    }
+    .heading-title { font-size: clamp(17px, 3vw, 22px); line-height: 1.2; font-weight: 850; letter-spacing: -.025em; }
+    .heading-subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .currency-row {
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
+      margin-bottom: 25px; padding: 15px 17px;
+      border: 1px solid #294253; border-radius: 16px;
+      background: rgba(3,14,22,.48);
+    }
+    .currency-select {
+      display:flex; align-items:center; gap:11px; min-width:132px;
+      border:1px solid #2b4556; border-radius:13px; padding:10px 13px;
+      background:#071620; font-weight:800;
+    }
+    .currency-coin {
+      display:grid; place-items:center; width:34px; height:34px; border-radius:50%;
+      background:#079c6b; color:white; font-size:22px; font-weight:900;
+    }
+    .method-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .method-card {
+      position:relative; min-height:120px; padding:12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+      border:1px solid #2a4050; border-radius:17px;
+      background:linear-gradient(145deg,#142735,#0d1e29);
+      color:#f7fbff; transition:transform .18s,border-color .18s,box-shadow .18s,background .18s;
+    }
+    .method-card:hover { transform:translateY(-2px); border-color:#4e6c7e; }
+    .method-card .method-logo {
+      width:100%; min-height:54px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(2,13,21,.43); font-size:18px; font-weight:900;
+    }
+    .method-card .method-label { font-size:14px; font-weight:850; letter-spacing:.035em; }
+    .method-card.active, .method-card.border-\[\#24ee89\] {
+      border:2px solid var(--green) !important;
+      padding:11px;
+      background:linear-gradient(145deg,rgba(7,66,48,.72),rgba(11,30,40,.98));
+      box-shadow:0 0 0 1px rgba(36,238,137,.12),0 0 24px rgba(36,238,137,.14);
+    }
+    .method-card.active::after {
+      content:"✓"; position:absolute; right:9px; top:8px; width:24px; height:24px;
+      display:grid; place-items:center; border-radius:50%; color:#062016;
+      background:var(--green); font-weight:1000; font-size:14px;
+    }
+    .amount-entry {
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      width:100%; padding:16px 17px; border:1px solid #345064; border-radius:15px;
+      background:#061620; margin-bottom:13px;
+    }
+    .amount-entry input {
+      width:48%; min-width:0; background:transparent; border:0; outline:none;
+      color:#fff; font-size:21px; font-weight:800;
+    }
+    .amount-entry input::placeholder { color:#708798; font-size:14px; }
+    .bonus-extra { color:var(--green); font-size:clamp(12px,2.5vw,17px); font-weight:850; text-align:right; }
+    .amount-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .amount-btn {
+      position:relative; min-height:62px; padding:14px 8px;
+      border-radius:13px; border:1px solid #2b4354;
+      background:linear-gradient(145deg,#142633,#0d1c27);
+      color:#f6f9fc; font-size:14px; font-weight:800;
+      transition:all .18s;
+    }
+    .amount-btn:hover, .amount-btn.active {
+      border:2px solid var(--green); padding:13px 7px;
+      background:rgba(8,56,41,.72); box-shadow:0 0 18px rgba(36,238,137,.10);
+    }
+    .bonus-card {
+      background:linear-gradient(145deg,#142633,#0d1c27);
+      border:1px solid #2b4354; border-radius:14px;
+      padding:14px 10px; text-align:center; min-width:0;
+      transition:border-color .2s,background .2s,box-shadow .2s;
+    }
+    .bonus-card.active {
+      border:2px solid var(--green); background:#102820; padding:13px 9px;
+      box-shadow:0 0 18px rgba(36,238,137,.12);
+    }
+    .bonus-card:disabled { opacity:.45; cursor:not-allowed; }
+    .bonus-percent { color:var(--green); font-size:var(--font-md); font-weight:900; }
+    .bonus-subtitle { color:#fff; font-size:var(--font-xs); margin-top:5px; }
+    .summary-row { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:var(--font-sm); }
+    .calculation-panel {
+      border:1px solid #2a4353; border-radius:16px; padding:16px;
+      background:rgba(3,15,23,.52); display:grid; gap:13px;
+    }
+    .primary-action {
+      width:100%; min-height:64px; border-radius:15px; padding:17px 18px;
+      color:#032417; font-weight:950; font-size:16px; letter-spacing:.01em;
+      background:linear-gradient(110deg,#19d979,#35f7a0 50%,#12d77a);
+      box-shadow:0 10px 28px rgba(36,238,137,.16),inset 0 1px rgba(255,255,255,.35);
+      transition:transform .18s,filter .18s;
+    }
+    .primary-action:hover { filter:brightness(1.06); transform:translateY(-1px); }
+    .primary-action:disabled { opacity:.55; cursor:not-allowed; }
+    .alert-box { margin-bottom:16px; }
+    @media (max-width:540px) {
+      .deposit-shell { width:100%; margin:0 auto 20px; padding:18px 14px 24px; border-radius:0; border-left:0; border-right:0; }
+      .topbar { padding-left:14px; padding-right:14px; }
+      .method-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+      .method-card { min-height:112px; padding:10px; }
+      .method-card .method-logo { min-height:48px; }
+      .amount-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+      .amount-entry { padding:14px 12px; }
+      .amount-entry input { font-size:19px; }
+      .section-block { padding-bottom:20px; }
+      .section-block + .section-block { padding-top:20px; }
     }
 
-    ::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
+    /* Screenshot-inspired deposit UI overrides — presentation only */
+    body {
+      background: #202626 !important;
+      color: #f5f7f7;
+      font-family: Arial, Helvetica, sans-serif;
     }
-    ::-webkit-scrollbar-track { background: #0b1622; }
-    ::-webkit-scrollbar-thumb {
-      background: #1a2c38;
-      border-radius: 4px;
+    .topbar {
+      max-width: 100%;
+      padding: 14px 22px !important;
+      background: #202626 !important;
+      border-bottom: 0 !important;
+    }
+    .deposit-shell {
+      width: min(100% - 28px, 940px) !important;
+      margin: 10px auto 24px !important;
+      padding: clamp(20px, 4vw, 38px) !important;
+      border: 0 !important;
+      border-radius: 28px !important;
+      background: #303636 !important;
+      box-shadow: none !important;
+    }
+    .section-block { padding: 4px 0 26px !important; }
+    .section-block + .section-block {
+      border-top: 0 !important;
+      padding-top: 26px !important;
+    }
+    .heading-icon { display:none !important; }
+    .section-heading { margin-bottom: 18px !important; gap: 0 !important; }
+    .heading-title {
+      color: #b9c2c4 !important;
+      font-size: clamp(19px, 3vw, 25px) !important;
+      font-weight: 500 !important;
+      letter-spacing: 0 !important;
+    }
+    .heading-subtitle { display:none !important; }
+    .currency-row {
+      padding: 0 0 28px !important;
+      margin-bottom: 6px !important;
+      border: 0 !important;
+      background: transparent !important;
+    }
+    .currency-row > .flex > div { display:none !important; }
+    .currency-select {
+      min-width: 0 !important;
+      width: min(52%, 420px);
+      justify-content: flex-start;
+      padding: 14px 18px !important;
+      gap: 14px !important;
+      border: 2px solid #414949 !important;
+      border-radius: 19px !important;
+      background: #282e2f !important;
+      font-size: 20px;
+    }
+    .currency-coin {
+      width: 42px !important; height: 42px !important;
+      background: #00a875 !important;
+    }
+    .currency-select .ml-2 { margin-left:auto !important; }
+    .method-grid {
+      padding: 12px !important;
+      border-radius: 26px;
+      background: #282e2f;
+      grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+      gap: 12px !important;
+    }
+    .method-card {
+      min-height: 170px !important;
+      padding: 14px !important;
+      gap: 18px !important;
+      border: 2px solid transparent !important;
+      border-radius: 25px !important;
+      background: #303636 !important;
+      box-shadow: none !important;
+    }
+    .method-card:hover { transform:none !important; }
+    .method-card .method-logo {
+      min-height: 76px !important;
+      border-radius: 20px !important;
+      background: #282e2f !important;
+      font-size: 20px !important;
+    }
+    .method-card .method-label {
+      font-size: clamp(15px, 2.3vw, 22px) !important;
+      font-weight: 500 !important;
+      letter-spacing: 0 !important;
+    }
+    .method-card.active,
+    .method-card.border-\\[\\#24ee89\\] {
+      border: 3px solid #36e99b !important;
+      padding: 13px !important;
+      background: #303636 !important;
+      box-shadow: none !important;
+    }
+    .method-card.active::after {
+      top: 10px !important; right: 10px !important;
+      width: 28px !important; height: 28px !important;
+      background: #36e99b !important;
+    }
+    .amount-entry {
+      min-height: 92px;
+      padding: 20px 22px !important;
+      border: 2px solid #414949 !important;
+      border-radius: 18px !important;
+      background: #282e2f !important;
+      margin-bottom: 12px !important;
+    }
+    .amount-entry input {
+      width: 50% !important;
+      font-size: 24px !important;
+      font-weight: 500 !important;
+    }
+    .bonus-extra {
+      color: #36e99b !important;
+      font-size: clamp(14px, 2.5vw, 22px) !important;
+      font-weight: 700 !important;
+    }
+    .amount-grid {
+      grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+      gap: 12px !important;
+    }
+    .amount-btn {
+      min-height: 82px !important;
+      border: 2px solid transparent !important;
+      border-radius: 12px !important;
+      background: #282e2f !important;
+      font-size: clamp(14px, 2.3vw, 21px) !important;
+      font-weight: 500 !important;
+    }
+    .amount-btn:hover, .amount-btn.active {
+      border: 2px solid #36e99b !important;
+      padding: 13px 7px !important;
+      background: #303636 !important;
+      box-shadow: none !important;
+    }
+    .bonus-card {
+      border: 1px solid #414949 !important;
+      border-radius: 14px !important;
+      background: #282e2f !important;
+    }
+    .bonus-card.active {
+      border: 2px solid #36e99b !important;
+      padding: 13px 9px !important;
+      background: #303636 !important;
+      box-shadow: none !important;
+    }
+    .calculation-panel {
+      border: 1px solid #414949 !important;
+      border-radius: 16px !important;
+      background: #282e2f !important;
+    }
+    .primary-action {
+      min-height: 76px !important;
+      border-radius: 14px !important;
+      color: #071c13 !important;
+      background: #2bd782 !important;
+      box-shadow: none !important;
+      font-size: clamp(16px, 2.5vw, 22px) !important;
+    }
+    #bonusLoading { color: #b9c2c4 !important; }
+    @media (max-width: 600px) {
+      .deposit-shell {
+        width: calc(100% - 20px) !important;
+        padding: 22px 18px 24px !important;
+        margin: 8px auto 18px !important;
+        border-radius: 22px !important;
+      }
+      .currency-row { align-items:center !important; gap:12px !important; }
+      .currency-select { width: 56%; padding: 10px 12px !important; font-size: 18px; }
+      .currency-coin { width: 36px !important; height:36px !important; }
+      .method-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 10px !important; }
+      .method-card { min-height: 145px !important; padding: 10px !important; gap: 14px !important; }
+      .method-card .method-logo { min-height: 60px !important; }
+      .amount-grid { grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 8px !important; }
+      .amount-btn { min-height: 68px !important; padding: 10px 4px !important; }
+      .amount-entry { padding: 15px 12px !important; min-height: 76px; }
+      .amount-entry input { font-size: 20px !important; }
+      .section-block + .section-block { padding-top: 22px !important; }
     }
 
-    /* প্রফেশনাল ব্যাংক কার্ড স্টাইল */
-    .bank-card {
-      background: #14222e;
-      border: 1px solid #1f3547;
-      border-radius: 10px;
-      padding: 10px 8px;
-      text-align: center;
-      position: relative;
-      transition: all 0.2s ease;
-    }
-
-    .bank-card.active {
-      border: 2px solid #24ee89;
-      background: #112a26;
-      box-shadow: 0 0 10px rgba(36, 238, 137, 0.15);
-    }
-
-    .amount-preset-card {
-      background: #14222e;
-      border: 1px solid #1f3547;
-      border-radius: 10px;
-      padding: 8px;
-      text-align: center;
-      position: relative;
-      transition: all 0.2s ease;
-    }
-
-    .amount-preset-card.active {
-      border: 2px solid #24ee89;
-      background: #112a26;
-    }
   </style>
+
 </head>
 
-<body class="bg-[#0b1622] text-[#FFFFFF] min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
-
-  <!-- Bank Header -->
-  <header class="bg-[#111f2c] border-b border-[#1f3547] px-4 py-3 flex justify-between items-center sticky top-0 z-40 shadow-md">
-    <a href="profile.html" class="text-[var(--font-sm)] text-[#FFFFFF]/80 hover:text-white transition flex items-center gap-1 font-semibold">
-      <i class="fa-solid fa-shield-halved text-[#24ee89]"></i> Profile
-    </a>
-    <span class="font-black text-[var(--font-md)] text-[#24ee89] tracking-wider uppercase flex items-center gap-1.5">
-      <i class="fa-solid fa-building-columns"></i> Secure Deposit
-    </span>
+<body class="min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
+  <header class="topbar px-4 py-3.5 flex justify-between items-center sticky top-0 z-40">
+    <a href="profile.html" class="text-sm text-slate-200 hover:text-white transition flex items-center gap-2 font-semibold">← Profile</a>
+    <span class="font-black text-sm text-[#24ee89] tracking-wide uppercase">Deposit</span>
     <div class="w-12"></div>
   </header>
 
-  <main class="max-w-sm w-full mx-auto p-3.5 space-y-4 flex-1 pb-12">
+  <main class="deposit-shell flex-1">
+    <div id="alertBox" class="hidden alert-box p-3 rounded-xl text-sm font-semibold shadow-md transition-all"></div>
 
-    <!-- Alert Box -->
-    <div id="alertBox" class="hidden p-2.5 rounded-lg text-[var(--font-xs)] font-semibold shadow-md transition-all"></div>
-
-    <!-- Bank Currency & Account Info Row -->
-    <div class="flex items-center justify-between bg-[#111f2c] border border-[#1f3547] rounded-xl p-3 shadow-inner">
-      <div class="flex items-center gap-2">
-        <div class="w-7 h-7 rounded-full bg-[#24ee89]/15 text-[#24ee89] flex items-center justify-center font-bold text-xs">
-          <i class="fa-solid fa-wallet"></i>
+    <section class="section-block">
+      <div class="currency-row">
+        <div class="flex items-center gap-3">
+          <span class="heading-icon">৳</span>
+          <div>
+            <div class="heading-title">Currency</div>
+            <div class="heading-subtitle"> </div>
+          </div>
         </div>
+        <div class="currency-select">
+          <span class="currency-coin">৳</span>
+          <span>BDT</span>
+          <span class="text-slate-300 ml-2">⌄</span>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <span class="heading-icon">▤</span>
         <div>
-          <span class="text-[9px] text-[#FFFFFF]/60 block font-medium">Account Currency</span>
-          <span class="text-[var(--font-sm)] font-bold text-[#FFFFFF]">BDT (Bangladeshi Taka)</span>
+          <div class="heading-title">Deposit Method</div>
+          <div class="heading-subtitle"> </div>
         </div>
       </div>
-      <div class="bg-[#0b1622] px-2.5 py-1 rounded-lg border border-[#1f3547] text-[var(--font-xs)] text-[#24ee89] font-bold">
-        Verified <i class="fa-solid fa-circle-check ml-0.5"></i>
-      </div>
-    </div>
 
-    <!-- Deposit Method Section -->
-    <section class="space-y-2">
-      <div class="flex items-center justify-between">
-        <span class="text-[var(--font-xs)] font-bold text-[#FFFFFF]/80 uppercase tracking-wide">Select Payment Channel</span>
-        <span class="text-[9px] text-[#24ee89] font-semibold"><i class="fa-solid fa-lock"></i> 256-bit SSL</span>
-      </div>
-
-      <div class="grid grid-cols-3 gap-2" id="methodGrid">
-        <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="bank-card active">
-          <div class="text-[var(--font-sm)] font-black text-pink-500 mb-0.5">bKash</div>
-          <span class="text-[9px] font-bold text-[#FFFFFF]/90 block truncate">BKASH GATEWAY</span>
+      <div class="method-grid" id="methodGrid">
+        <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card border-[#24ee89] border-2">
+          <span class="method-logo"><span class="text-pink-500">bKash</span> <span class="text-pink-500 text-2xl">➤</span></span>
+          <span class="method-label">BKASH ↗</span>
         </button>
-
-        <button type="button" onclick="selectMethod('Nagad')" id="method-Nagad" class="bank-card">
-          <div class="text-[var(--font-sm)] font-black text-orange-500 mb-0.5">NAGAD</div>
-          <span class="text-[9px] font-bold text-[#FFFFFF]/90 block truncate">NAGAD GATEWAY</span>
+        <button type="button" onclick="selectMethod('Nagad')" id="method-Nagad" class="method-card">
+          <span class="method-logo"><span class="text-orange-400">নগদ 🔥</span></span>
+          <span class="method-label">NAGAD ↗</span>
         </button>
-
-        <button type="button" onclick="selectMethod('Rocket')" id="method-Rocket" class="bank-card">
-          <div class="text-[var(--font-sm)] font-black text-purple-500 mb-0.5">ROCKET</div>
-          <span class="text-[9px] font-bold text-[#FFFFFF]/90 block truncate">ROCKET PAY</span>
+        <button type="button" onclick="selectMethod('Rocket')" id="method-Rocket" class="method-card">
+          <span class="method-logo"><span class="text-purple-400">ROCKET</span></span>
+          <span class="method-label">ROCKET ↗</span>
         </button>
       </div>
     </section>
 
-    <!-- Deposit Amount Section -->
-    <section class="space-y-2">
-      <div class="flex justify-between items-center text-[var(--font-xs)] font-bold text-[#FFFFFF]/80 uppercase tracking-wide">
-        <span>Enter Deposit Amount (BDT)</span>
-        <span class="text-[#FFFFFF]/50 font-normal">Limits: 100 - 25,000</span>
-      </div>
-
-      <!-- Amount Quick Selection Grid -->
-      <div class="grid grid-cols-2 gap-2">
-        <button type="button" onclick="setAmount(150)" class="amount-preset-card">
-          <span class="absolute top-1 right-1 bg-orange-500 text-[8px] font-black px-1.5 py-0.2 rounded text-white shadow">+180%</span>
-          <div class="text-[var(--font-sm)] font-bold text-[#FFFFFF] mt-0.5">BDT 150</div>
-        </button>
-
-        <button type="button" onclick="setAmount(500)" class="amount-preset-card">
-          <span class="absolute top-1 right-1 bg-orange-500 text-[8px] font-black px-1.5 py-0.2 rounded text-white shadow">+180%</span>
-          <div class="text-[var(--font-sm)] font-bold text-[#FFFFFF] mt-0.5">BDT 500</div>
-        </button>
-
-        <button type="button" onclick="setAmount(5000)" class="amount-preset-card">
-          <span class="absolute top-1 right-1 bg-orange-500 text-[8px] font-black px-1.5 py-0.2 rounded text-white shadow">+180%</span>
-          <div class="text-[var(--font-sm)] font-bold text-[#FFFFFF] mt-0.5">BDT 5,000</div>
-        </button>
-
-        <button type="button" onclick="setAmount(25000)" class="amount-preset-card">
-          <span class="absolute top-1 right-1 bg-orange-500 text-[8px] font-black px-1.5 py-0.2 rounded text-white shadow">+180%</span>
-          <div class="text-[var(--font-sm)] font-bold text-[#FFFFFF] mt-0.5">BDT 25,000</div>
-        </button>
-      </div>
-
-      <!-- Custom Amount Input -->
-      <div class="pt-1">
-        <div class="relative flex items-center">
-          <input type="number" id="customAmount" min="100" max="25000" step="1" placeholder="Enter custom amount..." class="w-full bg-[#111f2c] border border-[#1f3547] rounded-xl px-3 py-2.5 text-[var(--font-sm)] text-[#FFFFFF] focus:outline-none focus:border-[#24ee89] font-semibold placeholder-[#FFFFFF]/30">
-          <span id="extraBonusDisplay" class="absolute right-3 text-[var(--font-xs)] text-[#24ee89] font-bold"></span>
+    <section class="section-block">
+      <div class="section-heading">
+        <span class="heading-icon">৳</span>
+        <div>
+          <div class="heading-title">Deposit Amount</div>
+          <div class="heading-subtitle"> </div>
         </div>
+      </div>
+
+      <div class="amount-entry">
+        <input type="number" id="customAmount" min="100" max="25000" step="1" placeholder="100 - 25,000 BDT" aria-label="Deposit amount">
+        <div class="bonus-extra">🎁 Extra Bonus</div>
+      </div>
+
+      <div class="amount-grid">
+        <button type="button" onclick="setAmount(100)" class="amount-btn">৳ 100</button>
+        <button type="button" onclick="setAmount(200)" class="amount-btn">৳ 200</button>
+        <button type="button" onclick="setAmount(500)" class="amount-btn">৳ 500</button>
+        <button type="button" onclick="setAmount(1000)" class="amount-btn">৳ 1,000</button>
+        <button type="button" onclick="setAmount(2000)" class="amount-btn">৳ 2,000</button>
+        <button type="button" onclick="setAmount(5000)" class="amount-btn">৳ 5,000</button>
+        <button type="button" onclick="setAmount(10000)" class="amount-btn">৳ 10,000</button>
+        <button type="button" onclick="setAmount(25000)" class="amount-btn">৳ 25,000</button>
       </div>
     </section>
 
-    <!-- OPTIONAL DEPOSIT BONUS -->
-    <section class="space-y-2">
-      <div class="flex items-center justify-between">
-        <span class="text-[var(--font-xs)] font-bold text-[#FFFFFF]/80 uppercase tracking-wide">Promotional Bonus</span>
-        <a href="javascript:void(0)" class="text-[9px] text-[#24ee89] font-bold hover:underline">View Terms</a>
+    <section class="section-block">
+      <div class="flex items-center justify-between gap-3 mb-4">
+        <div class="section-heading !mb-0">
+          <span class="heading-icon">🎁</span>
+          <div>
+            <div class="heading-title">Deposit Bonus</div>
+            <div class="heading-subtitle">Choose an available bonus</div>
+          </div>
+        </div>
+        <span class="text-xs text-slate-400">Optional</span>
       </div>
 
-      <!-- Bonus Options -->
-      <div id="bonusGrid" class="grid grid-cols-2 gap-2">
-        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bank-card active">
-          <div class="text-[var(--font-sm)] font-black text-[#FFFFFF]">No Bonus</div>
+      <div id="bonusGrid" class="grid grid-cols-2 gap-3">
+        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
+          <div class="text-sm font-black text-white">No Bonus</div>
         </button>
       </div>
+      <p id="bonusLoading" class="text-xs text-slate-400 mt-3">Loading available bonuses...</p>
 
-      <p id="bonusLoading" class="text-[9px] text-[#FFFFFF]/50 italic">
-        Loading available bonuses...
-      </p>
-
-      <!-- Bank Summary Card -->
-      <div class="bg-[#111f2c] border border-[#1f3547] rounded-xl p-3 space-y-2 shadow-md">
-        <div class="flex justify-between items-center text-[var(--font-sm)]">
-          <span class="text-[#FFFFFF]/60">Base Amount</span>
-          <span id="summaryDeposit" class="font-bold text-[#FFFFFF]">৳0.00</span>
+      <div class="calculation-panel mt-5">
+        <div class="summary-row">
+          <span class="text-slate-300">Deposit Amount</span>
+          <span id="summaryDeposit" class="font-bold text-white">৳0.00</span>
         </div>
-
-        <div class="flex justify-between items-center text-[var(--font-sm)]">
-          <span class="text-[#FFFFFF]/60">Bonus Credit</span>
+        <div class="summary-row">
+          <span class="text-slate-300">Bonus Amount</span>
           <span id="summaryBonus" class="font-bold text-[#24ee89]">+৳0.00</span>
         </div>
-
-        <div class="border-t border-[#1f3547] pt-2 flex justify-between items-center text-[var(--font-base)]">
-          <span class="font-extrabold text-[#FFFFFF]">Total Receivable</span>
-          <span id="summaryTotal" class="font-black text-[var(--font-lg)] text-[#24ee89]">৳0.00</span>
+        <div class="border-t border-slate-700 pt-3 summary-row">
+          <span class="font-bold text-white">Total After Bonus</span>
+          <span id="summaryTotal" class="font-black text-lg text-[#24ee89]">৳0.00</span>
         </div>
       </div>
     </section>
 
-    <!-- Secure Next Button -->
-    <button type="button" onclick="openPaymentModal()" class="w-full bg-[#24ee89] text-[#0b1622] font-black py-3 rounded-xl text-[var(--font-sm)] uppercase tracking-wider hover:bg-emerald-400 transition shadow-lg shadow-[#24ee89]/10 flex items-center justify-center gap-2">
-      <span>Deposit Via <span id="btnMethodName">BKASH</span></span> <i class="fa-solid fa-arrow-right-long"></i>
-    </button>
-
+    <button type="button" onclick="openPaymentModal()" class="primary-action">Deposit Via <span id="depositButtonMethod">BKASH</span> ↗</button>
   </main>
 
   <!-- STEP 1: PAYMENT MODAL POPUP -->
-  <div id="paymentModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-[#14222e] border border-[#1f3547] rounded-2xl max-w-xs w-full p-4 space-y-3.5 shadow-2xl relative">
-      <button type="button" onclick="closeModal('paymentModal')" class="absolute top-3 right-3 text-[#FFFFFF]/70 hover:text-white text-[var(--font-md)]">✕</button>
-
-      <div class="text-center border-b border-[#1f3547] pb-2.5">
-        <h3 class="text-[var(--font-sm)] font-black text-[#24ee89]">Bank Payment Instructions</h3>
-        <p class="text-[9px] text-[#FFFFFF]/60 mt-0.5">Complete transfer to the official merchant number below</p>
+  <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#0d1e29] border border-[#294253] rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
+      <button type="button" onclick="closeModal('paymentModal')" class="absolute top-3 right-3 text-slate-300 hover:text-white text-base">✕</button>
+      <div class="text-center border-b border-slate-700 pb-3">
+        <h3 class="text-base font-black text-[#24ee89]">Confirm Payment</h3>
+        <p class="text-xs text-slate-400 mt-1">Follow instructions to complete deposit</p>
       </div>
-
-      <!-- Payment Information -->
-      <div class="bg-[#0b1622] border border-[#1f3547] rounded-xl p-3 space-y-2 text-[var(--font-xs)]">
-        <div class="flex justify-between items-center">
-          <span class="text-[#FFFFFF]/60">Method:</span>
-          <span id="modalMethod" class="font-bold text-[#FFFFFF]">bKash</span>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="text-[#FFFFFF]/60">Deposit Amount:</span>
-          <span id="modalAmount" class="font-extrabold text-[#FFFFFF]">0 BDT</span>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="text-[#FFFFFF]/60">Bonus:</span>
-          <span id="modalBonus" class="font-bold text-[#24ee89]">0 BDT</span>
-        </div>
-
-        <div class="flex justify-between items-center border-t border-[#1f3547] pt-2">
-          <span class="text-[#FFFFFF]/60">Total Creditable:</span>
-          <span id="modalTotal" class="font-black text-[#24ee89]">0 BDT</span>
-        </div>
-
-        <div class="flex justify-between items-center border-t border-[#1f3547] pt-2">
-          <span class="text-[#FFFFFF]/60">Merchant Account:</span>
-          <div class="flex items-center gap-1.5">
-            <span id="modalNumber" class="font-black text-amber-400 tracking-wider">Loading...</span>
-            <button type="button" onclick="copyNumber()" class="text-[9px] bg-[#14222e] hover:bg-[#0b1622] text-[#FFFFFF] px-2 py-0.5 rounded border border-[#1f3547]">Copy</button>
+      <div class="bg-[#07131d] border border-slate-700 rounded-xl p-3.5 space-y-3 text-sm">
+        <div class="flex justify-between items-center gap-3"><span class="text-slate-400">Method:</span><span id="modalMethod" class="font-bold text-white">bKash</span></div>
+        <div class="flex justify-between items-center gap-3"><span class="text-slate-400">Deposit Amount:</span><span id="modalAmount" class="font-extrabold text-white">0 BDT</span></div>
+        <div class="flex justify-between items-center gap-3"><span class="text-slate-400">Bonus:</span><span id="modalBonus" class="font-bold text-[#24ee89]">0 BDT</span></div>
+        <div class="flex justify-between items-center gap-3 border-t border-slate-700 pt-2"><span class="text-slate-300">Total After Bonus:</span><span id="modalTotal" class="font-black text-[#24ee89]">0 BDT</span></div>
+        <div class="flex justify-between items-center gap-3 border-t border-slate-700 pt-2">
+          <span class="text-slate-400">Send Money To:</span>
+          <div class="flex items-center gap-2">
+            <span id="modalNumber" class="font-black text-amber-300 tracking-wider">Loading...</span>
+            <button type="button" onclick="copyNumber()" class="text-xs bg-[#142633] hover:bg-[#203746] text-white px-2 py-1 rounded border border-slate-700">Copy</button>
           </div>
         </div>
       </div>
-
-      <!-- Transaction ID Input Field -->
       <div class="space-y-1">
-        <label for="modalTrxId" class="block text-[var(--font-xs)] font-bold text-[#FFFFFF]/80">Enter Transaction ID (TrxID)</label>
-        <input type="text" id="modalTrxId" placeholder="e.g. 9J83KS92" class="w-full bg-[#0b1622] border border-[#1f3547] rounded-xl px-3 py-2.5 text-[var(--font-xs)] text-[#FFFFFF] focus:outline-none focus:border-[#24ee89] tracking-wider uppercase font-mono">
+        <label for="modalTrxId" class="block text-sm font-bold text-slate-200">Transaction ID (TrxID)</label>
+        <input type="text" id="modalTrxId" placeholder="e.g. 9J83KS92" class="w-full bg-[#07131d] border border-slate-700 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-[#24ee89] tracking-wider uppercase font-mono">
       </div>
-
-      <!-- Modal Submit Button -->
-      <button type="button" id="submitDepositBtn" onclick="submitDeposit()" class="w-full bg-[#24ee89] text-[#0b1622] font-black py-2.5 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition shadow">
-        Confirm & Submit
-      </button>
+      <button type="button" id="submitDepositBtn" onclick="submitDeposit()" class="primary-action !min-h-0 !py-3 !text-sm">Submit Request</button>
     </div>
   </div>
 
   <!-- STEP 2: SUCCESS VERIFICATION MODAL POPUP -->
-  <div id="verificationModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
-    <div class="bg-[#14222e] border border-[#1f3547] rounded-2xl max-w-xs w-full p-5 text-center space-y-3.5 shadow-2xl">
-      <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-[var(--font-lg)] shadow-inner">
-        <i class="fa-solid fa-check"></i>
-      </div>
-
+  <div id="verificationModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#0d1e29] border border-[#294253] rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-xl">✓</div>
       <div>
-        <h3 class="text-[var(--font-md)] font-black text-[#FFFFFF]">Verification in Progress</h3>
-        <p class="text-[var(--font-xs)] text-[#FFFFFF]/70 mt-1">Your deposit request is securely lodged and awaiting manual bank ledger confirmation.</p>
+        <h3 class="text-lg font-black text-white">Payment Verification</h3>
+        <p class="text-sm text-slate-300 mt-2">Your deposit request is currently being verified. Your deposit and bonus will be credited only after the payment is approved.</p>
       </div>
-
-      <button type="button" onclick="finishDeposit()" class="w-full bg-[#24ee89] text-[#0b1622] font-black py-2.5 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition">
-        Done
-      </button>
+      <button type="button" onclick="finishDeposit()" class="primary-action !min-h-0 !py-3 !text-sm">Done</button>
     </div>
   </div>
 
@@ -408,10 +646,10 @@
 
       alertBox.innerText = msg;
       alertBox.className =
-        `p-2.5 rounded-lg text-[var(--font-xs)] font-semibold ${
+        `p-3 rounded-xl text-[var(--font-xs)] font-semibold ${
           isSuccess
-            ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700'
-            : 'bg-red-950/80 text-red-300 border border-red-700'
+            ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700'
+            : 'bg-red-900/50 text-red-300 border border-red-700'
         }`;
 
       alertBox.classList.remove('hidden');
@@ -419,18 +657,20 @@
 
     function selectMethod(method) {
       selectedMethod = method;
+      const depositButtonMethod = document.getElementById('depositButtonMethod');
+      if (depositButtonMethod) depositButtonMethod.textContent = method.toUpperCase();
 
-      document.querySelectorAll('.bank-card').forEach(card => {
-        card.classList.remove('active');
+      document.querySelectorAll('.method-card').forEach(card => {
+        card.classList.remove('border-[#24ee89]', 'border-2');
+        card.classList.add('border-[#0F212E]');
       });
 
       const activeBtn = document.getElementById(`method-${method}`);
 
       if (activeBtn) {
-        activeBtn.classList.add('active');
+        activeBtn.classList.remove('border-[#0F212E]');
+        activeBtn.classList.add('border-[#24ee89]', 'border-2');
       }
-
-      document.getElementById('btnMethodName').innerText = method.toUpperCase();
     }
 
     function setAmount(amount) {
@@ -444,7 +684,7 @@
       const loading = document.getElementById('bonusLoading');
 
       grid.innerHTML = `
-        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bank-card active">
+        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
           <div class="text-[var(--font-sm)] font-black text-[#FFFFFF]">No Bonus</div>
         </button>
       `;
@@ -454,14 +694,14 @@
 
         button.type = 'button';
         button.id = `bonus-option-${index}`;
-        button.className = 'bank-card';
+        button.className = 'bonus-card';
 
         const title = document.createElement('div');
         title.className = 'text-[var(--font-xs)] font-extrabold text-[#FFFFFF]';
         title.textContent = bonus.title || `${bonus.bonus_percent}% Bonus`;
 
         const percent = document.createElement('div');
-        percent.className = 'text-[#24ee89] text-[var(--font-xs)] font-black mt-0.5';
+        percent.className = 'bonus-percent';
         percent.textContent = `${Number(bonus.bonus_percent)}%`;
 
         button.appendChild(title);
@@ -482,7 +722,7 @@
     function selectBonus(bonus) {
       selectedBonus = bonus;
 
-      document.querySelectorAll('#bonusGrid .bank-card').forEach(card => {
+      document.querySelectorAll('.bonus-card').forEach(card => {
         card.classList.remove('active');
       });
 
@@ -521,13 +761,6 @@
 
       document.getElementById('summaryTotal').textContent =
         `৳${money(calculation.totalAmount)}`;
-
-      const extraDisplay = document.getElementById('extraBonusDisplay');
-      if (calculation.bonusAmount > 0) {
-        extraDisplay.textContent = `Extra +BDT ${money(calculation.bonusAmount)}`;
-      } else {
-        extraDisplay.textContent = '';
-      }
     }
 
     document.getElementById('customAmount').addEventListener('input', () => {
@@ -689,7 +922,7 @@
       } finally {
         isSubmitting = false;
         btn.disabled = false;
-        btn.innerText = 'Confirm & Submit';
+        btn.innerText = 'Submit Request';
       }
     }
 
@@ -699,5 +932,8 @@
 
     document.addEventListener('DOMContentLoaded', init);
   </script>
+</body>
+</html>
+
 </body>
 </html>
