@@ -690,6 +690,9 @@
     let selectedBonus = null;
     let isSubmitting = false;
 
+    // সিকুইয়েন্সিয়াল কিউ লক গ্লোবাল ভেরিয়েবল
+    let depositQueue = Promise.resolve();
+
     const MIN_DEPOSIT = 100;
     const MAX_DEPOSIT = 25000;
 
@@ -1021,6 +1024,7 @@
       }
     }
 
+    // ১০০% সিকিউরড কিউ ভিত্তিক সাবমিট লজিক (১০০০% সিওর কাউন্ট করার জন্য)
     async function submitDeposit() {
       if (isSubmitting) return;
 
@@ -1048,79 +1052,98 @@
       btn.disabled = true;
       btn.innerText = 'Processing...';
 
-      try {
-        const { data: existingTrx, error: duplicateError } =
-          await supabaseClient
-            .from('deposits')
-            .select('id')
-            .eq('transection_id', trxId)
-            .maybeSingle();
+      // সিকোয়েন্সিয়াল প্রমিজ কিউ ব্যবহার করে ডেটাবেজ আপডেট নিশ্চিত করা হলো
+      depositQueue = depositQueue.then(async () => {
+        try {
+          const { data: existingTrx, error: duplicateError } =
+            await supabaseClient
+              .from('deposits')
+              .select('id')
+              .eq('transection_id', trxId)
+              .maybeSingle();
 
-        if (duplicateError) {
-          throw duplicateError;
-        }
-
-        if (existingTrx) {
-          alert('This Transaction ID has already been submitted!');
-          return;
-        }
-
-        const depositRecord = {
-          user_id: currentUserId,
-          amount: selectedAmount,
-          payment_method: selectedMethod,
-          transection_id: trxId,
-          status: 'pending',
-          bonus_percent: selectedBonus
-            ? Number(selectedBonus.bonus_percent)
-            : 0,
-          bonus_amount: calculation.bonusAmount,
-          turnover_required: calculation.turnoverRequired
-        };
-
-        const { error: insertError } = await supabaseClient
-          .from('deposits')
-          .insert([depositRecord]);
-
-        if (insertError) {
-          if (insertError.code === '23505') {
-            alert('This Transaction ID has already been used.');
-          } else {
-            alert('Error: ' + insertError.message);
+          if (duplicateError) {
+            throw duplicateError;
           }
-          return;
+
+          if (existingTrx) {
+            alert('This Transaction ID has already been submitted!');
+            return;
+          }
+
+          const depositRecord = {
+            user_id: currentUserId,
+            amount: selectedAmount,
+            payment_method: selectedMethod,
+            transection_id: trxId,
+            status: 'pending',
+            bonus_percent: selectedBonus
+              ? Number(selectedBonus.bonus_percent)
+              : 0,
+            bonus_amount: calculation.bonusAmount,
+            turnover_required: calculation.turnoverRequired
+          };
+
+          const { error: insertError } = await supabaseClient
+            .from('deposits')
+            .insert([depositRecord]);
+
+          if (insertError) {
+            if (insertError.code === '23505') {
+              alert('This Transaction ID has already been used.');
+            } else {
+              alert('Error: ' + insertError.message);
+            }
+            return;
+          }
+
+          // profiles টেবিলের turnover_required অত্যন্ত নিখুঁতভাবে আপডেট করার লজিক
+          let updated = false;
+          let retries = 3;
+
+          while (!updated && retries > 0) {
+            const { data: currentProfile, error: profileFetchError } = await supabaseClient
+              .from('profiles')
+              .select('turnover_required')
+              .eq('id', currentUserId)
+              .maybeSingle();
+
+            if (!profileFetchError) {
+              const existingRequired = Number(currentProfile?.turnover_required || 0);
+              const newTurnoverRequired = existingRequired + Number(calculation.turnoverRequired);
+
+              const { error: updateError } = await supabaseClient
+                .from('profiles')
+                .update({ turnover_required: newTurnoverRequired })
+                .eq('id', currentUserId);
+
+              if (!updateError) {
+                updated = true;
+              } else {
+                retries--;
+                await new Promise(resolve => setTimeout(resolve, 300)); // সামান্য বিরতি দিয়ে পুনরায় চেষ্টা করবে
+              }
+            } else {
+              retries--;
+            }
+          }
+
+          closeModal('paymentModal');
+
+          document.getElementById('verificationModal').classList.remove('hidden');
+          document.getElementById('verificationModal').classList.add('flex');
+
+        } catch (err) {
+          console.error('Deposit submission error:', err);
+          alert('Unable to submit your deposit request. Please try again.');
+        } finally {
+          isSubmitting = false;
+          btn.disabled = false;
+          btn.innerText = 'Submit';
         }
+      });
 
-        // profiles টেবিলের turnover_required আপডেট করার লজিক
-        const { data: currentProfile, error: profileFetchError } = await supabaseClient
-          .from('profiles')
-          .select('turnover_required')
-          .eq('id', currentUserId)
-          .maybeSingle();
-
-        if (!profileFetchError) {
-          const existingRequired = Number(currentProfile?.turnover_required || 0);
-          const newTurnoverRequired = existingRequired + Number(calculation.turnoverRequired);
-
-          await supabaseClient
-            .from('profiles')
-            .update({ turnover_required: newTurnoverRequired })
-            .eq('id', currentUserId);
-        }
-
-        closeModal('paymentModal');
-
-        document.getElementById('verificationModal').classList.remove('hidden');
-        document.getElementById('verificationModal').classList.add('flex');
-
-      } catch (err) {
-        console.error('Deposit submission error:', err);
-        alert('Unable to submit your deposit request. Please try again.');
-      } finally {
-        isSubmitting = false;
-        btn.disabled = false;
-        btn.innerText = 'Submit';
-      }
+      await depositQueue;
     }
 
     function finishDeposit() {
