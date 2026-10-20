@@ -251,7 +251,6 @@
           <select id="bhAssetFilter" class="bh-select" aria-label="Asset filter" onchange="loadBetHistory()">
             <option value="all">All Assets</option>
             <option value="original">Original Games</option>
-            <option value="color">Color Game</option>
           </select>
           <select id="bhTypeFilter" class="bh-select" aria-label="Type filter" onchange="loadBetHistory()">
             <option value="all">All Type</option>
@@ -426,34 +425,18 @@
           throw new Error('Supabase client is unavailable. Check supabase-config.js.');
         }
 
-        const asset = document.getElementById('bhAssetFilter').value;
         const type = document.getElementById('bhTypeFilter').value;
         const time = document.getElementById('bhTimeFilter').value;
         const sort = document.getElementById('bhSortFilter').value;
-        let queryOriginal = null;
-        let queryColor = null;
 
-        if (asset !== 'color') {
-          queryOriginal = supabaseClient.from('original_bets_history')
-            .select('id,user_id,game_name,bet_amount,payout,multiplier,status,game_details,created_at')
-            .eq('user_id', userId);
-        }
-        if (asset !== 'original') {
-          queryColor = supabaseClient.from('color_game_history')
-            .select('id,user_id,period_number,bet_type,bet_amount,winning_result,payout,status,created_at,t_30_second_timer,t_1_minute_timer,t_5_minute_timer')
-            .eq('user_id', userId);
-        }
+        const originalResult = await supabaseClient.from('original_bets_history')
+          .select('id,user_id,game_name,bet_amount,payout,multiplier,status,game_details,created_at')
+          .eq('user_id', userId);
 
-        const [originalResult, colorResult] = await Promise.all([
-          queryOriginal ? queryOriginal : Promise.resolve({data:[],error:null}),
-          queryColor ? queryColor : Promise.resolve({data:[],error:null})
-        ]);
         if (token !== betHistoryRequestToken) return;
 
-        const errors = [originalResult.error, colorResult.error].filter(Boolean);
         let rows = [];
         (originalResult.data || []).forEach(item => rows.push({...item, _source:'original', _game:item.game_name || 'Original Game'}));
-        (colorResult.data || []).forEach(item => rows.push({...item, _source:'color', _game:'Color Game', _detail:(item.bet_type || 'Bet') + (item.period_number ? ' · Period ' + item.period_number : '')}));
 
         if (time !== 'all') {
           const cutoff = Date.now() - Number(time) * (time === '24' ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000);
@@ -473,11 +456,11 @@
         });
 
         if (rows.length === 0) {
-          const message = errors.length
+          const message = originalResult.error
             ? 'Could not load history. Check table permissions and Supabase RLS policies.'
             : 'Stay tuned—something’s coming!';
           list.innerHTML = '<div class="bh-empty"><i class="fa-solid fa-ghost"></i><div>' + bhEscape(message) + '</div></div>';
-          if (errors.length) console.error('Bet history query error:', errors);
+          if (originalResult.error) console.error('Bet history query error:', originalResult.error);
           return;
         }
 
@@ -487,9 +470,7 @@
           const bet = Number(item.bet_amount || 0);
           const payout = Number(item.payout || 0);
           const multiplier = item.multiplier !== null && item.multiplier !== undefined ? ' · ' + Number(item.multiplier).toLocaleString() + 'x' : '';
-          const detail = item._source === 'color'
-            ? (item._detail || 'Color Game') + (item.winning_result ? ' · Result: ' + item.winning_result : '')
-            : (item.game_details && typeof item.game_details === 'object' ? (item.game_details.result || item.game_details.bet_type || '') : '');
+          const detail = (item.game_details && typeof item.game_details === 'object' ? (item.game_details.result || item.game_details.bet_type || '') : '');
           const kind = bhStatusKind(status);
           const amountClass = kind === 'won' ? 'won' : (kind === 'lost' ? 'lost' : '');
           const amountValue = kind === 'lost' ? '- ' + bhMoney(bet) : (kind === 'won' ? '+ ' + bhMoney(payout) : bhMoney(payout));
@@ -503,7 +484,7 @@
             '<div class="bh-muted">Bet ' + bhMoney(bet) + '</div></div></div>';
         }).join('');
 
-        if (errors.length) console.error('Some bet history records could not be loaded:', errors);
+        if (originalResult.error) console.error('Some bet history records could not be loaded:', originalResult.error);
       } catch (error) {
         console.error('Bet history loading error:', error);
         if (token === betHistoryRequestToken) {
@@ -549,7 +530,7 @@
 
         if (type !== 'withdrawal') {
           depositQuery = supabaseClient.from('deposits')
-            .select('id,user_id,amount,payment_method,transection_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
+            .select('id,user_id,amount,payment_method,transaction_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
             .eq('user_id', userId).order('created_at', {ascending:false}).limit(500);
         }
         if (type !== 'deposit') {
@@ -594,7 +575,7 @@
           const normalizedStatus = status.toLowerCase().replace(/[^a-z0-9_-]/g, '');
           const method = item.payment_method || (item._type === 'deposit' ? 'Deposit' : 'Withdrawal');
           const detailParts = [method];
-          if (item._type === 'deposit' && item.transection_id) detailParts.push('Transaction ID: ' + item.transection_id);
+          if (item._type === 'deposit' && item.transaction_id) detailParts.push('Transaction ID: ' + item.transaction_id);
           if (item._type === 'withdrawal' && item.account_number) detailParts.push('Account: ' + item.account_number);
           if (item._type === 'deposit' && Number(item.bonus_amount || 0) > 0) detailParts.push('Bonus: ' + txMoney(item.bonus_amount));
           return '<div class="tx-row"><div><div class="tx-primary">' + bhEscape(item._label) + '</div>' +
@@ -654,7 +635,7 @@
             .select('id,balance,turnover_required,current_turnover')
             .eq('id', userId).maybeSingle(),
           supabaseClient.from('deposits')
-            .select('id,amount,payment_method,transection_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
+            .select('id,amount,payment_method,transaction_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
             .eq('user_id', userId)
             .order('created_at', {ascending:false})
             .limit(100)
