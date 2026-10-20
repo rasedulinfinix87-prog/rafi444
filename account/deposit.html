@@ -159,7 +159,6 @@
       <div id="bonusGrid" class="grid grid-cols-2 gap-2">
         <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
           <div class="text-[var(--font-sm)] font-black text-[#FFFFFF]">No Bonus</div>
-          <div class="bonus-subtitle">1× Turnover</div>
         </button>
       </div>
 
@@ -183,20 +182,6 @@
           <span class="font-bold text-[#FFFFFF]">Total After Bonus</span>
           <span id="summaryTotal" class="font-black text-[var(--font-lg)] text-[#24ee89]">৳0.00</span>
         </div>
-
-        <div class="summary-row">
-          <span class="text-[#FFFFFF]">Turnover Multiplier</span>
-          <span id="summaryMultiplier" class="font-bold text-amber-400">1×</span>
-        </div>
-
-        <div class="summary-row">
-          <span class="text-[#FFFFFF]">Required Turnover</span>
-          <span id="summaryTurnover" class="font-extrabold text-[#FFFFFF]">৳0.00</span>
-        </div>
-
-        <p class="text-[10px] text-[#FFFFFF] leading-relaxed">
-          Turnover is calculated on the deposit amount plus bonus. The bonus and funds are subject to payment verification.
-        </p>
       </div>
     </section>
 
@@ -237,11 +222,6 @@
         <div class="flex justify-between items-center border-t border-[#0F212E] pt-2">
           <span class="text-[#FFFFFF]">Total After Bonus:</span>
           <span id="modalTotal" class="font-black text-[#24ee89]">0 BDT</span>
-        </div>
-
-        <div class="flex justify-between items-center">
-          <span class="text-[#FFFFFF]">Required Turnover:</span>
-          <span id="modalTurnover" class="font-bold text-amber-400">0 BDT</span>
         </div>
 
         <div class="flex justify-between items-center border-t border-[#0F212E] pt-2">
@@ -450,7 +430,6 @@
       grid.innerHTML = `
         <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
           <div class="text-[var(--font-sm)] font-black text-[#FFFFFF]">No Bonus</div>
-          <div class="bonus-subtitle">1× Turnover</div>
         </button>
       `;
 
@@ -469,13 +448,8 @@
         percent.className = 'bonus-percent';
         percent.textContent = `${Number(bonus.bonus_percent)}%`;
 
-        const subtitle = document.createElement('div');
-        subtitle.className = 'bonus-subtitle';
-        subtitle.textContent = `${Number(bonus.turnover_multiplier)}× Turnover`;
-
         button.appendChild(title);
         button.appendChild(percent);
-        button.appendChild(subtitle);
 
         button.addEventListener('click', () => {
           selectBonus(bonus);
@@ -531,12 +505,6 @@
 
       document.getElementById('summaryTotal').textContent =
         `৳${money(calculation.totalAmount)}`;
-
-      document.getElementById('summaryMultiplier').textContent =
-        `${calculation.multiplier}×`;
-
-      document.getElementById('summaryTurnover').textContent =
-        `৳${money(calculation.turnoverRequired)}`;
     }
 
     document.getElementById('customAmount').addEventListener('input', () => {
@@ -582,9 +550,6 @@
 
       document.getElementById('modalTotal').innerText =
         `${money(calculation.totalAmount)} BDT`;
-
-      document.getElementById('modalTurnover').innerText =
-        `${money(calculation.turnoverRequired)} BDT`;
 
       const payNum = paymentNumbers[selectedMethod];
 
