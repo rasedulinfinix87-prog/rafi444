@@ -9,6 +9,7 @@
     <!-- Supabase JS Client & App Config --> 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
     <script src="supabase-config.js"></script> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style> 
         :root {
             --font-xs: 11px;
@@ -76,12 +77,6 @@
         <!-- Banner Dots Indicator -->
         <div id="bannerDots" class="flex justify-center gap-1.5 -mt-2"></div>
 
-        <!-- Search Bar Section --> 
-        <div class="flex items-center justify-between bg-[#1A2C38] border border-[#0F212E] rounded-xl px-3 py-2 text-[var(--font-xs)] text-[#FFFFFF]"> 
-            <input type="text" id="gameSearch" onkeyup="handleSearch()" placeholder="Search game..." class="bg-transparent text-[#FFFFFF] focus:outline-none w-full"> 
-            <i class="fa-solid fa-search text-[#FFFFFF]"></i>
-        </div> 
-
         <!-- Dynamic Categories Sections Container --> 
         <div id="categoriesContainer" class="space-y-8">
             <!-- Sections rendered dynamically from database -->
@@ -99,7 +94,7 @@
     <script> 
         let balanceSubscription = null; 
         let allGridsData = [];
-        let categoryDisplayLimits = {}; 
+        let categoryIndices = {}; // ক্যাটাগরির বর্তমান স্লাইড ইনডেক্স ট্র্যাক করার জন্য
         let bannersList = [];
         let currentBannerIndex = 0;
         let bannerIntervalTimer = null;
@@ -173,7 +168,6 @@
                     bannersList = data;
                     renderBanner(0);
 
-                    // টেবিল থেকে প্রাপ্ত প্রথম ব্যানারের slide_interval (সেকেন্ড) ব্যবহার করা, না থাকলে ডিফল্ট ৫ সেকেন্ড
                     let intervalSec = bannersList[0].slide_interval ? parseInt(bannersList[0].slide_interval) : 5;
                     if (intervalSec < 2) intervalSec = 3;
 
@@ -188,7 +182,7 @@
             }
         }
 
-        // নির্দিষ্ট ইনডেক্সের ব্যানার রেন্ডার করা (হালকা ওভারলে সহ)
+        // নির্দিষ্ট ইনডেক্সের ব্যানার রেন্ডার করা
         function renderBanner(index) {
             const bannerContainer = document.getElementById('bannerContainer');
             const dotsContainer = document.getElementById('bannerDots');
@@ -200,7 +194,7 @@
             bannerContainer.style.cssText = `background: linear-gradient(135deg, #1A2C38 0%, #0F212E 100%); ${bgStyle}`;
             
             bannerContainer.innerHTML = `
-                <div class="absolute inset-0 bg-black/25 z-0"></div> <!-- হালকা শ্যাডো বা ওভারলে -->
+                <div class="absolute inset-0 bg-black/25 z-0"></div>
                 <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="w-full p-4 sm:p-6 flex flex-col justify-between relative z-10 banner-slide">
                     <div class="space-y-1.5 max-w-sm">
@@ -212,7 +206,6 @@
                 ${banner.link_url ? `<a href="${banner.link_url}" class="absolute inset-0 z-20"></a>` : ''}
             `;
 
-            // ডটস বা ইন্ডিকেটর আপডেট করা
             if (dotsContainer && bannersList.length > 1) {
                 dotsContainer.innerHTML = bannersList.map((_, i) => `
                     <button onclick="switchBanner(${i})" class="h-1.5 rounded-full transition-all duration-300 ${i === index ? 'w-6 bg-[#24ee89]' : 'w-1.5 bg-[#0F212E]'}"></button>
@@ -220,7 +213,6 @@
             }
         }
 
-        // ডটে ক্লিক করে ব্যানার পরিবর্তনের ফাংশন
         function switchBanner(index) {
             currentBannerIndex = index;
             renderBanner(currentBannerIndex);
@@ -249,9 +241,7 @@
 
                     const categories = [...new Set(allGridsData.map(item => item.category))];
                     categories.forEach(cat => {
-                        if (!categoryDisplayLimits[cat]) {
-                            categoryDisplayLimits[cat] = 3; 
-                        }
+                        categoryIndices[cat] = 0; // প্রতিটি ক্যাটাগরির জন্য স্টার্টিং ইনডেক্স ০
                     });
 
                     renderCategories();
@@ -261,24 +251,20 @@
             }
         }
 
-        // ক্যাটাগরি ও গেম কার্ড রেন্ডার করার ফাংশন
-        function renderCategories(searchQuery = '') {
+        // ক্যাটাগরি ও গেম কার্ড রেন্ডার এবং অ্যারো নেভিগেশন সহ রেন্ডার করার ফাংশন
+        function renderCategories() {
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
 
-            const normalizedQuery = searchQuery.toLowerCase();
             const categories = [...new Set(allGridsData.map(item => item.category))];
 
             categories.forEach(cat => {
-                const catItems = allGridsData.filter(item => 
-                    item.category === cat && item.title.toLowerCase().includes(normalizedQuery)
-                );
-
+                const catItems = allGridsData.filter(item => item.category === cat);
                 if (catItems.length === 0) return;
 
-                const currentLimit = categoryDisplayLimits[cat] || 3;
-                const visibleItems = catItems.slice(0, currentLimit);
-                const hasMore = currentLimit < catItems.length;
+                const currentIndex = categoryIndices[cat] || 0;
+                // ৩টি করে আইটেম দেখানোর জন্য স্লাইস করা
+                const visibleItems = catItems.slice(currentIndex, currentIndex + 3);
 
                 const section = document.createElement('div');
                 section.className = 'space-y-3';
@@ -287,16 +273,17 @@
                         <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2"> 
                             <span class="w-2.5 h-2.5 rounded-full bg-[#24ee89]"></span> ${cat} 
                         </h2> 
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="slideCategory('${cat}', -1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
+                                <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                            </button>
+                            <button onclick="slideCategory('${cat}', 1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
+                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </button>
+                        </div>
                     </div> 
                     <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5" id="grid-${CSS.escape(cat)}">
                     </div>
-                    ${hasMore ? `
-                        <div class="text-center pt-1">
-                            <button onclick="loadMore('${cat}')" class="w-full py-2.5 bg-[#1A2C38] hover:bg-[#0F212E] border border-[#0F212E] text-[#FFFFFF] font-bold text-[var(--font-xs)] rounded-xl transition">
-                                Load More
-                            </button>
-                        </div>
-                    ` : ''}
                 `;
 
                 container.appendChild(section);
@@ -325,17 +312,23 @@
             });
         }
 
-        function loadMore(category) {
-            if (!categoryDisplayLimits[category]) {
-                categoryDisplayLimits[category] = 3;
-            }
-            categoryDisplayLimits[category] += 9; 
-            renderCategories(document.getElementById('gameSearch').value);
-        }
+        // অ্যারোতে ক্লিক করলে ৩টি করে গেম স্লাইড বা পরিবর্তন করার ফাংশন
+        function slideCategory(category, direction) {
+            const catItems = allGridsData.filter(item => item.category === category);
+            if (catItems.length <= 3) return; // যদি ৩ বা তার কম গেম থাকে তবে স্লাইড করার প্রয়োজন নেই
 
-        function handleSearch() {
-            const query = document.getElementById('gameSearch').value;
-            renderCategories(query);
+            let currentIndex = categoryIndices[category] || 0;
+            currentIndex += direction * 3;
+
+            // লুপ বা লিমিট চেক করা যাতে শেষ বা শুরুর বাইরে না যায়
+            if (currentIndex >= catItems.length) {
+                currentIndex = 0; // আবার শুরুতে ফিরে আসবে
+            } else if (currentIndex < 0) {
+                currentIndex = Math.max(0, catItems.length - 3); // একেবারে শেষের দিকে চলে যাবে
+            }
+
+            categoryIndices[category] = currentIndex;
+            renderCategories();
         }
 
         async function loadBottomBar() {
@@ -357,7 +350,7 @@
         document.addEventListener('DOMContentLoaded', () => { 
             loadTopBar(); 
             loadBottomBar();
-            loadDynamicBanners(); // মাল্টিপল ব্যানার এবং টাইমিং লোড
+            loadDynamicBanners(); 
             fetchGridData(); 
         }); 
     </script> 
