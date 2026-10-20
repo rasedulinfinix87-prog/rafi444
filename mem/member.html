@@ -152,6 +152,12 @@
               </button>
             </div>
 
+            <!-- Balance Display Field -->
+            <div class="flex items-center gap-1.5 min-w-0 mt-0.5">
+              <span class="text-[var(--font-xs)] text-[#FFFFFF] font-medium shrink-0">Balance:</span>
+              <span id="userBalance" class="text-[var(--font-sm)] text-amber-400 font-extrabold">৳0.00</span>
+            </div>
+
             <span id="userJoined" class="text-[10px] text-[#FFFFFF] font-semibold">Joined: ----</span>
           </div>
         </div>
@@ -741,10 +747,12 @@
           return;
         }
 
+        // profiles টেবিল থেকে balance কলাম যুক্ত করা হলো
         const { data: profile, error } = await supabaseClient
           .from('profiles')
           .select(`
             id,
+            balance,
             created_at,
             user_game_id
           `)
@@ -769,6 +777,12 @@
         document.getElementById('userGameId').textContent = gameId
           ? String(gameId).slice(0, 8).toUpperCase()
           : '----';
+
+        // ব্যালান্স রেন্ডার করার লজিক
+        const balanceEl = document.getElementById('userBalance');
+        if (balanceEl && profile.balance !== null && profile.balance !== undefined) {
+          balanceEl.textContent = '৳' + Number(profile.balance).toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
 
         if (profile.created_at) {
           const joinedDate = new Date(profile.created_at);
