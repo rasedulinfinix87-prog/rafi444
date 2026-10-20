@@ -1,10 +1,4 @@
-আপনার `deposit (1).html` ফাইলের মূল কোডের গঠন, স্ক্রিপ্টিং এবং ব্যাকএন্ড/ডাটাবেস লজিক হুবহু ঠিক রেখে secure সাদা কালারের প্রতীক (Shield Icon) সহ ৪ সেকেন্ডের মসৃণ অ্যানিমেশন স্ক্রিন যোগ করা হয়েছে। 
 
-এই অ্যানিমেশন চলাকালীন সময়েই ব্যাকগ্রাউন্ডে Supabase থেকে ডিপোজিট পেইজের সমস্ত প্রয়োজনীয় ডাটা লোড সম্পন্ন হবে এবং ৪ সেকেন্ড পর মসৃণভাবে (Smooth fade-out/in) মূল পেইজটি দেখা যাবে।
-
-সম্পূর্ণ আপডেট করা HTML কোড নিচে দেওয়া হলো:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -607,32 +601,71 @@
     </main>
   </div>
 
-  <!-- STEP 1: PAYMENT MODAL POPUP -->
-  <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-[#0d1e29] border border-[#294253] rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
-      <button type="button" onclick="closeModal('paymentModal')" class="absolute top-3 right-3 text-slate-300 hover:text-white text-base">✕</button>
-      <div class="text-center border-b border-slate-700 pb-3">
-        <h3 class="text-base font-black text-[#24ee89]">Confirm Payment</h3>
-        <p class="text-xs text-slate-400 mt-1">Follow instructions to complete deposit</p>
+  <!-- STEP 1: PAYMENT MODAL POPUP (Redesigned like a new page as per screenshot) -->
+  <div id="paymentModal" class="fixed inset-0 bg-[#202626] z-50 hidden flex-col overflow-y-auto">
+    <!-- Top Green Header Bar -->
+    <div class="bg-[#00a875] text-white px-4 py-3 flex items-center justify-between shadow-md">
+      <div>
+        <div id="topHeaderAmount" class="text-lg font-bold">BDT 0</div>
+        <div class="text-xs tracking-wide">Do not change the amount.</div>
       </div>
-      <div class="bg-[#07131d] border border-slate-700 rounded-xl p-3.5 space-y-3 text-sm">
-        <div class="flex justify-between items-center gap-3"><span class="text-slate-400">Method:</span><span id="modalMethod" class="font-bold text-white">bKash</span></div>
-        <div class="flex justify-between items-center gap-3"><span class="text-slate-400">Deposit Amount:</span><span id="modalAmount" class="font-extrabold text-white">0 BDT</span></div>
-        <div class="flex justify-between items-center gap-3"><span class="text-slate-400">Bonus:</span><span id="modalBonus" class="font-bold text-[#24ee89]">0 BDT</span></div>
-        <div class="flex justify-between items-center gap-3 border-t border-slate-700 pt-2"><span class="text-slate-300">Total After Bonus:</span><span id="modalTotal" class="font-black text-[#24ee89]">0 BDT</span></div>
-        <div class="flex justify-between items-center gap-3 border-t border-slate-700 pt-2">
-          <span class="text-slate-400">Send Money To:</span>
-          <div class="flex items-center gap-2">
-            <span id="modalNumber" class="font-black text-amber-300 tracking-wider">Loading...</span>
-            <button type="button" onclick="copyNumber()" class="text-xs bg-[#142633] hover:bg-[#203746] text-white px-2 py-1 rounded border border-slate-700">Copy</button>
-          </div>
+      <div class="bg-[#202626] text-white text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1 shadow">
+        <span class="text-[#24ee89]">PAY</span> SERVICE
+      </div>
+    </div>
+
+    <!-- Modal Body Content -->
+    <div class="flex-1 p-4 max-w-lg mx-auto w-full space-y-4 text-[#f5f7f7]">
+      <!-- Warning Text -->
+      <div class="text-red-500 font-semibold text-sm leading-snug">
+        If you change the amount (<span id="warningAmountText">0 BDT</span>), the corresponding top-up will not be credited.
+      </div>
+
+      <!-- Brand Method Button -->
+      <div id="modalMethodBox" class="w-full bg-[#d91972] text-white py-4 rounded-xl text-center text-xl font-bold shadow-lg">
+        <span id="modalMethod">BKASH</span> Deposit
+      </div>
+
+      <!-- Wallet Number Section -->
+      <div class="space-y-1">
+        <div class="text-sm font-bold text-black bg-white inline-block px-1 rounded">Wallet No <span class="text-red-500">*</span></div>
+        <div class="text-sm text-slate-200">
+          Please use <span id="infoMethodName">BKASH</span> to transfer <span id="infoTransferAmount" class="text-red-500 font-bold">0 BDT</span> to the following account:
+        </div>
+        <div class="bg-[#282e2f] border-2 border-[#414949] rounded-xl p-4 flex items-center justify-between">
+          <span id="modalNumber" class="text-xl font-bold tracking-wider text-white">Loading...</span>
+          <button type="button" onclick="copyNumber()" class="text-[#00a875] hover:text-white p-2">
+            <!-- Copy Icon SVG -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+          </button>
         </div>
       </div>
+
+      <!-- Transaction ID Input Section -->
       <div class="space-y-1">
-        <label for="modalTrxId" class="block text-sm font-bold text-slate-200">Transaction ID (TrxID)</label>
-        <input type="text" id="modalTrxId" placeholder="e.g. 9J83KS92" class="w-full bg-[#07131d] border border-slate-700 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:border-[#24ee89] tracking-wider uppercase font-mono">
+        <label for="modalTrxId" class="block text-sm font-bold text-white">
+          Enter Transaction ID (TrxID) <span class="text-red-500 font-bold">(Required)</span>
+        </label>
+        <input type="text" id="modalTrxId" placeholder="XDGGGDZCFD" class="w-full bg-[#282e2f] border-2 border-red-500 rounded-xl px-4 py-3 text-base text-white focus:outline-none tracking-wider uppercase font-mono">
       </div>
-      <button type="button" id="submitDepositBtn" onclick="submitDeposit()" class="primary-action !min-h-0 !py-3 !text-sm">Submit Request</button>
+
+      <!-- Submit Button -->
+      <button type="button" id="submitDepositBtn" onclick="submitDeposit()" class="w-full py-4 bg-white text-black font-bold text-lg rounded-xl border border-slate-400 shadow hover:bg-slate-100 transition">
+        Submit
+      </button>
+
+      <!-- Warning Footer Notes -->
+      <div class="text-xs text-slate-300 space-y-2 pt-2">
+        <div><strong class="text-white">Warning:</strong> <span class="text-red-500 font-semibold">TrxID must be correct, otherwise it will fail!</span></div>
+        <div>You must use the <span id="footerMethodName" class="font-bold text-white">BKASH</span> wallet to transfer funds to this account. If you use other types of wallets to transfer funds to this number, the funds will be irretrievable.</div>
+      </div>
+
+      <!-- Close / Back button to return to deposit page -->
+      <div class="pt-4 text-center">
+        <button type="button" onclick="closeModal('paymentModal')" class="text-sm text-slate-400 hover:text-white underline">Cancel / Return</button>
+      </div>
     </div>
   </div>
 
@@ -771,7 +804,6 @@
         console.error("Initialization Error:", err);
         showAlert('Could not initialize the deposit page. Please refresh and try again.');
       } finally {
-        // Ensure loader stays for exactly 4000ms (4 seconds)
         const elapsedTime = Date.now() - startTime;
         const remainingTime = Math.max(0, 4000 - elapsedTime);
 
@@ -897,13 +929,13 @@
 
       const calculation = getBonusCalculation(validAmount);
 
-      document.getElementById('summaryDeposit').textContent =
+      document.getElementById('summaryDeposit').innerText =
         `৳${money(validAmount)}`;
 
-      document.getElementById('summaryBonus').textContent =
+      document.getElementById('summaryBonus').innerText =
         `+৳${money(calculation.bonusAmount)}`;
 
-      document.getElementById('summaryTotal').textContent =
+      document.getElementById('summaryTotal').innerText =
         `৳${money(calculation.totalAmount)}`;
     }
 
@@ -939,27 +971,33 @@
 
       selectedAmount = finalAmt;
 
-      const calculation = getBonusCalculation(selectedAmount);
+      // Update Modal Dynamic Field Values matching the screenshot design
+      const uppercaseMethod = selectedMethod.toUpperCase();
+      document.getElementById('topHeaderAmount').innerText = `BDT ${selectedAmount}`;
+      document.getElementById('warningAmountText').innerText = `${selectedAmount} BDT`;
+      document.getElementById('modalMethod').innerText = uppercaseMethod;
+      document.getElementById('infoMethodName').innerText = uppercaseMethod;
+      document.getElementById('footerMethodName').innerText = uppercaseMethod;
+      document.getElementById('infoTransferAmount').innerText = `${selectedAmount} BDT`;
 
-      document.getElementById('modalMethod').innerText = selectedMethod;
-      document.getElementById('modalAmount').innerText =
-        `${money(selectedAmount)} BDT`;
-
-      document.getElementById('modalBonus').innerText =
-        `${money(calculation.bonusAmount)} BDT`;
-
-      document.getElementById('modalTotal').innerText =
-        `${money(calculation.totalAmount)} BDT`;
+      // Set brand color theme for method box dynamically
+      const methodBox = document.getElementById('modalMethodBox');
+      if (selectedMethod.toLowerCase() === 'nagad') {
+        methodBox.className = 'w-full bg-orange-600 text-white py-4 rounded-xl text-center text-xl font-bold shadow-lg';
+      } else if (selectedMethod.toLowerCase() === 'rocket') {
+        methodBox.className = 'w-full bg-purple-700 text-white py-4 rounded-xl text-center text-xl font-bold shadow-lg';
+      } else {
+        methodBox.className = 'w-full bg-[#d91972] text-white py-4 rounded-xl text-center text-xl font-bold shadow-lg';
+      }
 
       const payNum = paymentNumbers[selectedMethod];
-
-      document.getElementById('modalNumber').innerText =
-        payNum || 'Not configured';
-
+      document.getElementById('modalNumber').innerText = payNum || 'Not configured';
       document.getElementById('modalTrxId').value = '';
 
-      document.getElementById('paymentModal').classList.remove('hidden');
-      document.getElementById('paymentModal').classList.add('flex');
+      // Open Modal as full screen
+      const modal = document.getElementById('paymentModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     }
 
     function closeModal(modalId) {
@@ -1066,7 +1104,7 @@
       } finally {
         isSubmitting = false;
         btn.disabled = false;
-        btn.innerText = 'Submit Request';
+        btn.innerText = 'Submit';
       }
     }
 
@@ -1078,9 +1116,3 @@
   </script>
 </body>
 </html>
-```
-
-### পরিবর্তনসমূহ:
-1. **নিরাপদ অ্যানিমেশন স্প্ল্যাশ স্ক্রিন (`#secureLoader`):** একটি ফুলস্ক্রীন ওভারলে যোগ করা হয়েছে যা সাদা কালারের রেসপনসিভ Shield Icon এবং Pulse/Glow অ্যানিমেশন বহন করে।
-2. **ডাটা লোড ও টাইমিং সমন্বয় (`init()` function):** Supabase থেকে ডাটা রিট্রিভ সম্পূর্ণ হতে যতো সময়ই লাগুক না কেন, `Math.max(0, 4000 - elapsedTime)` টাইমিং ব্যবহার করা হয়েছে যাতে ব্যবহারকারী সঠিক ৪ সেকেন্ড পর্যন্ত অ্যানিমেশন দেখেন এবং ব্যাকগ্রাউন্ডে সমস্ত ডাটা সঠিকভাবে লোড হওয়া নিশ্চিত হয়।
-3. **স্মুথ ট্রানজিশন (`.fade-out` & `.fade-in`):** ৪ সেকেন্ড পার হলে অ্যানিমেশন স্ক্রিনটি মসৃণভাবে ফিকে (Fade Out) হয়ে যাবে এবং ডিপোজিট পেইজটি স্মুথভাবে দৃশ্যমান (Fade In) হবে।
