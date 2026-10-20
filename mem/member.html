@@ -41,8 +41,6 @@
     .theme-switch { display:flex; align-items:center; padding:3px; background:#0F212E; border-radius:12px; }
     .theme-switch button { width:46px; height:42px; border-radius:10px; color:#FFFFFF; }
     .theme-switch button.active { background:#1A2C38; color:#FFFFFF; box-shadow:0 1px 3px #1116; }
-    #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
-    #bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; }
 
     /* Bet History modal */
     #betHistoryModal { position:fixed; inset:0; z-index:10000; display:none; align-items:stretch; justify-content:stretch; padding:0; background:#202628; }
@@ -117,63 +115,20 @@
     .ro-muted { color:#aebabc; font-size:12px; margin-top:4px; overflow-wrap:anywhere; }
     .ro-refresh { background:#176d4b; color:#fff; border-radius:9px; padding:10px 13px; font-weight:700; }
 
-    /* Right-side Profile Drawer Modal Styles */
-    #profileDrawerModal { position: fixed; inset: 0; z-index: 10005; display: none; background: rgba(0,0,0,0.6); justify-content: flex-end; backdrop-filter: blur(2px); }
-    #profileDrawerModal.show { display: flex; }
-    .drawer-panel { width: 100%; max-width: 340px; height: 100%; height: 100dvh; background: #1A2C38; color: #f5f7f8; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s ease-in-out; box-shadow: -5px 0 25px rgba(0,0,0,0.5); }
-    #profileDrawerModal.show .drawer-panel { transform: translateX(0); }
-    .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: #0F212E; border-bottom: 1px solid #243542; }
-    .drawer-head h2 { font-size: 18px; font-weight: 750; margin: 0; color: #24ee89; }
-    .drawer-close { width: 34px; height: 34px; border-radius: 50%; background: #243542; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
-    .drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    /* Right-side Profile Drawer */
+    #profileDrawerModal { position:fixed; inset:0; z-index:10005; display:none; background:rgba(0,0,0,0.6); justify-content:flex-end; backdrop-filter:blur(2px); }
+    #profileDrawerModal.show { display:flex; }
+    .drawer-panel { width:100%; max-width:340px; height:100%; height:100dvh; background:#1A2C38; color:#f5f7f8; display:flex; flex-direction:column; transform:translateX(100%); transition:transform .3s ease-in-out; box-shadow:-5px 0 25px rgba(0,0,0,0.5); }
+    #profileDrawerModal.show .drawer-panel { transform:translateX(0); }
+    .drawer-head { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; background:#0F212E; border-bottom:1px solid #243542; }
+    .drawer-head h2 { font-size:18px; font-weight:750; margin:0; color:#24ee89; }
+    .drawer-close { width:34px; height:34px; border-radius:50%; background:#243542; color:white; font-size:18px; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; }
+    .drawer-body { flex:1; min-height:0; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:14px; }
   </style>
 </head>
 
 <body class="font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none antialiased">
   <div class="w-full max-w-md min-h-screen flex flex-col overflow-x-hidden shadow-2xl relative">
-
-    <!-- Top Navigation Bar Container (Directly Included) -->
-    <header class="w-full bg-[#1A2C38] border-b border-[#0F212E] px-4 py-3.5 flex items-center justify-between text-[#FFFFFF] select-none sticky top-0 z-50">
-      <!-- Left Side: Logo -->
-      <div class="flex items-center gap-3">
-        <a href="/rafi444/index.html" class="flex items-center focus:outline-none">
-          <img src="/rafi444/assets/images/logo.png" alt="Logo" class="h-7 w-auto object-contain" onerror="this.style.display='none'" />
-        </a>
-      </div>
-
-      <!-- Right Side: Balance, Deposit, Notifications & Profile -->
-      <div class="flex items-center gap-3">
-        <!-- Balance & Deposit Box -->
-        <div class="flex items-center bg-[#0F212E] border border-[#0F212E] rounded-lg p-1 text-[var(--font-xs)] shadow-sm">
-          <div class="flex items-center px-3 py-1">
-            <span id="topBarBalance" class="font-extrabold text-[#FFFFFF] text-[var(--font-md)] tracking-wide">0.00</span>
-          </div>
-          
-          <a href="../account/deposit.html" id="depositLinkBtn" class="bg-[#24ee89] hover:bg-[#1ebc6d] text-[#0F212E] font-extrabold p-2 rounded-md transition flex items-center justify-center shadow-md">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
-            </svg>
-          </a>
-        </div>
-
-        <!-- Notification Icon -->
-        <div class="relative">
-          <button id="notifBtn" onclick="toggleNotifications()" class="relative p-2.5 text-[#FFFFFF] hover:text-[#24ee89] rounded-lg bg-[#0F212E] border border-[#0F212E] transition focus:outline-none">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-            </svg>
-            <span id="notifBadge" class="absolute top-2 right-2 w-2 h-2 bg-[#24ee89] rounded-full ring-2 ring-[#0F212E]"></span>
-          </button>
-        </div>
-
-        <!-- Profile Icon -> Opens Right-Side Drawer -->
-        <button type="button" onclick="openProfileDrawer()" id="profileLinkBtn" class="p-2 text-[#FFFFFF] hover:text-[#24ee89] rounded-lg hover:bg-[#0F212E] transition border border-[#0F212E] flex items-center justify-center bg-[#0F212E] focus:outline-none">
-          <svg class="w-6 h-6 text-[#FFFFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-        </button>
-      </div>
-    </header>
 
     <main class="px-3 py-3 flex-1 flex flex-col gap-4">
 
@@ -184,7 +139,6 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <!-- Account Symbol -->
           <div class="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#1A2C38] shrink-0 flex items-center justify-center text-emerald-400 text-2xl shadow-inner">
             <i class="fa-solid fa-user-shield"></i>
           </div>
@@ -206,7 +160,6 @@
           </div>
         </div>
 
-        <!-- Deposit & Withdrawal Buttons -->
         <div class="grid grid-cols-2 gap-3 mt-5">
           <a href="../account/deposit.html" class="bg-[#0F212E] text-[#FFFFFF] font-extrabold text-[var(--font-xs)] py-3.5 px-2 rounded-xl border border-[#0F212E] text-center flex items-center justify-center gap-2 active:scale-95 shadow-sm">
             <i class="fa-solid fa-wallet text-emerald-400 text-base"></i> Deposit
@@ -284,12 +237,11 @@
       &copy; 2026 Gaming Portal. All Rights Reserved.
     </footer>
 
-    <!-- Bottom Bar Container -->
+    <!-- Bottom bar remains independent of the top/header -->
     <div id="bottomBarContainer"></div>
   </div>
 
-
-  <!-- Profile Right-Side Drawer Modal -->
+  <!-- Profile Right-Side Drawer -->
   <div id="profileDrawerModal" role="dialog" aria-modal="true" onclick="if(event.target===this) closeProfileDrawer()">
     <section class="drawer-panel">
       <header class="drawer-head">
@@ -333,7 +285,6 @@
     </section>
   </div>
 
-
   <!-- Bet History Modal -->
   <div id="betHistoryModal" role="dialog" aria-modal="true" aria-labelledby="betHistoryTitle" onclick="if(event.target===this) closeBetHistory()">
     <section class="bh-modal">
@@ -371,7 +322,7 @@
     </section>
   </div>
 
-  <!-- Full-screen Deposit / Withdrawal Transactions Modal -->
+  <!-- Deposit / Withdrawal Transactions Modal -->
   <div id="transactionsModal" role="dialog" aria-modal="true" aria-labelledby="transactionsTitle" onclick="if(event.target===this) closeTransactions()">
     <section class="tx-modal">
       <header class="tx-head">
@@ -411,7 +362,7 @@
     </section>
   </div>
 
-  <!-- Full-screen Rollover Modal -->
+  <!-- Rollover Modal -->
   <div id="rolloverModal" role="dialog" aria-modal="true" aria-labelledby="rolloverTitle" onclick="if(event.target===this) closeRollover()">
     <section class="ro-modal">
       <header class="ro-head">
@@ -455,12 +406,10 @@
   </div>
 
   <script>
-
     let betHistoryRequestToken = 0;
 
     function openBetHistory() {
-      const modal = document.getElementById('betHistoryModal');
-      modal.classList.add('show');
+      document.getElementById('betHistoryModal').classList.add('show');
       document.body.style.overflow = 'hidden';
       loadBetHistory();
     }
@@ -470,10 +419,9 @@
       document.body.style.overflow = '';
     }
 
-    // Right-side Profile Drawer Functions
+    // Profile Drawer
     function openProfileDrawer() {
-      const drawer = document.getElementById('profileDrawerModal');
-      drawer.classList.add('show');
+      document.getElementById('profileDrawerModal').classList.add('show');
       document.body.style.overflow = 'hidden';
       loadDrawerProfileData();
     }
@@ -495,7 +443,6 @@
           document.getElementById('drawerUserEmail').innerText = user.email || 'N/A';
         }
 
-        // Recent Deposits in Drawer
         const { data: deposits } = await supabaseClient
           .from('deposits')
           .select('*')
@@ -504,24 +451,24 @@
           .limit(3);
 
         const depList = document.getElementById('drawerDepositList');
+
         if (deposits && deposits.length > 0) {
           depList.innerHTML = deposits.map(d => `
             <div class="flex justify-between items-center bg-[#0F212E] p-2 rounded-lg border border-[#243542]">
               <div>
-                <span class="font-bold text-white">${d.payment_method}</span>
+                <span class="font-bold text-white">${d.payment_method || 'Deposit'}</span>
                 <span class="text-[10px] text-white/50 block">Trx: ${d.transection_id || 'N/A'}</span>
               </div>
               <div class="text-right">
                 <span class="font-bold text-emerald-400">+${d.amount} BDT</span>
-                <span class="text-[9px] block ${d.status === 'approved' ? 'text-emerald-400' : d.status === 'rejected' ? 'text-red-400' : 'text-yellow-400'}">${d.status}</span>
+                <span class="text-[9px] block ${d.status === 'approved' ? 'text-emerald-400' : d.status === 'rejected' ? 'text-red-400' : 'text-yellow-400'}">${d.status || 'pending'}</span>
               </div>
             </div>
           `).join('');
         } else {
-          depList.innerHTML = `<p class="text-white/50">No deposit history found.</p>`;
+          depList.innerHTML = '<p class="text-white/50">No deposit history found.</p>';
         }
 
-        // Recent Withdrawals in Drawer
         const { data: withdrawals } = await supabaseClient
           .from('withdrawals')
           .select('*')
@@ -530,21 +477,22 @@
           .limit(3);
 
         const withList = document.getElementById('drawerWithdrawList');
+
         if (withdrawals && withdrawals.length > 0) {
           withList.innerHTML = withdrawals.map(w => `
             <div class="flex justify-between items-center bg-[#0F212E] p-2 rounded-lg border border-[#243542]">
               <div>
-                <span class="font-bold text-white">${w.payment_method}</span>
+                <span class="font-bold text-white">${w.payment_method || 'Withdrawal'}</span>
                 <span class="text-[10px] text-white/50 block">Acc: ${w.account_number || 'N/A'}</span>
               </div>
               <div class="text-right">
                 <span class="font-bold text-red-400">-${w.amount} BDT</span>
-                <span class="text-[9px] block ${w.status === 'approved' ? 'text-emerald-400' : w.status === 'rejected' ? 'text-red-400' : 'text-yellow-400'}">${w.status}</span>
+                <span class="text-[9px] block ${w.status === 'approved' ? 'text-emerald-400' : w.status === 'rejected' ? 'text-red-400' : 'text-yellow-400'}">${w.status || 'pending'}</span>
               </div>
             </div>
           `).join('');
         } else {
-          withList.innerHTML = `<p class="text-white/50">No withdrawal history found.</p>`;
+          withList.innerHTML = '<p class="text-white/50">No withdrawal history found.</p>';
         }
       } catch (err) {
         console.error('Error loading drawer profile data:', err);
@@ -552,23 +500,26 @@
     }
 
     document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape') { 
-        closeBetHistory(); 
-        closeRollover(); 
-        closeTransactions(); 
+      if (event.key === 'Escape') {
+        closeBetHistory();
+        closeRollover();
+        closeTransactions();
         closeProfileDrawer();
       }
     });
 
     function bhEscape(value) {
       return String(value ?? '').replace(/[&<>"']/g, function(char) {
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]);
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
       });
     }
 
     function bhMoney(value) {
       const number = Number(value || 0);
-      return '৳' + number.toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      return '৳' + number.toLocaleString('en-BD', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
     }
 
     function bhStatusKind(status) {
@@ -588,19 +539,24 @@
     async function loadBetHistory() {
       const list = document.getElementById('betHistoryList');
       const token = ++betHistoryRequestToken;
+
       list.innerHTML = '<div class="bh-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading bet history...</div>';
 
       try {
         const user = await requireAuth();
+
         if (!user) {
           list.innerHTML = '<div class="bh-empty"><i class="fa-regular fa-user"></i><div>Please log in to view bet history.</div></div>';
           return;
         }
+
         const userId = user.id;
+
         if (!userId) {
           list.innerHTML = '<div class="bh-empty"><i class="fa-regular fa-user"></i><div>User session is invalid. Please log in again.</div></div>';
           return;
         }
+
         if (typeof supabaseClient === 'undefined' || !supabaseClient) {
           throw new Error('Supabase client is unavailable. Check supabase-config.js.');
         }
@@ -609,19 +565,27 @@
         const time = document.getElementById('bhTimeFilter').value;
         const sort = document.getElementById('bhSortFilter').value;
 
-        const originalResult = await supabaseClient.from('original_bets_history')
+        const originalResult = await supabaseClient
+          .from('original_bets_history')
           .select('id,user_id,game_name,bet_amount,payout,multiplier,status,game_details,created_at')
           .eq('user_id', userId);
 
         if (token !== betHistoryRequestToken) return;
 
         let rows = [];
-        (originalResult.data || []).forEach(item => rows.push({...item, _source:'original', _game:item.game_name || 'Original Game'}));
+
+        (originalResult.data || []).forEach(item => {
+          rows.push({...item, _source:'original', _game:item.game_name || 'Original Game'});
+        });
 
         if (time !== 'all') {
-          const cutoff = Date.now() - Number(time) * (time === '24' ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000);
-          rows = rows.filter(item => item.created_at && new Date(item.created_at).getTime() >= cutoff);
+          const cutoff = Date.now() - Number(time) *
+            (time === '24' ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000);
+          rows = rows.filter(item =>
+            item.created_at && new Date(item.created_at).getTime() >= cutoff
+          );
         }
+
         if (type !== 'all') {
           rows = rows.filter(item => {
             const status = String(item.status || 'pending').toLowerCase();
@@ -630,8 +594,10 @@
             return status === 'pending';
           });
         }
+
         rows.sort((a,b) => {
-          const diff = new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+          const diff = new Date(a.created_at || 0).getTime() -
+                       new Date(b.created_at || 0).getTime();
           return sort === 'old' ? diff : -diff;
         });
 
@@ -639,7 +605,10 @@
           const message = originalResult.error
             ? 'Could not load history. Check table permissions and Supabase RLS policies.'
             : 'Stay tuned—something’s coming!';
-          list.innerHTML = '<div class="bh-empty"><i class="fa-solid fa-ghost"></i><div>' + bhEscape(message) + '</div></div>';
+
+          list.innerHTML = '<div class="bh-empty"><i class="fa-solid fa-ghost"></i><div>' +
+            bhEscape(message) + '</div></div>';
+
           if (originalResult.error) console.error('Bet history query error:', originalResult.error);
           return;
         }
@@ -649,12 +618,17 @@
           const status = item.status || 'pending';
           const bet = Number(item.bet_amount || 0);
           const payout = Number(item.payout || 0);
-          const multiplier = item.multiplier !== null && item.multiplier !== undefined ? ' · ' + Number(item.multiplier).toLocaleString() + 'x' : '';
-          const detail = (item.game_details && typeof item.game_details === 'object' ? (item.game_details.result || item.game_details.bet_type || '') : '');
+          const multiplier = item.multiplier !== null && item.multiplier !== undefined
+            ? ' · ' + Number(item.multiplier).toLocaleString() + 'x' : '';
+          const detail = item.game_details && typeof item.game_details === 'object'
+            ? (item.game_details.result || item.game_details.bet_type || '') : '';
           const kind = bhStatusKind(status);
           const amountClass = kind === 'won' ? 'won' : (kind === 'lost' ? 'lost' : '');
-          const amountValue = kind === 'lost' ? '- ' + bhMoney(bet) : (kind === 'won' ? '+ ' + bhMoney(payout) : bhMoney(payout));
+          const amountValue = kind === 'lost'
+            ? '- ' + bhMoney(bet)
+            : (kind === 'won' ? '+ ' + bhMoney(payout) : bhMoney(payout));
           const statusLabel = kind === 'won' ? 'Won' : (kind === 'lost' ? 'Loss' : status);
+
           return '<div class="bh-row">' +
             '<div><div class="bh-primary">' + bhEscape(item._game) + '</div>' +
             '<div class="bh-muted">' + bhEscape(detail) + '</div>' +
@@ -665,8 +639,10 @@
         }).join('');
 
         if (originalResult.error) console.error('Some bet history records could not be loaded:', originalResult.error);
+
       } catch (error) {
         console.error('Bet history loading error:', error);
+
         if (token === betHistoryRequestToken) {
           list.innerHTML = '<div class="bh-empty"><i class="fa-solid fa-triangle-exclamation"></i><div>Unable to load bet history. Please try again.</div><button type="button" onclick="loadBetHistory()" class="px-4 py-2 rounded-lg bg-[#343d3f]">Retry</button></div>';
         }
@@ -689,41 +665,57 @@
     async function loadTransactions() {
       const list = document.getElementById('transactionsList');
       const token = ++transactionsRequestToken;
+
       list.innerHTML = '<div class="tx-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading transactions...</div>';
+
       try {
         const user = await requireAuth();
+
         if (!user) {
           list.innerHTML = '<div class="tx-empty"><i class="fa-regular fa-user"></i><div>Please log in to view your transactions.</div></div>';
           return;
         }
+
         const userId = user.id;
         if (!userId) throw new Error('User session is invalid. Please log in again.');
-        if (typeof supabaseClient === 'undefined' || !supabaseClient) throw new Error('Supabase client is unavailable. Check supabase-config.js.');
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+          throw new Error('Supabase client is unavailable. Check supabase-config.js.');
+        }
 
         const type = document.getElementById('txTypeFilter').value;
         const statusFilter = document.getElementById('txStatusFilter').value.toLowerCase();
         const time = document.getElementById('txTimeFilter').value;
         const sort = document.getElementById('txSortFilter').value;
+
         let depositQuery = null;
         let withdrawalQuery = null;
 
         if (type !== 'withdrawal') {
           depositQuery = supabaseClient.from('deposits')
             .select('id,user_id,amount,payment_method,transection_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
-            .eq('user_id', userId).order('created_at', {ascending:false}).limit(500);
+            .eq('user_id', userId)
+            .order('created_at', {ascending:false})
+            .limit(500);
         }
+
         if (type !== 'deposit') {
           withdrawalQuery = supabaseClient.from('withdrawals')
             .select('id,user_id,amount,payment_method,account_number,status,created_at')
-            .eq('user_id', userId).order('created_at', {ascending:false}).limit(500);
+            .eq('user_id', userId)
+            .order('created_at', {ascending:false})
+            .limit(500);
         }
+
         const [depositResult, withdrawalResult] = await Promise.all([
           depositQuery || Promise.resolve({data:[],error:null}),
           withdrawalQuery || Promise.resolve({data:[],error:null})
         ]);
+
         if (token !== transactionsRequestToken) return;
+
         const errors = [depositResult.error, withdrawalResult.error].filter(Boolean);
         let rows = [];
+
         (depositResult.data || []).forEach(item => rows.push({...item, _type:'deposit', _label:'Deposit'}));
         (withdrawalResult.data || []).forEach(item => rows.push({...item, _type:'withdrawal', _label:'Withdrawal'}));
 
@@ -732,17 +724,27 @@
           const cutoff = Date.now() - hours * 60 * 60 * 1000;
           rows = rows.filter(item => item.created_at && new Date(item.created_at).getTime() >= cutoff);
         }
+
         if (statusFilter !== 'all') {
           rows = rows.filter(item => String(item.status || 'pending').toLowerCase() === statusFilter);
         }
+
         rows.sort((a,b) => {
-          const diff = new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+          const diff = new Date(a.created_at || 0).getTime() -
+                       new Date(b.created_at || 0).getTime();
           return sort === 'old' ? diff : -diff;
         });
 
         if (!rows.length) {
-          const message = errors.length ? 'Could not load transactions. Check Supabase table permissions and RLS policies.' : 'No transactions found for the selected filters.';
-          list.innerHTML = '<div class="tx-empty"><i class="fa-solid fa-receipt"></i><div>' + bhEscape(message) + '</div>' + (errors.length ? '<button type="button" onclick="loadTransactions()" class="px-4 py-2 rounded-lg bg-[#343d3f]">Retry</button>' : '') + '</div>';
+          const message = errors.length
+            ? 'Could not load transactions. Check Supabase table permissions and RLS policies.'
+            : 'No transactions found for the selected filters.';
+
+          list.innerHTML = '<div class="tx-empty"><i class="fa-solid fa-receipt"></i><div>' +
+            bhEscape(message) + '</div>' +
+            (errors.length ? '<button type="button" onclick="loadTransactions()" class="px-4 py-2 rounded-lg bg-[#343d3f]">Retry</button>' : '') +
+            '</div>';
+
           if (errors.length) console.error('Transaction query errors:', errors);
           return;
         }
@@ -754,29 +756,51 @@
           const normalizedStatus = status.toLowerCase().replace(/[^a-z0-9_-]/g, '');
           const method = item.payment_method || (item._type === 'deposit' ? 'Deposit' : 'Withdrawal');
           const detailParts = [method];
-          if (item._type === 'deposit' && item.transection_id) detailParts.push('TrxID: ' + item.transection_id);
-          if (item._type === 'withdrawal' && item.account_number) detailParts.push('Account: ' + item.account_number);
-          if (item._type === 'deposit' && Number(item.bonus_amount || 0) > 0) detailParts.push('Bonus: ' + txMoney(item.bonus_amount));
+
+          if (item._type === 'deposit' && item.transection_id) {
+            detailParts.push('TrxID: ' + item.transection_id);
+          }
+          if (item._type === 'withdrawal' && item.account_number) {
+            detailParts.push('Account: ' + item.account_number);
+          }
+          if (item._type === 'deposit' && Number(item.bonus_amount || 0) > 0) {
+            detailParts.push('Bonus: ' + txMoney(item.bonus_amount));
+          }
+
           return '<div class="tx-row"><div><div class="tx-primary">' + bhEscape(item._label) + '</div>' +
             '<div class="tx-muted">' + bhEscape(detailParts.join(' · ')) + '</div>' +
             '<div class="tx-muted">' + bhEscape(date) + '</div>' +
             '<span class="tx-status ' + bhEscape(normalizedStatus) + '">' + bhEscape(status) + '</span></div>' +
-            '<div class="tx-amount ' + item._type + '">' + (item._type === 'deposit' ? '+ ' : '- ') + txMoney(amount) + '</div></div>';
+            '<div class="tx-amount ' + item._type + '">' + (item._type === 'deposit' ? '+ ' : '- ') +
+            txMoney(amount) + '</div></div>';
         }).join('');
+
         if (errors.length) console.error('Some transactions could not be loaded:', errors);
+
       } catch (error) {
         console.error('Transaction loading error:', error);
-        if (token === transactionsRequestToken) list.innerHTML = '<div class="tx-empty"><i class="fa-solid fa-triangle-exclamation"></i><div>' + bhEscape(error.message || 'Unable to load transactions.') + '</div><button type="button" onclick="loadTransactions()" class="px-4 py-2 rounded-lg bg-[#343d3f]">Retry</button></div>';
+
+        if (token === transactionsRequestToken) {
+          list.innerHTML = '<div class="tx-empty"><i class="fa-solid fa-triangle-exclamation"></i><div>' +
+            bhEscape(error.message || 'Unable to load transactions.') +
+            '</div><button type="button" onclick="loadTransactions()" class="px-4 py-2 rounded-lg bg-[#343d3f]">Retry</button></div>';
+        }
       }
     }
 
     function txMoney(value) {
-      return '৳' + Number(value || 0).toLocaleString('en-BD', {minimumFractionDigits:2, maximumFractionDigits:2});
+      return '৳' + Number(value || 0).toLocaleString('en-BD', {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      });
     }
 
     function roMoney(value) {
       const number = Number(value || 0);
-      return '৳' + number.toLocaleString('en-BD', {minimumFractionDigits:2, maximumFractionDigits:2});
+      return '৳' + number.toLocaleString('en-BD', {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      });
     }
 
     function openRollover() {
@@ -795,6 +819,7 @@
       const details = document.getElementById('roDetails');
       const depositList = document.getElementById('roDepositList');
       const errorBox = document.getElementById('roError');
+
       loading.style.display = 'block';
       details.style.display = 'none';
       errorBox.style.display = 'none';
@@ -802,6 +827,7 @@
       try {
         const user = await requireAuth();
         if (!user) throw new Error('Please log in to view rollover details.');
+
         const userId = user.id;
         if (!userId) throw new Error('User session is invalid. Please log in again.');
         if (typeof supabaseClient === 'undefined' || !supabaseClient) {
@@ -811,7 +837,9 @@
         const [profileResult, depositsResult] = await Promise.all([
           supabaseClient.from('profiles')
             .select('id,balance,turnover_required,current_turnover')
-            .eq('id', userId).maybeSingle(),
+            .eq('id', userId)
+            .maybeSingle(),
+
           supabaseClient.from('deposits')
             .select('id,amount,payment_method,transection_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
             .eq('user_id', userId)
@@ -821,11 +849,14 @@
 
         if (profileResult.error) throw profileResult.error;
         if (!profileResult.data) throw new Error('Your profile record could not be found.');
+
         const profile = profileResult.data;
         const completed = Math.max(0, Number(profile.current_turnover || 0));
         const required = Math.max(0, Number(profile.turnover_required || 0));
         const remaining = Math.max(0, required - completed);
-        const percent = required > 0 ? Math.min(100, (completed / required) * 100) : (completed > 0 ? 100 : 0);
+        const percent = required > 0
+          ? Math.min(100, (completed / required) * 100)
+          : (completed > 0 ? 100 : 0);
 
         document.getElementById('roCompleted').textContent = roMoney(completed);
         document.getElementById('roRequired').textContent = roMoney(required);
@@ -840,34 +871,42 @@
           console.error('Rollover deposits query error:', depositsResult.error);
         } else {
           const deposits = depositsResult.data || [];
+
           if (!deposits.length) {
             depositList.innerHTML = '<div class="ro-muted">No deposit records found.</div>';
           } else {
             depositList.innerHTML = deposits.map(dep => {
               const date = dep.created_at ? new Date(dep.created_at).toLocaleString() : 'Date unavailable';
               const status = String(dep.status || 'pending');
+
               return '<div class="ro-row"><div style="min-width:0;flex:1">' +
                 '<div class="font-semibold">' + bhEscape(dep.payment_method || 'Deposit') + ' · ' + bhEscape(status) + '</div>' +
                 '<div class="ro-muted">' + bhEscape(date) + '</div>' +
-                '<div class="ro-muted">Bonus: ' + roMoney(dep.bonus_amount) + ' (' + Number(dep.bonus_percent || 0).toLocaleString() + '%)</div>' +
-                '<div class="ro-muted">Multiplier: ' + (dep.multiplier == null ? '—' : Number(dep.multiplier).toLocaleString() + 'x') + '</div>' +
-                '</div><div style="text-align:right;flex-shrink:0"><div class="font-bold">' + roMoney(dep.amount) + '</div>' +
-                '<div class="ro-muted">Turnover: ' + roMoney(dep.turnover_required) + '</div></div></div>';
+                '<div class="ro-muted">Bonus: ' + roMoney(dep.bonus_amount) + ' (' +
+                Number(dep.bonus_percent || 0).toLocaleString() + '%)</div>' +
+                '<div class="ro-muted">Multiplier: ' +
+                (dep.multiplier == null ? '—' : Number(dep.multiplier).toLocaleString() + 'x') +
+                '</div></div><div style="text-align:right;flex-shrink:0">' +
+                '<div class="font-bold">' + roMoney(dep.amount) + '</div>' +
+                '<div class="ro-muted">Turnover: ' + roMoney(dep.turnover_required) +
+                '</div></div></div>';
             }).join('');
           }
         }
 
         loading.style.display = 'none';
         details.style.display = 'block';
+
       } catch (error) {
         console.error('Rollover loading error:', error);
-        loading.innerHTML = '<div class="text-red-300"><i class="fa-solid fa-triangle-exclamation"></i> ' + bhEscape(error.message || 'Unable to load rollover details.') + '</div><button type="button" class="ro-refresh mt-3" onclick="loadRollover()">Retry</button>';
+        loading.innerHTML = '<div class="text-red-300"><i class="fa-solid fa-triangle-exclamation"></i> ' +
+          bhEscape(error.message || 'Unable to load rollover details.') +
+          '</div><button type="button" class="ro-refresh mt-3" onclick="loadRollover()">Retry</button>';
       }
     }
 
     async function copyGameId() {
       const gameId = document.getElementById('userGameId').textContent.trim();
-
       if (!gameId || gameId === '----') return;
 
       try {
@@ -896,24 +935,14 @@
           return;
         }
 
-        if (
-          typeof supabaseClient === 'undefined' ||
-          !supabaseClient
-        ) {
-          console.error(
-            'supabaseClient was not found. Check ../supabase-config.js'
-          );
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+          console.error('supabaseClient was not found. Check ../supabase-config.js');
           return;
         }
 
         const { data: profile, error } = await supabaseClient
           .from('profiles')
-          .select(`
-            id,
-            balance,
-            created_at,
-            user_game_id
-          `)
+          .select('id,balance,created_at,user_game_id')
           .eq('id', userId)
           .maybeSingle();
 
@@ -923,10 +952,7 @@
         }
 
         if (!profile) {
-          console.error(
-            'No profiles record found for user UUID:',
-            userId
-          );
+          console.error('No profiles record found for user UUID:', userId);
           return;
         }
 
@@ -958,115 +984,17 @@
       }
     }
 
-    // শুধু বটমবার লোড করার ফাংশন (টপবার এখন সরাসরি ফাইলেই আছে)
+    // Bottom bar only. No top/header loading or balance synchronization.
     async function loadBottomBar() {
       try {
         const botRes = await fetch('../bar/bottom.html');
+
         if (botRes.ok) {
           document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
         }
       } catch (err) {
         console.error('Bottom bar loading error:', err);
       }
-    }
-
-    // টপবার ব্যালান্স সিঙ্ক এবং রিয়েলটাইম আপডেট লজিক
-    let balanceSyncInProgress = false;
-    let balanceRefreshTimer = null;
-    let profileChannel = null;
-
-    async function syncTopBarBalance() {
-      if (balanceSyncInProgress) return;
-      const balanceElement = document.getElementById('topBarBalance');
-      if (!balanceElement) return;
-
-      balanceSyncInProgress = true;
-      try {
-        const user = await requireAuth();
-        if (!user) {
-          balanceElement.textContent = '0.00';
-          return;
-        }
-        const userId = user.id;
-        if (!userId) return;
-
-        if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
-
-        const { data: profile, error } = await supabaseClient
-          .from('profiles')
-          .select('id, balance')
-          .eq('id', userId)
-          .maybeSingle();
-
-        if (error || !profile) return;
-
-        const balance = Number(profile.balance);
-        if (profile.balance !== null && profile.balance !== undefined && Number.isFinite(balance)) {
-          balanceElement.textContent = balance.toFixed(2);
-        }
-      } catch (error) {
-        console.error('Top bar balance synchronization error:', error);
-      } finally {
-        balanceSyncInProgress = false;
-      }
-    }
-
-    function subscribeToTopBarBalance() {
-      if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
-      
-      requireAuth().then(user => {
-        if (!user) return;
-        const userId = user.id;
-        if (!userId) return;
-
-        if (profileChannel) {
-          supabaseClient.removeChannel(profileChannel);
-          profileChannel = null;
-        }
-
-        profileChannel = supabaseClient
-          .channel('top-bar-balance-' + userId)
-          .on(
-            'postgres_changes',
-            {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'profiles',
-              filter: 'id=eq.' + userId
-            },
-            function (payload) {
-              const balanceElement = document.getElementById('topBarBalance');
-              const newBalance = Number(payload.new && payload.new.balance);
-
-              if (
-                balanceElement &&
-                payload.new &&
-                payload.new.balance !== null &&
-                payload.new.balance !== undefined &&
-                Number.isFinite(newBalance)
-              ) {
-                balanceElement.textContent = newBalance.toFixed(2);
-              } else {
-                syncTopBarBalance();
-              }
-            }
-          )
-          .subscribe();
-      });
-    }
-
-    function startTopBarBalanceSync() {
-      syncTopBarBalance();
-      subscribeToTopBarBalance();
-
-      if (balanceRefreshTimer) {
-        clearInterval(balanceRefreshTimer);
-      }
-      balanceRefreshTimer = setInterval(syncTopBarBalance, 5000);
-      window.addEventListener('focus', syncTopBarBalance);
-      document.addEventListener('visibilitychange', function () {
-        if (!document.hidden) syncTopBarBalance();
-      });
     }
 
     function setTheme(theme) {
@@ -1084,7 +1012,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       loadBottomBar();
       loadMemberProfile();
-      startTopBarBalanceSync();
     });
   </script>
 </body>
