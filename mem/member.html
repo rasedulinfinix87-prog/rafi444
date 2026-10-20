@@ -146,7 +146,7 @@
     .drawer-head { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; background:#0F212E; border-bottom:1px solid #243542; }
     .drawer-head h2 { font-size:18px; font-weight:750; margin:0; color:#24ee89; }
     .drawer-close { width:34px; height:34px; border-radius:50%; background:#243542; color:white; font-size:18px; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; }
-    .drawer-body { flex:1; min-height:0; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; }
+    .drawer-body { flex:1; min-height:0; overflow-y:auto; padding:12px 16px; display:flex; flex-direction:column; gap:6px; }
   </style>
 </head>
 
@@ -277,17 +277,6 @@
         </div>
       </div>
 
-      <!-- Account shortcuts -->
-      <section class="menu-card px-3 py-3">
-        <div class="grid grid-cols-4 gap-x-1 gap-y-2">
-          <a href="../account/vault.html" class="shortcut"><i class="fa-solid fa-vault"></i><span>Vault Pro</span></a>
-          <button type="button" class="shortcut" onclick="openTransactions()"><i class="fa-solid fa-receipt"></i><span>Transaction</span></button>
-          <button type="button" class="shortcut" onclick="openRollover()"><i class="fa-solid fa-chart-column"></i><span>Rollover</span></button>
-          <button type="button" class="shortcut" onclick="openBetHistory()"><i class="fa-solid fa-clock-rotate-left"></i><span>Bet History</span></button>
-          <a href="../account/free-plays.html" class="shortcut"><i class="fa-solid fa-coins"></i><span>Free Plays</span></a>
-        </div>
-      </section>
-
       <!-- Notifications -->
       <section class="menu-card">
         <a href="../account/notifications.html" class="menu-row">
@@ -346,7 +335,7 @@
     <div id="bottomBarContainer"></div>
   </div>
 
-  <!-- Profile Right-Side Drawer Modal (Slide from right, non-card buttons with thin underline and right-aligned text matching the screenshot) -->
+  <!-- Profile Right-Side Drawer Modal (Slide from right, without underline/borders, compact spacing) -->
   <div id="profileDrawerModal" role="dialog" aria-modal="true" onclick="if(event.target===this) closeProfileDrawer()">
     <section class="drawer-panel">
       <header class="drawer-head">
@@ -355,65 +344,65 @@
       </header>
       <div class="drawer-body">
         
-        <!-- Stacked buttons without card boxes, separated by thin borders, text aligned to the right -->
+        <!-- Stacked buttons without borders and reduced vertical padding/gap -->
         <div class="flex flex-col">
-          <a href="../account/deposit.html" class="flex items-center justify-end gap-3.5 py-3.5 border-b border-[#243542] hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
+          <a href="../account/deposit.html" class="flex items-center justify-end gap-3.5 py-2 hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
             <span>Wallet</span>
             <i class="fa-solid fa-wallet text-[#a9b3b5] w-5 text-center text-lg"></i>
           </a>
 
-          <a href="../account/vault.html" class="flex items-center justify-end gap-3.5 py-3.5 border-b border-[#243542] hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
+          <a href="../account/vault.html" class="flex items-center justify-end gap-3.5 py-2 hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
             <span>Vault</span>
             <i class="fa-solid fa-vault text-[#a9b3b5] w-5 text-center text-lg"></i>
           </a>
 
-          <a href="../account/vip.html" class="flex items-center justify-end gap-3.5 py-3.5 border-b border-[#243542] hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
+          <a href="../account/vip.html" class="flex items-center justify-end gap-3.5 py-2 hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
             <span>VIP</span>
             <i class="fa-solid fa-trophy text-[#a9b3b5] w-5 text-center text-lg"></i>
           </a>
 
-          <a href="../account/affiliate.html" class="flex items-center justify-end gap-3.5 py-3.5 border-b border-[#243542] hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
+          <a href="../account/affiliate.html" class="flex items-center justify-end gap-3.5 py-2 hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
             <span>Affiliate</span>
             <i class="fa-solid fa-share-nodes text-[#a9b3b5] w-5 text-center text-lg"></i>
           </a>
 
-          <button type="button" onclick="closeProfileDrawer(); openRollover();" class="flex items-center justify-end gap-3.5 py-3.5 border-b border-[#243542] hover:text-[#24ee89] text-white transition font-semibold text-sm w-full text-right">
+          <button type="button" onclick="closeProfileDrawer(); openRollover();" class="flex items-center justify-end gap-3.5 py-2 hover:text-[#24ee89] text-white transition font-semibold text-sm w-full text-right">
             <span>Statistics</span>
             <i class="fa-solid fa-chart-column text-[#a9b3b5] w-5 text-center text-lg"></i>
           </button>
 
-          <button type="button" onclick="closeProfileDrawer(); openTransactions();" class="flex items-center justify-end gap-3.5 py-3.5 border-b border-[#243542] hover:text-[#24ee89] text-white transition font-semibold text-sm w-full text-right">
+          <button type="button" onclick="closeProfileDrawer(); openTransactions();" class="flex items-center justify-end gap-3.5 py-2 hover:text-[#24ee89] text-white transition font-semibold text-sm w-full text-right">
             <span>Transactions</span>
             <i class="fa-solid fa-receipt text-[#a9b3b5] w-5 text-center text-lg"></i>
           </button>
 
-          <button type="button" onclick="closeProfileDrawer(); openBetHistory();" class="flex items-center justify-end gap-3.5 py-3.5 border-b border-[#243542] hover:text-[#24ee89] text-white transition font-semibold text-sm w-full text-right">
+          <button type="button" onclick="closeProfileDrawer(); openBetHistory();" class="flex items-center justify-end gap-3.5 py-2 hover:text-[#24ee89] text-white transition font-semibold text-sm w-full text-right">
             <span>My Bets</span>
             <i class="fa-solid fa-file-lines text-[#a9b3b5] w-5 text-center text-lg"></i>
           </button>
 
-          <a href="../account/settings.html" class="flex items-center justify-end gap-3.5 py-3.5 border-b border-[#243542] hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
+          <a href="../account/settings.html" class="flex items-center justify-end gap-3.5 py-2 hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
             <span>Settings</span>
             <i class="fa-solid fa-gear text-[#a9b3b5] w-5 text-center text-lg"></i>
           </a>
 
-          <a href="../account/stake-smart.html" class="flex items-center justify-end gap-3.5 py-3.5 border-b border-[#243542] hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
+          <a href="../account/stake-smart.html" class="flex items-center justify-end gap-3.5 py-2 hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
             <span>Stake Smart</span>
             <i class="fa-solid fa-shield-halved text-[#a9b3b5] w-5 text-center text-lg"></i>
           </a>
 
-          <a href="../account/support.html" class="flex items-center justify-end gap-3.5 py-3.5 border-b border-[#243542] hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
+          <a href="../account/support.html" class="flex items-center justify-end gap-3.5 py-2 hover:text-[#24ee89] text-white transition font-semibold text-sm text-right">
             <span>Live support</span>
             <i class="fa-solid fa-headset text-[#a9b3b5] w-5 text-center text-lg"></i>
           </a>
 
-          <button type="button" onclick="logoutUser()" class="flex items-center justify-end gap-3.5 py-3.5 hover:text-red-400 text-white transition font-semibold text-sm w-full text-right">
+          <button type="button" onclick="logoutUser()" class="flex items-center justify-end gap-3.5 py-2 hover:text-red-400 text-white transition font-semibold text-sm w-full text-right">
             <span>Logout</span>
             <i class="fa-solid fa-right-from-bracket text-[#a9b3b5] w-5 text-center text-lg"></i>
           </button>
         </div>
 
-        <div class="bg-[#0F212E] p-4 rounded-xl border border-[#243542] mt-4">
+        <div class="bg-[#0F212E] p-4 rounded-xl border border-[#243542] mt-3">
           <div class="flex justify-between items-center mb-3">
             <span class="text-xs text-[#FFFFFF]/70">Account Name</span>
             <span id="drawerUserName" class="font-bold text-sm text-[#24ee89]">Loading...</span>
