@@ -93,7 +93,7 @@
             <i class="fa-solid fa-circle-info text-[#24ee89]"></i> Calculation Rules
           </h2>
           <p class="text-xs text-[#a9b3b5] leading-relaxed">
-            নতুন ডিপোজিট বা বোনাস নেওয়ার পর টার্নওভার প্রোগ্রেস স্বয়ংক্রিয়ভাবে রিসেট হয়ে নতুন করে কাউন্ট শুরু হবে।
+            আপনার গেম খেলার হিস্ট্রি থেকে মোট বেট অ্যামাউন্ট স্বয়ংক্রিয়ভাবে হিসাব করে টার্নওভার প্রোগ্রেস দেখানো হচ্ছে। নতুন ডিপোজিট বা বোনাসের ক্ষেত্রে টার্নওভার রিসেট হবে।
           </p>
         </div>
 
@@ -159,23 +159,24 @@
 
         if (profileError) throw profileError;
 
-        // ২. Fetch deposits to find the exact timestamp of the latest deposit for resetting
+        // ২. Fetch deposits for breakdown list & finding the exact latest deposit timestamp for reset logic
         const { data: deposits, error: depositError } = await supabaseClient
           .from('deposits')
           .select('amount, payment_method, turnover_required, status, created_at')
           .eq('user_id', userId)
-          .order('created_at', { ascending: false })
-          .limit(10);
+          .order('created_at', { ascending: false });
 
         if (depositError) console.error('Error fetching deposits:', depositError);
 
-        // সর্বশেষ ডিপোজিটের সঠিক সময় বের করা
+        // সঠিক সর্বশেষ ডিপোজিটের সময় নির্ধারণ (রিসেট লজিক নিখুঁত করার জন্য)
         let latestDepositTime = 0;
-        if (deposits && deposits.length > 0) {
-          latestDepositTime = new Date(deposits[0].created_at).getTime();
+        const depositRows = deposits || [];
+        if (depositRows.length > 0) {
+          // সবচেয়ে শেষের ডিপোজিট রেকর্ডটি বেছে নেওয়া
+          latestDepositTime = new Date(depositRows[0].created_at).getTime();
         }
 
-        // ৩. Fetch original bets history
+        // ৩. Fetch original bets history and sum up bet_amount
         const { data: originalBets, error: originalError } = await supabaseClient
           .from('original_bets_history')
           .select('bet_amount, created_at')
@@ -183,7 +184,7 @@
 
         if (originalError) console.error('Error fetching original bets:', originalError);
 
--       // ৪. Fetch color game history
+        // ৪. Fetch color game history and sum up bet_amount
         const { data: colorBets, error: colorError } = await supabaseClient
           .from('color_game_history')
           .select('bet_amount, created_at')
@@ -191,13 +192,13 @@
 
         if (colorError) console.error('Error fetching color bets:', colorError);
 
-        // Calculate total completed turnover: strictly counting bets made AFTER the latest deposit time
+        // Calculate total completed turnover starting strictly from latest deposit time (Reset Logic)
         let totalCompletedTurnover = 0;
 
         if (originalBets && originalBets.length > 0) {
           totalCompletedTurnover += originalBets.reduce((sum, item) => {
             const betTime = item.created_at ? new Date(item.created_at).getTime() : 0;
-            // শুধুমাত্র সর্বশেষ ডিপোজিটের পরের বেটগুলো যোগ হবে, আগেরগুলো রিসেট হয়ে বাদ যাবে
+            // শুধুমাত্র সর্বশেষ ডিপোজিটের পরের গেমের বেটগুলো কাউন্ট হবে, আগেরগুলো স্বয়ংক্রিয়ভাবে বাদ (রিসেট) হয়ে যাবে
             if (betTime >= latestDepositTime) {
               return sum + Number(item.bet_amount || 0);
             }
@@ -238,14 +239,14 @@
           badgeStatus.className = 'bg-amber-500/20 text-amber-400 text-xs font-extrabold px-2.5 py-1 rounded-full border border-amber-500/30';
         }
 
-        // Render deposit items
+        // Render deposit items (limit to top 10 for view)
         const depositContainer = document.getElementById('depositListContainer');
-        const depositRows = deposits || [];
+        const limitedDeposits = depositRows.slice(0, 10);
 
-        if (depositRows.length === 0) {
+        if (limitedDeposits.length === 0) {
           depositContainer.innerHTML = '<p class="text-xs text-[#a9b3b5] text-center py-3">No deposit records found.</p>';
         } else {
-          depositContainer.innerHTML = depositRows.map(dep => {
+          depositContainer.innerHTML = limitedDeposits.map(dep => {
             const dateStr = dep.created_at ? new Date(dep.created_at).toLocaleDateString() : '';
             return `
               <div class="bg-[#0F212E] p-3 rounded-xl border border-[#243542] flex justify-between items-center">
