@@ -93,7 +93,7 @@
             <i class="fa-solid fa-circle-info text-[#24ee89]"></i> Calculation Rules
           </h2>
           <p class="text-xs text-[#a9b3b5] leading-relaxed">
-            আপনার গেম খেলার হিস্ট্রি থেকে মোট বেট অ্যামাউন্ট স্বয়ংক্রিয়ভাবে হিসাব করে টার্নওভার প্রোগ্রেস দেখানো হচ্ছে। নতুন ডিপোজিট বা বোনাসের ক্ষেত্রে টার্নওভার রিসেট হবে।
+            নতুন ডিপোজিট বা বোনাস নেওয়ার পর টার্নওভার প্রোগ্রেস স্বয়ংক্রিয়ভাবে রিসেট হয়ে নতুন করে কাউন্ট শুরু হবে।
           </p>
         </div>
 
@@ -159,7 +159,7 @@
 
         if (profileError) throw profileError;
 
-        // ২. Fetch deposits for breakdown list & finding the latest deposit timestamp for reset logic
+        // ২. Fetch deposits to find the exact timestamp of the latest deposit for resetting
         const { data: deposits, error: depositError } = await supabaseClient
           .from('deposits')
           .select('amount, payment_method, turnover_required, status, created_at')
@@ -169,13 +169,13 @@
 
         if (depositError) console.error('Error fetching deposits:', depositError);
 
-        // সর্বশেষ ডিপোজিটের সময় বের করা (যদি থাকে) যাতে ওই সময়ের পরের বেটগুলো দিয়ে রিসেট কাউন্ট হয়
-        let latestDepositTime = null;
+        // সর্বশেষ ডিপোজিটের সঠিক সময় বের করা
+        let latestDepositTime = 0;
         if (deposits && deposits.length > 0) {
           latestDepositTime = new Date(deposits[0].created_at).getTime();
         }
 
-        // ৩. Fetch original bets history and sum up bet_amount
+        // ৩. Fetch original bets history
         const { data: originalBets, error: originalError } = await supabaseClient
           .from('original_bets_history')
           .select('bet_amount, created_at')
@@ -183,7 +183,7 @@
 
         if (originalError) console.error('Error fetching original bets:', originalError);
 
-        // ৪. Fetch color game history and sum up bet_amount
+-       // ৪. Fetch color game history
         const { data: colorBets, error: colorError } = await supabaseClient
           .from('color_game_history')
           .select('bet_amount, created_at')
@@ -191,14 +191,14 @@
 
         if (colorError) console.error('Error fetching color bets:', colorError);
 
-        // Calculate total completed turnover with reset logic based on latest deposit time
+        // Calculate total completed turnover: strictly counting bets made AFTER the latest deposit time
         let totalCompletedTurnover = 0;
 
         if (originalBets && originalBets.length > 0) {
           totalCompletedTurnover += originalBets.reduce((sum, item) => {
             const betTime = item.created_at ? new Date(item.created_at).getTime() : 0;
-            // যদি সর্বশেষ ডিপোজিট থাকে, তবে শুধু ডিপোজিটের পরের বেটগুলো যোগ হবে (রিসেট লজিক)
-            if (!latestDepositTime || betTime >= latestDepositTime) {
+            // শুধুমাত্র সর্বশেষ ডিপোজিটের পরের বেটগুলো যোগ হবে, আগেরগুলো রিসেট হয়ে বাদ যাবে
+            if (betTime >= latestDepositTime) {
               return sum + Number(item.bet_amount || 0);
             }
             return sum;
@@ -208,7 +208,7 @@
         if (colorBets && colorBets.length > 0) {
           totalCompletedTurnover += colorBets.reduce((sum, item) => {
             const betTime = item.created_at ? new Date(item.created_at).getTime() : 0;
-            if (!latestDepositTime || betTime >= latestDepositTime) {
+            if (betTime >= latestDepositTime) {
               return sum + Number(item.bet_amount || 0);
             }
             return sum;
