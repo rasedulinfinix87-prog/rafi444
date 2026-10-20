@@ -43,6 +43,29 @@
     .theme-switch button.active { background:#1A2C38; color:#FFFFFF; box-shadow:0 1px 3px #1116; }
     #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
     #bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; }
+
+    /* Bet History modal */
+    #betHistoryModal { position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; padding:12px; background:rgba(0,0,0,.72); }
+    #betHistoryModal.show { display:flex; }
+    .bh-modal { width:100%; max-width:560px; max-height:88dvh; display:flex; flex-direction:column; background:#202628; color:#f5f7f8; border:1px solid #343b3d; border-radius:16px; overflow:hidden; box-shadow:0 20px 60px #0009; }
+    .bh-head { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; background:#303638; border-bottom:1px solid #3a4143; }
+    .bh-head h2 { font-size:19px; font-weight:750; margin:0; }
+    .bh-close { width:34px; height:34px; border-radius:50%; background:#41494b; color:white; font-size:19px; }
+    .bh-content { overflow:auto; padding:16px; }
+    .bh-filters { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .bh-select { width:100%; min-width:0; appearance:auto; background:#252b2d; color:#f4f5f5; border:1px solid #3a4244; border-radius:9px; padding:13px 10px; font-size:14px; outline:none; }
+    .bh-help { display:inline-block; margin:16px 2px; color:#b7c0c2; text-decoration:underline; font-size:13px; }
+    .bh-table-head { display:flex; justify-content:space-between; align-items:center; padding:14px 15px; border-radius:12px; background:#292f31; font-size:14px; font-weight:650; }
+    #betHistoryList { min-height:190px; }
+    .bh-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; padding:13px 10px; border-bottom:1px solid #343b3d; align-items:center; }
+    .bh-primary { font-size:14px; font-weight:650; overflow-wrap:anywhere; }
+    .bh-muted { font-size:11px; color:#a9b3b5; margin-top:5px; }
+    .bh-amount { font-size:14px; text-align:right; font-weight:700; white-space:nowrap; }
+    .bh-status { display:inline-block; margin-top:5px; font-size:11px; color:#b9c3c4; text-transform:capitalize; }
+    .bh-empty { display:flex; min-height:245px; align-items:center; justify-content:center; flex-direction:column; text-align:center; gap:12px; color:#d7dddd; padding:22px 10px; }
+    .bh-empty i { font-size:48px; color:#586365; }
+    .bh-loading { color:#c6cecf; text-align:center; padding:35px 10px; }
+    @media (max-width:360px) { .bh-content { padding:12px; } .bh-select { padding:11px 7px; font-size:12px; } }
   </style>
 </head>
 
@@ -101,7 +124,7 @@
           <a href="../account/vault.html" class="shortcut"><i class="fa-solid fa-vault"></i><span>Vault Pro</span></a>
           <a href="../account/transactions.html" class="shortcut"><i class="fa-solid fa-receipt"></i><span>Transaction</span></a>
           <a href="../account/rollover.html" class="shortcut"><i class="fa-solid fa-chart-column"></i><span>Rollover</span></a>
-          <a href="../account/bet-history.html" class="shortcut"><i class="fa-solid fa-clock-rotate-left"></i><span>Bet History</span></a>
+          <button type="button" class="shortcut" onclick="openBetHistory()"><i class="fa-solid fa-clock-rotate-left"></i><span>Bet History</span></button>
           <a href="../account/free-plays.html" class="shortcut"><i class="fa-solid fa-coins"></i><span>Free Plays</span></a>
         </div>
       </section>
@@ -165,7 +188,186 @@
     <div id="bottomBarContainer"></div>
   </div>
 
+
+  <!-- Bet History Modal -->
+  <div id="betHistoryModal" role="dialog" aria-modal="true" aria-labelledby="betHistoryTitle" onclick="if(event.target===this) closeBetHistory()">
+    <section class="bh-modal">
+      <header class="bh-head">
+        <h2 id="betHistoryTitle">Transactions</h2>
+        <button type="button" class="bh-close" onclick="closeBetHistory()" aria-label="Close Bet History"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="bh-content">
+        <div class="bh-filters">
+          <select id="bhAssetFilter" class="bh-select" aria-label="Asset filter" onchange="loadBetHistory()">
+            <option value="all">All Assets</option>
+            <option value="original">Original Games</option>
+            <option value="color">Color Game</option>
+          </select>
+          <select id="bhTypeFilter" class="bh-select" aria-label="Type filter" onchange="loadBetHistory()">
+            <option value="all">All Type</option>
+            <option value="won">Won</option>
+            <option value="lost">Lost</option>
+            <option value="pending">Pending</option>
+          </select>
+          <select id="bhTimeFilter" class="bh-select" aria-label="Time filter" onchange="loadBetHistory()">
+            <option value="24">Past 24 hours</option>
+            <option value="7">Past 7 days</option>
+            <option value="30">Past 30 days</option>
+            <option value="all">All time</option>
+          </select>
+          <select id="bhSortFilter" class="bh-select" aria-label="Sort order" onchange="loadBetHistory()">
+            <option value="new">Newest first</option>
+            <option value="old">Oldest first</option>
+          </select>
+        </div>
+        <a href="#" class="bh-help" onclick="event.preventDefault(); alert('If a bet record is missing, please contact support.');"><i class="fa-regular fa-circle-question"></i> Bet history issues or disputes</a>
+        <div class="bh-table-head"><span>Transaction</span><span>Amount</span></div>
+        <div id="betHistoryList"><div class="bh-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading bet history...</div></div>
+      </div>
+    </section>
+  </div>
+
   <script>
+
+    let betHistoryRequestToken = 0;
+
+    function openBetHistory() {
+      const modal = document.getElementById('betHistoryModal');
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      loadBetHistory();
+    }
+
+    function closeBetHistory() {
+      document.getElementById('betHistoryModal').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') closeBetHistory();
+    });
+
+    function bhEscape(value) {
+      return String(value ?? '').replace(/[&<>"']/g, function(char) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]);
+      });
+    }
+
+    function bhMoney(value) {
+      const number = Number(value || 0);
+      return '৳' + number.toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function bhStatusClass(status) {
+      const value = String(status || 'unknown').toLowerCase();
+      if (['won','win','success','completed'].includes(value)) return 'color:#2ed573';
+      if (['lost','loss','failed'].includes(value)) return 'color:#ff7474';
+      return 'color:#f5cf66';
+    }
+
+    async function loadBetHistory() {
+      const list = document.getElementById('betHistoryList');
+      const token = ++betHistoryRequestToken;
+      list.innerHTML = '<div class="bh-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading bet history...</div>';
+
+      try {
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) {
+          list.innerHTML = '<div class="bh-empty"><i class="fa-regular fa-user"></i><div>Please log in to view bet history.</div></div>';
+          return;
+        }
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
+        if (!userId) {
+          list.innerHTML = '<div class="bh-empty"><i class="fa-regular fa-user"></i><div>User session is invalid. Please log in again.</div></div>';
+          return;
+        }
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+          throw new Error('Supabase client is unavailable. Check supabase-config.js.');
+        }
+
+        const asset = document.getElementById('bhAssetFilter').value;
+        const type = document.getElementById('bhTypeFilter').value;
+        const time = document.getElementById('bhTimeFilter').value;
+        const sort = document.getElementById('bhSortFilter').value;
+        let queryOriginal = null;
+        let queryColor = null;
+
+        if (asset !== 'color') {
+          queryOriginal = supabaseClient.from('original_bets_history')
+            .select('id,user_id,game_name,bet_amount,payout,multiplier,status,game_details,created_at')
+            .eq('user_id', userId);
+        }
+        if (asset !== 'original') {
+          queryColor = supabaseClient.from('color_game_history')
+            .select('id,user_id,period_number,bet_type,bet_amount,winning_result,payout,status,created_at,t_30_second_timer,t_1_minute_timer,t_5_minute_timer')
+            .eq('user_id', userId);
+        }
+
+        const [originalResult, colorResult] = await Promise.all([
+          queryOriginal ? queryOriginal : Promise.resolve({data:[],error:null}),
+          queryColor ? queryColor : Promise.resolve({data:[],error:null})
+        ]);
+        if (token !== betHistoryRequestToken) return;
+
+        const errors = [originalResult.error, colorResult.error].filter(Boolean);
+        let rows = [];
+        (originalResult.data || []).forEach(item => rows.push({...item, _source:'original', _game:item.game_name || 'Original Game'}));
+        (colorResult.data || []).forEach(item => rows.push({...item, _source:'color', _game:'Color Game', _detail:(item.bet_type || 'Bet') + (item.period_number ? ' · Period ' + item.period_number : '')}));
+
+        if (time !== 'all') {
+          const cutoff = Date.now() - Number(time) * (time === '24' ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000);
+          rows = rows.filter(item => item.created_at && new Date(item.created_at).getTime() >= cutoff);
+        }
+        if (type !== 'all') {
+          rows = rows.filter(item => {
+            const status = String(item.status || 'pending').toLowerCase();
+            if (type === 'won') return ['won','win','success','completed'].includes(status);
+            if (type === 'lost') return ['lost','loss','failed'].includes(status);
+            return status === 'pending';
+          });
+        }
+        rows.sort((a,b) => {
+          const diff = new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+          return sort === 'old' ? diff : -diff;
+        });
+
+        if (rows.length === 0) {
+          const message = errors.length
+            ? 'Could not load history. Check table permissions and Supabase RLS policies.'
+            : 'Stay tuned—something’s coming!';
+          list.innerHTML = '<div class="bh-empty"><i class="fa-solid fa-ghost"></i><div>' + bhEscape(message) + '</div></div>';
+          if (errors.length) console.error('Bet history query error:', errors);
+          return;
+        }
+
+        list.innerHTML = rows.map(item => {
+          const date = item.created_at ? new Date(item.created_at).toLocaleString() : 'Date unavailable';
+          const status = item.status || 'pending';
+          const bet = Number(item.bet_amount || 0);
+          const payout = Number(item.payout || 0);
+          const multiplier = item.multiplier !== null && item.multiplier !== undefined ? ' · ' + Number(item.multiplier).toLocaleString() + 'x' : '';
+          const detail = item._source === 'color'
+            ? (item._detail || 'Color Game') + (item.winning_result ? ' · Result: ' + item.winning_result : '')
+            : (item.game_details && typeof item.game_details === 'object' ? (item.game_details.result || item.game_details.bet_type || '') : '');
+          return '<div class="bh-row">' +
+            '<div><div class="bh-primary">' + bhEscape(item._game) + '</div>' +
+            '<div class="bh-muted">' + bhEscape(detail) + '</div>' +
+            '<div class="bh-muted">' + bhEscape(date) + multiplier + '</div>' +
+            '<span class="bh-status" style="' + bhStatusClass(status) + '">' + bhEscape(status) + '</span></div>' +
+            '<div class="bh-amount">' + bhMoney(payout) +
+            '<div class="bh-muted">Bet ' + bhMoney(bet) + '</div></div></div>';
+        }).join('');
+
+        if (errors.length) console.error('Some bet history records could not be loaded:', errors);
+      } catch (error) {
+        console.error('Bet history loading error:', error);
+        if (token === betHistoryRequestToken) {
+          list.innerHTML = '<div class="bh-empty"><i class="fa-solid fa-triangle-exclamation"></i><div>Unable to load bet history. Please try again.</div><button type="button" onclick="loadBetHistory()" class="px-4 py-2 rounded-lg bg-[#343d3f]">Retry</button></div>';
+        }
+      }
+    }
+
     async function copyGameId() {
       const gameId = document.getElementById('userGameId').textContent.trim();
 
