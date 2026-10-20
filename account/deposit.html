@@ -1024,7 +1024,7 @@
       }
     }
 
-    // ১০০% সিকিউরড কিউ ভিত্তিক সাবমিট লজিক (নতুন active_turnover_required এবং last_deposit_turnover_required কলাম আপডেট করার জন্য)
+    // ১০০% সিকিউরড কিউ ভিত্তিক সাবমিট লজিক (রিসেট বা বকেয়া রাখার সঠিক সংশোধিত সংস্করণ)
     async function submitDeposit() {
       if (isSubmitting) return;
 
@@ -1097,19 +1097,20 @@
             return;
           }
 
-          // profiles টেবিলের active_turnover_required এবং last_deposit_turnover_required আপডেট করার লজিক
+          // profiles টেবিলের active_turnover_required এবং last_deposit_turnover_required আপডেট করার সংশোধিত লজিক
           let updated = false;
           let retries = 3;
 
           while (!updated && retries > 0) {
             const { data: currentProfile, error: profileFetchError } = await supabaseClient
               .from('profiles')
-              .select('active_turnover_required')
+              .select('active_turnover_required, last_deposit_turnover_required')
               .eq('id', currentUserId)
               .maybeSingle();
 
             if (!profileFetchError) {
               const existingRequired = Number(currentProfile?.active_turnover_required || 0);
+              const prevLastDepositReq = Number(currentProfile?.last_deposit_turnover_required || 0);
 
               // গেম হিস্ট্রি থেকে টোটাল কমপ্লিটেড টার্নওভার হিসাব করা
               const [originalRes, colorRes] = await Promise.all([
@@ -1126,21 +1127,25 @@
               }
 
               let newActiveTurnover = 0;
-              const newDepositTurnover = Number(calculation.turnoverRequired);
+              let newLastDepositTurnover = Number(calculation.turnoverRequired);
 
-              // যদি আগের টার্নওভার বকেয়া থাকে, তবে যোগ হবে। আর কমপ্লিট হয়ে গেলে রিসেট হয়ে নতুন ডিপোজিটেরটা বসবে।
+              // যদি আগের টার্নওভার বকেয়া থাকে (কমপ্লিট না হয়ে থাকে), তবে আগের বকেয়ার সাথে নতুন রিকোয়ারমেন্ট যোগ হবে।
+              // আর যদি আগের টার্নওভার পুরোপুরি কমপ্লিট হয়ে গিয়ে থাকে, তবে আগের last_deposit_turnover_required মানটি সুরক্ষিত থাকবে এবং নতুন ডিপোজিটের রিকোয়ারমেন্ট যুক্ত হবে।
               if (existingRequired > 0 && totalCompleted < existingRequired) {
-                newActiveTurnover = existingRequired + newDepositTurnover;
+                newActiveTurnover = existingRequired + newLastDepositTurnover;
+                // বকেয়া থাকলে পূর্বের শেষ ডিপোজিটের মান অক্ষুণ্ণ রাখা বা সামঞ্জস্য রাখা
+                newLastDepositTurnover = prevLastDepositReq > 0 ? prevLastDepositReq : newLastDepositTurnover;
               } else {
-                newActiveTurnover = newDepositTurnover;
+                // কমপ্লিট হয়ে গেলে নতুন সাইকেল শুরু হবে
+                newActiveTurnover = newLastDepositTurnover;
               }
 
-              // active_turnover_required এবং নতুন last_deposit_turnover_required কলাম একসাথে আপডেট করা হলো
+              // active_turnover_required এবং last_deposit_turnover_required একসাথে আপডেট করা হলো যাতে রিসেটজনিত সমস্যা না হয়
               const { error: updateError } = await supabaseClient
                 .from('profiles')
                 .update({ 
                   active_turnover_required: newActiveTurnover,
-                  last_deposit_turnover_required: newDepositTurnover 
+                  last_deposit_turnover_required: newLastDepositTurnover 
                 })
                 .eq('id', currentUserId);
 
