@@ -69,6 +69,33 @@
     .bh-loading { color:#c6cecf; text-align:center; padding:35px 10px; }
     @media (max-width:360px) { .bh-content { padding:12px; } .bh-select { padding:11px 7px; font-size:12px; } }
 
+    /* Full-screen Deposit / Withdrawal Transactions modal */
+    #transactionsModal { position:fixed; inset:0; z-index:10002; display:none; background:#202628; color:#f5f7f8; }
+    #transactionsModal.show { display:flex; }
+    .tx-modal { width:100%; height:100%; height:100dvh; display:flex; flex-direction:column; overflow:hidden; background:#202628; }
+    .tx-head { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; background:#303638; border-bottom:1px solid #3a4143; }
+    .tx-head h2 { font-size:20px; font-weight:750; margin:0; }
+    .tx-close { width:36px; height:36px; border-radius:50%; background:#41494b; color:white; font-size:20px; }
+    .tx-content { flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; padding:16px; padding-bottom:max(20px,env(safe-area-inset-bottom)); }
+    .tx-filters { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .tx-select { width:100%; min-width:0; appearance:auto; background:#252b2d; color:#f4f5f5; border:1px solid #3a4244; border-radius:9px; padding:13px 10px; font-size:14px; outline:none; }
+    .tx-table-head { display:flex; justify-content:space-between; align-items:center; padding:14px 15px; border-radius:12px; background:#292f31; font-size:14px; font-weight:700; margin-top:8px; }
+    #transactionsList { min-height:190px; }
+    .tx-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; padding:15px 8px; border-bottom:1px solid #343b3d; align-items:center; }
+    .tx-primary { font-size:14px; font-weight:700; overflow-wrap:anywhere; }
+    .tx-muted { font-size:11px; color:#a9b3b5; margin-top:5px; overflow-wrap:anywhere; }
+    .tx-amount { font-size:15px; text-align:right; font-weight:800; white-space:nowrap; }
+    .tx-amount.deposit { color:#2ed573; }
+    .tx-amount.withdrawal { color:#ff7474; }
+    .tx-status { display:inline-block; margin-top:6px; font-size:11px; text-transform:capitalize; }
+    .tx-status.approved,.tx-status.completed,.tx-status.success,.tx-status.paid { color:#2ed573; }
+    .tx-status.rejected,.tx-status.failed,.tx-status.cancelled { color:#ff7474; }
+    .tx-status.pending,.tx-status.processing { color:#f5cf66; }
+    .tx-empty { display:flex; min-height:220px; align-items:center; justify-content:center; flex-direction:column; text-align:center; gap:12px; color:#d7dddd; padding:22px 10px; }
+    .tx-empty i { font-size:44px; color:#586365; }
+    .tx-loading { color:#c6cecf; text-align:center; padding:35px 10px; }
+    @media (max-width:360px) { .tx-content { padding:12px; } .tx-select { padding:11px 7px; font-size:12px; } }
+
     /* Full-screen Rollover modal */
     #rolloverModal { position:fixed; inset:0; z-index:10001; display:none; background:#202628; color:#f5f7f8; }
     #rolloverModal.show { display:flex; }
@@ -145,7 +172,7 @@
       <section class="menu-card px-3 py-3">
         <div class="grid grid-cols-4 gap-x-1 gap-y-2">
           <a href="../account/vault.html" class="shortcut"><i class="fa-solid fa-vault"></i><span>Vault Pro</span></a>
-          <a href="../account/transactions.html" class="shortcut"><i class="fa-solid fa-receipt"></i><span>Transaction</span></a>
+          <button type="button" class="shortcut" onclick="openTransactions()"><i class="fa-solid fa-receipt"></i><span>Transaction</span></button>
           <button type="button" class="shortcut" onclick="openRollover()"><i class="fa-solid fa-chart-column"></i><span>Rollover</span></button>
           <button type="button" class="shortcut" onclick="openBetHistory()"><i class="fa-solid fa-clock-rotate-left"></i><span>Bet History</span></button>
           <a href="../account/free-plays.html" class="shortcut"><i class="fa-solid fa-coins"></i><span>Free Plays</span></a>
@@ -250,6 +277,46 @@
     </section>
   </div>
 
+  <!-- Full-screen Deposit / Withdrawal Transactions Modal -->
+  <div id="transactionsModal" role="dialog" aria-modal="true" aria-labelledby="transactionsTitle" onclick="if(event.target===this) closeTransactions()">
+    <section class="tx-modal">
+      <header class="tx-head">
+        <h2 id="transactionsTitle">Transactions</h2>
+        <button type="button" class="tx-close" onclick="closeTransactions()" aria-label="Close Transactions"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="tx-content">
+        <div class="tx-filters">
+          <select id="txTypeFilter" class="tx-select" aria-label="Transaction type" onchange="loadTransactions()">
+            <option value="all">All Transactions</option>
+            <option value="deposit">Deposits</option>
+            <option value="withdrawal">Withdrawals</option>
+          </select>
+          <select id="txStatusFilter" class="tx-select" aria-label="Transaction status" onchange="loadTransactions()">
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="completed">Completed</option>
+            <option value="rejected">Rejected</option>
+            <option value="failed">Failed</option>
+          </select>
+          <select id="txTimeFilter" class="tx-select" aria-label="Time period" onchange="loadTransactions()">
+            <option value="24">Past 24 hours</option>
+            <option value="7">Past 7 days</option>
+            <option value="30">Past 30 days</option>
+            <option value="all">All time</option>
+          </select>
+          <select id="txSortFilter" class="tx-select" aria-label="Sort order" onchange="loadTransactions()">
+            <option value="new">Newest first</option>
+            <option value="old">Oldest first</option>
+          </select>
+        </div>
+        <div class="bh-help"><i class="fa-regular fa-circle-info"></i> Deposit and withdrawal history</div>
+        <div class="tx-table-head"><span>Transaction</span><span>Amount</span></div>
+        <div id="transactionsList"><div class="tx-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading transactions...</div></div>
+      </div>
+    </section>
+  </div>
+
   <!-- Full-screen Rollover Modal -->
   <div id="rolloverModal" role="dialog" aria-modal="true" aria-labelledby="rolloverTitle" onclick="if(event.target===this) closeRollover()">
     <section class="ro-modal">
@@ -310,7 +377,7 @@
     }
 
     document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape') { closeBetHistory(); closeRollover(); }
+      if (event.key === 'Escape') { closeBetHistory(); closeRollover(); closeTransactions(); }
     });
 
     function bhEscape(value) {
@@ -443,6 +510,108 @@
           list.innerHTML = '<div class="bh-empty"><i class="fa-solid fa-triangle-exclamation"></i><div>Unable to load bet history. Please try again.</div><button type="button" onclick="loadBetHistory()" class="px-4 py-2 rounded-lg bg-[#343d3f]">Retry</button></div>';
         }
       }
+    }
+
+    let transactionsRequestToken = 0;
+
+    function openTransactions() {
+      document.getElementById('transactionsModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+      loadTransactions();
+    }
+
+    function closeTransactions() {
+      document.getElementById('transactionsModal').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    async function loadTransactions() {
+      const list = document.getElementById('transactionsList');
+      const token = ++transactionsRequestToken;
+      list.innerHTML = '<div class="tx-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading transactions...</div>';
+      try {
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) {
+          list.innerHTML = '<div class="tx-empty"><i class="fa-regular fa-user"></i><div>Please log in to view your transactions.</div></div>';
+          return;
+        }
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
+        if (!userId) throw new Error('User session is invalid. Please log in again.');
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) throw new Error('Supabase client is unavailable. Check supabase-config.js.');
+
+        const type = document.getElementById('txTypeFilter').value;
+        const statusFilter = document.getElementById('txStatusFilter').value.toLowerCase();
+        const time = document.getElementById('txTimeFilter').value;
+        const sort = document.getElementById('txSortFilter').value;
+        let depositQuery = null;
+        let withdrawalQuery = null;
+
+        if (type !== 'withdrawal') {
+          depositQuery = supabaseClient.from('deposits')
+            .select('id,user_id,amount,payment_method,transection_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
+            .eq('user_id', userId).order('created_at', {ascending:false}).limit(500);
+        }
+        if (type !== 'deposit') {
+          withdrawalQuery = supabaseClient.from('withdrawals')
+            .select('id,user_id,amount,payment_method,account_number,status,created_at')
+            .eq('user_id', userId).order('created_at', {ascending:false}).limit(500);
+        }
+        const [depositResult, withdrawalResult] = await Promise.all([
+          depositQuery || Promise.resolve({data:[],error:null}),
+          withdrawalQuery || Promise.resolve({data:[],error:null})
+        ]);
+        if (token !== transactionsRequestToken) return;
+        const errors = [depositResult.error, withdrawalResult.error].filter(Boolean);
+        let rows = [];
+        (depositResult.data || []).forEach(item => rows.push({...item, _type:'deposit', _label:'Deposit'}));
+        (withdrawalResult.data || []).forEach(item => rows.push({...item, _type:'withdrawal', _label:'Withdrawal'}));
+
+        if (time !== 'all') {
+          const hours = time === '24' ? 24 : Number(time) * 24;
+          const cutoff = Date.now() - hours * 60 * 60 * 1000;
+          rows = rows.filter(item => item.created_at && new Date(item.created_at).getTime() >= cutoff);
+        }
+        if (statusFilter !== 'all') {
+          rows = rows.filter(item => String(item.status || 'pending').toLowerCase() === statusFilter);
+        }
+        rows.sort((a,b) => {
+          const diff = new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+          return sort === 'old' ? diff : -diff;
+        });
+
+        if (!rows.length) {
+          const message = errors.length ? 'Could not load transactions. Check Supabase table permissions and RLS policies.' : 'No transactions found for the selected filters.';
+          list.innerHTML = '<div class="tx-empty"><i class="fa-solid fa-receipt"></i><div>' + bhEscape(message) + '</div>' + (errors.length ? '<button type="button" onclick="loadTransactions()" class="px-4 py-2 rounded-lg bg-[#343d3f]">Retry</button>' : '') + '</div>';
+          if (errors.length) console.error('Transaction query errors:', errors);
+          return;
+        }
+
+        list.innerHTML = rows.map(item => {
+          const date = item.created_at ? new Date(item.created_at).toLocaleString() : 'Date unavailable';
+          const amount = Number(item.amount || 0);
+          const status = String(item.status || 'pending');
+          const normalizedStatus = status.toLowerCase().replace(/[^a-z0-9_-]/g, '');
+          const method = item.payment_method || (item._type === 'deposit' ? 'Deposit' : 'Withdrawal');
+          const detailParts = [method];
+          if (item._type === 'deposit' && item.transection_id) detailParts.push('Transaction ID: ' + item.transection_id);
+          if (item._type === 'withdrawal' && item.account_number) detailParts.push('Account: ' + item.account_number);
+          if (item._type === 'deposit' && Number(item.bonus_amount || 0) > 0) detailParts.push('Bonus: ' + txMoney(item.bonus_amount));
+          return '<div class="tx-row"><div><div class="tx-primary">' + bhEscape(item._label) + '</div>' +
+            '<div class="tx-muted">' + bhEscape(detailParts.join(' · ')) + '</div>' +
+            '<div class="tx-muted">' + bhEscape(date) + '</div>' +
+            '<span class="tx-status ' + bhEscape(normalizedStatus) + '">' + bhEscape(status) + '</span></div>' +
+            '<div class="tx-amount ' + item._type + '">' + (item._type === 'deposit' ? '+ ' : '- ') + txMoney(amount) + '</div></div>';
+        }).join('');
+        if (errors.length) console.error('Some transactions could not be loaded:', errors);
+      } catch (error) {
+        console.error('Transaction loading error:', error);
+        if (token === transactionsRequestToken) list.innerHTML = '<div class="tx-empty"><i class="fa-solid fa-triangle-exclamation"></i><div>' + bhEscape(error.message || 'Unable to load transactions.') + '</div><button type="button" onclick="loadTransactions()" class="px-4 py-2 rounded-lg bg-[#343d3f]">Retry</button></div>';
+      }
+    }
+
+    function txMoney(value) {
+      return '৳' + Number(value || 0).toLocaleString('en-BD', {minimumFractionDigits:2, maximumFractionDigits:2});
     }
 
     function roMoney(value) {
