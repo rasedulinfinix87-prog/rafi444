@@ -1,3 +1,10 @@
+আপনার `deposit (1).html` ফাইলের মূল কোডের গঠন, স্ক্রিপ্টিং এবং ব্যাকএন্ড/ডাটাবেস লজিক হুবহু ঠিক রেখে secure সাদা কালারের প্রতীক (Shield Icon) সহ ৪ সেকেন্ডের মসৃণ অ্যানিমেশন স্ক্রিন যোগ করা হয়েছে। 
+
+এই অ্যানিমেশন চলাকালীন সময়েই ব্যাকগ্রাউন্ডে Supabase থেকে ডিপোজিট পেইজের সমস্ত প্রয়োজনীয় ডাটা লোড সম্পন্ন হবে এবং ৪ সেকেন্ড পর মসৃণভাবে (Smooth fade-out/in) মূল পেইজটি দেখা যাবে।
+
+সম্পূর্ণ আপডেট করা HTML কোড নিচে দেওয়া হলো:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,6 +47,45 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #07131d; }
     ::-webkit-scrollbar-thumb { background: #263d4d; border-radius: 8px; }
+
+    /* Secure Loader Overlay & Animations */
+    #secureLoader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #202626;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+    }
+    #secureLoader.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .pulse-glow {
+      animation: pulseGlow 1.8s infinite ease-in-out;
+    }
+    @keyframes pulseGlow {
+      0%, 100% {
+        transform: scale(0.96);
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2));
+      }
+      50% {
+        transform: scale(1.06);
+        filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.7));
+      }
+    }
+
+    #pageContent {
+      opacity: 0;
+      transition: opacity 0.6s ease-in;
+    }
+    #pageContent.fade-in {
+      opacity: 1;
+    }
+
     .deposit-shell {
       width: min(100% - 24px, 760px);
       margin: 22px auto 34px;
@@ -435,118 +481,131 @@
 </head>
 
 <body class="min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
-  <header class="topbar px-4 py-3.5 flex justify-between items-center sticky top-0 z-40">
-    <a href="profile.html" class="text-sm text-slate-200 hover:text-white transition flex items-center gap-2 font-semibold">← Profile</a>
-    <span class="font-black text-sm text-[#24ee89] tracking-wide uppercase">Deposit</span>
-    <div class="w-12"></div>
-  </header>
 
-  <main class="deposit-shell flex-1">
-    <div id="alertBox" class="hidden alert-box p-3 rounded-xl text-sm font-semibold shadow-md transition-all"></div>
+  <!-- 4-SECOND SECURE LOADER ANIMATION OVERLAY -->
+  <div id="secureLoader">
+    <div class="pulse-glow flex flex-col items-center justify-center space-y-4">
+      <svg class="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+      </svg>
+      <span class="text-white text-sm font-semibold tracking-widest uppercase">Secure Deposit Gateway</span>
+    </div>
+  </div>
 
-    <section class="section-block">
-      <div class="currency-row">
-        <div class="flex items-center gap-3">
-          <span class="heading-icon">৳</span>
+  <div id="pageContent" class="flex-1 flex flex-col">
+    <header class="topbar px-4 py-3.5 flex justify-between items-center sticky top-0 z-40">
+      <a href="profile.html" class="text-sm text-slate-200 hover:text-white transition flex items-center gap-2 font-semibold">← Profile</a>
+      <span class="font-black text-sm text-[#24ee89] tracking-wide uppercase">Deposit</span>
+      <div class="w-12"></div>
+    </header>
+
+    <main class="deposit-shell flex-1">
+      <div id="alertBox" class="hidden alert-box p-3 rounded-xl text-sm font-semibold shadow-md transition-all"></div>
+
+      <section class="section-block">
+        <div class="currency-row">
+          <div class="flex items-center gap-3">
+            <span class="heading-icon">৳</span>
+            <div>
+              <div class="heading-title">Currency</div>
+              <div class="heading-subtitle"> </div>
+            </div>
+          </div>
+          <div class="currency-select">
+            <span class="currency-coin">৳</span>
+            <span>BDT</span>
+            <span class="text-slate-300 ml-2">⌄</span>
+          </div>
+        </div>
+
+        <div class="section-heading">
+          <span class="heading-icon">▤</span>
           <div>
-            <div class="heading-title">Currency</div>
+            <div class="heading-title">Deposit Method</div>
             <div class="heading-subtitle"> </div>
           </div>
         </div>
-        <div class="currency-select">
-          <span class="currency-coin">৳</span>
-          <span>BDT</span>
-          <span class="text-slate-300 ml-2">⌄</span>
+
+        <div class="method-grid" id="methodGrid">
+          <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card border-[#24ee89] border-2">
+            <span class="method-logo"><span class="text-pink-500">bKash</span> <span class="text-pink-500 text-2xl">➤</span></span>
+            <span class="method-label">BKASH ↗</span>
+          </button>
+          <button type="button" onclick="selectMethod('Nagad')" id="method-Nagad" class="method-card">
+            <span class="method-logo"><span class="text-orange-400">নগদ 🔥</span></span>
+            <span class="method-label">NAGAD ↗</span>
+          </button>
+          <button type="button" onclick="selectMethod('Rocket')" id="method-Rocket" class="method-card">
+            <span class="method-logo"><span class="text-purple-400">ROCKET</span></span>
+            <span class="method-label">ROCKET ↗</span>
+          </button>
         </div>
-      </div>
+      </section>
 
-      <div class="section-heading">
-        <span class="heading-icon">▤</span>
-        <div>
-          <div class="heading-title">Deposit Method</div>
-          <div class="heading-subtitle"> </div>
-        </div>
-      </div>
-
-      <div class="method-grid" id="methodGrid">
-        <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card border-[#24ee89] border-2">
-          <span class="method-logo"><span class="text-pink-500">bKash</span> <span class="text-pink-500 text-2xl">➤</span></span>
-          <span class="method-label">BKASH ↗</span>
-        </button>
-        <button type="button" onclick="selectMethod('Nagad')" id="method-Nagad" class="method-card">
-          <span class="method-logo"><span class="text-orange-400">নগদ 🔥</span></span>
-          <span class="method-label">NAGAD ↗</span>
-        </button>
-        <button type="button" onclick="selectMethod('Rocket')" id="method-Rocket" class="method-card">
-          <span class="method-logo"><span class="text-purple-400">ROCKET</span></span>
-          <span class="method-label">ROCKET ↗</span>
-        </button>
-      </div>
-    </section>
-
-    <section class="section-block">
-      <div class="section-heading">
-        <span class="heading-icon">৳</span>
-        <div>
-          <div class="heading-title">Deposit Amount</div>
-          <div class="heading-subtitle"> </div>
-        </div>
-      </div>
-
-      <div class="amount-entry">
-        <input type="number" id="customAmount" min="100" max="25000" step="1" placeholder="100 - 25,000 BDT" aria-label="Deposit amount">
-        <div class="bonus-extra">🎁 Extra Bonus</div>
-      </div>
-
-      <div class="amount-grid">
-        <button type="button" onclick="setAmount(100)" class="amount-btn">৳ 100</button>
-        <button type="button" onclick="setAmount(200)" class="amount-btn">৳ 200</button>
-        <button type="button" onclick="setAmount(500)" class="amount-btn">৳ 500</button>
-        <button type="button" onclick="setAmount(1000)" class="amount-btn">৳ 1,000</button>
-        <button type="button" onclick="setAmount(2000)" class="amount-btn">৳ 2,000</button>
-        <button type="button" onclick="setAmount(5000)" class="amount-btn">৳ 5,000</button>
-        <button type="button" onclick="setAmount(10000)" class="amount-btn">৳ 10,000</button>
-        <button type="button" onclick="setAmount(25000)" class="amount-btn">৳ 25,000</button>
-      </div>
-    </section>
-
-    <section class="section-block">
-      <div class="flex items-center justify-between gap-3 mb-4">
-        <div class="section-heading !mb-0">
-          <span class="heading-icon">🎁</span>
+      <section class="section-block">
+        <div class="section-heading">
+          <span class="heading-icon">৳</span>
           <div>
-            <div class="heading-title">Deposit Bonus</div>
-            <div class="heading-subtitle">Choose an available bonus</div>
+            <div class="heading-title">Deposit Amount</div>
+            <div class="heading-subtitle"> </div>
           </div>
         </div>
-        <span class="text-xs text-slate-400">Optional</span>
-      </div>
 
-      <div id="bonusGrid" class="grid grid-cols-2 gap-3">
-        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
-          <div class="text-sm font-black text-white">No Bonus</div>
-        </button>
-      </div>
-      <p id="bonusLoading" class="text-xs text-slate-400 mt-3">Loading available bonuses...</p>
+        <div class="amount-entry">
+          <input type="number" id="customAmount" min="100" max="25000" step="1" placeholder="100 - 25,000 BDT" aria-label="Deposit amount">
+          <div class="bonus-extra">🎁 Extra Bonus</div>
+        </div>
 
-      <div class="calculation-panel mt-5">
-        <div class="summary-row">
-          <span class="text-slate-300">Deposit Amount</span>
-          <span id="summaryDeposit" class="font-bold text-white">৳0.00</span>
+        <div class="amount-grid">
+          <button type="button" onclick="setAmount(100)" class="amount-btn">৳ 100</button>
+          <button type="button" onclick="setAmount(200)" class="amount-btn">৳ 200</button>
+          <button type="button" onclick="setAmount(500)" class="amount-btn">৳ 500</button>
+          <button type="button" onclick="setAmount(1000)" class="amount-btn">৳ 1,000</button>
+          <button type="button" onclick="setAmount(2000)" class="amount-btn">৳ 2,000</button>
+          <button type="button" onclick="setAmount(5000)" class="amount-btn">৳ 5,000</button>
+          <button type="button" onclick="setAmount(10000)" class="amount-btn">৳ 10,000</button>
+          <button type="button" onclick="setAmount(25000)" class="amount-btn">৳ 25,000</button>
         </div>
-        <div class="summary-row">
-          <span class="text-slate-300">Bonus Amount</span>
-          <span id="summaryBonus" class="font-bold text-[#24ee89]">+৳0.00</span>
-        </div>
-        <div class="border-t border-slate-700 pt-3 summary-row">
-          <span class="font-bold text-white">Total After Bonus</span>
-          <span id="summaryTotal" class="font-black text-lg text-[#24ee89]">৳0.00</span>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <button type="button" onclick="openPaymentModal()" class="primary-action">Deposit Via <span id="depositButtonMethod">BKASH</span> ↗</button>
-  </main>
+      <section class="section-block">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div class="section-heading !mb-0">
+            <span class="heading-icon">🎁</span>
+            <div>
+              <div class="heading-title">Deposit Bonus</div>
+              <div class="heading-subtitle">Choose an available bonus</div>
+            </div>
+          </div>
+          <span class="text-xs text-slate-400">Optional</span>
+        </div>
+
+        <div id="bonusGrid" class="grid grid-cols-2 gap-3">
+          <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
+            <div class="text-sm font-black text-white">No Bonus</div>
+          </button>
+        </div>
+        <p id="bonusLoading" class="text-xs text-slate-400 mt-3">Loading available bonuses...</p>
+
+        <div class="calculation-panel mt-5">
+          <div class="summary-row">
+            <span class="text-slate-300">Deposit Amount</span>
+            <span id="summaryDeposit" class="font-bold text-white">৳0.00</span>
+          </div>
+          <div class="summary-row">
+            <span class="text-slate-300">Bonus Amount</span>
+            <span id="summaryBonus" class="font-bold text-[#24ee89]">+৳0.00</span>
+          </div>
+          <div class="border-t border-slate-700 pt-3 summary-row">
+            <span class="font-bold text-white">Total After Bonus</span>
+            <span id="summaryTotal" class="font-black text-lg text-[#24ee89]">৳0.00</span>
+          </div>
+        </div>
+      </section>
+
+      <button type="button" onclick="openPaymentModal()" class="primary-action">Deposit Via <span id="depositButtonMethod">BKASH</span> ↗</button>
+    </main>
+  </div>
 
   <!-- STEP 1: PAYMENT MODAL POPUP -->
   <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
@@ -645,6 +704,8 @@
     }
 
     async function init() {
+      const startTime = Date.now();
+
       try {
         const storedUser = localStorage.getItem('current_user');
 
@@ -709,6 +770,18 @@
       } catch (err) {
         console.error("Initialization Error:", err);
         showAlert('Could not initialize the deposit page. Please refresh and try again.');
+      } finally {
+        // Ensure loader stays for exactly 4000ms (4 seconds)
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, 4000 - elapsedTime);
+
+        setTimeout(() => {
+          const loader = document.getElementById('secureLoader');
+          const pageContent = document.getElementById('pageContent');
+
+          if (loader) loader.classList.add('fade-out');
+          if (pageContent) pageContent.classList.add('fade-in');
+        }, remainingTime);
       }
     }
 
@@ -1005,6 +1078,9 @@
   </script>
 </body>
 </html>
+```
 
-</body>
-</html>
+### পরিবর্তনসমূহ:
+1. **নিরাপদ অ্যানিমেশন স্প্ল্যাশ স্ক্রিন (`#secureLoader`):** একটি ফুলস্ক্রীন ওভারলে যোগ করা হয়েছে যা সাদা কালারের রেসপনসিভ Shield Icon এবং Pulse/Glow অ্যানিমেশন বহন করে।
+2. **ডাটা লোড ও টাইমিং সমন্বয় (`init()` function):** Supabase থেকে ডাটা রিট্রিভ সম্পূর্ণ হতে যতো সময়ই লাগুক না কেন, `Math.max(0, 4000 - elapsedTime)` টাইমিং ব্যবহার করা হয়েছে যাতে ব্যবহারকারী সঠিক ৪ সেকেন্ড পর্যন্ত অ্যানিমেশন দেখেন এবং ব্যাকগ্রাউন্ডে সমস্ত ডাটা সঠিকভাবে লোড হওয়া নিশ্চিত হয়।
+3. **স্মুথ ট্রানজিশন (`.fade-out` & `.fade-in`):** ৪ সেকেন্ড পার হলে অ্যানিমেশন স্ক্রিনটি মসৃণভাবে ফিকে (Fade Out) হয়ে যাবে এবং ডিপোজিট পেইজটি স্মুথভাবে দৃশ্যমান (Fade In) হবে।
