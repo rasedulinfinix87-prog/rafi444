@@ -250,19 +250,13 @@
           </div>
 
           <div class="flex flex-col gap-1 min-w-0">
-            <span class="bg-[#0F212E] text-amber-300 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300/20 w-fit">
-              <i class="fa-solid fa-crown text-[9px] mr-1"></i> VIP 1
-            </span>
-
             <div class="flex items-center gap-1.5 min-w-0">
-              <span class="text-[var(--font-xs)] text-[#FFFFFF] font-medium shrink-0">GAME ID:</span>
+              <span class="text-[var(--font-xs)] text-[#FFFFFF] font-medium shrink-0">ID:</span>
               <span id="userGameId" class="text-[var(--font-sm)] text-emerald-400 font-bold truncate">----</span>
-              <button type="button" onclick="copyGameId()" class="text-[#FFFFFF] hover:text-white text-[var(--font-sm)] p-1" aria-label="Copy Game ID" title="Copy Game ID">
+              <button type="button" onclick="copyGameId()" class="text-[#FFFFFF] hover:text-white text-[var(--font-sm)] p-1" aria-label="Copy ID" title="Copy ID">
                 <i class="fa-regular fa-copy"></i>
               </button>
             </div>
-
-            <span id="userJoined" class="text-[10px] text-[#FFFFFF] font-semibold">Joined: ----</span>
           </div>
         </div>
 
@@ -276,26 +270,25 @@
           </a>
         </div>
 
-        <!-- Level Progress Bar added under Deposit & Withdraw buttons -->
-        <div class="mt-4 pt-3 border-t border-[#0F212E]">
-          <div class="flex justify-between items-center text-[11px] mb-1.5 text-white/80 font-semibold">
+        <!-- Level Progress Bar linked to rafi444/level-up.html -->
+        <a href="/rafi444/level-up.html" class="block mt-4 pt-3 border-t border-[#0F212E] cursor-pointer group">
+          <div class="flex justify-between items-center text-[11px] mb-1.5 text-white/80 font-semibold group-hover:text-[#24ee89] transition">
             <span>VIP Progress</span>
-            <span class="text-emerald-400">Level 1</span>
+            <span class="text-emerald-400">Level 1 <i class="fa-solid fa-chevron-right text-[9px] ml-1"></i></span>
           </div>
           <div class="w-full bg-[#0F212E] h-2 rounded-full overflow-hidden p-0.5 border border-[#243542]">
             <div class="bg-gradient-to-r from-emerald-500 to-emerald-300 h-full rounded-full" style="width: 35%;"></div>
           </div>
-        </div>
+        </a>
       </div>
 
-      <!-- Account shortcuts -->
+      <!-- Account shortcuts (Free Plays removed) -->
       <section class="menu-card px-3 py-3">
         <div class="grid grid-cols-4 gap-x-1 gap-y-2">
           <a href="../account/vault.html" class="shortcut"><i class="fa-solid fa-vault"></i><span>Vault Pro</span></a>
           <button type="button" class="shortcut" onclick="openTransactions()"><i class="fa-solid fa-receipt"></i><span>Transaction</span></button>
           <button type="button" class="shortcut" onclick="openRollover()"><i class="fa-solid fa-chart-column"></i><span>Rollover</span></button>
           <button type="button" class="shortcut" onclick="openBetHistory()"><i class="fa-solid fa-clock-rotate-left"></i><span>Bet History</span></button>
-          <a href="../account/free-plays.html" class="shortcut"><i class="fa-solid fa-coins"></i><span>Free Plays</span></a>
         </div>
       </section>
 
@@ -347,7 +340,7 @@
     <div id="bottomBarContainer"></div>
   </div>
 
-  <!-- Profile Right-Side Drawer Modal (Slide from right, larger texts/symbols, extra padding, no bottom lines, no account info box) -->
+  <!-- Profile Right-Side Drawer Modal (Updated according to specifications) -->
   <div id="profileDrawerModal" role="dialog" aria-modal="true" onclick="if(event.target===this) closeProfileDrawer()">
     <section class="drawer-panel">
       <header class="drawer-head">
@@ -356,16 +349,11 @@
       </header>
       <div class="drawer-body">
         
-        <!-- Stacked buttons with increased text/symbol sizes and padding, without bottom lines -->
+        <!-- Stacked buttons without unwanted links, renamed Wallet to Account Info -->
         <div class="flex flex-col gap-2">
-          <a href="../account/deposit.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
-            <span>Wallet</span>
+          <a href="../account/profile.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
+            <span>Account Info</span>
             <i class="fa-solid fa-wallet text-[#a9b3b5] w-6 text-center text-xl"></i>
-          </a>
-
-          <a href="../account/vault.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
-            <span>Vault</span>
-            <i class="fa-solid fa-vault text-[#a9b3b5] w-6 text-center text-xl"></i>
           </a>
 
           <a href="../account/vip.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
@@ -382,26 +370,6 @@
             <span>Statistics</span>
             <i class="fa-solid fa-chart-column text-[#a9b3b5] w-6 text-center text-xl"></i>
           </button>
-
-          <button type="button" onclick="closeProfileDrawer(); openTransactions();" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base w-full text-right">
-            <span>Transactions</span>
-            <i class="fa-solid fa-receipt text-[#a9b3b5] w-6 text-center text-xl"></i>
-          </button>
-
-          <button type="button" onclick="closeProfileDrawer(); openBetHistory();" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base w-full text-right">
-            <span>My Bets</span>
-            <i class="fa-solid fa-file-lines text-[#a9b3b5] w-6 text-center text-xl"></i>
-          </button>
-
-          <a href="../account/settings.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
-            <span>Settings</span>
-            <i class="fa-solid fa-gear text-[#a9b3b5] w-6 text-center text-xl"></i>
-          </a>
-
-          <a href="../account/stake-smart.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
-            <span>Stake Smart</span>
-            <i class="fa-solid fa-shield-halved text-[#a9b3b5] w-6 text-center text-xl"></i>
-          </a>
 
           <a href="../account/support.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
             <span>Live support</span>
@@ -1207,9 +1175,9 @@
 
       try {
         await navigator.clipboard.writeText(gameId);
-        alert('GAME ID copied!');
+        alert('ID copied!');
       } catch (err) {
-        prompt('Copy your GAME ID:', gameId);
+        prompt('Copy your ID:', gameId);
       }
     }
 
@@ -1257,21 +1225,6 @@
         document.getElementById('userGameId').textContent = gameId
           ? String(gameId).slice(0, 8).toUpperCase()
           : '----';
-
-        if (profile.created_at) {
-          const joinedDate = new Date(profile.created_at);
-
-          if (!Number.isNaN(joinedDate.getTime())) {
-            document.getElementById('userJoined').textContent =
-              'Joined: ' +
-              joinedDate.toLocaleDateString('en-CA', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                timeZone: 'UTC'
-              });
-          }
-        }
 
         console.log('Member profile loaded successfully.');
 
