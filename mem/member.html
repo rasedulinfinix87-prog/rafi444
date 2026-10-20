@@ -152,12 +152,6 @@
               </button>
             </div>
 
-            <!-- Balance Display Field -->
-            <div class="flex items-center gap-1.5 min-w-0 mt-0.5">
-              <span class="text-[var(--font-xs)] text-[#FFFFFF] font-medium shrink-0">Balance:</span>
-              <span id="userBalance" class="text-[var(--font-sm)] text-amber-400 font-extrabold">৳0.00</span>
-            </div>
-
             <span id="userJoined" class="text-[10px] text-[#FFFFFF] font-semibold">Joined: ----</span>
           </div>
         </div>
@@ -747,7 +741,6 @@
           return;
         }
 
-        // profiles টেবিল থেকে balance কলাম যুক্ত করা হলো
         const { data: profile, error } = await supabaseClient
           .from('profiles')
           .select(`
@@ -778,12 +771,6 @@
           ? String(gameId).slice(0, 8).toUpperCase()
           : '----';
 
-        // ব্যালান্স রেন্ডার করার লজিক
-        const balanceEl = document.getElementById('userBalance');
-        if (balanceEl && profile.balance !== null && profile.balance !== undefined) {
-          balanceEl.textContent = '৳' + Number(profile.balance).toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        }
-
         if (profile.created_at) {
           const joinedDate = new Date(profile.created_at);
 
@@ -806,7 +793,7 @@
       }
     }
 
-    // টপবার ও বটমবার লোড করা এবং প্রোফাইল লিঙ্ক আপডেট করার ফাংশন
+    // টপবার ও বটমবার লোড করার ফাংশন যেখানে টপবার লোড হওয়ার পর ব্যালান্স সিঙ্ক নিশ্চিত করা হয়েছে
     async function loadBars() {
       try {
         const topRes = await fetch('../bar/top.html');
@@ -814,11 +801,13 @@
           let topHtml = await topRes.text();
           document.getElementById('topBarContainer').innerHTML = topHtml;
           
-          // প্রোফাইল আইকনে ক্লিক করলে profile.html এ রিডাইরেক্ট করার লজিক
           const profileBtn = document.getElementById('profileLinkBtn');
           if (profileBtn) {
             profileBtn.href = '../account/profile.html';
           }
+
+          // টপবার লোড হওয়ার সাথে সাথে ব্যালান্স আপডেট করার এক্সট্রা ফাংশন
+          syncMemberTopBarBalance();
         }
 
         const botRes = await fetch('../bar/bottom.html');
@@ -827,6 +816,38 @@
         }
       } catch (err) {
         console.error('Bars loading error:', err);
+      }
+    }
+
+    // member.html এর নিজস্ব টপবার ব্যালান্স সিঙ্ক ফাংশন
+    async function syncMemberTopBarBalance() {
+      try {
+        const balanceElement = document.getElementById('topBarBalance');
+        if (!balanceElement) return;
+
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) return;
+
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
+        if (!userId) return;
+
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('balance')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (profile && profile.balance !== null && profile.balance !== undefined) {
+          const bal = Number(profile.balance);
+          if (Number.isFinite(bal)) {
+            balanceElement.textContent = bal.toFixed(2);
+          }
+        }
+      } catch (err) {
+        console.error('Sync top bar balance error:', err);
       }
     }
 
