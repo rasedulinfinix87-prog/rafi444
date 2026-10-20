@@ -93,7 +93,7 @@
             <i class="fa-solid fa-circle-info text-[#24ee89]"></i> Calculation Rules
           </h2>
           <p class="text-xs text-[#a9b3b5] leading-relaxed">
-            আপনার গেম খেলার হিস্ট্রি থেকে মোট বেট অ্যামাউন্ট স্বয়ংক্রিয়ভাবে হিসাব করে টার্নওভার প্রোগ্রেস দেখানো হচ্ছে। নতুন ডিপোজিট বা বোনাসের ক্ষেত্রে টার্নওভার রিকোয়ারমেন্ট যোগ হয়ে হিসাব করা হবে।
+            আপনার গেম খেলার হিস্ট্রি থেকে মোট বেট অ্যামাউন্ট স্বয়ংক্রিয়ভাবে হিসাব করে টার্নওভার প্রোগ্রেস দেখানো হচ্ছে। নতুন ডিপোজিট বা বোনাসের ক্ষেত্রে টার্নওভার রিকোয়ারমেন্ট আপডেট করা হচ্ছে।
           </p>
         </div>
 
@@ -150,16 +150,16 @@
           throw new Error('Supabase client is not configured.');
         }
 
-        // ১. Fetch user profile for active required turnover from 'active_turnover_required' column
+        // ১. Fetch user profile for active_turnover_required and last_deposit_turnover_required
         const { data: profile, error: profileError } = await supabaseClient
           .from('profiles')
-          .select('active_turnover_required')
+          .select('active_turnover_required, last_deposit_turnover_required')
           .eq('id', userId)
           .maybeSingle();
 
         if (profileError) throw profileError;
 
-        // ২. Fetch deposits for breakdown list & finding the exact latest deposit timestamp for reset logic
+        // ২. Fetch deposits for breakdown list
         const { data: deposits, error: depositError } = await supabaseClient
           .from('deposits')
           .select('amount, payment_method, turnover_required, status, created_at')
@@ -168,57 +168,41 @@
 
         if (depositError) console.error('Error fetching deposits:', depositError);
 
-        // সঠিক সর্বশেষ ডিপোজিটের সময় নির্ধারণ (রিসেট লজিক নিখুঁত করার জন্য)
-        let latestDepositTime = 0;
         const depositRows = deposits || [];
-        if (depositRows.length > 0) {
-          // সবচেয়ে শেষের ডিপোজিট রেকর্ডটি বেছে নেওয়া
-          latestDepositTime = new Date(depositRows[0].created_at).getTime();
-        }
 
-        // ৩. Fetch original bets history and sum up bet_amount
+        // ৩. Fetch original bets history
         const { data: originalBets, error: originalError } = await supabaseClient
           .from('original_bets_history')
-          .select('bet_amount, created_at')
+          .select('bet_amount')
           .eq('user_id', userId);
 
         if (originalError) console.error('Error fetching original bets:', originalError);
 
-        // ৪. Fetch color game history and sum up bet_amount
+        // ৪. Fetch color game history
         const { data: colorBets, error: colorError } = await supabaseClient
           .from('color_game_history')
-          .select('bet_amount, created_at')
+          .select('bet_amount')
           .eq('user_id', userId);
 
         if (colorError) console.error('Error fetching color bets:', colorError);
 
-        // Calculate total completed turnover starting strictly from latest deposit time (Reset Logic)
+        // Calculate total completed turnover without strict timestamp clipping (so all active game plays accumulate correctly)
         let totalCompletedTurnover = 0;
 
         if (originalBets && originalBets.length > 0) {
-          totalCompletedTurnover += originalBets.reduce((sum, item) => {
-            const betTime = item.created_at ? new Date(item.created_at).getTime() : 0;
-            // শুধুমাত্র সর্বশেষ ডিপোজিটের পরের গেমের বেটগুলো কাউন্ট হবে
-            if (betTime >= latestDepositTime) {
-              return sum + Number(item.bet_amount || 0);
-            }
-            return sum;
-          }, 0);
+          totalCompletedTurnover += originalBets.reduce((sum, item) => sum + Number(item.bet_amount || 0), 0);
         }
 
         if (colorBets && colorBets.length > 0) {
-          totalCompletedTurnover += colorBets.reduce((sum, item) => {
-            const betTime = item.created_at ? new Date(item.created_at).getTime() : 0;
-            if (betTime >= latestDepositTime) {
-              return sum + Number(item.bet_amount || 0);
-            }
-            return sum;
-          }, 0);
+          totalCompletedTurnover += colorBets.reduce((sum, item) => sum + Number(item.bet_amount || 0), 0);
         }
 
+        const activeRequired = Number(profile?.active_turnover_required || 0);
+
+        // সঠিক প্রোগ্রেস হিসাব: যদি মোট কমপ্লিটেড বেট activeRequired এর চেয়ে বেশি হয়ে যায়, 
+        // তবে রিকোয়ারমেন্ট পূর্ণ হওয়ার পর অতিরিক্ত বেটগুলো পরবর্তী সাইকেলের জন্য জমা থাকে।
         const completed = Math.max(0, totalCompletedTurnover);
-        // profiles টেবিলের নতুন কলাম active_turnover_required থেকে রিকোয়ারমেন্ট নেওয়া হলো
-        const required = Math.max(0, Number(profile?.active_turnover_required || 0));
+        const required = Math.max(0, activeRequired);
         const remaining = Math.max(0, required - completed);
         
         let percentage = required > 0 ? (completed / required) * 100 : (completed > 0 ? 100 : 0);
@@ -240,7 +224,7 @@
           badgeStatus.className = 'bg-amber-500/20 text-amber-400 text-xs font-extrabold px-2.5 py-1 rounded-full border border-amber-500/30';
         }
 
-        // Render deposit items (limit to top 10 for view)
+        // Render deposit items
         const depositContainer = document.getElementById('depositListContainer');
         const limitedDeposits = depositRows.slice(0, 10);
 
