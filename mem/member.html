@@ -146,8 +146,7 @@
     .drawer-head { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; background:#0F212E; border-bottom:1px solid #243542; }
     .drawer-head h2 { font-size:18px; font-weight:750; margin:0; color:#24ee89; }
     .drawer-close { width:34px; height:34px; border-radius:50%; background:#243542; color:white; font-size:18px; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; }
-    /* Drawer body padding and item adjustments */
-    .drawer-body { flex:1; min-height:0; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:4px; }
+    .drawer-body { flex:1; min-height:0; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:14px; }
   </style>
 </head>
 
@@ -168,7 +167,7 @@
         </a>
       </div>
 
-      <!-- Balance, Deposit and Profile (Notification removed) -->
+      <!-- Balance, Deposit, Notifications and Profile -->
       <div class="flex items-center gap-2 sm:gap-3">
 
         <!-- Balance and Deposit -->
@@ -187,6 +186,39 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
             </svg>
           </a>
+        </div>
+
+        <!-- Notifications -->
+        <div class="relative">
+          <button
+            id="notifBtn"
+            type="button"
+            onclick="toggleNotifications()"
+            class="relative p-2.5 text-[#FFFFFF] hover:text-[#24ee89] rounded-lg bg-[#0F212E] border border-[#0F212E] transition focus:outline-none"
+            aria-label="Notifications"
+            aria-expanded="false"
+          >
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <span id="notifBadge" class="absolute top-2 right-2 w-2 h-2 bg-[#24ee89] rounded-full ring-2 ring-[#0F212E]"></span>
+          </button>
+
+          <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-72 bg-[#1A2C38] border border-[#0F212E] rounded-xl shadow-2xl z-50 overflow-hidden">
+            <div class="p-3 border-b border-[#0F212E] flex justify-between items-center">
+              <span class="text-[var(--font-xs)] font-bold text-[#FFFFFF]">Notifications</span>
+              <button type="button" onclick="clearNotifications()" class="text-[10px] text-[#FFFFFF]/70 hover:text-[#FFFFFF]">
+                Mark as read
+              </button>
+            </div>
+
+            <div id="notifList" class="max-h-60 overflow-y-auto p-2 text-[var(--font-xs)] space-y-2 text-[#FFFFFF]/80">
+              <div class="p-2 bg-[#0F212E] rounded-lg border border-[#0F212E]">
+                <p class="text-[#FFFFFF] font-medium text-[11px]">Welcome Bonus Received!</p>
+                <span class="text-[9px] text-[#FFFFFF]/70">Your initial deposit bonus has been credited.</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Profile Icon -> Opens Drawer -->
@@ -243,16 +275,28 @@
             <i class="fa-solid fa-money-bill-transfer text-amber-400 text-base"></i> Withdrawal
           </a>
         </div>
+
+        <!-- Level Progress Bar added under Deposit & Withdraw buttons -->
+        <div class="mt-4 pt-3 border-t border-[#0F212E]">
+          <div class="flex justify-between items-center text-[11px] mb-1.5 text-white/80 font-semibold">
+            <span>VIP Progress</span>
+            <span class="text-emerald-400">Level 1</span>
+          </div>
+          <div class="w-full bg-[#0F212E] h-2 rounded-full overflow-hidden p-0.5 border border-[#243542]">
+            <div class="bg-gradient-to-r from-emerald-500 to-emerald-300 h-full rounded-full" style="width: 35%;"></div>
+          </div>
+        </div>
       </div>
 
-      <!-- Notifications -->
-      <section class="menu-card">
-        <a href="../account/notifications.html" class="menu-row">
-          <i class="menu-icon fa-regular fa-bell"></i>
-          <span class="menu-label">Notification</span>
-          <span class="bg-emerald-400 text-[#062018] text-[var(--font-xs)] font-black rounded-full px-2 py-0.5">10</span>
-          <span class="chevron-box"><i class="fa-solid fa-chevron-right"></i></span>
-        </a>
+      <!-- Account shortcuts -->
+      <section class="menu-card px-3 py-3">
+        <div class="grid grid-cols-4 gap-x-1 gap-y-2">
+          <a href="../account/vault.html" class="shortcut"><i class="fa-solid fa-vault"></i><span>Vault Pro</span></a>
+          <button type="button" class="shortcut" onclick="openTransactions()"><i class="fa-solid fa-receipt"></i><span>Transaction</span></button>
+          <button type="button" class="shortcut" onclick="openRollover()"><i class="fa-solid fa-chart-column"></i><span>Rollover</span></button>
+          <button type="button" class="shortcut" onclick="openBetHistory()"><i class="fa-solid fa-clock-rotate-left"></i><span>Bet History</span></button>
+          <a href="../account/free-plays.html" class="shortcut"><i class="fa-solid fa-coins"></i><span>Free Plays</span></a>
+        </div>
       </section>
 
       <!-- Global settings -->
@@ -303,7 +347,7 @@
     <div id="bottomBarContainer"></div>
   </div>
 
-  <!-- Profile Right-Side Drawer Modal (Slide from right, text & symbols slightly larger, increased vertical padding, no bottom border lines, account details removed) -->
+  <!-- Profile Right-Side Drawer Modal (Slide from right, larger texts/symbols, extra padding, no bottom lines, no account info box) -->
   <div id="profileDrawerModal" role="dialog" aria-modal="true" onclick="if(event.target===this) closeProfileDrawer()">
     <section class="drawer-panel">
       <header class="drawer-head">
@@ -312,59 +356,59 @@
       </header>
       <div class="drawer-body">
         
-        <!-- Stacked buttons without bottom border lines, larger text and symbols, slightly increased padding -->
-        <div class="flex flex-col">
-          <a href="../account/deposit.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-bold text-base text-right">
+        <!-- Stacked buttons with increased text/symbol sizes and padding, without bottom lines -->
+        <div class="flex flex-col gap-2">
+          <a href="../account/deposit.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
             <span>Wallet</span>
             <i class="fa-solid fa-wallet text-[#a9b3b5] w-6 text-center text-xl"></i>
           </a>
 
-          <a href="../account/vault.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-bold text-base text-right">
+          <a href="../account/vault.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
             <span>Vault</span>
             <i class="fa-solid fa-vault text-[#a9b3b5] w-6 text-center text-xl"></i>
           </a>
 
-          <a href="../account/vip.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-bold text-base text-right">
+          <a href="../account/vip.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
             <span>VIP</span>
             <i class="fa-solid fa-trophy text-[#a9b3b5] w-6 text-center text-xl"></i>
           </a>
 
-          <a href="../account/affiliate.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-bold text-base text-right">
+          <a href="../account/affiliate.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
             <span>Affiliate</span>
             <i class="fa-solid fa-share-nodes text-[#a9b3b5] w-6 text-center text-xl"></i>
           </a>
 
-          <button type="button" onclick="closeProfileDrawer(); openRollover();" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-bold text-base w-full text-right">
+          <button type="button" onclick="closeProfileDrawer(); openRollover();" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base w-full text-right">
             <span>Statistics</span>
             <i class="fa-solid fa-chart-column text-[#a9b3b5] w-6 text-center text-xl"></i>
           </button>
 
-          <button type="button" onclick="closeProfileDrawer(); openTransactions();" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-bold text-base w-full text-right">
+          <button type="button" onclick="closeProfileDrawer(); openTransactions();" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base w-full text-right">
             <span>Transactions</span>
             <i class="fa-solid fa-receipt text-[#a9b3b5] w-6 text-center text-xl"></i>
           </button>
 
-          <button type="button" onclick="closeProfileDrawer(); openBetHistory();" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-bold text-base w-full text-right">
+          <button type="button" onclick="closeProfileDrawer(); openBetHistory();" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base w-full text-right">
             <span>My Bets</span>
             <i class="fa-solid fa-file-lines text-[#a9b3b5] w-6 text-center text-xl"></i>
           </button>
 
-          <a href="../account/settings.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-bold text-base text-right">
+          <a href="../account/settings.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
             <span>Settings</span>
             <i class="fa-solid fa-gear text-[#a9b3b5] w-6 text-center text-xl"></i>
           </a>
 
-          <a href="../account/stake-smart.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-bold text-base text-right">
+          <a href="../account/stake-smart.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
             <span>Stake Smart</span>
             <i class="fa-solid fa-shield-halved text-[#a9b3b5] w-6 text-center text-xl"></i>
           </a>
 
-          <a href="../account/support.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-bold text-base text-right">
+          <a href="../account/support.html" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-[#24ee89] text-white transition font-semibold text-base text-right">
             <span>Live support</span>
             <i class="fa-solid fa-headset text-[#a9b3b5] w-6 text-center text-xl"></i>
           </a>
 
-          <button type="button" onclick="logoutUser()" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-red-400 text-white transition font-bold text-base w-full text-right mt-2">
+          <button type="button" onclick="logoutUser()" class="flex items-center justify-end gap-4 py-4 px-2 hover:text-red-400 text-white transition font-semibold text-base w-full text-right">
             <span>Logout</span>
             <i class="fa-solid fa-right-from-bracket text-[#a9b3b5] w-6 text-center text-xl"></i>
           </button>
@@ -641,6 +685,62 @@
     }
 
     /* =========================
+       HEADER NOTIFICATIONS
+    ========================= */
+    function toggleNotifications() {
+      const dropdown = document.getElementById('notifDropdown');
+      const button = document.getElementById('notifBtn');
+
+      if (!dropdown || !button) return;
+
+      const isHidden = dropdown.classList.contains('hidden');
+
+      dropdown.classList.toggle('hidden');
+      button.setAttribute('aria-expanded', String(isHidden));
+    }
+
+    function clearNotifications() {
+      const badge = document.getElementById('notifBadge');
+      const list = document.getElementById('notifList');
+      const dropdown = document.getElementById('notifDropdown');
+      const button = document.getElementById('notifBtn');
+
+      if (badge) badge.classList.add('hidden');
+
+      if (list) {
+        list.innerHTML =
+          '<div class="p-3 text-center text-[11px] text-[#FFFFFF]/60">No unread notifications.</div>';
+      }
+
+      if (dropdown) dropdown.classList.add('hidden');
+      if (button) button.setAttribute('aria-expanded', 'false');
+    }
+
+    // Close the notification dropdown when clicking outside it.
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('notifDropdown');
+      const button = document.getElementById('notifBtn');
+
+      if (!dropdown || !button) return;
+
+      const notificationArea = button.parentElement;
+
+      if (notificationArea && !notificationArea.contains(event.target)) {
+        dropdown.classList.add('hidden');
+        button.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Refresh balance when returning to this browser tab.
+    window.addEventListener('focus', function() {
+      syncTopBarBalance();
+    });
+
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) syncTopBarBalance();
+    });
+
+    /* =========================
        BET HISTORY
     ========================= */
     let betHistoryRequestToken = 0;
@@ -675,6 +775,12 @@
         closeRollover();
         closeTransactions();
         closeProfileDrawer();
+
+        const dropdown = document.getElementById('notifDropdown');
+        const button = document.getElementById('notifBtn');
+
+        if (dropdown) dropdown.classList.add('hidden');
+        if (button) button.setAttribute('aria-expanded', 'false');
       }
     });
 
