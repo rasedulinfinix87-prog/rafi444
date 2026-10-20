@@ -530,7 +530,7 @@
 
         if (type !== 'withdrawal') {
           depositQuery = supabaseClient.from('deposits')
-            .select('id,user_id,amount,payment_method,transaction_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
+            .select('id,user_id,amount,payment_method,transection_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
             .eq('user_id', userId).order('created_at', {ascending:false}).limit(500);
         }
         if (type !== 'deposit') {
@@ -575,7 +575,7 @@
           const normalizedStatus = status.toLowerCase().replace(/[^a-z0-9_-]/g, '');
           const method = item.payment_method || (item._type === 'deposit' ? 'Deposit' : 'Withdrawal');
           const detailParts = [method];
-          if (item._type === 'deposit' && item.transaction_id) detailParts.push('Transaction ID: ' + item.transaction_id);
+          if (item._type === 'deposit' && item.transection_id) detailParts.push('Transaction ID: ' + item.transection_id);
           if (item._type === 'withdrawal' && item.account_number) detailParts.push('Account: ' + item.account_number);
           if (item._type === 'deposit' && Number(item.bonus_amount || 0) > 0) detailParts.push('Bonus: ' + txMoney(item.bonus_amount));
           return '<div class="tx-row"><div><div class="tx-primary">' + bhEscape(item._label) + '</div>' +
@@ -635,7 +635,7 @@
             .select('id,balance,turnover_required,current_turnover')
             .eq('id', userId).maybeSingle(),
           supabaseClient.from('deposits')
-            .select('id,amount,payment_method,transaction_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
+            .select('id,amount,payment_method,transection_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
             .eq('user_id', userId)
             .order('created_at', {ascending:false})
             .limit(100)
