@@ -68,6 +68,27 @@
     .bh-empty i { font-size:48px; color:#586365; }
     .bh-loading { color:#c6cecf; text-align:center; padding:35px 10px; }
     @media (max-width:360px) { .bh-content { padding:12px; } .bh-select { padding:11px 7px; font-size:12px; } }
+
+    /* Full-screen Rollover modal */
+    #rolloverModal { position:fixed; inset:0; z-index:10001; display:none; background:#202628; color:#f5f7f8; }
+    #rolloverModal.show { display:flex; }
+    .ro-modal { width:100%; height:100%; height:100dvh; display:flex; flex-direction:column; overflow:hidden; background:#202628; }
+    .ro-head { display:flex; align-items:center; justify-content:space-between; padding:16px 18px; background:#303638; border-bottom:1px solid #3a4143; }
+    .ro-head h2 { font-size:20px; font-weight:750; }
+    .ro-close { width:36px; height:36px; border-radius:50%; background:#41494b; color:white; font-size:20px; }
+    .ro-content { flex:1; min-height:0; overflow:auto; padding:16px; padding-bottom:max(20px,env(safe-area-inset-bottom)); }
+    .ro-card { background:#293133; border:1px solid #3a4446; border-radius:14px; padding:15px; margin-bottom:13px; }
+    .ro-label { color:#aebabc; font-size:12px; }
+    .ro-value { font-size:21px; font-weight:800; margin-top:5px; overflow-wrap:anywhere; }
+    .ro-progress { width:100%; height:10px; border-radius:99px; background:#11191b; overflow:hidden; margin:12px 0 8px; }
+    #roProgressFill { height:100%; width:0%; background:linear-gradient(90deg,#16a765,#2ed573); border-radius:99px; transition:width .35s ease; }
+    .ro-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .ro-stat { background:#202729; border-radius:10px; padding:12px; min-width:0; }
+    .ro-stat .ro-value { font-size:16px; }
+    .ro-row { display:flex; justify-content:space-between; gap:12px; padding:12px 2px; border-bottom:1px solid #3a4244; }
+    .ro-row:last-child { border-bottom:0; }
+    .ro-muted { color:#aebabc; font-size:12px; margin-top:4px; overflow-wrap:anywhere; }
+    .ro-refresh { background:#176d4b; color:#fff; border-radius:9px; padding:10px 13px; font-weight:700; }
   </style>
 </head>
 
@@ -125,7 +146,7 @@
         <div class="grid grid-cols-4 gap-x-1 gap-y-2">
           <a href="../account/vault.html" class="shortcut"><i class="fa-solid fa-vault"></i><span>Vault Pro</span></a>
           <a href="../account/transactions.html" class="shortcut"><i class="fa-solid fa-receipt"></i><span>Transaction</span></a>
-          <a href="../account/rollover.html" class="shortcut"><i class="fa-solid fa-chart-column"></i><span>Rollover</span></a>
+          <button type="button" class="shortcut" onclick="openRollover()"><i class="fa-solid fa-chart-column"></i><span>Rollover</span></button>
           <button type="button" class="shortcut" onclick="openBetHistory()"><i class="fa-solid fa-clock-rotate-left"></i><span>Bet History</span></button>
           <a href="../account/free-plays.html" class="shortcut"><i class="fa-solid fa-coins"></i><span>Free Plays</span></a>
         </div>
@@ -229,6 +250,49 @@
     </section>
   </div>
 
+  <!-- Full-screen Rollover Modal -->
+  <div id="rolloverModal" role="dialog" aria-modal="true" aria-labelledby="rolloverTitle" onclick="if(event.target===this) closeRollover()">
+    <section class="ro-modal">
+      <header class="ro-head">
+        <div>
+          <h2 id="rolloverTitle">Rollover Details</h2>
+          <div class="ro-muted">Turnover progress and deposit requirements</div>
+        </div>
+        <button type="button" class="ro-close" onclick="closeRollover()" aria-label="Close Rollover"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="ro-content">
+        <div id="roLoading" class="bh-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading rollover details...</div>
+        <div id="roDetails" style="display:none">
+          <div class="ro-card">
+            <div class="ro-label">Overall Turnover Progress</div>
+            <div class="ro-grid" style="margin-top:10px">
+              <div class="ro-stat"><div class="ro-label">Completed</div><div class="ro-value" id="roCompleted">৳0.00</div></div>
+              <div class="ro-stat"><div class="ro-label">Turnover Required</div><div class="ro-value" id="roRequired">৳0.00</div></div>
+            </div>
+            <div class="ro-progress"><div id="roProgressFill"></div></div>
+            <div class="flex justify-between gap-3 text-xs"><span id="roProgressText">0% completed</span><span id="roRemainingText">৳0.00 remaining</span></div>
+          </div>
+          <div class="ro-grid">
+            <div class="ro-card"><div class="ro-label">Turnover Remaining</div><div class="ro-value" id="roRemaining">৳0.00</div></div>
+            <div class="ro-card"><div class="ro-label">Account Balance</div><div class="ro-value" id="roBalance">৳0.00</div></div>
+          </div>
+          <div class="ro-card">
+            <div class="font-bold text-base mb-2">How rollover is calculated</div>
+            <div class="ro-muted" style="line-height:1.6">Completed turnover and total required turnover are read from your profiles record. Deposit turnover requirements are shown below for reference. The remaining amount is calculated as required turnover minus completed turnover, with a minimum of ৳0.00.</div>
+          </div>
+          <div class="ro-card">
+            <div class="flex items-center justify-between gap-3 mb-2">
+              <div class="font-bold text-base">Deposit Turnover Details</div>
+              <button type="button" class="ro-refresh" onclick="loadRollover()">Refresh</button>
+            </div>
+            <div id="roDepositList"><div class="ro-muted">Loading deposits...</div></div>
+          </div>
+          <div id="roError" class="text-sm text-red-300" style="display:none"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <script>
 
     let betHistoryRequestToken = 0;
@@ -246,7 +310,7 @@
     }
 
     document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape') closeBetHistory();
+      if (event.key === 'Escape') { closeBetHistory(); closeRollover(); }
     });
 
     function bhEscape(value) {
@@ -378,6 +442,98 @@
         if (token === betHistoryRequestToken) {
           list.innerHTML = '<div class="bh-empty"><i class="fa-solid fa-triangle-exclamation"></i><div>Unable to load bet history. Please try again.</div><button type="button" onclick="loadBetHistory()" class="px-4 py-2 rounded-lg bg-[#343d3f]">Retry</button></div>';
         }
+      }
+    }
+
+    function roMoney(value) {
+      const number = Number(value || 0);
+      return '৳' + number.toLocaleString('en-BD', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    function openRollover() {
+      document.getElementById('rolloverModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+      loadRollover();
+    }
+
+    function closeRollover() {
+      document.getElementById('rolloverModal').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    async function loadRollover() {
+      const loading = document.getElementById('roLoading');
+      const details = document.getElementById('roDetails');
+      const depositList = document.getElementById('roDepositList');
+      const errorBox = document.getElementById('roError');
+      loading.style.display = 'block';
+      details.style.display = 'none';
+      errorBox.style.display = 'none';
+
+      try {
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) throw new Error('Please log in to view rollover details.');
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
+        if (!userId) throw new Error('User session is invalid. Please log in again.');
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+          throw new Error('Supabase client is unavailable. Check supabase-config.js.');
+        }
+
+        const [profileResult, depositsResult] = await Promise.all([
+          supabaseClient.from('profiles')
+            .select('id,balance,turnover_required,current_turnover')
+            .eq('id', userId).maybeSingle(),
+          supabaseClient.from('deposits')
+            .select('id,amount,payment_method,transection_id,status,created_at,bonus_percent,bonus_amount,multiplier,turnover_required')
+            .eq('user_id', userId)
+            .order('created_at', {ascending:false})
+            .limit(100)
+        ]);
+
+        if (profileResult.error) throw profileResult.error;
+        if (!profileResult.data) throw new Error('Your profile record could not be found.');
+        const profile = profileResult.data;
+        const completed = Math.max(0, Number(profile.current_turnover || 0));
+        const required = Math.max(0, Number(profile.turnover_required || 0));
+        const remaining = Math.max(0, required - completed);
+        const percent = required > 0 ? Math.min(100, (completed / required) * 100) : (completed > 0 ? 100 : 0);
+
+        document.getElementById('roCompleted').textContent = roMoney(completed);
+        document.getElementById('roRequired').textContent = roMoney(required);
+        document.getElementById('roRemaining').textContent = roMoney(remaining);
+        document.getElementById('roBalance').textContent = roMoney(profile.balance);
+        document.getElementById('roProgressFill').style.width = percent.toFixed(2) + '%';
+        document.getElementById('roProgressText').textContent = percent.toFixed(1) + '% completed';
+        document.getElementById('roRemainingText').textContent = roMoney(remaining) + ' remaining';
+
+        if (depositsResult.error) {
+          depositList.innerHTML = '<div class="ro-muted">Deposit details could not be loaded. Check Supabase table permissions and RLS policies.</div>';
+          console.error('Rollover deposits query error:', depositsResult.error);
+        } else {
+          const deposits = depositsResult.data || [];
+          if (!deposits.length) {
+            depositList.innerHTML = '<div class="ro-muted">No deposit records found.</div>';
+          } else {
+            depositList.innerHTML = deposits.map(dep => {
+              const date = dep.created_at ? new Date(dep.created_at).toLocaleString() : 'Date unavailable';
+              const status = String(dep.status || 'pending');
+              return '<div class="ro-row"><div style="min-width:0;flex:1">' +
+                '<div class="font-semibold">' + bhEscape(dep.payment_method || 'Deposit') + ' · ' + bhEscape(status) + '</div>' +
+                '<div class="ro-muted">' + bhEscape(date) + '</div>' +
+                '<div class="ro-muted">Bonus: ' + roMoney(dep.bonus_amount) + ' (' + Number(dep.bonus_percent || 0).toLocaleString() + '%)</div>' +
+                '<div class="ro-muted">Multiplier: ' + (dep.multiplier == null ? '—' : Number(dep.multiplier).toLocaleString() + 'x') + '</div>' +
+                '</div><div style="text-align:right;flex-shrink:0"><div class="font-bold">' + roMoney(dep.amount) + '</div>' +
+                '<div class="ro-muted">Turnover: ' + roMoney(dep.turnover_required) + '</div></div></div>';
+            }).join('');
+          }
+        }
+
+        loading.style.display = 'none';
+        details.style.display = 'block';
+      } catch (error) {
+        console.error('Rollover loading error:', error);
+        loading.innerHTML = '<div class="text-red-300"><i class="fa-solid fa-triangle-exclamation"></i> ' + bhEscape(error.message || 'Unable to load rollover details.') + '</div><button type="button" class="ro-refresh mt-3" onclick="loadRollover()">Retry</button>';
       }
     }
 
