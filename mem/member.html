@@ -44,6 +44,16 @@
     #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
     #bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; }
 
+    /* Right Side Drawer / Modal Styling */
+    #rightMenuDrawer { position: fixed; inset: 0; z-index: 10005; display: none; background: rgba(0, 0, 0, 0.6); justify-content: flex-end; }
+    #rightMenuDrawer.show { display: flex; }
+    .drawer-content { width: 80%; max-width: 320px; height: 100%; height: 100dvh; background: #1A2C38; color: #FFFFFF; display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.5); transform: translateX(100%); transition: transform 0.3s ease-in-out; }
+    #rightMenuDrawer.show .drawer-content { transform: translateX(0); }
+    .drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #0F212E; border-bottom: 1px solid #2a3b4c; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+    .drawer-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: #0F212E; border: 1px solid #243442; border-radius: 12px; color: #FFFFFF; font-weight: 650; font-size: var(--font-base); transition: background 0.2s; text-decoration: none; }
+    .drawer-item:active { background: #223444; }
+
     /* Bet History modal */
     #betHistoryModal { position:fixed; inset:0; z-index:10000; display:none; align-items:stretch; justify-content:stretch; padding:0; background:#202628; }
     #betHistoryModal.show { display:flex; }
@@ -134,8 +144,8 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <!-- Account Symbol -->
-          <div class="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#1A2C38] shrink-0 flex items-center justify-center text-emerald-400 text-2xl shadow-inner">
+          <!-- Account Symbol (Clickable to open Right Drawer) -->
+          <div onclick="openRightDrawer()" class="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-400 bg-[#1A2C38] shrink-0 flex items-center justify-center text-emerald-400 text-2xl shadow-inner cursor-pointer hover:opacity-90 transition" title="Open Menu">
             <i class="fa-solid fa-user-shield"></i>
           </div>
 
@@ -236,6 +246,27 @@
 
     <!-- Bottom Bar Container -->
     <div id="bottomBarContainer"></div>
+  </div>
+
+
+  <!-- Right Side Menu Drawer Modal -->
+  <div id="rightMenuDrawer" role="dialog" aria-modal="true" onclick="if(event.target===this) closeRightDrawer()">
+    <div class="drawer-content">
+      <div class="drawer-header">
+        <h3 class="font-bold text-lg">Profile Menu</h3>
+        <button type="button" onclick="closeRightDrawer()" class="w-8 h-8 rounded-full bg-[#0F212E] text-white flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="drawer-body">
+        <a href="../account/settings.html" class="drawer-item">
+          <span>Account Setting</span>
+          <i class="fa-solid fa-plus text-emerald-400"></i>
+        </a>
+        <a href="../account/verification.html" class="drawer-item">
+          <span>Verification</span>
+          <i class="fa-solid fa-plus text-emerald-400"></i>
+        </a>
+      </div>
+    </div>
   </div>
 
 
@@ -360,6 +391,16 @@
   </div>
 
   <script>
+    // Right Menu Drawer Control Functions
+    function openRightDrawer() {
+      document.getElementById('rightMenuDrawer').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeRightDrawer() {
+      document.getElementById('rightMenuDrawer').classList.remove('show');
+      document.body.style.overflow = '';
+    }
 
     let betHistoryRequestToken = 0;
 
@@ -376,7 +417,7 @@
     }
 
     document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape') { closeBetHistory(); closeRollover(); closeTransactions(); }
+      if (event.key === 'Escape') { closeBetHistory(); closeRollover(); closeTransactions(); closeRightDrawer(); }
     });
 
     function bhEscape(value) {
