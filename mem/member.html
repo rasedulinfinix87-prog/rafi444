@@ -132,8 +132,62 @@
 <body class="font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none antialiased">
   <div class="w-full max-w-md min-h-screen flex flex-col overflow-x-hidden shadow-2xl relative">
 
-    <!-- Top Bar Container -->
-    <div id="topBarContainer"></div>
+    <!-- Top Navigation Bar Container (Integrated directly from top.html with #1A2C38 background) -->
+    <header class="w-full bg-[#1A2C38] border-b border-[#0F212E] px-4 py-3.5 flex items-center justify-between text-[#FFFFFF] select-none sticky top-0 z-50">
+      <!-- Left Side: Logo -->
+      <div class="flex items-center gap-3">
+        <a href="/rafi444/index.html" class="flex items-center focus:outline-none">
+          <img src="/rafi444/assets/images/logo.png" alt="Logo" class="h-7 w-auto object-contain" onerror="this.style.display='none'" />
+        </a>
+      </div>
+
+      <!-- Right Side: Balance, Deposit, Notifications & Profile -->
+      <div class="flex items-center gap-3">
+        <!-- Balance & Deposit Box -->
+        <div class="flex items-center bg-[#0F212E] border border-[#0F212E] rounded-lg p-1 text-[var(--font-xs)] shadow-sm">
+          <div class="flex items-center px-3 py-1">
+            <span id="topBarBalance" class="font-extrabold text-[#FFFFFF] text-[var(--font-md)] tracking-wide">0.00</span>
+          </div>
+          
+          <!-- Deposit / Wallet Button -->
+          <a href="/rafi444/account/deposit.html" id="depositLinkBtn" class="bg-[#24ee89] hover:bg-[#1ebc6d] text-[#0F212E] font-extrabold p-2 rounded-md transition flex items-center justify-center shadow-md">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Notification Icon -->
+        <div class="relative">
+          <button id="notifBtn" onclick="toggleNotifications()" class="relative p-2.5 text-[#FFFFFF] hover:text-[#24ee89] rounded-lg bg-[#0F212E] border border-[#0F212E] transition focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <span id="notifBadge" class="absolute top-2 right-2 w-2 h-2 bg-[#24ee89] rounded-full ring-2 ring-[#0F212E]"></span>
+          </button>
+
+          <div id="notifDropdown" class="hidden absolute right-0 mt-2 w-72 bg-[#1A2C38] border border-[#0F212E] rounded-xl shadow-2xl z-50 overflow-hidden">
+            <div class="p-3 border-b border-[#0F212E] flex justify-between items-center">
+              <span class="text-[var(--font-xs)] font-bold text-[#FFFFFF]">Notifications</span>
+              <button onclick="clearNotifications()" class="text-[10px] text-[#FFFFFF]/70 hover:text-[#FFFFFF]">Mark as read</button>
+            </div>
+            <div id="notifList" class="max-h-60 overflow-y-auto p-2 text-[var(--font-xs)] space-y-2 text-[#FFFFFF]/80">
+              <div class="p-2 bg-[#0F212E] rounded-lg border border-[#0F212E]">
+                <p class="text-[#FFFFFF] font-medium text-[11px]">Welcome Bonus Received!</p>
+                <span class="text-[9px] text-[#FFFFFF]/70">Your initial deposit bonus has been credited.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Icon (Triggers Right-Side Drawer Modal directly) -->
+        <button type="button" id="profileLinkBtn" onclick="openProfileDrawer()" class="p-2 text-[#FFFFFF] hover:text-[#24ee89] rounded-lg hover:bg-[#0F212E] transition border border-[#0F212E] flex items-center justify-center bg-[#0F212E] cursor-pointer">
+          <svg class="w-6 h-6 text-[#FFFFFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
 
     <main class="px-3 py-3 flex-1 flex flex-col gap-4">
 
@@ -285,10 +339,6 @@
             <p class="text-[#FFFFFF]/50">Loading history...</p>
           </div>
         </div>
-
-        <button type="button" onclick="logoutUser()" class="w-full bg-red-500/20 text-red-400 border border-red-500/30 font-bold py-3 rounded-xl text-sm transition hover:bg-red-500/30 mt-auto">
-          <i class="fa-solid fa-right-from-bracket mr-2"></i> Log Out
-        </button>
       </div>
     </section>
   </div>
@@ -445,21 +495,31 @@
 
     async function loadDrawerProfileData() {
       try {
-        const user = await requireAuth();
-        if (!user) return;
-        const profile = await getUserProfile(user.id);
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) return;
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
+        if (!userId) return;
+
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
 
         if (profile) {
-          document.getElementById('drawerUserName').innerText = profile.full_name || 'User';
+          document.getElementById('drawerUserName').innerText = profile.full_name || userObj.email || 'User';
           document.getElementById('drawerUserPhone').innerText = profile.phone_number || 'N/A';
-          document.getElementById('drawerUserEmail').innerText = user.email || 'N/A';
+          document.getElementById('drawerUserEmail').innerText = userObj.email || 'N/A';
         }
 
         // Recent Deposits in Drawer
         const { data: deposits } = await supabaseClient
           .from('deposits')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('created_at', { ascending: false })
           .limit(3);
 
@@ -485,7 +545,7 @@
         const { data: withdrawals } = await supabaseClient
           .from('withdrawals')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .order('created_at', { ascending: false })
           .limit(3);
 
@@ -551,12 +611,13 @@
       list.innerHTML = '<div class="bh-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading bet history...</div>';
 
       try {
-        const user = await requireAuth();
-        if (!user) {
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) {
           list.innerHTML = '<div class="bh-empty"><i class="fa-regular fa-user"></i><div>Please log in to view bet history.</div></div>';
           return;
         }
-        const userId = user.id;
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
         if (!userId) {
           list.innerHTML = '<div class="bh-empty"><i class="fa-regular fa-user"></i><div>User session is invalid. Please log in again.</div></div>';
           return;
@@ -651,12 +712,13 @@
       const token = ++transactionsRequestToken;
       list.innerHTML = '<div class="tx-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading transactions...</div>';
       try {
-        const user = await requireAuth();
-        if (!user) {
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) {
           list.innerHTML = '<div class="tx-empty"><i class="fa-regular fa-user"></i><div>Please log in to view your transactions.</div></div>';
           return;
         }
-        const userId = user.id;
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
         if (!userId) throw new Error('User session is invalid. Please log in again.');
         if (typeof supabaseClient === 'undefined' || !supabaseClient) throw new Error('Supabase client is unavailable. Check supabase-config.js.');
 
@@ -714,7 +776,7 @@
           const normalizedStatus = status.toLowerCase().replace(/[^a-z0-9_-]/g, '');
           const method = item.payment_method || (item._type === 'deposit' ? 'Deposit' : 'Withdrawal');
           const detailParts = [method];
-          if (item._type === 'deposit' && item.transection_id) detailParts.push('TrxID: ' + item.transection_id);
+          if (item._type === 'deposit' && item.transection_id) detailParts.push('Transaction ID: ' + item.transection_id);
           if (item._type === 'withdrawal' && item.account_number) detailParts.push('Account: ' + item.account_number);
           if (item._type === 'deposit' && Number(item.bonus_amount || 0) > 0) detailParts.push('Bonus: ' + txMoney(item.bonus_amount));
           return '<div class="tx-row"><div><div class="tx-primary">' + bhEscape(item._label) + '</div>' +
@@ -760,9 +822,10 @@
       errorBox.style.display = 'none';
 
       try {
-        const user = await requireAuth();
-        if (!user) throw new Error('Please log in to view rollover details.');
-        const userId = user.id;
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) throw new Error('Please log in to view rollover details.');
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
         if (!userId) throw new Error('User session is invalid. Please log in again.');
         if (typeof supabaseClient === 'undefined' || !supabaseClient) {
           throw new Error('Supabase client is unavailable. Check supabase-config.js.');
@@ -840,14 +903,27 @@
 
     async function loadMemberProfile() {
       try {
-        const user = await requireAuth();
+        const storedUser = localStorage.getItem('current_user');
 
-        if (!user) {
+        if (!storedUser) {
           window.location.href = '../login-signup.html';
           return;
         }
 
-        const userId = user.id;
+        let currentUserObj;
+
+        try {
+          currentUserObj = JSON.parse(storedUser);
+        } catch (parseError) {
+          console.error('Invalid current_user data:', parseError);
+          window.location.href = '../login-signup.html';
+          return;
+        }
+
+        const userId =
+          currentUserObj.id ||
+          currentUserObj.user_id ||
+          currentUserObj.uid;
 
         if (!userId) {
           console.error('Logged-in user UUID was not found.');
@@ -918,91 +994,117 @@
       }
     }
 
-    // টপবার ও বটমবার লোড করার ফাংশন যেখানে টপবার লোড হওয়ার পর প্রোফাইল লিংকের আচরণ পরিবর্তন করা হয়েছে
+    // টপবার ব্যালান্স সিঙ্ক এবং রিয়েলটাইম লজিক (যা আগে top.html ফাইলে ছিল)
+    let balanceSyncInProgress = false;
+    let balanceRefreshTimer = null;
+    let profileChannel = null;
+
+    async function syncTopBarBalance() {
+      if (balanceSyncInProgress) return;
+      const balanceElement = document.getElementById('topBarBalance');
+      if (!balanceElement) return;
+
+      balanceSyncInProgress = true;
+
+      try {
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) {
+          balanceElement.textContent = '0.00';
+          return;
+        }
+        let currentUserObj = JSON.parse(storedUser);
+        const userId = currentUserObj.id || currentUserObj.user_id || currentUserObj.uid;
+        if (!userId) return;
+
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+
+        const { data: profile, error } = await supabaseClient
+          .from('profiles')
+          .select('id, balance')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (error || !profile) return;
+
+        const balance = Number(profile.balance);
+        if (profile.balance !== null && profile.balance !== undefined && Number.isFinite(balance)) {
+          balanceElement.textContent = balance.toFixed(2);
+        }
+      } catch (error) {
+        console.error('Top bar balance synchronization error:', error);
+      } finally {
+        balanceSyncInProgress = false;
+      }
+    }
+
+    function subscribeToTopBarBalance() {
+      if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+      const storedUser = localStorage.getItem('current_user');
+      if (!storedUser) return;
+      let user = JSON.parse(storedUser);
+      const userId = user.id || user.user_id || user.uid;
+      if (!userId) return;
+
+      if (profileChannel) {
+        supabaseClient.removeChannel(profileChannel);
+        profileChannel = null;
+      }
+
+      profileChannel = supabaseClient
+        .channel('top-bar-balance-' + userId)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: 'id=eq.' + userId
+          },
+          function (payload) {
+            const balanceElement = document.getElementById('topBarBalance');
+            const newBalance = Number(payload.new && payload.new.balance);
+            if (balanceElement && payload.new && payload.new.balance !== null && Number.isFinite(newBalance)) {
+              balanceElement.textContent = newBalance.toFixed(2);
+            } else {
+              syncTopBarBalance();
+            }
+          }
+        )
+        .subscribe();
+    }
+
+    // শুধু বটমবার লোড করার ফাংশন রাখা হলো কারণ হেডার এখন সরাসরি ইনটিগ্রেটেড
     async function loadBars() {
       try {
-        const topRes = await fetch('../bar/top.html');
-        if (topRes.ok) {
-          let topHtml = await topRes.text();
-          document.getElementById('topBarContainer').innerHTML = topHtml;
-          
-          const profileBtn = document.getElementById('profileLinkBtn');
-          if (profileBtn) {
-            // যেহেতু আমরা member.html ফাইলে আছি, তাই লিংক পরিবর্তন করে ড্রয়ার ওপেন করার ফাংশন বসানো হলো
-            profileBtn.removeAttribute('href');
-            profileBtn.style.cursor = 'pointer';
-            profileBtn.onclick = function(e) {
-              e.preventDefault();
-              openProfileDrawer();
-            };
-          }
-
-          // টপবার লোড হওয়ার সাথে সাথে ব্যালান্স আপডেট করার এক্সট্রা ফাংশন
-          syncMemberTopBarBalance();
-        }
-
         const botRes = await fetch('../bar/bottom.html');
         if (botRes.ok) {
           document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
         }
       } catch (err) {
-        console.error('Bars loading error:', err);
-      }
-    }
-
-    // member.html এর নিজস্ব টপবার ব্যালান্স সিঙ্ক ফাংশন
-    async function syncMemberTopBarBalance() {
-      try {
-        const balanceElement = document.getElementById('topBarBalance');
-        if (!balanceElement) return;
-
-        const user = await requireAuth();
-        if (!user) return;
-
-        const userId = user.id;
-        if (!userId) return;
-
-        if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
-
-        const { data: profile } = await supabaseClient
-          .from('profiles')
-          .select('balance')
-          .eq('id', userId)
-          .maybeSingle();
-
-        if (profile && profile.balance !== null && profile.balance !== undefined) {
-          const bal = Number(profile.balance);
-          if (Number.isFinite(bal)) {
-            balanceElement.textContent = bal.toFixed(2);
-          }
-        }
-      } catch (err) {
-        console.error('Sync top bar balance error:', err);
+        console.error('Bottom bar loading error:', err);
       }
     }
 
     function setTheme(theme) {
       const isLight = theme === 'light';
-
       document.body.classList.toggle('light-mode', isLight);
-
-      document.getElementById('darkThemeBtn')
-        .classList.toggle('active', !isLight);
-
-      document.getElementById('lightThemeBtn')
-        .classList.toggle('active', isLight);
+      document.getElementById('darkThemeBtn').classList.toggle('active', !isLight);
+      document.getElementById('lightThemeBtn').classList.toggle('active', isLight);
     }
 
     function cycleLanguage() {
       const el = document.getElementById('languageValue');
-
-      el.textContent =
-        el.textContent === 'English' ? 'বাংলা' : 'English';
+      el.textContent = el.textContent === 'English' ? 'বাংলা' : 'English';
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       loadBars();
       loadMemberProfile();
+      syncTopBarBalance();
+      subscribeToTopBarBalance();
+      
+      if (balanceRefreshTimer) clearInterval(balanceRefreshTimer);
+      balanceRefreshTimer = setInterval(syncTopBarBalance, 5000);
     });
   </script>
 </body>
