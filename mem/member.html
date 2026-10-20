@@ -410,12 +410,12 @@
       list.innerHTML = '<div class="bh-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading bet history...</div>';
 
       try {
-        const user = await getCurrentUser();
+        const user = await requireAuth();
         if (!user) {
           list.innerHTML = '<div class="bh-empty"><i class="fa-regular fa-user"></i><div>Please log in to view bet history.</div></div>';
           return;
         }
-        const userId = user.id || user.user_id || user.uid;
+        const userId = user.id;
         if (!userId) {
           list.innerHTML = '<div class="bh-empty"><i class="fa-regular fa-user"></i><div>User session is invalid. Please log in again.</div></div>';
           return;
@@ -510,12 +510,12 @@
       const token = ++transactionsRequestToken;
       list.innerHTML = '<div class="tx-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading transactions...</div>';
       try {
-        const user = await getCurrentUser();
+        const user = await requireAuth();
         if (!user) {
           list.innerHTML = '<div class="tx-empty"><i class="fa-regular fa-user"></i><div>Please log in to view your transactions.</div></div>';
           return;
         }
-        const userId = user.id || user.user_id || user.uid;
+        const userId = user.id;
         if (!userId) throw new Error('User session is invalid. Please log in again.');
         if (typeof supabaseClient === 'undefined' || !supabaseClient) throw new Error('Supabase client is unavailable. Check supabase-config.js.');
 
@@ -573,7 +573,7 @@
           const normalizedStatus = status.toLowerCase().replace(/[^a-z0-9_-]/g, '');
           const method = item.payment_method || (item._type === 'deposit' ? 'Deposit' : 'Withdrawal');
           const detailParts = [method];
-          if (item._type === 'deposit' && item.transection_id) detailParts.push('Transaction ID: ' + item.transection_id);
+          if (item._type === 'deposit' && item.transection_id) detailParts.push('TrxID: ' + item.transection_id);
           if (item._type === 'withdrawal' && item.account_number) detailParts.push('Account: ' + item.account_number);
           if (item._type === 'deposit' && Number(item.bonus_amount || 0) > 0) detailParts.push('Bonus: ' + txMoney(item.bonus_amount));
           return '<div class="tx-row"><div><div class="tx-primary">' + bhEscape(item._label) + '</div>' +
@@ -619,9 +619,9 @@
       errorBox.style.display = 'none';
 
       try {
-        const user = await getCurrentUser();
+        const user = await requireAuth();
         if (!user) throw new Error('Please log in to view rollover details.');
-        const userId = user.id || user.user_id || user.uid;
+        const userId = user.id;
         if (!userId) throw new Error('User session is invalid. Please log in again.');
         if (typeof supabaseClient === 'undefined' || !supabaseClient) {
           throw new Error('Supabase client is unavailable. Check supabase-config.js.');
@@ -699,14 +699,14 @@
 
     async function loadMemberProfile() {
       try {
-        const user = await getCurrentUser();
+        const user = await requireAuth();
 
         if (!user) {
           window.location.href = '../login-signup.html';
           return;
         }
 
-        const userId = user.id || user.user_id || user.uid;
+        const userId = user.id;
 
         if (!userId) {
           console.error('Logged-in user UUID was not found.');
@@ -809,10 +809,10 @@
         const balanceElement = document.getElementById('topBarBalance');
         if (!balanceElement) return;
 
-        const user = await getCurrentUser();
+        const user = await requireAuth();
         if (!user) return;
 
-        const userId = user.id || user.user_id || user.uid;
+        const userId = user.id;
         if (!userId) return;
 
         if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
