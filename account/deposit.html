@@ -11,6 +11,7 @@
   <!-- Supabase JS Client & App Config -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     :root {
@@ -34,45 +35,34 @@
       border-radius: 4px;
     }
 
-    .bonus-card {
+    .bank-card {
       background: #1A2C38;
-      border: 1px solid #0F212E;
+      border: 1px solid #283542;
       border-radius: 12px;
-      padding: 12px 8px;
+      padding: 12px 10px;
       text-align: center;
-      min-width: 0;
-      transition: border-color .2s, background .2s;
+      position: relative;
+      transition: all .2s ease;
     }
 
-    .bonus-card.active {
+    .bank-card.active {
       border: 2px solid #24ee89;
-      background: #102820;
-      padding: 11px 7px;
+      background: #152938;
     }
 
-    .bonus-card:disabled {
-      opacity: .45;
-      cursor: not-allowed;
+    .amount-preset-card {
+      background: #1A2C38;
+      border: 1px solid #283542;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      position: relative;
+      transition: all .2s ease;
     }
 
-    .bonus-percent {
-      color: #24ee89;
-      font-size: var(--font-md);
-      font-weight: 900;
-    }
-
-    .bonus-subtitle {
-      color: #FFFFFF;
-      font-size: var(--font-xs);
-      margin-top: 5px;
-    }
-
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      font-size: var(--font-sm);
+    .amount-preset-card.active {
+      border: 2px solid #24ee89;
+      background: #152938;
     }
   </style>
 </head>
@@ -88,192 +78,192 @@
     <div class="w-12"></div>
   </header>
 
-  <main class="max-w-md w-full mx-auto p-4 space-y-6 flex-1 pb-10">
+  <main class="max-w-md w-full mx-auto p-4 space-y-5 flex-1 pb-10">
 
     <!-- Alert Box -->
     <div id="alertBox" class="hidden p-3 rounded-xl text-[var(--font-xs)] font-semibold shadow-md transition-all"></div>
 
-    <!-- Currency Selector -->
-    <section class="space-y-1.5">
-      <span class="text-[var(--font-xs)] text-[#FFFFFF] font-semibold">Currency</span>
-      <div class="w-full bg-[#1A2C38] border border-[#0F212E] rounded-xl px-3.5 py-2.5 flex items-center justify-between text-[var(--font-xs)] font-bold text-[#FFFFFF]">
-        <div class="flex items-center gap-2">
-          <span class="w-5 h-5 rounded-full bg-[#24ee89]/20 text-[#24ee89] flex items-center justify-center text-[10px]">৳</span>
-          <span>BDT</span>
-        </div>
-        <span class="text-[#FFFFFF]/60">▼</span>
+    <!-- Currency Selector Row -->
+    <div class="flex items-center justify-between bg-[#1A2C38] border border-[#283542] rounded-xl p-3">
+      <span class="text-[var(--font-xs)] text-[#FFFFFF]/70 font-semibold">Currency</span>
+      <div class="flex items-center gap-2 bg-[#0F212E] px-3 py-1.5 rounded-lg border border-[#283542]">
+        <span class="w-5 h-5 rounded-full bg-[#24ee89] text-[#0F212E] flex items-center justify-center font-black text-[10px]">৳</span>
+        <span class="text-[var(--font-xs)] font-bold">BDT</span>
+        <i class="fa-solid fa-chevron-down text-[10px] text-[#FFFFFF]/60 ml-1"></i>
       </div>
-    </section>
+    </div>
 
     <!-- Deposit Method Section -->
     <section class="space-y-2">
-      <div class="flex items-center gap-1.5 text-[var(--font-xs)] font-bold text-[#FFFFFF]">
-        <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
-        <span>Deposit Method</span>
-      </div>
+      <span class="text-[var(--font-xs)] font-bold text-[#FFFFFF]/80">Deposit Method</span>
 
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="methodGrid">
-        <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card relative bg-[#1A2C38] border-2 border-[#24ee89] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 transition">
-          <span class="absolute top-2 right-2 w-4 h-4 bg-[#24ee89] rounded-full text-[#0F212E] text-[9px] flex items-center justify-center font-bold check-icon">✓</span>
-          <span class="text-[var(--font-xs)] font-black text-pink-500 tracking-wider">BKASH</span>
-          <span class="text-[10px] font-bold text-[#FFFFFF] flex items-center gap-1">Secure <span class="text-[9px]">↗</span></span>
+      <div class="grid grid-cols-3 gap-2.5" id="methodGrid">
+        <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="bank-card active">
+          <div class="text-[var(--font-xs)] font-black text-pink-500 mb-1">bKash</div>
+          <span class="text-[10px] font-bold text-[#FFFFFF] block truncate">BKASH</span>
         </button>
 
-        <button type="button" onclick="selectMethod('Nagad')" id="method-Nagad" class="method-card relative bg-[#1A2C38] border border-[#0F212E] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 hover:border-[#0F212E] transition">
-          <span class="absolute top-2 right-2 w-4 h-4 bg-[#24ee89] rounded-full text-[#0F212E] text-[9px] flex items-center justify-center font-bold check-icon hidden">✓</span>
-          <span class="text-[var(--font-xs)] font-black text-orange-500 tracking-wider">NAGAD</span>
-          <span class="text-[10px] font-bold text-[#FFFFFF] flex items-center gap-1">Secure <span class="text-[9px]">↗</span></span>
+        <button type="button" onclick="selectMethod('Nagad')" id="method-Nagad" class="bank-card">
+          <div class="text-[var(--font-xs)] font-black text-orange-500 mb-1">NAGAD</div>
+          <span class="text-[10px] font-bold text-[#FFFFFF] block truncate">NAGAD</span>
         </button>
 
-        <button type="button" onclick="selectMethod('Rocket')" id="method-Rocket" class="method-card relative bg-[#1A2C38] border border-[#0F212E] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 hover:border-[#0F212E] transition">
-          <span class="absolute top-2 right-2 w-4 h-4 bg-[#24ee89] rounded-full text-[#0F212E] text-[9px] flex items-center justify-center font-bold check-icon hidden">✓</span>
-          <span class="text-[var(--font-xs)] font-black text-purple-500 tracking-wider">ROCKET</span>
-          <span class="text-[10px] font-bold text-[#FFFFFF] flex items-center gap-1">Secure <span class="text-[9px]">↗</span></span>
+        <button type="button" onclick="selectMethod('Rocket')" id="method-Rocket" class="bank-card">
+          <div class="text-[var(--font-xs)] font-black text-purple-500 mb-1">ROCKET</div>
+          <span class="text-[10px] font-bold text-[#FFFFFF] block truncate">ROCKET</span>
         </button>
       </div>
     </section>
 
-    <!-- Deposit Amounts Quick Selection -->
+    <!-- Deposit Amount Section -->
     <section class="space-y-2">
-      <div class="flex items-center justify-between text-[var(--font-xs)] font-bold text-[#FFFFFF]">
-        <div class="flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
-          <span>Deposit Amount (100 - 25,000 BDT)</span>
+      <div class="flex justify-between items-center text-[var(--font-xs)] font-bold text-[#FFFFFF]/80">
+        <span>Deposit Amount (100 - 25,000 BDT)</span>
+      </div>
+
+      <!-- Amount Quick Selection Grid (बैंक स्टाइल कार्ड) -->
+      <div class="grid grid-cols-2 gap-2.5">
+        <button type="button" onclick="setAmount(150)" class="amount-preset-card">
+          <span class="absolute top-1.5 right-1.5 bg-orange-500 text-[9px] font-black px-1.5 py-0.5 rounded text-white">+180%</span>
+          <div class="text-[var(--font-sm)] font-bold text-[#FFFFFF] mt-1">BDT 150</div>
+        </button>
+
+        <button type="button" onclick="setAmount(500)" class="amount-preset-card">
+          <span class="absolute top-1.5 right-1.5 bg-orange-500 text-[9px] font-black px-1.5 py-0.5 rounded text-white">+180%</span>
+          <div class="text-[var(--font-sm)] font-bold text-[#FFFFFF] mt-1">BDT 500</div>
+        </button>
+
+        <button type="button" onclick="setAmount(5000)" class="amount-preset-card">
+          <span class="absolute top-1.5 right-1.5 bg-orange-500 text-[9px] font-black px-1.5 py-0.5 rounded text-white">+180%</span>
+          <div class="text-[var(--font-sm)] font-bold text-[#FFFFFF] mt-1">BDT 5,000</div>
+        </button>
+
+        <button type="button" onclick="setAmount(25000)" class="amount-preset-card">
+          <span class="absolute top-1.5 right-1.5 bg-orange-500 text-[9px] font-black px-1.5 py-0.5 rounded text-white">+180%</span>
+          <div class="text-[var(--font-sm)] font-bold text-[#FFFFFF] mt-1">BDT 25,000</div>
+        </button>
+      </div>
+
+      <!-- Custom Amount Input -->
+      <div class="pt-1">
+        <div class="relative flex items-center">
+          <input type="number" id="customAmount" min="100" max="25000" step="1" placeholder="Enter custom amount..." class="w-full bg-[#1A2C38] border border-[#283542] rounded-xl px-3 py-3 text-[var(--font-xs)] text-[#FFFFFF] focus:outline-none focus:border-[#24ee89] font-semibold placeholder-[#FFFFFF]/40">
+          <span id="extraBonusDisplay" class="absolute right-3 text-[var(--font-xs)] text-[#24ee89] font-bold"></span>
         </div>
-      </div>
-
-      <!-- Custom Amount Input with Extra Info -->
-      <div class="relative flex items-center">
-        <input type="number" id="customAmount" min="100" max="25000" step="1" placeholder="150" class="w-full bg-[#1A2C38] border border-[#0F212E] rounded-xl px-3 py-3 text-[var(--font-xs)] text-[#FFFFFF] focus:outline-none focus:border-[#24ee89] font-semibold placeholder-[#FFFFFF]">
-        <div id="extraBonusDisplay" class="absolute right-3 text-[var(--font-xs)] font-bold text-[#24ee89]"></div>
-      </div>
-
-      <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1">
-        <button type="button" onclick="setAmount(100)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2.5 text-[var(--font-xs)] font-bold transition">100</button>
-        <button type="button" onclick="setAmount(200)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2.5 text-[var(--font-xs)] font-bold transition">200</button>
-        <button type="button" onclick="setAmount(500)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2.5 text-[var(--font-xs)] font-bold transition">500</button>
-        <button type="button" onclick="setAmount(1000)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2.5 text-[var(--font-xs)] font-bold transition">1,000</button>
-        <button type="button" onclick="setAmount(2000)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2.5 text-[var(--font-xs)] font-bold transition">2,000</button>
-        <button type="button" onclick="setAmount(5000)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2.5 text-[var(--font-xs)] font-bold transition">5,000</button>
-        <button type="button" onclick="setAmount(10000)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2.5 text-[var(--font-xs)] font-bold transition">10,000</button>
-        <button type="button" onclick="setAmount(25000)" class="amount-btn bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89] rounded-xl py-2.5 text-[var(--font-xs)] font-bold transition">25,000</button>
       </div>
     </section>
 
     <!-- OPTIONAL DEPOSIT BONUS -->
-    <section class="space-y-3">
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-1.5 text-[var(--font-xs)] font-bold text-[#FFFFFF]">
-          <span class="w-2 h-2 rounded-full bg-[#24ee89]"></span>
-          <span>Deposit Bonus</span>
-        </div>
-        <span class="text-[10px] text-[#24ee89] cursor-pointer hover:underline">View Bonus Details</span>
+    <section class="space-y-2">
+      <div class="flex items-center justify-between">
+        <span class="text-[var(--font-xs)] font-bold text-[#FFFFFF]/80">Deposit Bonus</span>
+        <a href="javascript:void(0)" class="text-[10px] text-[#24ee89] font-bold hover:underline">View Bonus Details</a>
       </div>
 
       <!-- Bonus Options -->
       <div id="bonusGrid" class="grid grid-cols-2 gap-2">
-        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active">
-          <div class="text-[var(--font-sm)] font-black text-[#FFFFFF]">No Bonus</div>
+        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bank-card active">
+          <div class="text-[var(--font-xs)] font-black text-[#FFFFFF]">No Bonus</div>
         </button>
       </div>
 
-      <p id="bonusLoading" class="text-[10px] text-[#FFFFFF]">
+      <p id="bonusLoading" class="text-[10px] text-[#FFFFFF]/60">
         Loading available bonuses...
       </p>
 
-      <!-- Deposit Calculation -->
-      <div class="bg-[#1A2C38] border border-[#0F212E] rounded-xl p-3.5 space-y-3">
-        <div class="summary-row">
-          <span class="text-[#FFFFFF]">Deposit Amount</span>
+      <!-- Deposit Calculation Summary -->
+      <div class="bg-[#1A2C38] border border-[#283542] rounded-xl p-3.5 space-y-2.5">
+        <div class="flex justify-between items-center text-[var(--font-sm)]">
+          <span class="text-[#FFFFFF]/70">Deposit Amount</span>
           <span id="summaryDeposit" class="font-bold text-[#FFFFFF]">৳0.00</span>
         </div>
 
-        <div class="summary-row">
-          <span class="text-[#FFFFFF]">Bonus Amount</span>
+        <div class="flex justify-between items-center text-[var(--font-sm)]">
+          <span class="text-[#FFFFFF]/70">Bonus Amount</span>
           <span id="summaryBonus" class="font-bold text-[#24ee89]">+৳0.00</span>
         </div>
 
-        <div class="border-t border-[#0F212E] pt-3 summary-row">
+        <div class="border-t border-[#283542] pt-2.5 flex justify-between items-center text-[var(--font-sm)]">
           <span class="font-bold text-[#FFFFFF]">Total After Bonus</span>
-          <span id="summaryTotal" class="font-black text-[var(--font-lg)] text-[#24ee89]">৳0.00</span>
+          <span id="summaryTotal" class="font-black text-[var(--font-md)] text-[#24ee89]">৳0.00</span>
         </div>
       </div>
     </section>
 
-    <!-- Next Action Button (Matching Screenshot Style) -->
-    <button type="button" onclick="openPaymentModal()" id="depositSubmitBarBtn" class="w-full bg-[#24ee89] text-[#0F212E] font-extrabold py-3.5 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition shadow-lg shadow-[#24ee89]/15 flex items-center justify-center gap-2">
-      Deposit Via BKASH <span class="text-xs">🔗</span>
+    <!-- Next Action Button (ব্যাংক স্টাইল গ্রিন বাটন) -->
+    <button type="button" onclick="openPaymentModal()" class="w-full bg-[#24ee89] text-[#0F212E] font-black py-3.5 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition shadow-lg shadow-[#24ee89]/10">
+      Deposit Via <span id="btnMethodName">BKASH</span> <i class="fa-solid fa-arrow-right ml-1"></i>
     </button>
 
   </main>
 
   <!-- STEP 1: PAYMENT MODAL POPUP -->
-  <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-[#1A2C38] border border-[#0F212E] rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
-      <button type="button" onclick="closeModal('paymentModal')" class="absolute top-3 right-3 text-[#FFFFFF] hover:text-white text-[var(--font-base)]">✕</button>
+  <div id="paymentModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#1A2C38] border border-[#283542] rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl relative">
+      <button type="button" onclick="closeModal('paymentModal')" class="absolute top-3 right-3 text-[#FFFFFF]/70 hover:text-white text-[var(--font-base)]">✕</button>
 
-      <div class="text-center border-b border-[#0F212E] pb-3">
+      <div class="text-center border-b border-[#283542] pb-3">
         <h3 class="text-[var(--font-sm)] font-black text-[#24ee89]">Confirm Payment</h3>
-        <p class="text-[10px] text-[#FFFFFF] mt-0.5">Follow instructions to complete deposit</p>
+        <p class="text-[10px] text-[#FFFFFF]/70 mt-0.5">Follow instructions to complete deposit</p>
       </div>
 
       <!-- Payment Information -->
-      <div class="bg-[#0F212E] border border-[#0F212E] rounded-xl p-3.5 space-y-2.5 text-[var(--font-xs)]">
+      <div class="bg-[#0F212E] border border-[#283542] rounded-xl p-3.5 space-y-2.5 text-[var(--font-xs)]">
         <div class="flex justify-between items-center">
-          <span class="text-[#FFFFFF]">Method:</span>
+          <span class="text-[#FFFFFF]/70">Method:</span>
           <span id="modalMethod" class="font-bold text-[#FFFFFF]">bKash</span>
         </div>
 
         <div class="flex justify-between items-center">
-          <span class="text-[#FFFFFF]">Deposit Amount:</span>
+          <span class="text-[#FFFFFF]/70">Deposit Amount:</span>
           <span id="modalAmount" class="font-extrabold text-[#FFFFFF]">0 BDT</span>
         </div>
 
         <div class="flex justify-between items-center">
-          <span class="text-[#FFFFFF]">Bonus:</span>
+          <span class="text-[#FFFFFF]/70">Bonus:</span>
           <span id="modalBonus" class="font-bold text-[#24ee89]">0 BDT</span>
         </div>
 
-        <div class="flex justify-between items-center border-t border-[#0F212E] pt-2">
-          <span class="text-[#FFFFFF]">Total After Bonus:</span>
+        <div class="flex justify-between items-center border-t border-[#283542] pt-2">
+          <span class="text-[#FFFFFF]/70">Total After Bonus:</span>
           <span id="modalTotal" class="font-black text-[#24ee89]">0 BDT</span>
         </div>
 
-        <div class="flex justify-between items-center border-t border-[#0F212E] pt-2">
-          <span class="text-[#FFFFFF]">Send Money To:</span>
+        <div class="flex justify-between items-center border-t border-[#283542] pt-2">
+          <span class="text-[#FFFFFF]/70">Send Money To:</span>
           <div class="flex items-center gap-1.5">
             <span id="modalNumber" class="font-black text-amber-400 tracking-wider">Loading...</span>
-            <button type="button" onclick="copyNumber()" class="text-[10px] bg-[#1A2C38] hover:bg-[#0F212E] text-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#0F212E]">Copy</button>
+            <button type="button" onclick="copyNumber()" class="text-[10px] bg-[#1A2C38] hover:bg-[#0F212E] text-[#FFFFFF] px-1.5 py-0.5 rounded border border-[#283542]">Copy</button>
           </div>
         </div>
       </div>
 
       <!-- Transaction ID Input Field -->
       <div class="space-y-1">
-        <label for="modalTrxId" class="block text-[var(--font-xs)] font-bold text-[#FFFFFF]">Transaction ID (TrxID)</label>
-        <input type="text" id="modalTrxId" placeholder="e.g. 9J83KS92" class="w-full bg-[#0F212E] border border-[#0F212E] rounded-xl px-3 py-2.5 text-[var(--font-xs)] text-[#FFFFFF] focus:outline-none focus:border-[#24ee89] tracking-wider uppercase font-mono">
+        <label for="modalTrxId" class="block text-[var(--font-xs)] font-bold text-[#FFFFFF]/80">Transaction ID (TrxID)</label>
+        <input type="text" id="modalTrxId" placeholder="e.g. 9J83KS92" class="w-full bg-[#0F212E] border border-[#283542] rounded-xl px-3 py-2.5 text-[var(--font-xs)] text-[#FFFFFF] focus:outline-none focus:border-[#24ee89] tracking-wider uppercase font-mono">
       </div>
 
       <!-- Modal Submit Button -->
-      <button type="button" id="submitDepositBtn" onclick="submitDeposit()" class="w-full bg-[#24ee89] text-[#0F212E] font-extrabold py-2.5 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition">
+      <button type="button" id="submitDepositBtn" onclick="submitDeposit()" class="w-full bg-[#24ee89] text-[#0F212E] font-black py-2.5 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition">
         Submit Request
       </button>
     </div>
   </div>
 
   <!-- STEP 2: SUCCESS VERIFICATION MODAL POPUP -->
-  <div id="verificationModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-[#1A2C38] border border-[#0F212E] rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+  <div id="verificationModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#1A2C38] border border-[#283542] rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
       <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-[var(--font-lg)]">
         ✓
       </div>
 
       <div>
         <h3 class="text-[var(--font-md)] font-black text-[#FFFFFF]">Payment Verification</h3>
-        <p class="text-[var(--font-xs)] text-[#FFFFFF] mt-1">Your deposit request is currently being verified. Your deposit and bonus will be credited only after the payment is approved.</p>
+        <p class="text-[var(--font-xs)] text-[#FFFFFF]/70 mt-1">Your deposit request is currently being verified. Your deposit and bonus will be credited only after the payment is approved.</p>
       </div>
 
-      <button type="button" onclick="finishDeposit()" class="w-full bg-[#24ee89] text-[#0F212E] font-extrabold py-2.5 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition">
+      <button type="button" onclick="finishDeposit()" class="w-full bg-[#24ee89] text-[#0F212E] font-black py-2.5 rounded-xl text-[var(--font-xs)] uppercase tracking-wider hover:bg-emerald-400 transition">
         Done
       </button>
     </div>
@@ -419,26 +409,17 @@
     function selectMethod(method) {
       selectedMethod = method;
 
-      document.querySelectorAll('.method-card').forEach(card => {
-        card.classList.remove('border-[#24ee89]', 'border-2');
-        card.classList.add('border-[#0F212E]');
-        const check = card.querySelector('.check-icon');
-        if (check) check.classList.add('hidden');
+      document.querySelectorAll('.bank-card').forEach(card => {
+        card.classList.remove('active');
       });
 
       const activeBtn = document.getElementById(`method-${method}`);
 
       if (activeBtn) {
-        activeBtn.classList.remove('border-[#0F212E]');
-        activeBtn.classList.add('border-[#24ee89]', 'border-2');
-        const check = activeBtn.querySelector('.check-icon');
-        if (check) check.classList.remove('hidden');
+        activeBtn.classList.add('active');
       }
 
-      const submitBtnText = document.getElementById('depositSubmitBarBtn');
-      if (submitBtnText) {
-        submitBtnText.innerHTML = `Deposit Via ${method.toUpperCase()} <span class="text-xs">🔗</span>`;
-      }
+      document.getElementById('btnMethodName').innerText = method.toUpperCase();
     }
 
     function setAmount(amount) {
@@ -452,8 +433,8 @@
       const loading = document.getElementById('bonusLoading');
 
       grid.innerHTML = `
-        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bonus-card active relative">
-          <div class="text-[var(--font-sm)] font-black text-[#FFFFFF]">No Bonus</div>
+        <button type="button" onclick="selectBonus(null)" id="bonus-none" class="bank-card active">
+          <div class="text-[var(--font-xs)] font-black text-[#FFFFFF]">No Bonus</div>
         </button>
       `;
 
@@ -462,21 +443,16 @@
 
         button.type = 'button';
         button.id = `bonus-option-${index}`;
-        button.className = 'bonus-card relative overflow-hidden';
-
-        const badge = document.createElement('div');
-        badge.className = 'absolute top-0 right-0 bg-amber-500 text-black font-black text-[9px] px-1.5 py-0.5 rounded-bl-lg';
-        badge.textContent = `+${Number(bonus.bonus_percent)}%`;
+        button.className = 'bank-card';
 
         const title = document.createElement('div');
-        title.className = 'text-[var(--font-xs)] font-extrabold text-[#FFFFFF] mt-1';
+        title.className = 'text-[var(--font-xs)] font-extrabold text-[#FFFFFF]';
         title.textContent = bonus.title || `${bonus.bonus_percent}% Bonus`;
 
         const percent = document.createElement('div');
-        percent.className = 'bonus-percent text-xs';
-        percent.textContent = `BDT ${Number(bonus.min_deposit || 100)}`;
+        percent.className = 'text-[#24ee89] text-[var(--font-sm)] font-black mt-0.5';
+        percent.textContent = `${Number(bonus.bonus_percent)}%`;
 
-        button.appendChild(badge);
         button.appendChild(title);
         button.appendChild(percent);
 
@@ -495,7 +471,7 @@
     function selectBonus(bonus) {
       selectedBonus = bonus;
 
-      document.querySelectorAll('.bonus-card').forEach(card => {
+      document.querySelectorAll('#bonusGrid .bank-card').forEach(card => {
         card.classList.remove('active');
       });
 
