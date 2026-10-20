@@ -1024,7 +1024,7 @@
       }
     }
 
-    // ১০০% সিকিউরড কিউ ভিত্তিক সাবমিট লজিক (১০০০% সিওর কাউন্ট করার জন্য)
+    // ১০০% সিকিউরড কিউ ভিত্তিক সাবমিট লজিক (আগের বকেয়া টার্নওভারের সাথে নতুন টার্নওভার যোগ করার জন্য active_turnover_required কলাম ব্যবহার করা হলো)
     async function submitDeposit() {
       if (isSubmitting) return;
 
@@ -1097,24 +1097,24 @@
             return;
           }
 
-          // profiles টেবিলের turnover_required অত্যন্ত নিখুঁতভাবে আপডেট করার লজিক
+          // profiles টেবিলের active_turnover_required কলামে আগের বকেয়া টার্নওভারের সাথে নতুন টার্নওভার যোগ (Cumulative Sum) করার লজিক
           let updated = false;
           let retries = 3;
 
           while (!updated && retries > 0) {
             const { data: currentProfile, error: profileFetchError } = await supabaseClient
               .from('profiles')
-              .select('turnover_required')
+              .select('active_turnover_required')
               .eq('id', currentUserId)
               .maybeSingle();
 
             if (!profileFetchError) {
-              const existingRequired = Number(currentProfile?.turnover_required || 0);
-              const newTurnoverRequired = existingRequired + Number(calculation.turnoverRequired);
+              const existingRequired = Number(currentProfile?.active_turnover_required || 0);
+              const newActiveTurnoverRequired = existingRequired + Number(calculation.turnoverRequired);
 
               const { error: updateError } = await supabaseClient
                 .from('profiles')
-                .update({ turnover_required: newTurnoverRequired })
+                .update({ active_turnover_required: newActiveTurnoverRequired })
                 .eq('id', currentUserId);
 
               if (!updateError) {
