@@ -44,37 +44,6 @@
     #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
     #bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; }
 
-    /* Right Side Profile Drawer Styles */
-    #profileDrawer {
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: rgba(0, 0, 0, 0.6);
-      display: none;
-      justify-content: flex-end;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    #profileDrawer.show {
-      display: flex;
-      opacity: 1;
-    }
-    .drawer-content {
-      width: 80%;
-      max-width: 320px;
-      height: 100%;
-      background: #1A2C38;
-      color: #FFFFFF;
-      display: flex;
-      flex-direction: column;
-      transform: translateX(100%);
-      transition: transform 0.3s ease-in-out;
-      box-shadow: -5px 0 25px rgba(0,0,0,0.5);
-    }
-    #profileDrawer.show .drawer-content {
-      transform: translateX(0);
-    }
-
     /* Bet History modal */
     #betHistoryModal { position:fixed; inset:0; z-index:10000; display:none; align-items:stretch; justify-content:stretch; padding:0; background:#202628; }
     #betHistoryModal.show { display:flex; }
@@ -147,6 +116,16 @@
     .ro-row:last-child { border-bottom:0; }
     .ro-muted { color:#aebabc; font-size:12px; margin-top:4px; overflow-wrap:anywhere; }
     .ro-refresh { background:#176d4b; color:#fff; border-radius:9px; padding:10px 13px; font-weight:700; }
+
+    /* Right-side Profile Drawer Modal Styles */
+    #profileDrawerModal { position: fixed; inset: 0; z-index: 10005; display: none; background: rgba(0,0,0,0.6); justify-content: flex-end; backdrop-filter: blur(2px); }
+    #profileDrawerModal.show { display: flex; }
+    .drawer-panel { width: 100%; max-width: 340px; height: 100%; height: 100dvh; background: #1A2C38; color: #f5f7f8; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s ease-in-out; box-shadow: -5px 0 25px rgba(0,0,0,0.5); }
+    #profileDrawerModal.show .drawer-panel { transform: translateX(0); }
+    .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: #0F212E; border-bottom: 1px solid #243542; }
+    .drawer-head h2 { font-size: 18px; font-weight: 750; margin: 0; color: #24ee89; }
+    .drawer-close { width: 34px; height: 34px; border-radius: 50%; background: #243542; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
+    .drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
   </style>
 </head>
 
@@ -269,26 +248,49 @@
     <div id="bottomBarContainer"></div>
   </div>
 
-  <!-- Right Side Profile Drawer Modal -->
-  <div id="profileDrawer" onclick="if(event.target === this) closeProfileDrawer()">
-    <div class="drawer-content">
-      <div class="flex items-center justify-between p-4 border-b border-[#0F212E] bg-[#0F212E]">
-        <h3 class="font-bold text-lg">Menu</h3>
-        <button type="button" onclick="closeProfileDrawer()" class="w-8 h-8 rounded-full bg-[#1A2C38] flex items-center justify-center text-white hover:bg-red-500 transition">
-          <i class="fa-solid fa-xmark"></i>
+
+  <!-- Profile Right-Side Drawer Modal -->
+  <div id="profileDrawerModal" role="dialog" aria-modal="true" onclick="if(event.target===this) closeProfileDrawer()">
+    <section class="drawer-panel">
+      <header class="drawer-head">
+        <h2>User Profile</h2>
+        <button type="button" class="drawer-close" onclick="closeProfileDrawer()" aria-label="Close Profile Drawer"><i class="fa-solid fa-xmark"></i></button>
+      </header>
+      <div class="drawer-body">
+        <div class="bg-[#0F212E] p-4 rounded-xl border border-[#243542]">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-xs text-[#FFFFFF]/70">Account Name</span>
+            <span id="drawerUserName" class="font-bold text-sm text-[#24ee89]">Loading...</span>
+          </div>
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-xs text-[#FFFFFF]/70">Phone Number</span>
+            <span id="drawerUserPhone" class="font-bold text-sm">...</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-[#FFFFFF]/70">Email</span>
+            <span id="drawerUserEmail" class="font-bold text-xs truncate max-w-[160px]">...</span>
+          </div>
+        </div>
+
+        <div class="bg-[#0F212E] p-4 rounded-xl border border-[#243542]">
+          <h3 class="text-xs font-semibold text-[#FFFFFF]/70 mb-2 uppercase tracking-wider">Recent Deposits</h3>
+          <div id="drawerDepositList" class="space-y-2 text-xs">
+            <p class="text-[#FFFFFF]/50">Loading history...</p>
+          </div>
+        </div>
+
+        <div class="bg-[#0F212E] p-4 rounded-xl border border-[#243542]">
+          <h3 class="text-xs font-semibold text-[#FFFFFF]/70 mb-2 uppercase tracking-wider">Recent Withdrawals</h3>
+          <div id="drawerWithdrawList" class="space-y-2 text-xs">
+            <p class="text-[#FFFFFF]/50">Loading history...</p>
+          </div>
+        </div>
+
+        <button type="button" onclick="logoutUser()" class="w-full bg-red-500/20 text-red-400 border border-red-500/30 font-bold py-3 rounded-xl text-sm transition hover:bg-red-500/30 mt-auto">
+          <i class="fa-solid fa-right-from-bracket mr-2"></i> Log Out
         </button>
       </div>
-      <div class="flex-1 overflow-y-auto p-4 space-y-3">
-        <a href="../account/settings.html" class="flex items-center justify-between p-3.5 bg-[#0F212E] rounded-xl border border-[#0F212E] hover:border-emerald-400 transition">
-          <span class="font-semibold text-sm">Account Setting</span>
-          <span class="w-7 h-7 rounded-lg bg-[#1A2C38] flex items-center justify-center text-emerald-400 font-bold">+</span>
-        </a>
-        <a href="../account/verification.html" class="flex items-center justify-between p-3.5 bg-[#0F212E] rounded-xl border border-[#0F212E] hover:border-emerald-400 transition">
-          <span class="font-semibold text-sm">Verification</span>
-          <span class="w-7 h-7 rounded-lg bg-[#1A2C38] flex items-center justify-center text-emerald-400 font-bold">+</span>
-        </a>
-      </div>
-    </div>
+    </section>
   </div>
 
 
@@ -413,16 +415,6 @@
   </div>
 
   <script>
-    // Profile Drawer Control Functions
-    function openProfileDrawer() {
-      document.getElementById('profileDrawer').classList.add('show');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeProfileDrawer() {
-      document.getElementById('profileDrawer').classList.remove('show');
-      document.body.style.overflow = '';
-    }
 
     let betHistoryRequestToken = 0;
 
@@ -438,8 +430,94 @@
       document.body.style.overflow = '';
     }
 
+    // Right-side Profile Drawer Functions
+    function openProfileDrawer() {
+      const drawer = document.getElementById('profileDrawerModal');
+      drawer.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      loadDrawerProfileData();
+    }
+
+    function closeProfileDrawer() {
+      document.getElementById('profileDrawerModal').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    async function loadDrawerProfileData() {
+      try {
+        const user = await requireAuth();
+        if (!user) return;
+        const profile = await getUserProfile(user.id);
+
+        if (profile) {
+          document.getElementById('drawerUserName').innerText = profile.full_name || 'User';
+          document.getElementById('drawerUserPhone').innerText = profile.phone_number || 'N/A';
+          document.getElementById('drawerUserEmail').innerText = user.email || 'N/A';
+        }
+
+        // Recent Deposits in Drawer
+        const { data: deposits } = await supabaseClient
+          .from('deposits')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        const depList = document.getElementById('drawerDepositList');
+        if (deposits && deposits.length > 0) {
+          depList.innerHTML = deposits.map(d => `
+            <div class="flex justify-between items-center bg-[#0F212E] p-2 rounded-lg border border-[#243542]">
+              <div>
+                <span class="font-bold text-white">${d.payment_method}</span>
+                <span class="text-[10px] text-white/50 block">Trx: ${d.transection_id || 'N/A'}</span>
+              </div>
+              <div class="text-right">
+                <span class="font-bold text-emerald-400">+${d.amount} BDT</span>
+                <span class="text-[9px] block ${d.status === 'approved' ? 'text-emerald-400' : d.status === 'rejected' ? 'text-red-400' : 'text-yellow-400'}">${d.status}</span>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          depList.innerHTML = `<p class="text-white/50">No deposit history found.</p>`;
+        }
+
+        // Recent Withdrawals in Drawer
+        const { data: withdrawals } = await supabaseClient
+          .from('withdrawals')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        const withList = document.getElementById('drawerWithdrawList');
+        if (withdrawals && withdrawals.length > 0) {
+          withList.innerHTML = withdrawals.map(w => `
+            <div class="flex justify-between items-center bg-[#0F212E] p-2 rounded-lg border border-[#243542]">
+              <div>
+                <span class="font-bold text-white">${w.payment_method}</span>
+                <span class="text-[10px] text-white/50 block">Acc: ${w.account_number || 'N/A'}</span>
+              </div>
+              <div class="text-right">
+                <span class="font-bold text-red-400">-${w.amount} BDT</span>
+                <span class="text-[9px] block ${w.status === 'approved' ? 'text-emerald-400' : w.status === 'rejected' ? 'text-red-400' : 'text-yellow-400'}">${w.status}</span>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          withList.innerHTML = `<p class="text-white/50">No withdrawal history found.</p>`;
+        }
+      } catch (err) {
+        console.error('Error loading drawer profile data:', err);
+      }
+    }
+
     document.addEventListener('keydown', function(event) {
-      if (event.key === 'Escape') { closeBetHistory(); closeRollover(); closeTransactions(); closeProfileDrawer(); }
+      if (event.key === 'Escape') { 
+        closeBetHistory(); 
+        closeRollover(); 
+        closeTransactions(); 
+        closeProfileDrawer();
+      }
     });
 
     function bhEscape(value) {
@@ -840,7 +918,7 @@
       }
     }
 
-    // টপবার ও বটমবার লোড করার ফাংশন যেখানে টপবার লোড হওয়ার পর ড্রয়ার ওপেন করার ইভেন্ট হুক করা হয়েছে
+    // টপবার ও বটমবার লোড করার ফাংশন যেখানে টপবার লোড হওয়ার পর প্রোফাইল লিংকের আচরণ পরিবর্তন করা হয়েছে
     async function loadBars() {
       try {
         const topRes = await fetch('../bar/top.html');
@@ -850,8 +928,9 @@
           
           const profileBtn = document.getElementById('profileLinkBtn');
           if (profileBtn) {
-            // ডিফল্ট লিঙ্কের বদলে ড্রয়ার ওপেন করার ফাংশন সেট করা হলো
-            profileBtn.href = 'javascript:void(0);';
+            // যেহেতু আমরা member.html ফাইলে আছি, তাই লিংক পরিবর্তন করে ড্রয়ার ওপেন করার ফাংশন বসানো হলো
+            profileBtn.removeAttribute('href');
+            profileBtn.style.cursor = 'pointer';
             profileBtn.onclick = function(e) {
               e.preventDefault();
               openProfileDrawer();
