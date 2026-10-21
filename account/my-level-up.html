@@ -52,7 +52,7 @@
       <!-- Content Container (Hidden initially) -->
       <div id="mainContent" class="flex flex-col gap-4" style="display: none;">
 
-        <!-- VIP Overview Card (Matching Screenshot Design) -->
+        <!-- VIP Overview Card -->
         <div class="card-bg p-5 flex flex-col gap-4 shadow-xl relative overflow-hidden border border-[#304555]">
           <div class="flex justify-between items-start">
             <div>
@@ -159,15 +159,13 @@
       mainContent.style.display = 'none';
 
       try {
-        const storedUser = localStorage.getItem('current_user');
-        if (!storedUser) {
+        const storedUser = getStoredCurrentUser();
+        if (!storedUser || !storedUser.id) {
           window.location.href = '../login-signup.html';
           return;
         }
 
-        const userObj = JSON.parse(storedUser);
-        const userId = userObj.id || userObj.user_id || userObj.uid;
-        if (!userId) throw new Error('Invalid user session');
+        const userId = storedUser.id;
 
         if (typeof supabaseClient === 'undefined' || !supabaseClient) {
           throw new Error('Supabase client is not configured.');
@@ -180,14 +178,20 @@
           .eq('id', userId)
           .maybeSingle();
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error("Profile Fetch Error:", profileError);
+          throw profileError;
+        }
 
         // ২. Fetch VIP settings levels
         const { data: levels, error: levelError } = await supabaseClient
           .from('vip_level_settings')
           .order('level_number', { ascending: true });
 
-        if (levelError) throw levelError;
+        if (levelError) {
+          console.error("VIP Level Settings Fetch Error:", levelError);
+          throw levelError;
+        }
 
         // ইউজার ডেটা সেট করা
         document.getElementById('userName').textContent = profile?.full_name || 'VIP User';
@@ -224,6 +228,7 @@
           <div class="text-red-400 flex flex-col items-center gap-2">
             <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
             <p class="text-xs">Failed to load VIP information.</p>
+            <p class="text-[10px] text-slate-400 max-w-xs text-center">${err.message || ''}</p>
             <button onclick="loadVipData()" class="mt-2 px-3 py-1.5 bg-[#243542] text-white rounded-lg text-xs font-bold">Retry</button>
           </div>
         `;
