@@ -1,171 +1,261 @@
-<!doctype html>
-<html lang="bn">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#10151f">
-  <title>Slot Demo — Mobile</title>
-  <style>
-    :root { color-scheme: dark; --bg:#10151f; --panel:#192335; --accent:#00c981; --muted:#aeb9ca; }
-    * { box-sizing: border-box; }
-    html, body { margin:0; width:100%; min-height:100%; background:var(--bg); color:#fff; font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif; }
-    body { min-height:100dvh; display:flex; flex-direction:column; }
-    header { flex:none; padding: max(10px, env(safe-area-inset-top)) 14px 10px; background:#172235; border-bottom:1px solid #29364b; text-align:center; }
-    h1 { margin:0; font-size:17px; letter-spacing:.3px; }
-    header p { margin:4px 0 0; color:var(--muted); font-size:11px; }
-    main { flex:1; min-height:0; display:flex; flex-direction:column; padding:8px; gap:8px; }
-    .notice { flex:none; background:var(--panel); border:1px solid #2a3850; border-radius:10px; padding:10px 12px; font-size:12px; line-height:1.45; color:#e4ebf5; }
-    .notice strong { color:#ffd27a; }
-    .actions { display:flex; gap:8px; margin-top:8px; }
-    a.button { display:inline-flex; flex:1; min-height:40px; align-items:center; justify-content:center; border-radius:8px; padding:8px 10px; background:var(--accent); color:#042419; font-weight:700; font-size:13px; text-decoration:none; text-align:center; }
-    a.button.secondary { background:#2b3950; color:#fff; }
-    .game { position:relative; flex:1; min-height:300px; overflow:hidden; border:1px solid #29364b; border-radius:10px; background:#070a10; }
-
-    .wallet { flex:none; background:#192335; border:1px solid #2a3850; border-radius:10px; padding:12px; }
-    .wallet-top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    .wallet-label { color:#aeb9ca; font-size:11px; }
-    #balance { font-size:24px; font-weight:800; margin-top:2px; overflow-wrap:anywhere; }
-    #authState { color:#aeb9ca; font-size:11px; text-align:right; }
-    .bet-row { display:flex; gap:8px; margin-top:10px; align-items:end; }
-    .bet-field { flex:1; min-width:0; }
-    .bet-field label { display:block; font-size:12px; color:#dce5f2; margin-bottom:5px; }
-    .bet-field input { width:100%; min-height:42px; border:1px solid #40516b; border-radius:8px; background:#10151f; color:#fff; padding:8px 10px; font:inherit; }
-    #spin { min-height:42px; border:0; border-radius:8px; padding:8px 15px; background:#00c981; color:#042419; font-weight:800; font-size:13px; }
-    #spin:disabled { opacity:.55; }
-    #result { margin-top:9px; border-radius:8px; background:#101927; color:#dbe5f3; padding:9px 10px; font-size:12px; line-height:1.45; }
-    #result.error { color:#ffd0d0; border:1px solid #70404a; }
-    #result.ok { color:#b9f7d8; border:1px solid #28634d; }
-    .security-note { color:#aeb9ca; font-size:10px; line-height:1.4; margin-top:7px; }
-
-    iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#070a10; }
-    footer { flex:none; padding:8px 12px max(9px, env(safe-area-inset-bottom)); color:#8794a8; text-align:center; font-size:10px; line-height:1.4; }
-    @media (max-width:600px) { .game { min-height:55dvh; } }
-    @media (orientation:landscape) and (max-height:520px) {
-      header { padding:4px 10px; } header p { display:none; }
-      main { padding:5px; gap:5px; }
-      .notice { padding:6px 8px; font-size:11px; }
-      .notice .details { display:none; }
-      .actions { margin-top:5px; }
-      a.button { min-height:32px; }
-      .game { min-height:58dvh; }
-      footer { display:none; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jili Super Ace - Custom Cards Demo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Your Supabase Config -->
+    <script src="supabase-config.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle, #1f1c2c 0%, #0c0915 100%);
+        }
+        .card-slot {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 4px 6px rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
-<body>
-  <header>
-    <h1>FREE SLOT DEMO</h1>
-    <p>Mobile-friendly demo player</p>
-  </header>
-  <main>
-    <section class="notice">
-      <strong>দ্রষ্টব্য:</strong> এটি JILI গেম নয়—iGaming Tools-এ তালিকাভুক্ত Pragmatic Play-এর “888 Dragons” ডেমো।
-      <div class="details">ডেমো সাইটের নিজস্ব সীমা বা iframe নীতি প্রযোজ্য। ফ্রেমে না খুললে “নতুন ট্যাবে খুলুন” চাপুন।</div>
-      <div class="actions">
-        <a class="button" href="https://demo.i-gaming.tools/iframe/888-dragons-b7/" target="_blank" rel="noopener noreferrer">নতুন ট্যাবে খুলুন</a>
-        <a class="button secondary" href="https://i-gaming.tools/slot-games/888-dragons-b7/" target="_blank" rel="noopener noreferrer">ডেমো তথ্য</a>
-      </div>
-    </section>
+<body class="text-white min-h-screen flex flex-col justify-between">
 
-    <section class="wallet" aria-label="Supabase wallet">
-      <div class="wallet-top">
-        <div>
-          <div class="wallet-label">আপনার ব্যালেন্স · profiles.balance</div>
-          <div id="balance">লোড হচ্ছে…</div>
+    <!-- Top Navigation / Header -->
+    <header class="bg-gray-900/90 backdrop-blur border-b border-gray-800 p-4 flex justify-between items-center px-6">
+        <div class="flex items-center space-x-3">
+            <h1 class="text-xl font-bold text-amber-400 tracking-wider">SUPER ACE (JILI)</h1>
         </div>
-        <div id="authState">লগইন যাচাই হচ্ছে…</div>
-      </div>
-      <div class="bet-row">
-        <div class="bet-field">
-          <label for="bet">বেটের পরিমাণ</label>
-          <input id="bet" type="number" min="1" max="1000000" step="0.01" value="10" inputmode="decimal">
+        <div class="flex items-center space-x-4">
+            <div class="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg flex items-center space-x-2 shadow-inner">
+                <span class="text-gray-400 text-sm">Balance:</span>
+                <span id="user-balance" class="text-amber-400 font-bold text-lg">Loading...</span>
+            </div>
+            <button onclick="logoutUser()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm font-semibold transition">Logout</button>
         </div>
-        <button id="spin" type="button" disabled>স্পিন</button>
-      </div>
-      <div id="result" role="status" aria-live="polite">ব্যালেন্স লোড করা হচ্ছে…</div>
-      <div class="security-note">নিরাপত্তার জন্য বেট/পেআউট বন্ধ রাখা হয়েছে: সরবরাহ করা ফাইলগুলোতে যাচাই করা সার্ভার-সাইড গেম API পাওয়া যায়নি। এই পেজ সরাসরি ব্যালেন্স পরিবর্তন করবে না।</div>
-    </section>
+    </header>
 
-    <section class="game" aria-label="Slot demo game">
-      <iframe
-        src="https://demo.i-gaming.tools/iframe/888-dragons-b7/"
-        title="888 Dragons slot demo by iGaming Tools"
-        loading="eager"
-        allow="autoplay; fullscreen"
-        allowfullscreen
-        referrerpolicy="strict-origin-when-cross-origin">
-      </iframe>
-    </section>
-  </main>
-  <footer>শুধু ডেমো। এটি আসল JILI গেম নয় এবং কোনো real-money gameplay বা payout দেয় না। বাইরের সাইট iframe বন্ধ করলে নতুন ট্যাবের লিংক ব্যবহার করুন।</footer>
+    <!-- Main Game Container -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-2xl bg-gray-950 border-4 border-amber-500/60 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            
+            <!-- Glowing Top Bar -->
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 animate-pulse"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./supabase-config.js"></script>
-  <script>
-    (() => {
-      const balanceEl = document.getElementById('balance');
-      const authStateEl = document.getElementById('authState');
-      const resultEl = document.getElementById('result');
-      const spinBtn = document.getElementById('spin');
-      const betInput = document.getElementById('bet');
+            <!-- Super Ace Slot Grid (4 Columns x 3 Rows / Simplified to 3x3 for clean view, or custom card display) -->
+            <div class="grid grid-cols-3 gap-3 my-6">
+                <!-- Column 1 -->
+                <div class="card-slot h-36 rounded-xl flex items-center justify-center border border-gray-700 overflow-hidden p-2">
+                    <img id="card-0" src="" alt="Card" class="w-full h-full object-contain transform transition duration-300">
+                </div>
+                <!-- Column 2 -->
+                <div class="card-slot h-36 rounded-xl flex items-center justify-center border border-gray-700 overflow-hidden p-2">
+                    <img id="card-1" src="" alt="Card" class="w-full h-full object-contain transform transition duration-300">
+                </div>
+                <!-- Column 3 -->
+                <div class="card-slot h-36 rounded-xl flex items-center justify-center border border-gray-700 overflow-hidden p-2">
+                    <img id="card-2" src="" alt="Card" class="w-full h-full object-contain transform transition duration-300">
+                </div>
+            </div>
 
-      function showMessage(message, type = '') {
-        resultEl.textContent = message;
-        resultEl.className = type;
-      }
+            <!-- Game Message / Win Info -->
+            <div id="game-message" class="text-center h-10 text-amber-300 font-semibold text-lg mb-4 flex items-center justify-center">
+                Place your bet and hit Spin!
+            </div>
 
-      function showBalance(value) {
-        const amount = Number(value);
-        balanceEl.textContent = Number.isFinite(amount)
-          ? amount.toLocaleString('en-US', { maximumFractionDigits: 2 })
-          : '—';
-      }
+            <!-- Controls & Betting Panel -->
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3 w-full sm:w-auto justify-center">
+                    <span class="text-sm text-gray-400">Bet:</span>
+                    <button onclick="changeBet(-10)" class="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded text-lg font-bold text-amber-400">-</button>
+                    <span id="bet-amount" class="text-xl font-bold text-amber-400 w-20 text-center">50</span>
+                    <button onclick="changeBet(10)" class="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded text-lg font-bold text-amber-400">+</button>
+                </div>
 
-      async function loadProfileBalance() {
-        spinBtn.disabled = true;
-        try {
-          if (!window.supabase || typeof supabaseClient === 'undefined') {
-            throw new Error('Supabase client বা supabase-config.js লোড হয়নি।');
-          }
-          const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-          if (authError || !user) {
-            authStateEl.textContent = 'লগইন প্রয়োজন';
-            balanceEl.textContent = '—';
-            showMessage('আপনার সাইটের Supabase Auth দিয়ে লগইন করুন, তারপর পেজ রিফ্রেশ করুন.', 'error');
-            return;
-          }
+                <button id="spin-btn" onclick="spinCards()" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-gray-950 font-extrabold px-10 py-3 rounded-xl shadow-lg transform active:scale-95 transition tracking-wide">
+                    SPIN
+                </button>
+            </div>
+        </div>
+    </main>
 
-          authStateEl.textContent = 'লগইন আছে';
-          const { data, error } = await supabaseClient
-            .from('profiles')
-            .select('balance')
-            .eq('id', user.id)
-            .maybeSingle();
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-gray-500 border-t border-gray-900">
+        &copy; 2026 Jili Super Ace Custom Simulation. All rights reserved.
+    </footer>
 
-          if (error) throw error;
-          if (!data) throw new Error('এই লগইন ইউজারের profiles রেকর্ড পাওয়া যায়নি।');
-          showBalance(data.balance);
-          showMessage('ব্যালেন্স Supabase থেকে পড়া হয়েছে। নিরাপদ গেম-লেনদেন API যাচাই না হওয়া পর্যন্ত স্পিন বন্ধ থাকবে.');
-        } catch (error) {
-          balanceEl.textContent = '—';
-          showMessage('ব্যালেন্স লোড হয়নি: ' + (error?.message || 'অজানা সমস্যা'), 'error');
+    <!-- Game & Supabase Integration Logic -->
+    <script>
+        let currentUser = null;
+        let currentBalance = 0;
+        let currentBet = 50;
+
+        // আপনার নিজের কার্ডের PNG ফাইলের পাথ বা লিংকগুলো এখানে বসাবেন। 
+        // আপনি চাইলে যত খুশি কার্ড ইমেজ এখানে যুক্ত করতে পারেন।
+        const customCardImages = [
+            "assets/cards/ace_spades.png",    // উদাহরণ পাথ ১
+            "assets/cards/king_hearts.png",   // উদাহরণ পাথ ২
+            "assets/cards/queen_clubs.png",   // উদাহরণ পাথ ৩
+            "assets/cards/jack_diamonds.png", // উদাহরণ পাথ ৪
+            "assets/cards/joker.png"          // উদাহরণ পাথ ৫ (ওয়াইল্ড কার্ড)
+        ];
+
+        // যদি আপনার কাছে লোকাল ইমেজ না থাকে, তবে টেস্টের জন্য নিচের ডেমো কার্ড ইমেজ লিংকগুলো ব্যবহার করতে পারেন:
+        const fallbackCards = [
+            "https://upload.wikimedia.org/wikipedia/commons/3/30/Playing_card_spade_A.svg",
+            "https://upload.wikimedia.org/wikipedia/commons/4/46/Playing_card_heart_K.svg",
+            "https://upload.wikimedia.org/wikipedia/commons/2/22/Playing_card_club_Q.svg",
+            "https://upload.wikimedia.org/wikipedia/commons/1/18/Playing_card_diamond_J.svg",
+            "https://upload.wikimedia.org/wikipedia/commons/5/54/Playing_card_red_joker.svg"
+        ];
+
+        // setActiveCards pool (যদি কাস্টম ইমেজ না থাকে তবে ফলব্যাক ব্যবহার হবে)
+        const activeCards = customCardImages[0].includes("assets") ? fallbackCards : customCardImages;
+
+        // Initialize Page & Authenticate User
+        window.addEventListener("DOMContentLoaded", async () => {
+            currentUser = await requireAuth();
+            if (currentUser) {
+                await fetchAndUpdateBalance();
+                setInitialCards();
+            }
+        });
+
+        function setInitialCards() {
+            document.getElementById("card-0").src = activeCards[0];
+            document.getElementById("card-1").src = activeCards[1];
+            document.getElementById("card-2").src = activeCards[2];
         }
-      }
 
-      // Deliberately fail closed. Do not update profiles.balance or insert a payout
-      // from the browser: a client can tamper with bet/payout values.
-      spinBtn.addEventListener('click', () => {
-        const bet = Number(betInput.value);
-        if (!Number.isFinite(bet) || bet <= 0) {
-          showMessage('সঠিক বেটের পরিমাণ লিখুন।', 'error');
-          return;
+        // Fetch User Balance from Supabase profiles table
+        async function fetchAndUpdateBalance() {
+            try {
+                const profile = await getUserProfile(currentUser.id);
+                if (profile && profile.balance !== undefined) {
+                    currentBalance = Number(profile.balance);
+                } else {
+                    currentBalance = 1000;
+                }
+                document.getElementById("user-balance").innerText = currentBalance.toLocaleString();
+            } catch (err) {
+                console.error("Failed to fetch balance:", err);
+                document.getElementById("user-balance").innerText = "Error";
+            }
         }
-        showMessage('স্পিন করা যাচ্ছে না: আগে থেকে থাকা নিরাপদ server-side API / Edge Function-এর নাম ও ইনপুট-আউটপুট যাচাই করা প্রয়োজন। সরাসরি HTML থেকে ব্যালেন্স বা payout পরিবর্তন করা নিরাপদ নয়.', 'error');
-      });
 
-      loadProfileBalance();
-    })();
-  </script>
+        // Adjust Bet Amount
+        function changeBet(amount) {
+            currentBet += amount;
+            if (currentBet < 10) currentBet = 10;
+            if (currentBet > currentBalance && currentBalance > 0) currentBet = currentBalance;
+            document.getElementById("bet-amount").innerText = currentBet;
+        }
 
+        // Spin Logic with Animation
+        async function spinCards() {
+            if (currentBalance < currentBet) {
+                document.getElementById("game-message").innerText = "❌ Insufficient balance!";
+                return;
+            }
+
+            const spinBtn = document.getElementById("spin-btn");
+            spinBtn.disabled = true;
+            document.getElementById("game-message").innerText = "🔄 Spinning cards...";
+
+            // Deduct bet from local balance temporarily
+            currentBalance -= currentBet;
+            document.getElementById("user-balance").innerText = currentBalance.toLocaleString();
+
+            // Shuffle animation effect
+            let animCount = 0;
+            const animInterval = setInterval(() => {
+                document.getElementById("card-0").src = activeCards[Math.floor(Math.random() * activeCards.length)];
+                document.getElementById("card-1").src = activeCards[Math.floor(Math.random() * activeCards.length)];
+                document.getElementById("card-2").src = activeCards[Math.floor(Math.random() * activeCards.length)];
+                animCount++;
+
+                if (animCount > 12) {
+                    clearInterval(animInterval);
+                    finalizeSpinResult();
+                }
+            }, 90);
+        }
+
+        // Finalize Result & Save to Supabase (profiles & original_bets_history)
+        async function finalizeSpinResult() {
+            const c1 = activeCards[Math.floor(Math.random() * activeCards.length)];
+            const c2 = activeCards[Math.floor(Math.random() * activeCards.length)];
+            const c3 = activeCards[Math.floor(Math.random() * activeCards.length)];
+
+            document.getElementById("card-0").src = c1;
+            document.getElementById("card-1").src = c2;
+            document.getElementById("card-2").src = c3;
+
+            let multiplier = 0;
+            let winAmount = 0;
+            let message = "";
+            let status = "lost";
+
+            // Win condition logic (Super Ace style matching)
+            if (c1 === c2 && c2 === c3) {
+                multiplier = 5; // 5x Multiplier
+                winAmount = currentBet * multiplier;
+                message = `🎉 SUPER ACE JACKPOT! Won ${winAmount} coins! (${multiplier}X)`;
+                status = "win";
+            } else if (c1 === c2 || c2 === c3 || c1 === c3) {
+                multiplier = 2; // 2x Multiplier
+                winAmount = currentBet * multiplier;
+                message = `✨ Combo Hit! Won ${winAmount} coins! (${multiplier}X)`;
+                status = "win";
+            } else {
+                message = "😢 No match. Better luck next time!";
+                status = "lost";
+            }
+
+            currentBalance += winAmount;
+            document.getElementById("user-balance").innerText = currentBalance.toLocaleString();
+            document.getElementById("game-message").innerText = message;
+
+            // Update Database in Supabase
+            try {
+                // 1. Update profiles table (balance & turnover if applicable)
+                const profileUpdate = { balance: currentBalance };
+                
+                const { error: profileError } = await supabaseClient
+                    .from("profiles")
+                    .update(profileUpdate)
+                    .eq("id", currentUser.id);
+
+                if (profileError) {
+                    console.error("Error updating profile balance:", profileError);
+                }
+
+                // 2. Insert record into original_bets_history table
+                const { error: historyError } = await supabaseClient
+                    .from("original_bets_history")
+                    .insert([{
+                        user_id: currentUser.id,
+                        game_name: "Jili Super Ace",
+                        bet_amount: currentBet,
+                        payout: winAmount,
+                        multiplier: multiplier,
+                        status: status,
+                        game_details: { cards: [c1, c2, c3] }
+                    }]);
+
+                if (historyError) {
+                    console.error("Error saving bet history:", historyError);
+                }
+
+            } catch (err) {
+                console.error("Database sync error:", err);
+            }
+
+            document.getElementById("spin-btn").disabled = false;
+        }
+    </script>
 </body>
 </html>
