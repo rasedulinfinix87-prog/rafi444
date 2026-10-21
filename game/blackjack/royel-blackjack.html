@@ -1,26 +1,349 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#03140f">
-  <meta name="description" content="Royal Blackjack — first-person blackjack table visual demo.">
-  <title>Royal Blackjack</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blackjack Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+
   <style>
-    :root { color-scheme: dark; background: #03140f; }
+    :root {
+      --font-xs: 14px;
+      --font-sm: 15px;
+      --font-base: 16px;
+      --font-md: 17px;
+      --font-lg: 18px;
+      --font-xl: 22px;
+      --font-2xl: 28px;
+      --font-3xl: 32px;
+    }
+
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; width: 100%; }
-    body { min-height: 100vh; min-height: 100dvh; background: #03140f; font-family: Arial, sans-serif; }
-    main { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; position: relative; overflow: hidden; }
-    .table-image { display: block; width: 100%; height: 100vh; height: 100dvh; object-fit: contain; object-position: center; }
-    .notice { position: fixed; left: 50%; bottom: max(10px, env(safe-area-inset-bottom)); transform: translateX(-50%); max-width: calc(100% - 24px); padding: 7px 12px; border: 1px solid #ffffff30; border-radius: 999px; background: #000b; color: #fff; font-size: 11px; text-align: center; }
-    @media (max-width: 600px) { .table-image { width: 100%; height: auto; max-height: 100dvh; object-fit: contain; } .notice { font-size: 10px; } }
+    body {
+      margin: 0;
+      background: #0F212E;
+      color: #FFFFFF;
+      font-size: var(--font-base);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    /* Game Table Background Container */
+    .table-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      aspect-ratio: 4 / 3;
+      background-image: url('blackjack-table.png'); /* আপনার প্রদান করা ইমেজ */
+      background-size: cover;
+      background-position: center;
+      border: 2px solid #0F212E;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      margin: auto;
+    }
+
+    /* UI Overlay elements positioning */
+    .game-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .balance-box {
+      background: #1A2C38;
+      border: 1px solid #0F212E;
+      padding: 8px 15px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: var(--font-sm);
+      color: #FFFFFF;
+    }
+
+    /* Action Buttons Bar */
+    .action-bar {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      padding-bottom: 10px;
+    }
+
+    .action-btn {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      border: 2px solid #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: #FFFFFF;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      transition: transform 0.1s ease, filter 0.2s;
+    }
+
+    .action-btn:active { transform: scale(0.95); }
+    .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-hit { background: #1F51FF; }
+    .btn-stand { background: #dc2626; }
+    .btn-double { background: #2563eb; }
+    .btn-deal { background: #16a34a; width: 120px; border-radius: 15px; height: 50px; font-size: var(--font-base); }
+
+    .cards-area {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      min-height: 70px;
+    }
+
+    .card-item {
+      background: #FFFFFF;
+      color: #000000;
+      width: 45px;
+      height: 65px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-banner {
+      background: rgba(15, 33, 46, 0.9);
+      border: 1px solid #1F51FF;
+      padding: 10px 20px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: bold;
+      font-size: var(--font-md);
+      color: #FFFFFF;
+      max-width: 300px;
+      margin: 0 auto;
+    }
   </style>
 </head>
-<body>
-  <main aria-label="Royal Blackjack demo table">
-    <img class="table-image" src="assets/images/royel-blackjack.png" alt="First-person blackjack table with dealer, cards, chips, and game controls" width="1536" height="1024">
-    <p class="notice">DEMO PREVIEW · Visual mockup only — gameplay and bets are not connected</p>
-  </main>
+<body class="p-4">
+
+  <!-- Main Game Table Interface -->
+  <div class="table-container">
+    <div class="game-overlay">
+      
+      <!-- Top Bar: Balance & Menu -->
+      <div class="top-bar">
+        <div class="balance-box">
+          <i class="fa-solid fa-wallet text-[#1F51FF] mr-1"></i> Balance: <span id="userBalance">৳1,000.00</span>
+        </div>
+        <a href="../index.html" class="balance-box hover:bg-[#1F51FF] transition">
+          <i class="fa-solid fa-house"></i>
+        </a>
+      </div>
+
+      <!-- Dealer Cards Area -->
+      <div class="flex flex-col items-center mt-2">
+        <div id="dealerScore" class="text-xs font-bold bg-black/60 px-3 py-0.5 rounded-full mb-1 border border-white/10">Dealer: 0</div>
+        <div id="dealerCards" class="cards-area"></div>
+      </div>
+
+      <!-- Game Message / Status -->
+      <div id="gameMessage" class="message-banner">Place your bet & Deal!</div>
+
+      <!-- Player Cards Area -->
+      <div class="flex flex-col items-center mb-2">
+        <div id="playerCards" class="cards-area"></div>
+        <div id="playerScore" class="text-xs font-bold bg-black/60 px-3 py-0.5 rounded-full mt-1 border border-white/10">Player: 0</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-bar">
+        <button id="dealBtn" onclick="startRound()" class="action-btn btn-deal">DEAL / BET</button>
+        <button id="hitBtn" onclick="hitCard()" class="action-btn btn-hit" disabled><i class="fa-solid fa-plus text-sm"></i>HIT</button>
+        <button id="standBtn" onclick="standGame()" class="action-btn btn-stand" disabled><i class="fa-solid fa-hand text-sm"></i>STAND</button>
+        <button id="doubleBtn" onclick="doubleDown()" class="action-btn btn-double" disabled><i class="fa-solid fa-bolt text-sm"></i>DOUBLE</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let balance = 1000.00;
+    let betAmount = 100;
+    let deck = [];
+    let playerCards = [];
+    let dealerCards = [];
+    let gameActive = false;
+
+    const suits = ['♠', '♥', '♦', '♣'];
+    const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+    function createDeck() {
+      deck = [];
+      for (let suit of suits) {
+        for (let val of values) {
+          deck.push({ suit, val });
+        }
+      }
+      // Shuffle deck
+      deck.sort(() => Math.random() - 0.5);
+    }
+
+    function getCardValue(card) {
+      if (['J', 'Q', 'K'].includes(card.val)) return 10;
+      if (card.val === 'A') return 11;
+      return parseInt(card.val);
+    }
+
+    function calculateScore(cards) {
+      let score = 0;
+      let aces = 0;
+      for (let card of cards) {
+        score += getCardValue(card);
+        if (card.val === 'A') aces++;
+      }
+      while (score > 21 && aces > 0) {
+        score -= 10;
+        aces--;
+      }
+      return score;
+    }
+
+    function updateUI() {
+      document.getElementById('userBalance').innerText = '৳' + balance.toLocaleString('en-BD', { minimumFractionDigits: 2 });
+      
+      // Render Player Cards
+      document.getElementById('playerCards').innerHTML = playerCards.map(c => `
+        <div class="card-item ${['♥','♦'].includes(c.suit) ? 'text-red-600' : 'text-black'}">
+          <span>${c.val}</span>
+          <span class="text-xs">${c.suit}</span>
+        </div>
+      `).join('');
+
+      // Render Dealer Cards
+      document.getElementById('dealerCards').innerHTML = dealerCards.map((c, index) => {
+        if (!gameActive && index === 1 && dealerCards.length === 2) {
+          return `<div class="card-item bg-blue-900 text-white font-bold">?</div>`;
+        }
+        return `
+          <div class="card-item ${['♥','♦'].includes(c.suit) ? 'text-red-600' : 'text-black'}">
+            <span>${c.val}</span>
+            <span class="text-xs">${c.suit}</span>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('playerScore').innerText = 'Player: ' + calculateScore(playerCards);
+      document.getElementById('dealerScore').innerText = 'Dealer: ' + (gameActive ? calculateScore([dealerCards[0]]) : calculateScore(dealerCards));
+    }
+
+    function startRound() {
+      if (balance < betAmount) {
+        alert('Insufficient balance!');
+        return;
+      }
+
+      balance -= betAmount;
+      createDeck();
+      playerCards = [deck.pop(), deck.pop()];
+      dealerCards = [deck.pop(), deck.pop()];
+      gameActive = true;
+
+      document.getElementById('dealBtn').disabled = true;
+      document.getElementById('hitBtn').disabled = false;
+      document.getElementById('standBtn').disabled = false;
+      document.getElementById('doubleBtn').disabled = false;
+      document.getElementById('gameMessage').innerText = "Game in progress...";
+
+      updateUI();
+
+      if (calculateScore(playerCards) === 21) {
+        endGame("Blackjack! You Win!");
+      }
+    }
+
+    function hitCard() {
+      if (!gameActive) return;
+      playerCards.push(deck.pop());
+      updateUI();
+
+      if (calculateScore(playerCards) > 21) {
+        endGame("Bust! You Lose.");
+      }
+    }
+
+    function doubleDown() {
+      if (!gameActive || balance < betAmount) return;
+      balance -= betAmount;
+      betAmount *= 2;
+      playerCards.push(deck.pop());
+      updateUI();
+
+      if (calculateScore(playerCards) > 21) {
+        endGame("Bust! You Lose.");
+      } else {
+        standGame();
+      }
+    }
+
+    function standGame() {
+      if (!gameActive) return;
+
+      while (calculateScore(dealerCards) < 17) {
+        dealerCards.push(deck.pop());
+      }
+
+      let pScore = calculateScore(playerCards);
+      let dScore = calculateScore(dealerCards);
+
+      if (dScore > 21 || pScore > dScore) {
+        endGame("You Win!");
+        balance += betAmount * 2;
+      } else if (pScore < dScore) {
+        endGame("Dealer Wins!");
+      } else {
+        endGame("Push (Tie)!");
+        balance += betAmount;
+      }
+      betAmount = 100; // reset default bet
+    }
+
+    function endGame(msg) {
+      gameActive = false;
+      document.getElementById('gameMessage').innerText = msg;
+      document.getElementById('dealBtn').disabled = false;
+      document.getElementById('hitBtn').disabled = true;
+      document.getElementById('standBtn').disabled = true;
+      document.getElementById('doubleBtn').disabled = true;
+      updateUI();
+    }
+  </script>
 </body>
 </html>
