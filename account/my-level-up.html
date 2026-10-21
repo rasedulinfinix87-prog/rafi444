@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VIP Level & Rewards</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    html { background: #0F212E; }
+    body { background: #0F212E; color: #FFFFFF; font-size: 14px; padding-bottom: 70px; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #0F212E; }
+    ::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 8px; }
+
+    .card-bg { background: #1A2C38; border: 1px solid #243542; border-radius: 16px; }
+    .progress-bar-bg { background: #0F212E; border: 1px solid #243542; }
+    .progress-fill { background: linear-gradient(90deg, #16a765, #2ed573); transition: width 0.4s ease; }
+  </style>
+</head>
+
+<body class="font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none antialiased">
+  <div class="w-full max-w-md min-h-screen flex flex-col overflow-x-hidden shadow-2xl relative">
+
+    <!-- Top Header -->
+    <header class="px-4 py-4 bg-[#1A2C38] border-b border-[#243542] flex items-center justify-between sticky top-0 z-50">
+      <div class="flex items-center gap-3">
+        <a href="member.html" class="text-white hover:text-[#24ee89] text-lg p-1">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <h1 class="text-xl font-extrabold tracking-wide text-white">VIP Club</h1>
+      </div>
+      <button type="button" onclick="loadVipData()" class="p-2 text-white/70 hover:text-[#24ee89] transition">
+        <i class="fa-solid fa-rotate-right text-lg"></i>
+      </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="px-4 py-4 flex-1 flex flex-col gap-4">
+
+      <!-- Loading State -->
+      <div id="loadingState" class="text-center py-20 text-[#a9b3b5]">
+        <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 text-[#24ee89]"></i>
+        <p class="font-bold">Loading VIP details...</p>
+      </div>
+
+      <!-- Content Container (Hidden initially) -->
+      <div id="mainContent" class="flex flex-col gap-4" style="display: none;">
+
+        <!-- VIP Overview Card (Matching Screenshot Design) -->
+        <div class="card-bg p-5 flex flex-col gap-4 shadow-xl relative overflow-hidden border border-[#304555]">
+          <div class="flex justify-between items-start">
+            <div>
+              <h2 id="userName" class="text-lg font-black text-white">User</h2>
+              <div class="flex items-center gap-2 mt-1">
+                <span id="txtPercentage" class="text-xs font-bold text-[#24ee89]">0.00%</span>
+                <i class="fa-solid fa-circle-info text-xs text-[#a9b3b5]"></i>
+              </div>
+            </div>
+            <div class="text-amber-400 text-4xl">
+              <i class="fa-solid fa-star"></i>
+            </div>
+          </div>
+
+          <!-- Progress Bar Area -->
+          <div class="flex flex-col gap-2">
+            <div class="w-full h-3 rounded-full progress-bar-bg overflow-hidden p-0.5">
+              <div id="progressFill" class="h-full rounded-full progress-fill" style="width: 0%;"></div>
+            </div>
+            <div class="flex justify-between text-xs font-bold">
+              <span id="txtCurrentLevel" class="text-white">Level: Bronze I</span>
+              <span id="txtNextLevel" class="text-[#a9b3b5]">Next: Silver I</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bonuses Section Heading -->
+        <h3 class="text-sm font-extrabold text-white tracking-wider uppercase mt-1">Bonuses</h3>
+
+        <!-- Rakeback Card -->
+        <div class="card-bg p-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-amber-400 text-xl">
+              <i class="fa-solid fa-rotate"></i>
+            </div>
+            <div>
+              <div class="font-bold text-sm text-white">Rakeback</div>
+              <div id="txtRakebackBalance" class="text-xs text-[#a9b3b5] mt-0.5">৳0.00 available</div>
+            </div>
+          </div>
+          <button onclick="claimRakeback()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">Claim</button>
+        </div>
+
+        <!-- Weekly Boost Card -->
+        <div class="card-bg p-4 flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-[#24ee89] text-xl">
+                <i class="fa-solid fa-rocket"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-white">Weekly Boost</span>
+                  <span class="bg-[#243542] text-[10px] text-white px-2 py-0.5 rounded-full">Weekly</span>
+                </div>
+                <div class="text-xs text-[#a9b3b5] mt-0.5">Based on weekly wager activity</div>
+              </div>
+            </div>
+            <button onclick="claimWeeklyBonus()" class="px-3 py-1.5 bg-[#243542] hover:bg-[#30485a] text-white font-extrabold text-xs rounded-lg transition border border-[#3b556b]">Claim</button>
+          </div>
+        </div>
+
+        <!-- Monthly Bonus Card -->
+        <div class="card-bg p-4 flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-purple-400 text-xl">
+                <i class="fa-solid fa-gift"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-white">Monthly Bonus</span>
+                  <span class="bg-[#243542] text-[10px] text-white px-2 py-0.5 rounded-full">Monthly</span>
+                </div>
+                <div class="text-xs text-[#a9b3b5] mt-0.5">Calculated from monthly total wager</div>
+              </div>
+            </div>
+            <span class="text-xs text-[#a9b3b5] font-bold">Eligible</span>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- Bottom Navigation Bar Container -->
+    <div id="bottomBarContainer"></div>
+
+  </div>
+
+  <script>
+    function formatMoney(amount) {
+      return '৳' + Number(amount || 0).toLocaleString('en-BD', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    async function loadVipData() {
+      const loadingState = document.getElementById('loadingState');
+      const mainContent = document.getElementById('mainContent');
+
+      loadingState.style.display = 'block';
+      mainContent.style.display = 'none';
+
+      try {
+        const storedUser = localStorage.getItem('current_user');
+        if (!storedUser) {
+          window.location.href = '../login-signup.html';
+          return;
+        }
+
+        const userObj = JSON.parse(storedUser);
+        const userId = userObj.id || userObj.user_id || userObj.uid;
+        if (!userId) throw new Error('Invalid user session');
+
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+          throw new Error('Supabase client is not configured.');
+        }
+
+        // ১. Fetch user profile data
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('full_name, current_vip_level, total_wager, rakeback_balance')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (profileError) throw profileError;
+
+        // ২. Fetch VIP settings levels
+        const { data: levels, error: levelError } = await supabaseClient
+          .from('vip_level_settings')
+          .order('level_number', { ascending: true });
+
+        if (levelError) throw levelError;
+
+        // ইউজার ডেটা সেট করা
+        document.getElementById('userName').textContent = profile?.full_name || 'VIP User';
+        document.getElementById('txtRakebackBalance').textContent = formatMoney(profile?.rakeback_balance) + ' available';
+
+        const userLevelNum = Number(profile?.current_vip_level || 1);
+        const totalWager = Number(profile?.total_wager || 0);
+
+        const currentLevelObj = levels?.find(l => l.level_number === userLevelNum) || levels[0];
+        const nextLevelObj = levels?.find(l => l.level_number === userLevelNum + 1) || currentLevelObj;
+
+        document.getElementById('txtCurrentLevel').textContent = `Level: ${currentLevelObj?.level_name || 'Bronze I'}`;
+        document.getElementById('txtNextLevel').textContent = `Next: ${nextLevelObj?.level_name || 'Max Level'}`;
+
+        const currentReq = Number(currentLevelObj?.required_wager || 0);
+        const nextReq = Number(nextLevelObj?.required_wager || currentReq);
+
+        let percentage = 100;
+        if (nextReq > currentReq) {
+          percentage = ((totalWager - currentReq) / (nextReq - currentReq)) * 100;
+          if (percentage < 0) percentage = 0;
+          if (percentage > 100) percentage = 100;
+        }
+
+        document.getElementById('txtPercentage').textContent = percentage.toFixed(2) + '%';
+        document.getElementById('progressFill').style.width = percentage.toFixed(2) + '%';
+
+        loadingState.style.display = 'none';
+        mainContent.style.display = 'flex';
+
+      } catch (err) {
+        console.error('Error loading VIP data:', err);
+        loadingState.innerHTML = `
+          <div class="text-red-400 flex flex-col items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+            <p class="text-xs">Failed to load VIP information.</p>
+            <button onclick="loadVipData()" class="mt-2 px-3 py-1.5 bg-[#243542] text-white rounded-lg text-xs font-bold">Retry</button>
+          </div>
+        `;
+      }
+    }
+
+    async function claimRakeback() {
+      alert('Rakeback claim feature is ready to process.');
+    }
+
+    async function claimWeeklyBonus() {
+      alert('Weekly boost will be available based on weekly wager.');
+    }
+
+    // Load bottom navigation bar
+    async function loadBottomBar() {
+      try {
+        (await fetch('../bar/bottom.html')).ok && (document.getElementById('bottomBarContainer').innerHTML = await (await fetch('../bar/bottom.html')).text());
+      } catch (e) {
+        console.error('Bottom bar error:', e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadBottomBar();
+      loadVipData();
+    });
+  </script>
+</body>
+</html>
