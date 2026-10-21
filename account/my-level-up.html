@@ -79,6 +79,20 @@
           </div>
         </div>
 
+        <!-- Level Up Bonus Card (Dynamic) -->
+        <div id="levelBonusCard" class="card-bg p-4 flex items-center justify-between" style="display: none;">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-emerald-400 text-xl">
+              <i class="fa-solid fa-trophy"></i>
+            </div>
+            <div>
+              <div class="font-bold text-sm text-white">Level Up Bonus</div>
+              <div id="txtLevelBonusAmount" class="text-xs text-[#24ee89] mt-0.5">৳0.00 available</div>
+            </div>
+          </div>
+          <button onclick="claimLevelBonus()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">Claim</button>
+        </div>
+
         <!-- Bonuses Section Heading -->
         <h3 class="text-sm font-extrabold text-white tracking-wider uppercase mt-1">Bonuses</h3>
 
@@ -144,6 +158,9 @@
   </div>
 
   <script>
+    let globalUserProfile = null;
+    let globalCurrentLevelObj = null;
+
     // সেন্ট্রাল ওয়াগার এবং ভিআইপি লেভেল আপডেট করার ফাংশন (যাতে গেম খেলার সময় অটো আপডেট হয়)
     async function updateUserWagerAndVIP(userId, betAmount) {
       try {
@@ -221,13 +238,15 @@
           throw new Error('Supabase client is not configured.');
         }
 
+        // Check if level_up_claimed column exists or select all
         const { data: profile, error: profileError } = await supabaseClient
           .from('profiles')
-          .select('full_name, current_vip_level, total_wager, rakeback_balance')
+          .select('*')
           .eq('id', userId)
           .maybeSingle();
 
         if (profileError) throw profileError;
+        globalUserProfile = profile;
 
         const { data: levels, error: levelError } = await supabaseClient
           .from('vip_level_settings')
@@ -243,10 +262,23 @@
         const totalWager = Number(profile?.total_wager || 0);
 
         const currentLevelObj = levels?.find(l => l.level_number === userLevelNum) || levels[0];
+        globalCurrentLevelObj = currentLevelObj;
         const nextLevelObj = levels?.find(l => l.level_number === userLevelNum + 1) || currentLevelObj;
 
         document.getElementById('txtCurrentLevel').textContent = `Level: ${currentLevelObj?.level_name || 'Bronze I'}`;
         document.getElementById('txtNextLevel').textContent = `Next: ${nextLevelObj?.level_name || 'Max Level'}`;
+
+        // Handle Level Up Bonus UI Check
+        const levelBonusCard = document.getElementById('levelBonusCard');
+        const bonusAmount = Number(currentLevelObj?.level_up_bonus || 0);
+        const isClaimed = profile?.level_up_claimed === true || profile?.level_up_claimed === 1;
+
+        if (bonusAmount > 0 && !isClaimed) {
+          document.getElementById('txtLevelBonusAmount').textContent = formatMoney(bonusAmount) + ' available';
+          levelBonusCard.style.display = 'flex';
+        } else {
+          levelBonusCard.style.display = 'none';
+        }
 
         const currentReq = Number(currentLevelObj?.required_wager || 0);
         const nextReq = Number(nextLevelObj?.required_wager || currentReq);
@@ -278,7 +310,83 @@
     }
 
     async function claimRakeback() {
-      alert('Rakeback claim feature is ready to process.');
+      try {
+        const storedUser = getStoredCurrentUser();
+        if (!storedUser || !storedUser.id) return;
+        const userId = storedUser.id;
+
+        const { data: profile, error: pError } = await supabaseClient
+          .from('profiles')
+          .select('balance, rakeback_balance')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (pError || !profile) {
+          alert('Failed to fetch user profile.');
+          return;
+        }
+
+        const rakebackBal = Number(profile.rakeback_balance || 0);
+        if (rakebackBal <= 0) {
+          alert('No rakeback available to claim.');
+          return;
+        }
+
+        const currentMainBalance = Number(profile.balance || 0);
+        const newMainBalance = currentMainBalance + rakebackBal;
+
+        const { error: updateError } = await supabaseClient
+          .from('profiles')
+          .update({
+            balance: newMainBalance,
+            rakeback_balance: 0
+          })
+          .eq('id', userId);
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        alert(`Successfully claimed ৳${rakebackBal.toFixed(2)} Rakeback!`);
+        loadVipData();
+
+      } catch (err) {
+        console.error('Error claiming rakeback:', err);
+        alert('Failed to claim rakeback. Please try again.');
+      }
+    }
+
+    async function claimLevelBonus() {
+      try {
+        if (!globalUserProfile || !globalCurrentLevelObj) return;
+        const userId = globalUserProfile.id;
+        const bonusAmount = Number(globalCurrentLevelObj.level_up_bonus || 0);
+
+        if (bonusAmount <= 0) {
+          alert('No bonus available for this level.');
+          return;
+        }
+
+        const currentMainBalance = Number(globalUserProfile.balance || 0);
+        const newMainBalance = currentMainBalance + bonusAmount;
+
+        const { error: updateError } = await supabaseClient
+          .from('profiles')
+          .update({
+            balance: newMainBalance,
+            level_up_claimed: true
+          })
+          .eq('id', userId);
+
+        if (updateError) throw updateError;
+
+        alert(`Successfully claimed ৳${bonusAmount.toFixed(2)} Level Up Bonus!`);
+        loadVipData();
+
+      } catch (err) {
+        console.error('Error claiming level bonus:', err);
+        alert('Failed to claim level bonus. Please ensure "level_up_claimed" column exists in profiles table.');
+      }
     }
 
     async function claimWeeklyBonus() {
