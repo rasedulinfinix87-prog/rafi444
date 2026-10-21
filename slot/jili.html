@@ -3,162 +3,201 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slot Game Hub & Casino Lobby</title>
+  <title>Super Ace Slot</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      background: #0b141a;
-      color: #f5f7f7;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    .card-bg {
-      background: linear-gradient(145deg, #16222a, #10171d);
-      border: 1px solid #263845;
-    }
-  </style>
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="bg-slate-900 text-white min-h-screen flex flex-col justify-between">
 
-  <!-- Header -->
-  <header class="bg-[#10171d] border-b border-[#263845] py-4 px-6 flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-50">
-    <div class="text-xl font-black text-[#24ee89] tracking-wider uppercase">🎰 Slot Game Hub</div>
-    <div class="flex items-center gap-3 w-full md:w-auto">
-      <input type="text" id="searchInput" placeholder="Search slots or providers..." class="bg-[#16222a] border border-[#263845] rounded-xl px-4 py-2 text-sm text-white w-full md:w-64 focus:outline-none focus:border-[#24ee89]">
-      <select id="providerFilter" class="bg-[#16222a] border border-[#263845] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#24ee89]">
-        <option value="">All Providers</option>
-      </select>
+  <!-- Top Header / Balance Bar -->
+  <header class="bg-slate-800 p-4 shadow-md flex justify-between items-center">
+    <div class="flex items-center space-x-3">
+      <a href="../index.html" class="bg-slate-700 px-3 py-1.5 rounded text-sm hover:bg-slate-600 transition">← Home</a>
+      <h1 class="font-bold text-lg text-amber-400">Super Ace Slot</h1>
+    </div>
+    <div class="bg-slate-900 px-4 py-1.5 rounded-full border border-slate-700 flex items-center space-x-2">
+      <span class="text-xs text-slate-400">Balance:</span>
+      <span id="userBalance" class="font-bold text-emerald-400">0.00</span>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
-    <div class="mb-6 flex justify-between items-center">
-      <h2 class="text-lg font-bold text-slate-200">Available Slot Games (<span id="gameCount">0</span>)</h2>
-    </div>
+  <!-- Main Slot Machine Container -->
+  <main class="flex-grow flex flex-col items-center justify-center p-4">
+    <div class="bg-slate-800 border-4 border-amber-500/50 rounded-2xl p-6 shadow-2xl w-full max-w-md text-center">
+      
+      <!-- Slot Reels Display Area -->
+      <div class="grid grid-cols-4 gap-3 bg-slate-950 p-4 rounded-xl mb-6 border border-slate-700">
+        <div class="reel bg-slate-900 h-24 flex items-center justify-center text-4xl rounded-lg border border-slate-800 shadow-inner">👑</div>
+        <div class="reel bg-slate-900 h-24 flex items-center justify-center text-4xl rounded-lg border border-slate-800 shadow-inner">💎</div>
+        <div class="reel bg-slate-900 h-24 flex items-center justify-center text-4xl rounded-lg border border-slate-800 shadow-inner">⭐</div>
+        <div class="reel bg-slate-900 h-24 flex items-center justify-center text-4xl rounded-lg border border-slate-800 shadow-inner">🍇</div>
+      </div>
 
-    <!-- Games Grid -->
-    <div id="gamesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-      <!-- Dynamic Games Loaded Here -->
+      <!-- Result / Status Message -->
+      <div id="gameMessage" class="h-8 text-sm font-medium text-amber-300 mb-4 flex items-center justify-center">
+        Set your bet and spin to win!
+      </div>
+
+      <!-- Bet Controls -->
+      <div class="mb-5 flex flex-col items-center space-y-2">
+        <label for="betAmountInput" class="text-xs text-slate-400 uppercase tracking-wider">Bet Amount</label>
+        <div class="flex items-center space-x-2">
+          <button onclick="adjustBet(-10)" class="bg-slate-700 px-3 py-1 rounded hover:bg-slate-600 font-bold">-</button>
+          <input type="number" id="betAmountInput" value="20" min="1" class="w-28 bg-slate-900 text-center text-lg font-bold py-1 rounded border border-slate-700 text-amber-400 focus:outline-none">
+          <button onclick="adjustBet(10)" class="bg-slate-700 px-3 py-1 rounded hover:bg-slate-600 font-bold">+</button>
+        </div>
+      </div>
+
+      <!-- Spin Button -->
+      <button id="spinBtn" onclick="playSuperAceSlot()" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xl py-3 rounded-xl shadow-lg hover:from-amber-400 hover:to-yellow-400 transition transform active:scale-95">
+        SPIN NOW
+      </button>
+
     </div>
   </main>
 
-  <!-- Game Demo Modal -->
-  <div id="demoModal" class="fixed inset-0 bg-black/90 z-50 hidden flex-col items-center justify-center p-4">
-    <div class="w-full max-w-4xl h-[80vh] flex flex-col bg-[#10171d] border border-[#263845] rounded-2xl overflow-hidden shadow-2xl">
-      <div class="flex justify-between items-center px-4 py-3 bg-[#16222a] border-b border-[#263845]">
-        <h3 id="modalTitle" class="font-bold text-white text-base">Game Demo</h3>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
-      </div>
-      <div class="flex-1 bg-black relative">
-        <iframe id="demoIframe" src="" class="w-full h-full border-0"></iframe>
-      </div>
-    </div>
-  </div>
+  <!-- Footer Navigation Bar -->
+  <footer class="bg-slate-800 p-3 text-center text-xs text-slate-400 border-t border-slate-700">
+    &copy; Rasi Shop &bull; Super Ace Slot Integration
+  </footer>
 
+  <!-- Supabase Configuration & Game Logic Script -->
+  <script src="../supabase-config.js"></script>
   <script>
-    // Combined Data from provided files
-    const gamesData = [
-      { name: "Arctic Sorcerer", slug: "artic-sorcerer", provider: "bad-dingo", rtp: 96.2, volatility: "medium", has_demo: false, embed_url: null },
-      { name: "Aztec Apocalypse PrizeMatch", slug: "aztec-apocalypse-prizematch", provider: "kalamba-games", rtp: 96, volatility: "high", has_demo: true, embed_url: "https://demo.slotindex.io/embed/aztec-apocalypse-prizematch" },
-      { name: "Desert Scarabs PrizeTower™", slug: "desert-scarabs-prizetower", provider: "kalamba-games", rtp: 96.43, volatility: "low", has_demo: true, embed_url: "https://demo.slotindex.io/embed/desert-scarabs-prizetower" },
-      { name: "Gold Fever Mine All Mine™", slug: "gold-fever-mine-all-mine", provider: "inspired-gaming", rtp: 94.5, volatility: "low", has_demo: true, embed_url: "https://demo.slotindex.io/embed/gold-fever-mine-all-mine" },
-      { name: "Midas Dynasty Coins Ultra Link&Win", slug: "midas-dynasty-coins-ultra-link-win", provider: "just-for-the-win", rtp: 96.12, volatility: "high", has_demo: true, embed_url: "https://demo.slotindex.io/embed/midas-dynasty-coins-ultra-link-win" },
-      { name: "Sidewinder DoubleMax", slug: "sidewinder-doublemax", provider: "reflex-gaming", rtp: 95.5, volatility: "high", has_demo: true, embed_url: "https://demo.slotindex.io/embed/sidewinder-doublemax" },
-      { name: "Stellarcade Power Combo", slug: "stellarcade-power-combo", provider: "just-for-the-win", rtp: 96.13, volatility: "high", has_demo: true, embed_url: "https://demo.slotindex.io/embed/stellarcade-power-combo" },
-      { name: "10000 BC 2 DoubleMax™", slug: "10000-bc-2-doublemax", provider: "4theplayer", rtp: 94, volatility: "high", has_demo: true, embed_url: "https://demo.slotindex.io/embed/10000-bc-2-doublemax" },
-      { name: "101 Candies", slug: "101-candies", provider: "netent", rtp: 96.08, volatility: "medium", has_demo: true, embed_url: "https://demo.slotindex.io/embed/101-candies" },
-      { name: "1429 Uncharted Seas®", slug: "1429-uncharted-seas", provider: "thunderkick", rtp: 98.6, volatility: "low", has_demo: true, embed_url: "https://demo.slotindex.io/embed/1429-uncharted-seas" }
-    ];
+    let currentUser = null;
+    let userProfile = null;
 
-    const providersData = [
-      { name: "4ThePlayer", slug: "4theplayer", country: "UK" },
-      { name: "Betsoft", slug: "betsoft", country: "MT" },
-      { name: "Microgaming", slug: "microgaming", country: "US" },
-      { name: "NetEnt", slug: "netent", country: "SE" },
-      { name: "Pragmatic Play", slug: "pragmatic-play", country: "MT" },
-      { name: "Kalamba Games", slug: "kalamba-games", country: "MT" },
-      { name: "Thunderkick", slug: "thunderkick", country: "MT" }
-    ];
+    // Symbols used for slot spin animation/display
+    const slotSymbols = ['👑', '💎', '⭐', '🍇', '🔔', '🍊', '🍉'];
 
-    function initFilter() {
-      const select = document.getElementById('providerFilter');
-      providersData.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.slug;
-        opt.textContent = p.name;
-        select.appendChild(opt);
-      });
+    window.addEventListener('DOMContentLoaded', async () => {
+      currentUser = await requireAuth();
+      if (currentUser) {
+        await loadUserProfileData();
+      }
+    });
+
+    async function loadUserProfileData() {
+      userProfile = await getUserProfile(currentUser.id);
+      if (userProfile) {
+        document.getElementById('userBalance').innerText = Number(userProfile.balance || 0).toFixed(2);
+      }
     }
 
-    function renderGames(filteredList) {
-      const grid = document.getElementById('gamesGrid');
-      grid.innerHTML = '';
-      document.getElementById('gameCount').textContent = filteredList.length;
+    function adjustBet(amount) {
+      const input = document.getElementById('betAmountInput');
+      let currentVal = parseFloat(input.value) || 0;
+      currentVal += amount;
+      if (currentVal < 1) currentVal = 1;
+      input.value = currentVal;
+    }
 
-      if (filteredList.length === 0) {
-        grid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-10">No games found.</div>`;
+    async function playSuperAceSlot() {
+      if (!currentUser || !userProfile) {
+        alert("Session expired. Please login again.");
+        window.location.href = "../login-signup.html";
         return;
       }
 
-      filteredList.forEach(game => {
-        const card = document.createElement('div');
-        card.className = 'card-bg rounded-2xl p-4 flex flex-col justify-between gap-4 shadow-lg';
-        
-        card.innerHTML = `
-          <div>
-            <div class="flex justify-between items-start gap-2 mb-2">
-              <h3 class="font-bold text-white text-base leading-snug">${game.name}</h3>
-              <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded uppercase font-semibold">${game.volatility || 'N/A'}</span>
-            </div>
-            <p class="text-xs text-slate-400 uppercase tracking-wide">Provider: <span class="text-[#24ee89] font-semibold">${game.provider}</span></p>
-            <p class="text-xs text-slate-400 mt-1">RTP: <span class="text-amber-400 font-bold">${game.rtp}%</span></p>
-          </div>
-          <div>
-            ${game.has_demo && game.embed_url ? 
-              `<button onclick="openDemo('${game.embed_url}', '${game.name}')" class="w-full py-2.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-xl shadow hover:brightness-110 transition">Play Demo</button>` :
-              `<button disabled class="w-full py-2.5 bg-slate-800 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed">Demo Unavailable</button>`
-            }
-          </div>
-        `;
-        grid.appendChild(card);
-      });
+      const betInput = document.getElementById('betAmountInput');
+      const betAmount = parseFloat(betInput.value);
+      const currentBalance = parseFloat(userProfile.balance || 0);
+
+      const msgEl = document.getElementById('gameMessage');
+      const spinBtn = document.getElementById('spinBtn');
+
+      if (isNaN(betAmount) || betAmount <= 0) {
+        msgEl.innerText = "Please enter a valid bet amount!";
+        return;
+      }
+
+      if (currentBalance < betAmount) {
+        msgEl.innerText = "Insufficient balance!";
+        return;
+      }
+
+      // Disable button during spin execution
+      spinBtn.disabled = true;
+      spinBtn.classList.add('opacity-50');
+      msgEl.innerText = "Spinning...";
+
+      // Randomize symbols for visual effect
+      const reels = document.querySelectorAll('.reel');
+      let shuffleInterval = setInterval(() => {
+        reels.forEach(reel => {
+          const randomSym = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+          reel.innerText = randomSym;
+        });
+      }, 80);
+
+      setTimeout(async () => {
+        clearInterval(shuffleInterval);
+
+        // Simple Win/Loss Calculation Logic
+        // 40% win chance simulation
+        const isWin = Math.random() < 0.40;
+        let multiplier = 0;
+        let payout = 0;
+
+        // Final result symbols generation
+        const finalSymbols = [];
+        for (let i = 0; i < 4; i++) {
+          finalSymbols.push(slotSymbols[Math.floor(Math.random() * slotSymbols.length)]);
+        }
+        reels.forEach((reel, idx) => {
+          reel.innerText = finalSymbols[idx];
+        });
+
+        if (isWin) {
+          multiplier = [2, 3, 5, 10][Math.floor(Math.random() * 4)];
+          payout = betAmount * multiplier;
+          msgEl.innerText = `Congratulations! You won ${payout.toFixed(2)} (${multiplier}X)`;
+        } else {
+          payout = 0;
+          msgEl.innerText = "Try again! Better luck next time.";
+        }
+
+        const newBalance = currentBalance - betAmount + payout;
+
+        try {
+          // Update profile balance in Supabase
+          const { error: updateError } = await supabaseClient
+            .from('profiles')
+            .update({ balance: newBalance })
+            .eq('id', currentUser.id);
+
+          if (updateError) {
+            console.error("Balance update error:", updateError);
+          }
+
+          // Insert record into original_bets_history (automatically handles wagering & VIP point additions via interceptor)
+          await supabaseClient
+            .from('original_bets_history')
+            .insert([{
+              user_id: currentUser.id,
+              game_name: 'Super Ace Slot',
+              bet_amount: betAmount,
+              payout: payout,
+              multiplier: multiplier,
+              status: isWin ? 'win' : 'loss',
+              game_details: { symbols: finalSymbols }
+            }]);
+
+          // Refresh user profile data locally
+          await loadUserProfileData();
+
+        } catch (err) {
+          console.error("Database transaction error:", err);
+        }
+
+        // Re-enable spin button
+        spinBtn.disabled = false;
+        spinBtn.classList.remove('opacity-50');
+
+      }, 1200);
     }
-
-    function openDemo(url, name) {
-      document.getElementById('modalTitle').textContent = name;
-      document.getElementById('demoIframe').src = url;
-      const modal = document.getElementById('demoModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeModal() {
-      const modal = document.getElementById('demoModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      document.getElementById('demoIframe').src = '';
-    }
-
-    // Search and Filter Event Listeners
-    document.getElementById('searchInput').addEventListener('input', filterGames);
-    document.getElementById('providerFilter').addEventListener('change', filterGames);
-
-    function filterGames() {
-      const searchTxt = document.getElementById('searchInput').value.toLowerCase();
-      const selectedProv = document.getElementById('providerFilter').value;
-
-      const filtered = gamesData.filter(g => {
-        const matchesSearch = g.name.toLowerCase().includes(searchTxt) || g.provider.toLowerCase().includes(searchTxt);
-        const matchesProv = selectedProv === "" || g.provider === selectedProv;
-        return matchesSearch && matchesProv;
-      });
-
-      renderGames(filtered);
-    }
-
-    // Initialize on load
-    initFilter();
-    renderGames(gamesData);
   </script>
 </body>
 </html>
