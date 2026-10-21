@@ -43,14 +43,12 @@ function getStoredCurrentUser() {
 // Auth Helper Functions
 async function getCurrentUser() {
   try {
-    // First check the actual Supabase login session
     const { data, error } = await supabaseClient.auth.getSession();
 
     if (!error && data && data.session && data.session.user) {
       return data.session.user;
     }
 
-    // Fallback for projects that also store the logged-in user locally
     const storedUser = getStoredCurrentUser();
 
     if (storedUser) {
@@ -60,8 +58,6 @@ async function getCurrentUser() {
     return null;
   } catch (error) {
     console.error("Error checking login session:", error);
-
-    // Fallback to the locally stored user
     return getStoredCurrentUser();
   }
 }
@@ -70,12 +66,10 @@ async function getCurrentUser() {
 function getLoginPageUrl() {
   const path = window.location.pathname;
 
-  // Pages inside the game folder
   if (path.includes("/game/")) {
     return "../login-signup.html";
   }
 
-  // Pages at the website root
   return "login-signup.html";
 }
 
@@ -118,12 +112,11 @@ async function logoutUser() {
   }
 
   localStorage.removeItem("current_user");
-
   window.location.href = getLoginPageUrl();
 }
 
 // ==========================================
-// Central Wager and VIP Level Update Function
+// Central Wager and VIP Level Update Logic
 // ==========================================
 async function updateUserWagerAndVIP(userId, betAmount) {
   try {
@@ -174,3 +167,35 @@ async function updateUserWagerAndVIP(userId, betAmount) {
     console.error('Error updating wager and VIP:', err);
   }
 }
+
+// ==========================================
+// Global Interceptor for Supabase Insert
+// ==========================================
+const originalFrom = supabaseClient.from.bind(supabaseClient);
+supabaseClient.from = function (table) {
+  const queryBuilder = originalFrom(table);
+  
+  if (table === 'original_bets_history' || table === 'color_game_history') {
+    const originalInsert = queryBuilder.insert.bind(queryBuilder);
+    queryBuilder.insert = async function (values) {
+      const result = await originalInsert(values);
+      
+      try {
+        let betsArray = Array.isArray(values) ? values : [values];
+        for (const bet of betsArray) {
+          const userId = bet.user_id;
+          const betAmount = Number(bet.bet_amount || bet.amount || 0);
+          if (userId && betAmount > 0) {
+            await updateUserWagerAndVIP(userId, betAmount);
+          }
+        }
+      } catch (e) {
+        console.error('Interceptor error:', e);
+      }
+      
+      return result;
+    };
+  }
+  
+  return queryBuilder;
+};
