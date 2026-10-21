@@ -3,72 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crash Game - Raseshop</title>
-    <!-- Tailwind CSS CDN for Styling -->
+    <title>Crash Balloon Game - Raseshop</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
-            background-color: #0f172a;
+            background-color: #0b132b;
             color: #ffffff;
             font-family: sans-serif;
+        }
+        /* Custom Balloon & Pump Interface Styles */
+        .game-card {
+            background-color: #1c2541;
+            border: 1px solid #3a506b;
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen justify-between">
 
     <!-- Header / Navbar -->
-    <header class="bg-slate-900 p-4 shadow-md flex justify-between items-center">
-        <h1 class="text-xl font-bold text-blue-500">Crash Game</h1>
-        <div id="user-balance-container" class="bg-slate-800 px-4 py-2 rounded-lg text-sm">
+    <header class="bg-[#1c2541] p-4 shadow-md flex justify-between items-center border-b border-[#3a506b]">
+        <h1 class="text-lg font-bold text-blue-400">Crash Game</h1>
+        <div class="bg-[#0b132b] px-3 py-1.5 rounded-lg text-xs border border-[#3a506b]">
             Balance: <span id="user-balance" class="font-bold text-green-400">0.00</span> USDT
         </div>
     </header>
 
     <!-- Main Game Section -->
-    <main class="flex-grow flex flex-col items-center justify-center p-4">
-        <div class="w-full max-w-md bg-slate-800 rounded-2xl p-6 shadow-xl flex flex-col items-center">
+    <main class="flex-grow flex flex-col items-center justify-center p-3">
+        <div class="w-full max-w-sm game-card rounded-2xl p-4 shadow-xl flex flex-col items-center">
             
-            <!-- Multiplier Display / Balloon Area -->
-            <div class="relative w-48 h-48 bg-blue-600 rounded-full flex flex-col items-center justify-center shadow-lg mb-6 animate-pulse">
-                <span id="multiplier-display" class="text-3xl font-extrabold">1.00x</span>
-                <span class="text-xs uppercase tracking-wider mt-1">Multiplier</span>
-            </div>
-
-            <!-- Recent Multipliers Buttons -->
-            <div class="flex gap-2 mb-6 w-full justify-center">
-                <div class="bg-slate-700 px-3 py-1 rounded text-xs">1.00x</div>
-                <div class="bg-slate-700 px-3 py-1 rounded text-xs">1.11x</div>
-                <div class="bg-slate-700 px-3 py-1 rounded text-xs">1.27x</div>
-            </div>
-
-            <!-- Bet Control Form -->
-            <div class="w-full flex flex-col gap-4">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1">Bet Amount</label>
-                    <div class="flex items-center bg-slate-900 rounded-lg border border-slate-700 overflow-hidden px-3 py-2">
-                        <input type="number" id="bet-amount" value="0.00000000" step="0.01" class="bg-transparent w-full outline-none text-white">
-                        <span class="text-green-500 font-bold ml-2">₮</span>
+            <!-- Balloon Graphic & Multiplier Area -->
+            <div class="relative w-full h-44 flex flex-col items-center justify-center mb-4">
+                <!-- Balloon Shape -->
+                <div class="relative w-28 h-32 bg-blue-600 rounded-[50%_50%_50%_50%/40%_40%_60%_60%] flex flex-col items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.5)]">
+                    <!-- Balloon Highlight Dot -->
+                    <div class="absolute top-3 right-4 w-2.5 h-2.5 bg-white/60 rounded-full"></div>
+                    <span id="multiplier-display" class="text-2xl font-extrabold text-white">1.00x</span>
+                </div>
+                <!-- Balloon Knot & Base Machine Graphic -->
+                <div class="w-2 h-3 bg-blue-500"></div>
+                <div class="w-28 h-10 bg-[#23304a] rounded-t-xl relative flex items-center justify-center border-t border-[#3a506b] shadow-inner mt-0.5">
+                    <!-- Indicator dots on machine -->
+                    <div class="absolute left-3 flex gap-1">
+                        <div class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
                     </div>
                 </div>
-
-                <div class="flex gap-2">
-                    <button id="btn-half" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded text-sm font-semibold">½</button>
-                    <button id="btn-double" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded text-sm font-semibold">2×</button>
-                </div>
-
-                <!-- Action Button -->
-                <button id="action-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg">
-                    Bet
-                </button>
+                <!-- Base platform line -->
+                <div class="w-64 h-2 bg-[#131b2e] rounded-full -mt-1"></div>
             </div>
+
+            <!-- Recent Multipliers Buttons (Reference Style) -->
+            <div class="grid grid-cols-3 gap-2 mb-4 w-full">
+                <button class="bg-[#23304a] hover:bg-[#3a506b] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.00×</button>
+                <button class="bg-[#23304a] hover:bg-[#3a506b] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.11×</button>
+                <button class="bg-[#23304a] hover:bg-[#3a506b] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.27×</button>
+            </div>
+
+            <!-- Bet Button (Top of inputs like reference image) -->
+            <button id="bet-action-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg mb-4 text-sm">
+                Bet
+            </button>
+
+            <!-- Bet Amount Section -->
+            <div class="w-full flex flex-col gap-1.5 mb-3">
+                <div class="flex justify-between text-xs text-slate-400 px-1">
+                    <span>Bet Amount</span>
+                    <span id="amount-usd">$0.00</span>
+                </div>
+                <div class="flex items-center bg-[#0b132b] rounded-xl border border-[#3a506b] overflow-hidden px-3 py-2">
+                    <input type="number" id="bet-amount" value="0.00000000" step="0.01" class="bg-transparent w-full outline-none text-white text-sm">
+                    <!-- USDT/Token Icon -->
+                    <div class="bg-green-600 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white ml-2">₮</div>
+                    <!-- Half & Double Buttons inside input container layout -->
+                    <div class="flex items-center gap-2 ml-3 pl-3 border-l border-[#3a506b] text-xs font-bold text-slate-300">
+                        <button id="btn-half" class="hover:text-white px-1">½</button>
+                        <span class="text-slate-600">|</span>
+                        <button id="btn-double" class="hover:text-white px-1">2×</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pump / Cashout Button (Bottom secondary action) -->
+            <button id="pump-btn" class="w-full bg-[#23304a] hover:bg-[#3a506b] text-slate-400 font-bold py-3 rounded-xl transition-all border border-[#3a506b] text-sm cursor-not-allowed" disabled>
+                Pump
+            </button>
 
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 py-3 text-center text-xs text-slate-500">
+    <footer class="bg-[#1c2541] py-2 text-center text-[10px] text-slate-500 border-t border-[#3a506b]">
         &copy; Raseshop. All rights reserved.
     </footer>
 
@@ -91,15 +119,22 @@
             const input = document.getElementById('bet-amount');
             let val = parseFloat(input.value) || 0;
             input.value = Math.max(0, val / 2).toFixed(8);
+            document.getElementById('amount-usd').innerText = '$' + (parseFloat(input.value) * 1).toFixed(2);
         });
 
         document.getElementById('btn-double').addEventListener('click', () => {
             const input = document.getElementById('bet-amount');
             let val = parseFloat(input.value) || 0;
             input.value = (val * 2).toFixed(8);
+            document.getElementById('amount-usd').innerText = '$' + (parseFloat(input.value) * 1).toFixed(2);
         });
 
-        document.getElementById('action-btn').addEventListener('click', async () => {
+        document.getElementById('bet-amount').addEventListener('input', (e) => {
+            let val = parseFloat(e.target.value) || 0;
+            document.getElementById('amount-usd').innerText = '$' + val.toFixed(2);
+        });
+
+        document.getElementById('bet-action-btn').addEventListener('click', async () => {
             const betAmount = parseFloat(document.getElementById('bet-amount').value);
             if (!currentUser || isNaN(betAmount) || betAmount <= 0) {
                 alert('সঠিক বেট অ্যামাউন্ট দিন।');
@@ -116,7 +151,7 @@
                     payout: 0,
                     multiplier: 1.00,
                     status: 'pending',
-                    game_details: { type: 'crash_balloon' }
+                    game_details: { type: 'crash_balloon_pump' }
                 }]);
 
             if (error) {
