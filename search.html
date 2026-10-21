@@ -10,10 +10,10 @@
   <script src="supabase-config.js"></script>
   <style>
     :root {
-      --font-xs: 11px;
-      --font-sm: 12px;
-      --font-base: 14px;
-      --font-md: 16px;
+      --font-xs: 14px;
+      --font-sm: 15px;
+      --font-base: 16px;
+      --font-md: 17px;
       --font-lg: 18px;
       --font-xl: 22px;
       --font-2xl: 28px;
@@ -27,7 +27,7 @@
     ::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 4px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-    body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+    body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); font-size: var(--font-base); }
     #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
     #bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
     .category-btn { white-space: nowrap; }
@@ -45,36 +45,36 @@
   <main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
     <!-- Search -->
     <div class="bg-[#1A2C38] border border-[#0F212E] rounded-2xl p-3 flex items-center gap-3">
-      <i class="fa-solid fa-magnifying-glass text-[#FFFFFF]/70 text-[var(--font-sm)]"></i>
+      <svg class="w-4 h-4 fill-current text-[#FFFFFF]" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       <input id="gameSearch" type="search" placeholder="Search games..." autocomplete="off"
         class="bg-transparent text-[#FFFFFF] placeholder-[#FFFFFF]/50 focus:outline-none w-full text-[var(--font-sm)]">
       <button id="clearSearch" type="button" aria-label="Clear search" class="hidden text-[#FFFFFF]/70 hover:text-[#FFFFFF] px-1">
-        <i class="fa-solid fa-xmark"></i>
+        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </button>
     </div>
 
     <!-- Categories -->
     <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-      <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#24ee89] text-[#0F212E] font-bold px-4 py-2.5 rounded-xl text-[var(--font-xs)] shadow-sm">
-        <i class="fa-solid fa-fire text-orange-500"></i> Hot Game
+      <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#1F51FF] text-[#FFFFFF] font-bold px-4 py-2.5 rounded-xl text-[var(--font-xs)] shadow-sm border border-[#0F212E]">
+        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg> Hot Game
       </button>
       <button type="button" data-category="original" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
-        <i class="fa-solid fa-bolt text-[#24ee89]"></i> Original
+        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Original
       </button>
       <button type="button" data-category="color_trading" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
-        <i class="fa-solid fa-palette text-purple-400"></i> Color Trading
+        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.35c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.22 19.46 10.57 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg> Color Trading
       </button>
       <button type="button" data-category="lucky_lottery" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
-        <i class="fa-solid fa-ticket text-yellow-400"></i> Lucky Lottery
+        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3c-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2a3 3 0 0 0-3 3c0 .35.07.69.18 1H4c-1.1 0-1.99.9-1.99 2L2 19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg> Lucky Lottery
       </button>
       <button type="button" data-category="slot" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
-        <i class="fa-solid fa-dice text-blue-400"></i> Slot
+        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> Slot
       </button>
       <button type="button" data-category="casino" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
-        <i class="fa-solid fa-circle-dot text-red-400"></i> Casino
+        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z"/></svg> Casino
       </button>
       <a href="/sports/sports.html" id="sportsBtn" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E] no-underline">
-        <i class="fa-solid fa-futbol text-green-400"></i> Sports
+        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> Sports
       </a>
     </div>
 
@@ -87,8 +87,8 @@
 
     <!-- Load More Button -->
     <div class="text-center pt-2">
-      <button id="loadMoreBtn" class="hidden bg-[#0F212E] hover:bg-[#1A2C38] text-[#24ee89] font-bold border border-[#24ee89]/40 px-6 py-2.5 rounded-xl text-[var(--font-xs)] transition-all">
-        <i class="fa-solid fa-rotate-right mr-1"></i> Load More
+      <button id="loadMoreBtn" class="hidden bg-[#0F212E] hover:bg-[#1A2C38] text-[#FFFFFF] font-bold border border-[#1F51FF] px-6 py-2.5 rounded-xl text-[var(--font-xs)] transition-all">
+        Load More
       </button>
     </div>
   </main>
@@ -207,11 +207,11 @@
             const showBadge = game.show_badge !== false;
 
             return `
-              <a href="${pageUrl}" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
+              <a href="${pageUrl}" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
                 <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center p-1">
                   ${hasImg 
                     ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
-                    : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
+                    : `<svg class="w-8 h-8 fill-current text-white/80 mb-2" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h18v8z"/></svg>
                        ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#FFFFFF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
                   }
                 </div>
@@ -240,8 +240,8 @@
           activeCategory = button.dataset.category;
           document.querySelectorAll('[data-category]').forEach(btn => {
             const active = btn === button;
-            btn.classList.toggle('bg-[#24ee89]', active);
-            btn.classList.toggle('text-[#0F212E]', active);
+            btn.classList.toggle('bg-[#1F51FF]', active);
+            btn.classList.toggle('text-[#FFFFFF]', active);
             btn.classList.toggle('bg-[#1A2C38]', !active);
             btn.classList.toggle('text-[#FFFFFF]', !active);
             btn.classList.toggle('border', !active);
