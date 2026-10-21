@@ -9,7 +9,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
-  <script src="../wager-updater.js"></script>
 
   <style>
     * { -webkit-tap-highlight-color: transparent; }
@@ -145,6 +144,56 @@
   </div>
 
   <script>
+    // সেন্ট্রাল ওয়াগার এবং ভিআইপি লেভেল আপডেট করার ফাংশন (যাতে গেম খেলার সময় অটো আপডেট হয়)
+    async function updateUserWagerAndVIP(userId, betAmount) {
+      try {
+        if (!userId || !betAmount || betAmount <= 0) return;
+
+        const [profileRes, vipSettingsRes] = await Promise.all([
+          supabaseClient.from('profiles').select('*').eq('id', userId).maybeSingle(),
+          supabaseClient.from('vip_level_settings').select('*').order('level_number', { ascending: true })
+        ]);
+
+        if (profileRes.error || !profileRes.data) return;
+
+        const profile = profileRes.data;
+        const levels = vipSettingsRes.data || [];
+
+        const currentTotalWager = Number(profile.total_wager || 0) + Number(betAmount);
+        const currentWeeklyWager = Number(profile.weekly_wager || 0) + Number(betAmount);
+        const currentMonthlyWager = Number(profile.monthly_wager || 0) + Number(betAmount);
+        const currentLast7DaysWager = Number(profile.last_7_days_wager || 0) + Number(betAmount);
+
+        const currentLevelNum = Number(profile.current_vip_level || 1);
+        const activeLevelObj = levels.find(l => l.level_number === currentLevelNum) || levels[0];
+        const rakebackPercent = Number(activeLevelObj?.instant_rakeback_percent || 0);
+        
+        const earnedRakeback = (Number(betAmount) * rakebackPercent) / 100;
+        const newRakebackBalance = Number(profile.rakeback_balance || 0) + earnedRakeback;
+
+        let newVipLevel = currentLevelNum;
+        for (const lvl of levels) {
+          if (currentTotalWager >= Number(lvl.required_wager)) {
+            newVipLevel = lvl.level_number;
+          }
+        }
+
+        await supabaseClient
+          .from('profiles')
+          .update({
+            total_wager: currentTotalWager,
+            weekly_wager: currentWeeklyWager,
+            monthly_wager: currentMonthlyWager,
+            last_7_days_wager: currentLast7DaysWager,
+            rakeback_balance: newRakebackBalance,
+            current_vip_level: newVipLevel
+          })
+          .eq('id', userId);
+      } catch (err) {
+        console.error('Error updating wager:', err);
+      }
+    }
+
     function formatMoney(amount) {
       return '৳' + Number(amount || 0).toLocaleString('en-BD', {
         minimumFractionDigits: 2,
@@ -172,30 +221,21 @@
           throw new Error('Supabase client is not configured.');
         }
 
-        // ১. Fetch user profile data
         const { data: profile, error: profileError } = await supabaseClient
           .from('profiles')
           .select('full_name, current_vip_level, total_wager, rakeback_balance')
           .eq('id', userId)
           .maybeSingle();
 
-        if (profileError) {
-          console.error("Profile Fetch Error:", profileError);
-          throw profileError;
-        }
+        if (profileError) throw profileError;
 
-        // ২. Fetch VIP settings levels
         const { data: levels, error: levelError } = await supabaseClient
           .from('vip_level_settings')
           .select('*')
           .order('level_number', { ascending: true });
 
-        if (levelError) {
-          console.error("VIP Level Settings Fetch Error:", levelError);
-          throw levelError;
-        }
+        if (levelError) throw levelError;
 
-        // ইউজার ডেটা সেট করা
         document.getElementById('userName').textContent = profile?.full_name || 'VIP User';
         document.getElementById('txtRakebackBalance').textContent = formatMoney(profile?.rakeback_balance) + ' available';
 
@@ -245,7 +285,6 @@
       alert('Weekly boost will be available based on weekly wager.');
     }
 
-    // Load bottom navigation bar
     async function loadBottomBar() {
       try {
         (await fetch('../bar/bottom.html')).ok && (document.getElementById('bottomBarContainer').innerHTML = await (await fetch('../bar/bottom.html')).text());
