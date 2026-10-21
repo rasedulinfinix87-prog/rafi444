@@ -20,16 +20,13 @@
 </head>
 <body class="flex flex-col min-h-screen justify-between pb-16">
 
-    <!-- Header / Top Navigation Connection -->
-    <div id="top-bar-container">
-        <!-- যদি top.html আলাদা ফাইল হিসেবে লোড করতে চান বা সরাসরি কানেক্ট করতে চান -->
-        <header class="bg-[#1c2541] p-4 shadow-md flex justify-between items-center border-b border-[#3a506b]">
-            <h1 class="text-lg font-bold text-blue-400">Crash Game</h1>
-            <div class="bg-[#0b132b] px-3 py-1.5 rounded-lg text-xs border border-[#3a506b]">
-                Balance: <span id="user-balance" class="font-bold text-green-400">0.00</span> USDT
-            </div>
-        </header>
-    </div>
+    <!-- Header / Top Bar -->
+    <header class="bg-[#1c2541] p-4 shadow-md flex justify-between items-center border-b border-[#3a506b]">
+        <h1 class="text-lg font-bold text-blue-400">Crash Game</h1>
+        <div class="bg-[#0b132b] px-3 py-1.5 rounded-lg text-xs border border-[#3a506b]">
+            Balance: <span id="user-balance" class="font-bold text-green-400">0.00</span> USDT
+        </div>
+    </header>
 
     <!-- Main Game Section -->
     <main class="flex-grow flex flex-col items-center justify-center p-3">
@@ -83,16 +80,15 @@
             </div>
 
             <!-- Pump / Cashout Button -->
-            <button id="pump-btn" class="w-full bg-[#23304a] hover:bg-[#3a506b] text-slate-400 font-bold py-3 rounded-xl transition-all border border-[#3a506b] text-sm cursor-not-allowed" disabled>
+            <button id="pump-btn" class="w-full bg-[#23304a] text-slate-400 font-bold py-3 rounded-xl transition-all border border-[#3a506b] text-sm cursor-not-allowed" disabled>
                 Pump
             </button>
 
         </div>
     </main>
 
-    <!-- Bottom Navigation Bar Connection -->
+    <!-- Bottom Navigation Bar Container -->
     <div id="bottom-bar-container">
-        <!-- যদি bottom.html ফাইলটি ফেচ বা কন্টেন করতে চান -->
         <div id="included-bottom"></div>
     </div>
 
@@ -111,11 +107,9 @@
             }
         }
 
-        // Fetch and include bottom.html dynamically if needed
+        // Fetch and include bottom.html from root bar folder
         async function loadBottomBar() {
             try {
-                const response = dg('../bar/bottom.html');
-                // Alternatively, if using fetch:
                 const res = await fetch('../bar/bottom.html');
                 if (res.ok) {
                     const html = await res.text();
