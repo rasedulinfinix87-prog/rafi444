@@ -31,7 +31,7 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } 
         
         html { overflow-y: auto; -webkit-overflow-scrolling: touch; background: #0F212E; } 
-        body { overflow-x: hidden; background: #0F212E; color: #FFFFFF; font-size: var(--font-base); } 
+        body { overflow-x: hidden; background: #0F212E; color: #0000FF; font-size: var(--font-base); } 
         img { -webkit-user-drag: none; } 
 
         .shuffle-banner {
@@ -66,11 +66,11 @@
           .game-card, .game-art { min-height: 210px; }
         }
 
-        .progress-bar-bg { background: #0F212E; border: 1px solid #243542; }
+        .progress-bar-bg { background: #0F212E; border: 1px solid #0F212E; }
         .progress-fill { background: linear-gradient(90deg, #16a765, #2ed573); transition: width 0.4s ease; }
     </style> 
 </head> 
-<body class="bg-[#0F212E] text-[#FFFFFF] min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black pb-24"> 
+<body class="bg-[#0F212E] text-[#0000FF] min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black pb-24"> 
     <!-- Top Navigation Bar Anchor Container --> 
     <div id="topBarContainer" class="sticky top-0 z-50"></div> 
 
@@ -81,12 +81,12 @@
         <div class="w-full h-[2px] bg-[#1A2C38] rounded-full"></div>
 
         <!-- Multiple Dynamic Banner Slider Container -->
-        <div id="bannerContainer" class="shuffle-banner rounded-2xl relative shadow-xl min-h-[110px] sm:min-h-[130px] flex items-center overflow-hidden">
+        <div id="bannerContainer" class="shuffle-banner rounded-2xl relative shadow-xl min-h-[110px] sm:min-h-[130px] flex items-center overflow-hidden border border-[#0F212E]">
             <div class="w-full p-3 sm:p-5 flex flex-col justify-between relative z-10">
                 <div class="space-y-1 max-w-sm">
-                    <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
-                    <h1 class="text-xl sm:text-2xl font-black tracking-tight text-[#FFFFFF] uppercase italic">Boost Your Level Up!</h1>
-                    <p class="text-[var(--font-xs)] text-[#FFFFFF] font-medium">Earn more rewards now when ranking up!</p>
+                    <span class="inline-block bg-[#24ee89]/15 text-[#0000FF] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-tight text-[#0000FF] uppercase italic">Boost Your Level Up!</h1>
+                    <p class="text-[var(--font-xs)] text-[#0000FF] font-medium">Earn more rewards now when ranking up!</p>
                 </div>
             </div>
         </div>
@@ -94,26 +94,26 @@
         <div id="bannerDots" class="flex justify-center gap-1.5 -mt-1"></div>
 
         <!-- VIP Level Progress Bar with Premium Rewards Symbol -->
-        <div class="bg-[#1A2C38] border border-[#243542] rounded-2xl p-3.5 shadow-lg flex flex-col gap-2">
+        <div class="bg-[#1A2C38] border border-[#0F212E] rounded-2xl p-3.5 shadow-lg flex flex-col gap-2">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span id="txtCurrentLevel" class="text-xs font-extrabold text-white">Level: Bronze I</span>
+                    <span id="txtCurrentLevel" class="text-xs font-extrabold text-[#0000FF]">Level: Bronze I</span>
                     <span class="text-[10px] text-[#24ee89] font-bold" id="txtPercentage">0.00%</span>
                 </div>
-                <a href="account/my-level-up.html" class="w-7 h-7 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-white hover:text-[#24ee89] transition shadow" title="VIP Rewards">
+                <a href="account/my-level-up.html" class="w-7 h-7 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#0000FF] hover:text-[#24ee89] transition shadow" title="VIP Rewards">
                     <i class="fa-solid fa-gift text-xs"></i>
                 </a>
             </div>
             <div class="w-full h-2.5 rounded-full progress-bar-bg overflow-hidden p-0.5">
                 <div id="progressFill" class="h-full rounded-full progress-fill" style="width: 0%;"></div>
             </div>
-            <div class="flex justify-between text-[10px] font-bold text-[#a9b3b5]">
+            <div class="flex justify-between text-[10px] font-bold text-[#0000FF]">
                 <span id="txtCurrentWager">Wager: ৳0.00</span>
                 <span id="txtNextLevel">Next: Silver I</span>
             </div>
         </div>
 
-        <!-- ক্যাটাগরি বাটন বার (All Games, Original, Color Trading, Lucky Lottery, Slot, Casino, Sports) -->
+        <!-- ক্যাটাগরি বাটন বার -->
         <div id="categorySliderBar" class="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
             <!-- Dynamic Category Buttons Rendered Here -->
         </div>
@@ -133,15 +133,15 @@
         <div class="flex-1 overflow-y-auto max-w-7xl w-full mx-auto p-3 sm:p-5 space-y-4">
             <div class="flex items-center justify-between border-b border-[#0F212E] pb-3">
                 <div class="flex items-center gap-3">
-                    <h2 id="modalCategoryTitle" class="text-lg sm:text-xl font-black text-[#FFFFFF] flex items-center gap-2">
+                    <h2 id="modalCategoryTitle" class="text-lg sm:text-xl font-black text-[#0000FF] flex items-center gap-2">
                         <i class="fa-solid fa-gamepad text-[#24ee89]"></i> <span id="modalTitleText">Category Games</span>
                     </h2>
                     <!-- Search Symbol Icon -->
-                    <a href="search.html" title="Search Games" class="w-8 h-8 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:text-[#24ee89] transition">
+                    <a href="search.html" title="Search Games" class="w-8 h-8 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#0000FF] hover:text-[#24ee89] transition">
                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
                     </a>
                 </div>
-                <button onclick="closeCategoryModal()" class="w-9 h-9 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-red-500 hover:border-red-500 transition">
+                <button onclick="closeCategoryModal()" class="w-9 h-9 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#0000FF] hover:bg-red-500 hover:border-red-500 transition">
                     <i class="fa-solid fa-xmark text-base"></i>
                 </button>
             </div>
@@ -329,9 +329,9 @@
                 <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="w-full p-3 sm:p-5 flex flex-col justify-between relative z-10 banner-slide">
                     <div class="space-y-1 max-w-sm">
-                        ${banner.badge_text ? `<span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${banner.badge_text}</span>` : ''}
-                        <h1 class="text-xl sm:text-2xl font-black tracking-tight text-[#FFFFFF] uppercase italic drop-shadow-md">${banner.title}</h1>
-                        ${banner.subtitle ? `<p class="text-[var(--font-xs)] text-[#FFFFFF] font-medium drop-shadow">${banner.subtitle}</p>` : ''}
+                        ${banner.badge_text ? `<span class="inline-block bg-[#24ee89]/15 text-[#0000FF] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${banner.badge_text}</span>` : ''}
+                        <h1 class="text-xl sm:text-2xl font-black tracking-tight text-[#0000FF] uppercase italic drop-shadow-md">${banner.title}</h1>
+                        ${banner.subtitle ? `<p class="text-[var(--font-xs)] text-[#0000FF] font-medium drop-shadow">${banner.subtitle}</p>` : ''}
                     </div>
                 </div>
                 ${banner.link_url ? `<a href="${banner.link_url}" class="absolute inset-0 z-20"></a>` : ''}
@@ -393,7 +393,7 @@
             if (!barContainer) return;
 
             let html = `
-                <button type="button" onclick="filterCategoryButton('all')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${activeFilterCategory === 'all' ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="all">
+                <button type="button" onclick="filterCategoryButton('all')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${activeFilterCategory === 'all' ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#0000FF] border border-[#0F212E]'}" data-cat="all">
                     <i class="fa-solid fa-fire text-orange-500"></i> All Games
                 </button>
             `;
@@ -406,7 +406,7 @@
                     const title = categoriesMap[k];
                     const isActive = activeFilterCategory === k;
                     html += `
-                        <button type="button" onclick="filterCategoryButton('${k}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${k}">
+                        <button type="button" onclick="filterCategoryButton('${k}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#0000FF] border border-[#0F212E]'}" data-cat="${k}">
                             <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${title}
                         </button>
                     `;
@@ -418,7 +418,7 @@
                     const title = categoriesMap[k];
                     const isActive = activeFilterCategory === k;
                     html += `
-                        <button type="button" onclick="filterCategoryButton('${k}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${k}">
+                        <button type="button" onclick="filterCategoryButton('${k}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#0000FF] border border-[#0F212E]'}" data-cat="${k}">
                             <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${title}
                         </button>
                     `;
@@ -436,7 +436,7 @@
                 if (isSelected) {
                     btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#24ee89] text-[#0F212E] shadow-sm';
                 } else {
-                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]';
+                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#1A2C38] text-[#0000FF] border border-[#0F212E]';
                 }
             });
 
@@ -462,18 +462,18 @@
                 const visibleItems = activeFilterCategory === 'all' ? catItems.slice(currentIndex, currentIndex + 3) : catItems;
 
                 const section = document.createElement('div');
-                section.className = 'space-y-3 pb-4 border-b border-[#1A2C38]';
+                section.className = 'space-y-3 pb-4 border-b border-[#0F212E]';
                 section.innerHTML = `
                     <div class="flex items-center justify-between border-b border-[#0F212E] pb-2"> 
-                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="openCategoryModal('${catKey}', '${categoryTitle}')" title="Click to view all"> 
-                            <span class="w-2.5 h-2.5 rounded-full bg-white inline-block"></span> ${categoryTitle} 
+                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#0000FF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="openCategoryModal('${catKey}', '${categoryTitle}')" title="Click to view all"> 
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#0000FF] inline-block"></span> ${categoryTitle} 
                         </h2> 
                         ${activeFilterCategory === 'all' ? `
                         <div class="flex items-center gap-1.5">
-                            <button onclick="slideCategory('${catKey}', -1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
+                            <button onclick="slideCategory('${catKey}', -1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#0000FF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
                                 <i class="fa-solid fa-chevron-left text-[10px]"></i>
                             </button>
-                            <button onclick="slideCategory('${catKey}', 1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
+                            <button onclick="slideCategory('${catKey}', 1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#0000FF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
                                 <i class="fa-solid fa-chevron-right text-[10px]"></i>
                             </button>
                         </div>` : ''}
@@ -500,18 +500,18 @@
                     card.href = pageUrl;
                     card.className = 'game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 shadow-lg';
                     card.innerHTML = ` 
-                        <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center p-1">
+                        <div class="game-art absolute inset-0 bg-gradient-to-b from-[#1A2C38] to-[#1A2C38] flex flex-col items-center justify-center p-1">
                           ${hasImg 
                             ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
-                            : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
-                               ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#FFFFFF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
+                            : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-[#0000FF] drop-shadow-lg mb-2"></i>
+                               ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#0000FF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
                           }
                         </div>
                         <div class="relative z-10 flex justify-end items-center p-2">
-                          ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>` : ''}
+                          ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-[#0000FF] bg-[#1A2C38]/90 px-2 py-0.5 rounded-full border border-[#0F212E] backdrop-blur-sm">${catBadge}</span>` : ''}
                         </div>
-                        <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                          ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-[#FFFFFF] truncate block">${title}</span>` : ''}
+                        <div class="relative z-10 p-2 text-center bg-gradient-to-t from-[#1A2C38] via-[#1A2C38]/80 to-transparent">
+                          ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-[#0000FF] truncate block">${title}</span>` : ''}
                         </div>
                     `;
                     fragment.appendChild(card);
@@ -562,18 +562,18 @@
 
                 return `
                     <a href="${pageUrl}" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 shadow-lg">
-                        <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center p-1">
+                        <div class="game-art absolute inset-0 bg-gradient-to-b from-[#1A2C38] to-[#1A2C38] flex flex-col items-center justify-center p-1">
                           ${hasImg 
                             ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
-                            : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-white/80 drop-shadow-lg mb-2"></i>
-                               ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#FFFFFF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
+                            : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-[#0000FF] drop-shadow-lg mb-2"></i>
+                               ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#0000FF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
                           }
                         </div>
                         <div class="relative z-10 flex justify-end items-center p-2">
-                          ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>` : ''}
+                          ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-[#0000FF] bg-[#1A2C38]/90 px-2 py-0.5 rounded-full border border-[#0F212E] backdrop-blur-sm">${catBadge}</span>` : ''}
                         </div>
-                        <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                          ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-[#FFFFFF] truncate block">${title}</span>` : ''}
+                        <div class="relative z-10 p-2 text-center bg-gradient-to-t from-[#1A2C38] via-[#1A2C38]/80 to-transparent">
+                          ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-[#0000FF] truncate block">${title}</span>` : ''}
                         </div>
                     </a>
                 `;
