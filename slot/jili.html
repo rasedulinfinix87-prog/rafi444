@@ -1,317 +1,159 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jili Super Ace - Authentic Slot</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Your Supabase Config -->
-    <script src="supabase-config.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap');
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: radial-gradient(circle at center, #1b163b 0%, #080614 100%);
-        }
-        .card-cell {
-            background: linear-gradient(145deg, #28244c, #17142d);
-            box-shadow: inset 0 0 8px rgba(255,255,255,0.1), 0 4px 6px rgba(0,0,0,0.5);
-            transition: all 0.2s ease-in-out;
-        }
-        .card-cell.golden {
-            border: 2px solid #fbbf24;
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.6), inset 0 0 10px rgba(251, 191, 36, 0.4);
-        }
-        .multiplier-badge {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Slot Lobby</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 14px;
+      background: #101820;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    h2 { color: #37e6a0; }
+    input, select {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      margin: 5px 0 12px;
+      border-radius: 8px;
+      border: 0;
+    }
+    .games {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .game {
+      background: #202d39;
+      padding: 9px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .game img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      border-radius: 7px;
+    }
+    .name { font-weight: bold; margin: 8px 0; }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #16b978;
+      color: white;
+      border: 0;
+      border-radius: 7px;
+    }
+    #status { color: #ffd166; }
+  </style>
 </head>
-<body class="text-white min-h-screen flex flex-col justify-between select-none">
+<body>
+  <h2>🎰 My Slot Lobby</h2>
+  <input id="search" placeholder="গেমের নাম লিখুন...">
+  <select id="provider">
+    <option value="">সব Provider</option>
+  </select>
+  <p id="status">গেম লোড হচ্ছে...</p>
+  <div class="games" id="games"></div>
 
-    <!-- Top Navigation / Header -->
-    <header class="bg-gray-900/90 backdrop-blur border-b border-gray-800 p-4 flex justify-between items-center px-6">
-        <div class="flex items-center space-x-3">
-            <span class="text-2xl font-black text-amber-400 tracking-wider">SUPER ACE</span>
-            <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded font-bold">JILI JIGSAW</span>
-        </div>
-        <div class="flex items-center space-x-4">
-            <div class="bg-gray-800/90 border border-gray-700 px-4 py-2 rounded-xl flex items-center space-x-3 shadow-inner">
-                <span class="text-gray-400 text-xs uppercase font-bold tracking-wider">Balance</span>
-                <span id="user-balance" class="text-amber-400 font-extrabold text-lg">Loading...</span>
-            </div>
-            <button onclick="logoutUser()" class="bg-red-600/80 hover:bg-red-700 px-3 py-2 rounded-xl text-xs font-bold transition">Logout</button>
-        </div>
-    </header>
+  <script>
+    const API = "https://demo.slotindex.io/api/slots";
+    const BASE = "https://demo.slotindex.io";
+    let slots = [];
 
-    <!-- Main Game Arena -->
-    <main class="flex-grow flex flex-col items-center justify-center p-3 sm:p-6">
-        <div class="w-full max-w-4xl bg-gray-950/90 border-4 border-amber-500/50 rounded-3xl p-4 sm:p-6 shadow-2xl relative overflow-hidden backdrop-blur">
-            
-            <!-- Glowing Header Strip -->
-            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-600 via-yellow-300 to-amber-600 animate-pulse"></div>
+    const games = document.getElementById("games");
+    const search = document.getElementById("search");
+    const provider = document.getElementById("provider");
+    const status = document.getElementById("status");
 
-            <!-- Top Info Bar (Combo & Free Game Multipliers) -->
-            <div class="flex justify-between items-center mb-4 bg-gray-900/80 p-3 rounded-2xl border border-gray-800">
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs text-gray-400 font-bold uppercase">Combo Multiplier:</span>
-                    <div id="combo-display" class="multiplier-badge text-gray-950 font-black px-3 py-1 rounded-lg text-sm">1X</div>
-                </div>
-                <div class="text-center">
-                    <span id="game-status-text" class="text-amber-300 font-bold text-sm sm:text-base tracking-wide">Ready to Spin!</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs text-gray-400 font-bold uppercase">Free Spin:</span>
-                    <span id="free-spin-count" class="bg-gray-800 text-amber-400 border border-gray-700 px-3 py-1 rounded-lg text-sm font-bold">0</span>
-                </div>
-            </div>
+    async function init() {
+      try {
+        const response = await fetch(API);
+        if (!response.ok) throw new Error("API error");
+        slots = await response.json();
 
-            <!-- Super Ace Grid (4 Columns x 4 Rows = 16 Cells layout mimicking Super Ace) -->
-            <div id="slot-grid" class="grid grid-cols-4 gap-2 sm:gap-3 mb-6 bg-black/40 p-3 rounded-2xl border border-gray-900">
-                <!-- JavaScript dynamically fills 16 slots here -->
-            </div>
+        const providers = [...new Set(
+          slots.map(s => s.provider).filter(Boolean)
+        )].sort();
 
-            <!-- Total Win Popup Banner -->
-            <div id="win-banner" class="hidden absolute inset-x-10 top-1/3 bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-gray-950 p-4 rounded-2xl text-center shadow-2xl border-2 border-white transform scale-95 transition animate-bounce">
-                <div class="text-xs font-bold uppercase tracking-widest text-gray-900">Total Win</div>
-                <div id="win-amount-text" class="text-3xl sm:text-4xl font-black">0.00</div>
-            </div>
-
-            <!-- Control & Betting Footer Bar -->
-            <div class="bg-gray-900/90 p-4 rounded-2xl border border-gray-800 flex flex-col md:flex-row items-center justify-between gap-4">
-                
-                <!-- Bet Selector -->
-                <div class="flex items-center space-x-3 w-full md:w-auto justify-center">
-                    <span class="text-xs text-gray-400 font-bold uppercase">Bet:</span>
-                    <button onclick="adjustBet(-10)" class="bg-gray-800 hover:bg-gray-700 w-10 h-10 rounded-xl text-lg font-bold text-amber-400 border border-gray-700">-</button>
-                    <span id="bet-amount" class="text-xl font-black text-amber-400 w-24 text-center">50</span>
-                    <button onclick="adjustBet(10)" class="bg-gray-800 hover:bg-gray-700 w-10 h-10 rounded-xl text-lg font-bold text-amber-400 border border-gray-700">+</button>
-                </div>
-
-                <!-- Win Display -->
-                <div class="hidden sm:flex flex-col items-center">
-                    <span class="text-xs text-gray-400 uppercase font-bold">Round Win</span>
-                    <span id="round-win" class="text-amber-400 font-extrabold text-lg">0.00</span>
-                </div>
-
-                <!-- Spin Button -->
-                <button id="spin-btn" onclick="startSpin()" class="w-full md:w-56 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-gray-950 font-black text-lg py-3.5 rounded-2xl shadow-xl transform active:scale-95 transition tracking-widest uppercase border border-yellow-200">
-                    SPIN
-                </button>
-            </div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="text-center py-4 text-xs text-gray-500 border-t border-gray-900">
-        &copy; 2026 Jili Super Ace Custom Simulation. All rights reserved.
-    </footer>
-
-    <!-- Game Logic & Supabase Sync Script -->
-    <script>
-        let currentUser = null;
-        let currentBalance = 0;
-        let currentBet = 50;
-        let currentCombo = 1;
-        let freeSpinsRemaining = 0;
-        let isSpinning =- false;
-
-        // আপনার নিজের কার্ড PNG ফাইলের পাথগুলো এখানে বসাবেন। 
-        // Super Ace-এ কার্ডগুলো হলো: Ace (A), King (K), Queen (Q), Jack (J), সাথে Wild (Joker) এবং Scatter।
-        const cardImages = {
-            'A': 'assets/cards/ace.png',
-            'K': 'assets/cards/king.png',
-            'Q': 'assets/cards/queen.png',
-            'J': 'assets/cards/jack.png',
-            'WILD': 'assets/cards/wild_joker.png',
-            'SCATTER': 'assets/cards/scatter.png'
-        };
-
-        // যদি আপনার লোকাল পাথ না থাকে, তবে গেমটি চালু রাখার জন্য ফলব্যাক ইমেজ (ডাইনামিক টেকনিক্যাল সিম্বল বা অনলাইন কার্ড আর্ট) ব্যবহার করা হবে:
-        const fallbackCards = {
-            'A': '🂡',
-            'K': '🂮',
-            'Q': '🂭',
-            'J': '🂫',
-            'WILD': '🃏',
-            'SCATTER': '⭐'
-        };
-
-        const symbolsList = ['A', 'K', 'Q', 'J', 'WILD', 'SCATTER'];
-
-        // Initialize Page & Auth
-        window.addEventListener("DOMContentLoaded", async () => {
-            currentUser = await requireAuth();
-            if (currentUser) {
-                await fetchAndUpdateBalance();
-                renderGrid(getInitialMatrix());
-            }
+        providers.forEach(p => {
+          const option = document.createElement("option");
+          option.value = p;
+          option.textContent = p;
+          provider.appendChild(option);
         });
 
-        async function fetchAndUpdateBalance() {
-            try {
-                const profile = await getUserProfile(currentUser.id);
-                if (profile && profile.balance !== undefined) {
-                    currentBalance = Number(profile.balance);
-                } else {
-                    currentBalance = 1000;
-                }
-                document.getElementById("user-balance").innerText = currentBalance.toLocaleString();
-            } catch (err) {
-                console.error("Balance fetch error:", err);
-                document.getElementById("user-balance").innerText = "1,000";
-            }
+        status.textContent = slots.length + " টি গেম পাওয়া গেছে";
+        render();
+      } catch (error) {
+        status.textContent =
+          "গেম লোড হয়নি। ইন্টারনেট, API বা CORS পরীক্ষা করুন।";
+      }
+    }
+
+    function render() {
+      games.replaceChildren();
+      const q = search.value.toLowerCase();
+
+      const filtered = slots.filter(s =>
+        (s.name || "").toLowerCase().includes(q) &&
+        (!provider.value || s.provider === provider.value)
+      );
+
+      filtered.slice(0, 100).forEach(s => {
+        const card = document.createElement("div");
+        card.className = "game";
+
+        const img = document.createElement("img");
+        if (s.thumbnail_url) {
+          img.src = s.thumbnail_url.startsWith("https://")
+            ? s.thumbnail_url
+            : BASE + s.thumbnail_url;
+        }
+        img.alt = s.name || "Slot game";
+        img.loading = "lazy";
+
+        const name = document.createElement("div");
+        name.className = "name";
+        name.textContent = s.name || "Unnamed game";
+
+        const studio = document.createElement("p");
+        studio.textContent = s.provider || "Unknown provider";
+
+        card.append(img, name, studio);
+
+        if (s.has_demo && s.embed_url &&
+            s.embed_url.startsWith(BASE + "/embed/")) {
+          const btn = document.createElement("button");
+          btn.textContent = "Play Demo";
+          btn.onclick = () => {
+            window.open(s.embed_url, "_blank", "noopener");
+          };
+          card.appendChild(btn);
+        } else {
+          const note = document.createElement("p");
+          note.textContent = "Demo unavailable";
+          card.appendChild(note);
         }
 
-        function adjustBet(amount) {
-            if (isSpinning) return;
-            currentBet += amount;
-            if (currentBet < 10) currentBet = 10;
-            if (currentBet > currentBalance && currentBalance > 0) currentBet = currentBalance;
-            document.getElementById("bet-amount").innerText = currentBet;
-        }
+        games.appendChild(card);
+      });
 
-        function getInitialMatrix() {
-            // 4x4 matrix = 16 cells
-            let matrix = [];
-            for (let i = 0; i < 16; i++) {
-                const sym = symbolsList[Math.floor(Math.random() * (symbolsList.length - 1))]; // Exclude scatter for initial
-                matrix.push({ symbol: sym, isGolden: Math.random() > 0.85 });
-            }
-            return matrix;
-        }
+      if (!filtered.length) {
+        status.textContent = "কোনো গেম পাওয়া যায়নি।";
+      } else {
+        status.textContent =
+          filtered.length + " টি গেম · প্রথম 100 টি দেখানো হচ্ছে";
+      }
+    }
 
-        function renderGrid(matrix) {
-            const gridContainer = document.getElementById("slot-grid");
-            gridContainer.innerHTML = "";
-            matrix.forEach((cell) => {
-                const div = document.createElement("div");
-                div.className = `card-cell h-20 sm:h-24 rounded-xl flex flex-col items-center justify-center text-3xl sm:text-4xl relative ${cell.isGolden ? 'golden' : ''}`;
-                
-                // Check if using local png or fallback text symbol
-                const imgPath = cardImages[cell.symbol];
-                if (imgPath && imgPath.includes("assets")) {
-                    div.innerHTML = `<img src="${imgPath}" alt="${cell.symbol}" class="w-12 h-16 object-contain">`;
-                } else {
-                    div.innerText = fallbackCards[cell.symbol] || cell.symbol;
-                }
-                gridContainer.appendChild(div);
-            });
-        }
-
-        async function startSpin() {
-            if (isSpinning) return;
-
-            if (currentBalance < currentBet && freeSpinsRemaining <= 0) {
-                document.getElementById("game-status-text").innerText = "❌ Insufficient balance!";
-                return;
-            }
-
-            isSpinning = true;
-            document.getElementById("spin-btn").disabled = true;
-            document.getElementById("win-banner").classList.add("hidden");
-            document.getElementById("round-win").innerText = "0.00";
-
-            if (freeSpinsRemaining > 0) {
-                freeSpinsRemaining--;
-                document.getElementById("free-spin-count").innerText = freeSpinsRemaining;
-            } else {
-                currentBalance -= currentBet;
-                document.getElementById("user-balance").innerText = currentBalance.toLocaleString();
-            }
-
-            currentCombo = 1;
-            document.getElementById("combo-display").innerText = currentCombo + "X";
-            document.getElementById("game-status-text").innerText = "🎰 Spinning Super Ace Reels...";
-
-            // Spin animation frames
-            let animCount = 0;
-            const spinInterval = setInterval(() => {
-                renderGrid(getInitialMatrix());
-                animCount++;
-                if (animCount > 10) {
-                    clearInterval(spinInterval);
-                    processSpinResult();
-                }
-            }, 80);
-        }
-
-        async function processSpinResult() {
-            const finalMatrix = getInitialMatrix();
-            // Randomly inject some matches for excitement
-            if (Math.random() > 0.4) {
-                const matchSym = ['A', 'K', 'Q', 'J'][Math.floor(Math.random() * 4)];
-                finalMatrix[0].symbol = matchSym;
-                finalMatrix[1].symbol = matchSym;
-                finalMatrix[2].symbol = matchSym;
-            }
-
-            renderGrid(finalMatrix);
-
-            // Calculate Win
-            let multiplier = 0;
-            let winAmount = 0;
-            let status = "lost";
-
-            // Check matches (Super Ace simple combo calculation)
-            const firstSym = finalMatrix[0].symbol;
-            let count = finalMatrix.filter(c => c.symbol === firstSym || c.symbol === 'WILD').length;
-
-            if (count >= 3 && firstSym !== 'SCATTER') {
-                multiplier = count * 2; // Multiplier based on matching cards
-                winAmount = currentBet * multiplier;
-                status = "win";
-            }
-
-            // Scatter check for Free Games
-            const scatterCount = finalMatrix.filter(c => c.symbol === 'SCATTER').length;
-            if (scatterCount >= 3) {
-                freeSpinsRemaining += 10;
-                document.getElementById("free-spin-count").innerText = freeSpinsRemaining;
-                status = "win";
-            }
-
-            currentBalance += winAmount;
-            document.getElementById("user-balance").innerText = currentBalance.toLocaleString();
-            document.getElementById("round-win").innerText = winAmount.toLocaleString();
-
-            if (winAmount > 0) {
-                document.getElementById("game-status-text").innerText = `🎉 WIN! ${winAmount} Coins (${multiplier}X)`;
-                document.getElementById("win-amount-text").innerText = winAmount.toLocaleString();
-                document.getElementById("win-banner").classList.remove("hidden");
-            } else {
-                document.getElementById("game-status-text").innerText = "✨ Try again for Super Ace Combo!";
-            }
-
-            // Save to Supabase (profiles & original_bets_history)
-            try {
-                await supabaseClient
-                    .from("profiles")
-                    .update({ balance: currentBalance })
-                    .eq("id", currentUser.id);
-
-                await supabaseClient
-                    .from("original_bets_history")
-                    .insert([{
-                        user_id: currentUser.id,
-                        game_name: "Jili Super Ace",
-                        bet_amount: freeSpinsRemaining > 0 ? 0 : currentBet,
-                        payout: winAmount,
-                        multiplier: multiplier,
-                        status: status,
-                        game_details: { matrix: finalMatrix.map(m => m.symbol), combo: currentCombo }
-                    }]);
-            } catch (err) {
-                console.error("Database sync failed:", err);
-            }
-
-            isSpinning = false;
-            document.getElementById("spin-btn").disabled = false;
-        }
-    </script>
+    search.addEventListener("input", render);
+    provider.addEventListener("change", render);
+    init();
+  </script>
 </body>
 </html>
