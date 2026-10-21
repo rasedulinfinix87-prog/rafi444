@@ -16,6 +16,9 @@
             background-color: #1c2541;
             border: 1px solid #3a506b;
         }
+        #balloon-elem {
+            transition: transform 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen justify-between pb-16">
@@ -34,7 +37,7 @@
             
             <!-- Balloon Graphic & Multiplier Area -->
             <div class="relative w-full h-44 flex flex-col items-center justify-center mb-4">
-                <div class="relative w-28 h-32 bg-blue-600 rounded-[50%_50%_50%_50%/40%_40%_60%_60%] flex flex-col items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.5)]">
+                <div id="balloon-elem" class="relative w-28 h-32 bg-blue-600 rounded-[50%_50%_50%_50%/40%_40%_60%_60%] flex flex-col items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.5)] scale-100">
                     <div class="absolute top-3 right-4 w-2.5 h-2.5 bg-white/60 rounded-full"></div>
                     <span id="multiplier-display" class="text-2xl font-extrabold text-white">1.00x</span>
                 </div>
@@ -52,9 +55,9 @@
 
             <!-- Recent Multipliers Buttons -->
             <div class="grid grid-cols-3 gap-2 mb-4 w-full">
-                <button class="bg-[#23304a] hover:bg-[#3a506b] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.00×</button>
-                <button class="bg-[#23304a] hover:bg-[#3a506b] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.11×</button>
-                <button class="bg-[#23304a] hover:bg-[#3a506b] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.27×</button>
+                <button class="bg-[#23304a] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.00×</button>
+                <button class="bg-[#23304a] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.11×</button>
+                <button class="bg-[#23304a] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.27×</button>
             </div>
 
             <!-- Bet Button -->
@@ -80,7 +83,7 @@
             </div>
 
             <!-- Pump / Cashout Button -->
-            <button id="pump-btn" class="w-full bg-[#23304a] text-slate-400 font-bold py-3 rounded-xl transition-all border border-[#3a506b] text-sm cursor-not-allowed" disabled>
+            <button id="pump-btn" class="w-full bg-slate-700 text-slate-400 font-bold py-3 rounded-xl transition-all border border-[#3a506b] text-sm cursor-not-allowed" disabled>
                 Pump
             </button>
 
@@ -96,6 +99,15 @@
     <script src="../supabase-config.js"></script>
     <script>
         let currentUser = null;
+        let activeBetId = null;
+        let currentMultiplierIndex = 0;
+        
+        // আপনার দেওয়া নির্দিষ্ট মাল্টিপ্লায়্যার সিকোয়েন্স অ্যারে
+        const multipliers = [
+            1.00, 1.14, 1.31, 1.49, 1.79, 2.10, 8.00, 2.44, 2.96, 3.61, 
+            4.23, 5.10, 6.50, 8.80, 11.30, 15.66, 19.99, 29.91, 46.77, 
+            74.21, 122.32, 250.44, 701.34, 2653.00
+        ];
 
         async function initGame() {
             currentUser = await requireAuth();
@@ -107,7 +119,6 @@
             }
         }
 
-        // Fetch and include bottom.html from root bar folder
         async function loadBottomBar() {
             try {
                 const res = await fetch('../bar/bottom.html');
@@ -139,6 +150,7 @@
             document.getElementById('amount-usd').innerText = '$' + val.toFixed(2);
         });
 
+        // Bet বাটন ক্লিক করলে গেম শুরু হবে এবং রেকর্ড তৈরি হবে
         document.getElementById('bet-action-btn').addEventListener('click', async () => {
             const betAmount = parseFloat(document.getElementById('bet-amount').value);
             if (!currentUser || isNaN(betAmount) || betAmount <= 0) {
@@ -146,7 +158,7 @@
                 return;
             }
 
-            const { error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('original_bets_history')
                 .insert([{
                     user_id: currentUser.id,
@@ -156,16 +168,82 @@
                     multiplier: 1.00,
                     status: 'pending',
                     game_details: { type: 'crash_balloon_pump' }
-                }]);
+                }])
+                .select();
 
             if (error) {
                 console.error('Bet error:', error);
                 alert('বেট সম্পন্ন করতে সমস্যা হয়েছে।');
             } else {
-                alert('বেট সফলভাবে গ্রহণ করা হয়েছে!');
-                initGame();
+                activeBetId = data[0].id;
+                currentMultiplierIndex = 0;
+                
+                // ইউজার ইন্টারফেস পরিবর্তন
+                document.getElementById('bet-action-btn').disabled = true;
+                document.getElementById('bet-action-btn').classList.add('opacity-50', 'cursor-not-allowed');
+                
+                const pumpBtn = document.getElementById('pump-btn');
+                pumpBtn.disabled = false;
+                pumpBtn.classList.remove('bg-slate-700', 'text-slate-400', 'cursor-not-allowed');
+                pumpBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'text-white');
+                pumpBtn.innerText = 'Pump / Cash Out';
+                
+                alert('বেট সফলভাবে শুরু হয়েছে! এখন Pump বাটনে ক্লিক করুন।');
             }
         });
+
+        // Pump বাটন ক্লিক করলে বেলুন ফুলবে এবং মাল্টিপ্লায়্যার বাড়বে
+        document.getElementById('pump-btn').addEventListener('click', async () => {
+            if (!activeBetId) return;
+
+            if (currentMultiplierIndex < multipliers.length - 1) {
+                currentMultiplierIndex++;
+                const currentMult = multipliers[currentMultiplierIndex];
+                
+                // ডিসপ্লে আপডেট
+                document.getElementById('multiplier-display').innerText = currentMult.toFixed(2) + 'x';
+                
+                // বেলুন ধীরে ধীরে বড় হওয়া (Scale Animation)
+                const scaleVal = 1 + (currentMultiplierIndex * 0.02);
+                document.getElementById('balloon-elem').style.transform = `scale(${Math.min(scaleVal, 1.5)})`;
+
+                const betAmount = parseFloat(document.getElementById('bet-amount').value);
+                const payoutAmount = betAmount * currentMult;
+
+                // Supabase হিস্ট্রি আপডেট করা
+                await supabaseClient
+                    .from('original_bets_history')
+                    .update({
+                        multiplier: currentMult,
+                        payout: payoutAmount,
+                        status: 'win'
+                    })
+                    .eq('id', activeBetId);
+
+                // যদি শেষ ধাপে পৌঁছে যায় তবে অটো ক্যাশআউট হয়ে যাবে
+                if (currentMultiplierIndex === multipliers.length - 1) {
+                    alert('সর্বোচ্চ মাল্টিপ্লায়্যারে পৌঁছে গেছেন! ক্যাশআউট সম্পন্ন হয়েছে।');
+                    resetGameUI();
+                }
+            }
+        });
+
+        function resetGameUI() {
+            activeBetId = null;
+            currentMultiplierIndex = 0;
+            document.getElementById('bet-action-btn').disabled = false;
+            document.getElementById('bet-action-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+            
+            const pumpBtn = document.getElementById('pump-btn');
+            pumpBtn.disabled = true;
+            pumpBtn.classList.add('bg-slate-700', 'text-slate-400', 'cursor-not-allowed');
+            pumpBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'text-white');
+            pumpBtn.innerText = 'Pump';
+            
+            document.getElementById('balloon-elem').style.transform = 'scale(1)';
+            document.getElementById('multiplier-display').innerText = '1.00x';
+            initGame();
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
             initGame();
