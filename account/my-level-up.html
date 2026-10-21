@@ -111,7 +111,7 @@
                 <div class="text-xs text-[#a9b3b5] mt-0.5">Based on weekly wager activity</div>
               </div>
             </div>
-            <button onclick="claimWeeklyBonus()" class="px-3 py-1.5 bg-[#243542] hover:bg-[#30485a] text-white font-extrabold text-xs rounded-lg transition border border-[#3b556b]">Claim</button>
+            <button onclick="claimWeeklyBonus()" class="px-3 py-1.5 bg-[#24uuid] hover:bg-[#30485a] text-white font-extrabold text-xs rounded-lg transition border border-[#3b556b]">Claim</button>
           </div>
         </div>
 
@@ -183,9 +183,10 @@
           throw profileError;
         }
 
-        // ২. Fetch VIP settings levels
+        // ২. Fetch VIP settings levels (সংশোধিত: .select() সহ .order ব্যবহার করা হয়েছে)
         const { data: levels, error: levelError } = await supabaseClient
           .from('vip_level_settings')
+          .select('*')
           .order('level_number', { ascending: true });
 
         if (levelError) {
