@@ -12,22 +12,24 @@
             color: #ffffff;
             font-family: sans-serif;
         }
-        /* Custom Balloon & Pump Interface Styles */
         .game-card {
             background-color: #1c2541;
             border: 1px solid #3a506b;
         }
     </style>
 </head>
-<body class="flex flex-col min-h-screen justify-between">
+<body class="flex flex-col min-h-screen justify-between pb-16">
 
-    <!-- Header / Navbar -->
-    <header class="bg-[#1c2541] p-4 shadow-md flex justify-between items-center border-b border-[#3a506b]">
-        <h1 class="text-lg font-bold text-blue-400">Crash Game</h1>
-        <div class="bg-[#0b132b] px-3 py-1.5 rounded-lg text-xs border border-[#3a506b]">
-            Balance: <span id="user-balance" class="font-bold text-green-400">0.00</span> USDT
-        </div>
-    </header>
+    <!-- Header / Top Navigation Connection -->
+    <div id="top-bar-container">
+        <!-- যদি top.html আলাদা ফাইল হিসেবে লোড করতে চান বা সরাসরি কানেক্ট করতে চান -->
+        <header class="bg-[#1c2541] p-4 shadow-md flex justify-between items-center border-b border-[#3a506b]">
+            <h1 class="text-lg font-bold text-blue-400">Crash Game</h1>
+            <div class="bg-[#0b132b] px-3 py-1.5 rounded-lg text-xs border border-[#3a506b]">
+                Balance: <span id="user-balance" class="font-bold text-green-400">0.00</span> USDT
+            </div>
+        </header>
+    </div>
 
     <!-- Main Game Section -->
     <main class="flex-grow flex flex-col items-center justify-center p-3">
@@ -35,16 +37,12 @@
             
             <!-- Balloon Graphic & Multiplier Area -->
             <div class="relative w-full h-44 flex flex-col items-center justify-center mb-4">
-                <!-- Balloon Shape -->
                 <div class="relative w-28 h-32 bg-blue-600 rounded-[50%_50%_50%_50%/40%_40%_60%_60%] flex flex-col items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.5)]">
-                    <!-- Balloon Highlight Dot -->
                     <div class="absolute top-3 right-4 w-2.5 h-2.5 bg-white/60 rounded-full"></div>
                     <span id="multiplier-display" class="text-2xl font-extrabold text-white">1.00x</span>
                 </div>
-                <!-- Balloon Knot & Base Machine Graphic -->
                 <div class="w-2 h-3 bg-blue-500"></div>
                 <div class="w-28 h-10 bg-[#23304a] rounded-t-xl relative flex items-center justify-center border-t border-[#3a506b] shadow-inner mt-0.5">
-                    <!-- Indicator dots on machine -->
                     <div class="absolute left-3 flex gap-1">
                         <div class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div>
                         <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
@@ -52,18 +50,17 @@
                         <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
                     </div>
                 </div>
-                <!-- Base platform line -->
                 <div class="w-64 h-2 bg-[#131b2e] rounded-full -mt-1"></div>
             </div>
 
-            <!-- Recent Multipliers Buttons (Reference Style) -->
+            <!-- Recent Multipliers Buttons -->
             <div class="grid grid-cols-3 gap-2 mb-4 w-full">
                 <button class="bg-[#23304a] hover:bg-[#3a506b] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.00×</button>
                 <button class="bg-[#23304a] hover:bg-[#3a506b] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.11×</button>
                 <button class="bg-[#23304a] hover:bg-[#3a506b] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.27×</button>
             </div>
 
-            <!-- Bet Button (Top of inputs like reference image) -->
+            <!-- Bet Button -->
             <button id="bet-action-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg mb-4 text-sm">
                 Bet
             </button>
@@ -76,9 +73,7 @@
                 </div>
                 <div class="flex items-center bg-[#0b132b] rounded-xl border border-[#3a506b] overflow-hidden px-3 py-2">
                     <input type="number" id="bet-amount" value="0.00000000" step="0.01" class="bg-transparent w-full outline-none text-white text-sm">
-                    <!-- USDT/Token Icon -->
                     <div class="bg-green-600 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white ml-2">₮</div>
-                    <!-- Half & Double Buttons inside input container layout -->
                     <div class="flex items-center gap-2 ml-3 pl-3 border-l border-[#3a506b] text-xs font-bold text-slate-300">
                         <button id="btn-half" class="hover:text-white px-1">½</button>
                         <span class="text-slate-600">|</span>
@@ -87,7 +82,7 @@
                 </div>
             </div>
 
-            <!-- Pump / Cashout Button (Bottom secondary action) -->
+            <!-- Pump / Cashout Button -->
             <button id="pump-btn" class="w-full bg-[#23304a] hover:bg-[#3a506b] text-slate-400 font-bold py-3 rounded-xl transition-all border border-[#3a506b] text-sm cursor-not-allowed" disabled>
                 Pump
             </button>
@@ -95,10 +90,11 @@
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-[#1c2541] py-2 text-center text-[10px] text-slate-500 border-t border-[#3a506b]">
-        &copy; Raseshop. All rights reserved.
-    </footer>
+    <!-- Bottom Navigation Bar Connection -->
+    <div id="bottom-bar-container">
+        <!-- যদি bottom.html ফাইলটি ফেচ বা কন্টেন করতে চান -->
+        <div id="included-bottom"></div>
+    </div>
 
     <!-- Configuration and Game Logic Scripts -->
     <script src="../supabase-config.js"></script>
@@ -112,6 +108,21 @@
             const profile = await getUserProfile(currentUser.id);
             if (profile) {
                 document.getElementById('user-balance').innerText = Number(profile.balance || 0).toFixed(2);
+            }
+        }
+
+        // Fetch and include bottom.html dynamically if needed
+        async function loadBottomBar() {
+            try {
+                const response = dg('../bar/bottom.html');
+                // Alternatively, if using fetch:
+                const res = await fetch('../bar/bottom.html');
+                if (res.ok) {
+                    const html = await res.text();
+                    document.getElementById('included-bottom').innerHTML = html;
+                }
+            } catch (e) {
+                console.log('Bottom bar load error:', e);
             }
         }
 
@@ -141,7 +152,6 @@
                 return;
             }
 
-            // original_bets_history টেবিলে ডাটা ইনসার্ট করার মাধ্যমে গেম লজিক ও স্বয়ংক্রিয় ওয়েজার আপডেট হ্যান্ডেল করা হবে
             const { error } = await supabaseClient
                 .from('original_bets_history')
                 .insert([{
@@ -163,7 +173,10 @@
             }
         });
 
-        window.addEventListener('DOMContentLoaded', initGame);
+        window.addEventListener('DOMContentLoaded', () => {
+            initGame();
+            loadBottomBar();
+        });
     </script>
 </body>
 </html>
