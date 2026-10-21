@@ -9,7 +9,6 @@
     <!-- Supabase JS Client & App Config --> 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
     <script src="supabase-config.js"></script> 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style> 
         :root {
             --font-xs: 14px;
@@ -25,8 +24,8 @@
         /* Custom Scrollbar Styling */ 
         ::-webkit-scrollbar { width: 6px; height: 6px; } 
         ::-webkit-scrollbar-track { background: #0F212E; } 
-        ::-webkit-scrollbar-thumb { background: #1F51FF; border-radius: 4px; } 
-        ::-webkit-scrollbar-thumb:hover { background: #1F51FF; } 
+        ::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 4px; } 
+        ::-webkit-scrollbar-thumb:hover { background: #283552; } 
         .no-scrollbar::-webkit-scrollbar { display: none; } 
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } 
         
@@ -35,7 +34,7 @@
         img { -webkit-user-drag: none; } 
 
         .shuffle-banner {
-            background: linear-gradient(135deg, #1F51FF 0%, #0F212E 100%);
+            background: linear-gradient(135deg, #1A2C38 0%, #0F212E 100%);
             border: 1px solid #0F212E;
             position: relative;
             overflow: hidden;
@@ -60,17 +59,17 @@
             }
         }
 
-        .game-card { min-width: 0; min-height: 154px; background: #1F51FF; border: 1px solid #0F212E; }
-        .game-art { min-height: 154px; background: #1F51FF; }
+        .game-card { min-width: 0; min-height: 154px; }
+        .game-art { min-height: 154px; }
         @media (min-width: 640px) {
           .game-card, .game-art { min-height: 210px; }
         }
 
         .progress-bar-bg { background: #0F212E; border: 1px solid #0F212E; }
-        .progress-fill { background: linear-gradient(90deg, #16a765, #2ed573); transition: width 0.4s ease; }
+        .progress-fill { background: linear-gradient(90deg, #1F51FF, #3b82f6); transition: width 0.4s ease; }
     </style> 
 </head> 
-<body class="bg-[#0F212E] text-[#FFFFFF] min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black pb-24"> 
+<body class="bg-[#0F212E] text-[#FFFFFF] min-h-screen flex flex-col font-sans antialiased selection:bg-[#1F51FF] selection:text-white pb-24" style="font-size: var(--font-base);"> 
     <!-- Top Navigation Bar Anchor Container --> 
     <div id="topBarContainer" class="sticky top-0 z-50"></div> 
 
@@ -84,7 +83,7 @@
         <div id="bannerContainer" class="shuffle-banner rounded-2xl relative shadow-xl min-h-[110px] sm:min-h-[130px] flex items-center overflow-hidden border border-[#0F212E]">
             <div class="w-full p-3 sm:p-5 flex flex-col justify-between relative z-10">
                 <div class="space-y-1 max-w-sm">
-                    <span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
+                    <span class="inline-block bg-[#1F51FF]/20 text-[#FFFFFF] border border-[#0F212E] text-[var(--font-xs)] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Refreshed!</span>
                     <h1 class="text-xl sm:text-2xl font-black tracking-tight text-[#FFFFFF] uppercase italic">Boost Your Level Up!</h1>
                     <p class="text-[var(--font-xs)] text-[#FFFFFF] font-medium">Earn more rewards now when ranking up!</p>
                 </div>
@@ -94,14 +93,14 @@
         <div id="bannerDots" class="flex justify-center gap-1.5 -mt-1"></div>
 
         <!-- VIP Level Progress Bar with Premium Rewards Symbol -->
-        <div class="bg-[#1F51FF] border border-[#0F212E] rounded-2xl p-3.5 shadow-lg flex flex-col gap-2">
+        <div class="bg-[#1A2C38] border border-[#0F212E] rounded-2xl p-3.5 shadow-lg flex flex-col gap-2">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span id="txtCurrentLevel" class="text-xs font-extrabold text-[#FFFFFF]">Level: Bronze I</span>
-                    <span class="text-[10px] text-[#24ee89] font-bold" id="txtPercentage">0.00%</span>
+                    <span class="text-[10px] text-[#FFFFFF] font-bold" id="txtPercentage">0.00%</span>
                 </div>
-                <a href="account/my-level-up.html" class="w-7 h-7 rounded-xl bg-[#0F212E] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:text-[#24ee89] transition shadow" title="VIP Rewards">
-                    <i class="fa-solid fa-gift text-xs"></i>
+                <a href="account/my-level-up.html" class="w-7 h-7 rounded-xl bg-[#1F51FF] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:opacity-90 transition shadow" title="VIP Rewards">
+                    <svg class="w-3.5 h-3.5 fill-current text-white" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3c-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2a3 3 0 0 0-3 3c0 .35.07.69.18 1H4c-1.1 0-1.99.9-1.99 2L2 19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM9 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm11 15H4v-2h16v2zm0-5H4V8h5.08L7.5 10.33l1.66 1.34L12 8.66l2.84 3.01 1.66-1.34L14.92 8H20v6z"/></svg>
                 </a>
             </div>
             <div class="w-full h-2.5 rounded-full progress-bar-bg overflow-hidden p-0.5">
@@ -134,21 +133,22 @@
             <div class="flex items-center justify-between border-b border-[#0F212E] pb-3">
                 <div class="flex items-center gap-3">
                     <h2 id="modalCategoryTitle" class="text-lg sm:text-xl font-black text-[#FFFFFF] flex items-center gap-2">
-                        <i class="fa-solid fa-gamepad text-[#24ee89]"></i> <span id="modalTitleText">Category Games</span>
+                        <svg class="w-5 h-5 fill-current text-[#FFFFFF]" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h18v8zM6 15h2v-2h2v-2H8V9H6v2H4v2h2z"/></svg>
+                        <span id="modalTitleText">Category Games</span>
                     </h2>
                     <!-- Search Symbol Icon -->
-                    <a href="search.html" title="Search Games" class="w-8 h-8 rounded-xl bg-[#1F51FF] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:text-[#24ee89] transition">
-                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    <a href="search.html" title="Search Games" class="w-8 h-8 rounded-xl bg-[#1F51FF] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:opacity-90 transition">
+                        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                     </a>
                 </div>
-                <button onclick="closeCategoryModal()" class="w-9 h-9 rounded-xl bg-[#1F51FF] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-red-500 hover:border-red-500 transition">
-                    <i class="fa-solid fa-xmark text-base"></i>
+                <button onclick="closeCategoryModal()" class="w-9 h-9 rounded-xl bg-[#1F51FF] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:opacity-90 transition">
+                    <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
             </div>
             
             <!-- Loading Spinner Container -->
             <div id="modalLoader" class="flex flex-col items-center justify-center py-20 space-y-3">
-                <div class="w-10 h-10 border-4 border-[#24ee89] border-t-transparent rounded-full animate-spin"></div>
+                <div class="w-10 h-10 border-4 border-[#1F51FF] border-t-transparent rounded-full animate-spin"></div>
                 <p class="text-xs text-[#FFFFFF] font-semibold tracking-wider uppercase">Loading Games...</p>
             </div>
 
@@ -174,12 +174,12 @@
         let bannerIntervalTimer = null;
 
         const predefinedCategories = [
-            { key: 'original', title: 'Original', icon: 'fa-fire' },
-            { key: 'color_trading', title: 'Color Trading', icon: 'fa-palette' },
-            { key: 'lucky_lottery', title: 'Lucky Lottery', icon: 'fa-ticket' },
-            { key: 'slot', title: 'Slot', icon: 'fa-slot-machine' },
-            { key: 'casino', title: 'Casino', icon: 'fa-dice' },
-            { key: 'sports', title: 'Sports', icon: 'fa-futbol' }
+            { key: 'original', title: 'Original' },
+            { key: 'color_trading', title: 'Color Trading' },
+            { key: 'lucky_lottery', title: 'Lucky Lottery' },
+            { key: 'slot', title: 'Slot' },
+            { key: 'casino', title: 'Casino' },
+            { key: 'sports', title: 'Sports' }
         ];
 
         function formatCategoryTitle(rawCategory) {
@@ -322,14 +322,14 @@
             const banner = bannersList[index];
             let bgStyle = banner.image_url ? `background-image: url('${banner.image_url}'); background-size: cover; background-position: center;` : '';
 
-            bannerContainer.style.cssText = `background: linear-gradient(135deg, #1F51FF 0%, #0F212E 100%); ${bgStyle}`;
+            bannerContainer.style.cssText = `background: linear-gradient(135deg, #1A2C38 0%, #0F212E 100%); ${bgStyle}`;
             
             bannerContainer.innerHTML = `
                 <div class="absolute inset-0 bg-black/25 z-0"></div>
-                <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#24ee89]/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-[#1F51FF]/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="w-full p-3 sm:p-5 flex flex-col justify-between relative z-10 banner-slide">
                     <div class="space-y-1 max-w-sm">
-                        ${banner.badge_text ? `<span class="inline-block bg-[#24ee89]/15 text-[#24ee89] border border-[#24ee89]/30 text-[var(--font-xs)] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${banner.badge_text}</span>` : ''}
+                        ${banner.badge_text ? `<span class="inline-block bg-[#1F51FF]/20 text-[#FFFFFF] border border-[#0F212E] text-[var(--font-xs)] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">${banner.badge_text}</span>` : ''}
                         <h1 class="text-xl sm:text-2xl font-black tracking-tight text-[#FFFFFF] uppercase italic drop-shadow-md">${banner.title}</h1>
                         ${banner.subtitle ? `<p class="text-[var(--font-xs)] text-[#FFFFFF] font-medium drop-shadow">${banner.subtitle}</p>` : ''}
                     </div>
@@ -339,7 +339,7 @@
 
             if (dotsContainer && bannersList.length > 1) {
                 dotsContainer.innerHTML = bannersList.map((_, i) => `
-                    <button onclick="switchBanner(${i})" class="h-1.5 rounded-full transition-all duration-300 ${i === index ? 'w-6 bg-[#24ee89]' : 'w-1.5 bg-[#0F212E]'}"></button>
+                    <button onclick="switchBanner(${i})" class="h-1.5 rounded-full transition-all duration-300 ${i === index ? 'w-6 bg-[#1F51FF]' : 'w-1.5 bg-[#0F212E]'}"></button>
                 `).join('');
             }
         }
@@ -388,13 +388,34 @@
             }
         }
 
+        function getCategorySvgIcon(key) {
+            switch(key) {
+                case 'all':
+                    return '<svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg>';
+                case 'original':
+                    return '<svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+                case 'color_trading':
+                    return '<svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.35c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.22 19.46 10.57 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>';
+                case 'lucky_lottery':
+                    return '<svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3c-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2a3 3 0 0 0-3 3c0 .35.07.69.18 1H4c-1.1 0-1.99.9-1.99 2L2 19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>';
+                case 'slot':
+                    return '<svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>';
+                case 'casino':
+                    return '<svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z"/></svg>';
+                case 'sports':
+                    return '<svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>';
+                default:
+                    return '<svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/></svg>';
+            }
+        }
+
         function renderCategorySliderButtons(categoriesMap) {
             const barContainer = document.getElementById('categorySliderBar');
             if (!barContainer) return;
 
             let html = `
-                <button type="button" onclick="filterCategoryButton('all')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${activeFilterCategory === 'all' ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1F51FF] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="all">
-                    <i class="fa-solid fa-fire text-orange-500"></i> All Games
+                <button type="button" onclick="filterCategoryButton('all')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${activeFilterCategory === 'all' ? 'bg-[#1F51FF] text-[#FFFFFF] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="all">
+                    ${getCategorySvgIcon('all')} All Games
                 </button>
             `;
 
@@ -406,8 +427,8 @@
                     const title = categoriesMap[k];
                     const isActive = activeFilterCategory === k;
                     html += `
-                        <button type="button" onclick="filterCategoryButton('${k}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1F51FF] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${k}">
-                            <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${title}
+                        <button type="button" onclick="filterCategoryButton('${k}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#1F51FF] text-[#FFFFFF] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${k}">
+                            ${getCategorySvgIcon(k)} ${title}
                         </button>
                     `;
                 }
@@ -418,8 +439,8 @@
                     const title = categoriesMap[k];
                     const isActive = activeFilterCategory === k;
                     html += `
-                        <button type="button" onclick="filterCategoryButton('${k}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1F51FF] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${k}">
-                            <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${title}
+                        <button type="button" onclick="filterCategoryButton('${k}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#1F51FF] text-[#FFFFFF] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${k}">
+                            ${getCategorySvgIcon(k)} ${title}
                         </button>
                     `;
                 }
@@ -434,9 +455,9 @@
             document.querySelectorAll('.category-filter-btn').forEach(btn => {
                 const isSelected = btn.getAttribute('data-cat') === categoryKey;
                 if (isSelected) {
-                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#24ee89] text-[#0F212E] shadow-sm';
+                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#1F51FF] text-[#FFFFFF] shadow-sm';
                 } else {
-                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#1F51FF] text-[#FFFFFF] border border-[#0F212E]';
+                    btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]';
                 }
             });
 
@@ -462,19 +483,19 @@
                 const visibleItems = activeFilterCategory === 'all' ? catItems.slice(currentIndex, currentIndex + 3) : catItems;
 
                 const section = document.createElement('div');
-                section.className = 'space-y-3 pb-4 border-b border-[#1F51FF]';
+                section.className = 'space-y-3 pb-4 border-b border-[#1A2C38]';
                 section.innerHTML = `
                     <div class="flex items-center justify-between border-b border-[#0F212E] pb-2"> 
-                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="openCategoryModal('${catKey}', '${categoryTitle}')" title="Click to view all"> 
+                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#1F51FF] transition" onclick="openCategoryModal('${catKey}', '${categoryTitle}')" title="Click to view all"> 
                             <span class="w-2.5 h-2.5 rounded-full bg-white inline-block"></span> ${categoryTitle} 
                         </h2> 
                         ${activeFilterCategory === 'all' ? `
                         <div class="flex items-center gap-1.5">
-                            <button onclick="slideCategory('${catKey}', -1)" class="w-7 h-7 rounded-full bg-[#1F51FF] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
-                                <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                            <button onclick="slideCategory('${catKey}', -1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#1F51FF] transition">
+                                <svg class="w-3 h-3 fill-current text-white" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
                             </button>
-                            <button onclick="slideCategory('${catKey}', 1)" class="w-7 h-7 rounded-full bg-[#1F51FF] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
-                                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            <button onclick="slideCategory('${catKey}', 1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#1F51FF] transition">
+                                <svg class="w-3 h-3 fill-current text-white" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
                             </button>
                         </div>` : ''}
                     </div> 
@@ -498,12 +519,12 @@
 
                     const card = document.createElement('a');
                     card.href = pageUrl;
-                    card.className = 'game-card group relative bg-[#1F51FF] border border-[#0F212E] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 shadow-lg';
+                    card.className = 'game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 shadow-lg';
                     card.innerHTML = ` 
-                        <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-950/80 to-[#1F51FF] flex flex-col items-center justify-center p-1">
+                        <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center p-1">
                           ${hasImg 
                             ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
-                            : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-[#FFFFFF] drop-shadow-lg mb-2"></i>
+                            : `<svg class="w-8 h-8 fill-current text-white/80 mb-2" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h18v8z"/></svg>
                                ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#FFFFFF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
                           }
                         </div>
@@ -561,11 +582,11 @@
                 const showBadge = game.show_badge !== false;
 
                 return `
-                    <a href="${pageUrl}" class="game-card group relative bg-[#1F51FF] border border-[#0F212E] hover:border-[#24ee89]/70 rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 shadow-lg">
-                        <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-950/80 to-[#1F51FF] flex flex-col items-center justify-center p-1">
+                    <a href="${pageUrl}" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 shadow-lg">
+                        <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center p-1">
                           ${hasImg 
                             ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
-                            : `<i class="fa-solid fa-gamepad text-3xl sm:text-4xl text-[#FFFFFF] drop-shadow-lg mb-2"></i>
+                            : `<svg class="w-8 h-8 fill-current text-white/80 mb-2" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h18v8z"/></svg>
                                ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#FFFFFF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
                           }
                         </div>
