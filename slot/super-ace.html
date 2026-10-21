@@ -1,378 +1,284 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="bn">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#07131a">
-  <title>Super Ace — Responsive Game UI</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      --gold: #ffd66b;
-      --gold-deep: #9d5711;
-      --panel: #102c35;
-      --felt: #087d83;
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-    }
-    * { box-sizing: border-box; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      background: #07131a;
-      font-family: Arial, Helvetica, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-    body { display: grid; place-items: center; }
-    button { font: inherit; }
-    .game {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      height: 100dvh;
-      max-width: 520px;
-      overflow: hidden;
-      isolation: isolate;
-      background:
-        radial-gradient(ellipse at 50% 40%, rgba(26, 177, 177, .5), transparent 50%),
-        linear-gradient(180deg, #300b08 0%, #140c15 28%, #07545c 50%, #06232d 78%, #111326 100%);
-      padding-top: var(--safe-top);
-      padding-bottom: var(--safe-bottom);
-    }
-    .wood {
-      position: absolute; left: 0; width: 100%; z-index: -1;
-      background:
-        repeating-linear-gradient(177deg, transparent 0 8px, rgba(255,255,255,.035) 9px 11px, transparent 12px 20px),
-        linear-gradient(180deg, #6d2a13, #2b0d09 48%, #71331a 54%, #210b08);
-      border-top: 2px solid #a75a2c;
-      border-bottom: 3px solid #120605;
-      box-shadow: 0 3px 9px #0009;
-    }
-    .wood.top { top: 0; height: 17%; }
-    .wood.bottom { bottom: 0; height: 13%; transform: scaleY(-1); }
-    .header {
-      position: absolute; top: 14%; left: 0; width: 100%;
-      text-align: center; z-index: 3;
-      height: 8%;
-      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    }
-    .brand {
-      color: #ffe3a0; font-weight: 1000; letter-spacing: -1.5px;
-      font-size: clamp(23px, 5.8vw, 35px);
-      line-height: 1.05;
-      -webkit-text-stroke: .8px #5b210a;
-      text-shadow: 0 2px 0 #8c3c13, 0 4px 0 #24100a, 0 0 12px #ffbf3b99;
-    }
-    .header-mc-banner {
-      /* Center the PNG and preserve its intrinsic dimensions/aspect ratio. */
-      position: absolute;
-      top: 22%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: auto;
-      height: auto;
-      max-width: 97%;
-      z-index: 4;
-      display: block;
-      text-align: center;
-      pointer-events: none;
-    }
-    .header-mc-banner img {
-      display: block;
-      width: auto;
-      height: auto;
-      max-width: 100%;
-      max-height: none;
-      object-fit: contain;
-      object-position: center;
-      margin: 0 auto;
-      pointer-events: none;
-    }
-    .feature {
-      position: absolute; top: 18.5%; right: 2.5%; z-index: 4;
-      color: #fff2b7; font-size: clamp(10px, 2.8vw, 16px);
-      line-height: 1.05; font-weight: 900; text-align: center;
-      text-shadow: 0 2px 2px #d32812, 0 0 8px #ffae29;
-    }
-    .feature.left { left: 2.5%; right: auto; writing-mode: vertical-rl; transform: rotate(180deg); }
-    
-    .board-frame {
-      position: absolute; top: 33%; left: 1.5%; width: 97%; height: 48%;
-      border: 3px solid #334d58; border-radius: 6px;
-      background: rgba(0, 0, 0, 0.2);
-      box-shadow: 0 0 0 1px #111b25, 0 5px 10px #0008;
-      padding: 2px;
-      z-index: 2;
-    }
-    .board {
-      height: 100%; width: 100%; display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      grid-template-rows: repeat(4, minmax(0, 1fr));
-      gap: 2px;
-    }
-    .tile {
-      min-width: 0; min-height: 0; position: relative; overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      border: none;
-      border-radius: 3px;
-      background: transparent;
-      padding: 0;
-      margin: 0;
-    }
-    .tile img {
-      width: 100%;
-      height: 100%;
-      object-fit: fill;
-      display: block;
-      pointer-events: none;
-      border-radius: 3px;
-    }
-    .tile.empty {
-      background: linear-gradient(135deg, #078e91, #006b74);
-      border: 1px solid #42a7a8;
-      box-shadow: inset 0 0 9px #004c55aa;
-    }
-    .win-line {
-      position: absolute; left: 0; bottom: 19.4%; width: 100%; height: 3.4%;
-      display: flex; align-items: center; justify-content: center; gap: 9%;
-      z-index: 3; color: #ffda62; font-size: clamp(15px, 4vw, 22px); font-weight: 900;
-      text-shadow: 0 2px 2px #000;
-    }
-    .win-line strong { color: #fff; font-size: .95em; }
-    .controls {
-      position: absolute; left: 0; bottom: 5.5%; width: 100%; height: 10.5%;
-      display: flex; align-items: center; justify-content: space-evenly; z-index: 5;
-    }
-    .round-btn {
-      width: clamp(39px, 10vw, 57px); aspect-ratio: 1; border-radius: 50%;
-      border: 2px solid #8a637a; color: #f4d5a2; font-size: clamp(20px, 5vw, 28px);
-      background: radial-gradient(circle at 35% 25%, #b98ba4, #57334e 72%, #24152c);
-      box-shadow: 0 3px 0 #211020, inset 0 2px 4px #fff4;
-      display: grid; place-items: center; cursor: pointer;
-    }
-    .round-btn:active, .spin-btn:active { transform: scale(.96); }
-    .spin-btn {
-      width: clamp(92px, 25vw, 132px); aspect-ratio: 1; border-radius: 50%;
-      border: 5px solid #ffd956;
-      background: radial-gradient(circle at 36% 25%, #fff6a5 0 8%, #ffcf30 25%, #e68a00 52%, #9b4700 70%, #ffce39 75%, #d77a00 100%);
-      box-shadow: 0 0 0 3px #a84e00, inset 0 0 0 4px #fff5a4, 0 5px 9px #000b;
-      color: #fff1a0; font-size: clamp(30px, 8vw, 43px); font-weight: 900;
-      text-shadow: 0 2px 2px #753000; cursor: pointer; display: grid; place-items: center;
-    }
-    .spin-symbol { transform: translateY(-2px); }
-    .bet {
-      position: absolute; left: 50%; bottom: 13.1%; transform: translateX(-50%);
-      z-index: 6; color: #eee; font-size: clamp(12px, 3.3vw, 17px); text-align: center;
-      white-space: nowrap; text-shadow: 0 2px 2px #000;
-    }
-    .balance {
-      position: absolute; left: 0; bottom: 1.3%; width: 100%; z-index: 6;
-      display: flex; align-items: center; justify-content: center; gap: 9px;
-      color: #ffd45d; font-size: clamp(13px, 3.6vw, 19px); font-weight: 700;
-      text-shadow: 0 2px 2px #000;
-    }
-    .balance strong { color: white; }
-    .level { background: #1498b9; color: white; padding: 2px 5px; border-radius: 3px; font-size: .72em; }
-    .wifi { position: absolute; right: 3%; bottom: 1.2%; color: #70db63; font-size: 22px; }
-    .version { position: absolute; left: 2%; bottom: .1%; color: #ddd; font-size: 10px; z-index: 7; }
-    .toast {
-      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-      z-index: 20; display: none; background: #07151eeF; border: 1px solid #ffce55;
-      color: #ffe5a0; padding: 10px 16px; border-radius: 10px; font-weight: 700;
-      box-shadow: 0 5px 25px #000a; white-space: nowrap;
-    }
-    .toast.show { display: block; }
-    @media (min-aspect-ratio: 3/4) and (min-width: 521px) {
-      .game { height: 100dvh; width: min(100vw, calc(100dvh * 0.52)); border-inline: 1px solid #31434a; }
-    }
-    @media (max-height: 620px) {
-      .header { top: 12%; }
-      .header-mc-banner { top: 20%; left: 50%; transform: translateX(-50%); width: auto; height: auto; max-width: 97%; }
-      .board-frame { top: 31%; height: 47%; }
-      .win-line { bottom: 19%; }
-      .controls { bottom: 4%; height: 11%; }
-      .bet { bottom: 12%; }
-      .balance { bottom: .5%; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
-    }
-    .tile.drop { animation: drop .24s ease-out; }
-    @keyframes drop { from { transform: translateY(-12px); opacity: .45; } to { transform: translateY(0); opacity: 1; } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crash Balloon Game - Raseshop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            background-color: #0b132b;
+            color: #ffffff;
+            font-family: sans-serif;
+        }
+        .game-card {
+            background-color: #1c2541;
+            border: 1px solid #3a506b;
+        }
+        #balloon-element {
+            transition: transform 0.3s ease-in-out;
+        }
+    </style>
 </head>
-<body>
-  <main class="game" aria-label="Super Ace game interface">
-    <div class="wood top"></div>
-    <div class="wood bottom"></div>
-    <div class="feature left">MENU</div>
-    <div class="feature">BUY<br>BONUS</div>
-    <header class="header"><div class="brand">SuperAce</div></header>
-    
-    <div class="header-mc-banner">
-      <img src="image/header-mc.png" alt="Header MC">
+<body class="flex flex-col min-h-screen justify-between pb-16">
+
+    <!-- Header / Top Bar -->
+    <header class="bg-[#1c2541] p-4 shadow-md flex justify-between items-center border-b border-[#3a506b]">
+        <h1 class="text-lg font-bold text-blue-400">Crash Game</h1>
+        <div class="bg-[#0b132b] px-3 py-1.5 rounded-lg text-xs border border-[#3a506b]">
+            Balance: <span id="user-balance" class="font-bold text-green-400">0.00</span> USDT
+        </div>
+    </header>
+
+    <!-- Main Game Section -->
+    <main class="flex-grow flex flex-col items-center justify-center p-3">
+        <div class="w-full max-w-sm game-card rounded-2xl p-4 shadow-xl flex flex-col items-center">
+            
+            <!-- Balloon Graphic & Multiplier Area -->
+            <div class="relative w-full h-44 flex flex-col items-center justify-center mb-4">
+                <!-- Balloon with dynamic scaling on pump -->
+                <div id="balloon-element" class="relative w-28 h-32 bg-blue-600 rounded-[50%_50%_50%_50%/40%_40%_60%_60%] flex flex-col items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.5)] scale-100">
+                    <div class="absolute top-3 right-4 w-2.5 h-2.5 bg-white/60 rounded-full"></div>
+                    <span id="multiplier-display" class="text-2xl font-extrabold text-white">1.00x</span>
+                </div>
+                <div class="w-2 h-3 bg-blue-500"></div>
+                <div class="w-28 h-10 bg-[#23304a] rounded-t-xl relative flex items-center justify-center border-t border-[#3a506b] shadow-inner mt-0.5">
+                    <div class="absolute left-3 flex gap-1">
+                        <div class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
+                    </div>
+                </div>
+                <div class="w-64 h-2 bg-[#131b2e] rounded-full -mt-1"></div>
+            </div>
+
+            <!-- Recent Multipliers Buttons -->
+            <div class="grid grid-cols-3 gap-2 mb-4 w-full">
+                <button class="bg-[#23304a] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.00×</button>
+                <button class="bg-[#23304a] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.14×</button>
+                <button class="bg-[#23304a] text-slate-300 py-1.5 rounded-lg text-xs font-semibold border border-[#3a506b]">1.31×</button>
+            </div>
+
+            <!-- Bet Button -->
+            <button id="bet-action-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg mb-4 text-sm">
+                Bet
+            </button>
+
+            <!-- Bet Amount Section -->
+            <div class="w-full flex flex-col gap-1.5 mb-3">
+                <div class="flex justify-between text-xs text-slate-400 px-1">
+                    <span>Bet Amount</span>
+                    <span id="amount-usd">$0.00</span>
+                </div>
+                <div class="flex items-center bg-[#0b132b] rounded-xl border border-[#3a506b] overflow-hidden px-3 py-2">
+                    <input type="number" id="bet-amount" value="1.00000000" step="0.01" class="bg-transparent w-full outline-none text-white text-sm">
+                    <div class="bg-green-600 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white ml-2">₮</div>
+                    <div class="flex items-center gap-2 ml-3 pl-3 border-l border-[#3a506b] text-xs font-bold text-slate-300">
+                        <button id="btn-half" class="hover:text-white px-1">½</button>
+                        <span class="text-slate-600">|</span>
+                        <button id="btn-double" class="hover:text-white px-1">2×</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pump / Cashout Button -->
+            <button id="pump-btn" class="w-full bg-[#23304a] text-slate-400 font-bold py-3 rounded-xl transition-all border border-[#3a506b] text-sm cursor-not-allowed" disabled>
+                Pump
+            </button>
+
+        </div>
+    </main>
+
+    <!-- Bottom Navigation Bar Container -->
+    <div id="bottom-bar-container">
+        <div id="included-bottom"></div>
     </div>
 
-    <section class="board-frame" aria-label="Game reels">
-      <div class="board" id="board"></div>
-    </section>
-    <div class="win-line"><span>WIN</span><strong id="win">0.000</strong></div>
-    <div class="bet">Bet <span id="betValue">0.5</span></div>
-    <nav class="controls" aria-label="Game controls">
-      <button class="round-btn" id="settingsBtn" aria-label="Settings" title="Settings">⚙</button>
-      <button class="round-btn" id="betBtn" aria-label="Increase bet" title="Increase bet">⊕</button>
-      <button class="spin-btn" id="spinBtn" aria-label="Spin" title="Spin"><span class="spin-symbol">↻</span></button>
-      <button class="round-btn" id="autoBtn" aria-label="Auto spin" title="Auto spin">⟳</button>
-      <button class="round-btn" id="fastBtn" aria-label="Fast mode" title="Fast mode">ϟ</button>
-    </nav>
-    <div class="balance"><span class="level">LV 3</span><span>Balance</span><strong id="balance">14.015</strong></div>
-    <div class="wifi" aria-hidden="true">◔</div>
-    <div class="version">v_192_0008</div>
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  </main>
-  <script>
-    (() => {
-      'use strict';
-      const board = document.getElementById('board');
-      const spinBtn = document.getElementById('spinBtn');
-      const balanceEl = document.getElementById('balance');
-      const winEl = document.getElementById('win');
-      const betValueEl = document.getElementById('betValue');
-      const toast = document.getElementById('toast');
+    <!-- Configuration and Game Logic Scripts -->
+    <script src="../supabase-config.js"></script>
+    <script>
+        let currentUser = null;
+        let currentBetId = null;
+        let multiplierSteps = [
+            1.00, 1.14, 1.31, 1.49, 1.79, 2.10, 2.44, 2.96, 3.61, 4.23, 
+            5.10, 6.50, 8.80, 11.30, 15.66, 19.99, 29.91, 46.77, 74.21, 
+            122.32, 250.44, 701.34, 2653.00
+        ];
+        let currentStepIndex = 0;
+        let isGameActive = false;
 
-      const cardImages = {
-        ace: 'image/ace.png',
-        king: 'image/king.png',
-        queen: 'image/queen.png',
-        jack: 'image/jack.png',
-        spade: 'image/spade.png',
-        heart: 'image/heart.png',
-        club: 'image/club.png',
-        diamond: 'image/diamond.png'
-      };
+        async function initGame() {
+            currentUser = await requireAuth();
+            if (!currentUser) return;
 
-      const symbols = Object.keys(cardImages);
-
-      const initial = [
-        ['ace','ace','ace','king'],
-        ['spade','king','king','empty'],
-        ['heart','queen','queen','ace'],
-        ['club','jack','jack','ace'],
-        ['king','diamond','empty','empty']
-      ];
-
-      let balance = 14.015;
-      let bet = 0.5;
-      let spinning = false;
-      let autoTimer = null;
-      let fast = false;
-
-      function cardMarkup(type) {
-        if (type === 'empty') return '<div class="tile empty" aria-hidden="true"></div>';
-        const imgPath = cardImages[type] || 'image/spade.png';
-        return `<div class="tile"><img src="${imgPath}" alt="${type}"></div>`;
-      }
-
-      function renderGrid(layout) {
-        board.innerHTML = '';
-        for (let row = 0; row < 4; row++) {
-          for (let col = 0; col < 5; col++) {
-            const type = layout[col][row];
-            const holder = document.createElement('div');
-            holder.innerHTML = cardMarkup(type);
-            const tile = holder.firstElementChild;
-            tile.dataset.col = col;
-            tile.dataset.row = row;
-            board.appendChild(tile);
-          }
-        }
-      }
-
-      function randomLayout() {
-        return Array.from({ length: 5 }, () =>
-          Array.from({ length: 4 }, () => {
-            return Math.random() < 0.12 ? 'empty' : symbols[Math.floor(Math.random() * symbols.length)];
-          })
-        );
-      }
-
-      function showToast(message) {
-        toast.textContent = message;
-        toast.classList.add('show');
-        window.setTimeout(() => toast.classList.remove('show'), 1500);
-      }
-
-      function spin() {
-        if (spinning) return;
-        if (balance < bet) {
-          showToast('Not enough balance');
-          stopAuto();
-          return;
-        }
-        spinning = true;
-        spinBtn.disabled = true;
-        balance -= bet;
-        balanceEl.textContent = balance.toFixed(3);
-        winEl.textContent = '0.000';
-        const layout = randomLayout();
-        const delay = fast ? 55 : 115;
-        for (let col = 0; col < 5; col++) {
-          window.setTimeout(() => {
-            for (let row = 0; row < 4; row++) {
-              const tile = board.querySelector(`[data-col="${col}"][data-row="${row}"]`);
-              if (!tile) continue;
-              const holder = document.createElement('div');
-              holder.innerHTML = cardMarkup(layout[col][row]);
-              const replacement = holder.firstElementChild;
-              replacement.dataset.col = col;
-              replacement.dataset.row = row;
-              replacement.classList.add('drop');
-              tile.replaceWith(replacement);
+            const profile = await getUserProfile(currentUser.id);
+            if (profile) {
+                document.getElementById('user-balance').innerText = Number(profile.balance || 0).toFixed(2);
             }
-            if (col === 4) {
-              const payout = Math.random() < 0.28 ? bet * (1 + Math.floor(Math.random() * 4)) : 0;
-              balance += payout;
-              balanceEl.textContent = balance.toFixed(3);
-              winEl.textContent = payout.toFixed(3);
-              spinning = false;
-              spinBtn.disabled = false;
-              if (payout > 0) showToast(`You won ${payout.toFixed(3)}!`);
-              if (autoTimer) autoTimer = window.setTimeout(spin, fast ? 350 : 700);
+        }
+
+        async function loadBottomBar() {
+            try {
+                const res = await fetch('../bar/bottom.html');
+                if (res.ok) {
+                    const html = await res.text();
+                    document.getElementById('included-bottom').innerHTML = html;
+                }
+            } catch (e) {
+                console.log('Bottom bar load error:', e);
             }
-          }, col * delay);
         }
-      }
 
-      function stopAuto() {
-        if (autoTimer) window.clearTimeout(autoTimer);
-        autoTimer = null;
-        document.getElementById('autoBtn').textContent = '⟳';
-      }
+        document.getElementById('btn-half').addEventListener('click', () => {
+            if (isGameActive) return;
+            const input = document.getElementById('bet-amount');
+            let val = parseFloat(input.value) || 0;
+            input.value = Math.max(1, val / 2).toFixed(8);
+            document.getElementById('amount-usd').innerText = '$' + parseFloat(input.value).toFixed(2);
+        });
 
-      renderGrid(initial);
-      spinBtn.addEventListener('click', spin);
-      document.getElementById('betBtn').addEventListener('click', () => {
-        bet = bet >= 5 ? 0.5 : Math.round((bet + 0.5) * 1000) / 1000;
-        betValueEl.textContent = bet.toFixed(1);
-      });
-      document.getElementById('autoBtn').addEventListener('click', () => {
-        if (autoTimer) {
-          stopAuto();
-          showToast('Auto spin off');
-        } else {
-          showToast('Auto spin on');
-          spin();
+        document.getElementById('btn-double').addEventListener('click', () => {
+            if (isGameActive) return;
+            const input = document.getElementById('bet-amount');
+            let val = parseFloat(input.value) || 0;
+            input.value = (val * 2).toFixed(8);
+            document.getElementById('amount-usd').innerText = '$' + parseFloat(input.value).toFixed(2);
+        });
+
+        document.getElementById('bet-amount').addEventListener('input', (e) => {
+            let val = parseFloat(e.target.value) || 0;
+            document.getElementById('amount-usd').innerText = '$' + val.toFixed(2);
+        });
+
+        // Bet Button Click -> Start Game & Enable Pump
+        document.getElementById('bet-action-btn').addEventListener('click', async () => {
+            const betAmount = parseFloat(document.getElementById('bet-amount').value);
+            if (!currentUser || isNaN(betAmount) || betAmount < 1) {
+                alert('সঠিক বেট অ্যামাউন্ট দিন (কমপক্ষে ১)।');
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('original_bets_history')
+                .insert([{
+                    user_id: currentUser.id,
+                    game_name: 'crash',
+                    bet_amount: betAmount,
+                    payout: 0,
+                    multiplier: 1.00,
+                    status: 'pending',
+                    game_details: { type: 'crash_balloon_pump' }
+                }])
+                .select()
+                .single();
+
+            if (error) {
+                console.error('Bet error:', error);
+                alert('বেট শুরু করতে সমস্যা হয়েছে।');
+            } else {
+                currentBetId = data.id;
+                isGameActive = true;
+                currentStepIndex = 0;
+
+                // Lock bet controls and activate pump button
+                document.getElementById('bet-amount').disabled = true;
+                document.getElementById('bet-action-btn').disabled = true;
+                document.getElementById('bet-action-btn').classList.add('opacity-50', 'cursor-not-allowed');
+
+                const pumpBtn = document.getElementById('pump-btn');
+                pumpBtn.disabled = false;
+                pumpBtn.classList.remove('bg-[#23304a]', 'text-slate-400', 'cursor-not-allowed');
+                pumpBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'text-white');
+                pumpBtn.innerText = "Pump / Cash Out";
+
+                updateMultiplierDisplay();
+            }
+        });
+
+        // Pump Button Click -> Progress Multiplier & Grow Balloon
+        document.getElementById('pump-btn').addEventListener('click', async () => {
+            if (!isGameActive) return;
+
+            if (currentStepIndex < multiplierSteps.length - 1) {
+                currentStepIndex++;
+                updateMultiplierDisplay();
+            } else {
+                // Max reached, auto cashout
+                await cashOutGame();
+            }
+        });
+
+        function updateMultiplierDisplay() {
+            const currentMultiplier = multiplierSteps[currentStepIndex];
+            document.getElementById('multiplier-display').innerText = currentMultiplier.toFixed(2) + 'x';
+
+            // Grow balloon visual scale gradually based on step index
+            const scaleValue = 1 + (currentStepIndex * 0.03);
+            document.getElementById('balloon-element').style.transform = `scale(${scaleValue})`;
         }
-      });
-      document.getElementById('fastBtn').addEventListener('click', () => {
-        fast = !fast;
-        document.getElementById('fastBtn').style.filter = fast ? 'brightness(1.5)' : '';
-        showToast(fast ? 'Fast mode on' : 'Fast mode off');
-      });
-      document.getElementById('settingsBtn').addEventListener('click', () => showToast('Settings demo'));
-    })();
-  </script>
+
+        async function cashOutGame() {
+            if (!isGameActive || !currentBetId) return;
+
+            const finalMultiplier = multiplierSteps[currentStepIndex];
+            const betAmount = parseFloat(document.getElementById('bet-amount').value);
+            const payout = betAmount * finalMultiplier;
+
+            // Update Supabase History Table
+            const { error } = await supabaseClient
+                .from('original_bets_history')
+                .update({
+                    multiplier: finalMultiplier,
+                    payout: payout,
+                    status: 'win'
+                })
+                .eq('id', currentBetId);
+
+            if (error) {
+                console.error('Cashout error:', error);
+                alert('ক্যাশআউট আপডেট করতে সমস্যা হয়েছে।');
+            } else {
+                alert(`সফলভাবে ক্যাশআউট হয়েছে! মাল্টিপ্লায়্যার: ${finalMultiplier}x, পেআউট: ${payout.toFixed(2)}`);
+                resetGameUI();
+                initGame();
+            }
+        }
+
+        function resetGameUI() {
+            isGameActive = false;
+            currentBetId = null;
+            currentStepIndex = 0;
+
+            document.getElementById('bet-amount').disabled = false;
+            const betBtn = document.getElementById('bet-action-btn');
+            betBtn.disabled = false;
+            betBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            const pumpBtn = document.getElementById('pump-btn');
+            pumpBtn.disabled = true;
+            pumpBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'text-white');
+            pumpBtn.classList.add('bg-[#23304a]', 'text-slate-400', 'cursor-not-allowed');
+            pumpBtn.innerText = "Pump";
+
+            document.getElementById('multiplier-display').innerText = "1.00x";
+            document.getElementById('balloon-element').style.transform = 'scale(1)';
+        }
+
+        // Allow Pump button to act as Cash Out when game is active
+        document.getElementById('pump-btn').addEventListener('contextmenu', async (e) => {
+            e.preventDefault();
+            if (isGameActive) {
+                await cashOutGame();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initGame();
+            loadBottomBar();
+            document.getElementById('amount-usd').innerText = '$' + parseFloat(document.getElementById('bet-amount').value).toFixed(2);
+        });
+    </script>
 </body>
 </html>
