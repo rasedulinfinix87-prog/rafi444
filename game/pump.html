@@ -16,7 +16,8 @@
             background-color: #1c2541;
             border: 1px solid #3a506b;
         }
-        #balloon-elem {
+        /* Smooth transition for balloon scaling */
+        #balloon-element {
             transition: transform 0.3s ease-in-out;
         }
     </style>
@@ -37,7 +38,8 @@
             
             <!-- Balloon Graphic & Multiplier Area -->
             <div class="relative w-full h-44 flex flex-col items-center justify-center mb-4">
-                <div id="balloon-elem" class="relative w-28 h-32 bg-blue-600 rounded-[50%_50%_50%_50%/40%_40%_60%_60%] flex flex-col items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.5)] scale-100">
+                <!-- Balloon Shape with dynamic scaling -->
+                <div id="balloon-element" class="relative w-28 h-32 bg-blue-600 rounded-[50%_50%_50%_50%/40%_40%_60%_60%] flex flex-col items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.5)] scale-100">
                     <div class="absolute top-3 right-4 w-2.5 h-2.5 bg-white/60 rounded-full"></div>
                     <span id="multiplier-display" class="text-2xl font-extrabold text-white">1.00x</span>
                 </div>
@@ -74,7 +76,7 @@
                 <div class="flex items-center bg-[#0b132b] rounded-xl border border-[#3a506b] overflow-hidden px-3 py-2">
                     <input type="number" id="bet-amount" value="0.00000000" step="0.01" class="bg-transparent w-full outline-none text-white text-sm">
                     <div class="bg-green-600 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white ml-2">₮</div>
-                    <div class="flex items-center gap-2 ml-3 pl-3 border-l border-[#3a506b] text-xs font-bold text-slate-300">
+                    <div id="controls-group" class="flex items-center gap-2 ml-3 pl-3 border-l border-[#3a506b] text-xs font-bold text-slate-300">
                         <button id="btn-half" class="hover:text-white px-1">½</button>
                         <span class="text-slate-600">|</span>
                         <button id="btn-double" class="hover:text-white px-1">2×</button>
@@ -83,7 +85,7 @@
             </div>
 
             <!-- Pump / Cashout Button -->
-            <button id="pump-btn" class="w-full bg-slate-700 text-slate-400 font-bold py-3 rounded-xl transition-all border border-[#3a506b] text-sm cursor-not-allowed" disabled>
+            <button id="pump-btn" class="w-full bg-[#23304a] text-slate-400 font-bold py-3 rounded-xl transition-all border border-[#3a506b] text-sm cursor-not-allowed" disabled>
                 Pump
             </button>
 
@@ -99,14 +101,15 @@
     <script src="../supabase-config.js"></script>
     <script>
         let currentUser = null;
-        let activeBetId = null;
-        let currentMultiplierIndex = 0;
-        
-        // আপনার দেওয়া নির্দিষ্ট মাল্টিপ্লায়্যার সিকোয়েন্স অ্যারে
+        let currentBetId = null;
+        let multiplierIndex = 0;
+        let isGameActive = false;
+
+        // Custom Multiplier Sequence provided
         const multipliers = [
-            1.00, 1.14, 1.31, 1.49, 1.79, 2.10, 8.00, 2.44, 2.96, 3.61, 
-            4.23, 5.10, 6.50, 8.80, 11.30, 15.66, 19.99, 29.91, 46.77, 
-            74.21, 122.32, 250.44, 701.34, 2653.00
+            1.00, 1.14, 1.31, 1.49, 1.79, 2.10, 2.44, 2.96, 3.61, 4.23, 
+            5.10, 6.50, 8.80, 11.30, 15.66, 19.99, 29.91, 46.77, 74.21, 
+            122.32, 250.44, 701.34, 2653.00
         ];
 
         async function initGame() {
@@ -131,7 +134,9 @@
             }
         }
 
+        // Half and Double button controls
         document.getElementById('btn-half').addEventListener('click', () => {
+            if (isGameActive) return;
             const input = document.getElementById('bet-amount');
             let val = parseFloat(input.value) || 0;
             input.value = Math.max(0, val / 2).toFixed(8);
@@ -139,6 +144,7 @@
         });
 
         document.getElementById('btn-double').addEventListener('click', () => {
+            if (isGameActive) return;
             const input = document.getElementById('bet-amount');
             let val = parseFloat(input.value) || 0;
             input.value = (val * 2).toFixed(8);
@@ -150,14 +156,17 @@
             document.getElementById('amount-usd').innerText = '$' + val.toFixed(2);
         });
 
-        // Bet বাটন ক্লিক করলে গেম শুরু হবে এবং রেকর্ড তৈরি হবে
+        // Bet Action: Starts the game, locks amount box, enables Pump button
         document.getElementById('bet-action-btn').addEventListener('click', async () => {
+            if (isGameActive) return;
+
             const betAmount = parseFloat(document.getElementById('bet-amount').value);
             if (!currentUser || isNaN(betAmount) || betAmount <= 0) {
                 alert('সঠিক বেট অ্যামাউন্ট দিন।');
                 return;
             }
 
+            // Insert into original_bets_history with 'pending' status
             const { data, error } = await supabaseClient
                 .from('original_bets_history')
                 .insert([{
@@ -169,78 +178,111 @@
                     status: 'pending',
                     game_details: { type: 'crash_balloon_pump' }
                 }])
-                .select();
+                .select()
+                .single();
 
             if (error) {
                 console.error('Bet error:', error);
                 alert('বেট সম্পন্ন করতে সমস্যা হয়েছে।');
             } else {
-                activeBetId = data[0].id;
-                currentMultiplierIndex = 0;
-                
-                // ইউজার ইন্টারফেস পরিবর্তন
+                currentBetId = data.id;
+                isGameActive = true;
+                multiplierIndex = 0;
+
+                // Lock the Bet Amount Box & Switch UI state
+                document.getElementById('bet-amount').disabled = true;
+                document.getElementById('bet-action-btn').innerText = 'Running...';
                 document.getElementById('bet-action-btn').disabled = true;
                 document.getElementById('bet-action-btn').classList.add('opacity-50', 'cursor-not-allowed');
-                
+
+                // Enable Pump (Cash Out) Button
                 const pumpBtn = document.getElementById('pump-btn');
                 pumpBtn.disabled = false;
-                pumpBtn.classList.remove('bg-slate-700', 'text-slate-400', 'cursor-not-allowed');
+                pumpBtn.classList.remove('cursor-not-allowed', 'text-slate-400');
                 pumpBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'text-white');
                 pumpBtn.innerText = 'Pump / Cash Out';
-                
-                alert('বেট সফলভাবে শুরু হয়েছে! এখন Pump বাটনে ক্লিক করুন।');
+
+                updateMultiplierDisplay();
             }
         });
 
-        // Pump বাটন ক্লিক করলে বেলুন ফুলবে এবং মাল্টিপ্লায়্যার বাড়বে
+        // Pump / Cash Out Action: Advances multiplier, scales balloon, updates history & balance on finish
         document.getElementById('pump-btn').addEventListener('click', async () => {
-            if (!activeBetId) return;
+            if (!isGameActive) return;
 
-            if (currentMultiplierIndex < multipliers.length - 1) {
-                currentMultiplierIndex++;
-                const currentMult = multipliers[currentMultiplierIndex];
-                
-                // ডিসপ্লে আপডেট
-                document.getElementById('multiplier-display').innerText = currentMult.toFixed(2) + 'x';
-                
-                // বেলুন ধীরে ধীরে বড় হওয়া (Scale Animation)
-                const scaleVal = 1 + (currentMultiplierIndex * 0.02);
-                document.getElementById('balloon-elem').style.transform = `scale(${Math.min(scaleVal, 1.5)})`;
-
-                const betAmount = parseFloat(document.getElementById('bet-amount').value);
-                const payoutAmount = betAmount * currentMult;
-
-                // Supabase হিস্ট্রি আপডেট করা
-                await supabaseClient
-                    .from('original_bets_history')
-                    .update({
-                        multiplier: currentMult,
-                        payout: payoutAmount,
-                        status: 'win'
-                    })
-                    .eq('id', activeBetId);
-
-                // যদি শেষ ধাপে পৌঁছে যায় তবে অটো ক্যাশআউট হয়ে যাবে
-                if (currentMultiplierIndex === multipliers.length - 1) {
-                    alert('সর্বোচ্চ মাল্টিপ্লায়্যারে পৌঁছে গেছেন! ক্যাশআউট সম্পন্ন হয়েছে।');
-                    resetGameUI();
-                }
+            if (multiplierIndex < multipliers.length - 1) {
+                multiplierIndex++;
+                updateMultiplierDisplay();
+            } else {
+                // Max multiplier reached, cash out automatically
+                await cashOutGame(true);
             }
         });
+
+        function updateMultiplierDisplay() {
+            const currentMultiplier = multipliers[multiplierIndex];
+            document.getElementById('multiplier-display').innerText = currentMultiplier.toFixed(2) + 'x';
+
+            // Scale balloon size progressively based on multiplier index
+            const scaleFactor = 1 + (multiplierIndex * 0.03);
+            document.getElementById('balloon-element').style.transform = `scale(${Math.min(scaleFactor, 1.8)})`;
+        }
+
+        async function cashOutGame(isMaxed = false) {
+            if (!isGameActive || !currentBetId) return;
+
+            isGameActive = false;
+            const finalMultiplier = multipliers[multiplierIndex];
+            const betAmount = parseFloat(document.getElementById('bet-amount').value);
+            const payout = betAmount * finalMultiplier;
+
+            // Update Supabase original_bets_history
+            const { error } = await supabaseClient
+                .from('original_bets_history')
+                .update({
+                    multiplier: finalMultiplier,
+                    payout: payout,
+                    status: isMaxed ? 'crashed' : 'cashed_out'
+                })
+                .eq('id', currentBetId);
+
+            if (error) {
+                console.error('Update history error:', error);
+            }
+
+            // Update User Balance in profiles table
+            const profile = await getUserProfile(currentUser.id);
+            if (profile) {
+                const newBalance = Number(profile.balance || 0) + payout;
+                await supabaseClient
+                    .from('profiles')
+                    .update({ balance: newBalance })
+                    .eq('id', currentUser.id);
+                
+                document.getElementById('user-balance').innerText = newBalance.toFixed(2);
+            }
+
+            alert(isMaxed ? 'সর্বোচ্চ সীমায় পৌঁছে গেম শেষ হয়েছে!' : `সফলভাবে ক্যাশআউট হয়েছে! প্রফিট: ${payout.toFixed(2)} USDT`);
+            resetGameUI();
+        }
 
         function resetGameUI() {
-            activeBetId = null;
-            currentMultiplierIndex = 0;
-            document.getElementById('bet-action-btn').disabled = false;
-            document.getElementById('bet-action-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+            currentBetId = null;
+            multiplierIndex = 0;
+            document.getElementById('bet-amount').disabled = false;
             
+            const betBtn = document.getElementById('bet-action-btn');
+            betBtn.innerText = 'Bet';
+            betBtn.disabled = false;
+            betBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
             const pumpBtn = document.getElementById('pump-btn');
             pumpBtn.disabled = true;
-            pumpBtn.classList.add('bg-slate-700', 'text-slate-400', 'cursor-not-allowed');
+            pumpBtn.classList.add('cursor-not-allowed', 'text-slate-400');
             pumpBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'text-white');
             pumpBtn.innerText = 'Pump';
-            
-            document.getElementById('balloon-elem').style.transform = 'scale(1)';
+
+            document.getElementById('balloon-element').style.transform = 'scale(1)';
             document.getElementById('multiplier-display').innerText = '1.00x';
             initGame();
         }
