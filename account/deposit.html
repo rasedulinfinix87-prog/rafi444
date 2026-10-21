@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Deposit Funds</title>
 
   <!-- Tailwind CSS CDN -->
@@ -30,14 +30,12 @@
       --muted: #9fb3c3;
       --green: #24ee89;
     }
-    * { box-sizing: border-box; touch-action: manipulation; }
+    * { box-sizing: border-box; }
     body {
       background:
         radial-gradient(ellipse at 50% -15%, rgba(36,238,137,.10), transparent 48%),
         linear-gradient(145deg, #07131d 0%, #0a1924 48%, #06111a 100%);
       color: #f5f9fc;
-      width: 100%;
-      overflow-x: hidden;
     }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #07131d; }
@@ -200,9 +198,9 @@
     }
     .primary-action {
       width:100%; min-height:64px; border-radius:15px; padding:17px 18px;
-      color:#ffffff; font-weight:950; font-size:16px; letter-spacing:.01em;
-      background: #1F51FF;
-      box-shadow:0 10px 28px rgba(31,81,255,.25),inset 0 1px rgba(255,255,255,.35);
+      color:#032417; font-weight:950; font-size:16px; letter-spacing:.01em;
+      background:linear-gradient(110deg,#19d979,#35f7a0 50%,#12d77a);
+      box-shadow:0 10px 28px rgba(36,238,137,.16),inset 0 1px rgba(255,255,255,.35);
       transition:transform .18s,filter .18s;
     }
     .primary-action:hover { filter:brightness(1.06); transform:translateY(-1px); }
@@ -309,7 +307,7 @@
     }
     .method-card.active,
     .method-card.border-\\[\\#24ee89\\] {
-      border: 3px solid #1F51FF !important;
+      border: 3px solid #36e99b !important;
       padding: 13px !important;
       background: #303636 !important;
       box-shadow: none !important;
@@ -317,7 +315,7 @@
     .method-card.active::after {
       top: 10px !important; right: 10px !important;
       width: 28px !important; height: 28px !important;
-      background: #1F51FF !important;
+      background: #36e99b !important;
     }
     .amount-entry {
       min-height: 92px;
@@ -333,7 +331,7 @@
       font-weight: 500 !important;
     }
     .bonus-extra {
-      color: #1F51FF !important;
+      color: #36e99b !important;
       font-size: clamp(14px, 2.5vw, 22px) !important;
       font-weight: 700 !important;
     }
@@ -350,7 +348,7 @@
       font-weight: 500 !important;
     }
     .amount-btn:hover, .amount-btn.active {
-      border: 2px solid #1F51FF !important;
+      border: 2px solid #36e99b !important;
       padding: 13px 7px !important;
       background: #303636 !important;
       box-shadow: none !important;
@@ -361,7 +359,7 @@
       background: #282e2f !important;
     }
     .bonus-card.active {
-      border: 2px solid #1F51FF !important;
+      border: 2px solid #36e99b !important;
       padding: 13px 9px !important;
       background: #303636 !important;
       box-shadow: none !important;
@@ -374,35 +372,94 @@
     .primary-action {
       min-height: 76px !important;
       border-radius: 14px !important;
-      color: #ffffff !important;
-      background: #1F51FF !important;
+      color: #071c13 !important;
+      background: #2bd782 !important;
       box-shadow: none !important;
       font-size: clamp(16px, 2.5vw, 22px) !important;
     }
     #bonusLoading { color: #b9c2c4 !important; }
-    
-    /* Smooth modal transition styles */
-    #paymentModal {
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-    #paymentModal.modal-open {
-      opacity: 1;
-      visibility: visible;
-      display: flex !important;
+    @media (max-width: 600px) {
+      .deposit-shell {
+        width: calc(100% - 20px) !important;
+        padding: 22px 18px 24px !important;
+        margin: 8px auto 18px !important;
+        border-radius: 22px !important;
+      }
+      .currency-row { align-items:center !important; gap:12px !important; }
+      .currency-select { width: 56%; padding: 10px 12px !important; font-size: 18px; }
+      .currency-coin { width: 36px !important; height:36px !important; }
+      .method-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 10px !important; }
+      .method-card { min-height: 145px !important; padding: 10px !important; gap: 14px !important; }
+      .method-card .method-logo { min-height: 60px !important; }
+      .amount-grid { grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 8px !important; }
+      .amount-btn { min-height: 68px !important; padding: 10px 4px !important; }
+      .amount-entry { padding: 15px 12px !important; min-height: 76px; }
+      .amount-entry input { font-size: 20px !important; }
+      .section-block + .section-block { padding-top: 22px !important; }
     }
 
-    /* Custom Confirm Modal styling */
-    #confirmModal {
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-    #confirmModal.modal-open {
-      opacity: 1;
-      visibility: visible;
-      display: flex !important;
+
+    /* Balanced mobile sizing: fixed and stable without unwanted zoom */
+    @media screen and (max-width: 760px) {
+      .deposit-shell {
+        width: calc(100% - 28px) !important;
+        max-width: 940px !important;
+        margin: 8px auto 16px !important;
+        padding: 22px 20px !important;
+        border-radius: 23px !important;
+      }
+      .section-block {
+        padding-bottom: 17px !important;
+      }
+      .section-block + .section-block {
+        padding-top: 17px !important;
+      }
+      .section-heading {
+        margin-bottom: 13px !important;
+      }
+      .currency-row {
+        padding-bottom: 20px !important;
+        margin-bottom: 2px !important;
+      }
+      .method-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        padding: 10px !important;
+      }
+      .method-card {
+        min-height: 126px !important;
+        padding: 10px !important;
+        gap: 11px !important;
+      }
+      .method-card .method-logo {
+        min-height: 52px !important;
+      }
+      .amount-entry {
+        min-height: 68px !important;
+        padding: 12px 14px !important;
+        margin-bottom: 10px !important;
+      }
+      .amount-entry input {
+        font-size: 19px !important;
+      }
+      .amount-grid {
+        gap: 8px !important;
+      }
+      .amount-btn {
+        min-height: 58px !important;
+        padding: 9px 5px !important;
+      }
+      .bonus-card {
+        padding: 15px !important;
+        min-height: 92px !important;
+      }
+      .calculation-panel {
+        padding: 14px !important;
+      }
+      .primary-action {
+        min-height: 62px !important;
+        padding: 12px !important;
+      }
     }
 
   </style>
@@ -423,7 +480,7 @@
 
   <div id="pageContent" class="flex-1 flex flex-col">
     <header class="topbar px-4 py-3.5 flex justify-between items-center sticky top-0 z-40">
-      <a href="profile.html" class="text-sm text-slate-200 hover:text-white transition flex items-center gap-2 font-semibold">←</a>
+      <div></div>
       <span class="font-black text-sm text-[#1F51FF] tracking-wide uppercase">Deposit</span>
       <div class="w-12"></div>
     </header>
@@ -536,8 +593,8 @@
     </main>
   </div>
 
-  <!-- STEP 1: PAYMENT MODAL POPUP (Smooth Open Animation) -->
-  <div id="paymentModal" class="fixed inset-0 bg-[#202626] z-50 hidden flex-col overflow-y-auto">
+  <!-- STEP 1: PAYMENT MODAL POPUP -->
+  <div id="paymentModal" class="fixed inset-0 bg-[#202626] z-50 hidden flex-col overflow-y-auto transition-all duration-300 transform opacity-0 scale-95">
     <!-- Top Green Header Bar -->
     <div class="bg-[#00a875] text-white px-4 py-3 flex items-center justify-between shadow-md">
       <div>
@@ -587,7 +644,7 @@
       </div>
 
       <!-- Submit Button -->
-      <button type="button" id="submitDepositBtn" onclick="promptConfirmDeposit()" class="w-full py-4 bg-white text-black font-bold text-lg rounded-xl border border-slate-400 shadow hover:bg-slate-100 transition">
+      <button type="button" id="submitDepositBtn" onclick="confirmBeforeSubmit()" class="w-full py-4 bg-white text-black font-bold text-lg rounded-xl border border-slate-400 shadow hover:bg-slate-100 transition">
         Submit
       </button>
 
@@ -604,17 +661,17 @@
     </div>
   </div>
 
-  <!-- STEP 2: CONFIRMATION POPUP MODAL (Cancel & Confirm buttons) -->
-  <div id="confirmModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+  <!-- STEP 2: TRX SUBMIT CONFIRMATION POPUP (Cancel & Confirm buttons) -->
+  <div id="trxConfirmModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-[#0d1e29] border border-[#294253] rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
-      <div class="w-12 h-12 bg-blue-900/40 border border-[#1F51FF]/50 rounded-full flex items-center justify-center mx-auto text-[#1F51FF] text-xl font-bold">!</div>
+      <div class="w-12 h-12 bg-amber-900/40 border border-amber-500/50 rounded-full flex items-center justify-center mx-auto text-amber-400 text-xl font-bold">!</div>
       <div>
-        <h3 class="text-lg font-black text-white">Confirmation</h3>
-        <p class="text-sm text-slate-300 mt-2">This order can only be submitted once, please confirm your transaction details.</p>
+        <h3 class="text-base font-black text-white leading-snug">This order can only be submitted once, please confirm your TrxID</h3>
+        <p id="confirmTrxDisplay" class="text-sm font-mono text-[#1F51FF] mt-2 font-bold"></p>
       </div>
       <div class="grid grid-cols-2 gap-3 pt-2">
-        <button type="button" onclick="closeConfirmModal()" class="py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-sm transition">Cancel</button>
-        <button type="button" id="confirmSubmitBtn" onclick="submitDepositFinal()" class="py-3 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold rounded-xl text-sm transition">Confirm</button>
+        <button type="button" onclick="closeModal('trxConfirmModal')" class="py-3 px-4 bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm rounded-xl transition">Cancel</button>
+        <button type="button" id="finalConfirmBtn" onclick="executeSubmitDeposit()" class="py-3 px-4 bg-[#1F51FF] hover:opacity-90 text-white font-bold text-sm rounded-xl transition shadow">Confirm</button>
       </div>
     </div>
   </div>
@@ -622,7 +679,7 @@
   <!-- STEP 3: SUCCESS VERIFICATION MODAL POPUP -->
   <div id="verificationModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-[#0d1e29] border border-[#294253] rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
-      <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-xl">✓</div>
+      <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#1F51FF] text-xl">✓</div>
       <div>
         <h3 class="text-lg font-black text-white">Payment Verification</h3>
         <p class="text-sm text-slate-300 mt-2">Your deposit request is currently being verified. Your deposit and bonus will be credited only after the payment is approved.</p>
@@ -734,28 +791,25 @@
 
         if (bonusesResult.error) {
           console.error('Bonus settings load error:', bonusesResult.error);
-
           document.getElementById('bonusLoading').textContent =
             'Bonus settings could not be loaded. No bonus is selected.';
         } else {
-          // ইউনিক বোনাস পার্সেন্ট ফিল্টার করার লজিক (যাতে দুইবার না এসে ১ বার থাকে)
+          // ডুপ্লিকেট রিমুভ করার লজিক: একই bonus_percent ও turnover_multiplier বিশিষ্ট একাধিক এন্ট্রি ফিল্টার করে ইউনিক রাখা হলো
           const rawBonuses = bonusesResult.data || [];
-          const seenPercents = new Set();
-          
-          bonusSettings = rawBonuses.filter(item => {
+          const uniqueMap = new Map();
+
+          rawBonuses.forEach(item => {
             const percent = Number(item.bonus_percent);
             const multiplier = Number(item.turnover_multiplier);
-
             if (percent > 0 && multiplier > 0 && Number.isFinite(percent) && Number.isFinite(multiplier)) {
-              if (seenPercents.has(percent)) {
-                return false; // ডুপ্লিকেট বাদ দেওয়া হলো
+              const key = `${percent}_${multiplier}`;
+              if (!uniqueMap.has(key)) {
+                uniqueMap.set(key, item);
               }
-              seenPercents.add(percent);
-              return true;
             }
-            return false;
           });
 
+          bonusSettings = Array.from(uniqueMap.values());
           renderBonusOptions();
         }
 
@@ -866,7 +920,6 @@
         document.getElementById('bonus-none')?.classList.add('active');
       } else {
         const index = bonusSettings.findIndex(item => item.id === bonus.id);
-
         document.getElementById(`bonus-option-${index}`)?.classList.add('active');
       }
 
@@ -952,14 +1005,26 @@
       document.getElementById('modalNumber').innerText = payNum || 'Not configured';
       document.getElementById('modalTrxId').value = '';
 
-      // Smooth Animation Open Modal
+      // Smooth opening animation with class toggling
       const modal = document.getElementById('paymentModal');
-      modal.classList.add('modal-open');
+      modal.classList.remove('hidden');
+      modal.classList.remove('opacity-0', 'scale-95');
+      modal.classList.add('flex', 'opacity-100', 'scale-100');
     }
 
     function closeModal(modalId) {
       const modal = document.getElementById(modalId);
-      modal.classList.remove('modal-open');
+      if (modalId === 'paymentModal') {
+        modal.classList.remove('opacity-100', 'scale-100');
+        modal.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }, 200);
+      } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
     }
 
     async function copyNumber() {
@@ -978,32 +1043,29 @@
       }
     }
 
-    // ট্রানজেকশন সাবমিট করার আগে কনফার্মেশন পপ-আপ ওপেন করার ফাংশন
-    function promptConfirmDeposit() {
+    // সাবমিটে ক্লিক করলে কনফার্মেশন পপ-আপ ওপেন হবে
+    function confirmBeforeSubmit() {
       const trxId = document.getElementById('modalTrxId').value.trim();
+
       if (!trxId) {
         alert('Please enter your Transaction ID (TrxID)');
         return;
       }
-      
-      // পেমেন্ট মডাল হাইড না করে কনফার্মেশন পপ-আপ স্মুথ অ্যানিমেশনের মাধ্যমে ওপেন করা
-      const confirmModal = document.getElementById('confirmModal');
-      confirmModal.classList.add('modal-open');
+
+      document.getElementById('confirmTrxDisplay').innerText = `TrxID: ${trxId}`;
+      const confirmModal = document.getElementById('trxConfirmModal');
+      confirmModal.classList.remove('hidden');
+      confirmModal.classList.add('flex');
     }
 
-    function closeConfirmModal() {
-      const confirmModal = document.getElementById('confirmModal');
-      confirmModal.classList.remove('modal-open');
-    }
-
-    // কনফার্ম করার পর ডেটাবেজে সাবমিট লজিক এক্সিকিউট হবে
-    async function submitDepositFinal() {
+    // কনফার্ম বাটনে ক্লিক করলে ডেটাবেজে জমা হবে
+    async function executeSubmitDeposit() {
       if (isSubmitting) return;
 
-      closeConfirmModal();
-
       const trxId = document.getElementById('modalTrxId').value.trim();
-      const btn = document.getElementById('submitDepositBtn');
+      const btn = document.getElementById('finalConfirmBtn');
+
+      closeModal('trxConfirmModal');
 
       if (!currentUserId) {
         alert('Your login session is missing. Please log in again.');
@@ -1019,7 +1081,6 @@
 
       isSubmitting = true;
       btn.disabled = true;
-      btn.innerText = 'Processing...';
 
       depositQueue = depositQueue.then(async () => {
         try {
@@ -1132,7 +1193,6 @@
         } finally {
           isSubmitting = false;
           btn.disabled = false;
-          btn.innerText = 'Submit';
         }
       });
 
