@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Deposit Funds</title>
 
   <!-- Tailwind CSS CDN -->
@@ -30,12 +30,14 @@
       --muted: #9fb3c3;
       --green: #24ee89;
     }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; touch-action: manipulation; }
     body {
       background:
         radial-gradient(ellipse at 50% -15%, rgba(36,238,137,.10), transparent 48%),
         linear-gradient(145deg, #07131d 0%, #0a1924 48%, #06111a 100%);
       color: #f5f9fc;
+      width: 100%;
+      overflow-x: hidden;
     }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #07131d; }
@@ -198,9 +200,9 @@
     }
     .primary-action {
       width:100%; min-height:64px; border-radius:15px; padding:17px 18px;
-      color:#032417; font-weight:950; font-size:16px; letter-spacing:.01em;
-      background:linear-gradient(110deg,#19d979,#35f7a0 50%,#12d77a);
-      box-shadow:0 10px 28px rgba(36,238,137,.16),inset 0 1px rgba(255,255,255,.35);
+      color:#ffffff; font-weight:950; font-size:16px; letter-spacing:.01em;
+      background: #1F51FF;
+      box-shadow:0 10px 28px rgba(31,81,255,.25),inset 0 1px rgba(255,255,255,.35);
       transition:transform .18s,filter .18s;
     }
     .primary-action:hover { filter:brightness(1.06); transform:translateY(-1px); }
@@ -307,7 +309,7 @@
     }
     .method-card.active,
     .method-card.border-\\[\\#24ee89\\] {
-      border: 3px solid #36e99b !important;
+      border: 3px solid #1F51FF !important;
       padding: 13px !important;
       background: #303636 !important;
       box-shadow: none !important;
@@ -315,7 +317,7 @@
     .method-card.active::after {
       top: 10px !important; right: 10px !important;
       width: 28px !important; height: 28px !important;
-      background: #36e99b !important;
+      background: #1F51FF !important;
     }
     .amount-entry {
       min-height: 92px;
@@ -331,7 +333,7 @@
       font-weight: 500 !important;
     }
     .bonus-extra {
-      color: #36e99b !important;
+      color: #1F51FF !important;
       font-size: clamp(14px, 2.5vw, 22px) !important;
       font-weight: 700 !important;
     }
@@ -348,7 +350,7 @@
       font-weight: 500 !important;
     }
     .amount-btn:hover, .amount-btn.active {
-      border: 2px solid #36e99b !important;
+      border: 2px solid #1F51FF !important;
       padding: 13px 7px !important;
       background: #303636 !important;
       box-shadow: none !important;
@@ -359,7 +361,7 @@
       background: #282e2f !important;
     }
     .bonus-card.active {
-      border: 2px solid #36e99b !important;
+      border: 2px solid #1F51FF !important;
       padding: 13px 9px !important;
       background: #303636 !important;
       box-shadow: none !important;
@@ -372,108 +374,42 @@
     .primary-action {
       min-height: 76px !important;
       border-radius: 14px !important;
-      color: #071c13 !important;
-      background: #2bd782 !important;
+      color: #ffffff !important;
+      background: #1F51FF !important;
       box-shadow: none !important;
       font-size: clamp(16px, 2.5vw, 22px) !important;
     }
     #bonusLoading { color: #b9c2c4 !important; }
-    @media (max-width: 600px) {
-      .deposit-shell {
-        width: calc(100% - 20px) !important;
-        padding: 22px 18px 24px !important;
-        margin: 8px auto 18px !important;
-        border-radius: 22px !important;
-      }
-      .currency-row { align-items:center !important; gap:12px !important; }
-      .currency-select { width: 56%; padding: 10px 12px !important; font-size: 18px; }
-      .currency-coin { width: 36px !important; height:36px !important; }
-      .method-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 10px !important; }
-      .method-card { min-height: 145px !important; padding: 10px !important; gap: 14px !important; }
-      .method-card .method-logo { min-height: 60px !important; }
-      .amount-grid { grid-template-columns: repeat(3,minmax(0,1fr)) !important; gap: 8px !important; }
-      .amount-btn { min-height: 68px !important; padding: 10px 4px !important; }
-      .amount-entry { padding: 15px 12px !important; min-height: 76px; }
-      .amount-entry input { font-size: 20px !important; }
-      .section-block + .section-block { padding-top: 22px !important; }
+    
+    /* Smooth modal transition styles */
+    #paymentModal {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #paymentModal.modal-open {
+      opacity: 1;
+      visibility: visible;
+      display: flex !important;
     }
 
-
-    /* Balanced mobile sizing: moderately compact, not overly zoomed out */
-    @media screen and (max-width: 760px) {
-      html {
-        zoom: 0.82;
-      }
-      body {
-        width: 121.95% !important;
-        min-height: 100vh;
-      }
-      .deposit-shell {
-        width: calc(100% - 28px) !important;
-        max-width: 940px !important;
-        margin: 8px auto 16px !important;
-        padding: 22px 20px !important;
-        border-radius: 23px !important;
-      }
-      .section-block {
-        padding-bottom: 17px !important;
-      }
-      .section-block + .section-block {
-        padding-top: 17px !important;
-      }
-      .section-heading {
-        margin-bottom: 13px !important;
-      }
-      .currency-row {
-        padding-bottom: 20px !important;
-        margin-bottom: 2px !important;
-      }
-      .method-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 10px !important;
-        padding: 10px !important;
-      }
-      .method-card {
-        min-height: 126px !important;
-        padding: 10px !important;
-        gap: 11px !important;
-      }
-      .method-card .method-logo {
-        min-height: 52px !important;
-      }
-      .amount-entry {
-        min-height: 68px !important;
-        padding: 12px 14px !important;
-        margin-bottom: 10px !important;
-      }
-      .amount-entry input {
-        font-size: 19px !important;
-      }
-      .amount-grid {
-        gap: 8px !important;
-      }
-      .amount-btn {
-        min-height: 58px !important;
-        padding: 9px 5px !important;
-      }
-      .bonus-card {
-        padding: 15px !important;
-        min-height: 92px !important;
-      }
-      .calculation-panel {
-        padding: 14px !important;
-      }
-      .primary-action {
-        min-height: 62px !important;
-        padding: 12px !important;
-      }
+    /* Custom Confirm Modal styling */
+    #confirmModal {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #confirmModal.modal-open {
+      opacity: 1;
+      visibility: visible;
+      display: flex !important;
     }
 
   </style>
 
 </head>
 
-<body class="min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black">
+<body class="min-h-screen flex flex-col font-sans antialiased selection:bg-[#1F51FF] selection:text-white">
 
   <!-- 4-SECOND SECURE LOADER ANIMATION OVERLAY -->
   <div id="secureLoader">
@@ -487,8 +423,8 @@
 
   <div id="pageContent" class="flex-1 flex flex-col">
     <header class="topbar px-4 py-3.5 flex justify-between items-center sticky top-0 z-40">
-      <a href="profile.html" class="text-sm text-slate-200 hover:text-white transition flex items-center gap-2 font-semibold">← Profile</a>
-      <span class="font-black text-sm text-[#24ee89] tracking-wide uppercase">Deposit</span>
+      <a href="profile.html" class="text-sm text-slate-200 hover:text-white transition flex items-center gap-2 font-semibold">←</a>
+      <span class="font-black text-sm text-[#1F51FF] tracking-wide uppercase">Deposit</span>
       <div class="w-12"></div>
     </header>
 
@@ -520,7 +456,7 @@
         </div>
 
         <div class="method-grid" id="methodGrid">
-          <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card border-[#24ee89] border-2">
+          <button type="button" onclick="selectMethod('bKash')" id="method-bKash" class="method-card border-[#1F51FF] border-2">
             <span class="method-logo"><span class="text-pink-500">bKash</span> <span class="text-pink-500 text-2xl">➤</span></span>
             <span class="method-label">BKASH ↗</span>
           </button>
@@ -587,11 +523,11 @@
           </div>
           <div class="summary-row">
             <span class="text-slate-300">Bonus Amount</span>
-            <span id="summaryBonus" class="font-bold text-[#24ee89]">+৳0.00</span>
+            <span id="summaryBonus" class="font-bold text-[#1F51FF]">+৳0.00</span>
           </div>
           <div class="border-t border-slate-700 pt-3 summary-row">
             <span class="font-bold text-white">Total After Bonus</span>
-            <span id="summaryTotal" class="font-black text-lg text-[#24ee89]">৳0.00</span>
+            <span id="summaryTotal" class="font-black text-lg text-[#1F51FF]">৳0.00</span>
           </div>
         </div>
       </section>
@@ -600,7 +536,7 @@
     </main>
   </div>
 
-  <!-- STEP 1: PAYMENT MODAL POPUP (Redesigned like a new page as per screenshot) -->
+  <!-- STEP 1: PAYMENT MODAL POPUP (Smooth Open Animation) -->
   <div id="paymentModal" class="fixed inset-0 bg-[#202626] z-50 hidden flex-col overflow-y-auto">
     <!-- Top Green Header Bar -->
     <div class="bg-[#00a875] text-white px-4 py-3 flex items-center justify-between shadow-md">
@@ -609,7 +545,7 @@
         <div class="text-xs tracking-wide">Do not change the amount.</div>
       </div>
       <div class="bg-[#202626] text-white text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1 shadow">
-        <span class="text-[#24ee89]">PAY</span> SERVICE
+        <span class="text-[#1F51FF]">PAY</span> SERVICE
       </div>
     </div>
 
@@ -651,7 +587,7 @@
       </div>
 
       <!-- Submit Button -->
-      <button type="button" id="submitDepositBtn" onclick="submitDeposit()" class="w-full py-4 bg-white text-black font-bold text-lg rounded-xl border border-slate-400 shadow hover:bg-slate-100 transition">
+      <button type="button" id="submitDepositBtn" onclick="promptConfirmDeposit()" class="w-full py-4 bg-white text-black font-bold text-lg rounded-xl border border-slate-400 shadow hover:bg-slate-100 transition">
         Submit
       </button>
 
@@ -668,7 +604,22 @@
     </div>
   </div>
 
-  <!-- STEP 2: SUCCESS VERIFICATION MODAL POPUP -->
+  <!-- STEP 2: CONFIRMATION POPUP MODAL (Cancel & Confirm buttons) -->
+  <div id="confirmModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-[#0d1e29] border border-[#294253] rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="w-12 h-12 bg-blue-900/40 border border-[#1F51FF]/50 rounded-full flex items-center justify-center mx-auto text-[#1F51FF] text-xl font-bold">!</div>
+      <div>
+        <h3 class="text-lg font-black text-white">Confirmation</h3>
+        <p class="text-sm text-slate-300 mt-2">This order can only be submitted once, please confirm your transaction details.</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <button type="button" onclick="closeConfirmModal()" class="py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl text-sm transition">Cancel</button>
+        <button type="button" id="confirmSubmitBtn" onclick="submitDepositFinal()" class="py-3 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold rounded-xl text-sm transition">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: SUCCESS VERIFICATION MODAL POPUP -->
   <div id="verificationModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-[#0d1e29] border border-[#294253] rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
       <div class="w-12 h-12 bg-emerald-900/40 border border-emerald-500/50 rounded-full flex items-center justify-center mx-auto text-[#24ee89] text-xl">✓</div>
@@ -690,7 +641,6 @@
     let selectedBonus = null;
     let isSubmitting = false;
 
-    // সিকুইয়েন্সিয়াল কিউ লক গ্লোবাল ভেরিয়েবল
     let depositQueue = Promise.resolve();
 
     const MIN_DEPOSIT = 100;
@@ -788,14 +738,22 @@
           document.getElementById('bonusLoading').textContent =
             'Bonus settings could not be loaded. No bonus is selected.';
         } else {
-          bonusSettings = (bonusesResult.data || []).filter(item => {
+          // ইউনিক বোনাস পার্সেন্ট ফিল্টার করার লজিক (যাতে দুইবার না এসে ১ বার থাকে)
+          const rawBonuses = bonusesResult.data || [];
+          const seenPercents = new Set();
+          
+          bonusSettings = rawBonuses.filter(item => {
             const percent = Number(item.bonus_percent);
             const multiplier = Number(item.turnover_multiplier);
 
-            return percent > 0 &&
-              multiplier > 0 &&
-              Number.isFinite(percent) &&
-              Number.isFinite(multiplier);
+            if (percent > 0 && multiplier > 0 && Number.isFinite(percent) && Number.isFinite(multiplier)) {
+              if (seenPercents.has(percent)) {
+                return false; // ডুপ্লিকেট বাদ দেওয়া হলো
+              }
+              seenPercents.add(percent);
+              return true;
+            }
+            return false;
           });
 
           renderBonusOptions();
@@ -839,7 +797,7 @@
       if (depositButtonMethod) depositButtonMethod.textContent = method.toUpperCase();
 
       document.querySelectorAll('.method-card').forEach(card => {
-        card.classList.remove('border-[#24ee89]', 'border-2');
+        card.classList.remove('border-[#1F51FF]', 'border-2');
         card.classList.add('border-[#0F212E]');
       });
 
@@ -847,7 +805,7 @@
 
       if (activeBtn) {
         activeBtn.classList.remove('border-[#0F212E]');
-        activeBtn.classList.add('border-[#24ee89]', 'border-2');
+        activeBtn.classList.add('border-[#1F51FF]', 'border-2');
       }
     }
 
@@ -973,7 +931,6 @@
 
       selectedAmount = finalAmt;
 
-      // Update Modal Dynamic Field Values matching the screenshot design
       const uppercaseMethod = selectedMethod.toUpperCase();
       document.getElementById('topHeaderAmount').innerText = `BDT ${selectedAmount}`;
       document.getElementById('warningAmountText').innerText = `${selectedAmount} BDT`;
@@ -982,7 +939,6 @@
       document.getElementById('footerMethodName').innerText = uppercaseMethod;
       document.getElementById('infoTransferAmount').innerText = `${selectedAmount} BDT`;
 
-      // Set brand color theme for method box dynamically
       const methodBox = document.getElementById('modalMethodBox');
       if (selectedMethod.toLowerCase() === 'nagad') {
         methodBox.className = 'w-full bg-orange-600 text-white py-4 rounded-xl text-center text-xl font-bold shadow-lg';
@@ -996,16 +952,14 @@
       document.getElementById('modalNumber').innerText = payNum || 'Not configured';
       document.getElementById('modalTrxId').value = '';
 
-      // Open Modal as full screen
+      // Smooth Animation Open Modal
       const modal = document.getElementById('paymentModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      modal.classList.add('modal-open');
     }
 
     function closeModal(modalId) {
       const modal = document.getElementById(modalId);
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      modal.classList.remove('modal-open');
     }
 
     async function copyNumber() {
@@ -1024,17 +978,32 @@
       }
     }
 
-    // ১০০% সিকিউরড কিউ ভিত্তিক সাবমিট লজিক (রিসেট বা বকেয়া রাখার সঠিক সংশোধিত সংস্করণ)
-    async function submitDeposit() {
-      if (isSubmitting) return;
-
+    // ট্রানজেকশন সাবমিট করার আগে কনফার্মেশন পপ-আপ ওপেন করার ফাংশন
+    function promptConfirmDeposit() {
       const trxId = document.getElementById('modalTrxId').value.trim();
-      const btn = document.getElementById('submitDepositBtn');
-
       if (!trxId) {
         alert('Please enter your Transaction ID (TrxID)');
         return;
       }
+      
+      // পেমেন্ট মডাল হাইড না করে কনফার্মেশন পপ-আপ স্মুথ অ্যানিমেশনের মাধ্যমে ওপেন করা
+      const confirmModal = document.getElementById('confirmModal');
+      confirmModal.classList.add('modal-open');
+    }
+
+    function closeConfirmModal() {
+      const confirmModal = document.getElementById('confirmModal');
+      confirmModal.classList.remove('modal-open');
+    }
+
+    // কনফার্ম করার পর ডেটাবেজে সাবমিট লজিক এক্সিকিউট হবে
+    async function submitDepositFinal() {
+      if (isSubmitting) return;
+
+      closeConfirmModal();
+
+      const trxId = document.getElementById('modalTrxId').value.trim();
+      const btn = document.getElementById('submitDepositBtn');
 
       if (!currentUserId) {
         alert('Your login session is missing. Please log in again.');
@@ -1052,7 +1021,6 @@
       btn.disabled = true;
       btn.innerText = 'Processing...';
 
-      // সিকোয়েন্সিয়াল প্রমিজ কিউ ব্যবহার করে ডেটাবেজ আপডেট নিশ্চিত করা হলো
       depositQueue = depositQueue.then(async () => {
         try {
           const { data: existingTrx, error: duplicateError } =
@@ -1097,7 +1065,6 @@
             return;
           }
 
-          // profiles টেবিলের active_turnover_required এবং last_deposit_turnover_required আপডেট করার সংশোধিত লজিক
           let updated = false;
           let retries = 3;
 
@@ -1112,7 +1079,6 @@
               const existingRequired = Number(currentProfile?.active_turnover_required || 0);
               const prevLastDepositReq = Number(currentProfile?.last_deposit_turnover_required || 0);
 
-              // গেম হিস্ট্রি থেকে টোটাল কমপ্লিটেড টার্নওভার হিসাব করা
               const [originalRes, colorRes] = await Promise.all([
                 supabaseClient.from('original_bets_history').select('bet_amount').eq('user_id', currentUserId),
                 supabaseClient.from('color_game_history').select('bet_amount').eq('user_id', currentUserId)
@@ -1129,18 +1095,13 @@
               let newActiveTurnover = 0;
               let newLastDepositTurnover = Number(calculation.turnoverRequired);
 
-              // যদি আগের টার্নওভার বকেয়া থাকে (কমপ্লিট না হয়ে থাকে), তবে আগের বকেয়ার সাথে নতুন রিকোয়ারমেন্ট যোগ হবে।
-              // আর যদি আগের টার্নওভার পুরোপুরি কমপ্লিট হয়ে গিয়ে থাকে, তবে আগের last_deposit_turnover_required মানটি সুরক্ষিত থাকবে এবং নতুন ডিপোজিটের রিকোয়ারমেন্ট যুক্ত হবে।
               if (existingRequired > 0 && totalCompleted < existingRequired) {
                 newActiveTurnover = existingRequired + newLastDepositTurnover;
-                // বকেয়া থাকলে পূর্বের শেষ ডিপোজিটের মান অক্ষুণ্ণ রাখা বা সামঞ্জস্য রাখা
                 newLastDepositTurnover = prevLastDepositReq > 0 ? prevLastDepositReq : newLastDepositTurnover;
               } else {
-                // কমপ্লিট হয়ে গেলে নতুন সাইকেল শুরু হবে
                 newActiveTurnover = newLastDepositTurnover;
               }
 
-              // active_turnover_required এবং last_deposit_turnover_required একসাথে আপডেট করা হলো যাতে রিসেটজনিত সমস্যা না হয়
               const { error: updateError } = await supabaseClient
                 .from('profiles')
                 .update({ 
