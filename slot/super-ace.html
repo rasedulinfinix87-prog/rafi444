@@ -37,7 +37,6 @@
             
             <!-- Balloon Graphic & Multiplier Area -->
             <div class="relative w-full h-44 flex flex-col items-center justify-center mb-4">
-                <!-- Balloon with dynamic scaling on pump -->
                 <div id="balloon-element" class="relative w-28 h-32 bg-blue-600 rounded-[50%_50%_50%_50%/40%_40%_60%_60%] flex flex-col items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.5)] scale-100">
                     <div class="absolute top-3 right-4 w-2.5 h-2.5 bg-white/60 rounded-full"></div>
                     <span id="multiplier-display" class="text-2xl font-extrabold text-white">1.00x</span>
@@ -152,7 +151,7 @@
             document.getElementById('amount-usd').innerText = '$' + val.toFixed(2);
         });
 
-        // Bet Button Click -> Start Game & Enable Pump
+        // Bet Button Click -> Start Game & Activate Pump Button Immediately
         document.getElementById('bet-action-btn').addEventListener('click', async () => {
             const betAmount = parseFloat(document.getElementById('bet-amount').value);
             if (!currentUser || isNaN(betAmount) || betAmount < 1) {
@@ -182,22 +181,23 @@
                 isGameActive = true;
                 currentStepIndex = 0;
 
-                // Lock bet controls and activate pump button
+                // Lock bet amount input & bet button
                 document.getElementById('bet-amount').disabled = true;
                 document.getElementById('bet-action-btn').disabled = true;
                 document.getElementById('bet-action-btn').classList.add('opacity-50', 'cursor-not-allowed');
 
+                // Automatically activate and style the Pump button
                 const pumpBtn = document.getElementById('pump-btn');
                 pumpBtn.disabled = false;
                 pumpBtn.classList.remove('bg-[#23304a]', 'text-slate-400', 'cursor-not-allowed');
-                pumpBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'text-white');
+                pumpBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'text-white', 'shadow-lg');
                 pumpBtn.innerText = "Pump / Cash Out";
 
                 updateMultiplierDisplay();
             }
         });
 
-        // Pump Button Click -> Progress Multiplier & Grow Balloon
+        // Pump Button Click -> Increases Multiplier Step-by-Step, or Cash Out if clicked again at desired stage
         document.getElementById('pump-btn').addEventListener('click', async () => {
             if (!isGameActive) return;
 
@@ -205,7 +205,7 @@
                 currentStepIndex++;
                 updateMultiplierDisplay();
             } else {
-                // Max reached, auto cashout
+                // If maximum limit reached, trigger cash out automatically
                 await cashOutGame();
             }
         });
@@ -214,7 +214,7 @@
             const currentMultiplier = multiplierSteps[currentStepIndex];
             document.getElementById('multiplier-display').innerText = currentMultiplier.toFixed(2) + 'x';
 
-            // Grow balloon visual scale gradually based on step index
+            // Scale balloon smoothly as it pumps up
             const scaleValue = 1 + (currentStepIndex * 0.03);
             document.getElementById('balloon-element').style.transform = `scale(${scaleValue})`;
         }
@@ -226,7 +226,7 @@
             const betAmount = parseFloat(document.getElementById('bet-amount').value);
             const payout = betAmount * finalMultiplier;
 
-            // Update Supabase History Table
+            // Update Supabase History Table with win status, multiplier and payout
             const { error } = await supabaseClient
                 .from('original_bets_history')
                 .update({
@@ -240,7 +240,7 @@
                 console.error('Cashout error:', error);
                 alert('ক্যাশআউট আপডেট করতে সমস্যা হয়েছে।');
             } else {
-                alert(`সফলভাবে ক্যাশআউট হয়েছে! মাল্টিপ্লায়্যার: ${finalMultiplier}x, পেআউট: ${payout.toFixed(2)}`);
+                alert(`সফলভাবে ক্যাশআউট হয়েছে! মাল্টিপ্লায়্যার: ${finalMultiplier}x, পেআউট: ${payout.toFixed(2)} USDT`);
                 resetGameUI();
                 initGame();
             }
@@ -258,21 +258,13 @@
 
             const pumpBtn = document.getElementById('pump-btn');
             pumpBtn.disabled = true;
-            pumpBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'text-white');
+            pumpBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'text-white', 'shadow-lg');
             pumpBtn.classList.add('bg-[#23304a]', 'text-slate-400', 'cursor-not-allowed');
             pumpBtn.innerText = "Pump";
 
             document.getElementById('multiplier-display').innerText = "1.00x";
             document.getElementById('balloon-element').style.transform = 'scale(1)';
         }
-
-        // Allow Pump button to act as Cash Out when game is active
-        document.getElementById('pump-btn').addEventListener('contextmenu', async (e) => {
-            e.preventDefault();
-            if (isGameActive) {
-                await cashOutGame();
-            }
-        });
 
         window.addEventListener('DOMContentLoaded', () => {
             initGame();
