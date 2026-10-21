@@ -1,159 +1,164 @@
-
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>My Slot Lobby</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slot Game Hub & Casino Lobby</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      margin: 0;
-      padding: 14px;
-      background: #101820;
-      color: white;
-      font-family: Arial, sans-serif;
+      background: #0b141a;
+      color: #f5f7f7;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    h2 { color: #37e6a0; }
-    input, select {
-      box-sizing: border-box;
-      width: 100%;
-      padding: 12px;
-      margin: 5px 0 12px;
-      border-radius: 8px;
-      border: 0;
+    .card-bg {
+      background: linear-gradient(145deg, #16222a, #10171d);
+      border: 1px solid #263845;
     }
-    .games {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .game {
-      background: #202d39;
-      padding: 9px;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .game img {
-      width: 100%;
-      aspect-ratio: 4/3;
-      object-fit: cover;
-      border-radius: 7px;
-    }
-    .name { font-weight: bold; margin: 8px 0; }
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #16b978;
-      color: white;
-      border: 0;
-      border-radius: 7px;
-    }
-    #status { color: #ffd166; }
   </style>
 </head>
-<body>
-  <h2>🎰 My Slot Lobby</h2>
-  <input id="search" placeholder="গেমের নাম লিখুন...">
-  <select id="provider">
-    <option value="">সব Provider</option>
-  </select>
-  <p id="status">গেম লোড হচ্ছে...</p>
-  <div class="games" id="games"></div>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-[#10171d] border-b border-[#263845] py-4 px-6 flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-50">
+    <div class="text-xl font-black text-[#24ee89] tracking-wider uppercase">🎰 Slot Game Hub</div>
+    <div class="flex items-center gap-3 w-full md:w-auto">
+      <input type="text" id="searchInput" placeholder="Search slots or providers..." class="bg-[#16222a] border border-[#263845] rounded-xl px-4 py-2 text-sm text-white w-full md:w-64 focus:outline-none focus:border-[#24ee89]">
+      <select id="providerFilter" class="bg-[#16222a] border border-[#263845] rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#24ee89]">
+        <option value="">All Providers</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+    <div class="mb-6 flex justify-between items-center">
+      <h2 class="text-lg font-bold text-slate-200">Available Slot Games (<span id="gameCount">0</span>)</h2>
+    </div>
+
+    <!-- Games Grid -->
+    <div id="gamesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      <!-- Dynamic Games Loaded Here -->
+    </div>
+  </main>
+
+  <!-- Game Demo Modal -->
+  <div id="demoModal" class="fixed inset-0 bg-black/90 z-50 hidden flex-col items-center justify-center p-4">
+    <div class="w-full max-w-4xl h-[80vh] flex flex-col bg-[#10171d] border border-[#263845] rounded-2xl overflow-hidden shadow-2xl">
+      <div class="flex justify-between items-center px-4 py-3 bg-[#16222a] border-b border-[#263845]">
+        <h3 id="modalTitle" class="font-bold text-white text-base">Game Demo</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      </div>
+      <div class="flex-1 bg-black relative">
+        <iframe id="demoIframe" src="" class="w-full h-full border-0"></iframe>
+      </div>
+    </div>
+  </div>
 
   <script>
-    const API = "https://demo.slotindex.io/api/slots";
-    const BASE = "https://demo.slotindex.io";
-    let slots = [];
+    // Combined Data from provided files
+    const gamesData = [
+      { name: "Arctic Sorcerer", slug: "artic-sorcerer", provider: "bad-dingo", rtp: 96.2, volatility: "medium", has_demo: false, embed_url: null },
+      { name: "Aztec Apocalypse PrizeMatch", slug: "aztec-apocalypse-prizematch", provider: "kalamba-games", rtp: 96, volatility: "high", has_demo: true, embed_url: "https://demo.slotindex.io/embed/aztec-apocalypse-prizematch" },
+      { name: "Desert Scarabs PrizeTower™", slug: "desert-scarabs-prizetower", provider: "kalamba-games", rtp: 96.43, volatility: "low", has_demo: true, embed_url: "https://demo.slotindex.io/embed/desert-scarabs-prizetower" },
+      { name: "Gold Fever Mine All Mine™", slug: "gold-fever-mine-all-mine", provider: "inspired-gaming", rtp: 94.5, volatility: "low", has_demo: true, embed_url: "https://demo.slotindex.io/embed/gold-fever-mine-all-mine" },
+      { name: "Midas Dynasty Coins Ultra Link&Win", slug: "midas-dynasty-coins-ultra-link-win", provider: "just-for-the-win", rtp: 96.12, volatility: "high", has_demo: true, embed_url: "https://demo.slotindex.io/embed/midas-dynasty-coins-ultra-link-win" },
+      { name: "Sidewinder DoubleMax", slug: "sidewinder-doublemax", provider: "reflex-gaming", rtp: 95.5, volatility: "high", has_demo: true, embed_url: "https://demo.slotindex.io/embed/sidewinder-doublemax" },
+      { name: "Stellarcade Power Combo", slug: "stellarcade-power-combo", provider: "just-for-the-win", rtp: 96.13, volatility: "high", has_demo: true, embed_url: "https://demo.slotindex.io/embed/stellarcade-power-combo" },
+      { name: "10000 BC 2 DoubleMax™", slug: "10000-bc-2-doublemax", provider: "4theplayer", rtp: 94, volatility: "high", has_demo: true, embed_url: "https://demo.slotindex.io/embed/10000-bc-2-doublemax" },
+      { name: "101 Candies", slug: "101-candies", provider: "netent", rtp: 96.08, volatility: "medium", has_demo: true, embed_url: "https://demo.slotindex.io/embed/101-candies" },
+      { name: "1429 Uncharted Seas®", slug: "1429-uncharted-seas", provider: "thunderkick", rtp: 98.6, volatility: "low", has_demo: true, embed_url: "https://demo.slotindex.io/embed/1429-uncharted-seas" }
+    ];
 
-    const games = document.getElementById("games");
-    const search = document.getElementById("search");
-    const provider = document.getElementById("provider");
-    const status = document.getElementById("status");
+    const providersData = [
+      { name: "4ThePlayer", slug: "4theplayer", country: "UK" },
+      { name: "Betsoft", slug: "betsoft", country: "MT" },
+      { name: "Microgaming", slug: "microgaming", country: "US" },
+      { name: "NetEnt", slug: "netent", country: "SE" },
+      { name: "Pragmatic Play", slug: "pragmatic-play", country: "MT" },
+      { name: "Kalamba Games", slug: "kalamba-games", country: "MT" },
+      { name: "Thunderkick", slug: "thunderkick", country: "MT" }
+    ];
 
-    async function init() {
-      try {
-        const response = await fetch(API);
-        if (!response.ok) throw new Error("API error");
-        slots = await response.json();
-
-        const providers = [...new Set(
-          slots.map(s => s.provider).filter(Boolean)
-        )].sort();
-
-        providers.forEach(p => {
-          const option = document.createElement("option");
-          option.value = p;
-          option.textContent = p;
-          provider.appendChild(option);
-        });
-
-        status.textContent = slots.length + " টি গেম পাওয়া গেছে";
-        render();
-      } catch (error) {
-        status.textContent =
-          "গেম লোড হয়নি। ইন্টারনেট, API বা CORS পরীক্ষা করুন।";
-      }
+    function initFilter() {
+      const select = document.getElementById('providerFilter');
+      providersData.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.slug;
+        opt.textContent = p.name;
+        select.appendChild(opt);
+      });
     }
 
-    function render() {
-      games.replaceChildren();
-      const q = search.value.toLowerCase();
+    function renderGames(filteredList) {
+      const grid = document.getElementById('gamesGrid');
+      grid.innerHTML = '';
+      document.getElementById('gameCount').textContent = filteredList.length;
 
-      const filtered = slots.filter(s =>
-        (s.name || "").toLowerCase().includes(q) &&
-        (!provider.value || s.provider === provider.value)
-      );
+      if (filteredList.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-10">No games found.</div>`;
+        return;
+      }
 
-      filtered.slice(0, 100).forEach(s => {
-        const card = document.createElement("div");
-        card.className = "game";
+      filteredList.forEach(game => {
+        const card = document.createElement('div');
+        card.className = 'card-bg rounded-2xl p-4 flex flex-col justify-between gap-4 shadow-lg';
+        
+        card.innerHTML = `
+          <div>
+            <div class="flex justify-between items-start gap-2 mb-2">
+              <h3 class="font-bold text-white text-base leading-snug">${game.name}</h3>
+              <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded uppercase font-semibold">${game.volatility || 'N/A'}</span>
+            </div>
+            <p class="text-xs text-slate-400 uppercase tracking-wide">Provider: <span class="text-[#24ee89] font-semibold">${game.provider}</span></p>
+            <p class="text-xs text-slate-400 mt-1">RTP: <span class="text-amber-400 font-bold">${game.rtp}%</span></p>
+          </div>
+          <div>
+            ${game.has_demo && game.embed_url ? 
+              `<button onclick="openDemo('${game.embed_url}', '${game.name}')" class="w-full py-2.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-xl shadow hover:brightness-110 transition">Play Demo</button>` :
+              `<button disabled class="w-full py-2.5 bg-slate-800 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed">Demo Unavailable</button>`
+            }
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
 
-        const img = document.createElement("img");
-        if (s.thumbnail_url) {
-          img.src = s.thumbnail_url.startsWith("https://")
-            ? s.thumbnail_url
-            : BASE + s.thumbnail_url;
-        }
-        img.alt = s.name || "Slot game";
-        img.loading = "lazy";
+    function openDemo(url, name) {
+      document.getElementById('modalTitle').textContent = name;
+      document.getElementById('demoIframe').src = url;
+      const modal = document.getElementById('demoModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
 
-        const name = document.createElement("div");
-        name.className = "name";
-        name.textContent = s.name || "Unnamed game";
+    function closeModal() {
+      const modal = document.getElementById('demoModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('demoIframe').src = '';
+    }
 
-        const studio = document.createElement("p");
-        studio.textContent = s.provider || "Unknown provider";
+    // Search and Filter Event Listeners
+    document.getElementById('searchInput').addEventListener('input', filterGames);
+    document.getElementById('providerFilter').addEventListener('change', filterGames);
 
-        card.append(img, name, studio);
+    function filterGames() {
+      const searchTxt = document.getElementById('searchInput').value.toLowerCase();
+      const selectedProv = document.getElementById('providerFilter').value;
 
-        if (s.has_demo && s.embed_url &&
-            s.embed_url.startsWith(BASE + "/embed/")) {
-          const btn = document.createElement("button");
-          btn.textContent = "Play Demo";
-          btn.onclick = () => {
-            window.open(s.embed_url, "_blank", "noopener");
-          };
-          card.appendChild(btn);
-        } else {
-          const note = document.createElement("p");
-          note.textContent = "Demo unavailable";
-          card.appendChild(note);
-        }
-
-        games.appendChild(card);
+      const filtered = gamesData.filter(g => {
+        const matchesSearch = g.name.toLowerCase().includes(searchTxt) || g.provider.toLowerCase().includes(searchTxt);
+        const matchesProv = selectedProv === "" || g.provider === selectedProv;
+        return matchesSearch && matchesProv;
       });
 
-      if (!filtered.length) {
-        status.textContent = "কোনো গেম পাওয়া যায়নি।";
-      } else {
-        status.textContent =
-          filtered.length + " টি গেম · প্রথম 100 টি দেখানো হচ্ছে";
-      }
+      renderGames(filtered);
     }
 
-    search.addEventListener("input", render);
-    provider.addEventListener("change", render);
-    init();
+    // Initialize on load
+    initFilter();
+    renderGames(gamesData);
   </script>
 </body>
 </html>
