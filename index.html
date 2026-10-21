@@ -66,6 +66,9 @@
         @media (min-width: 640px) {
           .game-card, .game-art { min-height: 210px; }
         }
+
+        .progress-bar-bg { background: #0F212E; border: 1px solid #243542; }
+        .progress-fill { background: linear-gradient(90deg, #16a765, #2ed573); transition: width 0.4s ease; }
     </style> 
 </head> 
 <body class="bg-[#0F212E] text-[#FFFFFF] min-h-screen flex flex-col font-sans antialiased selection:bg-[#24ee89] selection:text-black pb-24"> 
@@ -78,7 +81,7 @@
         <!-- ব্যানার কার্ডের উপরে চিকন একটি দাগ -->
         <div class="w-full h-[2px] bg-[#1A2C38] rounded-full"></div>
 
-        <!-- Multiple Dynamic Banner Slider Container (উচ্চতা কিছুটা কমানো হয়েছে) -->
+        <!-- Multiple Dynamic Banner Slider Container -->
         <div id="bannerContainer" class="shuffle-banner rounded-2xl relative shadow-xl min-h-[110px] sm:min-h-[130px] flex items-center overflow-hidden">
             <div class="w-full p-3 sm:p-5 flex flex-col justify-between relative z-10">
                 <div class="space-y-1 max-w-sm">
@@ -91,7 +94,22 @@
         <!-- Banner Dots Indicator -->
         <div id="bannerDots" class="flex justify-center gap-1.5 -mt-1"></div>
 
-        <!-- ক্যাটাগরি বাটন বার -->
+        <!-- VIP Level Progress Bar Section (ಬ্যানারের নিচে যুক্ত করা হয়েছে) -->
+        <div class="bg-[#1A2C38] border border-[#243542] rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col gap-2">
+            <div class="flex justify-between items-center text-xs font-extrabold">
+                <span id="vipCurrentLevelText" class="text-white flex items-center gap-1.5"><i class="fa-solid fa-crown text-amber-400"></i> Level: Bronze I</span>
+                <span id="vipPercentageText" class="text-[#24ee89]">0.00%</span>
+            </div>
+            <div class="w-full h-2.5 rounded-full progress-bar-bg overflow-hidden p-0.5">
+                <div id="vipProgressFill" class="h-full rounded-full progress-fill" style="width: 0%;"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-[#a9b3b5] font-semibold">
+                <span id="vipNextLevelText">Next: Bronze II</span>
+                <a href="account/my-level-up.html" class="text-[#24ee89] hover:underline">VIP Club <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+            </div>
+        </div>
+
+        <!-- ক্যাটাগরি বাটন বার (All Games, Original, Color Trading, Lucky Lottery, Slot, Casino, Sports) -->
         <div id="categorySliderBar" class="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
             <!-- Dynamic Category Buttons Rendered Here -->
         </div>
@@ -115,7 +133,7 @@
                         <i class="fa-solid fa-gamepad text-[#24ee89]"></i> <span id="modalTitleText">Category Games</span>
                     </h2>
                     <!-- ক্যাটাগরি নামের ডান পাশে অ্যালাইন করা Search Symbol Icon -->
-                    <a href="/rafi444/search.html" title="Search Games" class="w-8 h-8 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:text-[#24ee89] transition">
+                    <a href="search.html" title="Search Games" class="w-8 h-8 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:text-[#24ee89] transition">
                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
                     </a>
                 </div>
@@ -124,7 +142,7 @@
                 </button>
             </div>
             
-            <!-- Loading Spinner Container (2.5 Seconds) -->
+            <!-- Loading Spinner Container -->
             <div id="modalLoader" class="flex flex-col items-center justify-center py-20 space-y-3">
                 <div class="w-10 h-10 border-4 border-[#24ee89] border-t-transparent rounded-full animate-spin"></div>
                 <p class="text-xs text-gray-400 font-semibold tracking-wider uppercase">Loading Games...</p>
@@ -151,6 +169,8 @@
         let currentBannerIndex = 0;
         let bannerIntervalTimer = null;
 
+        const fixedCategoriesOrder = ['Original', 'Color Trading', 'Lucky Lottery', 'Slot', 'Casino', 'Sports'];
+
         async function syncRealtimeUserBalance() { 
             try { 
                 if (typeof supabaseClient !== 'undefined' && typeof getCurrentUser === 'function') { 
@@ -158,13 +178,19 @@
                     if (user) { 
                         const { data: profile } = await supabaseClient 
                             .from('profiles') 
-                            .select('balance') 
+                            .select('balance, current_vip_level, total_wager') 
                             .eq('id', user.id) 
                             .single(); 
+                        
                         const balanceElement = document.getElementById('topBarBalance'); 
                         if (profile && balanceElement) { 
                             balanceElement.innerText = parseFloat(profile.balance).toFixed(2); 
                         } 
+
+                        if (profile) {
+                            loadVipProgressData(profile);
+                        }
+
                         if (!balanceSubscription) { 
                             balanceSubscription = supabaseClient 
                                 .channel('public:profiles:' + user.id) 
@@ -174,12 +200,15 @@
                                     table: 'profiles', 
                                     filter: `id=eq.${user.id}` 
                                 }, (payload) => { 
-                                    if (payload.new && payload.new.balance !== undefined) { 
-                                        const topBal = document.getElementById('topBarBalance'); 
-                                        if (topBal) { 
-                                            topBal.innerText = parseFloat(payload.new.balance).toFixed(2); 
-                                        } 
-                                    } 
+                                    if (payload.new) {
+                                        if (payload.new.balance !== undefined) { 
+                                            const topBal = document.getElementById('topBarBalance'); 
+                                            if (topBal) { 
+                                                topBal.innerText = parseFloat(payload.new.balance).toFixed(2); 
+                                            } 
+                                        }
+                                        loadVipProgressData(payload.new);
+                                    }
                                 }) 
                                 .subscribe(); 
                         } 
@@ -189,6 +218,42 @@
                 console.error('Balance Sync Error:', err); 
             } 
         } 
+
+        async function loadVipProgressData(profile) {
+            try {
+                if (!supabaseClient) return;
+                const { data: levels } = await supabaseClient
+                    .from('vip_level_settings')
+                    .select('*')
+                    .order('level_number', { ascending: true });
+
+                if (!levels || levels.length === 0) return;
+
+                const userLevelNum = Number(profile.current_vip_level || 1);
+                const totalWager = Number(profile.total_wager || 0);
+
+                const currentLevelObj = levels.find(l => l.level_number === userLevelNum) || levels[0];
+                const nextLevelObj = levels.find(l => l.level_number === userLevelNum + 1) || currentLevelObj;
+
+                document.getElementById('vipCurrentLevelText').innerHTML = `<i class="fa-solid fa-crown text-amber-400"></i> Level: ${currentLevelObj.level_name || 'Bronze I'}`;
+                document.getElementById('vipNextLevelText').innerText = `Next: ${nextLevelObj.level_name || 'Max Level'}`;
+
+                const currentReq = Number(currentLevelObj.required_wager || 0);
+                const nextReq = Number(nextLevelObj.required_wager || currentReq);
+
+                let percentage = 100;
+                if (nextReq > currentReq) {
+                    percentage = ((totalWager - currentReq) / (nextReq - currentReq)) * 100;
+                    if (percentage < 0) percentage = 0;
+                    if (percentage > 100) percentage = 100;
+                }
+
+                document.getElementById('vipPercentageText').innerText = percentage.toFixed(2) + '%';
+                document.getElementById('vipProgressFill').style.width = percentage.toFixed(2) + '%';
+            } catch (e) {
+                console.error('VIP Progress Error:', e);
+            }
+        }
 
         async function loadTopBar() { 
             try { 
@@ -266,6 +331,19 @@
             renderBanner(currentBannerIndex);
         }
 
+        function getCategoryTitle(dbCategoryName) {
+            if (!dbCategoryName) return 'Original';
+            const clean = dbCategoryName.trim().toLowerCase();
+            if (clean === 'color_trading' || clean.includes('color')) return 'Color Trading';
+            if (clean === 'original' || clean.includes('original')) return 'Original';
+            if (clean === 'lucky_lottery' || clean.includes('lottery')) return 'Lucky Lottery';
+            if (clean === 'slot' || clean.includes('slot')) return 'Slot';
+            if (clean === 'casino' || clean.includes('casino')) return 'Casino';
+            if (clean === 'sports' || clean.includes('sports')) return 'Sports';
+            // ক্যাপিট্যালাইজ করে রিটার্ন করা
+            return dbCategoryName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
         async function fetchGridData() {
             try {
                 if (typeof supabaseClient === 'undefined') return;
@@ -281,8 +359,9 @@
                         id: item.id,
                         title: item.title,
                         imageUrl: item.image_url,
-                        pageUrl: item.page_url,
-                        category: item.category ? item.category.trim() : 'Original Games',
+                        pageUrl: item.page_url ? item.page_url.trim() : '#',
+                        category: item.category ? getCategoryTitle(item.category) : 'Original',
+                        dbCategory: item.category ? item.category.trim() : 'original',
                         show_title: item.show_title,
                         show_badge: item.show_badge
                     }));
@@ -310,13 +389,16 @@
                 </button>
             `;
 
-            categories.forEach(cat => {
-                const isActive = activeFilterCategory === cat;
-                html += `
-                    <button type="button" onclick="filterCategoryButton('${cat}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${cat}">
-                        <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${cat}
-                    </button>
-                `;
+            // সুনির্দিষ্ট লজিক বাটন অর্ডার অনুযায়ী রেন্ডার করা
+            fixedCategoriesOrder.forEach(cat => {
+                if (categories.includes(cat) || allGridsData.some(g => g.category === cat)) {
+                    const isActive = activeFilterCategory === cat;
+                    html += `
+                        <button type="button" onclick="filterCategoryButton('${cat}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${cat}">
+                            <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${cat}
+                        </button>
+                    `;
+                }
             });
 
             barContainer.innerHTML = html;
@@ -341,7 +423,7 @@
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
 
-            let categories = [...new Set(allGridsData.map(item => item.category))];
+            let categories = fixedCategoriesOrder.filter(cat => allGridsData.some(item => item.category === cat));
             
             if (activeFilterCategory !== 'all') {
                 categories = categories.filter(cat => cat === activeFilterCategory);
@@ -352,7 +434,6 @@
                 if (catItems.length === 0) return;
 
                 const currentIndex = categoryIndices[cat] || 0;
-                // যদি বাটন ফিল্টার 'all' থাকে তবে ৩টি করে দেখাবে, নতুবা সংশ্লিষ্ট ক্যাটাগরির সমস্ত গেম দেখাবে
                 const visibleItems = activeFilterCategory === 'all' ? catItems.slice(currentIndex, currentIndex + 3) : catItems;
 
                 const section = document.createElement('div');
@@ -383,7 +464,14 @@
 
                 visibleItems.forEach(game => {
                     let imageUrl = game.imageUrl ? game.imageUrl.trim() : '';
-                    let pageUrl = game.pageUrl ? game.pageUrl.trim() : '#';
+                    let rawPageUrl = game.pageUrl ? game.pageUrl.trim() : '#';
+                    
+                    // ৪০৪ এরর (missing /rafi444/) সমাধানের জন্য পারফেক্ট পাথ ফিক্স
+                    let pageUrl = rawPageUrl;
+                    if (rawPageUrl !== '#' && !rawPageUrl.startsWith('http') && !rawPageUrl.startsWith('/')) {
+                        pageUrl = rawPageUrl;
+                    }
+
                     const hasImg = imageUrl !== '';
                     const title = game.title || 'Untitled Game';
                     const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
@@ -447,7 +535,12 @@
 
             modalGrid.innerHTML = catItems.map(game => {
                 let imageUrl = game.imageUrl ? game.imageUrl.trim() : '';
-                let pageUrl = game.pageUrl ? game.pageUrl.trim() : '#';
+                let rawPageUrl = game.pageUrl ? game.pageUrl.trim() : '#';
+                let pageUrl = rawPageUrl;
+                if (rawPageUrl !== '#' && !rawPageUrl.startsWith('http') && !rawPageUrl.startsWith('/')) {
+                    pageUrl = rawPageUrl;
+                }
+
                 const hasImg = imageUrl !== '';
                 const title = game.title || 'Untitled Game';
                 const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
