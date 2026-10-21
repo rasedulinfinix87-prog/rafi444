@@ -9,6 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
+  <script src="../wager-updater.js"></script>
 
   <style>
     * { -webkit-tap-highlight-color: transparent; }
@@ -111,7 +112,7 @@
                 <div class="text-xs text-[#a9b3b5] mt-0.5">Based on weekly wager activity</div>
               </div>
             </div>
-            <button onclick="claimWeeklyBonus()" class="px-3 py-1.5 bg-[#24uuid] hover:bg-[#30485a] text-white font-extrabold text-xs rounded-lg transition border border-[#3b556b]">Claim</button>
+            <button onclick="claimWeeklyBonus()" class="px-3 py-1.5 bg-[#1A2C38] hover:bg-[#30485a] text-white font-extrabold text-xs rounded-lg transition border border-[#3b556b]">Claim</button>
           </div>
         </div>
 
@@ -183,7 +184,7 @@
           throw profileError;
         }
 
-        // ২. Fetch VIP settings levels (সংশোধিত: .select() সহ .order ব্যবহার করা হয়েছে)
+        // ২. Fetch VIP settings levels
         const { data: levels, error: levelError } = await supabaseClient
           .from('vip_level_settings')
           .select('*')
