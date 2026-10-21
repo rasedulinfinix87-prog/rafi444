@@ -61,7 +61,7 @@
             </div>
 
             <!-- Bet Button -->
-            <button id="bet-action-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg mb-4 text-sm">
+            <button id="bet-action-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg mb-4 text-sm cursor-pointer">
                 Bet
             </button>
 
@@ -69,15 +69,15 @@
             <div class="w-full flex flex-col gap-1.5 mb-3">
                 <div class="flex justify-between text-xs text-slate-400 px-1">
                     <span>Bet Amount</span>
-                    <span id="amount-usd">$0.00</span>
+                    <span id="amount-usd">$1.00</span>
                 </div>
                 <div class="flex items-center bg-[#0b132b] rounded-xl border border-[#3a506b] overflow-hidden px-3 py-2">
                     <input type="number" id="bet-amount" value="1.00000000" step="0.01" class="bg-transparent w-full outline-none text-white text-sm">
                     <div class="bg-green-600 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white ml-2">₮</div>
                     <div class="flex items-center gap-2 ml-3 pl-3 border-l border-[#3a506b] text-xs font-bold text-slate-300">
-                        <button id="btn-half" class="hover:text-white px-1">½</button>
+                        <button type="button" id="btn-half" class="hover:text-white px-1 cursor-pointer">½</button>
                         <span class="text-slate-600">|</span>
-                        <button id="btn-double" class="hover:text-white px-1">2×</button>
+                        <button type="button" id="btn-double" class="hover:text-white px-1 cursor-pointer">2×</button>
                     </div>
                 </div>
             </div>
@@ -130,28 +130,33 @@
             }
         }
 
+        // Half Button Logic
         document.getElementById('btn-half').addEventListener('click', () => {
             if (isGameActive) return;
             const input = document.getElementById('bet-amount');
             let val = parseFloat(input.value) || 0;
-            input.value = Math.max(1, val / 2).toFixed(8);
-            document.getElementById('amount-usd').innerText = '$' + parseFloat(input.value).toFixed(2);
+            let newVal = Math.max(1, val / 2);
+            input.value = newVal.toFixed(8);
+            document.getElementById('amount-usd').innerText = '$' + newVal.toFixed(2);
         });
 
+        // Double Button Logic
         document.getElementById('btn-double').addEventListener('click', () => {
             if (isGameActive) return;
             const input = document.getElementById('bet-amount');
             let val = parseFloat(input.value) || 0;
-            input.value = (val * 2).toFixed(8);
-            document.getElementById('amount-usd').innerText = '$' + parseFloat(input.value).toFixed(2);
+            let newVal = val * 2;
+            input.value = newVal.toFixed(8);
+            document.getElementById('amount-usd').innerText = '$' + newVal.toFixed(2);
         });
 
+        // Input Change Listener
         document.getElementById('bet-amount').addEventListener('input', (e) => {
             let val = parseFloat(e.target.value) || 0;
             document.getElementById('amount-usd').innerText = '$' + val.toFixed(2);
         });
 
-        // Bet Button Click -> Start Game & Activate Pump Button Immediately
+        // Bet Button Click -> Start Game & Activate Pump Button
         document.getElementById('bet-action-btn').addEventListener('click', async () => {
             const betAmount = parseFloat(document.getElementById('bet-amount').value);
             if (!currentUser || isNaN(betAmount) || betAmount < 1) {
@@ -181,23 +186,24 @@
                 isGameActive = true;
                 currentStepIndex = 0;
 
-                // Lock bet amount input & bet button
+                // Lock Bet Input & Button
                 document.getElementById('bet-amount').disabled = true;
-                document.getElementById('bet-action-btn').disabled = true;
-                document.getElementById('bet-action-btn').classList.add('opacity-50', 'cursor-not-allowed');
+                const betBtn = document.getElementById('bet-action-btn');
+                betBtn.disabled = true;
+                betBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-                // Automatically activate and style the Pump button
+                // Activate Pump Button
                 const pumpBtn = document.getElementById('pump-btn');
                 pumpBtn.disabled = false;
                 pumpBtn.classList.remove('bg-[#23304a]', 'text-slate-400', 'cursor-not-allowed');
-                pumpBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'text-white', 'shadow-lg');
+                pumpBtn.classList.add('bg-green-600', 'hover:bg-green-500', 'text-white', 'shadow-lg', 'cursor-pointer');
                 pumpBtn.innerText = "Pump / Cash Out";
 
                 updateMultiplierDisplay();
             }
         });
 
-        // Pump Button Click -> Increases Multiplier Step-by-Step, or Cash Out if clicked again at desired stage
+        // Pump Button Click -> Increase Multiplier or Cash Out
         document.getElementById('pump-btn').addEventListener('click', async () => {
             if (!isGameActive) return;
 
@@ -205,7 +211,6 @@
                 currentStepIndex++;
                 updateMultiplierDisplay();
             } else {
-                // If maximum limit reached, trigger cash out automatically
                 await cashOutGame();
             }
         });
@@ -214,7 +219,7 @@
             const currentMultiplier = multiplierSteps[currentStepIndex];
             document.getElementById('multiplier-display').innerText = currentMultiplier.toFixed(2) + 'x';
 
-            // Scale balloon smoothly as it pumps up
+            // Scale balloon smoothly
             const scaleValue = 1 + (currentStepIndex * 0.03);
             document.getElementById('balloon-element').style.transform = `scale(${scaleValue})`;
         }
@@ -226,7 +231,7 @@
             const betAmount = parseFloat(document.getElementById('bet-amount').value);
             const payout = betAmount * finalMultiplier;
 
-            // Update Supabase History Table with win status, multiplier and payout
+            // Update Supabase History Table
             const { error } = await supabaseClient
                 .from('original_bets_history')
                 .update({
@@ -258,7 +263,7 @@
 
             const pumpBtn = document.getElementById('pump-btn');
             pumpBtn.disabled = true;
-            pumpBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'text-white', 'shadow-lg');
+            pumpBtn.classList.remove('bg-green-600', 'hover:bg-green-500', 'text-white', 'shadow-lg', 'cursor-pointer');
             pumpBtn.classList.add('bg-[#23304a]', 'text-slate-400', 'cursor-not-allowed');
             pumpBtn.innerText = "Pump";
 
@@ -269,7 +274,6 @@
         window.addEventListener('DOMContentLoaded', () => {
             initGame();
             loadBottomBar();
-            document.getElementById('amount-usd').innerText = '$' + parseFloat(document.getElementById('bet-amount').value).toFixed(2);
         });
     </script>
 </body>
