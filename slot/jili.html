@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jili Slot - Mock Game</title>
+    <!-- Tailwind CSS for modern UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Your existing Supabase Config -->
+    <script src="supabase-config.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle, #1a1c29 0%, #0d0e15 100%);
+        }
+        .slot-reel {
+            background: linear-gradient(180deg, #2b2f42 0%, #1e2230 100%);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navigation / Header -->
+    <header class="bg-gray-900/80 backdrop-blur border-b border-gray-800 p-4 flex justify-between items-center px-6">
+        <div class="flex items-center space-x-3">
+            <h1 class="text-xl font-bold text-amber-400 tracking-wider">JILI SLOT DEMO</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="bg-gray-800 border border-gray-700 px-4 py-2 rounded-lg flex items-center space-x-2">
+                <span class="text-gray-400 text-sm">Balance:</span>
+                <span id="user-balance" class="text-amber-400 font-bold text-lg">Loading...</span>
+            </div>
+            <button onclick="logoutUser()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg text-sm font-semibold transition">Logout</button>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-xl bg-gray-950 border-4 border-amber-500/50 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            
+            <!-- Glow Effect Header -->
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-yellow-300 to-amber-500 animate-pulse"></div>
+
+            <!-- Slot Machine Reels Screen -->
+            <div class="grid grid-cols-3 gap-4 my-6">
+                <div id="reel-1" class="slot-reel h-32 rounded-xl flex items-center justify-center text-5xl border border-gray-700 shadow-inner">💎</div>
+                <div id="reel-2" class="slot-reel h-32 rounded-xl flex items-center justify-center text-5xl border border-gray-700 shadow-inner">🎰</div>
+                <div id="reel-3" class="slot-reel h-32 rounded-xl flex items-center justify-center text-5xl border border-gray-700 shadow-inner">🔥</div>
+            </div>
+
+            <!-- Game Message Display -->
+            <div id="game-message" class="text-center h-8 text-amber-300 font-semibold mb-4">
+                Place your bet and spin to win!
+            </div>
+
+            <!-- Controls & Betting Panel -->
+            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-2 w-full sm:w-auto justify-center">
+                    <span class="text-sm text-gray-400">Bet:</span>
+                    <button onclick="changeBet(-10)" class="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded text-lg font-bold">-</button>
+                    <span id="bet-amount" class="text-lg font-bold text-amber-400 w-16 text-center">50</span>
+                    <button onclick="changeBet(10)" class="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded text-lg font-bold">+</button>
+                </div>
+
+                <button id="spin-btn" onclick="spinWheel()" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-gray-950 font-extrabold px-8 py-3 rounded-xl shadow-lg transform active:scale-95 transition">
+                    SPIN
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-gray-500 border-t border-gray-900">
+        &copy; 2026 Jili Simulation Game. All rights reserved.
+    </footer>
+
+    <!-- Game Logic Script -->
+    <script>
+        let currentUser = null;
+        let currentBalance = 0;
+        let currentBet = 50;
+        const symbols = ["💎", "🎰", "🔥", "⭐", "🍒", "7️⃣"];
+
+        // Initialize Page & Authenticate User
+        window.addEventListener("DOMContentLoaded", async () => {
+            currentUser = await requireAuth();
+            if (currentUser) {
+                await fetchAndUpdateBalance();
+            }
+        });
+
+        // Fetch User Balance from Supabase profiles table
+        async function fetchAndUpdateBalance() {
+            try {
+                const profile = await getUserProfile(currentUser.id);
+                if (profile && profile.balance !== undefined) {
+                    currentBalance = profile.balance;
+                } else {
+                    currentBalance = 1000; // Fallback default balance if column missing
+                }
+                document.getElementById("user-balance").innerText = currentBalance.toLocaleString();
+            } catch (err) {
+                console.error("Failed to fetch balance:", err);
+                document.getElementById("user-balance").innerText = "Error";
+            }
+        }
+
+        // Adjust Bet Amount
+        function changeBet(amount) {
+            currentBet += amount;
+            if (currentBet < 10) currentBet = 10;
+            if (currentBet > currentBalance) currentBet = currentBalance;
+            document.getElementById("bet-amount").innerText = currentBet;
+        }
+
+        // Slot Spin Logic
+        async function spinWheel() {
+            if (currentBalance < currentBet) {
+                document.getElementById("game-message").innerText = "Insufficient balance!";
+                return;
+            }
+
+            const spinBtn = document.getElementById("spin-btn");
+            spinBtn.disabled = true;
+            document.getElementById("game-message").innerText = "Spinning...";
+
+            // Deduct bet temporarily for animation feel
+            currentBalance -= currentBet;
+            document.getElementById("user-balance").innerText = currentBalance.toLocaleString();
+
+            // Simulate reel spinning animation frames
+            let animCount = 0;
+            const animInterval = setInterval(() => {
+                document.getElementById("reel-1").innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                document.getElementById("reel-2").innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                document.getElementById("reel-3").innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                animCount++;
+
+                if (animCount > 15) {
+                    clearInterval(animInterval);
+                    finalizeSpinResult();
+                }
+            }, 80);
+        }
+
+        // Finalize Result & Update Supabase
+        async function finalizeSpinResult() {
+            const r1 = symbols[Math.floor(Math.random() * symbols.length)];
+            const r2 = symbols[Math.floor(Math.random() * symbols.length)];
+            const r3 = symbols[Math.floor(Math.random() * symbols.length)];
+
+            document.getElementById("reel-1").innerText = r1;
+            document.getElementById("reel-2").innerText = r2;
+            document.getElementById("reel-3").innerText = r3;
+
+            let winAmount = 0;
+            let message = "";
+
+            // Check win condition (e.g., all 3 matching)
+            if (r1 === r2 && r2 === r3) {
+                winAmount = currentBet * 5; // 5x multiplier
+                message = `🎉 JACKPOT! You won ${winAmount} coins!`;
+            } else if (r1 === r2 || r2 === r3 || r1 === r3) {
+                winAmount = currentBet * 2; // 2x multiplier
+                message = `✨ Good job! You won ${winAmount} coins!`;
+            } else {
+                message = "😢 You lost this round. Try again!";
+            }
+
+            currentBalance += winAmount;
+            document.getElementById("user-balance").innerText = currentBalance.toLocaleString();
+            document.getElementById("game-message").innerText = message;
+
+            // Update user balance in Supabase database
+            try {
+                const { error } = await supabaseClient
+                    .from("profiles")
+                    .update({ balance: currentBalance })
+                    .eq("id", currentUser.id);
+
+                if (error) {
+                    console.error("Error updating balance to Supabase:", error);
+                }
+            } catch (err) {
+                console.error("Database sync error:", err);
+            }
+
+            document.getElementById("spin-btn").disabled = false;
+        }
+    </script>
+</body>
+</html>
