@@ -1,551 +1,171 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Goldmine - Slot Demo</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10151f">
+  <title>Slot Demo — Mobile</title>
+  <style>
+    :root { color-scheme: dark; --bg:#10151f; --panel:#192335; --accent:#00c981; --muted:#aeb9ca; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; width:100%; min-height:100%; background:var(--bg); color:#fff; font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif; }
+    body { min-height:100dvh; display:flex; flex-direction:column; }
+    header { flex:none; padding: max(10px, env(safe-area-inset-top)) 14px 10px; background:#172235; border-bottom:1px solid #29364b; text-align:center; }
+    h1 { margin:0; font-size:17px; letter-spacing:.3px; }
+    header p { margin:4px 0 0; color:var(--muted); font-size:11px; }
+    main { flex:1; min-height:0; display:flex; flex-direction:column; padding:8px; gap:8px; }
+    .notice { flex:none; background:var(--panel); border:1px solid #2a3850; border-radius:10px; padding:10px 12px; font-size:12px; line-height:1.45; color:#e4ebf5; }
+    .notice strong { color:#ffd27a; }
+    .actions { display:flex; gap:8px; margin-top:8px; }
+    a.button { display:inline-flex; flex:1; min-height:40px; align-items:center; justify-content:center; border-radius:8px; padding:8px 10px; background:var(--accent); color:#042419; font-weight:700; font-size:13px; text-decoration:none; text-align:center; }
+    a.button.secondary { background:#2b3950; color:#fff; }
+    .game { position:relative; flex:1; min-height:300px; overflow:hidden; border:1px solid #29364b; border-radius:10px; background:#070a10; }
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../supabase-config.js"></script>
+    .wallet { flex:none; background:#192335; border:1px solid #2a3850; border-radius:10px; padding:12px; }
+    .wallet-top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .wallet-label { color:#aeb9ca; font-size:11px; }
+    #balance { font-size:24px; font-weight:800; margin-top:2px; overflow-wrap:anywhere; }
+    #authState { color:#aeb9ca; font-size:11px; text-align:right; }
+    .bet-row { display:flex; gap:8px; margin-top:10px; align-items:end; }
+    .bet-field { flex:1; min-width:0; }
+    .bet-field label { display:block; font-size:12px; color:#dce5f2; margin-bottom:5px; }
+    .bet-field input { width:100%; min-height:42px; border:1px solid #40516b; border-radius:8px; background:#10151f; color:#fff; padding:8px 10px; font:inherit; }
+    #spin { min-height:42px; border:0; border-radius:8px; padding:8px 15px; background:#00c981; color:#042419; font-weight:800; font-size:13px; }
+    #spin:disabled { opacity:.55; }
+    #result { margin-top:9px; border-radius:8px; background:#101927; color:#dbe5f3; padding:9px 10px; font-size:12px; line-height:1.45; }
+    #result.error { color:#ffd0d0; border:1px solid #70404a; }
+    #result.ok { color:#b9f7d8; border:1px solid #28634d; }
+    .security-note { color:#aeb9ca; font-size:10px; line-height:1.4; margin-top:7px; }
 
-<style>
-:root {
-  --bg:#061913;
-  --panel:#0c261d;
-  --gold:#f5cf66;
-  --green:#2ed573;
-  --muted:#8da499;
-}
-* { box-sizing:border-box; }
-body {
-  margin:0;
-  background:var(--bg);
-  color:white;
-  font-family:Arial,sans-serif;
-}
-button { -webkit-tap-highlight-color:transparent; }
-.header {
-  background:#030d0a;
-  border-bottom:1px solid #294637;
-  position:sticky;top:0;z-index:10;
-}
-.brand { color:var(--gold);font-weight:900;font-size:20px; }
-.balance-box {
-  background:#10291e;
-  border:1px solid #3d6548;
-  border-radius:10px;
-  padding:7px 10px;
-  min-width:100px;
-}
-.muted { color:var(--muted); }
-.gold { color:var(--gold); }
-.section-title { font-weight:800;font-size:17px; }
-.game-grid {
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:9px;
-}
-.game-card {
-  overflow:hidden;
-  background:linear-gradient(155deg,#17382a,#0b1d15);
-  border:1px solid #294b37;
-  border-radius:12px;
-  min-width:0;
-}
-.game-art {
-  aspect-ratio:1/1;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  background:radial-gradient(ellipse at top,#366a43,#10251a 75%);
-  position:relative;
-}
-.game-art .emoji { font-size:clamp(32px,9vw,55px); }
-.game-art .tag {
-  position:absolute;top:6px;left:6px;
-  font-size:9px;font-weight:bold;
-  background:#f5cf66;color:#152318;
-  border-radius:4px;padding:3px 5px;
-}
-.game-name {
-  font-size:12px;font-weight:700;
-  min-height:32px;line-height:1.3;
-}
-.play-btn {
-  background:var(--gold);color:#142017;
-  border-radius:7px;padding:8px 4px;
-  font-weight:800;font-size:12px;width:100%;
-}
-.play-btn:active,.spin-btn:active { transform:scale(.97); }
-.filter-btn {
-  background:#10271d;border:1px solid #294b37;
-  padding:8px 12px;border-radius:8px;
-  font-size:12px;white-space:nowrap;
-}
-.filter-btn.active { background:var(--gold);color:#102017; }
-.modal {
-  position:fixed;inset:0;z-index:30;
-  background:rgba(0,0,0,.88);
-  display:none;align-items:center;justify-content:center;
-  padding:14px;
-}
-.modal.show { display:flex; }
-.game-window {
-  width:100%;max-width:440px;
-  background:#0b1c14;border:1px solid #476b43;
-  border-radius:17px;padding:16px;
-  max-height:92dvh;overflow-y:auto;
-}
-.reels {
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:7px;margin:18px 0;
-}
-.reel {
-  height:95px;display:flex;align-items:center;
-  justify-content:center;font-size:42px;
-  background:linear-gradient(#f5cf66,#fff0b0,#c99532);
-  border:3px solid #8e6822;border-radius:10px;
-  color:#172019;
-}
-.reel.spinning { animation:shake .12s infinite alternate; }
-@keyframes shake {
-  from { transform:translateY(-3px); }
-  to { transform:translateY(3px); }
-}
-.spin-btn {
-  width:100%;padding:13px;
-  background:var(--gold);color:#142017;
-  font-weight:900;border-radius:10px;
-}
-.small-btn {
-  background:#173326;border:1px solid #365841;
-  padding:9px 12px;border-radius:8px;
-}
-input,select {
-  background:#09150f;color:white;
-  border:1px solid #355340;border-radius:8px;
-  padding:10px;width:100%;
-}
-.notice {
-  background:#12291d;border:1px solid #34553b;
-  border-radius:9px;padding:10px;
-  color:#c2d3c6;font-size:12px;
-}
-@media(max-width:350px) {
-  .game-grid { gap:6px; }
-  .game-card { border-radius:8px; }
-  .game-name { font-size:10px; }
-  .play-btn { font-size:11px; }
-}
-</style>
+    iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#070a10; }
+    footer { flex:none; padding:8px 12px max(9px, env(safe-area-inset-bottom)); color:#8794a8; text-align:center; font-size:10px; line-height:1.4; }
+    @media (max-width:600px) { .game { min-height:55dvh; } }
+    @media (orientation:landscape) and (max-height:520px) {
+      header { padding:4px 10px; } header p { display:none; }
+      main { padding:5px; gap:5px; }
+      .notice { padding:6px 8px; font-size:11px; }
+      .notice .details { display:none; }
+      .actions { margin-top:5px; }
+      a.button { min-height:32px; }
+      .game { min-height:58dvh; }
+      footer { display:none; }
+    }
+  </style>
 </head>
-
 <body>
-<header class="header px-3 py-3">
-  <div class="flex items-center justify-between gap-2">
-    <div>
-      <div class="brand">✦ GOLDMINE</div>
-      <div class="text-xs muted">SLOT DEMO LOBBY</div>
-    </div>
-    <div class="balance-box text-right">
-      <div class="text-xs muted">Account Balance</div>
-      <div id="realBalance" class="gold font-bold">Loading...</div>
-    </div>
-  </div>
-</header>
-
-<main class="max-w-3xl mx-auto p-3">
-  <section class="rounded-xl p-4 mb-4"
-    style="background:linear-gradient(120deg,#173c28,#091a11);border:1px solid #426343">
-    <div class="gold text-xs font-bold mb-2">WELCOME TO GOLDMINE</div>
-    <h1 class="text-2xl font-black">Slot Game Lobby</h1>
-    <p class="muted text-sm mt-2">
-      Explore 12 original slot-style demo games.
-    </p>
-    <div class="mt-4 flex items-center justify-between gap-3">
-      <div>
-        <div class="text-xs muted">Your Demo Coins</div>
-        <div id="demoBalance" class="text-xl font-black"
-          style="color:#2ed573">1,000</div>
+  <header>
+    <h1>FREE SLOT DEMO</h1>
+    <p>Mobile-friendly demo player</p>
+  </header>
+  <main>
+    <section class="notice">
+      <strong>দ্রষ্টব্য:</strong> এটি JILI গেম নয়—iGaming Tools-এ তালিকাভুক্ত Pragmatic Play-এর “888 Dragons” ডেমো।
+      <div class="details">ডেমো সাইটের নিজস্ব সীমা বা iframe নীতি প্রযোজ্য। ফ্রেমে না খুললে “নতুন ট্যাবে খুলুন” চাপুন।</div>
+      <div class="actions">
+        <a class="button" href="https://demo.i-gaming.tools/iframe/888-dragons-b7/" target="_blank" rel="noopener noreferrer">নতুন ট্যাবে খুলুন</a>
+        <a class="button secondary" href="https://i-gaming.tools/slot-games/888-dragons-b7/" target="_blank" rel="noopener noreferrer">ডেমো তথ্য</a>
       </div>
-      <button class="small-btn text-sm" onclick="resetDemo()">
-        Reset Demo
-      </button>
-    </div>
-  </section>
+    </section>
 
-  <div class="notice mb-4">
-    Demo mode only. Demo coins are virtual, cannot be withdrawn,
-    and never change your real account balance.
-  </div>
-
-  <div class="flex gap-2 overflow-x-auto pb-3 mb-3">
-    <button class="filter-btn active" data-filter="All">All Games</button>
-    <button class="filter-btn" data-filter="Slot">Slots</button>
-    <button class="filter-btn" data-filter="Lucky">Lucky Games</button>
-    <button class="filter-btn" data-filter="Adventure">Adventure</button>
-  </div>
-
-  <div class="flex items-center justify-between mb-3">
-    <h2 class="section-title">🎮 All Demo Games</h2>
-    <span id="gameCount" class="text-xs muted">12 Games</span>
-  </div>
-
-  <div id="gameGrid" class="game-grid"></div>
-</main>
-
-<div id="gameModal" class="modal">
-  <div class="game-window">
-    <div class="flex justify-between items-center gap-3">
-      <div>
-        <div class="gold text-xs font-bold">GOLDMINE DEMO</div>
-        <h2 id="modalTitle" class="text-xl font-black mt-1">Slot Game</h2>
+    <section class="wallet" aria-label="Supabase wallet">
+      <div class="wallet-top">
+        <div>
+          <div class="wallet-label">আপনার ব্যালেন্স · profiles.balance</div>
+          <div id="balance">লোড হচ্ছে…</div>
+        </div>
+        <div id="authState">লগইন যাচাই হচ্ছে…</div>
       </div>
-      <button class="small-btn" onclick="closeGame()">✕ Close</button>
-    </div>
-
-    <div class="mt-4 flex justify-between items-center">
-      <div>
-        <div class="text-xs muted">Demo Coins</div>
-        <div id="modalBalance" class="gold font-bold text-lg">1,000</div>
+      <div class="bet-row">
+        <div class="bet-field">
+          <label for="bet">বেটের পরিমাণ</label>
+          <input id="bet" type="number" min="1" max="1000000" step="0.01" value="10" inputmode="decimal">
+        </div>
+        <button id="spin" type="button" disabled>স্পিন</button>
       </div>
-      <div class="text-right">
-        <div class="text-xs muted">Last Result</div>
-        <div id="lastResult" class="font-bold text-sm">Ready to play</div>
-      </div>
-    </div>
+      <div id="result" role="status" aria-live="polite">ব্যালেন্স লোড করা হচ্ছে…</div>
+      <div class="security-note">নিরাপত্তার জন্য বেট/পেআউট বন্ধ রাখা হয়েছে: সরবরাহ করা ফাইলগুলোতে যাচাই করা সার্ভার-সাইড গেম API পাওয়া যায়নি। এই পেজ সরাসরি ব্যালেন্স পরিবর্তন করবে না।</div>
+    </section>
 
-    <div id="reels" class="reels">
-      <div class="reel">🍒</div>
-      <div class="reel">⭐</div>
-      <div class="reel">🍋</div>
-    </div>
+    <section class="game" aria-label="Slot demo game">
+      <iframe
+        src="https://demo.i-gaming.tools/iframe/888-dragons-b7/"
+        title="888 Dragons slot demo by iGaming Tools"
+        loading="eager"
+        allow="autoplay; fullscreen"
+        allowfullscreen
+        referrerpolicy="strict-origin-when-cross-origin">
+      </iframe>
+    </section>
+  </main>
+  <footer>শুধু ডেমো। এটি আসল JILI গেম নয় এবং কোনো real-money gameplay বা payout দেয় না। বাইরের সাইট iframe বন্ধ করলে নতুন ট্যাবের লিংক ব্যবহার করুন।</footer>
 
-    <label class="text-xs muted block mb-2">Demo Bet Amount</label>
-    <select id="betAmount">
-      <option value="10">10 Coins</option>
-      <option value="25">25 Coins</option>
-      <option value="50">50 Coins</option>
-      <option value="100">100 Coins</option>
-    </select>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-config.js"></script>
+  <script>
+    (() => {
+      const balanceEl = document.getElementById('balance');
+      const authStateEl = document.getElementById('authState');
+      const resultEl = document.getElementById('result');
+      const spinBtn = document.getElementById('spin');
+      const betInput = document.getElementById('bet');
 
-    <button id="spinBtn" class="spin-btn mt-3" onclick="spinGame()">
-      SPIN DEMO
-    </button>
+      function showMessage(message, type = '') {
+        resultEl.textContent = message;
+        resultEl.className = type;
+      }
 
-    <div class="notice mt-3">
-      Matching symbols may award demo coins. Results are simulated
-      locally; this is not the official JILI game.
-    </div>
-  </div>
-</div>
+      function showBalance(value) {
+        const amount = Number(value);
+        balanceEl.textContent = Number.isFinite(amount)
+          ? amount.toLocaleString('en-US', { maximumFractionDigits: 2 })
+          : '—';
+      }
 
-<script>
-"use strict";
-
-/* ==========================================
-   GOLDMINE 12-GAME DEMO
-   Real profiles.balance is READ ONLY.
-   Demo coins are stored separately in localStorage.
-   ========================================== */
-
-const games = [
-  {id:1,name:"Jungle King",emoji:"🐯",category:"Adventure"},
-  {id:2,name:"Fortune Tiger",emoji:"🐅",category:"Slot"},
-  {id:3,name:"Golden Dragon",emoji:"🐉",category:"Adventure"},
-  {id:4,name:"Fruit Party",emoji:"🍉",category:"Slot"},
-  {id:5,name:"Lucky Seven",emoji:"🎰",category:"Lucky"},
-  {id:6,name:"Dragon Treasure",emoji:"💎",category:"Adventure"},
-  {id:7,name:"Wild Panda",emoji:"🐼",category:"Slot"},
-  {id:8,name:"Pirate Gold",emoji:"🏴‍☠️",category:"Adventure"},
-  {id:9,name:"Magic Gems",emoji:"🔮",category:"Slot"},
-  {id:10,name:"Lucky Wheel",emoji:"🎡",category:"Lucky"},
-  {id:11,name:"Crash Demo",emoji:"🚀",category:"Lucky"},
-  {id:12,name:"Dice Fortune",emoji:"🎲",category:"Lucky"}
-];
-
-const symbols = ["🍒","🍋","🍉","⭐","💎","7️⃣","🔔","🍇"];
-let selectedGame = null;
-let spinning = false;
-let demoCoins = 1000;
-let currentUserId = null;
-let balanceChannel = null;
-
-const $ = id => document.getElementById(id);
-const numberFormat = value =>
-  Number(value).toLocaleString("en-US", {maximumFractionDigits:2});
-
-function demoStorageKey() {
-  return "goldmine_slot_demo_" + (currentUserId || "guest");
-}
-
-function loadDemoCoins() {
-  try {
-    const saved = localStorage.getItem(demoStorageKey());
-    demoCoins = saved === null ? 1000 : Math.max(0, Number(saved) || 0);
-  } catch (e) {
-    demoCoins = 1000;
-  }
-  updateDemoUI();
-}
-
-function saveDemoCoins() {
-  try {
-    localStorage.setItem(demoStorageKey(), String(demoCoins));
-  } catch (e) {
-    console.warn("Could not save demo coins", e);
-  }
-  updateDemoUI();
-}
-
-function updateDemoUI() {
-  $("demoBalance").textContent = numberFormat(demoCoins);
-  $("modalBalance").textContent = numberFormat(demoCoins);
-}
-
-function resetDemo() {
-  if (spinning) return;
-  demoCoins = 1000;
-  saveDemoCoins();
-  $("lastResult").textContent = "Demo reset to 1,000";
-}
-
-function renderGames(filter = "All") {
-  const grid = $("gameGrid");
-  grid.innerHTML = "";
-
-  const list = games.filter(game =>
-    filter === "All" || game.category === filter
-  );
-
-  $("gameCount").textContent = list.length + " Games";
-
-  list.forEach(game => {
-    const card = document.createElement("article");
-    card.className = "game-card";
-
-    const art = document.createElement("div");
-    art.className = "game-art";
-
-    const tag = document.createElement("span");
-    tag.className = "tag";
-    tag.textContent = "DEMO";
-
-    const emoji = document.createElement("div");
-    emoji.className = "emoji";
-    emoji.textContent = game.emoji;
-
-    const category = document.createElement("div");
-    category.className = "text-xs muted mt-2";
-    category.textContent = game.category;
-
-    art.append(tag, emoji, category);
-
-    const info = document.createElement("div");
-    info.className = "p-2";
-
-    const name = document.createElement("div");
-    name.className = "game-name";
-    name.textContent = game.name;
-
-    const play = document.createElement("button");
-    play.className = "play-btn mt-2";
-    play.textContent = "PLAY DEMO";
-    play.addEventListener("click", () => openGame(game.id));
-
-    info.append(name, play);
-    card.append(art, info);
-    grid.appendChild(card);
-  });
-}
-
-document.querySelectorAll(".filter-btn").forEach(button => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach(b =>
-      b.classList.remove("active")
-    );
-    button.classList.add("active");
-    renderGames(button.dataset.filter);
-  });
-});
-
-function openGame(id) {
-  selectedGame = games.find(game => game.id === id);
-  if (!selectedGame) return;
-
-  $("modalTitle").textContent = selectedGame.name;
-  $("lastResult").textContent = "Ready to play";
-  $("gameModal").classList.add("show");
-  $("reels").innerHTML = symbols.slice(0,3)
-    .map(symbol => '<div class="reel">' + symbol + '</div>')
-    .join("");
-  updateDemoUI();
-}
-
-function closeGame() {
-  if (spinning) return;
-  $("gameModal").classList.remove("show");
-  selectedGame = null;
-}
-
-$("gameModal").addEventListener("click", event => {
-  if (event.target === $("gameModal")) closeGame();
-});
-
-function spinGame() {
-  if (spinning || !selectedGame) return;
-
-  const bet = Number($("betAmount").value);
-  if (!Number.isFinite(bet) || bet <= 0) return;
-
-  if (demoCoins < bet) {
-    $("lastResult").textContent = "Not enough demo coins";
-    return;
-  }
-
-  spinning = true;
-  demoCoins -= bet;
-  saveDemoCoins();
-
-  const button = $("spinBtn");
-  button.disabled = true;
-  button.textContent = "SPINNING...";
-
-  const reels = [...$("reels").querySelectorAll(".reel")];
-  reels.forEach(reel => reel.classList.add("spinning"));
-
-  let ticks = 0;
-  const animation = setInterval(() => {
-    reels.forEach(reel => {
-      reel.textContent = symbols[
-        Math.floor(Math.random() * symbols.length)
-      ];
-    });
-    ticks++;
-
-    if (ticks >= 12) {
-      clearInterval(animation);
-      finishSpin(bet, reels, button);
-    }
-  }, 100);
-}
-
-function finishSpin(bet, reels, button) {
-  const result = reels.map(() =>
-    symbols[Math.floor(Math.random() * symbols.length)]
-  );
-
-  reels.forEach((reel, index) => {
-    reel.textContent = result[index];
-    reel.classList.remove("spinning");
-  });
-
-  const isTriple = result[0] === result[1] &&
-                   result[1] === result[2];
-
-  const isPair = !isTriple &&
-    (result[0] === result[1] ||
-     result[1] === result[2] ||
-     result[0] === result[2]);
-
-  let payout = 0;
-
-  if (isTriple) payout = bet * 5;
-  else if (isPair) payout = bet * 2;
-
-  demoCoins += payout;
-  saveDemoCoins();
-
-  if (payout > bet) {
-    $("lastResult").textContent =
-      "DEMO WIN +" + numberFormat(payout - bet);
-  } else if (payout > 0) {
-    $("lastResult").textContent =
-      "DEMO RETURN " + numberFormat(payout);
-  } else {
-    $("lastResult").textContent = "No match - try again";
-  }
-
-  button.disabled = false;
-  button.textContent = "SPIN DEMO";
-  spinning = false;
-}
-
-/* Read-only connection to the existing account profile.
-   Never update profiles.balance from this demo game. */
-async function initAccount() {
-  if (!window.supabase || typeof getCurrentUser !== "function") {
-    $("realBalance").textContent = "Unavailable";
-    loadDemoCoins();
-    return;
-  }
-
-  try {
-    const user = await getCurrentUser();
-
-    if (!user || !user.id) {
-      window.location.href = "../login-signup.html";
-      return;
-    }
-
-    currentUserId = user.id;
-    loadDemoCoins();
-
-    const { data, error } = await supabaseClient
-      .from("profiles")
-      .select("balance,full_name")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (error) throw error;
-
-    if (data) {
-      showRealBalance(data.balance);
-    } else {
-      $("realBalance").textContent = "Unavailable";
-    }
-
-    if (balanceChannel) {
-      await supabaseClient.removeChannel(balanceChannel);
-    }
-
-    balanceChannel = supabaseClient
-      .channel("goldmine-jili-demo-balance-" + user.id)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "profiles",
-          filter: "id=eq." + user.id
-        },
-        payload => {
-          if (payload.new &&
-              payload.new.balance !== undefined) {
-            showRealBalance(payload.new.balance);
+      async function loadProfileBalance() {
+        spinBtn.disabled = true;
+        try {
+          if (!window.supabase || typeof supabaseClient === 'undefined') {
+            throw new Error('Supabase client বা supabase-config.js লোড হয়নি।');
           }
+          const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+          if (authError || !user) {
+            authStateEl.textContent = 'লগইন প্রয়োজন';
+            balanceEl.textContent = '—';
+            showMessage('আপনার সাইটের Supabase Auth দিয়ে লগইন করুন, তারপর পেজ রিফ্রেশ করুন.', 'error');
+            return;
+          }
+
+          authStateEl.textContent = 'লগইন আছে';
+          const { data, error } = await supabaseClient
+            .from('profiles')
+            .select('balance')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (error) throw error;
+          if (!data) throw new Error('এই লগইন ইউজারের profiles রেকর্ড পাওয়া যায়নি।');
+          showBalance(data.balance);
+          showMessage('ব্যালেন্স Supabase থেকে পড়া হয়েছে। নিরাপদ গেম-লেনদেন API যাচাই না হওয়া পর্যন্ত স্পিন বন্ধ থাকবে.');
+        } catch (error) {
+          balanceEl.textContent = '—';
+          showMessage('ব্যালেন্স লোড হয়নি: ' + (error?.message || 'অজানা সমস্যা'), 'error');
         }
-      )
-      .subscribe();
+      }
 
-  } catch (error) {
-    console.error("Account loading error:", error);
-    $("realBalance").textContent = "Unavailable";
-    loadDemoCoins();
-  }
-}
+      // Deliberately fail closed. Do not update profiles.balance or insert a payout
+      // from the browser: a client can tamper with bet/payout values.
+      spinBtn.addEventListener('click', () => {
+        const bet = Number(betInput.value);
+        if (!Number.isFinite(bet) || bet <= 0) {
+          showMessage('সঠিক বেটের পরিমাণ লিখুন।', 'error');
+          return;
+        }
+        showMessage('স্পিন করা যাচ্ছে না: আগে থেকে থাকা নিরাপদ server-side API / Edge Function-এর নাম ও ইনপুট-আউটপুট যাচাই করা প্রয়োজন। সরাসরি HTML থেকে ব্যালেন্স বা payout পরিবর্তন করা নিরাপদ নয়.', 'error');
+      });
 
-function showRealBalance(balance) {
-  const amount = Number(balance);
-  $("realBalance").textContent =
-    Number.isFinite(amount) ? "৳" + numberFormat(amount) : "Unavailable";
-}
+      loadProfileBalance();
+    })();
+  </script>
 
-renderGames();
-initAccount();
-</script>
 </body>
 </html>
