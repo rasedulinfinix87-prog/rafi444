@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crash Game - Raseshop</title>
+    <!-- Tailwind CSS CDN for Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #ffffff;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-900 p-4 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold text-blue-500">Crash Game</h1>
+        <div id="user-balance-container" class="bg-slate-800 px-4 py-2 rounded-lg text-sm">
+            Balance: <span id="user-balance" class="font-bold text-green-400">0.00</span> USDT
+        </div>
+    </header>
+
+    <!-- Main Game Section -->
+    <main class="flex-grow flex flex-col items-center justify-center p-4">
+        <div class="w-full max-w-md bg-slate-800 rounded-2xl p-6 shadow-xl flex flex-col items-center">
+            
+            <!-- Multiplier Display / Balloon Area -->
+            <div class="relative w-48 h-48 bg-blue-600 rounded-full flex flex-col items-center justify-center shadow-lg mb-6 animate-pulse">
+                <span id="multiplier-display" class="text-3xl font-extrabold">1.00x</span>
+                <span class="text-xs uppercase tracking-wider mt-1">Multiplier</span>
+            </div>
+
+            <!-- Recent Multipliers Buttons -->
+            <div class="flex gap-2 mb-6 w-full justify-center">
+                <div class="bg-slate-700 px-3 py-1 rounded text-xs">1.00x</div>
+                <div class="bg-slate-700 px-3 py-1 rounded text-xs">1.11x</div>
+                <div class="bg-slate-700 px-3 py-1 rounded text-xs">1.27x</div>
+            </div>
+
+            <!-- Bet Control Form -->
+            <div class="w-full flex flex-col gap-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Bet Amount</label>
+                    <div class="flex items-center bg-slate-900 rounded-lg border border-slate-700 overflow-hidden px-3 py-2">
+                        <input type="number" id="bet-amount" value="0.00000000" step="0.01" class="bg-transparent w-full outline-none text-white">
+                        <span class="text-green-500 font-bold ml-2">₮</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button id="btn-half" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded text-sm font-semibold">½</button>
+                    <button id="btn-double" class="flex-1 bg-slate-700 hover:bg-slate-600 py-2 rounded text-sm font-semibold">2×</button>
+                </div>
+
+                <!-- Action Button -->
+                <button id="action-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg">
+                    Bet
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 py-3 text-center text-xs text-slate-500">
+        &copy; Raseshop. All rights reserved.
+    </footer>
+
+    <!-- Configuration and Game Logic Scripts -->
+    <script src="../supabase-config.js"></script>
+    <script>
+        let currentUser = null;
+
+        async function initGame() {
+            currentUser = await requireAuth();
+            if (!currentUser) return;
+
+            const profile = await getUserProfile(currentUser.id);
+            if (profile) {
+                document.getElementById('user-balance').innerText = Number(profile.balance || 0).toFixed(2);
+            }
+        }
+
+        document.getElementById('btn-half').addEventListener('click', () => {
+            const input = document.getElementById('bet-amount');
+            let val = parseFloat(input.value) || 0;
+            input.value = Math.max(0, val / 2).toFixed(8);
+        });
+
+        document.getElementById('btn-double').addEventListener('click', () => {
+            const input = document.getElementById('bet-amount');
+            let val = parseFloat(input.value) || 0;
+            input.value = (val * 2).toFixed(8);
+        });
+
+        document.getElementById('action-btn').addEventListener('click', async () => {
+            const betAmount = parseFloat(document.getElementById('bet-amount').value);
+            if (!currentUser || isNaN(betAmount) || betAmount <= 0) {
+                alert('সঠিক বেট অ্যামাউন্ট দিন।');
+                return;
+            }
+
+            // original_bets_history টেবিলে ডাটা ইনসার্ট করার মাধ্যমে গেম লজিক ও স্বয়ংক্রিয় ওয়েজার আপডেট হ্যান্ডেল করা হবে
+            const { error } = await supabaseClient
+                .from('original_bets_history')
+                .insert([{
+                    user_id: currentUser.id,
+                    game_name: 'crash',
+                    bet_amount: betAmount,
+                    payout: 0,
+                    multiplier: 1.00,
+                    status: 'pending',
+                    game_details: { type: 'crash_balloon' }
+                }]);
+
+            if (error) {
+                console.error('Bet error:', error);
+                alert('বেট সম্পন্ন করতে সমস্যা হয়েছে।');
+            } else {
+                alert('বেট সফলভাবে গ্রহণ করা হয়েছে!');
+                initGame();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
