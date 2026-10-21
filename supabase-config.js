@@ -66,7 +66,7 @@ async function getCurrentUser() {
 function getLoginPageUrl() {
   const path = window.location.pathname;
 
-  if (path.includes("/game/")) {
+  if (path.includes("/game/") || path.includes("/color-trading/") || path.includes("/account/") || path.includes("/slot/") || path.includes("/baccarat/") || path.includes("/dragon-tiger/") || path.includes("/roulette/") || path.includes("/under-over/")) {
     return "../login-signup.html";
   }
 
@@ -167,6 +167,9 @@ async function updateUserWagerAndVIP(userId, betAmount) {
     console.error('Error updating wager and VIP:', err);
   }
 }
+
+// Expose globally so any game file can trigger it if needed
+window.updateUserWagerAndVIP = updateUserWagerAndVIP;
 
 // ==========================================
 // Global Interceptor for Supabase Insert
