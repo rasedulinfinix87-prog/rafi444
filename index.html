@@ -45,7 +45,6 @@
             transition: opacity 0.6s ease-in-out;
         }
 
-        /* Slide Animation Class */
         .slide-animate {
             animation: fadeInSlide 0.35s ease-in-out;
         }
@@ -94,18 +93,23 @@
         <!-- Banner Dots Indicator -->
         <div id="bannerDots" class="flex justify-center gap-1.5 -mt-1"></div>
 
-        <!-- VIP Level Progress Bar Section (ಬ্যানারের নিচে যুক্ত করা হয়েছে) -->
-        <div class="bg-[#1A2C38] border border-[#243542] rounded-2xl p-3 sm:p-4 shadow-lg flex flex-col gap-2">
-            <div class="flex justify-between items-center text-xs font-extrabold">
-                <span id="vipCurrentLevelText" class="text-white flex items-center gap-1.5"><i class="fa-solid fa-crown text-amber-400"></i> Level: Bronze I</span>
-                <span id="vipPercentageText" class="text-[#24ee89]">0.00%</span>
+        <!-- VIP Level Progress Bar with Premium Rewards Symbol -->
+        <div class="bg-[#1A2C38] border border-[#243542] rounded-2xl p-3.5 shadow-lg flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span id="txtCurrentLevel" class="text-xs font-extrabold text-white">Level: Bronze I</span>
+                    <span class="text-[10px] text-[#24ee89] font-bold" id="txtPercentage">0.00%</span>
+                </div>
+                <a href="account/my-level-up.html" class="w-7 h-7 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-white hover:text-[#24ee89] transition shadow" title="VIP Rewards">
+                    <i class="fa-solid fa-gift text-xs"></i>
+                </a>
             </div>
             <div class="w-full h-2.5 rounded-full progress-bar-bg overflow-hidden p-0.5">
-                <div id="vipProgressFill" class="h-full rounded-full progress-fill" style="width: 0%;"></div>
+                <div id="progressFill" class="h-full rounded-full progress-fill" style="width: 0%;"></div>
             </div>
-            <div class="flex justify-between text-[11px] text-[#a9b3b5] font-semibold">
-                <span id="vipNextLevelText">Next: Bronze II</span>
-                <a href="account/my-level-up.html" class="text-[#24ee89] hover:underline">VIP Club <i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+            <div class="flex justify-between text-[10px] font-bold text-[#a9b3b5]">
+                <span id="txtCurrentWager">Wager: ৳0.00</span>
+                <span id="txtNextLevel">Next: Silver I</span>
             </div>
         </div>
 
@@ -132,7 +136,7 @@
                     <h2 id="modalCategoryTitle" class="text-lg sm:text-xl font-black text-[#FFFFFF] flex items-center gap-2">
                         <i class="fa-solid fa-gamepad text-[#24ee89]"></i> <span id="modalTitleText">Category Games</span>
                     </h2>
-                    <!-- ক্যাটাগরি নামের ডান পাশে অ্যালাইন করা Search Symbol Icon -->
+                    <!-- Search Symbol Icon -->
                     <a href="search.html" title="Search Games" class="w-8 h-8 rounded-xl bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:text-[#24ee89] transition">
                         <i class="fa-solid fa-magnifying-glass text-xs"></i>
                     </a>
@@ -169,7 +173,22 @@
         let currentBannerIndex = 0;
         let bannerIntervalTimer = null;
 
-        const fixedCategoriesOrder = ['Original', 'Color Trading', 'Lucky Lottery', 'Slot', 'Casino', 'Sports'];
+        const predefinedCategories = [
+            { key: 'original', title: 'Original', icon: 'fa-fire' },
+            { key: 'color_trading', title: 'Color Trading', icon: 'fa-palette' },
+            { key: 'lucky_lottery', title: 'Lucky Lottery', icon: 'fa-ticket' },
+            { key: 'slot', title: 'Slot', icon: 'fa-slot-machine' },
+            { key: 'casino', title: 'Casino', icon: 'fa-dice' },
+            { key: 'sports', title: 'Sports', icon: 'fa-futbol' }
+        ];
+
+        function formatCategoryTitle(rawCategory) {
+            if (!rawCategory) return 'Other Games';
+            const cleanKey = rawCategory.trim().toLowerCase();
+            const found = predefinedCategories.find(c => c.key === cleanKey);
+            if (found) return found.title;
+            return rawCategory.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
 
         async function syncRealtimeUserBalance() { 
             try { 
@@ -178,18 +197,16 @@
                     if (user) { 
                         const { data: profile } = await supabaseClient 
                             .from('profiles') 
-                            .select('balance, current_vip_level, total_wager') 
+                            .select('*') 
                             .eq('id', user.id) 
                             .single(); 
-                        
+
                         const balanceElement = document.getElementById('topBarBalance'); 
                         if (profile && balanceElement) { 
-                            balanceElement.innerText = parseFloat(profile.balance).toFixed(2); 
+                            balanceElement.innerText = parseFloat(profile.balance || 0).toFixed(2); 
                         } 
 
-                        if (profile) {
-                            loadVipProgressData(profile);
-                        }
+                        updateVipProgressUI(profile);
 
                         if (!balanceSubscription) { 
                             balanceSubscription = supabaseClient 
@@ -199,7 +216,7 @@
                                     schema: 'public', 
                                     table: 'profiles', 
                                     filter: `id=eq.${user.id}` 
-                                }, (payload) => { 
+                                }, async (payload) => { 
                                     if (payload.new) {
                                         if (payload.new.balance !== undefined) { 
                                             const topBal = document.getElementById('topBarBalance'); 
@@ -207,21 +224,24 @@
                                                 topBal.innerText = parseFloat(payload.new.balance).toFixed(2); 
                                             } 
                                         }
-                                        loadVipProgressData(payload.new);
-                                    }
+                                        updateVipProgressUI(payload.new);
+                                    } 
                                 }) 
                                 .subscribe(); 
                         } 
                     } 
                 } 
             } catch (err) { 
-                console.error('Balance Sync Error:', err); 
+                console.error('Balance & VIP Sync Error:', err); 
             } 
         } 
 
-        async function loadVipProgressData(profile) {
+        async function updateVipProgressUI(profile) {
             try {
-                if (!supabaseClient) return;
+                if (!profile) return;
+                const userLevelNum = Number(profile.current_vip_level || 1);
+                const totalWager = Number(profile.total_wager || 0);
+
                 const { data: levels } = await supabaseClient
                     .from('vip_level_settings')
                     .select('*')
@@ -229,14 +249,12 @@
 
                 if (!levels || levels.length === 0) return;
 
-                const userLevelNum = Number(profile.current_vip_level || 1);
-                const totalWager = Number(profile.total_wager || 0);
-
                 const currentLevelObj = levels.find(l => l.level_number === userLevelNum) || levels[0];
                 const nextLevelObj = levels.find(l => l.level_number === userLevelNum + 1) || currentLevelObj;
 
-                document.getElementById('vipCurrentLevelText').innerHTML = `<i class="fa-solid fa-crown text-amber-400"></i> Level: ${currentLevelObj.level_name || 'Bronze I'}`;
-                document.getElementById('vipNextLevelText').innerText = `Next: ${nextLevelObj.level_name || 'Max Level'}`;
+                document.getElementById('txtCurrentLevel').textContent = `Level: ${currentLevelObj.level_name || 'Bronze I'}`;
+                document.getElementById('txtNextLevel').textContent = `Next: ${nextLevelObj.level_name || 'Max Level'}`;
+                document.getElementById('txtCurrentWager').textContent = `Wager: ৳${totalWager.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
                 const currentReq = Number(currentLevelObj.required_wager || 0);
                 const nextReq = Number(nextLevelObj.required_wager || currentReq);
@@ -248,10 +266,10 @@
                     if (percentage > 100) percentage = 100;
                 }
 
-                document.getElementById('vipPercentageText').innerText = percentage.toFixed(2) + '%';
-                document.getElementById('vipProgressFill').style.width = percentage.toFixed(2) + '%';
+                document.getElementById('txtPercentage').textContent = percentage.toFixed(2) + '%';
+                document.getElementById('progressFill').style.width = percentage.toFixed(2) + '%';
             } catch (e) {
-                console.error('VIP Progress Error:', e);
+                console.error('VIP Progress UI Error:', e);
             }
         }
 
@@ -331,19 +349,6 @@
             renderBanner(currentBannerIndex);
         }
 
-        function getCategoryTitle(dbCategoryName) {
-            if (!dbCategoryName) return 'Original';
-            const clean = dbCategoryName.trim().toLowerCase();
-            if (clean === 'color_trading' || clean.includes('color')) return 'Color Trading';
-            if (clean === 'original' || clean.includes('original')) return 'Original';
-            if (clean === 'lucky_lottery' || clean.includes('lottery')) return 'Lucky Lottery';
-            if (clean === 'slot' || clean.includes('slot')) return 'Slot';
-            if (clean === 'casino' || clean.includes('casino')) return 'Casino';
-            if (clean === 'sports' || clean.includes('sports')) return 'Sports';
-            // ক্যাপিট্যালাইজ করে রিটার্ন করা
-            return dbCategoryName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        }
-
         async function fetchGridData() {
             try {
                 if (typeof supabaseClient === 'undefined') return;
@@ -355,23 +360,27 @@
                     .order('sort_order', { ascending: true });
 
                 if (!error && data) {
-                    allGridsData = data.map(item => ({
-                        id: item.id,
-                        title: item.title,
-                        imageUrl: item.image_url,
-                        pageUrl: item.page_url ? item.page_url.trim() : '#',
-                        category: item.category ? getCategoryTitle(item.category) : 'Original',
-                        dbCategory: item.category ? item.category.trim() : 'original',
-                        show_title: item.show_title,
-                        show_badge: item.show_badge
-                    }));
-
-                    const categories = [...new Set(allGridsData.map(item => item.category))];
-                    categories.forEach(cat => {
-                        categoryIndices[cat] = 0; 
+                    allGridsData = data.map(item => {
+                        const rawCat = item.category ? item.category.trim() : 'original';
+                        return {
+                            id: item.id,
+                            title: item.title,
+                            imageUrl: item.image_url,
+                            pageUrl: item.page_url,
+                            categoryKey: rawCat.toLowerCase(),
+                            categoryTitle: formatCategoryTitle(rawCat),
+                            show_title: item.show_title,
+                            show_badge: item.show_badge
+                        };
                     });
 
-                    renderCategorySliderButtons(categories);
+                    const categoriesMap = {};
+                    allGridsData.forEach(item => {
+                        categoriesMap[item.categoryKey] = item.categoryTitle;
+                        categoryIndices[item.categoryKey] = 0;
+                    });
+
+                    renderCategorySliderButtons(categoriesMap);
                     renderCategories();
                 }
             } catch (err) {
@@ -379,7 +388,7 @@
             }
         }
 
-        function renderCategorySliderButtons(categories) {
+        function renderCategorySliderButtons(categoriesMap) {
             const barContainer = document.getElementById('categorySliderBar');
             if (!barContainer) return;
 
@@ -389,13 +398,28 @@
                 </button>
             `;
 
-            // সুনির্দিষ্ট লজিক বাটন অর্ডার অনুযায়ী রেন্ডার করা
-            fixedCategoriesOrder.forEach(cat => {
-                if (categories.includes(cat) || allGridsData.some(g => g.category === cat)) {
-                    const isActive = activeFilterCategory === cat;
+            const orderedKeys = ['original', 'color_trading', 'lucky_lottery', 'slot', 'casino', 'sports'];
+            let displayedKeys = [...new Set(Object.keys(categoriesMap))];
+
+            orderedKeys.forEach(k => {
+                if (categoriesMap[k]) {
+                    const title = categoriesMap[k];
+                    const isActive = activeFilterCategory === k;
                     html += `
-                        <button type="button" onclick="filterCategoryButton('${cat}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${cat}">
-                            <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${cat}
+                        <button type="button" onclick="filterCategoryButton('${k}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${k}">
+                            <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${title}
+                        </button>
+                    `;
+                }
+            });
+
+            displayedKeys.forEach(k => {
+                if (!orderedKeys.includes(k) && categoriesMap[k]) {
+                    const title = categoriesMap[k];
+                    const isActive = activeFilterCategory === k;
+                    html += `
+                        <button type="button" onclick="filterCategoryButton('${k}')" class="category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition ${isActive ? 'bg-[#24ee89] text-[#0F212E] shadow-sm' : 'bg-[#1A2C38] text-[#FFFFFF] border border-[#0F212E]'}" data-cat="${k}">
+                            <i class="fa-solid fa-gamepad text-[#24ee89]"></i> ${title}
                         </button>
                     `;
                 }
@@ -404,11 +428,11 @@
             barContainer.innerHTML = html;
         }
 
-        function filterCategoryButton(category) {
-            activeFilterCategory = category;
+        function filterCategoryButton(categoryKey) {
+            activeFilterCategory = categoryKey;
             
             document.querySelectorAll('.category-filter-btn').forEach(btn => {
-                const isSelected = btn.getAttribute('data-cat') === category;
+                const isSelected = btn.getAttribute('data-cat') === categoryKey;
                 if (isSelected) {
                     btn.className = 'category-filter-btn whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-[var(--font-xs)] font-bold transition bg-[#24ee89] text-[#0F212E] shadow-sm';
                 } else {
@@ -423,58 +447,52 @@
             const container = document.getElementById('categoriesContainer');
             container.innerHTML = '';
 
-            let categories = fixedCategoriesOrder.filter(cat => allGridsData.some(item => item.category === cat));
+            let catKeys = [...new Set(allGridsData.map(item => item.categoryKey))];
             
             if (activeFilterCategory !== 'all') {
-                categories = categories.filter(cat => cat === activeFilterCategory);
+                catKeys = catKeys.filter(k => k === activeFilterCategory);
             }
 
-            categories.forEach(cat => {
-                const catItems = allGridsData.filter(item => item.category === cat);
+            catKeys.forEach(catKey => {
+                const catItems = allGridsData.filter(item => item.categoryKey === catKey);
                 if (catItems.length === 0) return;
 
-                const currentIndex = categoryIndices[cat] || 0;
+                const categoryTitle = catItems[0].categoryTitle;
+                const currentIndex = categoryIndices[catKey] || 0;
                 const visibleItems = activeFilterCategory === 'all' ? catItems.slice(currentIndex, currentIndex + 3) : catItems;
 
                 const section = document.createElement('div');
                 section.className = 'space-y-3 pb-4 border-b border-[#1A2C38]';
                 section.innerHTML = `
                     <div class="flex items-center justify-between border-b border-[#0F212E] pb-2"> 
-                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="openCategoryModal('${cat}')" title="Click to view all"> 
-                            <span class="w-2.5 h-2.5 rounded-full bg-white inline-block"></span> ${cat} 
+                        <h2 class="text-[var(--font-sm)] sm:text-[var(--font-md)] font-bold text-[#FFFFFF] flex items-center gap-2 cursor-pointer hover:text-[#24ee89] transition" onclick="openCategoryModal('${catKey}', '${categoryTitle}')" title="Click to view all"> 
+                            <span class="w-2.5 h-2.5 rounded-full bg-white inline-block"></span> ${categoryTitle} 
                         </h2> 
                         ${activeFilterCategory === 'all' ? `
                         <div class="flex items-center gap-1.5">
-                            <button onclick="slideCategory('${cat}', -1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
+                            <button onclick="slideCategory('${catKey}', -1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
                                 <i class="fa-solid fa-chevron-left text-[10px]"></i>
                             </button>
-                            <button onclick="slideCategory('${cat}', 1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
+                            <button onclick="slideCategory('${catKey}', 1)" class="w-7 h-7 rounded-full bg-[#1A2C38] border border-[#0F212E] flex items-center justify-center text-[#FFFFFF] hover:bg-[#24ee89] hover:text-[#0F212E] transition">
                                 <i class="fa-solid fa-chevron-right text-[10px]"></i>
                             </button>
                         </div>` : ''}
                     </div> 
-                    <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 slide-animate" id="grid-${CSS.escape(cat)}">
+                    <div class="grid grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 slide-animate" id="grid-${CSS.escape(catKey)}">
                     </div>
                 `;
 
                 container.appendChild(section);
 
-                const gridContainer = section.querySelector(`#grid-${CSS.escape(cat)}`);
+                const gridContainer = section.querySelector(`#grid-${CSS.escape(catKey)}`);
                 const fragment = document.createDocumentFragment();
 
                 visibleItems.forEach(game => {
                     let imageUrl = game.imageUrl ? game.imageUrl.trim() : '';
-                    let rawPageUrl = game.pageUrl ? game.pageUrl.trim() : '#';
-                    
-                    // ৪০৪ এরর (missing /rafi444/) সমাধানের জন্য পারফেক্ট পাথ ফিক্স
-                    let pageUrl = rawPageUrl;
-                    if (rawPageUrl !== '#' && !rawPageUrl.startsWith('http') && !rawPageUrl.startsWith('/')) {
-                        pageUrl = rawPageUrl;
-                    }
-
+                    let pageUrl = game.pageUrl ? game.pageUrl.trim() : '#';
                     const hasImg = imageUrl !== '';
                     const title = game.title || 'Untitled Game';
-                    const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
+                    const catBadge = categoryTitle.toUpperCase();
                     const showTitle = game.show_title !== false;
                     const showBadge = game.show_badge !== false;
 
@@ -503,11 +521,11 @@
             });
         }
 
-        function slideCategory(category, direction) {
-            const catItems = allGridsData.filter(item => item.category === category);
+        function slideCategory(catKey, direction) {
+            const catItems = allGridsData.filter(item => item.categoryKey === catKey);
             if (catItems.length <= 3) return; 
 
-            let currentIndex = categoryIndices[category] || 0;
+            let currentIndex = categoryIndices[catKey] || 0;
             currentIndex += direction * 3;
 
             if (currentIndex >= catItems.length) {
@@ -516,34 +534,29 @@
                 currentIndex = Math.max(0, catItems.length - 3); 
             }
 
-            categoryIndices[category] = currentIndex;
+            categoryIndices[catKey] = currentIndex;
             renderCategories();
         }
 
-        async function openCategoryModal(categoryName) {
+        async function openCategoryModal(catKey, categoryTitle) {
             const modal = document.getElementById('categoryModal');
             const modalLoader = document.getElementById('modalLoader');
             const modalGrid = document.getElementById('modalGamesGrid');
 
-            document.getElementById('modalTitleText').innerText = categoryName;
+            document.getElementById('modalTitleText').innerText = categoryTitle;
 
             modal.classList.remove('hidden');
             modalLoader.classList.remove('hidden');
             modalGrid.classList.add('hidden');
 
-            const catItems = allGridsData.filter(item => item.category === categoryName);
+            const catItems = allGridsData.filter(item => item.categoryKey === catKey);
 
             modalGrid.innerHTML = catItems.map(game => {
                 let imageUrl = game.imageUrl ? game.imageUrl.trim() : '';
-                let rawPageUrl = game.pageUrl ? game.pageUrl.trim() : '#';
-                let pageUrl = rawPageUrl;
-                if (rawPageUrl !== '#' && !rawPageUrl.startsWith('http') && !rawPageUrl.startsWith('/')) {
-                    pageUrl = rawPageUrl;
-                }
-
+                let pageUrl = game.pageUrl ? game.pageUrl.trim() : '#';
                 const hasImg = imageUrl !== '';
                 const title = game.title || 'Untitled Game';
-                const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
+                const catBadge = categoryTitle.toUpperCase();
                 const showTitle = game.show_title !== false;
                 const showBadge = game.show_badge !== false;
 
