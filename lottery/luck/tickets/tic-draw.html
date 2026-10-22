@@ -20,14 +20,6 @@
   --button: #1F51FF;
   --border: #0F212E;
   --text: #FFFFFF;
-  --font-xs: 11px;
-  --font-sm: 12px;
-  --font-base: 14px;
-  --font-md: 16px;
-  --font-lg: 18px;
-  --font-xl: 22px;
-  --font-2xl: 28px;
-  --font-3xl: 32px;
 }
 * { box-sizing: border-box; }
 html { background: var(--bg); scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
@@ -36,7 +28,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  font-size: var(--font-base);
+  font-size: 14px;
   padding-bottom: calc(90px + env(safe-area-inset-bottom));
   overflow-y: auto;
 }
@@ -51,7 +43,6 @@ button { cursor: pointer; }
   background: var(--bg);
 }
 
-/* Banner image container styling */
 .hero-banner-container {
   width: 100%;
   margin-bottom: 17px;
@@ -66,34 +57,29 @@ button { cursor: pointer; }
   border-radius: 19px;
 }
 
-/* Search and Card Grid Styling */
 .game-card { min-width: 0; }
 .game-art { min-height: 120px; }
 .game-art img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
 
 .section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:25px 2px 13px; }
-.section-heading h2 { font-size:var(--font-xl); margin:0; }
-.view-all { border:0; background:transparent; color:var(--text); font-size:var(--font-base); white-space:nowrap; }
+.section-heading h2 { font-size: 22px; margin:0; }
+.view-all { border:0; background:transparent; color:var(--text); font-size: 14px; white-space:nowrap; }
 
 .winners { border:1px solid var(--border); border-radius:18px; padding:0 12px; background: #1A2C38; }
-.winner { display:grid; grid-template-columns:36px minmax(70px,1fr) minmax(76px,1fr) auto; align-items:center; gap:9px; min-height:55px; border-bottom:1px solid #0F212E; font-size:var(--font-sm); }
+.winner { display:flex; justify-content:space-between; align-items:center; gap:9px; min-height:55px; border-bottom:1px solid #0F212E; font-size: 12px; }
 .winner:last-child { border-bottom:0; }
 .winner-avatar { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:#16476d; font-size:17px; }
-.winner-name { font-size:var(--font-base); font-weight:700; white-space:nowrap; }
-.winner-type { opacity:.86; }
-.winner-prize { font-weight:750; font-size:var(--font-base); white-space:nowrap; }
-.winner-time { opacity:.72; white-space:nowrap; }
 
 #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
 #footerContainer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 500; width: 100%; max-width: 480px; margin: 0 auto; }
 
-.toast { position:fixed; z-index:20; bottom:80px; left:50%; transform:translateX(-50%); background:var(--button); color:white; border:1px solid var(--border); border-radius:12px; padding:10px 15px; display:none; max-width:90%; text-align:center; }
+.toast { position:fixed; z-index:20; bottom:80px; left:50%; transform:translateX(-50%); background:var(--button); color:white; border-radius:12px; padding:10px 15px; display:none; max-width:90%; text-align:center; }
 .toast.show { display:block; }
 </style>
 </head>
 <body>
 
-<!-- Top Navigation Bar Container -->
+<!-- Top Header Container (header.html) -->
 <div id="topBarContainer"></div>
 
 <main class="app">
@@ -103,31 +89,31 @@ button { cursor: pointer; }
   </div>
 
   <!-- প্রথম গ্রিড সেকশন -->
-  <div id="ticketGrid1" class="grid grid-cols-2 gap-2.5 sm:gap-4 mb-4">
-    <div onclick="getTicket('Ticket 1')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-2 shadow-lg cursor-pointer">
-      <div class="game-art relative w-full h-32 overflow-hidden rounded-xl">
-        <img src="images/image.png" alt="Ticket 1" />
+  <div class="grid grid-cols-2 gap-2.5 sm:gap-4 mb-4">
+    <div onclick="getTicket('Ticket 1')" class="game-card bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl p-2 shadow-lg cursor-pointer">
+      <div class="game-art w-full h-32 overflow-hidden rounded-xl">
+        <img src="images/image.png" alt="Ticket 1" onerror="this.src='Images/image.png'" />
       </div>
     </div>
 
-    <div onclick="getTicket('Ticket 2')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-2 shadow-lg cursor-pointer">
-      <div class="game-art relative w-full h-32 overflow-hidden rounded-xl">
-        <img src="images/image1.png" alt="Ticket 2" />
+    <div onclick="getTicket('Ticket 2')" class="game-card bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl p-2 shadow-lg cursor-pointer">
+      <div class="game-art w-full h-32 overflow-hidden rounded-xl">
+        <img src="images/image1.png" alt="Ticket 2" onerror="this.src='Images/image1.png'" />
       </div>
     </div>
   </div>
 
   <!-- দ্বিতীয় গ্রিড সেকশন -->
-  <div id="ticketGrid2" class="grid grid-cols-2 gap-2.5 sm:gap-4 mb-6">
-    <div onclick="getTicket('Ticket 3')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-2 shadow-lg cursor-pointer">
-      <div class="game-art relative w-full h-32 overflow-hidden rounded-xl">
-        <img src="images/image2.png" alt="Ticket 3" />
+  <div class="grid grid-cols-2 gap-2.5 sm:gap-4 mb-6">
+    <div onclick="getTicket('Ticket 3')" class="game-card bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl p-2 shadow-lg cursor-pointer">
+      <div class="game-art w-full h-32 overflow-hidden rounded-xl">
+        <img src="images/image2.png" alt="Ticket 3" onerror="this.src='Images/image2.png'" />
       </div>
     </div>
 
-    <div onclick="getTicket('Ticket 4')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-2 shadow-lg cursor-pointer">
-      <div class="game-art relative w-full h-32 overflow-hidden rounded-xl">
-        <img src="images/image3.png" alt="Ticket 4" />
+    <div onclick="getTicket('Ticket 4')" class="game-card bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl p-2 shadow-lg cursor-pointer">
+      <div class="game-art w-full h-32 overflow-hidden rounded-xl">
+        <img src="images/image3.png" alt="Ticket 4" onerror="this.src='Images/image3.png'" />
       </div>
     </div>
   </div>
@@ -135,11 +121,27 @@ button { cursor: pointer; }
   <!-- Recent Winners Section -->
   <section>
     <div class="section-heading"><h2>Recent Winners</h2><button class="view-all" onclick="notify('Showing recent winners')">View All →</button></div>
-    <div class="winners">
-      <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">user123***</span><span class="winner-type">Daily Ticket</span><span class="winner-prize">♧ 10,000</span></div>
-      <div class="winner"><div class="winner-avatar">♟</i><span class="winner-name">lucky20***</span><span class="winner-type">Weekly Ticket</span><span class="winner-prize">♧ 50,000</span></div>
-      <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">winner88***</span><span class="winner-type">Special Ticket</span><span class="winner-prize">♧ 250,000</span></div>
-      <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">vip777***</span><span class="winner-type">VIP Ticket</span><span class="winner-prize">♧ 1,000,000</span></div>
+    <div class="winners p-3 space-y-2">
+      <div class="flex justify-between items-center border-b border-[#0F212E] pb-2">
+        <div class="flex items-center gap-2"><div class="winner-avatar">♟</div><span class="font-bold">user123***</span></div>
+        <span class="text-gray-300 text-xs">Daily Ticket</span>
+        <span class="font-bold text-emerald-400">♧ 10,000</span>
+      </div>
+      <div class="flex justify-between items-center border-b border-[#0F212E] pb-2">
+        <div class="flex items-center gap-2"><div class="winner-avatar">♟</div><span class="font-bold">lucky20***</span></div>
+        <span class="text-gray-300 text-xs">Weekly Ticket</span>
+        <span class="font-bold text-emerald-400">♧ 50,000</span>
+      </div>
+      <div class="flex justify-between items-center border-b border-[#0F212E] pb-2">
+        <div class="flex items-center gap-2"><div class="winner-avatar">♟</div><span class="font-bold">winner88***</span></div>
+        <span class="text-gray-300 text-xs">Special Ticket</span>
+        <span class="font-bold text-emerald-400">♧ 250,000</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-2"><div class="winner-avatar">♟</div><span class="font-bold">vip777***</span></div>
+        <span class="text-gray-300 text-xs">VIP Ticket</span>
+        <span class="font-bold text-emerald-400">♧ 1,000,000</span>
+      </div>
     </div>
   </section>
 </main>
@@ -150,53 +152,45 @@ button { cursor: pointer; }
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-  (function () {
-    'use strict';
+  function notify(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
 
-    function notify(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(window.toastTimer);
-      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
-    }
+  function getTicket(type) {
+    window.location.href = 'ticket-payment-getway.html';
+  }
 
-    function getTicket(type) {
-      window.location.href = 'ticket-payment-getway.html';
-    }
-
-    async function loadNavigationComponents() {
-      try {
-        // সঠিক ফোল্ডার পাথ অনুযায়ী নেভিগেশন ও ফুটার লোড করা
-        const topRes = await fetch('navigation.html');
-        if (topRes.ok) {
-          document.getElementById('topBarContainer').innerHTML = await topRes.text();
-        } else {
-          // যদি রুট ফোল্ডারে থাকে তবে বিকল্প পাথ চেষ্টা করা
-          const altTopRes = await fetch('../navigation.html');
-          if (altTopRes.ok) {
-            document.getElementById('topBarContainer').innerHTML = await altTopRes.text();
-          }
-        }
-
-        const footerRes = await fetch('navigation/footer.html');
-        if (footerRes.ok) {
-          document.getElementById('footerContainer').innerHTML = await footerRes.text();
-        } else {
-          const altFooterRes = await fetch('../navigation/footer.html');
-          if (altFooterRes.ok) {
-            document.getElementById('footerContainer').innerHTML = await altFooterRes.text();
-          }
-        }
-      } catch (err) {
-        console.error('Navigation components loading error:', err);
+  async function loadNavigationComponents() {
+    try {
+      // ১. header.html লোড করা (আগের navigation.html এর বদলে)
+      const topRes = await fetch('header.html');
+      if (topRes.ok) {
+        document.getElementById('topBarContainer').innerHTML = await topRes.text();
+        const scripts = document.getElementById('topBarContainer').querySelectorAll('script');
+        scripts.forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.text = script.innerText;
+          document.body.appendChild(newScript);
+        });
       }
-    }
 
-    window.addEventListener('DOMContentLoaded', () => { 
-      loadNavigationComponents(); 
-    });
-  })();
+      // ২. navigation/footer.html লোড করা
+      const footerRes = await fetch('navigation/footer.html');
+      if (footerRes.ok) {
+        document.getElementById('footerContainer').innerHTML = await footerRes.text();
+      }
+    } catch (err) {
+      console.error('Navigation components loading error:', err);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => { 
+    loadNavigationComponents(); 
+  });
 </script>
 </body>
 </html>
