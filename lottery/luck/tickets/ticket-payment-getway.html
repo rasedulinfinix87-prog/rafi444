@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#0F212E">
+<title>Ticket Payment Gateway</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Supabase JS Client & Config -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../supabase-config.js"></script>
+
+<style>
+:root {
+  --bg: #0F212E;
+  --button: #1F51FF;
+  --text: #FFFFFF;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  overflow-x: hidden;
+}
+.app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  position: relative;
+  padding: 16px;
+  padding-bottom: 40px;
+}
+.main-wrapper {
+  background: #0F212E;
+  border: 1px solid rgba(31, 81, 255, 0.3);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.input-group {
+  position: relative;
+  margin-bottom: 14px;
+}
+.input-group select, .input-group input {
+  width: 100%;
+  background: #0d1b26;
+  border: 1px solid rgba(31, 81, 255, 0.4);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #FFFFFF;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input-group select:focus, .input-group input:focus {
+  border-color: #1F51FF;
+}
+.toast {
+  position: fixed;
+  z-index: 50;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--button);
+  color: white;
+  border-radius: 12px;
+  padding: 10px 20px;
+  display: none;
+  max-width: 90%;
+  text-align: center;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.toast.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="main-wrapper">
+    <div class="w-full bg-[#1F51FF] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 mb-4 shadow-md text-sm">
+      <i class="fa-solid fa-wallet"></i>
+      <span>Ticket Payment & Checkout</span>
+    </div>
+
+    <div class="mb-4 bg-[#1a2c38] p-3 rounded-xl border border-blue-500/20 text-sm flex justify-between items-center">
+      <span class="text-gray-400">Available Balance:</span>
+      <span id="userBalance" class="font-bold text-emerald-400">Loading...</span>
+    </div>
+
+    <form id="paymentForm" onsubmit="processPayment(event)">
+      <!-- Buyer Name -->
+      <div class="input-group">
+        <label class="block text-xs text-gray-400 mb-1">Buyer Name</label>
+        <input type="text" id="buyerName" placeholder="Enter Name" required>
+      </div>
+
+      <!-- Buyer Mobile -->
+      <div class="input-group">
+        <label class="block text-xs text-gray-400 mb-1">Mobile Number</label>
+        <input type="tel" id="buyerMobile" placeholder="Enter Mobile Number" required>
+      </div>
+
+      <!-- Select Ticket Price -->
+      <div class="input-group">
+        <label class="block text-xs text-gray-400 mb-1">Select Ticket Price</label>
+        <select id="ticketPriceSelect" required>
+          <option value="" disabled selected>Select Price Option</option>
+          <option value="50">50 BDT</option>
+          <option value="100">100 BDT</option>
+          <option value="250">250 BDT</option>
+          <option value="500">500 BDT</option>
+        </select>
+      </div>
+
+      <!-- Pay Button -->
+      <button type="submit" id="payBtn" class="w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98 text-sm">
+        <i class="fa-solid fa-check-circle"></i>
+        <span>Pay & Confirm Ticket</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  function notify(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  let currentUserId = null;
+  let userCurrentBalance = 0;
+
+  async function fetchUserProfile() {
+    const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
+    if (!client) return;
+
+    // উদাহরণস্বরূপ লোকালস্টোরেজ বা সেশন থেকে ইউজার আইডি নেওয়া (প্রয়োজন অনুযায়ী পরিবর্তন করতে পারেন)
+    // এখানে ধরে নেওয়া হলো ইউজার লগইন করা আছে এবং তার UUID পাওয়া যাচ্ছে
+    const userId = localStorage.getItem('user_id'); 
+    if (!userId) {
+      // টেস্টিংয়ের জন্য কোনো ডিফল্ট আইডি থাকলে দিতে পারেন বা লগইন পেজে রিডাইরেক্ট করতে পারেন
+      document.getElementById('userBalance').textContent = '0.00 BDT';
+      return;
+    }
+
+    currentUserId = userId;
+
+    const { data, error } = await client
+      .from('profiles')
+      .select('balance, full_name, phone_number')
+      .eq('id', currentUserId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return;
+    }
+
+    if (data) {
+      userCurrentBalance = parseFloat(data.balance || 0);
+      document.getElementById('userBalance').textContent = userCurrentBalance.toFixed(2) + ' BDT';
+      if(data.full_name) document.getElementById('buyerName').value = data.full_name;
+      if(data.phone_number) document.getElementById('buyerMobile').value = data.phone_number;
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', fetchUserProfile);
+
+  async function processPayment(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('buyerName').value.trim();
+    const mobile = document.getElementById('buyerMobile').value.trim();
+    const priceAmount = parseFloat(document.getElementById('ticketPriceSelect').value);
+    const payBtn = document.getElementById('payBtn');
+
+    if (!name || !mobile || isNaN(priceAmount)) {
+      notify('দয়া করে সব তথ্য সঠিকভাবে পূরণ করুন।');
+      return;
+    }
+
+    if (!currentUserId) {
+      notify('ইউজার লগইন করা নেই!');
+      return;
+    }
+
+    if (userCurrentBalance < priceAmount) {
+      notify('অপর্যাপ্ত ব্যালেন্স! দয়া করে ডিপোজিট করুন।');
+      return;
+    }
+
+    payBtn.disabled = true;
+    payBtn.textContent = 'Processing...';
+
+    try {
+      const client = supabaseClient;
+
+      // ১. ইউজারের ব্যালেন্স মাইনাস (Update) করা
+      const newBalance = userCurrentBalance - priceAmount;
+      const { error: profileError } = await client
+        .from('profiles')
+        .update({ balance: newBalance })
+        .eq('id', currentUserId);
+
+      if (profileError) throw profileError;
+
+      // ২. ইউনিক টিকিট নম্বর জেনারেট করা
+      const ticketNumber = 'TICK-' + Math.floor(100000 + Math.random() * 900000);
+
+      // ৩. tic_tickets টেবিলে ডাটা ইনসার্ট করা
+      const { error: ticketError } = await client
+        .from('tic_tickets')
+        .insert([
+          {
+            tic_user_id: currentUserId,
+            tic_ticket_number: ticketNumber,
+            tic_buyer_name: name,
+            tic_buyer_mobile: mobile,
+            tic_ticket_status: 'active',
+            tic_purchased_at: new Date()
+          }
+        ]);
+
+      if (ticketError) throw ticketError;
+
+      notify('পেমেন্ট সফল এবং টিকিট কেনা সম্পন্ন হয়েছে!');
+      
+      setTimeout(() => {
+        window.location.href = 'tic-draw.html';
+      }, 2000);
+
+    } catch (err) {
+      console.error('Payment error:', err);
+      notify('টেকনিক্যাল সমস্যার কারণে প্রসেস সম্পন্ন হয়নি।');
+      payBtn.disabled = false;
+      payBtn.innerHTML = `<i class="fa-solid fa-check-circle"></i><span>Pay & Confirm Ticket</span>`;
+    }
+  }
+</script>
+</body>
+</html>
