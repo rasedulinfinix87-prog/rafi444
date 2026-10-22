@@ -38,7 +38,6 @@ body {
   padding: 16px;
   padding-bottom: 90px;
 }
-/* ব্যাকগ্রাউন্ড অপাসিটি কমানো ও গ্লাসফেক্ট ডিজাইন */
 .main-wrapper {
   background: rgba(15, 33, 46, 0.85);
   backdrop-filter: blur(10px);
@@ -92,7 +91,6 @@ body {
 <div class="app">
   <div class="main-wrapper">
     <div class="w-full bg-[#1F51FF] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 mb-4 shadow-md text-sm">
-      <!-- Lucky Lottery SVG Icon -->
       <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
       </svg>
@@ -144,7 +142,6 @@ body {
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-  // সঠিক পাথ থেকে হেডার ও ফুটার লোড করার ফাংশন
   async function loadComponents() {
     try {
       const headerRes = await fetch('navigation/header.html');
@@ -182,39 +179,41 @@ body {
     const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
     if (!client) return;
 
-    let userId = null;
     try {
-      const sessionUser = await getCurrentUser();
-      if (sessionUser && sessionUser.id) {
-        userId = sessionUser.id;
+      // supabase-config.js এর getCurrentUser() এবং getStoredCurrentUser() ব্যবহার করে ইউজার আইডি বের করা
+      const user = await getCurrentUser();
+      
+      if (!user || (!user.id && !user.user_id && !user.uid)) {
+        document.getElementById('userBalance').textContent = '0.00 BDT';
+        return;
       }
-    } catch(e) {
-      userId = localStorage.getItem('user_id');
-    }
 
-    if (!userId) {
+      currentUserId = user.id || user.user_id || user.uid;
+
+      // profiles টেবিল থেকে balance, full_name, phone_number ফেচ করা
+      const { data, error } = await client
+        .from('profiles')
+        .select('balance, full_name, phone_number')
+        .eq('id', currentUserId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        document.getElementById('userBalance').textContent = '0.00 BDT';
+        return;
+      }
+
+      if (data) {
+        userCurrentBalance = parseFloat(data.balance || 0);
+        document.getElementById('userBalance').textContent = userCurrentBalance.toFixed(2) + ' BDT';
+        if(data.full_name) document.getElementById('buyerName').value = data.full_name;
+        if(data.phone_number) document.getElementById('buyerMobile').value = data.phone_number;
+      } else {
+        document.getElementById('userBalance').textContent = '0.00 BDT';
+      }
+    } catch (err) {
+      console.error('Auth check error:', err);
       document.getElementById('userBalance').textContent = '0.00 BDT';
-      return;
-    }
-
-    currentUserId = userId;
-
-    const { data, error } = await client
-      .from('profiles')
-      .select('balance, full_name, phone_number')
-      .eq('id', currentUserId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return;
-    }
-
-    if (data) {
-      userCurrentBalance = parseFloat(data.balance || 0);
-      document.getElementById('userBalance').textContent = userCurrentBalance.toFixed(2) + ' BDT';
-      if(data.full_name) document.getElementById('buyerName').value = data.full_name;
-      if(data.phone_number) document.getElementById('buyerMobile').value = data.phone_number;
     }
   }
 
@@ -252,7 +251,7 @@ body {
     try {
       const client = supabaseClient;
 
-      // ১. ইউজারের ব্যালেন্স মাইনাস (Update) করা
+      // ১. profiles টেবিল থেকে ব্যালেন্স আপডেট করা
       const newBalance = userCurrentBalance - priceAmount;
       const { error: profileError } = await client
         .from('profiles')
@@ -261,10 +260,10 @@ body {
 
       if (profileError) throw profileError;
 
-      // ২. ইউনিক টিকিট নম্বর জেনারেট করা
+      // ২. ইউনিক টিকিট নম্বর তৈরি করা
       const ticketNumber = 'TICK-' + Math.floor(100000 + Math.random() * 900000);
 
-      // ৩. tic_tickets টেবিলে ডাটা ইনসার্ট করা
+      // ৩. tic_tickets টেবিলে ডেটা ইনসার্ট করা (আপনার দেওয়া কলাম অনুযায়ী)
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
