@@ -16,14 +16,14 @@
 
 <style>
 :root {
-  --bg: #0F212E;
-  --button: #1F51FF;
-  --text: #FFFFFF;
+  --bg: #FFFFFF;
+  --text: #111827;
 }
 * { box-sizing: border-box; }
-html { background: var(--bg); scroll-behavior: smooth; }
-body {
+html, body {
   margin: 0;
+  padding: 0;
+  width: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -31,19 +31,18 @@ body {
 }
 .app {
   width: 100%;
-  max-width: 480px;
   min-height: 100vh;
-  margin: 0 auto;
+  margin: 0;
   position: relative;
-  padding: 16px;
-  padding-bottom: 90px;
+  padding: 0;
 }
 .main-wrapper {
   background: #ffffff;
   color: #111827;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  width: 100%;
 }
 .input-group {
   position: relative;
@@ -66,7 +65,7 @@ body {
 .toast {
   position: fixed;
   z-index: 50;
-  bottom: 80px;
+  bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
   background: #ef4444;
@@ -84,104 +83,74 @@ body {
 </head>
 <body>
 
-<!-- Dynamic Header Container -->
-<div id="header-container"></div>
-
 <div class="app">
   <div class="main-wrapper">
     <!-- Top Amount Header -->
-    <div class="bg-[#008751] text-white p-3 rounded-t-lg -mx-4 -mt-4 mb-4 flex justify-between items-center">
+    <div class="bg-[#008751] text-white p-4 flex justify-between items-center w-full">
       <div>
         <h2 class="text-xl font-bold" id="headerAmount">BDT 0</h2>
         <p class="text-xs text-gray-100">কম বা বেশি করবেন না সেন্ড মানি</p>
       </div>
-      <div class="bg-black/30 px-2 py-1 rounded text-xs">PAY SERVICE</div>
+      <div class="bg-black/30 px-2.5 py-1 rounded text-xs font-semibold">PAY SERVICE</div>
     </div>
 
-    <!-- Warning Text -->
-    <p class="text-red-600 text-xs font-semibold mb-3 leading-relaxed text-center">
-      আপনি যদি টাকার পরিমাণ পরিবর্তন করেন (<span id="warnAmount">BDT 0</span>), আপনি ক্রেডিট পেতে সক্ষম হবেন না।
-    </p>
+    <div class="p-4">
+      <!-- Warning Text -->
+      <p class="text-red-600 text-xs font-semibold mb-3 leading-relaxed text-center">
+        আপনি যদি টাকার পরিমাণ পরিবর্তন করেন (<span id="warnAmount">BDT 0</span>), আপনি ক্রেডিট পেতে সক্ষম হবেন না।
+      </p>
 
-    <!-- Deposit Method Box -->
-    <div class="bg-[#f24e39] text-white p-3 rounded-xl flex items-center gap-3 mb-4 shadow-sm">
-      <div class="bg-white p-2 rounded-lg flex items-center justify-center w-12 h-12 shrink-0">
-        <!-- Nagad SVG Logo -->
-        <svg viewBox="0 0 500 500" class="w-8 h-8">
-          <circle cx="250" cy="250" r="250" fill="#f24e39"/>
-          <path d="M220 140c-35 0-65 25-70 60h40c5-15 20-25 35-25 20 0 35 15 35 35v15h-30c-35 0-60 20-60 50 0 30 25 50 55 50 25 0 45-15 50-35h35c-5 40-40 70-85 70-55 0-95-40-95-95 0-55 40-95 95-95 40 0 75 25 85 60h-40c-8-18-25-30-45-30z" fill="#fff"/>
-        </svg>
+      <!-- Deposit Method Box -->
+      <div id="methodBox" class="bg-[#f24e39] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm">
+        <div class="bg-white p-2 rounded-lg flex items-center justify-center w-12 h-12 shrink-0 overflow-hidden">
+          <img id="methodLogo" src="images/nagad.png" alt="Payment Method" class="w-full h-full object-contain" onerror="this.src='images/nagad.png'">
+        </div>
+        <div>
+          <h3 id="methodTitle" class="font-bold text-base">নগদ Deposit</h3>
+          <p class="text-xs text-red-100">সঠিক নিয়মে পেমেন্ট সম্পন্ন করুন</p>
+        </div>
       </div>
-      <div>
-        <h3 class="font-bold text-base">নগদ Deposit</h3>
-        <p class="text-xs text-red-100">সঠিক নিয়মে পেমেন্ট সম্পন্ন করুন</p>
-      </div>
-    </div>
 
-    <!-- Wallet Number Section -->
-    <div class="mb-3">
-      <label class="block text-xs font-bold text-gray-800 mb-1">Wallet No<span class="text-red-500">*</span></label>
-      <p class="text-[11px] text-gray-600 mb-1">এই নগদ নাম্বারে শুধুমাত্র সেন্ড মানি গ্রহণ করা হয়</p>
-      <div class="flex items-center bg-gray-100 border border-gray-300 rounded-lg p-2.5 justify-between">
-        <span id="walletNumber" class="font-mono font-bold text-gray-800 text-base">01878803186</span>
-        <button onclick="copyWallet()" class="text-emerald-700 hover:text-emerald-800 px-2">
-          <i class="fa-regular fa-copy text-lg"></i>
+      <!-- Wallet Number Section -->
+      <div class="mb-3">
+        <label class="block text-xs font-bold text-gray-800 mb-1">Wallet No<span class="text-red-500">*</span></label>
+        <p id="walletInstruction" class="text-[11px] text-gray-600 mb-1">এই নাম্বারে শুধুমাত্র সেন্ড মানি গ্রহণ করা হয়</p>
+        <div class="flex items-center bg-gray-100 border border-gray-300 rounded-lg p-2.5 justify-between">
+          <span id="walletNumber" class="font-mono font-bold text-gray-800 text-base">01878803186</span>
+          <button onclick="copyWallet()" class="text-emerald-700 hover:text-emerald-800 px-2">
+            <i class="fa-regular fa-copy text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- TrxID Input Section -->
+      <form id="verificationForm" onsubmit="submitPaymentVerification(event)">
+        <div class="input-group">
+          <label class="block text-xs font-bold text-gray-800 mb-1">
+            ক্যাশআউটের TrxID নাম্বারটি লিখুন <span class="text-red-600">(প্রয়োজন)</span>
+          </label>
+          <input type="text" id="trxId" placeholder="TrxID অবশ্যই পূরণ করতে হবে!" required class="border-red-500 focus:border-red-600">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="verifyBtn" class="w-full bg-white border border-gray-400 hover:bg-gray-50 text-gray-800 font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm">
+          <span>নিশ্চিত</span>
         </button>
+      </form>
+
+      <!-- Bottom Warning Footer -->
+      <div class="mt-4 border-t border-gray-200 pt-3 text-[11px] text-gray-600">
+        <p class="font-bold text-gray-800 mb-1">সতর্কতা:</p>
+        <p class="text-red-600 mb-1">লেনদেন আইডি সঠিকভাবে পূরণ করতে হবে, অন্যথায় স্কোর ব্যর্থ হবে!</p>
+        <p>অনুগ্রহ করে নিশ্চিত হয়ে নিন যে আপনি সঠিক ওয়ালেট নাম্বারে ক্যাশ আউট করছেন।</p>
       </div>
-    </div>
-
-    <!-- TrxID Input Section -->
-    <form id="verificationForm" onsubmit="submitPaymentVerification(event)">
-      <div class="input-group">
-        <label class="block text-xs font-bold text-gray-800 mb-1">
-          ক্যাশআউটের TrxID নাম্বারটি লিখুন <span class="text-red-600">(প্রয়োজন)</span>
-        </label>
-        <input type="text" id="trxId" placeholder="TrxID অবশ্যই পূরণ করতে হবে!" required class="border-red-500 focus:border-red-600">
-      </div>
-
-      <!-- Submit Button -->
-      <button type="submit" id="verifyBtn" class="w-full bg-white border border-gray-400 hover:bg-gray-50 text-gray-800 font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm">
-        <span>নিশ্চিত</span>
-      </button>
-    </form>
-
-    <!-- Bottom Warning Footer -->
-    <div class="mt-4 border-t border-gray-200 pt-3 text-[11px] text-gray-600">
-      <p class="font-bold text-gray-800 mb-1">সতর্কতা:</p>
-      <p class="text-red-600 mb-1">লেনদেন আইডি সঠিকভাবে পূরণ করতে হবে, অন্যথায় স্কোর ব্যর্থ হবে!</p>
-      <p>অনুগ্রহ করে নিশ্চিত হয়ে নিন যে আপনি নগদ ডিপোজিট ওয়ালেট নাম্বারে ক্যাশ আউট করছেন।</p>
     </div>
   </div>
 </div>
 
-<!-- Dynamic Footer Container -->
-<div id="footer-container"></div>
-
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-  async function loadComponents() {
-    try {
-      const headerRes = await fetch('navigation/header.html');
-      if (headerRes.ok) {
-        document.getElementById('header-container').innerHTML = await headerRes.text();
-        const scripts = document.getElementById('header-container').querySelectorAll('script');
-        scripts.forEach(script => {
-          const newScript = document.createElement('script');
-          newScript.text = script.innerText;
-          document.body.appendChild(newScript);
-        });
-      }
-
-      const footerRes = await fetch('navigation/footer.html');
-      if (footerRes.ok) {
-        document.getElementById('footer-container').innerHTML = await footerRes.text();
-      }
-    } catch (e) {
-      console.error('Error loading header/footer components:', e);
-    }
-  }
-
   function notify(message) {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -199,8 +168,6 @@ body {
   let ticketData = null;
 
   window.addEventListener('DOMContentLoaded', async () => {
-    await loadComponents();
-
     const storedData = localStorage.getItem('pending_ticket_data');
     if (!storedData) {
       notify('কোনো পেমেন্ট তথ্য পাওয়া যায়নি!');
@@ -214,6 +181,28 @@ body {
 
     document.getElementById('headerAmount').textContent = 'BDT ' + ticketData.priceAmount;
     document.getElementById('warnAmount').textContent = 'BDT ' + ticketData.priceAmount;
+
+    // যদি পেমেন্ট মেথড বা লোগো ডাইনামিক করতে চান, তা এখানে সেট করা যাবে। ডিফল্ট হিসেবে nagad রাখা হয়েছে।
+    if (ticketData.method) {
+      const method = ticketData.method.toLowerCase();
+      const logoEl = document.getElementById('methodLogo');
+      const boxEl = document.getElementById('methodBox');
+      const titleEl = document.getElementById('methodTitle');
+      
+      if (method.includes('bkash')) {
+        logoEl.src = 'images/bkash.png';
+        boxEl.className = 'bg-[#e2136e] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm';
+        titleEl.textContent = 'বিকাশ Deposit';
+      } else if (method.includes('rocket')) {
+        logoEl.src = 'images/rocket.png';
+        boxEl.className = 'bg-[#8c349b] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm';
+        titleEl.textContent = 'রকেট Deposit';
+      } else {
+        logoEl.src = 'images/nagad.png';
+        boxEl.className = 'bg-[#f24e39] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm';
+        titleEl.textContent = 'নগদ Deposit';
+      }
+    }
   });
 
   async function submitPaymentVerification(event) {
