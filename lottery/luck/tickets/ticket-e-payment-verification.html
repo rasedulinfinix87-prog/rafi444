@@ -215,6 +215,7 @@ body {
 
       const ticketNumber = 'TICK-' + Math.floor(100000 + Math.random() * 900000);
 
+      // ১. tic_tickets টেবিলে ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
@@ -229,6 +230,23 @@ body {
         ]);
 
       if (ticketError) throw ticketError;
+
+      // ২. ticket_prices টেবিলে প্রাইস এবং স্ট্যাটাস রেকর্ড ইনসার্ট করা
+      const { error: priceError } = await client
+        .from('ticket_prices')
+        .insert([
+          {
+            price_amount: parseFloat(ticketData.priceAmount),
+            price_label: ticketData.priceAmount + ' BDT Ticket',
+            status: 'active',
+            created_at: new Date()
+          }
+        ]);
+
+      if (priceError) {
+        console.error('Price table insert error:', priceError);
+        // প্রাইস ইনসার্টে সমস্যা হলেও মূল টিকিট প্রসেস যেন আটকে না যায়
+      }
 
       localStorage.removeItem('pending_ticket_data');
 
