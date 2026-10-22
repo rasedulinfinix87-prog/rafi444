@@ -84,18 +84,7 @@ button { cursor: pointer; }
 .winner-time { opacity:.72; white-space:nowrap; }
 
 #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
-
-/* Fixed Footer Container Styling */
-#bottomBarContainer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  z-index: 5000;
-  isolation: isolate;
-  padding-bottom: env(safe-area-inset-bottom);
-}
+#bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
 
 .toast { position:fixed; z-index:20; bottom:90px; left:50%; transform:translateX(-50%); background:var(--button); color:white; border:1px solid var(--border); border-radius:12px; padding:10px 15px; display:none; max-width:90%; text-align:center; }
 .toast.show { display:block; }
@@ -180,7 +169,7 @@ button { cursor: pointer; }
   </section>
 </main>
 
-<!-- Fixed Footer Navigation Bar Container -->
+<!-- Bottom Navigation Bar Container -->
 <div id="bottomBarContainer"></div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -206,9 +195,9 @@ button { cursor: pointer; }
       window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
-    window.getTicket = function(type) {
+    function getTicket(type) {
       notify(type + ' selected — connect your purchase logic here.');
-    };
+    }
 
     async function loadBars() {
       const basePath = getBasePath();
@@ -223,12 +212,12 @@ button { cursor: pointer; }
           });
         }
 
-        // Loading footer from /lottery/luck/tickets/navigation/footer.html
+        // Updated footer path based on your requirement: navigation/footer.html inside current directory
         const botRes = await fetch('navigation/footer.html');
         if (botRes.ok) {
           document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
         } else {
-          console.error('Footer load failed:', botRes.status);
+          console.error('Footer load failed from navigation/footer.html');
         }
       } catch (err) {
         console.error('Bar loading error:', err);
