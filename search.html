@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
@@ -16,34 +16,65 @@
 
 <style>
 :root {
-  --font-xs: 14px;
-  --font-sm: 15px;
-  --font-base: 16px;
-  --font-md: 17px;
+  --bg: #0F212E;
+  --button: #1F51FF;
+  --border: #0F212E;
+  --text: #FFFFFF;
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-base: 14px;
+  --font-md: 16px;
   --font-lg: 18px;
   --font-xl: 22px;
   --font-2xl: 28px;
   --font-3xl: 32px;
 }
-
 * { box-sizing: border-box; }
-body { margin: 0; background: #0F212E; color: #FFFFFF; font-size: var(--font-base); }
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #0F212E; }
-::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 4px; }
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); font-size: var(--font-base); }
-
-#topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
-#bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
-
-.game-card { min-width: 0; min-height: 154px; }
-.game-art { min-height: 154px; }
-@media (min-width: 640px) {
-  .game-card, .game-art { min-height: 210px; }
+html { background: var(--bg); scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: var(--font-base);
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
 }
+button, a { font: inherit; }
+button { cursor: pointer; }
+.app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 14px 16px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.status {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 5px 25px; font-size: var(--font-md); font-weight: 650;
+}
+.status-right { display:flex; align-items:center; gap:8px; font-size:var(--font-sm); }
+.signal { letter-spacing: 1px; font-size: 17px; }
+.battery { width: 24px; height: 12px; border: 1.5px solid white; border-radius: 3px; position:relative; }
+.battery:before { content:""; position:absolute; right:-4px; top:3px; width:2px; height:4px; background:white; }
+.battery:after { content:""; position:absolute; inset:2px 5px 2px 2px; background:white; border-radius:1px; }
+.header { display:flex; align-items:center; gap:13px; margin-bottom:25px; }
+.brand-icon {
+  width:45px; height:45px; display:grid; place-items:center; color:var(--button);
+  font-size:43px; line-height:1; font-weight:900;
+}
+.brand { flex:1; min-width:0; }
+.brand h1 { font-size:var(--font-2xl); margin:0 0 5px; line-height:1.1; letter-spacing:-.5px; }
+.brand p { margin:0; font-size:var(--font-md); opacity:.9; }
+.header-actions { display:flex; gap:10px; align-items:center; }
+.icon-btn {
+  border:0; background:transparent; color:var(--text); width:38px; height:38px;
+  display:grid; place-items:center; font-size:24px; border-radius:50%;
+}
+.avatar-top { background:#18384e; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; font-size:22px; }
 
+/* Banner image container styling */
 .hero-banner-container {
   width: 100%;
   margin-bottom: 17px;
@@ -55,42 +86,50 @@ body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); font-size: var(
   width: 100%;
   height: auto;
   object-fit: contain;
-  border-radius: 16px;
+  border-radius: 19px;
 }
 
-.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 25px 2px 13px; }
-.section-heading h2 { font-size: var(--font-xl); margin: 0; }
-.view-all { border: 0; background: transparent; color: #FFFFFF; font-size: var(--font-base); white-space: nowrap; }
+/* Search and Card Grid Styling matching Search template */
+.game-card { min-width: 0; min-height: 154px; }
+.game-art { min-height: 110px; }
 
-.winners { border: 1px solid #0F212E; border-radius: 18px; padding: 0 12px; background: #1A2C38; }
-.winner { display: grid; grid-template-columns: 36px minmax(70px,1fr) minmax(76px,1fr) auto; align-items: center; gap: 9px; min-height: 55px; border-bottom: 1px solid #0F212E; font-size: var(--font-sm); }
-.winner:last-child { border-bottom: 0; }
-.winner-avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: #16476d; font-size: 17px; }
-.winner-name { font-size: var(--font-base); font-weight: 700; white-space: nowrap; }
-.winner-type { opacity: .86; }
-.winner-prize { font-weight: 750; font-size: var(--font-base); white-space: nowrap; }
-.winner-time { opacity: .72; white-space: nowrap; }
+.section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:25px 2px 13px; }
+.section-heading h2 { font-size:var(--font-xl); margin:0; }
+.view-all { border:0; background:transparent; color:var(--text); font-size:var(--font-base); white-space:nowrap; }
 
-.toast { position: fixed; z-index: 20; bottom: 90px; left: 50%; transform: translateX(-50%); background: #1F51FF; color: white; border: 1px solid #0F212E; border-radius: 12px; padding: 10px 15px; display: none; max-width: 90%; text-align: center; }
-.toast.show { display: block; }
+.winners { border:1px solid var(--border); border-radius:18px; padding:0 12px; background: #1A2C38; }
+.winner { display:grid; grid-template-columns:36px minmax(70px,1fr) minmax(76px,1fr) auto; align-items:center; gap:9px; min-height:55px; border-bottom:1px solid #0F212E; font-size:var(--font-sm); }
+.winner:last-child { border-bottom:0; }
+.winner-avatar { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:#16476d; font-size:17px; }
+.winner-name { font-size:var(--font-base); font-weight:700; white-space:nowrap; }
+.winner-type { opacity:.86; }
+.winner-prize { font-weight:750; font-size:var(--font-base); white-space:nowrap; }
+.winner-time { opacity:.72; white-space:nowrap; }
+
+#topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
+#bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
+
+.toast { position:fixed; z-index:20; bottom:90px; left:50%; transform:translateX(-50%); background:var(--button); color:white; border:1px solid var(--border); border-radius:12px; padding:10px 15px; display:none; max-width:90%; text-align:center; }
+.toast.show { display:block; }
 </style>
 </head>
-<body class="font-sans antialiased bg-[#0F212E] text-[#FFFFFF]">
+<body>
 
 <!-- Top Navigation Bar Container -->
 <div id="topBarContainer"></div>
 
-<main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
-  <div class="status flex justify-between items-center px-1">
+<main class="app">
+  <div class="status">
     <span>12:31</span>
-    <div class="status-right flex items-center gap-2 text-xs"><span>▂▄▆</span><span>⌁</span><span class="battery"></span><span>78%</span></div>
+    <div class="status-right"><span class="signal">▂▄▆</span><span>⌁</span><span class="battery"></span><span>78%</span></div>
   </div>
 
-  <header class="header flex items-center gap-3">
-    <div class="brand-icon w-10 h-10 flex items-center justify-center text-[#1F51FF] text-3xl font-black">✿</div>
-    <div class="brand flex-1 min-w-0">
-      <h1 class="text-[var(--font-2xl)] m-0 font-bold leading-tight">Lucky Tickets</h1>
-      <p class="m-0 text-[var(--font-sm)] opacity-90">Play · Win · Be Lucky</p>
+  <header class="header">
+    <div class="brand-icon" aria-hidden="true">✿</div>
+    <div class="brand"><h1>Lucky Tickets</h1><p>Play&nbsp; · &nbsp;Win&nbsp; · &nbsp;Be Lucky</p></div>
+    <div class="header-actions">
+      <button class="icon-btn" aria-label="Notifications" onclick="notify('No new notifications')">♧</button>
+      <button class="icon-btn avatar-top" aria-label="Profile" onclick="notify('Profile page')">♟</button>
     </div>
   </header>
 
@@ -99,24 +138,65 @@ body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); font-size: var(
     <img src="images/banner.png" alt="Lucky Tickets Banner" />
   </div>
 
-  <!-- প্রথম গ্রিড সেকশন: ডেইলি ও উইকলি টিকিট (Grid 1) -->
+  <!-- প্রথম গ্রিড সেকশন: ডেইলি ও উইকলি লটারি টিকিট (Grid 1) -->
   <div class="section-heading">
     <h2>Daily & Weekly Tickets</h2>
   </div>
-  <div id="gamesGrid1" class="grid grid-cols-3 gap-2.5 sm:gap-4"></div>
+  <div id="ticketGrid1" class="grid grid-cols-2 gap-2.5 sm:gap-4">
+    <div onclick="getTicket('Daily Lucky Ticket')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-3 shadow-lg cursor-pointer">
+      <div class="game-art relative w-full h-28 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center rounded-xl overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-[#123b5c] flex items-center justify-center text-xl text-[#FFFFFF] shadow-inner">♧</div>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+        <span class="text-xs font-bold text-white truncate">Daily Lucky Ticket</span>
+        <span class="text-[9px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10">DAILY</span>
+      </div>
+      <div class="text-[10px] text-white/70 mt-1">Win up to 10,000 coins</div>
+    </div>
 
-  <!-- দ্বিতীয় গ্রিড সেকশন: স্পেশাল ও ভিআইপি টিকিট (Grid 2) -->
+    <div onclick="getTicket('Weekly Lucky Ticket')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-3 shadow-lg cursor-pointer">
+      <div class="game-art relative w-full h-28 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center rounded-xl overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-[#123b5c] flex items-center justify-center text-xl text-[#FFFFFF] shadow-inner">★</div>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+        <span class="text-xs font-bold text-white truncate">Weekly Lucky Ticket</span>
+        <span class="text-[9px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10">WEEKLY</span>
+      </div>
+      <div class="text-[10px] text-white/70 mt-1">Win up to 100,000 coins</div>
+    </div>
+  </div>
+
+  <!-- দ্বিতীয় গ্রিড সেকশন: স্পেশাল ও ভিআইপি লটারি টিকিট (Grid 2) -->
   <div class="section-heading">
     <h2>Special & VIP Tickets</h2>
   </div>
-  <div id="gamesGrid2" class="grid grid-cols-3 gap-2.5 sm:gap-4"></div>
+  <div id="ticketGrid2" class="grid grid-cols-2 gap-2.5 sm:gap-4">
+    <div onclick="getTicket('Special Lucky Ticket')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-3 shadow-lg cursor-pointer">
+      <div class="game-art relative w-full h-28 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center rounded-xl overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-[#123b5c] flex items-center justify-center text-xl text-[#FFFFFF] shadow-inner">♛</div>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+        <span class="text-xs font-bold text-white truncate">Special Lucky Ticket</span>
+        <span class="text-[9px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10">SPECIAL</span>
+      </div>
+      <div class="text-[10px] text-white/70 mt-1">Win up to 500,000 coins</div>
+    </div>
+
+    <div onclick="getTicket('VIP Lucky Ticket')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-3 shadow-lg cursor-pointer">
+      <div class="game-art relative w-full h-28 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center rounded-xl overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-[#123b5c] flex items-center justify-center text-xl text-[#FFFFFF] shadow-inner">◆</div>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+        <span class="text-xs font-bold text-white truncate">VIP Lucky Ticket</span>
+        <span class="text-[9px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10">VIP</span>
+      </div>
+      <div class="text-[10px] text-white/70 mt-1">Win up to 1,000,000 coins</div>
+    </div>
+  </div>
 
   <!-- Recent Winners Section -->
-  <section class="mt-6">
-    <div class="section-heading">
-      <h2>Recent Winners</h2>
-      <button class="view-all" onclick="notify('Showing recent winners')">View All →</button>
-    </div>
+  <section>
+    <div class="section-heading"><h2>Recent Winners</h2><button class="view-all" onclick="notify('Showing recent winners')">View All →</button></div>
     <div class="winners">
       <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">user123***</span><span class="winner-type">Daily Ticket</span><span class="winner-prize">♧ 10,000</span></div>
       <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">lucky20***</span><span class="winner-type">Weekly Ticket</span><span class="winner-prize">♧ 50,000</span></div>
@@ -144,99 +224,16 @@ body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); font-size: var(
       return './';
     }
 
-    async function fetchLotteryGamesFromSupabase() {
-      try {
-        const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
-
-        if (!client || typeof client.from !== 'function') {
-          console.error('Supabase client is missing.');
-          return;
-        }
-
-        const { data, error } = await client
-          .from('grid_control_url_image')
-          .select('*')
-          .eq('is_active', true)
-          .order('sort_order', { ascending: true });
-
-        if (error) throw error;
-
-        const allGames = data || [];
-        
-        // গ্রিড ১ এর জন্য ক্যাটাগরি ফিল্টার
-        const gamesGrid1Data = allGames.filter(g => {
-          const cat = (g.category || '').toLowerCase();
-          return cat === 'lucky_lottery' || cat === 'daily' || cat === 'weekly';
-        });
-        
-        // গ্রিড ২ এর জন্য ক্যাটাগরি ফিল্টার
-        const gamesGrid2Data = allGames.filter(g => {
-          const cat = (g.category || '').toLowerCase();
-          return cat === 'vip' || cat === 'special' || cat === 'casino';
-        });
-
-        renderGameGrid('gamesGrid1', gamesGrid1Data);
-        renderGameGrid('gamesGrid2', gamesGrid2Data);
-
-      } catch (err) {
-        console.error('Error fetching lottery games:', err);
-      }
-    }
-
-    function renderGameGrid(containerId, gamesArray) {
-      const grid = document.getElementById(containerId);
-      if (!grid) return;
-      const basePath = getBasePath();
-
-      if (gamesArray.length === 0) {
-        grid.innerHTML = '<p class="text-xs text-white/60 col-span-3 text-center py-4">কোনো টিকিট পাওয়া যায়নি।</p>';
-        return;
-      }
-
-      grid.innerHTML = gamesArray.map(game => {
-        let imageUrl = game.image_url ? game.image_url.trim() : '';
-        let pageUrl = game.page_url ? game.page_url.trim() : '#';
-
-        if (imageUrl.startsWith('/') && basePath !== './' && !imageUrl.startsWith(basePath)) {
-          imageUrl = basePath.replace(/\/$/, '') + imageUrl;
-        }
-
-        if (pageUrl.startsWith('/') && basePath !== './' && !pageUrl.startsWith(basePath)) {
-          pageUrl = basePath.replace(/\/$/, '') + pageUrl;
-        }
-
-        const hasImg = imageUrl !== '';
-        const title = game.title || 'Untitled Game';
-        const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
-        const showTitle = game.show_title !== false;
-        const showBadge = game.show_badge !== false;
-
-        return `
-          <a href="${pageUrl}" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
-            <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center p-1">
-              ${hasImg 
-                ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
-                : `<svg class="w-8 h-8 fill-current text-white/80 mb-2" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h18v8z"/></svg>
-                   ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#FFFFFF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
-              }
-            </div>
-            <div class="relative z-10 flex justify-end items-center p-2">
-              ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>` : ''}
-            </div>
-            <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-              ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-[#FFFFFF] truncate block">${title}</span>` : ''}
-            </div>
-          </a>
-        `;
-      }).join('');
-    }
-
     function notify(message) {
       const toast = document.getElementById('toast');
       toast.textContent = message;
       toast.classList.add('show');
       clearTimeout(window.toastTimer);
       window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function getTicket(type) {
+      notify(type + ' selected — connect your purchase logic here.');
     }
 
     async function loadBars() {
@@ -263,7 +260,6 @@ body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); font-size: var(
 
     window.addEventListener('DOMContentLoaded', () => { 
       loadBars(); 
-      setTimeout(fetchLotteryGamesFromSupabase, 100);
     });
   })();
 </script>
