@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F212E">
+<title>Login & Register — Lottery System</title>
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#0F212E; --panel:#172B39; --panel2:#1B3444; --blue:#1F51FF;
+  --text:#FFFFFF; --muted:#9EB0BC; --line:#29404E; --green:#42D7A0;
+  --danger:#FF7888; --radius:14px;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;padding:20px}
+.app{width:100%;max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+.brand{text-align:center;margin-bottom:20px}
+.brand h1{font-size:22px;margin:0;font-weight:900}
+.brand p{font-size:12px;color:var(--muted);margin-top:4px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#0F212E;padding:4px;border-radius:10px;margin-bottom:20px;border:1px solid var(--line)}
+.tab-btn{background:transparent;border:0;color:var(--muted);padding:10px;font-weight:800;font-size:13px;border-radius:8px;cursor:pointer}
+.tab-btn.active{background:var(--blue);color:white}
+.field{display:grid;gap:6px;margin-top:12px}
+.field label{font-size:12px;color:#C0CFD8;font-weight:700}
+.field input{width:100%;min-height:44px;background:#0F212E;color:white;border:1px solid #35505f;border-radius:10px;padding:10px 12px;outline:none}
+.field input:focus{border-color:var(--blue)}
+.btn{width:100%;border:0;border-radius:10px;min-height:44px;padding:10px 13px;font-size:14px;font-weight:800;background:var(--blue);color:white;cursor:pointer;margin-top:18px;box-shadow:0 5px 14px rgba(31,81,255,0.3)}
+.btn:active{transform:scale(0.98)}
+.toast{margin-top:14px;padding:10px;border-radius:8px;font-size:12px;text-align:center;display:none}
+.toast.error{background:rgba(255,120,136,0.15);color:var(--danger);border:1px solid rgba(255,120,136,0.3);display:block}
+.toast.success{background:rgba(66,215,160,0.15);color:var(--green);border:1px solid rgba(66,215,160,0.3);display:block}
+.hidden{display:none!important}
+.bn{font-size:10px;color:var(--muted);font-weight:500;display:block;margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="brand">
+    <h1>Lucky Draw System</h1>
+    <p>লগইন অথবা নতুন অ্যাকাউন্ট তৈরি করুন <span class="bn">Login or create a new account</span></p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="loginTabBtn" onclick="switchTab('login')">Login</button>
+    <button class="tab-btn" id="registerTabBtn" onclick="switchTab('register')">Register</button>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <form id="loginForm" onsubmit="handleLogin(event)">
+    <div class="field">
+      <label>Email / ইমেইল</label>
+      <input type="email" id="loginEmail" required placeholder="name@example.com">
+    </div>
+    <div class="field">
+      <label>Password / পাসওয়ার্ড</label>
+      <input type="password" id="loginPassword" required placeholder="••••••••">
+    </div>
+    <button type="submit" class="btn">Login to Account</button>
+  </form>
+
+  <!-- REGISTER FORM -->
+  <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+    <div class="field">
+      <label>Full Name / পূর্ণ নাম</label>
+      <input type="text" id="regFullName" required placeholder="আপনার নাম লিখুন">
+    </div>
+    <div class="field">
+      <label>Username / ইউজারনেম</label>
+      <input type="text" id="regUsername" required placeholder="username">
+    </div>
+    <div class="field">
+      <label>Mobile Number / মোবাইল নম্বর</label>
+      <input type="text" id="regMobile" required placeholder="01XXXXXXXXX">
+    </div>
+    <div class="field">
+      <label>Email / ইমেইল</label>
+      <input type="email" id="regEmail" required placeholder="name@example.com">
+    </div>
+    <div class="field">
+      <label>Password / পাসওয়ার্ড</label>
+      <input type="password" id="regPassword" required placeholder="••••••••">
+    </div>
+    <button type="submit" class="btn">Create Account</button>
+  </form>
+
+  <div id="formToast" class="toast"></div>
+</div>
+
+<!-- রুট ফোল্ডারে থাকা কনফিগ ফাইল যুক্ত করা হলো -->
+<script src="supabase-config.js"></script>
+<script>
+function switchTab(tab) {
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const loginBtn = document.getElementById('loginTabBtn');
+  const registerBtn = document.getElementById('registerTabBtn');
+  hideToast();
+
+  if (tab === 'login') {
+    loginForm.classList.remove('hidden');
+    registerForm.classList.add('hidden');
+    loginBtn.classList.add('active');
+    registerBtn.classList.remove('active');
+  } else {
+    loginForm.classList.add('hidden');
+    registerForm.classList.remove('hidden');
+    loginBtn.classList.remove('active');
+    registerBtn.classList.add('active');
+  }
+}
+
+function showToast(message, isError = false) {
+  const toast = document.getElementById('formToast');
+  toast.textContent = message;
+  toast.className = `toast ${isError ? 'error' : 'success'}`;
+}
+
+function hideToast() {
+  const toast = document.getElementById('formToast');
+  toast.className = 'toast';
+  toast.textContent = '';
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  hideToast();
+
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (error) throw error;
+
+    showToast("Login successful! Redirecting...");
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 1200);
+
+  } catch (err) {
+    showToast(err.message || "Login failed!", true);
+  }
+}
+
+async function handleRegister(e) {
+  e.preventDefault();
+  hideToast();
+
+  const fullName = document.getElementById('regFullName').value.trim();
+  const username = document.getElementById('regUsername').value.trim();
+  const mobile = document.getElementById('regMobile').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value.trim();
+
+  try {
+    // ১. Supabase Auth-এ ইউজার সাইন-আপ করা
+    const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+      email: email,
+      password: password,
+    });
+
+    if (authError) throw authError;
+
+    const user = authData.user;
+    if (user) {
+      // ২. আপনার দেওয়া tic_profiles টেবিলের কলাম অনুযায়ী অতিরিক্ত তথ্য সেভ করা
+      const { error: profileError } = await supabaseClient
+        .from('tic_profiles')
+        .insert([{
+          tic_user_id: user.id,
+          tic_full_name: fullName,
+          tic_username: username,
+          tic_email: email,
+          tic_mobile: mobile,
+          tic_account_status: 'active'
+        }]);
+
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+      }
+    }
+
+    showToast("Registration successful! You can now log in.");
+    setTimeout(() => {
+      switchTab('login');
+    }, 1500);
+
+  } catch (err) {
+    showToast(err.message || "Registration failed!", true);
+  }
+}
+</script>
+
+</body>
+</html>
