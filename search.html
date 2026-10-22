@@ -1,300 +1,298 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search Games</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
-  <style>
-    :root {
-      --font-xs: 14px;
-      --font-sm: 15px;
-      --font-base: 16px;
-      --font-md: 17px;
-      --font-lg: 18px;
-      --font-xl: 22px;
-      --font-2xl: 28px;
-      --font-3xl: 32px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#0F212E">
+<title>Lucky Tickets</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Supabase JS Client & Config -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../supabase-config.js"></script>
 
-    * { box-sizing: border-box; }
-    body { margin: 0; background: #0F212E; color: #FFFFFF; font-size: var(--font-base); }
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
-    ::-webkit-scrollbar-track { background: #0F212E; }
-    ::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 4px; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-    body { padding-bottom: calc(90px + env(safe-area-inset-bottom)); font-size: var(--font-base); }
-    #topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
-    #bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
-    .category-btn { white-space: nowrap; }
-    .game-card { min-width: 0; min-height: 154px; }
-    .game-art { min-height: 154px; }
-    @media (min-width: 640px) {
-      .game-card, .game-art { min-height: 210px; }
-    }
-  </style>
+<style>
+:root {
+  --bg: #0F212E;
+  --button: #1F51FF;
+  --border: #0F212E;
+  --text: #FFFFFF;
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-base: 14px;
+  --font-md: 16px;
+  --font-lg: 18px;
+  --font-xl: 22px;
+  --font-2xl: 28px;
+  --font-3xl: 32px;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); scroll-behavior: smooth; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: var(--font-base);
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
+button, a { font: inherit; }
+button { cursor: pointer; }
+.app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 14px 16px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.status {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 5px 25px; font-size: var(--font-md); font-weight: 650;
+}
+.status-right { display:flex; align-items:center; gap:8px; font-size:var(--font-sm); }
+.signal { letter-spacing: 1px; font-size: 17px; }
+.battery { width: 24px; height: 12px; border: 1.5px solid white; border-radius: 3px; position:relative; }
+.battery:before { content:""; position:absolute; right:-4px; top:3px; width:2px; height:4px; background:white; }
+.battery:after { content:""; position:absolute; inset:2px 5px 2px 2px; background:white; border-radius:1px; }
+.header { display:flex; align-items:center; gap:13px; margin-bottom:25px; }
+.brand-icon {
+  width:45px; height:45px; display:grid; place-items:center; color:var(--button);
+  font-size:43px; line-height:1; font-weight:900;
+}
+.brand { flex:1; min-width:0; }
+.brand h1 { font-size:var(--font-2xl); margin:0 0 5px; line-height:1.1; letter-spacing:-.5px; }
+.brand p { margin:0; font-size:var(--font-md); opacity:.9; }
+.header-actions { display:flex; gap:10px; align-items:center; }
+.icon-btn {
+  border:0; background:transparent; color:var(--text); width:38px; height:38px;
+  display:grid; place-items:center; font-size:24px; border-radius:50%;
+}
+.avatar-top { background:#18384e; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; font-size:22px; }
+
+/* Banner image container styling */
+.hero-banner-container {
+  width: 100%;
+  margin-bottom: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.hero-banner-container img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 19px;
+}
+
+/* Search and Card Grid Styling matching Search template */
+.category-btn { white-space: nowrap; }
+.game-card { min-width: 0; min-height: 154px; }
+.game-art { min-height: 154px; }
+
+.section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:25px 2px 13px; }
+.section-heading h2 { font-size:var(--font-xl); margin:0; }
+.view-all { border:0; background:transparent; color:var(--text); font-size:var(--font-base); white-space:nowrap; }
+
+.winners { border:1px solid var(--border); border-radius:18px; padding:0 12px; background: #1A2C38; }
+.winner { display:grid; grid-template-columns:36px minmax(70px,1fr) minmax(76px,1fr) auto; align-items:center; gap:9px; min-height:55px; border-bottom:1px solid #0F212E; font-size:var(--font-sm); }
+.winner:last-child { border-bottom:0; }
+.winner-avatar { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:#16476d; font-size:17px; }
+.winner-name { font-size:var(--font-base); font-weight:700; white-space:nowrap; }
+.winner-type { opacity:.86; }
+.winner-prize { font-weight:750; font-size:var(--font-base); white-space:nowrap; }
+.winner-time { opacity:.72; white-space:nowrap; }
+
+#topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
+#bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
+
+.toast { position:fixed; z-index:20; bottom:90px; left:50%; transform:translateX(-50%); background:var(--button); color:white; border:1px solid var(--border); border-radius:12px; padding:10px 15px; display:none; max-width:90%; text-align:center; }
+.toast.show { display:block; }
+</style>
 </head>
-<body class="font-sans antialiased bg-[#0F212E] text-[#FFFFFF]">
-  <!-- Top bar loaded from root /bar/top.html -->
-  <div id="topBarContainer"></div>
+<body>
 
-  <main class="max-w-5xl mx-auto p-3 sm:p-4 space-y-4">
-    <!-- Search -->
-    <div class="bg-[#1A2C38] border border-[#0F212E] rounded-2xl p-3 flex items-center gap-3">
-      <svg class="w-4 h-4 fill-current text-[#FFFFFF]" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-      <input id="gameSearch" type="search" placeholder="Search games..." autocomplete="off"
-        class="bg-transparent text-[#FFFFFF] placeholder-[#FFFFFF]/50 focus:outline-none w-full text-[var(--font-sm)]">
-      <button id="clearSearch" type="button" aria-label="Clear search" class="hidden text-[#FFFFFF]/70 hover:text-[#FFFFFF] px-1">
-        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-      </button>
+<!-- Top Navigation Bar Container -->
+<div id="topBarContainer"></div>
+
+<main class="app">
+  <div class="status">
+    <span>12:31</span>
+    <div class="status-right"><span class="signal">▂▄▆</span><span>⌁</span><span class="battery"></span><span>78%</span></div>
+  </div>
+
+  <header class="header">
+    <div class="brand-icon" aria-hidden="true">✿</div>
+    <div class="brand"><h1>Lucky Tickets</h1><p>Play&nbsp; · &nbsp;Win&nbsp; · &nbsp;Be Lucky</p></div>
+    <div class="header-actions">
+      <button class="icon-btn" aria-label="Notifications" onclick="notify('No new notifications')">♧</button>
+      <button class="icon-btn avatar-top" aria-label="Profile" onclick="notify('Profile page')">♟</button>
     </div>
+  </header>
 
-    <!-- Categories -->
-    <div id="categoryBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-      <button type="button" data-category="hot" class="category-btn flex items-center gap-2 bg-[#1F51FF] text-[#FFFFFF] font-bold px-4 py-2.5 rounded-xl text-[var(--font-xs)] shadow-sm border border-[#0F212E]">
-        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z"/><circle cx="17.5" cy="17.5" r="4.5"/><path d="M3 13.5h8v8H3z"/></svg> Hot Game
-      </button>
-      <button type="button" data-category="original" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
-        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Original
-      </button>
-      <button type="button" data-category="color_trading" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
-        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.35c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.22 19.46 10.57 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg> Color Trading
-      </button>
-      <button type="button" data-category="lucky_lottery" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
-        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1a3 3 0 0 0-3-3c-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2a3 3 0 0 0-3 3c0 .35.07.69.18 1H4c-1.1 0-1.99.9-1.99 2L2 19c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg> Lucky Lottery
-      </button>
-      <button type="button" data-category="slot" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
-        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg> Slot
-      </button>
-      <button type="button" data-category="casino" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E]">
-        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z"/></svg> Casino
-      </button>
-      <a href="/sports/sports.html" id="sportsBtn" class="category-btn flex items-center gap-2 bg-[#1A2C38] text-[#FFFFFF] font-semibold px-4 py-2.5 rounded-xl text-[var(--font-xs)] border border-[#0F212E] no-underline">
-        <svg class="w-4 h-4 fill-current text-white" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> Sports
-      </a>
+  <!-- Banner Image Section -->
+  <div class="hero-banner-container">
+    <img src="images/banner.png" alt="Lucky Tickets Banner" />
+  </div>
+
+  <!-- প্রথম গ্রিড সেকশন: সাধারণ বা ডেইলি লটারি টিকিট (Grid 1) -->
+  <div class="section-heading">
+    <h2>Daily & Weekly Tickets</h2>
+  </div>
+  <div id="gamesGrid1" class="grid grid-cols-2 gap-2.5 sm:gap-4"></div>
+
+  <!-- দ্বিতীয় গ্রিড সেকশন: স্পেশাল বা ভিআইপি লটারি টিকিট (Grid 2) -->
+  <div class="section-heading">
+    <h2>Special & VIP Tickets</h2>
+  </div>
+  <div id="gamesGrid2" class="grid grid-cols-2 gap-2.5 sm:gap-4"></div>
+
+  <!-- Recent Winners Section -->
+  <section>
+    <div class="section-heading"><h2>Recent Winners</h2><button class="view-all" onclick="notify('Showing recent winners')">View All →</button></div>
+    <div class="winners">
+      <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">user123***</span><span class="winner-type">Daily Ticket</span><span class="winner-prize">♧ 10,000</span></div>
+      <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">lucky20***</span><span class="winner-type">Weekly Ticket</span><span class="winner-prize">♧ 50,000</span></div>
+      <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">winner88***</span><span class="winner-type">Special Ticket</span><span class="winner-prize">♧ 250,000</span></div>
+      <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">vip777***</span><span class="winner-type">VIP Ticket</span><span class="winner-prize">♧ 1,000,000</span></div>
     </div>
+  </section>
+</main>
 
-    <!-- Cards populated via Supabase -->
-    <div id="gamesGrid" class="grid grid-cols-3 gap-2.5 sm:gap-4"></div>
-    
-    <!-- Loading & Empty state messages -->
-    <p id="loadingMessage" class="text-center text-[var(--font-sm)] text-[#FFFFFF]/70 py-10">গেম লোড হচ্ছে...</p>
-    <p id="emptyMessage" class="hidden text-center text-[var(--font-sm)] text-[#FFFFFF]/70 py-10">কোনো গেম পাওয়া যায়নি। অন্য নাম দিয়ে সার্চ করুন।</p>
+<!-- Bottom Navigation Bar Container -->
+<div id="bottomBarContainer"></div>
+<div class="toast" id="toast" role="status"></div>
 
-    <!-- Load More Button -->
-    <div class="text-center pt-2">
-      <button id="loadMoreBtn" class="hidden bg-[#0F212E] hover:bg-[#1A2C38] text-[#FFFFFF] font-bold border border-[#1F51FF] px-6 py-2.5 rounded-xl text-[var(--font-xs)] transition-all">
-        Load More
-      </button>
-    </div>
-  </main>
+<script>
+  (function () {
+    'use strict';
 
-  <!-- Bottom bar loaded from root /bar/bottom.html -->
-  <div id="bottomBarContainer"></div>
-
-  <script>
-    (function () {
-      'use strict';
-
-      let allGames = [];
-      let filteredGames = [];
-      let visibleLimit = 12;
-      let activeCategory = 'hot';
-
-      const grid = document.getElementById('gamesGrid');
-      const searchInput = document.getElementById('gameSearch');
-      const clearSearch = document.getElementById('clearSearch');
-      const emptyMessage = document.getElementById('emptyMessage');
-      const loadingMessage = document.getElementById('loadingMessage');
-      const loadMoreBtn = document.getElementById('loadMoreBtn');
-
-      function getBasePath() {
-        if (window.location.hostname.includes('github.io')) {
-          const pathParts = window.location.pathname.split('/');
-          if (pathParts.length > 1 && pathParts[1] !== '') {
-            return '/' + pathParts[1] + '/';
-          }
-        }
-        return './';
-      }
-
-      async function fetchGamesFromSupabase() {
-        try {
-          const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
-
-          if (!client || typeof client.from !== 'function') {
-            console.error('Supabase client is missing.');
-            loadingMessage.textContent = 'Supabase কনফিগারেশন পাওয়া যায়নি।';
-            return;
-          }
-
-          const { data, error } = await client
-            .from('grid_control_url_image')
-            .select('*')
-            .eq('is_active', true)
-            .order('sort_order', { ascending: true });
-
-          if (error) throw error;
-
-          allGames = data || [];
-          loadingMessage.classList.add('hidden');
-          applyFilters();
-        } catch (err) {
-          console.error('Error fetching games:', err);
-          grid.innerHTML = '';
-          grid.classList.add('hidden');
-          emptyMessage.classList.add('hidden');
-          loadingMessage.classList.remove('hidden');
-          loadingMessage.textContent = 'গেম লোড করতে সমস্যা হয়েছে: ' + (err.message || 'অজানা সমস্যা');
+    function getBasePath() {
+      if (window.location.hostname.includes('github.io')) {
+        const pathParts = window.location.pathname.split('/');
+        if (pathParts.length > 1 && pathParts[1] !== '') {
+          return '/' + pathParts[1] + '/';
         }
       }
+      return './';
+    }
 
-      function applyFilters() {
-        const query = searchInput.value.trim().toLowerCase();
+    // Supabase থেকে ডাটা ফেচ করে দুটি আলাদা গ্রিডে রেন্ডার করার ফাংশন
+    async function fetchLotteryGamesFromSupabase() {
+      try {
+        const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
+
+        if (!client || typeof client.from !== 'function') {
+          console.error('Supabase client is missing.');
+          return;
+        }
+
+        const { data, error } = await client
+          .from('grid_control_url_image')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
+
+        if (error) throw error;
+
+        const allGames = data || [];
         
-        filteredGames = allGames.filter(game => {
-          const gameCat = (game.category || '').trim().toLowerCase();
-          const activeCat = activeCategory.trim().toLowerCase();
-          const catMatch = gameCat === activeCat;
-          const searchMatch = (game.title && game.title.toLowerCase().includes(query));
-          return catMatch && searchMatch;
-        });
+        // গ্রিড ১ এর জন্য ক্যাটাগরি ফিল্টার (যেমন: daily বা lucky_lottery)
+        const gamesGrid1Data = allGames.filter(g => (g.category || '').toLowerCase() === 'lucky_lottery' || (g.category || '').toLowerCase() === 'daily');
+        
+        // গ্রিড ২ এর জন্য ক্যাটাগরি ফিল্টার (যেমন: special বা vip)
+        const gamesGrid2Data = allGames.filter(g => (g.category || '').toLowerCase() === 'vip' || (g.category || '').toLowerCase() === 'special');
 
-        filteredGames.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+        renderGameGrid('gamesGrid1', gamesGrid1Data);
+        renderGameGrid('gamesGrid2', gamesGrid2Data);
 
-        visibleLimit = 12;
-        renderGrid();
+      } catch (err) {
+        console.error('Error fetching lottery games:', err);
+      }
+    }
+
+    function renderGameGrid(containerId, gamesArray) {
+      const grid = document.getElementById(containerId);
+      if (!grid) return;
+      const basePath = getBasePath();
+
+      if (gamesArray.length === 0) {
+        grid.innerHTML = '<p class="text-xs text-white/60 col-span-2 text-center py-4">কোনো টিকিট পাওয়া যায়নি।</p>';
+        return;
       }
 
-      function renderGrid() {
-        const currentSlice = filteredGames.slice(0, visibleLimit);
-        const basePath = getBasePath();
+      grid.innerHTML = gamesArray.map(game => {
+        let imageUrl = game.image_url ? game.image_url.trim() : '';
+        let pageUrl = game.page_url ? game.page_url.trim() : '#';
 
-        const sportsBtn = document.getElementById('sportsBtn');
-        if (sportsBtn && basePath !== './') {
-          sportsBtn.href = basePath.replace(/\/$/, '') + '/sports/sports.html';
+        if (imageUrl.startsWith('/') && basePath !== './' && !imageUrl.startsWith(basePath)) {
+          imageUrl = basePath.replace(/\/$/, '') + imageUrl;
         }
 
-        if (currentSlice.length === 0) {
-          grid.innerHTML = '';
-          emptyMessage.classList.remove('hidden');
-          grid.classList.add('hidden');
-        } else {
-          emptyMessage.classList.add('hidden');
-          grid.classList.remove('hidden');
-
-          grid.innerHTML = currentSlice.map(game => {
-            let imageUrl = game.image_url ? game.image_url.trim() : '';
-            let pageUrl = game.page_url ? game.page_url.trim() : '#';
-
-            if (imageUrl.startsWith('/') && basePath !== './' && !imageUrl.startsWith(basePath)) {
-              imageUrl = basePath.replace(/\/$/, '') + imageUrl;
-            }
-
-            if (pageUrl.startsWith('/') && basePath !== './' && !pageUrl.startsWith(basePath)) {
-              pageUrl = basePath.replace(/\/$/, '') + pageUrl;
-            }
-
-            const hasImg = imageUrl !== '';
-            const title = game.title || 'Untitled Game';
-            const catBadge = game.category ? game.category.toUpperCase() : 'GAME';
-
-            const showTitle = game.show_title !== false;
-            const showBadge = game.show_badge !== false;
-
-            return `
-              <a href="${pageUrl}" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150">
-                <div class="game-art absolute inset-0 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center p-1">
-                  ${hasImg 
-                    ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
-                    : `<svg class="w-8 h-8 fill-current text-white/80 mb-2" viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 10H3V8h18v8z"/></svg>
-                       ${showTitle ? `<div class="text-center font-black text-xs sm:text-sm text-[#FFFFFF] tracking-wide drop-shadow-lg px-2">${title}</div>` : ''}`
-                  }
-                </div>
-                <div class="relative z-10 flex justify-end items-center p-2">
-                  ${showBadge ? `<span class="text-[9px] sm:text-[10px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">${catBadge}</span>` : ''}
-                </div>
-                <div class="relative z-10 p-2 text-center bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                  ${showTitle ? `<span class="text-[9px] sm:text-[11px] font-bold tracking-wider text-[#FFFFFF] truncate block">${title}</span>` : ''}
-                </div>
-              </a>
-            `;
-          }).join('');
+        if (pageUrl.startsWith('/') && basePath !== './' && !pageUrl.startsWith(basePath)) {
+          pageUrl = basePath.replace(/\/$/, '') + pageUrl;
         }
 
-        clearSearch.classList.toggle('hidden', !searchInput.value);
+        const hasImg = imageUrl !== '';
+        const title = game.title || 'Lucky Ticket';
+        const catBadge = game.category ? game.category.toUpperCase() : 'TICKET';
 
-        if (visibleLimit < filteredGames.length) {
-          loadMoreBtn.classList.remove('hidden');
-        } else {
-          loadMoreBtn.classList.add('hidden');
-        }
-      }
+        return `
+          <a href="${pageUrl}" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-3 shadow-lg">
+            <div class="game-art relative w-full h-28 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center rounded-xl overflow-hidden">
+              ${hasImg 
+                ? `<img src="${imageUrl}" alt="${title}" class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-200" loading="lazy" />`
+                : `<i class="fa-solid fa-ticket text-3xl text-yellow-400 mb-1"></i>`
+              }
+            </div>
+            <div class="flex justify-between items-center mt-2">
+              <span class="text-xs font-bold text-white truncate">${title}</span>
+              <span class="text-[9px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10">${catBadge}</span>
+            </div>
+          </a>
+        `;
+      }).join('');
+    }
 
-      document.querySelectorAll('[data-category]').forEach(button => {
-        button.addEventListener('click', () => {
-          activeCategory = button.dataset.category;
-          document.querySelectorAll('[data-category]').forEach(btn => {
-            const active = btn === button;
-            btn.classList.toggle('bg-[#1F51FF]', active);
-            btn.classList.toggle('text-[#FFFFFF]', active);
-            btn.classList.toggle('bg-[#1A2C38]', !active);
-            btn.classList.toggle('text-[#FFFFFF]', !active);
-            btn.classList.toggle('border', !active);
-            btn.classList.toggle('border-[#0F212E]', !active);
+    function notify(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    async function loadBars() {
+      const basePath = getBasePath();
+      try {
+        const topRes = await fetch(basePath + 'bar/top.html');
+        if (topRes.ok) {
+          let topContent = await topRes.text();
+          topContent = topContent.replace(/game\/mem\/member\.html/g, basePath + 'mem/member.html');
+          document.getElementById('topBarContainer').innerHTML = topContent;
+          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+            a.href = basePath + 'account/deposit.html';
           });
-          applyFilters();
-        });
-      });
-
-      searchInput.addEventListener('input', applyFilters);
-      clearSearch.addEventListener('click', () => { 
-        searchInput.value = ''; 
-        applyFilters(); 
-        searchInput.focus(); 
-      });
-
-      loadMoreBtn.addEventListener('click', () => {
-        visibleLimit += 12;
-        renderGrid();
-      });
-
-      async function loadBars() {
-        const basePath = getBasePath();
-        
-        try {
-          const topRes = await fetch(basePath + 'bar/top.html');
-          if (topRes.ok) {
-            let topContent = await topRes.text();
-            topContent = topContent.replace(/game\/mem\/member\.html/g, basePath + 'mem/member.html');
-            document.getElementById('topBarContainer').innerHTML = topContent;
-            document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-              a.href = basePath + 'account/deposit.html';
-            });
-          } else {
-            console.error('Top bar failed:', topRes.status);
-          }
-
-          const botRes = await fetch(basePath + 'bar/bottom.html');
-          if (botRes.ok) {
-            document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
-          } else {
-            console.error('Bottom bar failed:', botRes.status);
-          }
-        } catch (err) {
-          console.error('Bar loading error:', err);
         }
-      }
 
-      window.addEventListener('DOMContentLoaded', () => { 
-        loadBars(); 
-        setTimeout(fetchGamesFromSupabase, 100);
-      });
-    })();
-  </script>
+        const botRes = await fetch(basePath + 'bar/bottom.html');
+        if (botRes.ok) {
+          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+        }
+      } catch (err) {
+        console.error('Bar loading error:', err);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => { 
+      loadBars(); 
+      setTimeout(fetchLotteryGamesFromSupabase, 100);
+    });
+  })();
+</script>
 </body>
 </html>
