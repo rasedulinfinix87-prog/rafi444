@@ -102,7 +102,7 @@ body {
       <span id="userBalance" class="font-bold text-emerald-400">Loading...</span>
     </div>
 
-    <form id="paymentForm" onsubmit="processPayment(event)">
+    <form id="paymentForm" onsubmit="proceedToVerification(event)">
       <!-- Buyer Name -->
       <div class="input-group">
         <label class="block text-xs text-gray-400 mb-1">Buyer Name</label>
@@ -129,8 +129,8 @@ body {
 
       <!-- Pay Button -->
       <button type="submit" id="payBtn" class="w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98 text-sm">
-        <i class="fa-solid fa-check-circle"></i>
-        <span>Pay & Confirm Ticket</span>
+        <i class="fa-solid fa-arrow-right"></i>
+        <span>Proceed to E-Payment</span>
       </button>
     </form>
   </div>
@@ -173,44 +173,21 @@ body {
   }
 
   let currentUserId = null;
-  let userCurrentBalance = 0;
 
   async function fetchUserProfile() {
     const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
     if (!client) return;
 
     try {
-      let userId = null;
-
-      // ১. প্রথমে supabase-config.js এর getCurrentUser() চেক করা
-      if (typeof getCurrentUser === 'function') {
-        const authUser = await getCurrentUser();
-        if (authUser) {
-          userId = authUser.id || authUser.user_id || authUser.uid;
-        }
-      }
-
-      // ২. যদি সেখানে না পাওয়া যায়, তবে সরাসরি লোকালস্টোরেজ চেক করা
-      if (!userId) {
-        const stored = localStorage.getItem('current_user') || localStorage.getItem('user_id');
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            userId = parsed.id || parsed.user_id || parsed.uid || parsed;
-          } catch (e) {
-            userId = stored; // যদি সরাসরি স্ট్రిং বা আইডি হয়
-          }
-        }
-      }
-
-      if (!userId) {
+      const user = await getCurrentUser();
+      
+      if (!user || (!user.id && !user.user_id && !user.uid)) {
         document.getElementById('userBalance').textContent = '0.00 BDT';
         return;
       }
 
-      currentUserId = userId;
+      currentUserId = user.id || user.user_id || user.uid;
 
-      // ৩. profiles টেবিল থেকে ডাটা ফেচ করা
       const { data, error } = await client
         .from('profiles')
         .select('balance, full_name, phone_number')
@@ -224,14 +201,9 @@ body {
       }
 
       if (data) {
-        userCurrentBalance = parseFloat(data.balance || 0);
-        document.getElementById('userBalance').textContent = userCurrentBalance.toFixed(2) + ' BDT';
-        if (data.full_name && !document.getElementById('buyerName').value) {
-          document.getElementById('buyerName').value = data.full_name;
-        }
-        if (data.phone_number && !document.getElementById('buyerMobile').value) {
-          document.getElementById('buyerMobile').value = data.phone_number;
-        }
+        document.getElementById('userBalance').textContent = parseFloat(data.balance || 0).toFixed(2) + ' BDT';
+        if(data.full_name) document.getElementById('buyerName').value = data.full_name;
+        if(data.phone_number) document.getElementById('buyerMobile').value = data.phone_number;
       } else {
         document.getElementById('userBalance').textContent = '0.00 BDT';
       }
@@ -246,15 +218,15 @@ body {
     await fetchUserProfile();
   });
 
-  async function processPayment(event) {
+  // ভেরিফিকেশন পেইজে ডেটা পাস করার ফাংশন
+  function proceedToVerification(event) {
     event.preventDefault();
 
     const name = document.getElementById('buyerName').value.trim();
     const mobile = document.getElementById('buyerMobile').value.trim();
-    const priceAmount = parseFloat(document.getElementById('ticketPriceSelect').value);
-    const payBtn = document.getElementById('payBtn');
+    const priceAmount = document.getElementById('ticketPriceSelect').value;
 
-    if (!name || !mobile || isNaN(priceAmount)) {
+    if (!name || !mobile || !priceAmount) {
       notify('দয়া করে সব তথ্য সঠিকভাবে পূরণ করুন।');
       return;
     }
@@ -264,57 +236,19 @@ body {
       return;
     }
 
-    if (userCurrentBalance < priceAmount) {
-      notify('অপর্যাপ্ত ব্যালেন্স! দয়া করে ডিপোজিট করুন।');
-      return;
-    }
+    // ডেটাগুলো লোকালস্টোরেজে সেভ করে পরবর্তী পেজে রিডাইরেক্ট করা
+    localStorage.setItem('pending_ticket_data', JSON.stringify({
+      userId: currentUserId,
+      buyerName: name,
+      buyerMobile: mobile,
+      priceAmount: priceAmount
+    }));
 
-    payBtn.disabled = true;
-    payBtn.textContent = 'Processing...';
+    notify('পেমেন্ট পেজে redirect করা হচ্ছে...');
 
-    try {
-      const client = supabaseClient;
-
-      // ১. profiles টেবিল থেকে ব্যালেন্স আপডেট করা
-      const newBalance = userCurrentBalance - priceAmount;
-      const { error: profileError } = await client
-        .from('profiles')
-        .update({ balance: newBalance })
-        .eq('id', currentUserId);
-
-      if (profileError) throw profileError;
-
-      // ২. ইউনিক টিকিট নম্বর তৈরি করা
-      const ticketNumber = 'TICK-' + Math.floor(100000 + Math.random() * 900000);
-
-      // ৩. tic_tickets টেবিলে ডেটা ইনসার্ট করা
-      const { error: ticketError } = await client
-        .from('tic_tickets')
-        .insert([
-          {
-            tic_user_id: currentUserId,
-            tic_ticket_number: ticketNumber,
-            tic_buyer_name: name,
-            tic_buyer_mobile: mobile,
-            tic_ticket_status: 'active',
-            tic_purchased_at: new Date()
-          }
-        ]);
-
-      if (ticketError) throw ticketError;
-
-      notify('পেমেন্ট সফল এবং টিকিট কেনা সম্পন্ন হয়েছে!');
-      
-      setTimeout(() => {
-        window.location.href = 'tic-draw.html';
-      }, 2000);
-
-    } catch (err) {
-      console.error('Payment error:', err);
-      notify('টেকনিক্যাল সমস্যার কারণে প্রসেস সম্পন্ন হয়নি।');
-      payBtn.disabled = false;
-      payBtn.innerHTML = `<i class="fa-solid fa-check-circle"></i><span>Pay & Confirm Ticket</span>`;
-    }
+    setTimeout(() => {
+      window.location.href = 'ticket-e-payment-verification.html';
+    }, 1000);
   }
 </script>
 </body>
