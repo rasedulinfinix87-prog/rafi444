@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#0F212E">
+<title>Buy Lucky Ticket</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Supabase JS Client & Config (আপনার প্রজেক্ট স্ট্রাকচার অনুযায়ী পাথ ঠিক করে নিবেন) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../supabase-config.js"></script>
+
+<style>
+:root {
+  --bg: #0F212E;
+  --button: #1F51FF;
+  --border: #0F212E;
+  --text: #FFFFFF;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  padding-bottom: 40px;
+}
+.app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+/* Form Container Style matching the image */
+.form-box {
+  background: rgba(26, 44, 56, 0.5);
+  border: 1px solid rgba(31, 81, 255, 0.3);
+  border-radius: 24px;
+  padding: 24px 20px;
+  backdrop-filter: blur(10px);
+}
+.input-group {
+  position: relative;
+  margin-bottom: 16px;
+}
+.input-group i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 16px;
+}
+.input-group input {
+  width: 100%;
+  background: #1A2C38;
+  border: 1px solid #2a4359;
+  border-radius: 14px;
+  padding: 14px 16px 14px 46px;
+  color: #FFFFFF;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input-group input:focus {
+  border-color: #1F51FF;
+}
+.toast {
+  position: fixed;
+  z-index: 50;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--button);
+  color: white;
+  border-radius: 12px;
+  padding: 10px 20px;
+  display: none;
+  max-width: 90%;
+  text-align: center;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.toast.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Top Banner Image -->
+  <div class="w-full mb-6 flex justify-center">
+    <img src="images/banner.png" alt="Lucky Draw Banner" class="w-full h-auto object-contain rounded-2xl shadow-lg" />
+  </div>
+
+  <!-- Registration Form Box -->
+  <div class="form-box shadow-2xl">
+    <!-- Title Button style header -->
+    <div class="w-full bg-[#1F51FF] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 mb-3 shadow-md text-sm md:text-base">
+      <i class="fa-solid fa-ticket"></i>
+      <span>Lucky Draw Registration</span>
+    </div>
+
+    <p class="text-center text-xs text-white/70 mb-6">Fill in your details and get a chance to win amazing prizes!</p>
+
+    <form id="ticketForm" onsubmit="submitTicket(event)">
+      <!-- Name Input -->
+      <div class="input-group">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="userName" placeholder="Name" required autocomplete="off">
+      </div>
+
+      <!-- Mobile Number Input -->
+      <div class="input-group">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+        <input type="tel" id="userMobile" placeholder="Mobile Number" required autocomplete="off">
+      </div>
+
+      <!-- Address Input -->
+      <div class="input-group">
+        <i class="fa-solid fa-location-dot"></i>
+        <input type="text" id="userAddress" placeholder="Address" required autocomplete="off">
+      </div>
+
+      <!-- Confirm Button -->
+      <button type="submit" id="submitBtn" class="w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg active:scale-98">
+        <i class="fa-solid fa-ticket"></i>
+        <span>Confirm Ticket</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  function notify(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  async function submitTicket(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('userName').value.trim();
+    const mobile = document.getElementById('userMobile').value.trim();
+    const address = document.getElementById('userAddress').value.trim();
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (!name || !mobile || !address) {
+      notify('দয়া করে সব তথ্য পূরণ করুন।');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing...';
+
+    try {
+      const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
+
+      if (!client || typeof client.from !== 'function') {
+        throw new Error('Supabase client connection failed.');
+      }
+
+      // Supabase টেবিলের নাম আপনার ডাটাবেজ অনুযায়ী পরিবর্তন করে নিতে পারেন (যেমন: 'ticket_registrations')
+      const { data, error } = await client
+        .from('ticket_registrations') 
+        .insert([
+          { 
+            name: name, 
+            mobile: mobile, 
+            address: address,
+            created_at: new Date()
+          }
+        ]);
+
+      if (error) throw error;
+
+      notify('টিকা সফলভাবে কনফার্ম হয়েছে!');
+      document.getElementById('ticketForm').reset();
+
+      setTimeout(() => {
+        window.location.href = 'tic-draw.html'; // সফল হওয়ার পর আগের পেজে ফিরিয়ে নিতে পারেন
+      }, 2000);
+
+    } catch (err) {
+      console.error('Error inserting data:', err);
+      notify('টেকনিক্যাল সমস্যার কারণে সাবমিট হয়নি। আবার চেষ্টা করুন।');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<i class="fa-solid fa-ticket"></i><span>Confirm Ticket</span><i class="fa-solid fa-arrow-right"></i>`;
+    }
+  }
+</script>
+</body>
+</html>
