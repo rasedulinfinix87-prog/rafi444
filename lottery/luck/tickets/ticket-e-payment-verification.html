@@ -182,7 +182,6 @@ html, body {
     document.getElementById('headerAmount').textContent = 'BDT ' + ticketData.priceAmount;
     document.getElementById('warnAmount').textContent = 'BDT ' + ticketData.priceAmount;
 
-    // যদি পেমেন্ট মেথড বা লোগো ডাইনামিক করতে চান, তা এখানে সেট করা যাবে। ডিফল্ট হিসেবে nagad রাখা হয়েছে।
     if (ticketData.method) {
       const method = ticketData.method.toLowerCase();
       const logoEl = document.getElementById('methodLogo');
@@ -230,7 +229,7 @@ html, body {
 
       const ticketNumber = 'TICK-' + Math.floor(100000 + Math.random() * 900000);
 
-      // ১. tic_tickets টেবিলে ডেটা ইনসার্ট করা
+      // ১. tic_tickets টেবিলে tic_trx_id সহ ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
@@ -239,6 +238,7 @@ html, body {
             tic_ticket_number: ticketNumber,
             tic_buyer_name: ticketData.buyerName,
             tic_buyer_mobile: ticketData.buyerMobile,
+            tic_trx_id: trxId, // এখানে ট্রানজেকশন আইডি যুক্ত করা হয়েছে
             tic_ticket_status: 'active',
             tic_purchased_at: new Date()
           }
