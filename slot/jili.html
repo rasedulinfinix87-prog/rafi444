@@ -1,203 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Super Ace Slot</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jinni Lottery UI</title>
+<style>
+:root{
+  --yellow:#ffd638;--navy:#171c59;--green:#18c900;--muted:#8298b6;
+  --pale:#edf5fc;--white:#fff;--blue:#19a9ed;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#ffe45c,#ffcf20);font-family:Inter,Arial,sans-serif;color:var(--navy);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px 10px}
+.phone{width:min(100%,410px);height:min( calc(100vh - 24px), 820px);min-height:700px;background:#f8fbff;border:7px solid #fff;border-radius:54px;box-shadow:0 20px 35px #8e6e1b55,inset 0 0 0 2px #e5edf5;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.status{height:36px;padding:12px 28px 0;display:flex;justify-content:space-between;align-items:center;font-weight:800;color:#111;font-size:13px;flex-shrink:0}
+.status-icons{letter-spacing:2px;font-size:12px}
+.topbar{height:72px;display:flex;align-items:center;justify-content:space-between;padding:8px 22px;gap:8px;flex-shrink:0}
+.pill{border:0;color:#fff;border-radius:30px;padding:12px 14px;font-weight:800;font-size:11px;white-space:nowrap;box-shadow:0 4px 9px #00000014;cursor:pointer}
+.signup{background:linear-gradient(135deg,#ffb31b,#ff8c00)}
+.cart{background:linear-gradient(135deg,#27df00,#08a900)}
+.brand{text-align:center;line-height:.95;flex:1}
+.brand strong{display:block;font-family:Georgia,serif;font-size:30px;font-style:italic;letter-spacing:-1.8px;color:#11184f}
+.brand small{display:block;font-size:12px;font-weight:900;color:#139ee2;letter-spacing:.5px;margin-top:4px}
+.scroll{overflow-y:auto;scrollbar-width:none;padding:0 15px 108px;flex:1}
+.scroll::-webkit-scrollbar{display:none}
+.welcome{height:112px;border-radius:9px;background:linear-gradient(120deg,#ffdf37,#ffd33a);padding:24px 15px;position:relative;overflow:hidden;margin:0 0 14px}
+.welcome:before,.welcome:after{content:"";position:absolute;height:2px;width:170px;background:#fff7a2;opacity:.55;transform:rotate(-32deg);left:-30px;top:10px}
+.welcome:after{left:auto;right:-30px;top:80px}
+.welcome h1{font-size:22px;margin:0 0 9px;font-weight:850;position:relative;z-index:1}
+.welcome p{font-size:14px;margin:0;font-weight:600;position:relative;z-index:1}
+.tabs{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;height:45px;align-items:center;white-space:nowrap;padding:0 4px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{height:100%;display:flex;align-items:center;gap:6px;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);font-weight:750;font-size:11px;cursor:pointer;padding:0 2px}
+.tab.active{color:#16b92b;border-bottom-color:#16c51a}
+.section{background:linear-gradient(145deg,#eff7fd,#e9f3fc);border-radius:12px;padding:16px 10px 18px;margin:0 -2px 13px;overflow:hidden}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:15px}
+.section-head h2{font-size:14px;margin:0;font-weight:850;white-space:nowrap}
+.green{color:#17bd29}
+.arrows{display:flex;gap:10px}
+.arrow{width:31px;height:31px;border:0;border-radius:50%;background:#fff;color:#8aa2bf;font-size:23px;box-shadow:0 4px 10px #c4d8e9aa;cursor:pointer;line-height:1}
+.arrow.next{color:#12b62b}
+.cards{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding:15px 0 5px}
+.cards::-webkit-scrollbar{display:none}
+.ticket{position:relative;flex:0 0 82%;background:linear-gradient(145deg,#fff,#fdfefe);border-radius:13px;padding:39px 17px 15px;box-shadow:0 9px 18px #c6d8e8a8;min-height:210px}
+.ticket:before,.ticket:after{content:"";position:absolute;width:18px;height:28px;border-radius:50%;background:#eaf3fc;top:45%;left:-10px}
+.ticket:after{left:auto;right:-10px}
+.game-logo{position:absolute;top:-18px;left:28px;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;text-align:center;color:#fff;font-weight:900;font-size:10px;line-height:1.05;border:3px solid #e7effb;box-shadow:0 4px 8px #0002;background:radial-gradient(circle at 35% 30%,#8b57ff,#17126b 68%)}
+.game-logo.red{background:radial-gradient(circle at 35% 30%,#ff6d6d,#a30020 70%)}
+.game-logo.blue{background:radial-gradient(circle at 35% 30%,#75eaff,#0085dc 70%)}
+.date{font-size:10px;color:var(--muted);font-weight:700;text-align:right;margin-bottom:18px}
+.details{display:grid;grid-template-columns:1.2fr 1fr;gap:8px}
+.label{font-size:10px;color:var(--muted);font-weight:700;margin-bottom:6px}
+.amount{font-size:15px;font-weight:900;white-space:nowrap;letter-spacing:-.5px}
+.players{font-size:13px;font-weight:800;white-space:nowrap}
+.numbers{display:flex;gap:8px;margin:21px 0 17px;justify-content:space-between}
+.ball{width:31px;height:31px;display:grid;place-items:center;flex-shrink:0;border-radius:50%;color:#fff;font-size:12px;font-weight:900;background:linear-gradient(145deg,#5f4cf1,#3020b7);box-shadow:0 3px 6px #3120b633}
+.ball.blueball{background:linear-gradient(145deg,#43c9ff,#078cde)}
+.check{width:100%;border:0;border-radius:30px;background:linear-gradient(90deg,#21db00,#0bb900);color:white;padding:13px 10px;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 4px 8px #1acb0030}
+.pending{margin-top:20px}
+.pending .ticket{min-height:140px}
+.pending .date{margin-bottom:7px}
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;height:96px;background:#f8fbfff2;backdrop-filter:blur(10px);border-top:1px solid #e8f0f7;display:flex;align-items:center;justify-content:space-around;padding:8px 6px 17px;z-index:3}
+.nav-item{border:0;background:transparent;color:#8198b5;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;font-weight:800;cursor:pointer;min-width:48px}
+.nav-icon{font-size:24px;line-height:1}
+.mascot{width:55px;height:55px;border-radius:50%;background:#e7f5ff;border:3px solid #171c59;display:grid;place-items:center;font-size:32px;box-shadow:0 3px 8px #9ab5d3}
+.nav-item.center{transform:translateY(-8px)}
+.home-indicator{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:120px;height:5px;background:#cbd8e5;border-radius:8px;z-index:4}
+.toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;padding:22px 26px;box-shadow:0 15px 50px #07143755;display:none;z-index:10;text-align:center;width:75%;font-weight:800}
+.toast.show{display:block;animation:pop .2s ease}
+.toast span{display:block;font-size:12px;color:#7d91ad;font-weight:600;margin-top:7px}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-46%)}to{opacity:1;transform:translate(-50%,-50%)}}
+@media(max-height:730px){body{padding:6px}.phone{height:calc(100vh - 12px);min-height:620px;border-radius:42px}.welcome{height:100px;padding:18px 14px}.scroll{padding-bottom:100px}.ticket{min-height:195px}.bottom-nav{height:86px}}
+@media(min-width:600px){body{align-items:center}.phone{height:820px}}
+</style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex flex-col justify-between">
-
-  <!-- Top Header / Balance Bar -->
-  <header class="bg-slate-800 p-4 shadow-md flex justify-between items-center">
-    <div class="flex items-center space-x-3">
-      <a href="../index.html" class="bg-slate-700 px-3 py-1.5 rounded text-sm hover:bg-slate-600 transition">← Home</a>
-      <h1 class="font-bold text-lg text-amber-400">Super Ace Slot</h1>
-    </div>
-    <div class="bg-slate-900 px-4 py-1.5 rounded-full border border-slate-700 flex items-center space-x-2">
-      <span class="text-xs text-slate-400">Balance:</span>
-      <span id="userBalance" class="font-bold text-emerald-400">0.00</span>
-    </div>
+<body>
+<main class="phone" aria-label="Lottery app interface">
+  <div class="status"><span>9:41</span><span class="status-icons">â–®â–®â–® â—‰ â–°</span></div>
+  <header class="topbar">
+    <button class="pill signup" data-action="Sign up">â™™ SIGN UP</button>
+    <div class="brand"><strong>Jinni</strong><small>LOTTERY</small></div>
+    <button class="pill cart" data-action="Shopping cart">CART â™§ <span style="background:#ff9d00;border-radius:50%;padding:2px 5px;margin-left:2px">2</span></button>
   </header>
-
-  <!-- Main Slot Machine Container -->
-  <main class="flex-grow flex flex-col items-center justify-center p-4">
-    <div class="bg-slate-800 border-4 border-amber-500/50 rounded-2xl p-6 shadow-2xl w-full max-w-md text-center">
-      
-      <!-- Slot Reels Display Area -->
-      <div class="grid grid-cols-4 gap-3 bg-slate-950 p-4 rounded-xl mb-6 border border-slate-700">
-        <div class="reel bg-slate-900 h-24 flex items-center justify-center text-4xl rounded-lg border border-slate-800 shadow-inner">👑</div>
-        <div class="reel bg-slate-900 h-24 flex items-center justify-center text-4xl rounded-lg border border-slate-800 shadow-inner">💎</div>
-        <div class="reel bg-slate-900 h-24 flex items-center justify-center text-4xl rounded-lg border border-slate-800 shadow-inner">⭐</div>
-        <div class="reel bg-slate-900 h-24 flex items-center justify-center text-4xl rounded-lg border border-slate-800 shadow-inner">🍇</div>
+  <div class="scroll">
+    <section class="welcome"><h1>Hello Ariel ðŸ‘‹</h1><p>Welcome to your game center.</p></section>
+    <nav class="tabs" aria-label="Lottery tabs">
+      <button class="tab active" data-tab="My Tickets">â–¦ My Tickets</button>
+      <button class="tab" data-tab="My Winnings">â˜† My Winnings</button>
+      <button class="tab" data-tab="Lucky Draws">â™§ Lucky Draws</button>
+      <button class="tab" data-tab="My History">â—´ My History</button>
+    </nav>
+    <section class="section">
+      <div class="section-head"><h2>Instantly 50 tickets <span class="green">(2)</span></h2><div class="arrows"><button class="arrow" data-scroll="-1" aria-label="Previous tickets">â€¹</button><button class="arrow next" data-scroll="1" aria-label="Next tickets">â€º</button></div></div>
+      <div class="cards">
+        <article class="ticket">
+          <div class="game-logo">SUPER<br>LOTTERY</div>
+          <div class="date">31 May, 2025&nbsp; â—·</div>
+          <div class="details"><div><div class="label">Draw Date (UTC)</div><div class="amount">â‚¬582.4 Million</div></div><div><div class="label">Jackpot (Est.)</div><div class="players">250 Players</div></div></div>
+          <div class="numbers"><span class="ball">13</span><span class="ball">17</span><span class="ball">24</span><span class="ball">32</span><span class="ball">45</span><span class="ball">56</span></div>
+          <button class="check" data-action="Check ticket">CHECK TICKET</button>
+        </article>
+        <article class="ticket">
+          <div class="game-logo red">MEGA<br>MILLIONS</div>
+          <div class="date">Draw Date&nbsp; â—·</div>
+          <div class="details"><div><div class="label">Jackpot (Est.)</div><div class="amount">â‚¬390 Million</div></div><div><div class="label">Players</div><div class="players">180 Players</div></div></div>
+          <div class="numbers"><span class="ball blueball">07</span><span class="ball blueball">14</span><span class="ball blueball">21</span></div>
+          <button class="check" data-action="Check ticket">CHECK TICKET</button>
+        </article>
       </div>
-
-      <!-- Result / Status Message -->
-      <div id="gameMessage" class="h-8 text-sm font-medium text-amber-300 mb-4 flex items-center justify-center">
-        Set your bet and spin to win!
+    </section>
+    <section class="section pending">
+      <div class="section-head"><h2>Pending tickets <span class="green">(2)</span></h2><div class="arrows"><button class="arrow" data-scroll="-1" aria-label="Previous pending tickets">â€¹</button><button class="arrow next" data-scroll="1" aria-label="Next pending tickets">â€º</button></div></div>
+      <div class="cards">
+        <article class="ticket"><div class="game-logo red">POWER<br>BALL</div><div class="date">Draw Date (UTC) ðŸ””</div><div class="details"><div><div class="label">Ticket status</div><div class="amount">Pending</div></div><div><div class="label">Draw</div><div class="players">Tonight</div></div></div><div style="margin-top:18px"><button class="check" data-action="View ticket">VIEW TICKET</button></div></article>
+        <article class="ticket"><div class="game-logo blue">LUCKY<br>STAR</div><div class="date">Draw Date (UTC) ðŸ””</div><div class="details"><div><div class="label">Ticket status</div><div class="amount">Pending</div></div><div><div class="label">Draw</div><div class="players">Tomorrow</div></div></div><div style="margin-top:18px"><button class="check" data-action="View ticket">VIEW TICKET</button></div></article>
       </div>
-
-      <!-- Bet Controls -->
-      <div class="mb-5 flex flex-col items-center space-y-2">
-        <label for="betAmountInput" class="text-xs text-slate-400 uppercase tracking-wider">Bet Amount</label>
-        <div class="flex items-center space-x-2">
-          <button onclick="adjustBet(-10)" class="bg-slate-700 px-3 py-1 rounded hover:bg-slate-600 font-bold">-</button>
-          <input type="number" id="betAmountInput" value="20" min="1" class="w-28 bg-slate-900 text-center text-lg font-bold py-1 rounded border border-slate-700 text-amber-400 focus:outline-none">
-          <button onclick="adjustBet(10)" class="bg-slate-700 px-3 py-1 rounded hover:bg-slate-600 font-bold">+</button>
-        </div>
-      </div>
-
-      <!-- Spin Button -->
-      <button id="spinBtn" onclick="playSuperAceSlot()" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xl py-3 rounded-xl shadow-lg hover:from-amber-400 hover:to-yellow-400 transition transform active:scale-95">
-        SPIN NOW
-      </button>
-
-    </div>
-  </main>
-
-  <!-- Footer Navigation Bar -->
-  <footer class="bg-slate-800 p-3 text-center text-xs text-slate-400 border-t border-slate-700">
-    &copy; Rasi Shop &bull; Super Ace Slot Integration
-  </footer>
-
-  <!-- Supabase Configuration & Game Logic Script -->
-  <script src="../supabase-config.js"></script>
-  <script>
-    let currentUser = null;
-    let userProfile = null;
-
-    // Symbols used for slot spin animation/display
-    const slotSymbols = ['👑', '💎', '⭐', '🍇', '🔔', '🍊', '🍉'];
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      currentUser = await requireAuth();
-      if (currentUser) {
-        await loadUserProfileData();
-      }
-    });
-
-    async function loadUserProfileData() {
-      userProfile = await getUserProfile(currentUser.id);
-      if (userProfile) {
-        document.getElementById('userBalance').innerText = Number(userProfile.balance || 0).toFixed(2);
-      }
-    }
-
-    function adjustBet(amount) {
-      const input = document.getElementById('betAmountInput');
-      let currentVal = parseFloat(input.value) || 0;
-      currentVal += amount;
-      if (currentVal < 1) currentVal = 1;
-      input.value = currentVal;
-    }
-
-    async function playSuperAceSlot() {
-      if (!currentUser || !userProfile) {
-        alert("Session expired. Please login again.");
-        window.location.href = "../login-signup.html";
-        return;
-      }
-
-      const betInput = document.getElementById('betAmountInput');
-      const betAmount = parseFloat(betInput.value);
-      const currentBalance = parseFloat(userProfile.balance || 0);
-
-      const msgEl = document.getElementById('gameMessage');
-      const spinBtn = document.getElementById('spinBtn');
-
-      if (isNaN(betAmount) || betAmount <= 0) {
-        msgEl.innerText = "Please enter a valid bet amount!";
-        return;
-      }
-
-      if (currentBalance < betAmount) {
-        msgEl.innerText = "Insufficient balance!";
-        return;
-      }
-
-      // Disable button during spin execution
-      spinBtn.disabled = true;
-      spinBtn.classList.add('opacity-50');
-      msgEl.innerText = "Spinning...";
-
-      // Randomize symbols for visual effect
-      const reels = document.querySelectorAll('.reel');
-      let shuffleInterval = setInterval(() => {
-        reels.forEach(reel => {
-          const randomSym = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
-          reel.innerText = randomSym;
-        });
-      }, 80);
-
-      setTimeout(async () => {
-        clearInterval(shuffleInterval);
-
-        // Simple Win/Loss Calculation Logic
-        // 40% win chance simulation
-        const isWin = Math.random() < 0.40;
-        let multiplier = 0;
-        let payout = 0;
-
-        // Final result symbols generation
-        const finalSymbols = [];
-        for (let i = 0; i < 4; i++) {
-          finalSymbols.push(slotSymbols[Math.floor(Math.random() * slotSymbols.length)]);
-        }
-        reels.forEach((reel, idx) => {
-          reel.innerText = finalSymbols[idx];
-        });
-
-        if (isWin) {
-          multiplier = [2, 3, 5, 10][Math.floor(Math.random() * 4)];
-          payout = betAmount * multiplier;
-          msgEl.innerText = `Congratulations! You won ${payout.toFixed(2)} (${multiplier}X)`;
-        } else {
-          payout = 0;
-          msgEl.innerText = "Try again! Better luck next time.";
-        }
-
-        const newBalance = currentBalance - betAmount + payout;
-
-        try {
-          // Update profile balance in Supabase
-          const { error: updateError } = await supabaseClient
-            .from('profiles')
-            .update({ balance: newBalance })
-            .eq('id', currentUser.id);
-
-          if (updateError) {
-            console.error("Balance update error:", updateError);
-          }
-
-          // Insert record into original_bets_history (automatically handles wagering & VIP point additions via interceptor)
-          await supabaseClient
-            .from('original_bets_history')
-            .insert([{
-              user_id: currentUser.id,
-              game_name: 'Super Ace Slot',
-              bet_amount: betAmount,
-              payout: payout,
-              multiplier: multiplier,
-              status: isWin ? 'win' : 'loss',
-              game_details: { symbols: finalSymbols }
-            }]);
-
-          // Refresh user profile data locally
-          await loadUserProfileData();
-
-        } catch (err) {
-          console.error("Database transaction error:", err);
-        }
-
-        // Re-enable spin button
-        spinBtn.disabled = false;
-        spinBtn.classList.remove('opacity-50');
-
-      }, 1200);
-    }
-  </script>
+    </section>
+  </div>
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav-item" data-action="Games"><span class="nav-icon">â–¦</span><span>GAMES</span></button>
+    <button class="nav-item" data-action="Lottery"><span class="nav-icon">â™¢</span><span>LOTTERY</span></button>
+    <button class="nav-item center" data-action="Messages"><span class="mascot">ðŸ§ž</span></button>
+    <button class="nav-item" data-action="Promo"><span class="nav-icon">â™§</span><span>PROMO</span></button>
+    <button class="nav-item" data-action="More"><span class="nav-icon">â˜°</span><span>MORE</span></button>
+  </nav>
+  <div class="home-indicator"></div>
+  <div class="toast" id="toast">Loading...<span id="toast-detail">Please wait</span></div>
+</main>
+<script>
+const toast = document.getElementById('toast');
+const toastDetail = document.getElementById('toast-detail');
+let toastTimer;
+function showToast(title, detail='This demo button is ready to connect to your app logic.') {
+  toast.firstChild.textContent = title;
+  toastDetail.textContent = detail;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toast.classList.remove('show'), 1500);
+}
+document.querySelectorAll('[data-action]').forEach(button=>{
+  button.addEventListener('click',()=>showToast(button.dataset.action));
+});
+document.querySelectorAll('[data-tab]').forEach(button=>{
+  button.addEventListener('click',()=>{
+    document.querySelectorAll('[data-tab]').forEach(tab=>tab.classList.remove('active'));
+    button.classList.add('active');
+    if(button.dataset.tab!=='My Tickets') showToast(button.dataset.tab, 'Connect this tab to your lottery data.');
+  });
+});
+document.querySelectorAll('[data-scroll]').forEach(button=>{
+  button.addEventListener('click',()=>{
+    const section=button.closest('.section');
+    const cards=section.querySelector('.cards');
+    cards.scrollBy({left:Number(button.dataset.scroll)*cards.clientWidth*.78,behavior:'smooth'});
+  });
+});
+</script>
 </body>
 </html>
