@@ -73,7 +73,7 @@ button { cursor: pointer; }
 }
 .avatar-top { background:#18384e; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; font-size:22px; }
 
-/* Banner image container styling with original size preservation */
+/* Banner image container styling */
 .hero-banner-container {
   width: 100%;
   margin-bottom: 17px;
@@ -124,7 +124,6 @@ button { cursor: pointer; }
   .app { padding-left:20px; padding-right:20px; }
   .ticket-card { padding:18px 16px 15px; }
 }
-/* Compact mobile layout optimization */
 @media (max-width: 520px) {
   .app { padding: 10px 12px 92px; }
   .status { padding: 2px 4px 17px; font-size: 14px; }
@@ -171,7 +170,7 @@ button { cursor: pointer; }
 </head>
 <body>
 
-<!-- Top Navigation Bar Container Added Here -->
+<!-- Top Navigation Bar Container -->
 <div id="topBarContainer" class="w-full max-w-md mx-auto sticky top-0 z-50"></div>
 
 <main class="app">
@@ -189,7 +188,7 @@ button { cursor: pointer; }
     </div>
   </header>
 
-  <!-- Banner Image Section -->
+  <!-- Banner Image Section (Corrected Path) -->
   <div class="hero-banner-container">
     <img src="images/banner.png" alt="Lucky Tickets Banner" />
   </div>
@@ -273,14 +272,14 @@ function notify(message) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
   toast.classList.add('show');
-  clearTimeout(window.toastTimer);
+  clearTimeout(window.toastToastTimer);
   window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
 function getTicket(type) {
   notify(type + ' Lucky Ticket selected — connect your purchase logic here.');
 }
 
-// Load Top Bar Component dynamically with correct relative path
+// Load Top Bar Component dynamically
 async function loadTopBar() {
   try {
     const topRes = await fetch('../../../bar/top.html');
@@ -288,7 +287,6 @@ async function loadTopBar() {
       let topContent = await topRes.text();
       document.getElementById('topBarContainer').innerHTML = topContent;
       
-      // Adjust deposit link path for lottery/luck/tickets/ subfolder
       document.querySelectorAll('a[href*="deposit"]').forEach(a => {
         a.href = '../../../account/deposit.html';
       });
