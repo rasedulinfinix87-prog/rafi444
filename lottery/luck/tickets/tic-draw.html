@@ -137,7 +137,7 @@ button { cursor: pointer; }
     <div class="section-heading"><h2>Recent Winners</h2><button class="view-all" onclick="notify('Showing recent winners')">View All →</button></div>
     <div class="winners">
       <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">user123***</span><span class="winner-type">Daily Ticket</span><span class="winner-prize">♧ 10,000</span></div>
-      <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">lucky20***</span><span class="winner-type">Weekly Ticket</span><span class="winner-prize">♧ 50,000</span></div>
+      <div class="winner"><div class="winner-avatar">♟</i><span class="winner-name">lucky20***</span><span class="winner-type">Weekly Ticket</span><span class="winner-prize">♧ 50,000</span></div>
       <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">winner88***</span><span class="winner-type">Special Ticket</span><span class="winner-prize">♧ 250,000</span></div>
       <div class="winner"><div class="winner-avatar">♟</div><span class="winner-name">vip777***</span><span class="winner-type">VIP Ticket</span><span class="winner-prize">♧ 1,000,000</span></div>
     </div>
@@ -162,22 +162,31 @@ button { cursor: pointer; }
     }
 
     function getTicket(type) {
-      // এখানে সরাসরি পেমেন্ট পেজে রিডাইরেক্ট বা লজিক সেট করতে পারেন
       window.location.href = 'ticket-payment-getway.html';
     }
 
     async function loadNavigationComponents() {
       try {
-        // টপ নেভ লোড
+        // সঠিক ফোল্ডার পাথ অনুযায়ী নেভিগেশন ও ফুটার লোড করা
         const topRes = await fetch('navigation.html');
         if (topRes.ok) {
           document.getElementById('topBarContainer').innerHTML = await topRes.text();
+        } else {
+          // যদি রুট ফোল্ডারে থাকে তবে বিকল্প পাথ চেষ্টা করা
+          const altTopRes = await fetch('../navigation.html');
+          if (altTopRes.ok) {
+            document.getElementById('topBarContainer').innerHTML = await altTopRes.text();
+          }
         }
 
-        // ফুটার লোড
         const footerRes = await fetch('navigation/footer.html');
         if (footerRes.ok) {
           document.getElementById('footerContainer').innerHTML = await footerRes.text();
+        } else {
+          const altFooterRes = await fetch('../navigation/footer.html');
+          if (altFooterRes.ok) {
+            document.getElementById('footerContainer').innerHTML = await altFooterRes.text();
+          }
         }
       } catch (err) {
         console.error('Navigation components loading error:', err);
