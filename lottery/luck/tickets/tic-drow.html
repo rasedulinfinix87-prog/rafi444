@@ -6,7 +6,7 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#0F212E">
 <title>Lucky Tickets</title>
-<!-- Tailwind CSS for Top Bar compatibility if needed -->
+<!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 <!-- Font Awesome Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -37,6 +37,7 @@ body {
   color: var(--text);
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: var(--font-base);
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
 }
 button, a { font: inherit; }
 button { cursor: pointer; }
@@ -45,7 +46,7 @@ button { cursor: pointer; }
   max-width: 480px;
   min-height: 100vh;
   margin: 0 auto;
-  padding: 14px 16px 100px;
+  padding: 14px 16px;
   overflow: hidden;
   background: var(--bg);
 }
@@ -88,90 +89,34 @@ button { cursor: pointer; }
   border-radius: 19px;
 }
 
-.filters { display:flex; gap:9px; overflow-x:auto; padding:0 1px 2px; margin-bottom:17px; scrollbar-width:none; }
-.filters::-webkit-scrollbar { display:none; }
-.filter { flex:1; min-width:max-content; border:1px solid var(--border); background:var(--bg); color:var(--text); border-radius:999px; padding:12px 18px; font-weight:650; font-size:var(--font-md); }
-.filter.active { background:var(--button); border-color:var(--border); }
-.ticket-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
-.ticket-card { min-width:0; border:1px solid var(--border); border-radius:18px; padding:17px 14px 14px; background:var(--bg); }
-.ticket-icon { width:53px; height:53px; border-radius:50%; background:#123b5c; display:grid; place-items:center; font-size:27px; margin-bottom:14px; }
-.ticket-card h3 { font-size:var(--font-lg); line-height:1.25; margin:0 0 6px; }
-.ticket-card .description { color:var(--text); opacity:.82; font-size:var(--font-md); line-height:1.4; margin:0 0 17px; }
-.timer { display:flex; gap:7px; align-items:center; font-size:var(--font-base); margin-bottom:15px; white-space:nowrap; }
-.get-ticket { width:100%; padding:0 8px; min-height:43px; font-size:var(--font-md); }
+/* Search and Card Grid Styling matching Search template */
+.game-card { min-width: 0; min-height: 154px; }
+.game-art { min-height: 110px; }
+
 .section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:25px 2px 13px; }
 .section-heading h2 { font-size:var(--font-xl); margin:0; }
 .view-all { border:0; background:transparent; color:var(--text); font-size:var(--font-base); white-space:nowrap; }
-.winners { border:1px solid var(--border); border-radius:18px; padding:0 12px; }
-.winner { display:grid; grid-template-columns:36px minmax(70px,1fr) minmax(76px,1fr) auto; align-items:center; gap:9px; min-height:55px; border-bottom:1px solid var(--border); font-size:var(--font-sm); }
+
+.winners { border:1px solid var(--border); border-radius:18px; padding:0 12px; background: #1A2C38; }
+.winner { display:grid; grid-template-columns:36px minmax(70px,1fr) minmax(76px,1fr) auto; align-items:center; gap:9px; min-height:55px; border-bottom:1px solid #0F212E; font-size:var(--font-sm); }
 .winner:last-child { border-bottom:0; }
 .winner-avatar { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; background:#16476d; font-size:17px; }
 .winner-name { font-size:var(--font-base); font-weight:700; white-space:nowrap; }
 .winner-type { opacity:.86; }
 .winner-prize { font-weight:750; font-size:var(--font-base); white-space:nowrap; }
 .winner-time { opacity:.72; white-space:nowrap; }
-.bottom-nav {
-  position:fixed; z-index:10; bottom:0; left:50%; transform:translateX(-50%);
-  width:100%; max-width:480px; background:var(--bg); border-top:1px solid var(--border);
-  display:grid; grid-template-columns:repeat(4,1fr); padding:12px 8px 19px;
-}
-.nav-item { display:flex; flex-direction:column; align-items:center; gap:5px; color:var(--text); text-decoration:none; font-size:var(--font-base); padding:3px 0; }
-.nav-icon { font-size:25px; line-height:1.1; }
-.nav-item.active { color:var(--button); }
+
+#topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
+#bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
+
 .toast { position:fixed; z-index:20; bottom:90px; left:50%; transform:translateX(-50%); background:var(--button); color:white; border:1px solid var(--border); border-radius:12px; padding:10px 15px; display:none; max-width:90%; text-align:center; }
 .toast.show { display:block; }
-@media (min-width: 420px) {
-  .app { padding-left:20px; padding-right:20px; }
-  .ticket-card { padding:18px 16px 15px; }
-}
-@media (max-width: 520px) {
-  .app { padding: 10px 12px 92px; }
-  .status { padding: 2px 4px 17px; font-size: 14px; }
-  .header { gap: 9px; margin-bottom: 18px; }
-  .brand-icon { width: 34px; height: 34px; font-size: 32px; flex: 0 0 34px; }
-  .brand h1 { font-size: 22px; margin-bottom: 4px; letter-spacing: -.3px; }
-  .brand p { font-size: 13px; }
-  .header-actions { gap: 3px; }
-  .icon-btn { width: 31px; height: 34px; font-size: 19px; }
-  .avatar-top { width: 34px; height: 34px; }
-  .filters { gap: 6px; margin-bottom: 13px; }
-  .filter { padding: 9px 13px; font-size: 12px; }
-  .ticket-grid { gap: 10px; }
-  .ticket-card { padding: 12px 10px 10px; border-radius: 14px; }
-  .ticket-icon { width: 42px; height: 42px; font-size: 22px; margin-bottom: 10px; }
-  .ticket-card h3 { font-size: 14px; line-height: 1.22; margin-bottom: 5px; }
-  .ticket-card .description { font-size: 12px; line-height: 1.35; margin-bottom: 11px; }
-  .timer { font-size: 10px; gap: 5px; margin-bottom: 10px; }
-  .get-ticket { min-height: 36px; font-size: 12px; }
-  .section-heading { margin: 19px 2px 10px; }
-  .section-heading h2 { font-size: 18px; }
-  .view-all { font-size: 12px; }
-  .winners { padding: 0 8px; border-radius: 14px; }
-  .winner { grid-template-columns: 28px minmax(58px,1fr) minmax(61px,1fr) auto; gap: 5px; min-height: 43px; }
-  .winner-avatar { width: 26px; height: 26px; font-size: 13px; }
-  .winner-name { font-size: 11px; }
-  .winner-type { font-size: 10px; }
-  .winner-prize { font-size: 11px; }
-  .winner-time { font-size: 9px; }
-  .bottom-nav { padding: 9px 5px 13px; }
-  .nav-item { font-size: 11px; gap: 4px; }
-  .nav-icon { font-size: 21px; }
-}
-@media (max-width: 360px) {
-  .app { padding-left: 9px; padding-right: 9px; }
-  .brand h1 { font-size: 20px; }
-  .ticket-card { padding-left: 8px; padding-right: 8px; }
-  .ticket-card h3 { font-size: 13px; }
-  .winner { grid-template-columns: 25px minmax(52px,1fr) minmax(54px,.9fr) auto; gap: 4px; }
-  .winner-name,.winner-prize { font-size: 10px; }
-  .winner-type,.winner-time { font-size: 8px; }
-}
 </style>
 </head>
 <body>
 
 <!-- Top Navigation Bar Container -->
-<div id="topBarContainer" class="w-full max-w-md mx-auto sticky top-0 z-50"></div>
+<div id="topBarContainer"></div>
 
 <main class="app">
   <div class="status">
@@ -188,46 +133,68 @@ button { cursor: pointer; }
     </div>
   </header>
 
-  <!-- Banner Image Section (Corrected Path) -->
+  <!-- Banner Image Section -->
   <div class="hero-banner-container">
     <img src="images/banner.png" alt="Lucky Tickets Banner" />
   </div>
 
-  <nav class="filters" aria-label="Ticket categories">
-    <button class="filter active" data-filter="All">All</button>
-    <button class="filter" data-filter="Daily">Daily</button>
-    <button class="filter" data-filter="Weekly">Weekly</button>
-    <button class="filter" data-filter="Special">Special</button>
-    <button class="filter" data-filter="VIP">VIP</button>
-  </nav>
+  <!-- প্রথম গ্রিড সেকশন: ডেইলি ও উইকলি লটারি টিকিট (Grid 1) -->
+  <div class="section-heading">
+    <h2>Daily & Weekly Tickets</h2>
+  </div>
+  <div id="ticketGrid1" class="grid grid-cols-2 gap-2.5 sm:gap-4">
+    <div onclick="getTicket('Daily Lucky Ticket')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-3 shadow-lg cursor-pointer">
+      <div class="game-art relative w-full h-28 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center rounded-xl overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-[#123b5c] flex items-center justify-center text-xl text-[#FFFFFF] shadow-inner">♧</div>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+        <span class="text-xs font-bold text-white truncate">Daily Lucky Ticket</span>
+        <span class="text-[9px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10">DAILY</span>
+      </div>
+      <div class="text-[10px] text-white/70 mt-1">Win up to 10,000 coins</div>
+    </div>
 
-  <section class="ticket-grid" id="ticketGrid">
-    <article class="ticket-card" data-category="Daily">
-      <div class="ticket-icon">♧</div><h3>Daily Lucky Ticket</h3>
-      <p class="description">Win up to 10,000 coins</p>
-      <div class="timer">◷ <span>Ends in 12h 28m</span></div>
-      <button class="primary get-ticket" onclick="getTicket('Daily')">Get Ticket</button>
-    </article>
-    <article class="ticket-card" data-category="Weekly">
-      <div class="ticket-icon">★</div><h3>Weekly Lucky Ticket</h3>
-      <p class="description">Win up to 100,000 coins</p>
-      <div class="timer">◷ <span>Ends in 5d 12h</span></div>
-      <button class="primary get-ticket" onclick="getTicket('Weekly')">Get Ticket</button>
-    </article>
-    <article class="ticket-card" data-category="Special">
-      <div class="ticket-icon">♛</div><h3>Special Lucky Ticket</h3>
-      <p class="description">Win up to 500,000 coins</p>
-      <div class="timer">◷ <span>Ends in 7d 12h</span></div>
-      <button class="primary get-ticket" onclick="getTicket('Special')">Get Ticket</button>
-    </article>
-    <article class="ticket-card" data-category="VIP">
-      <div class="ticket-icon">◆</div><h3>VIP Lucky Ticket</h3>
-      <p class="description">Win up to 1,000,000 coins</p>
-      <div class="timer">◷ <span>Ends in 14d 12h</span></div>
-      <button class="primary get-ticket" onclick="getTicket('VIP')">Get Ticket</button>
-    </article>
-  </section>
+    <div onclick="getTicket('Weekly Lucky Ticket')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-3 shadow-lg cursor-pointer">
+      <div class="game-art relative w-full h-28 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center rounded-xl overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-[#123b5c] flex items-center justify-center text-xl text-[#FFFFFF] shadow-inner">★</div>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+        <span class="text-xs font-bold text-white truncate">Weekly Lucky Ticket</span>
+        <span class="text-[9px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10">WEEKLY</span>
+      </div>
+      <div class="text-[10px] text-white/70 mt-1">Win up to 100,000 coins</div>
+    </div>
+  </div>
 
+  <!-- দ্বিতীয় গ্রিড সেকশন: স্পেশাল ও ভিআইপি লটারি টিকিট (Grid 2) -->
+  <div class="section-heading">
+    <h2>Special & VIP Tickets</h2>
+  </div>
+  <div id="ticketGrid2" class="grid grid-cols-2 gap-2.5 sm:gap-4">
+    <div onclick="getTicket('Special Lucky Ticket')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-3 shadow-lg cursor-pointer">
+      <div class="game-art relative w-full h-28 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center rounded-xl overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-[#123b5c] flex items-center justify-center text-xl text-[#FFFFFF] shadow-inner">♛</div>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+        <span class="text-xs font-bold text-white truncate">Special Lucky Ticket</span>
+        <span class="text-[9px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10">SPECIAL</span>
+      </div>
+      <div class="text-[10px] text-white/70 mt-1">Win up to 500,000 coins</div>
+    </div>
+
+    <div onclick="getTicket('VIP Lucky Ticket')" class="game-card group relative bg-[#1A2C38] border border-[#0F212E] hover:border-[#1F51FF] rounded-2xl overflow-hidden flex flex-col justify-between transition-transform duration-150 p-3 shadow-lg cursor-pointer">
+      <div class="game-art relative w-full h-28 bg-gradient-to-b from-indigo-900/60 to-[#1A2C38] flex flex-col items-center justify-center rounded-xl overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-[#123b5c] flex items-center justify-center text-xl text-[#FFFFFF] shadow-inner">◆</div>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+        <span class="text-xs font-bold text-white truncate">VIP Lucky Ticket</span>
+        <span class="text-[9px] font-bold text-[#FFFFFF] bg-black/60 px-2 py-0.5 rounded-full border border-white/10">VIP</span>
+      </div>
+      <div class="text-[10px] text-white/70 mt-1">Win up to 1,000,000 coins</div>
+    </div>
+  </div>
+
+  <!-- Recent Winners Section -->
   <section>
     <div class="section-heading"><h2>Recent Winners</h2><button class="view-all" onclick="notify('Showing recent winners')">View All →</button></div>
     <div class="winners">
@@ -239,64 +206,62 @@ button { cursor: pointer; }
   </section>
 </main>
 
-<nav class="bottom-nav" aria-label="Main navigation">
-  <a href="#" class="nav-item active" data-nav="Home"><span class="nav-icon">⌂</span><span>Home</span></a>
-  <a href="#" class="nav-item" data-nav="My Tickets"><span class="nav-icon">♧</span><span>My Tickets</span></a>
-  <a href="#" class="nav-item" data-nav="Rewards"><span class="nav-icon">♙</span><span>Rewards</span></a>
-  <a href="#" class="nav-item" data-nav="Settings"><span class="nav-icon">⚙</span><span>Settings</span></a>
-</nav>
+<!-- Bottom Navigation Bar Container -->
+<div id="bottomBarContainer"></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-const filters = document.querySelectorAll('.filter');
-const cards = document.querySelectorAll('.ticket-card');
-filters.forEach(button => {
-  button.addEventListener('click', () => {
-    filters.forEach(item => item.classList.remove('active'));
-    button.classList.add('active');
-    const chosen = button.dataset.filter;
-    cards.forEach(card => {
-      card.style.display = chosen === 'All' || card.dataset.category === chosen ? '' : 'none';
-    });
-  });
-});
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', event => {
-    event.preventDefault();
-    document.querySelectorAll('.nav-item').forEach(link => link.classList.remove('active'));
-    item.classList.add('active');
-    if (item.dataset.nav !== 'Home') notify(item.dataset.nav + ' page can be connected here');
-  });
-});
-function notify(message) {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.classList.add('show');
-  clearTimeout(window.toastToastTimer);
-  window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
-}
-function getTicket(type) {
-  notify(type + ' Lucky Ticket selected — connect your purchase logic here.');
-}
+  (function () {
+    'use strict';
 
-// Load Top Bar Component dynamically
-async function loadTopBar() {
-  try {
-    const topRes = await fetch('../../../bar/top.html');
-    if (topRes.ok) {
-      let topContent = await topRes.text();
-      document.getElementById('topBarContainer').innerHTML = topContent;
-      
-      document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-        a.href = '../../../account/deposit.html';
-      });
+    function getBasePath() {
+      if (window.location.hostname.includes('github.io')) {
+        const pathParts = window.location.pathname.split('/');
+        if (pathParts.length > 1 && pathParts[1] !== '') {
+          return '/' + pathParts[1] + '/';
+        }
+      }
+      return './';
     }
-  } catch (e) {
-    console.error('Top bar load error:', e);
-  }
-}
 
-document.addEventListener('DOMContentLoaded', loadTopBar);
+    function notify(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function getTicket(type) {
+      notify(type + ' selected — connect your purchase logic here.');
+    }
+
+    async function loadBars() {
+      const basePath = getBasePath();
+      try {
+        const topRes = await fetch(basePath + 'bar/top.html');
+        if (topRes.ok) {
+          let topContent = await topRes.text();
+          topContent = topContent.replace(/game\/mem\/member\.html/g, basePath + 'mem/member.html');
+          document.getElementById('topBarContainer').innerHTML = topContent;
+          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+            a.href = basePath + 'account/deposit.html';
+          });
+        }
+
+        const botRes = await fetch(basePath + 'bar/bottom.html');
+        if (botRes.ok) {
+          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+        }
+      } catch (err) {
+        console.error('Bar loading error:', err);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => { 
+      loadBars(); 
+    });
+  })();
 </script>
 </body>
 </html>
