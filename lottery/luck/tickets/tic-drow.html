@@ -1,475 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0F212E">
-<title>Lucky Draw — Live System</title>
-<!-- Supabase CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{
-  --bg:#0F212E; --panel:#172B39; --panel2:#1B3444; --blue:#1F51FF;
-  --text:#FFFFFF; --muted:#9EB0BC; --line:#29404E; --green:#42D7A0;
-  --gold:#FFC968; --danger:#FF7888; --radius:14px;
-  --fs-xs:11px; --fs-sm:12px; --fs-base:14px; --fs-md:16px;
-  --fs-lg:18px; --fs-xl:22px; --fs-2xl:28px;
-}
-*{box-sizing:border-box}
-html{background:var(--bg);scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font:var(--fs-base)/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:calc(82px + env(safe-area-inset-bottom))}
-button,input{font:inherit}
-button{cursor:pointer}
-button:focus-visible,input:focus-visible{outline:2px solid #8CA5FF;outline-offset:3px}
-.app{width:100%;max-width:520px;margin:0 auto;min-height:100dvh}
-.topbar{position:sticky;top:0;z-index:10;background:rgba(15,33,46,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.04);padding:calc(10px + env(safe-area-inset-top)) 15px 10px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{display:flex;align-items:center;gap:9px;min-width:0}
-.logo{height:34px;width:34px;border-radius:11px;background:var(--blue);display:grid;place-items:center;font-weight:900;box-shadow:0 6px 18px #1f51ff3b}
-.brand-name{font-size:16px;font-weight:850;letter-spacing:-.4px}
-.brand-sub{font-size:10px;color:var(--muted);margin-top:-2px}
-.demo-pill{font-size:10px;font-weight:800;letter-spacing:.5px;border:1px solid #2b4e48;color:var(--green);background:#1e3b3466;padding:5px 8px;border-radius:99px;white-space:nowrap}
-main{padding:14px 13px 20px}
-.section{margin-top:22px}
-.section:first-child{margin-top:0}
-.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 1px 11px}
-h1,h2,h3,p{margin:0}
-h1{font-size:var(--fs-xl);line-height:1.2;letter-spacing:-.6px}
-h2{font-size:var(--fs-lg);letter-spacing:-.3px}
-.section-sub{font-size:var(--fs-xs);color:var(--muted);margin-top:3px}
-.link-button{border:0;background:transparent;color:#AFC2FF;font-size:var(--fs-sm);font-weight:700;padding:5px 0}
-.welcome{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.welcome p{color:var(--muted);font-size:var(--fs-sm);margin-top:5px}
-.avatar{width:38px;height:38px;border-radius:13px;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;flex:0 0 auto;font-size:18px}
-.balance-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
-.mini-stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 12px;min-width:0}
-.stat-label{font-size:var(--fs-xs);color:var(--muted);display:flex;align-items:center;gap:5px}
-.stat-value{font-size:18px;font-weight:850;letter-spacing:-.5px;margin-top:3px}
-.stat-foot{font-size:10px;color:var(--muted);margin-top:1px}
-.action-row{display:flex;gap:8px;margin-top:10px}
-.btn{border:0;border-radius:10px;min-height:42px;padding:10px 13px;font-size:var(--fs-sm);font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:transform .12s,filter .12s}
-.btn:active{transform:scale(.98)}
-.btn-primary{background:var(--blue);color:white;box-shadow:0 5px 14px #1f51ff24}
-.btn-secondary{background:#203848;color:white;border:1px solid #314a59}
-.action-row .btn{flex:1}
-.chip-row{display:flex;gap:7px;overflow-x:auto;padding:1px 0 5px;scrollbar-width:none}
-.chip-row::-webkit-scrollbar{display:none}
-.chip{border:1px solid var(--line);border-radius:99px;background:var(--panel);color:#C5D0D8;padding:8px 12px;white-space:nowrap;font-size:var(--fs-sm);font-weight:700}
-.chip.active{background:var(--blue);border-color:var(--blue);color:white}
-.game-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
-.game-card{min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:7px;text-align:left;color:white}
-.game-art{height:auto;aspect-ratio:1.13/1;border-radius:9px;display:grid;place-items:center;position:relative;overflow:hidden;font-size:32px;background:linear-gradient(145deg,#2f4565,#182d41)}
-.game-art:before{content:"";position:absolute;width:90px;height:90px;border-radius:50%;background:#ffffff0a;top:-38px;right:-32px}
-.game-title{font-size:var(--fs-sm);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:8px 1px 1px}
-.game-meta{font-size:10px;color:var(--muted);margin:0 1px}
-.ticket-card{background:linear-gradient(140deg,#1c3850,#172b39 70%);border:1px solid #355164;border-radius:15px;padding:14px;overflow:hidden;position:relative}
-.ticket-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.ticket-label{font-size:10px;letter-spacing:1px;color:#B7C8D4;font-weight:800}
-.ticket-number{font-size:var(--fs-xl);font-weight:900;letter-spacing:1px;margin-top:6px}
-.ticket-number span{color:#91ACFF}
-.ticket-detail{font-size:var(--fs-xs);color:#B2C2CD;margin-top:4px}
-.status{font-size:10px;font-weight:800;padding:5px 7px;border-radius:6px;background:#2c473c;color:#81F0C0;white-space:nowrap}
-.ticket-bottom{display:flex;gap:8px;margin-top:13px;position:relative;z-index:1}
-.ticket-bottom .btn{flex:1;min-height:38px}
-.draw-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
-.draw-time{font-weight:850;font-size:var(--fs-md)}
-.draw-caption{font-size:var(--fs-xs);color:var(--muted);margin-top:3px}
-.countdown{font-size:var(--fs-md);font-weight:900;letter-spacing:.7px;color:#C4D1FF;background:#243A58;padding:8px 10px;border-radius:9px;font-variant-numeric:tabular-nums}
-.winner-list{display:grid;gap:8px}
-.winner{display:flex;align-items:center;gap:10px;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:11px}
-.rank{height:33px;width:33px;border-radius:10px;display:grid;place-items:center;background:#2b3d4b;font-weight:900;font-size:13px;flex:0 0 auto}
-.rank.first{background:#5a4827;color:#ffdc8e}.rank.second{background:#334553;color:#d8e8f4}.rank.third{background:#533a2d;color:#ffc4a2}
-.winner-info{min-width:0;flex:1}
-.winner-name{font-size:var(--fs-sm);font-weight:800}
-.winner-ticket{font-size:10px;color:var(--muted);margin-top:2px}
-.prize{font-size:var(--fs-sm);font-weight:850;text-align:right}
-.prize small{display:block;font-size:9px;color:var(--muted);font-weight:600}
-.bottom-nav{position:fixed;z-index:20;left:0;right:0;bottom:0;padding:8px 7px calc(8px + env(safe-area-inset-bottom));background:rgba(17,39,53,.97);backdrop-filter:blur(18px);border-top:1px solid #2a414e}
-.nav-inner{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px}
-.nav-item{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px 1px;border:0;border-radius:9px;background:transparent;color:#91A4B1;font-size:9px;font-weight:700}
-.nav-item .nav-icon{font-size:19px;line-height:1.2}
-.nav-item.active{color:#fff}
-.modal-backdrop{position:fixed;inset:0;z-index:50;background:#020910c9;display:none;align-items:flex-end;justify-content:center;padding:12px}
-.modal-backdrop.show{display:flex}
-.modal{width:100%;max-width:480px;background:#172B39;border:1px solid #36505f;border-radius:18px;padding:18px;box-shadow:0 20px 70px #0008;max-height:85dvh;overflow:auto}
-.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
-.modal-title{font-size:18px;font-weight:900}
-.close-btn{height:32px;width:32px;border:1px solid var(--line);border-radius:9px;background:#203848;color:white;font-size:18px}
-.field{display:grid;gap:6px;margin-top:12px}
-.field label{font-size:12px;color:#C0CFD8;font-weight:700}
-.field input{width:100%;min-height:44px;background:#0F212E;color:white;border:1px solid #35505f;border-radius:10px;padding:10px 12px}
-.modal-actions{display:flex;gap:8px;margin-top:16px}
-.modal-actions .btn{flex:1}
-.notice{padding:10px 12px;border-radius:10px;background:#253d4b;color:#d5e3eb;font-size:12px;margin-top:12px}
-.result-box{border:1px dashed #496274;border-radius:12px;padding:14px;margin-top:12px;text-align:center}
-.result-code{font-size:22px;font-weight:900;letter-spacing:1px;color:#C4D1FF}
-.hidden{display:none!important}
-.toast{position:fixed;z-index:70;left:50%;bottom:calc(88px + env(safe-area-inset-bottom));transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#e9f1ff;color:#172a39;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:800;box-shadow:0 10px 30px #0004;transition:.2s;max-width:calc(100% - 28px);text-align:center}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-.bn{font-size:10px;color:#9EB0BC;font-weight:500;display:block;margin-top:2px;line-height:1.4}
-.inline-bn{font-size:10px;color:#9EB0BC;font-weight:500}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lottery Lucky Draw</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Supabase JS Client & Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../../supabase-config.js"></script>
 </head>
-<body>
-<div class="app">
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">LD</div>
-      <div><div class="brand-name">Lucky Draw</div><div class="brand-sub">Live Lottery System</div></div>
-    </div>
-    <div class="demo-pill">● LIVE SYSTEM</div>
-  </header>
+<body class="bg-[#0F212E] text-[#FFFFFF] min-h-screen flex flex-col justify-between select-none">
 
-  <main>
-    <section class="section" id="home">
-      <div class="welcome">
-        <div>
-          <h1>Your lucky moment<span class="bn">আপনার ভাগ্যবান মুহূর্ত</span></h1>
-          <p>Participate in live draws and win exciting prizes.</p>
-        </div>
-        <div class="avatar" id="userAvatar" aria-hidden="true">👤</div>
-      </div>
-      <div class="balance-row">
-        <div class="mini-stat">
-          <div class="stat-label">🎟 My Tickets <span class="inline-bn">· আমার টিকিট</span></div>
-          <div class="stat-value" id="myTicketCount">00</div>
-          <div class="stat-foot">Total purchased</div>
-        </div>
-        <div class="mini-stat">
-          <div class="stat-label">💰 Balance <span class="inline-bn">· মূল ব্যালেন্স</span></div>
-          <div class="stat-value" id="userBalance">৳ 0.00</div>
-          <div class="stat-foot">Available balance</div>
-        </div>
-      </div>
-      <div class="action-row">
-        <button class="btn btn-primary" onclick="openTicketModal()">＋ Buy Ticket</button>
-        <button class="btn btn-secondary" onclick="openVerifyModal()">⌕ Verify Ticket</button>
-      </div>
-    </section>
+  <!-- Top Navigation Bar Include / Load -->
+  <div id="topBarContainer"></div>
 
-    <section class="section" id="games">
-      <div class="section-head">
-        <div><h2>Active Draws<span class="bn">চলমান ড্রসমূহ</span></h2><div class="section-sub">Select a draw to participate</div></div>
-      </div>
-      <div class="game-grid" id="gameGrid">
-        <!-- Dynamic Draws from tic_draws will load here -->
-      </div>
-    </section>
-
-    <section class="section" id="tickets">
-      <div class="section-head">
-        <div><h2>My Tickets<span class="bn">আমার টিকিটসমূহ</span></h2><div class="section-sub">Your active lottery tickets</div></div>
-      </div>
-      <div id="userTicketsList">
-        <!-- Dynamic User Tickets from tic_tickets will load here -->
-      </div>
-    </section>
-
-    <section class="section" id="draw">
-      <div class="section-head">
-        <div><h2>Next Draw Countdown<span class="bn">পরবর্তী ড্র কাউন্টডাউন</span></h2></div>
-      </div>
-      <div class="draw-row">
-        <div><div class="draw-time" id="nextDrawName">Loading...</div><div class="draw-caption" id="nextDrawTimeCaption">Live Timer</div></div>
-        <div class="countdown" id="countdown">00:00:00</div>
-      </div>
-    </section>
-
-    <section class="section" id="winners">
-      <div class="section-head">
-        <div><h2>Recent Winners<span class="bn">সাম্প্রতিক বিজয়ীগণ</span></h2><div class="section-sub">Latest draw winners</div></div>
-      </div>
-      <div class="winner-list" id="winnerList">
-        <!-- Dynamic Winners from tic_winners will load here -->
-      </div>
-    </section>
-
-    <section class="section" id="profile">
-      <div class="section-head"><div><h2>My Profile<span class="bn">আমার প্রোফাইল</span></h2></div></div>
-      <div class="draw-row">
-        <div><div class="draw-time" id="profileName">Loading...</div><div class="draw-caption" id="profileEmail">--</div></div>
-        <div class="avatar">👤</div>
-      </div>
-      <button class="btn btn-secondary" style="width:100%;margin-top:9px" onclick="logoutUser()">Logout · লগআউট</button>
-    </section>
-  </main>
-</div>
-
-<nav class="bottom-nav" aria-label="Main navigation">
-  <div class="nav-inner">
-    <button class="nav-item active" onclick="goTo('home',this)"><span class="nav-icon">⌂</span><span>Home</span></button>
-    <button class="nav-item" onclick="goTo('games',this)"><span class="nav-icon">🎟</span><span>Draws</span></button>
-    <button class="nav-item" onclick="goTo('tickets',this)"><span class="nav-icon">🎟</span><span>Tickets</span></button>
-    <button class="nav-item" onclick="goTo('winners',this)"><span class="nav-icon">🏆</span><span>Winners</span></button>
-    <button class="nav-item" onclick="goTo('profile',this)"><span class="nav-icon">♙</span><span>Profile</span></button>
-  </div>
-</nav>
-
-<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" onclick="backdropClose(event)">
-  <div class="modal">
-    <div class="modal-head"><div class="modal-title" id="modalTitle">System</div><button class="close-btn" onclick="closeModal()">×</button></div>
-    <div id="modalContent"></div>
-  </div>
-</div>
-<div class="toast" id="toast" role="status"></div>
-
-<!-- Include Supabase Config file -->
-<script src="supabase-config.js"></script>
-<script>
-let currentUser = null;
-let activeDrawsData = [];
-
-document.addEventListener("DOMContentLoaded", async () => {
-  currentUser = await requireAuth();
-  if (currentUser) {
-    await loadUserData();
-    await loadDraws();
-    await loadUserTickets();
-    await loadWinners();
-  }
-});
-
-async function loadUserData() {
-  try {
-    const profile = await getUserProfile(currentUser.id);
-    if (profile) {
-      document.getElementById("profileName").textContent = profile.tic_full_name || profile.tic_username || "User";
-      document.getElementById("profileEmail").textContent = profile.tic_email || currentUser.email;
-    }
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-md mx-auto w-full p-4 flex flex-col items-center justify-center">
     
-    // Fetch deposits/withdrawals or balance if applicable from tic_deposits
-    const { data: deposits } = await supabaseClient
-      .from('tic_deposits')
-      .select('tic_amount')
-      .eq('tic_user_id', currentUser.id)
-      .eq('tic_deposit_status', 'approved');
+    <div class="w-full bg-[#1A2C38] border border-[#0F212E] rounded-2xl p-6 shadow-xl text-center space-y-6">
+      
+      <!-- Header Title -->
+      <div>
+        <h2 class="text-xl font-extrabold text-[#FFFFFF] tracking-wide flex items-center justify-center gap-2">
+          <i class="fa-solid fa-ticket text-[#24ee89]"></i> Lucky Ticket Draw
+        </h2>
+        <p class="text-xs text-[#FFFFFF]/70 mt-1">আপনার লাকি টিকিট কিনে জিতে নিন আকর্ষণীয় প্রাইজ!</p>
+      </div>
 
-    const totalBalance = (deposits || []).reduce((acc, curr) => acc + Number(curr.tic_amount || 0), 0);
-    document.getElementById("userBalance").textContent = `৳ ${totalBalance.toFixed(2)}`;
-  } catch (err) {
-    console.error("Error loading user data:", err);
-  }
-}
+      <!-- Ticket Price & Selection -->
+      <div class="bg-[#0F212E] p-4 rounded-xl border border-[#0F212E] space-y-3">
+        <label class="block text-xs font-semibold text-[#FFFFFF]/80 text-left">টিকেট মূল্য (Ticket Price): <span class="text-[#24ee89] font-bold">10.00 BDT</span></label>
+        
+        <div class="flex items-center justify-between bg-[#1A2C38] px-4 py-3 rounded-lg border border-[#0F212E]">
+          <span class="text-xs text-[#FFFFFF]/70">পরিমাণ (Quantity)</span>
+          <div class="flex items-center gap-3">
+            <button onclick="changeQty(-1)" class="w-8 h-8 bg-[#0F212E] hover:bg-[#24ee89] hover:text-[#0F212E] font-bold rounded-lg transition flex items-center justify-center">-</button>
+            <span id="ticketQty" class="text-base font-extrabold text-[#FFFFFF]">1</span>
+            <button onclick="changeQty(1)" class="w-8 h-8 bg-[#0F212E] hover:bg-[#24ee89] hover:text-[#0F212E] font-bold rounded-lg transition flex items-center justify-center">+</button>
+          </div>
+        </div>
 
-async function loadDraws() {
-  const { data: draws, error } = await supabaseClient
-    .from('tic_draws')
-    .select('*')
-    .eq('tic_status', 'active');
+        <div class="flex justify-between items-center text-xs pt-2">
+          <span class="text-[#FFFFFF]/70">মোট খরচ:</span>
+          <span id="totalCost" class="text-sm font-extrabold text-[#24ee89]">10.00 BDT</span>
+        </div>
+      </div>
 
-  if (error) {
-    console.error("Error loading draws:", error);
-    return;
-  }
+      <!-- Draw Animation / Result Box -->
+      <div id="drawResultBox" class="hidden p-4 rounded-xl bg-[#0F212E] border border-[#24ee89] text-center animate-pulse">
+        <p id="drawResultMessage" class="text-xs font-bold text-[#24ee89]"></p>
+      </div>
 
-  activeDrawsData = draws || [];
-  const grid = document.getElementById("gameGrid");
-  grid.innerHTML = "";
+      <!-- Buy & Play Button -->
+      <button id="buyTicketBtn" onclick="buyTicketDraw()" class="w-full bg-[#24ee89] hover:bg-[#1ebc6d] text-[#0F212E] font-extrabold py-3.5 rounded-xl transition shadow-lg text-sm tracking-wide">
+        টিকেট কিনুন ও ড্র করুন
+      </button>
 
-  if (activeDrawsData.length === 0) {
-    grid.innerHTML = `<p style="color:var(--muted);grid-column:span 3;text-align:center;padding:20px;">No active draws available.</p>`;
-    return;
-  }
-
-  activeDrawsData.forEach((draw, index) => {
-    const card = document.createElement("button");
-    card.className = "game-card";
-    card.onclick = () => openBuyTicketModal(draw);
-    card.innerHTML = `
-      <div class="game-art">🎟️</div>
-      <div class="game-title">${escapeHTML(draw.tic_draw_name)}</div>
-      <div class="game-meta">No: ${escapeHTML(draw.tic_draw_number)}</div>
-    `;
-    grid.appendChild(card);
-
-    // Set countdown for the first active draw
-    if (index === 0 && draw.tic_draw_time) {
-      document.getElementById("nextDrawName").textContent = draw.tic_draw_name;
-      startCountdown(new Date(draw.tic_draw_time));
-    }
-  });
-}
-
-async function loadUserTickets() {
-  const { data: tickets, error } = await supabaseClient
-    .from('tic_tickets')
-    .select('*')
-    .eq('tic_user_id', currentUser.id)
-    .order('tic_purchased_at', { ascending: false });
-
-  if (error) return;
-
-  document.getElementById("myTicketCount").textContent = String(tickets.length).padStart(2, '0');
-  const container = document.getElementById("userTicketsList");
-  container.innerHTML = "";
-
-  if (tickets.length === 0) {
-    container.innerHTML = `<div class="history-empty" style="text-align:center;padding:15px;color:var(--muted)">No tickets purchased yet.</div>`;
-    return;
-  }
-
-  tickets.forEach(ticket => {
-    const div = document.createElement("div");
-    div.className = "ticket-card";
-    div.style.marginBottom = "10px";
-    div.innerHTML = `
-      <div class="ticket-top"><div class="ticket-label">TICKET</div><div class="status">${ticket.tic_ticket_status || 'Active'}</div></div>
-      <div class="ticket-number"><span>${escapeHTML(ticket.tic_ticket_number)}</span></div>
-      <div class="ticket-detail">Buyer: ${escapeHTML(ticket.tic_buyer_name || 'N/A')} (${escapeHTML(ticket.tic_buyer_mobile || '')})</div>
-    `;
-    container.appendChild(div);
-  });
-}
-
-async function loadWinners() {
-  const { data: winners, error } = await supabaseClient
-    .from('tic_winners')
-    .select('*')
-    .order('tic_created_at', { ascending: false })
-    .limit(5);
-
-  const list = document.getElementById("winnerList");
-  list.innerHTML = "";
-
-  if (error || !winners || winners.length === 0) {
-    list.innerHTML = `<div style="text-align:center;color:var(--muted);padding:10px;">No winners announced yet.</div>`;
-    return;
-  }
-
-  winners.forEach((w, idx) => {
-    const rankClass = idx === 0 ? 'first' : idx === 1 ? 'second' : 'third';
-    const div = document.createElement("div");
-    div.className = "winner";
-    div.innerHTML = `
-      <div class="rank ${rankClass}">${w.tic_prize_rank || (idx+1)}</div>
-      <div class="winner-info"><div class="winner-name">${escapeHTML(w.tic_prize_name || 'Winner')}</div><div class="winner-ticket">Rank: ${w.tic_prize_rank}</div></div>
-      <div class="prize"><small>Prize Awarded</small></div>
-    `;
-    list.appendChild(div);
-  });
-}
-
-function openTicketModal() {
-  if (activeDrawsData.length === 0) {
-    showToast("No active draws found!");
-    return;
-  }
-  openBuyTicketModal(activeDrawsData[0]);
-}
-
-function openBuyTicketModal(draw) {
-  openModal("Buy Lottery Ticket", `
-    <p style="font-size:12px;color:#AFC0CB">Draw: <b>${escapeHTML(draw.tic_draw_name)}</b></p>
-    <div class="field"><label>Your Name</label><input id="buyerName" placeholder="Full Name" autocomplete="off"></div>
-    <div class="field"><label>Mobile Number</label><input id="buyerMobile" placeholder="01XXXXXXXXX" autocomplete="off"></div>
-    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="submitTicket('${draw.tic_id}')">Confirm & Buy</button></div>
-  `);
-}
-
-async function submitTicket(drawId) {
-  const name = document.getElementById("buyerName").value.trim();
-  const mobile = document.getElementById("buyerMobile").value.trim();
-
-  if (!name || !mobile) {
-    showToast("Please fill in all fields!");
-    return;
-  }
-
-  const ticketNumber = 'TICK-' + Math.floor(100000 + Math.random() * 900000);
-
-  const { error } = await supabaseClient
-    .from('tic_tickets')
-    .insert([{
-      tic_draw_id: drawId,
-      tic_user_id: currentUser.id,
-      tic_ticket_number: ticketNumber,
-      tic_buyer_name: name,
-      tic_buyer_mobile: mobile,
-      tic_ticket_status: 'confirmed'
-    }]);
-
-  if (error) {
-    showToast("Failed to purchase ticket!");
-    console.error(error);
-    return;
-  }
-
-  showToast("Ticket purchased successfully!");
-  closeModal();
-  await loadUserTickets();
-}
-
-function openVerifyModal() {
-  openModal("Verify Ticket", `
-    <div class="field"><label>Ticket Number</label><input id="verifyCode" placeholder="TICK-XXXXXX" autocomplete="off"></div>
-    <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Close</button><button class="btn btn-primary" onclick="verifyTicketAction()">Verify</button></div>
-    <div id="verifyResult"></div>
-  `);
-}
-
-async function verifyTicketAction() {
-  const code = document.getElementById("verifyCode").value.trim();
-  const resultDiv = document.getElementById("verifyResult");
-
-  if (!code) return;
-
-  const { data, error } = await supabaseClient
-    .from('tic_tickets')
-    .select('*')
-    .eq('tic_ticket_number', code)
-    .maybeSingle();
-
-  if (error || !data) {
-    resultDiv.innerHTML = `<div class="result-box"><div style="color:var(--danger);font-weight:900;">Ticket Not Found!</div></div>`;
-    return;
-  }
-
-  resultDiv.innerHTML = `
-    <div class="result-box">
-      <div style="color:var(--green);font-weight:900;">Valid Ticket! ✓</div>
-      <div style="font-size:12px;margin-top:5px">Buyer: ${escapeHTML(data.tic_buyer_name)}</div>
-      <div style="font-size:12px">Status: ${escapeHTML(data.tic_ticket_status)}</div>
     </div>
-  `;
-}
 
-const backdrop = document.getElementById('modalBackdrop');
-const modalTitle = document.getElementById('modalTitle');
-const modalContent = document.getElementById('modalContent');
-let toastTimer;
+  </main>
 
-function openModal(title, content){
-  modalTitle.textContent = title;
-  modalContent.innerHTML = content;
-  backdrop.classList.add('show');
-  document.body.style.overflow='hidden';
-}
-function closeModal(){backdrop.classList.remove('show');document.body.style.overflow='';}
-function backdropClose(e){if(e.target===backdrop)closeModal();}
-function showToast(message){
-  const toast=document.getElementById('toast');toast.textContent=message;toast.classList.add('show');
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2300);
-}
-function goTo(id,button){
-  const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n===button));
-}
-function escapeHTML(value){
-  return String(value || '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-}
+  <!-- Bottom Navigation Bar Include -->
+  <div id="bottomBarContainer"></div>
 
-function startCountdown(targetDate) {
-  function update() {
-    const now = new Date();
-    let seconds = Math.max(0, Math.floor((targetDate - now) / 1000));
-    const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-    const s = String(seconds % 60).padStart(2, '0');
-    const countdownEl = document.getElementById('countdown');
-    if(countdownEl) countdownEl.textContent = `${h}:${m}:${s}`;
-  }
-  update();
-  setInterval(update, 1000);
-}
-</script>
+  <script>
+    let quantity = 1;
+    const ticketPrice = 10.00;
+
+    function changeQty(val) {
+      quantity += val;
+      if (quantity < 1) quantity = 1;
+      if (quantity > 10) quantity = 10;
+      
+      document.getElementById('ticketQty').textContent = quantity;
+      document.getElementById('totalCost').textContent = (quantity * ticketPrice).toFixed(2) + ' BDT';
+    }
+
+    async function loadComponents() {
+      try {
+        const topRes = await fetch('../../bar/top.html');
+        if (topRes.ok) document.getElementById('topBarContainer').innerHTML = await topRes.text();
+
+        const bottomRes = await fetch('../../bar/bottom.html');
+        if (bottomRes.ok) document.getElementById('bottomBarContainer').innerHTML = await bottomRes.text();
+      } catch (e) {
+        console.error('Component load error:', e);
+      }
+    }
+
+    async function buyTicketDraw() {
+      const user = await requireAuth();
+      if (!user) return;
+
+      const userId = user.id || user.user_id;
+      const totalCost = quantity * ticketPrice;
+
+      const btn = document.getElementById('buyTicketBtn');
+      btn.disabled = true;
+      btn.textContent = 'প্রসেসিং হচ্ছে...';
+
+      try {
+        // Fetch current profile balance
+        const profile = await getUserProfile(userId);
+        if (!profile) {
+          alert('প্রোফাইল পাওয়া যায়নি!');
+          resetBtn();
+          return;
+        }
+
+        const currentBalance = Number(profile.balance || 0);
+        if (currentBalance < totalCost) {
+          alert('পর্যাপ্ত ব্যালেন্স নেই! দয়া করে ডিপোজিট করুন।');
+          resetBtn();
+          return;
+        }
+
+        const newBalance = currentBalance - totalCost;
+
+        // Update Balance in profiles table
+        const { error: updateError } = await supabaseClient
+          .from('profiles')
+          .update({ balance: newBalance })
+          .eq('id', userId);
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        // Simulate win/loss result (e.g., 40% chance to win double)
+        const isWin = Math.random() < 0.4;
+        const payout = isWin ? totalCost * 2 : 0;
+
+        if (isWin) {
+          const updatedWinBalance = newBalance + payout;
+          await supabaseClient
+            .from('profiles')
+            .update({ balance: updatedWinBalance })
+            .eq('id', userId);
+        }
+
+        // Insert into original_bets_history to record wager & history automatically via interceptor
+        await supabaseClient.from('original_bets_history').insert({
+          user_id: userId,
+          game_name: 'Lottery Lucky Draw',
+          bet_amount: totalCost,
+          payout: payout,
+          multiplier: isWin ? 2 : 0,
+          status: isWin ? 'win' : 'lose',
+          game_details: { quantity: quantity, ticket_price: ticketPrice }
+        });
+
+        // Show Result UI
+        const resultBox = document.getElementById('drawResultBox');
+        const resultMsg = document.getElementById('drawResultMessage');
+        resultBox.classList.remove('hidden');
+
+        if (isWin) {
+          resultMsg.className = 'text-xs font-bold text-[#24ee89]';
+          resultMsg.textContent = `অভিনন্দন! আপনি লটারিতে ${payout.toFixed(2)} BDT জিতেছেন!`;
+        } else {
+          resultMsg.className = 'text-xs font-bold text-red-400';
+          resultMsg.textContent = 'আফসোস! এই ড্রয়ে আপনি বিজয়ী হননি। আবার চেষ্টা করুন!';
+        }
+
+      } catch (err) {
+        console.error('Lottery error:', err, err?.message || err);
+        alert('ত্রুটি ঘটেছে: ' + (err?.message || JSON.stringify(err)));
+      } finally {
+        resetBtn();
+      }
+    }
+
+    function resetBtn() {
+      const btn = document.getElementById('buyTicketBtn');
+      btn.disabled = false;
+      btn.textContent = 'টিকেট কিনুন ও ড্র করুন';
+    }
+
+    document.addEventListener('DOMContentLoaded', loadComponents);
+  </script>
 </body>
 </html>
