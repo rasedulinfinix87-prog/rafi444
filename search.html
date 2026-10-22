@@ -37,7 +37,7 @@ body {
   color: var(--text);
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   font-size: var(--font-base);
-  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  padding-bottom: calc(40px + env(safe-area-inset-bottom));
 }
 button, a { font: inherit; }
 button { cursor: pointer; }
@@ -89,7 +89,7 @@ button { cursor: pointer; }
   border-radius: 19px;
 }
 
-/* Search and Card Grid Styling matching Search template */
+/* Search and Card Grid Styling */
 .game-card { min-width: 0; min-height: 154px; }
 .game-art { min-height: 110px; }
 
@@ -106,17 +106,11 @@ button { cursor: pointer; }
 .winner-prize { font-weight:750; font-size:var(--font-base); white-space:nowrap; }
 .winner-time { opacity:.72; white-space:nowrap; }
 
-#topBarContainer { position: sticky; top: 0; z-index: 500; width: 100%; }
-#bottomBarContainer { position: fixed; left: 0; right: 0; bottom: 0; width: 100%; z-index: 5000; isolation: isolate; padding-bottom: env(safe-area-inset-bottom); }
-
-.toast { position:fixed; z-index:20; bottom:90px; left:50%; transform:translateX(-50%); background:var(--button); color:white; border:1px solid var(--border); border-radius:12px; padding:10px 15px; display:none; max-width:90%; text-align:center; }
+.toast { position:fixed; z-index:20; bottom:30px; left:50%; transform:translateX(-50%); background:var(--button); color:white; border:1px solid var(--border); border-radius:12px; padding:10px 15px; display:none; max-width:90%; text-align:center; }
 .toast.show { display:block; }
 </style>
 </head>
 <body>
-
-<!-- Top Navigation Bar Container -->
-<div id="topBarContainer"></div>
 
 <main class="app">
   <div class="status">
@@ -206,62 +200,20 @@ button { cursor: pointer; }
   </section>
 </main>
 
-<!-- Bottom Navigation Bar Container -->
-<div id="bottomBarContainer"></div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
-  (function () {
-    'use strict';
+  function notify(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
 
-    function getBasePath() {
-      if (window.location.hostname.includes('github.io')) {
-        const pathParts = window.location.pathname.split('/');
-        if (pathParts.length > 1 && pathParts[1] !== '') {
-          return '/' + pathParts[1] + '/';
-        }
-      }
-      return './';
-    }
-
-    function notify(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      clearTimeout(window.toastTimer);
-      window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
-    }
-
-    function getTicket(type) {
-      notify(type + ' selected — connect your purchase logic here.');
-    }
-
-    async function loadBars() {
-      const basePath = getBasePath();
-      try {
-        const topRes = await fetch(basePath + 'bar/top.html');
-        if (topRes.ok) {
-          let topContent = await topRes.text();
-          topContent = topContent.replace(/game\/mem\/member\.html/g, basePath + 'mem/member.html');
-          document.getElementById('topBarContainer').innerHTML = topContent;
-          document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-            a.href = basePath + 'account/deposit.html';
-          });
-        }
-
-        const botRes = await fetch(basePath + 'bar/bottom.html');
-        if (botRes.ok) {
-          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
-        }
-      } catch (err) {
-        console.error('Bar loading error:', err);
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', () => { 
-      loadBars(); 
-    });
-  })();
+  function getTicket(type) {
+    notify(type + ' selected — connect your purchase logic here.');
+  }
 </script>
 </body>
 </html>
