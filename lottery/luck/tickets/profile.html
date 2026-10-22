@@ -103,7 +103,7 @@
           <div><label class="muted text-xs block mb-1" for="mobileField">Mobile / মোবাইল</label><input id="mobileField" class="field" readonly></div>
           <div><label class="muted text-xs block mb-1" for="userIdField">Account ID</label><input id="userIdField" class="field" readonly></div>
         </div>
-        <p class="muted text-xs mt-3">Profile details are shown from your signed-in account and <code>tic_profiles</code> record.</p>
+        <p class="muted text-xs mt-3">Profile details are shown from your signed-in account and <code>tic_profiles</code> record[span_1](start_span)[span_1](end_span).</p>
       </section>
 
       <section id="transactionsSection" class="panel p-4 hidden">
@@ -146,7 +146,7 @@
 
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
-  <!-- Keep supabase-config.js in the same folder as this file. -->
+  <!-- Keep supabase-config.js in the same folder as this file.[span_2](start_span)[span_2](end_span) -->
   <script src="supabase-config.js"></script>
   <script>
     "use strict";
@@ -280,7 +280,6 @@
         .maybeSingle();
 
       if (error) {
-        // Keep the page usable if the optional profile row/table has not been created yet.
         console.warn("tic_profiles query:", error.message);
         $("setupNotice").classList.remove("hidden");
         $("setupNoticeText").textContent =
@@ -381,7 +380,6 @@
         bottom.append(method, status);
         row.append(top, bottom);
 
-        // Never display transaction IDs, account numbers, sender numbers, or admin notes here.
         list.appendChild(row);
       });
     }
@@ -424,7 +422,6 @@
       try {
         if (typeof logoutUser === "function") {
           await logoutUser();
-          // Existing project helper normally redirects. If it does not, use the local fallback below.
         } else if (typeof supabaseClient !== "undefined" && supabaseClient) {
           const { error } = await supabaseClient.auth.signOut();
           if (error) throw error;
@@ -454,7 +451,7 @@
     });
 
     $("refreshBtn").addEventListener("click", async () => {
-      $("refreshBtn").disabled = true;
+      $("refreshBtn").disabled, $("refreshBtn").disabled = true;
       try { await loadPage(); }
       finally { $("refreshBtn").disabled = false; }
     });
