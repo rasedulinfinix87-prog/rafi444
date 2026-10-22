@@ -212,12 +212,12 @@ button { cursor: pointer; }
           });
         }
 
-        // Updated footer path based on your requirement: navigation/footer.html inside current directory
-        const botRes = await fetch('navigation/footer.html');
-        if (botRes.ok) {
-          document.getElementById('bottomBarContainer').innerHTML = await botRes.text();
+        // Load footer from lottery/luck/tickets/navigation/footer.html
+        const footerRes = await fetch('navigation/footer.html');
+        if (footerRes.ok) {
+          document.getElementById('bottomBarContainer').innerHTML = await footerRes.text();
         } else {
-          console.error('Footer load failed from navigation/footer.html');
+          console.error('Footer load failed, status:', footerRes.status);
         }
       } catch (err) {
         console.error('Bar loading error:', err);
