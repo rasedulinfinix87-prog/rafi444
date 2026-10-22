@@ -72,31 +72,22 @@ button { cursor: pointer; }
   display:grid; place-items:center; font-size:24px; border-radius:50%;
 }
 .avatar-top { background:#18384e; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; font-size:22px; }
-.hero {
-  border:1px solid var(--border); border-radius:19px; min-height:228px; padding:20px 17px;
-  display:flex; position:relative; overflow:hidden; margin-bottom:17px;
-  background:var(--bg);
+
+/* Banner image container styling with original size preservation */
+.hero-banner-container {
+  width: 100%;
+  margin-bottom: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.hero-copy { position:relative; z-index:2; width:58%; }
-.eyebrow { color:var(--button); font-weight:750; font-size:var(--font-md); letter-spacing:1px; margin-bottom:10px; }
-.hero h2 { font-size:var(--font-2xl); line-height:1.08; margin:0 0 14px; letter-spacing:-.6px; }
-.hero p { font-size:var(--font-md); line-height:1.5; margin:0 0 18px; opacity:.92; }
-.primary {
-  border:1px solid var(--border); background:var(--button); color:var(--text);
-  font-weight:750; border-radius:999px; min-height:47px; padding:0 22px;
+.hero-banner-container img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 19px;
 }
-.play { display:flex; align-items:center; gap:12px; font-size:var(--font-md); }
-.hero-art {
-  position:absolute; right:0; bottom:4px; width:48%; height:90%;
-  display:flex; align-items:center; justify-content:center;
-}
-.ticket-art { position:absolute; top:6px; right:17px; transform:rotate(11deg); background:#f6ae2d; color:#40270b; border:3px dashed #ffdc70; border-radius:10px; padding:10px 7px; font-size:10px; font-weight:900; text-align:center; box-shadow:0 5px 0 #ad6c11; }
-.ticket-art.second { right:75px; top:0; transform:rotate(-8deg); }
-.balls { display:flex; align-items:center; justify-content:center; gap:0; margin-top:45px; filter:drop-shadow(0 10px 10px #00121e); }
-.ball { display:grid; place-items:center; border-radius:50%; font-weight:900; color:#0b3150; border:5px solid #bce9ff; box-shadow:inset -7px -10px 15px #001d47, inset 5px 5px 12px #fff; }
-.ball.small { width:62px; height:62px; background:#20d18b; font-size:27px; margin-right:-12px; }
-.ball.big { width:102px; height:102px; background:#148dff; font-size:40px; z-index:1; }
-.ball.red { width:65px; height:65px; background:#ff515b; font-size:27px; margin-left:-10px; }
+
 .filters { display:flex; gap:9px; overflow-x:auto; padding:0 1px 2px; margin-bottom:17px; scrollbar-width:none; }
 .filters::-webkit-scrollbar { display:none; }
 .filter { flex:1; min-width:max-content; border:1px solid var(--border); background:var(--bg); color:var(--text); border-radius:999px; padding:12px 18px; font-weight:650; font-size:var(--font-md); }
@@ -131,10 +122,9 @@ button { cursor: pointer; }
 .toast.show { display:block; }
 @media (min-width: 420px) {
   .app { padding-left:20px; padding-right:20px; }
-  .hero { min-height:240px; }
   .ticket-card { padding:18px 16px 15px; }
 }
-/* Compact mobile layout: keep the banner horizontal and both ticket columns visible. */
+/* Compact mobile layout optimization */
 @media (max-width: 520px) {
   .app { padding: 10px 12px 92px; }
   .status { padding: 2px 4px 17px; font-size: 14px; }
@@ -145,19 +135,6 @@ button { cursor: pointer; }
   .header-actions { gap: 3px; }
   .icon-btn { width: 31px; height: 34px; font-size: 19px; }
   .avatar-top { width: 34px; height: 34px; }
-  .hero { min-height: 190px; padding: 14px 12px; margin-bottom: 13px; border-radius: 14px; }
-  .hero-copy { width: 58%; min-width: 0; }
-  .eyebrow { font-size: 11px; letter-spacing: .65px; margin-bottom: 7px; }
-  .hero h2 { font-size: 22px; line-height: 1.08; letter-spacing: -.35px; margin-bottom: 10px; }
-  .hero p { font-size: 12px; line-height: 1.4; margin-bottom: 12px; }
-  .primary { min-height: 37px; padding: 0 15px; }
-  .play { font-size: 13px; gap: 8px; }
-  .hero-art { width: 43%; height: 88%; right: 0; bottom: 3px; }
-  .ticket-art { top: 7px; right: 7px; padding: 6px 4px; font-size: 7px; border-width: 2px; border-radius: 7px; }
-  .ticket-art.second { right: 48px; top: 2px; }
-  .balls { margin-top: 38px; }
-  .ball.small,.ball.red { width: 43px; height: 43px; font-size: 18px; border-width: 3px; }
-  .ball.big { width: 72px; height: 72px; font-size: 29px; border-width: 4px; }
   .filters { gap: 6px; margin-bottom: 13px; }
   .filter { padding: 9px 13px; font-size: 12px; }
   .ticket-grid { gap: 10px; }
@@ -184,9 +161,6 @@ button { cursor: pointer; }
 @media (max-width: 360px) {
   .app { padding-left: 9px; padding-right: 9px; }
   .brand h1 { font-size: 20px; }
-  .hero-copy { width: 60%; }
-  .hero-art { width: 40%; }
-  .hero h2 { font-size: 20px; }
   .ticket-card { padding-left: 8px; padding-right: 8px; }
   .ticket-card h3 { font-size: 13px; }
   .winner { grid-template-columns: 25px minmax(52px,1fr) minmax(54px,.9fr) auto; gap: 4px; }
@@ -215,19 +189,10 @@ button { cursor: pointer; }
     </div>
   </header>
 
-  <section class="hero">
-    <div class="hero-copy">
-      <div class="eyebrow">YOUR LUCKY CHANCE</div>
-      <h2>Win Big with<br>Lucky Tickets</h2>
-      <p>Buy tickets, try your luck and get amazing rewards!</p>
-      <button class="primary play" onclick="notify('Welcome to Lucky Tickets!')">Play Now <span>→</span></button>
-    </div>
-    <div class="hero-art" aria-label="Lucky lottery balls illustration">
-      <div class="ticket-art second">LUCKY<br>TICKET<br>♣</div>
-      <div class="ticket-art">LUCKY<br>TICKET<br>♣</div>
-      <div class="balls"><div class="ball small">3</div><div class="ball big">7</div><div class="ball red">5</div></div>
-    </div>
-  </section>
+  <!-- Banner Image Section -->
+  <div class="hero-banner-container">
+    <img src="images/banner.png" alt="Lucky Tickets Banner" />
+  </div>
 
   <nav class="filters" aria-label="Ticket categories">
     <button class="filter active" data-filter="All">All</button>
@@ -315,7 +280,7 @@ function getTicket(type) {
   notify(type + ' Lucky Ticket selected — connect your purchase logic here.');
 }
 
-// Load Top Bar Component dynamically with correct 4-step relative path
+// Load Top Bar Component dynamically with correct relative path
 async function loadTopBar() {
   try {
     const topRes = await fetch('../../../bar/top.html');
