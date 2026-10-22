@@ -36,7 +36,7 @@ body {
   margin: 0 auto;
   position: relative;
   padding: 16px;
-  padding-bottom: 40px;
+  padding-bottom: 90px; /* ফুটারের নিচে জায়গা রাখার জন্য */
 }
 .main-wrapper {
   background: #0F212E;
@@ -66,7 +66,7 @@ body {
 .toast {
   position: fixed;
   z-index: 50;
-  bottom: 30px;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--button);
@@ -83,6 +83,9 @@ body {
 </style>
 </head>
 <body>
+
+<!-- Dynamic Header Container -->
+<div id="header-container"></div>
 
 <div class="app">
   <div class="main-wrapper">
@@ -130,9 +133,36 @@ body {
   </div>
 </div>
 
+<!-- Dynamic Footer Container -->
+<div id="footer-container"></div>
+
 <div class="toast" id="toast" role="status"></div>
 
 <script>
+  // হেডার ও ফুটার ফাইল লোড করার ফাংশন
+  async function loadComponents() {
+    try {
+      const headerRes = await fetch('header.html');
+      if (headerRes.ok) {
+        document.getElementById('header-container').innerHTML = await headerRes.text();
+        // হেডার লোড হওয়ার পর যদি তার ভেতরের কোনো স্ক্রিপ্ট থাকে তা রান করার জন্য
+        const scripts = document.getElementById('header-container').querySelectorAll('script');
+        scripts.forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.text = script.innerText;
+          document.body.appendChild(newScript);
+        });
+      }
+
+      const footerRes = await fetch('footer.html');
+      if (footerRes.ok) {
+        document.getElementById('footer-container').innerHTML = await footerRes.text();
+      }
+    } catch (e) {
+      console.error('Error loading header/footer components:', e);
+    }
+  }
+
   function notify(message) {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -148,11 +178,18 @@ body {
     const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
     if (!client) return;
 
-    // উদাহরণস্বরূপ লোকালস্টোরেজ বা সেশন থেকে ইউজার আইডি নেওয়া (প্রয়োজন অনুযায়ী পরিবর্তন করতে পারেন)
-    // এখানে ধরে নেওয়া হলো ইউজার লগইন করা আছে এবং তার UUID পাওয়া যাচ্ছে
-    const userId = localStorage.getItem('user_id'); 
+    // Supabase সেশন বা লোকালস্টোরেজ থেকে ইউজার চেক করা
+    let userId = null;
+    try {
+      const sessionUser = await getCurrentUser();
+      if (sessionUser && sessionUser.id) {
+        userId = sessionUser.id;
+      }
+    } catch(e) {
+      userId = localStorage.getItem('user_id');
+    }
+
     if (!userId) {
-      // টেস্টিংয়ের জন্য কোনো ডিফল্ট আইডি থাকলে দিতে পারেন বা লগইন পেজে রিডাইরেক্ট করতে পারেন
       document.getElementById('userBalance').textContent = '0.00 BDT';
       return;
     }
@@ -178,7 +215,10 @@ body {
     }
   }
 
-  window.addEventListener('DOMContentLoaded', fetchUserProfile);
+  window.addEventListener('DOMContentLoaded', async () => {
+    await loadComponents();
+    await fetchUserProfile();
+  });
 
   async function processPayment(event) {
     event.preventDefault();
