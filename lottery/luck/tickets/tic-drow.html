@@ -6,6 +6,14 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#0F212E">
 <title>Lucky Tickets</title>
+<!-- Tailwind CSS for Top Bar compatibility if needed -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Supabase JS Client & Config -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../supabase-config.js"></script>
+
 <style>
 :root {
   --bg: #0F212E;
@@ -188,6 +196,10 @@ button { cursor: pointer; }
 </style>
 </head>
 <body>
+
+<!-- Top Navigation Bar Container Added Here -->
+<div id="topBarContainer" class="w-full max-w-md mx-auto sticky top-0 z-50"></div>
+
 <main class="app">
   <div class="status">
     <span>12:31</span>
@@ -302,6 +314,26 @@ function notify(message) {
 function getTicket(type) {
   notify(type + ' Lucky Ticket selected — connect your purchase logic here.');
 }
+
+// Load Top Bar Component dynamically
+async function loadTopBar() {
+  try {
+    const topRes = await fetch('../../bar/top.html');
+    if (topRes.ok) {
+      let topContent = await topRes.text();
+      document.getElementById('topBarContainer').innerHTML = topContent;
+      
+      // Adjust deposit link path for lottery/luck/tickets/ subfolder
+      document.querySelectorAll('a[href*="deposit"]').forEach(a => {
+        a.href = '../../account/deposit.html';
+      });
+    }
+  } catch (e) {
+    console.error('Top bar load error:', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadTopBar);
 </script>
 </body>
 </html>
