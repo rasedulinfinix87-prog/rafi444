@@ -27,47 +27,26 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  overflow-x: hidden;
+  padding-bottom: 40px;
 }
 .app {
   width: 100%;
   max-width: 480px;
   min-height: 100vh;
   margin: 0 auto;
-  position: relative;
-  padding-bottom: 40px;
+  padding: 16px;
 }
-
-/* ব্যাকগ্রাউন্ড ইমেজের মাপ ও পজিশন পারফেক্ট করা হয়েছে */
-.bg-banner-container {
-  width: 100%;
-  background-image: url('images/banner1.png');
-  background-repeat: no-repeat;
-  background-position: top center;
-  background-size: 100% auto;
-  position: relative;
-  padding-top: 110vw; 
+.form-card {
+  background: #0f1c24;
+  border: 1px solid rgba(31, 81, 255, 0.3);
+  border-radius: 24px;
+  padding: 20px 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  margin-top: 15px;
 }
-
-@media (min-width: 480px) {
-  .bg-banner-container {
-    padding-top: 530px;
-  }
-}
-
-/* ফর্মটি ইমেজের ভেতরের ব্লু বক্সের সাথে একদম নিখুঁতভাবে বসানোর জন্য */
-.form-overlay {
-  position: absolute;
-  top: 32%; 
-  left: 50%;
-  transform: translateX(-50%);
-  width: 84%;
-  max-width: 380px;
-}
-
 .input-group {
   position: relative;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 .input-group i {
   position: absolute;
@@ -75,23 +54,22 @@ body {
   top: 50%;
   transform: translateY(-50%);
   color: #94a3b8;
-  font-size: 13px;
+  font-size: 15px;
 }
 .input-group input {
   width: 100%;
-  background: #0d1b26;
-  border: 1px solid rgba(31, 81, 255, 0.4);
-  border-radius: 9999px;
-  padding: 11px 16px 11px 44px;
+  background: #1A2C38;
+  border: 1px solid #2a4359;
+  border-radius: 14px;
+  padding: 14px 16px 14px 48px;
   color: #FFFFFF;
-  font-size: 13px;
+  font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
 }
 .input-group input:focus {
   border-color: #1F51FF;
 }
-
 .toast {
   position: fixed;
   z-index: 50;
@@ -114,35 +92,46 @@ body {
 <body>
 
 <div class="app">
-  <div class="bg-banner-container">
-    <div class="form-overlay">
-      <form id="ticketForm" onsubmit="submitTicket(event)">
-        <!-- Name Input -->
-        <div class="input-group">
-          <i class="fa-solid fa-user"></i>
-          <input type="text" id="userName" placeholder="Name" required autocomplete="off">
-        </div>
+  <!-- Top Banner Image -->
+  <div class="w-full flex justify-center">
+    <img src="images/banner1.png" alt="Lucky Draw Banner" class="w-full h-auto object-contain rounded-2xl shadow-lg" />
+  </div>
 
-        <!-- Mobile Number Input -->
-        <div class="input-group">
-          <i class="fa-solid fa-mobile-screen-button"></i>
-          <input type="tel" id="userMobile" placeholder="Mobile Number" required autocomplete="off">
-        </div>
-
-        <!-- Address Input -->
-        <div class="input-group">
-          <i class="fa-solid fa-location-dot"></i>
-          <input type="text" id="userAddress" placeholder="Address" required autocomplete="off">
-        </div>
-
-        <!-- Confirm Button -->
-        <button type="submit" id="submitBtn" class="w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-full flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98 text-xs sm:text-sm">
-          <i class="fa-solid fa-ticket"></i>
-          <span>Confirm Ticket</span>
-          <i class="fa-solid fa-arrow-right"></i>
-        </button>
-      </form>
+  <!-- Registration Form Box -->
+  <div class="form-card">
+    <div class="w-full bg-[#1F51FF] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 mb-3 shadow-md text-sm">
+      <i class="fa-solid fa-ticket"></i>
+      <span>Lucky Draw Registration</span>
     </div>
+
+    <p class="text-center text-xs text-white/70 mb-5">Fill in your details and get a chance to win amazing prizes!</p>
+
+    <form id="ticketForm" onsubmit="submitTicket(event)">
+      <!-- Name Input -->
+      <div class="input-group">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="userName" placeholder="Name" required autocomplete="off">
+      </div>
+
+      <!-- Mobile Number Input -->
+      <div class="input-group">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+        <input type="tel" id="userMobile" placeholder="Mobile Number" required autocomplete="off">
+      </div>
+
+      <!-- Address Input -->
+      <div class="input-group">
+        <i class="fa-solid fa-location-dot"></i>
+        <input type="text" id="userAddress" placeholder="Address" required autocomplete="off">
+      </div>
+
+      <!-- Confirm Button -->
+      <button type="submit" id="submitBtn" class="w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg active:scale-98">
+        <i class="fa-solid fa-ticket"></i>
+        <span>Confirm Ticket</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
   </div>
 </div>
 
