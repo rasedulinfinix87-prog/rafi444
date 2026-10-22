@@ -315,17 +315,17 @@ function getTicket(type) {
   notify(type + ' Lucky Ticket selected — connect your purchase logic here.');
 }
 
-// Load Top Bar Component dynamically
+// Load Top Bar Component dynamically with correct 4-step relative path
 async function loadTopBar() {
   try {
-    const topRes = await fetch('../../bar/top.html');
+    const topRes = await fetch('../../../bar/top.html');
     if (topRes.ok) {
       let topContent = await topRes.text();
       document.getElementById('topBarContainer').innerHTML = topContent;
       
       // Adjust deposit link path for lottery/luck/tickets/ subfolder
       document.querySelectorAll('a[href*="deposit"]').forEach(a => {
-        a.href = '../../account/deposit.html';
+        a.href = '../../../account/deposit.html';
       });
     }
   } catch (e) {
