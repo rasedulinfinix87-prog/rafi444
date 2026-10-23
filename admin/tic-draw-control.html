@@ -18,7 +18,7 @@
 body{margin:0;background:linear-gradient(135deg,#041126,#061a35 60%,#031024);color:var(--text);font-family:Arial,Helvetica,sans-serif;font-size:15px;min-height:100vh}
 header{height:70px;border-bottom:1px solid #10294a;background:rgba(3,15,33,.95);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:10}
 .brand{font-size:22px;font-weight:800;color:#00c98b}
-main{max-width:1200px;margin:30px auto;padding:0 20px}
+main{max-width:1300px;margin:30px auto;padding:0 20px}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:25px;margin-bottom:25px;box-shadow:0 10px 30px rgba(0,0,0,0.3)}
 h1,h2{margin-top:0}
 table{width:100%;border-collapse:collapse;margin-top:15px}
@@ -35,6 +35,7 @@ td{font-size:14px}
 .alert{padding:15px;border-radius:10px;margin-bottom:20px;display:none}
 .alert-success{background:rgba(0,201,139,0.15);border:1px solid var(--green);color:var(--green)}
 .alert-error{background:rgba(255,77,77,0.15);border:1px solid var(--red);color:var(--red)}
+.prize-info{font-size:12px;color:var(--muted);margin-top:4px}
 </style>
 </head>
 <body>
@@ -49,14 +50,14 @@ td{font-size:14px}
 
   <div class="card">
      <h2>Active & Upcoming Draws</h2>
-     <p style="color:var(--muted);">Select a draw to execute random winner selection based on its unique prize amount.</p>
+     <p style="color:var(--muted);">Manage and execute draws based on 1st, 2nd, 3rd and subsequent winner prize structures.</p>
      <div style="overflow-x:auto;">
        <table>
          <thead>
            <tr>
              <th>Draw Name</th>
              <th>Draw Number</th>
-             <th>Prize Amount</th>
+             <th>Prizes Structure</th>
              <th>Draw Time</th>
              <th>Status</th>
              <th>Action</th>
@@ -96,13 +97,20 @@ td{font-size:14px}
       draws.forEach(draw => {
         const isCompleted = draw.tic_status === 'completed';
         const formattedDate = draw.tic_draw_time ? new Date(draw.tic_draw_time).toLocaleString() : 'N/A';
-        const prize = draw.tic_prize_amount ? `৳ ${parseFloat(draw.tic_prize_amount).toFixed(2)}` : '৳ 0.00';
+        
+        let prizeHtml = `
+          <div><strong>1st:</strong> ৳${draw.tic_prize_1st || 0}</div>
+          <div><strong>2nd:</strong> ৳${draw.tic_prize_2nd || 0}</div>
+          <div><strong>3rd:</strong> ৳${draw.tic_prize_3rd || 0}</div>
+          <div class="prize-info"><strong>7 Winners:</strong> ${draw.tic_7_winners_prize || 'N/A'}</div>
+          <div class="prize-info"><strong>10 Winners:</strong> ${draw.tic_10_winners_prize || 'N/A'}</div>
+        `;
 
         html += `
           <tr>
             <td><strong>${escapeHTML(draw.tic_draw_name || 'N/A')}</strong></td>
             <td>${escapeHTML(draw.tic_draw_number || 'N/A')}</td>
-            <td><strong style="color:var(--green);">${prize}</strong></td>
+            <td>${prizeHtml}</td>
             <td>${formattedDate}</td>
             <td><span class="badge ${isCompleted ? 'completed' : 'upcoming'}">${draw.tic_status || 'upcoming'}</span></td>
             <td>
@@ -123,14 +131,14 @@ td{font-size:14px}
   }
 
   async function executeDraw(drawId) {
-    if (!confirm('Are you sure you want to run this draw? This will randomly pick 20 winners and distribute prizes!')) {
+    if (!confirm('Are you sure you want to run this draw? This will pick winners and distribute prizes!')) {
       return;
     }
 
     const client = supabaseClient;
 
     try {
-      // ১. প্রথমে ড্রয়ের তথ্য এবং প্রাইজ স্ট্রাকচার (tic_prize_structure) ফেচ করা
+      // ১. ড্রয়ের তথ্য ফেচ করা
       const { data: drawData, error: drawError } = await client
         .from('tic_draws')
         .select('*')
@@ -139,7 +147,7 @@ td{font-size:14px}
 
       if (drawError || !drawData) throw new Error('Draw information not found.');
 
-      // ২. পেন্ডিং বা অ্যাক্টিভ টিকিটগুলো খোঁজা হচ্ছে
+      // ২. টিকিটগুলো খোঁজা
       const { data: tickets, error: ticketError } = await client
         .from('tic_tickets')
         .select('*')
@@ -153,45 +161,49 @@ td{font-size:14px}
         return;
       }
 
-      // প্রাইজ স্ট্রাকচার থেকে র‍্যাংক অনুযায়ী প্রাইজ লিস্ট নেওয়া
-      let ranksList = [];
-      if (drawData.tic_prize_structure && drawData.tic_prize_structure.ranks) {
-        ranksList = drawData.tic_prize_structure.ranks;
+      // ৩. সমস্ত প্রাইজ অ্যামাউন্ট একটি অ্যারেতে সাজানো (1st, 2nd, 3rd + 7 winners + 10 winners)
+      let prizeList = [];
+      if (drawData.tic_prize_1st) prizeList.push(parseFloat(drawData.tic_prize_1st));
+      if (drawData.tic_prize_2nd) prizeList.push(parseFloat(drawData.tic_prize_2nd));
+      if (drawData.tic_prize_3rd) prizeList.push(parseFloat(drawData.tic_prize_3rd));
+
+      if (drawData.tic_7_winners_prize) {
+        const p7 = drawData.tic_7_winners_prize.split(',').map(val => parseFloat(val.trim())).filter(val => !isNaN(val));
+        prizeList = prizeList.concat(p7);
       }
 
-      if (ranksList.length === 0) {
-        showAlert('No prize structure found for this draw.', 'error');
+      if (drawData.tic_10_winners_prize) {
+        const p10 = drawData.tic_10_winners_prize.split(',').map(val => parseFloat(val.trim())).filter(val => !isNaN(val));
+        prizeList = prizeList.concat(p10);
+      }
+
+      if (prizeList.length === 0) {
+        showAlert('No prize amounts configured for this draw.', 'error');
         return;
       }
 
-      // যতগুলো র‍্যাংক বা সর্বোচ্চ ২০ জন বিজয়ী সিলেক্ট করা সম্ভব
-      const winnersCount = Math.min(ranksList.length, tickets.length);
-
-      // র‍্যান্ডমলি বিজয়ী নির্বাচন করার জন্য টিকিট শাফেল করা
+      const winnersCount = Math.min(prizeList.length, tickets.length);
       let shuffledTickets = [...tickets].sort(() => 0.5 - Math.random());
       let selectedWinners = shuffledTickets.slice(0, winnersCount);
 
       const ticketIds = tickets.map(t => t.tic_id);
 
-      // ৩. সব টিকিটের স্ট্যাটাস 'not-winning' করা
+      // ৪. সব টিকিটের স্ট্যাটাস 'not-winning' করা
       await client
         .from('tic_tickets')
         .update({ tic_ticket_status: 'not-winning' })
         .in('tic_id', ticketIds);
 
-      // ৪. বিজয়ী টিকিটগুলোকে এক এক করে প্রাইজমানি দেওয়া এবং স্ট্যাটাস আপডেট করা
+      // ৫. বিজয়ীদের প্রাইজ প্রদান ও স্ট্যাটাস আপডেট
       for (let i = 0; i < selectedWinners.length; i++) {
         const winnerTicket = selectedWinners[i];
-        const prizeInfo = ranksList[i]; // ১ম থেকে ২০তম পজিশনের প্রাইজ অবজেক্ট
-        const prizeAmount = prizeInfo ? parseFloat(prizeInfo.prize || 0) : 0;
+        const prizeAmount = prizeList[i] || 0;
 
-        // টিকিটের স্ট্যাটাস 'winning' করা
         await client
           .from('tic_tickets')
           .update({ tic_ticket_status: 'winning' })
           .eq('tic_id', winnerTicket.tic_id);
 
-        // ইউজারের ব্যালেন্সের সাথে নির্দিষ্ট প্রাইজমানি যোগ করা
         if (winnerTicket.tic_user_id && prizeAmount > 0) {
           const { data: profile, error: profileError } = await client
             .from('profiles')
@@ -211,13 +223,13 @@ td{font-size:14px}
         }
       }
 
-      // ৫. ড্রয়ের স্ট্যাটাস 'completed' করা
+      // ৬. ড্র স্ট্যাটাস completed করা
       await client
         .from('tic_draws')
         .update({ tic_status: 'completed' })
         .eq('tic_id', drawId);
 
-      showAlert(`Draw executed successfully! Total ${selectedWinners.length} winners selected and rewarded.`, 'success');
+      showAlert(`Draw executed successfully! Total ${selectedWinners.length} winners rewarded.`, 'success');
       loadDraws();
 
     } catch (err) {
