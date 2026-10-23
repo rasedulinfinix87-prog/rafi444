@@ -49,9 +49,8 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
 .tickets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 .ticket{background:linear-gradient(135deg,#071c39,#061832);border:1px solid #10315b;border-radius:24px;padding:21px 25px 20px;min-height:282px;position:relative;overflow:hidden}
 .ticket-top{display:grid;grid-template-columns:116px minmax(0,1fr);gap:18px;align-items:center;padding-right:112px;min-height:78px}
-.game-logo{width:105px;min-height:78px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:25px;font-weight:900;line-height:.9;letter-spacing:-.7px;color:#ffdb37;text-shadow:2px 3px 0 #a31b05,0 0 9px #ff8c00;transform:rotate(-2deg)}
-.game-logo small{display:block;font-size:11px;letter-spacing:1px;color:white;margin-top:7px}
-.game-logo .big{font-size:35px}
+.game-logo{width:105px;min-height:78px;display:flex;align-items:center;justify-content:center;text-align:center;}
+.game-logo img{max-width:100%;max-height:78px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(255,255,255,0.2));}
 .ticket-meta{min-width:0}
 .muted{color:#a9c8f3}
 .ticket-label{font-size:13px;margin-bottom:6px}
@@ -89,14 +88,14 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
 .close{border:0;background:#102e54;color:white;width:35px;height:35px;border-radius:50%;font-size:20px}
 @media(max-width:950px){
  .topbar{padding:0 18px}.nav a{padding:0 10px}.nav a span.label{display:none}.right{gap:10px}.balance{padding:8px 12px}
- .ticket{padding:18px}.ticket-top{grid-template-columns:88px minmax(0,1fr);gap:12px;padding-right:0}.game-logo{width:84px;font-size:21px}.status{position:static;grid-column:1/-1;justify-self:start;order:-1;margin-bottom:10px}.ticket-meta{grid-column:2;grid-row:1}.ticket-top{grid-template-columns:88px minmax(0,1fr)}.ticket-date{white-space:normal}
+ .ticket{padding:18px}.ticket-top{grid-template-columns:88px minmax(0,1fr);gap:12px;padding-right:0}.game-logo{width:84px}.status{position:static;grid-column:1/-1;justify-self:start;order:-1;margin-bottom:10px}.ticket-meta{grid-column:2;grid-row:1}.ticket-top{grid-template-columns:88px minmax(0,1fr)}.ticket-date{white-space:normal}
 }
 @media(max-width:650px){
  .topbar{height:auto;min-height:66px;flex-wrap:wrap;padding:12px 14px;gap:10px}.brand{font-size:20px}.brand-mark{font-size:31px}.nav{order:3;width:100%;height:43px;justify-content:space-around}.nav a{font-size:13px;padding:0 9px}.nav a span.label{display:inline}.right{margin-left:auto}.balance{font-size:12px;padding:6px 9px;gap:6px}.balance small{font-size:10px}.balance strong{font-size:12px}.avatar{width:37px;height:37px;font-size:20px}
  main{padding:18px 12px 25px}.hero{height:auto;min-height:155px;padding:22px 17px;border-radius:18px}.hero-copy{gap:13px}.hero-icon{width:54px;height:54px;font-size:26px}.hero h1{font-size:27px}.hero p{font-size:13px}.lottery-art{font-size:54px;letter-spacing:-9px;padding:0 4px}
- .filters{grid-template-columns:repeat(2,1fr);border-radius:19px;margin:15px 0 18px}.filter{min-height:48px;border-radius:14px;font-size:13px;gap:7px}.tickets{grid-template-columns:1fr;gap:12px}.ticket{min-height:260px;border-radius:19px;padding:17px}.ticket-top{grid-template-columns:83px minmax(0,1fr)}.game-logo{width:78px;font-size:20px}.ticket-id{font-size:13px}.ticket-date{font-size:12px}.status{font-size:10px;padding:7px 10px}.numbers{gap:8px}.ball{height:33px;width:33px}.ticket-bottom{margin-top:19px}.prize strong{font-size:18px}.details{padding:10px 13px;font-size:12px}.empty{margin-top:13px}
+ .filters{grid-template-columns:repeat(2,1fr);border-radius:19px;margin:15px 0 18px}.filter{min-height:48px;border-radius:14px;font-size:13px;gap:7px}.tickets{grid-template-columns:1fr;gap:12px}.ticket{min-height:260px;border-radius:19px;padding:17px}.ticket-top{grid-template-columns:83px minmax(0,1fr)}.game-logo{width:78px}.ticket-id{font-size:13px}.ticket-date{font-size:12px}.status{font-size:10px;padding:7px 10px}.numbers{gap:8px}.ball{height:33px;width:33px}.ticket-bottom{margin-top:19px}.prize strong{font-size:18px}.details{padding:10px 13px;font-size:12px}.empty{margin-top:13px}
 }
-@media(max-width:390px){.lottery-art{display:none}.nav a span.label{display:none}.hero h1{font-size:25px}.ticket-top{grid-template-columns:70px minmax(0,1fr)}.game-logo{width:67px;font-size:17px}.ticket-bottom{align-items:center}.details{padding:10px}.numbers{gap:6px}.ball{width:31px;height:31px}}
+@media(max-width:390px){.lottery-art{display:none}.nav a span.label{display:none}.hero h1{font-size:25px}.ticket-top{grid-template-columns:70px minmax(0,1fr)}.game-logo{width:67px}.ticket-bottom{align-items:center}.details{padding:10px}.numbers{gap:6px}.ball{width:31px;height:31px}}
 </style>
 </head>
 <body>
@@ -157,7 +156,6 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
     }
 
     try {
-      // ইউজারের অথ বা সেশন তথ্য সংগ্রহ
       const user = typeof getCurrentUser === 'function' ? await getCurrentUser() : null;
       if (!user || (!user.id && !user.user_id && !user.uid)) {
         document.getElementById('tickets').innerHTML = '<div class="no-results">Please log in to view your tickets.</div>';
@@ -166,7 +164,6 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
 
       const currentUserId = user.id || user.user_id || user.uid;
 
-      // ইউজারের ব্যালেন্স ফেচ করা
       const { data: profileData } = await client
         .from('profiles')
         .select('balance')
@@ -177,7 +174,6 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
         document.getElementById('userBalance').textContent = `৳ ${parseFloat(profileData.balance).toFixed(2)}`;
       }
 
-      // tic_tickets টেবিল থেকে ইউজারের টিকিটগুলো ফেচ করা
       const { data: tickets, error } = await client
         .from('tic_tickets')
         .select('*')
@@ -203,9 +199,8 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
       emptySection.style.display = 'none';
       let html = '';
 
-      tickets.forEach(ticket => {
+      tickets.forEach((ticket, index) => {
         const ticketNum = ticket.tic_ticket_number || '';
-        // স্ট্যাটাস ডিফল্টভাবে upcoming বা active থাকলে upcoming ধরবে, অথবা ডাটাবেজ অনুযায়ী সেট হবে
         let statusKey = 'upcoming';
         let statusClass = 'upcoming';
         let statusText = '🕒 UPCOMING';
@@ -220,7 +215,6 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
           statusText = '✕ NOT WINNING';
         }
 
-        // টিকিটের নম্বর থেকে বল বা সংখ্যা আলাদা করা (যেমন TICK-12182022364859 থেকে সংখ্যাগুলো বের করা)
         let rawNumbers = ticketNum.replace('TICK-', '');
         let ballsHtml = '';
         for (let i = 0; i < rawNumbers.length; i += 2) {
@@ -236,11 +230,15 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
         const formattedDate = ticket.tic_purchased_at ? new Date(ticket.tic_purchased_at).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
         const isWin = statusKey === 'winning';
 
+        // টিকিটের ক্রমানুসারে win1.png, win2.png ইত্যাদি লোগো হিসেবে সিলেক্ট করা (যদি নির্দিষ্ট ইমেজ পাথ না থাকে তবে সাইকেল অনুযায়ী পরিবর্তন হবে)
+        const logoIndex = (index % 2) + 1;
+        const logoSrc = `win${logoIndex}.png`;
+
         html += `
           <article class="ticket ${isWin ? 'win-ticket' : ''}" data-status="${statusKey}">
             <span class="status ${statusClass}">${statusText}</span>
             <div class="ticket-top">
-              <div class="game-logo">Lucky<br><span class="big">6</span><small>LOTTERY</small></div>
+              <div class="game-logo"><img src="${logoSrc}" alt="Logo"></div>
               <div class="ticket-meta">
                 <div class="ticket-label muted">Ticket No.</div>
                 <div class="ticket-id">${ticketNum}</div>
@@ -312,7 +310,7 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
 
   function showTicket(button) {
     const card = button.closest('.ticket');
-    const title = card.querySelector('.game-logo').innerText.replace(/\n/g, ' ');
+    const logoImg = card.querySelector('.game-logo img')?.src || 'Logo';
     const id = card.querySelector('.ticket-id').innerText;
     const date = card.querySelector('.ticket-date').innerText;
     const numbers = [...card.querySelectorAll('.ball')].map(n => n.innerText).join(' · ');
@@ -321,7 +319,6 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
     
     document.getElementById('modal-title').innerText = 'Ticket Details';
     document.getElementById('modal-content').innerHTML =
-      '<p><strong>Game:</strong> ' + escapeHTML(title) + '</p>' +
       '<p><strong>Ticket No.:</strong> ' + escapeHTML(id) + '</p>' +
       '<p><strong>Date:</strong> ' + escapeHTML(date) + '</p>' +
       '<p><strong>Your Numbers:</strong><br>' + escapeHTML(numbers) + '</p>' +
