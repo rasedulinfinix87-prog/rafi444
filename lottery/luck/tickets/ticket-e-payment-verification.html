@@ -183,7 +183,7 @@ html, body {
     document.getElementById('warnAmount').textContent = 'BDT ' + ticketData.priceAmount;
   });
 
-  // ডামি বা ভ্যালিড UUID জেনারেট করার ফাংশন (যদি tic_draw_id ফিল্ডটি নাল না নেয়)
+  // UUID জেনারেটর ফাংশন (tic_draw_id পূরণ করার জন্য)
   function generateUUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -216,12 +216,12 @@ html, body {
 
       const ticketNumber = ticketData.customTicketNumber;
 
-      // ১. tic_tickets টেবিলে আপনার দেওয়া কলামগুলোর নাম ও tic_draw_id সহ ডেটা ইনসার্ট করা
+      // tic_tickets টেবিলে আপনার দেওয়া কলাম স্ট্রাকচার অনুযায়ী ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
           {
-            tic_draw_id: generateUUID(), // ড্র আইডি যুক্ত করা হলো যাতে নাল এরর না আসে
+            tic_draw_id: generateUUID(),
             tic_user_id: ticketData.userId,
             tic_ticket_number: ticketNumber,
             tic_buyer_name: ticketData.buyerName,
@@ -237,7 +237,7 @@ html, body {
         throw ticketError;
       }
 
-      // ২. ticket_prices টেবিলে প্রাইস রেকর্ড ইনসার্ট করা
+      // ticket_prices টেবিলে রেকর্ড ইনসার্ট করা
       const { error: priceError } = await client
         .from('ticket_prices')
         .insert([
@@ -263,7 +263,7 @@ html, body {
 
     } catch (err) {
       console.error('Verification error:', err);
-      notify('টেকনিক্যাল সমস্যার কারণে ভেরিফিকেশন সম্পন্ন হয়নি। কনসোল চেক করুন।');
+      notify('টেকনিক্যাল সমস্যার কারণে ভেরিফিকেশন সম্পন্ন হয়নি।');
       verifyBtn.disabled = false;
       verifyBtn.textContent = 'নিশ্চিত';
     }
