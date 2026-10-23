@@ -79,7 +79,7 @@ button { cursor: pointer; }
 </head>
 <body>
 
-<!-- Top Header Container (header.html) -->
+<!-- Top Header Container (navigation/header.html) -->
 <div id="topBarContainer"></div>
 
 <main class="app">
@@ -166,8 +166,8 @@ button { cursor: pointer; }
 
   async function loadNavigationComponents() {
     try {
-      // ১. header.html লোড করা (আগের navigation.html এর বদলে)
-      const topRes = await fetch('header.html');
+      // ১. navigation/header.html লোড করা
+      const topRes = await fetch('navigation/header.html');
       if (topRes.ok) {
         document.getElementById('topBarContainer').innerHTML = await topRes.text();
         const scripts = document.getElementById('topBarContainer').querySelectorAll('script');
