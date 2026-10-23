@@ -181,27 +181,6 @@ html, body {
 
     document.getElementById('headerAmount').textContent = 'BDT ' + ticketData.priceAmount;
     document.getElementById('warnAmount').textContent = 'BDT ' + ticketData.priceAmount;
-
-    if (ticketData.method) {
-      const method = ticketData.method.toLowerCase();
-      const logoEl = document.getElementById('methodLogo');
-      const boxEl = document.getElementById('methodBox');
-      const titleEl = document.getElementById('methodTitle');
-      
-      if (method.includes('bkash')) {
-        logoEl.src = 'images/bkash.png';
-        boxEl.className = 'bg-[#e2136e] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm';
-        titleEl.textContent = 'বিকাশ Deposit';
-      } else if (method.includes('rocket')) {
-        logoEl.src = 'images/rocket.png';
-        boxEl.className = 'bg-[#8c349b] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm';
-        titleEl.textContent = 'রকেট Deposit';
-      } else {
-        logoEl.src = 'images/nagad.png';
-        boxEl.className = 'bg-[#f24e39] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm';
-        titleEl.textContent = 'নগদ Deposit';
-      }
-    }
   });
 
   async function submitPaymentVerification(event) {
@@ -215,8 +194,8 @@ html, body {
       return;
     }
 
-    if (!ticketData) {
-      notify('সেশন ডেটা শেষ হয়ে গেছে।');
+    if (!ticketData || !ticketData.customTicketNumber) {
+      notify('সেশন ডেটা বা কাস্টম টিকিট নম্বর পাওয়া যায়নি।');
       return;
     }
 
@@ -227,10 +206,10 @@ html, body {
       const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
       if (!client) throw new Error('Supabase client not initialized');
 
-      // অটো জেনারেটেড নম্বরের পরিবর্তে ইউজার কর্তৃক সিলেক্ট করা কাস্টম টিকিট নম্বর ব্যবহার করা
-      const ticketNumber = ticketData.customTicketNumber || ('TICK-' + Math.floor(100000 + Math.random() * 900000));
+      // গেটওয়ে পেজ থেকে পাঠানো কাস্টম টিকিট নম্বরটি সরাসরি ব্যবহার করা হচ্ছে
+      const ticketNumber = ticketData.customTicketNumber;
 
-      // ১. tic_tickets টেবিলে কাস্টম টিকিট নম্বর ও TrxID সহ ডেটা ইনসার্ট করা
+      // ১. tic_tickets টেবিলে আপনার দেওয়া কলামগুলোর নাম অনুযায়ী ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
