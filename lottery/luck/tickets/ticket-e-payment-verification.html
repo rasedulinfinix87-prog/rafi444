@@ -206,14 +206,14 @@ html, body {
       const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
       if (!client) throw new Error('Supabase client not initialized');
 
-      // গেটওয়ে পেজ থেকে পাঠানো কাস্টম টিকিট নম্বরটি সরাসরি ব্যবহার করা হচ্ছে
       const ticketNumber = ticketData.customTicketNumber;
 
-      // ১. tic_tickets টেবিলে আপনার দেওয়া কলামগুলোর নাম অনুযায়ী ডেটা ইনসার্ট করা
+      // ১. tic_tickets টেবিলে tic_draw_id সহ ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
           {
+            tic_draw_id: ticketData.drawId,
             tic_user_id: ticketData.userId,
             tic_ticket_number: ticketNumber,
             tic_buyer_name: ticketData.buyerName,
