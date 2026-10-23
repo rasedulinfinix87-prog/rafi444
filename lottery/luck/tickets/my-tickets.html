@@ -7,7 +7,7 @@
 <title>My Tickets | Lottery Game</title>
 <!-- Supabase JS Client & Config -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../../../supabase-config.js"></script>
+<script src="../../../../supabase-config.js"></script>
 <style>
 :root{
   --bg:#06152b; --panel:#081d3a; --panel2:#0b2548; --blue:#075cff;
@@ -20,40 +20,6 @@ html{scroll-behavior:smooth}
 body{margin:0;background:linear-gradient(135deg,#041126,#061a35 60%,#031024);color:var(--text);font-family:Arial,Helvetica,sans-serif;font-size:var(--font-md);min-height:100vh}
 button,a{font:inherit}
 button{cursor:pointer}
-
-/* Custom Image Header & Footer Styles */
-.custom-header {
-  width: 100%;
-  max-width: 1320px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-  padding: 15px 24px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgba(3,15,33,.95);
-  border-bottom: 1px solid #10294a;
-}
-.custom-header img {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-
-.custom-footer {
-  width: 100%;
-  max-width: 1320px;
-  margin: 30px auto 0;
-  display: flex;
-  justify-content: center;
-  padding: 15px 24px;
-}
-.custom-footer img {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-}
 
 main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
 .hero{height:183px;border-radius:23px;background:radial-gradient(ellipse at 77% 40%,#063d83 0%,#082b5c 36%,#061d40 78%);border:1px solid #0d2b53;display:flex;align-items:center;justify-content:space-between;overflow:hidden;padding:28px 35px;position:relative}
@@ -120,10 +86,8 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
 </head>
 <body>
 
-<!-- Custom Image Header -->
-<header class="custom-header">
-  <img src="lottery/luck/tickets/navigation/heade.png" alt="Header Banner">
-</header>
+<!-- Dynamic Header Container -->
+<div id="header-container"></div>
 
 <main>
   <section class="hero">
@@ -150,20 +114,35 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
     <div class="empty-icon">🎟</div>
     <h2>No More Tickets</h2>
     <p>You haven’t purchased any lottery tickets yet.</p>
-    <button class="primary" onclick="window.location.href='draws.html'">🎟 &nbsp;Play Now</button>
+    <button class="primary" onclick="window.location.href='tic-draw.html'">🎟 &nbsp;Play Now</button>
   </section>
 </main>
 
-<!-- Custom Image Footer -->
-<footer class="custom-footer">
-  <img src="lottery/luck/tickets/navigation/footer.png" alt="Footer Banner">
-</footer>
+<!-- Dynamic Footer Container -->
+<div id="footer-container"></div>
 
 <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="if(event.target===this)closeModal()">
   <div class="modal"><div class="modal-head"><h2 id="modal-title">Ticket Details</h2><button class="close" onclick="closeModal()" aria-label="Close">×</button></div><div id="modal-content"></div><button class="primary" onclick="closeModal()">Close</button></div>
 </div>
 
 <script>
+  // হেডার ও ফুটার ফাইল ফেচ করে লোড করার ফাংশন
+  async function loadComponents() {
+    try {
+      const headerRes = await fetch('navigation/header.html');
+      if (headerRes.ok) {
+        document.getElementById('header-container').innerHTML = await headerRes.text();
+      }
+
+      const footerRes = await fetch('navigation/footer.html');
+      if (footerRes.ok) {
+        document.getElementById('footer-container').innerHTML = await footerRes.text();
+      }
+    } catch (e) {
+      console.error('Error loading components:', e);
+    }
+  }
+
   let ticketCards = [];
 
   async function fetchUserDataAndTickets() {
@@ -238,8 +217,9 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
         const formattedDate = ticket.tic_purchased_at ? new Date(ticket.tic_purchased_at).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
         const isWin = statusKey === 'winning';
 
+        // সঠিক পাথ অনুযায়ী win1.png বা win2.png লোড হবে
         const logoIndex = (index % 2) + 1;
-        const logoSrc = `lottery/luck/tickets/images/win${logoIndex}.png`;
+        const logoSrc = `images/win${logoIndex}.png`;
 
         html += `
           <article class="ticket ${isWin ? 'win-ticket' : ''}" data-status="${statusKey}">
@@ -346,6 +326,7 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
   });
 
   window.addEventListener('DOMContentLoaded', async () => {
+    await loadComponents();
     await fetchUserDataAndTickets();
   });
 </script>
