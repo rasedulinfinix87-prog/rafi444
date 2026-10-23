@@ -135,13 +135,6 @@ body {
         <input type="tel" id="buyerMobile" placeholder="Enter Mobile Number" required>
       </div>
 
-      <!-- Draw UUID: tic_draw_id is NOT NULL, so an existing draw UUID is required -->
-      <div class="input-group">
-        <label class="block text-xs text-gray-400 mb-1">Draw ID (UUID) <span class="text-red-400">*</span></label>
-        <input type="text" id="drawId" placeholder="বর্তমান ড্রয়ের UUID দিন" required autocomplete="off" spellcheck="false" aria-describedby="drawIdHelp">
-        <p id="drawIdHelp" class="text-[11px] text-gray-400 mt-1">Supabase-এর ড্র টেবিলে থাকা বিদ্যমান tic_draw_id UUID দিতে হবে। এখানে নতুন/অনুমান করা ID দেবেন না।</p>
-      </div>
-
       <!-- Select Ticket Price -->
       <div class="input-group">
         <label class="block text-xs text-gray-400 mb-1">Select Ticket Price</label>
@@ -424,15 +417,7 @@ body {
 
     const name = document.getElementById('buyerName').value.trim();
     const mobile = document.getElementById('buyerMobile').value.trim();
-    const drawId = document.getElementById('drawId').value.trim();
     const priceAmount = document.getElementById('ticketPriceSelect').value;
-
-    // tic_draw_id is a required UUID column. Validate its format before redirecting.
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!drawId || !uuidPattern.test(drawId)) {
-      notify('দয়া করে বিদ্যমান ড্রয়ের সঠিক UUID দিন।');
-      return;
-    }
 
     if (!name || !mobile || !priceAmount) {
       notify('দয়া করে সব তথ্য সঠিকভাবে পূরণ করুন।');
@@ -451,7 +436,6 @@ body {
 
     localStorage.setItem('pending_ticket_data', JSON.stringify({
       userId: currentUserId,
-      drawId: drawId,
       buyerName: name,
       buyerMobile: mobile,
       priceAmount: priceAmount,
