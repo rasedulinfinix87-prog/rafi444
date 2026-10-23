@@ -130,15 +130,64 @@ td{font-size:14px}
     const client = supabaseClient;
 
     try {
-      // সুপাবেজ RPC ফাংশন কল করার মাধ্যমে সম্পূর্ণ ড্র লজিক কোডিংয়ের মাধ্যমে এক্সিকিউট করা
-      const { error } = await client.rpc('execute_lottery_draw', {
-        target_draw_id: drawId,
-        prize: prizeAmount
-      });
+      // ইউজারের কেনা টিকিটগুলোর স্ট্যাটাস 'active' বা 'upcoming' যেটাই হোক না কেন তা ফেচ করা
+      const { data: tickets, error: ticketError } = await client
+        .from('tic_tickets')
+        .select('*')
+        .eq('tic_draw_id', drawId)
+        .in('tic_ticket_status', ['active', 'upcoming']);
 
-      if (error) throw error;
+      if (ticketError) throw ticketError;
 
-      showAlert('Draw executed successfully! Winner selected and balance updated.', 'success');
+      if (!tickets || tickets.length === 0) {
+        showAlert('No pending tickets found for this draw.', 'error');
+        return;
+      }
+
+      // জাভাস্ক্রিপ্ট লজিক দিয়ে র‍্যান্ডমলি যেকোনো একটি টিকিট সিলেক্ট করা
+      const randomIndex = Math.floor(Math.random() * tickets.length);
+      const winningTicket = tickets[randomIndex];
+
+      const ticketIds = tickets.map(t => t.tic_id);
+      
+      // সব টিকিটের স্ট্যাটাস 'not-winning' করা
+      await client
+        .from('tic_tickets')
+        .update({ tic_ticket_status: 'not-winning' })
+        .in('tic_id', ticketIds);
+
+      // বিজয়ী টিকিটের স্ট্যাটাস 'winning' করা
+      await client
+        .from('tic_tickets')
+        .update({ tic_ticket_status: 'winning' })
+        .eq('tic_id', winningTicket.tic_id);
+
+      // ড্রয়ের স্ট্যাটাস 'completed' করা
+      await client
+        .from('tic_draws')
+        .update({ tic_status: 'completed' })
+        .eq('tic_id', drawId);
+
+      // বিজয়ী ইউজারের ব্যালেন্সের সাথে প্রাইজমানি যোগ করা
+      if (winningTicket.tic_user_id && prizeAmount > 0) {
+        const { data: profile, error: profileError } = await client
+          .from('profiles')
+          .select('balance')
+          .eq('id', winningTicket.tic_user_id)
+          .maybeSingle();
+
+        if (!profileError && profile) {
+          const currentBalance = parseFloat(profile.balance || 0);
+          const newBalance = currentBalance + parseFloat(prizeAmount);
+
+          await client
+            .from('profiles')
+            .update({ balance: newBalance })
+            .eq('id', winningTicket.tic_user_id);
+        }
+      }
+
+      showAlert(`Draw executed successfully! Winner Ticket No: ${winningTicket.tic_ticket_number}`, 'success');
       loadDraws();
 
     } catch (err) {
