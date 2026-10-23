@@ -147,7 +147,7 @@ body {
         </select>
       </div>
 
-      <!-- Custom Ticket Selection Rows (৫টি সারি) -->
+      <!-- Custom Ticket Selection Rows -->
       <div class="mb-4 bg-[#0d1b26] p-3 rounded-xl border border-blue-500/30">
         <div class="flex justify-between items-center mb-2 text-xs text-gray-400 font-semibold">
           <span>SELECT YOUR LUCKY NUMBERS</span>
@@ -291,7 +291,6 @@ body {
     document.getElementById('currentDateDisplay').textContent = `${dd}/${mm}/${yyyy}`;
   }
 
-  // প্রতি সারিতে একটি মাত্র চিপ সিলেক্ট করার লজিক
   function toggleChip(element, rowNum) {
     const rowContainer = document.querySelector(`.row-chips[data-row="${rowNum}"]`);
     rowContainer.querySelectorAll('.ticket-chip').forEach(chip => {
@@ -299,7 +298,6 @@ body {
     });
     element.classList.add('selected');
     
-    // কোনো সারিতে পরিবর্তন করলে আগের সব চেক মার্ক ও ভেরিফিকেশন রিসেট হবে
     for(let i=1; i<=5; i++) {
       document.getElementById(`check-icon-${i}`).classList.add('hidden');
     }
@@ -310,9 +308,8 @@ body {
     document.getElementById('payBtn').querySelector('span').textContent = "Proceed to E-Payment (Check Number First)";
   }
 
-  // Supabase-এ সঠিক ১৪ ডিজিট ফরম্যাট (`TICK-` সহ মোট ১৪ ডিজিট) চেক করার লজিক
+  // Supabase-এ মোট ১৯ ডিজিট ফরম্যাট (`TICK-` সহ মোট ১৯ ডিজিট) চেক করার লজিক
   async function checkRowAvailability(rowNum) {
-    // চেক করার জন্য দেখতে হবে প্রতিটি ৫টি সারি থেকেই ১টি করে মোট ৫টি সংখ্যা (১০ ডিজিট) সিলেক্ট করা হয়েছে কি না
     const allRows = document.querySelectorAll('.row-chips');
     let numbersCombined = '';
     let selectedRowsCount = 0;
@@ -332,9 +329,9 @@ body {
 
     const ticketNumString = `TICK-${numbersCombined}`;
 
-    // মোট ডিজিট যাচাই (TICK- মানে ৪ অক্ষর + ১০ ডিজিট সংখ্যা = মোট ১৪ ডিজিট)
-    if (ticketNumString.length !== 14) {
-      notify(`টিকিট নম্বরটি অবশ্যই মোট ১৪ ডিজিটের হতে হবে! বর্তমান সংখ্যাটি ${ticketNumString.length} ডিজিটের হয়েছে।`);
+    // মোট দৈর্ঘ্য অবশ্যই ১৯ ডিজিট হতে হবে (TICK- মানে ৫ অক্ষর + ১৪ ডিজিট সংখ্যা = ১৯ ডিজিট)
+    if (ticketNumString.length !== 19) {
+      notify(`টিকিট নম্বরটি অবশ্যই মোট ১৯ ডিজিটের হতে হবে! বর্তমান সংখ্যাটি ${ticketNumString.length} ডিজিটের হয়েছে।`);
       return;
     }
 
@@ -371,7 +368,6 @@ body {
         notify('অভিনন্দন! এই নম্বরটি খালি আছে (Available)।');
         verifiedTicketNumber = ticketNumString;
         
-        // সবকটি সারির পাশেই ✅ মার্ক শো করা
         for(let i=1; i<=5; i++) {
           document.getElementById(`check-icon-${i}`).classList.remove('hidden');
         }
