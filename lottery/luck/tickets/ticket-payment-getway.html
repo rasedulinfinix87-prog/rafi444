@@ -147,7 +147,7 @@ body {
         </select>
       </div>
 
-      <!-- Custom Ticket Selection Rows (চাহিদা অনুযায়ী ৫টি রো) -->
+      <!-- Custom Ticket Selection Rows -->
       <div class="mb-4 bg-[#0d1b26] p-3 rounded-xl border border-blue-500/30">
         <div class="flex justify-between items-center mb-2 text-xs text-gray-400 font-semibold">
           <span>SELECT YOUR LUCKY NUMBERS</span>
@@ -163,7 +163,7 @@ body {
             <div class="ticket-chip" onclick="toggleChip(this, 1)">42</div>
             <div class="ticket-chip" onclick="toggleChip(this, 1)">50</div>
           </div>
-          <button type="button" onclick="checkRowAvailability(1)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
+          <button type="button" id="checkBtn-1" onclick="checkRowAvailability(1)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
         </div>
 
         <!-- Row 2 -->
@@ -175,7 +175,7 @@ body {
             <div class="ticket-chip" onclick="toggleChip(this, 2)">39</div>
             <div class="ticket-chip" onclick="toggleChip(this, 2)">48</div>
           </div>
-          <button type="button" onclick="checkRowAvailability(2)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
+          <button type="button" id="checkBtn-2" onclick="checkRowAvailability(2)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
         </div>
 
         <!-- Row 3 -->
@@ -187,19 +187,19 @@ body {
             <div class="ticket-chip" onclick="toggleChip(this, 3)">33</div>
             <div class="ticket-chip" onclick="toggleChip(this, 3)">45</div>
           </div>
-          <button type="button" onclick="checkRowAvailability(3)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
+          <button type="button" id="checkBtn-3" onclick="checkRowAvailability(3)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
         </div>
 
         <!-- Row 4 -->
         <div class="flex items-center justify-between py-2 border-b border-gray-800">
           <div class="flex gap-1.5 row-chips" data-row="4">
             <div class="ticket-chip" onclick="toggleChip(this, 4)">03</div>
-            <div class="ticket-chip" onclick="toggleChip(this, 4)">11్‌</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 4)">11</div>
             <div class="ticket-chip" onclick="toggleChip(this, 4)">29</div>
             <div class="ticket-chip" onclick="toggleChip(this, 4)">36</div>
             <div class="ticket-chip" onclick="toggleChip(this, 4)">49</div>
           </div>
-          <button type="button" onclick="checkRowAvailability(4)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
+          <button type="button" id="checkBtn-4" onclick="checkRowAvailability(4)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
         </div>
 
         <!-- Row 5 -->
@@ -211,7 +211,7 @@ body {
             <div class="ticket-chip" onclick="toggleChip(this, 5)">31</div>
             <div class="ticket-chip" onclick="toggleChip(this, 5)">44</div>
           </div>
-          <button type="button" onclick="checkRowAvailability(5)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
+          <button type="button" id="checkBtn-5" onclick="checkRowAvailability(5)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
         </div>
       </div>
 
@@ -272,13 +272,19 @@ body {
     document.getElementById('currentDateDisplay').textContent = `${dd}/${mm}/${yyyy}`;
   }
 
-  // চিপস সিলেকশন লজিক (প্রতি রো তে একটিভ করার জন্য)
+  // চিপস সিলেকশন লজিক
   function toggleChip(element, rowNum) {
     const rowContainer = document.querySelector(`.row-chips[data-row="${rowNum}"]`);
     rowContainer.querySelectorAll('.ticket-chip').forEach(chip => {
       chip.classList.remove('selected');
     });
     element.classList.add('selected');
+    
+    // রিসেট চেক বাটন
+    const checkBtn = document.getElementById(`checkBtn-${rowNum}`);
+    checkBtn.innerHTML = "CHECK";
+    checkBtn.className = "bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all";
+
     verifiedTicketNumber = null;
     document.getElementById('payBtn').disabled = true;
     document.getElementById('payBtn').className = "w-full mt-2 bg-gray-600 text-gray-300 font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg text-sm cursor-not-allowed";
@@ -295,7 +301,8 @@ body {
       return;
     }
 
-    const ticketNumString = `ROW${rowNum}-TICK-${selectedChip.textContent.trim()}`;
+    // সরাসরি TICK- এবং ইউজারের সিলেক্ট করা নম্বর ফরম্যাট করা
+    const ticketNumString = `TICK-${selectedChip.textContent.trim()}`;
     
     const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
     if (!client) {
@@ -326,6 +333,11 @@ body {
         notify('অভিনন্দন! এই নম্বরটি খালি আছে (Available)।');
         verifiedTicketNumber = ticketNumString;
         
+        // চেক বাটনে ✅ মার্ক যুক্ত করা
+        const checkBtn = document.getElementById(`checkBtn-${rowNum}`);
+        checkBtn.innerHTML = "CHECKED ✅";
+        checkBtn.className = "bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all shadow-md";
+
         const payBtn = document.getElementById('payBtn');
         payBtn.disabled = false;
         payBtn.className = "w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98 text-sm cursor-pointer";
