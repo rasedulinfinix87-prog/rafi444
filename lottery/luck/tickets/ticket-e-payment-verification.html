@@ -18,7 +18,7 @@
             <p><strong>নাম:</strong> <span id="vName"></span></p>
             <p><strong>মোবাইল:</strong> <span id="vMobile"></span></p>
             <p><strong>ঠিকানা:</strong> <span id="vAddress"></span></p>
-            <p><strong>লটারি টিকেট নম্বর:</strong> <span id="vTicket" class="font-mono text-amber-400 text-base"></span></p>
+            <p><strong>লটারি টিকেট নম্বর:</strong> <span id="vTicket" class="font-mono text-amber-400 text-base break-all"></span></p>
         </div>
 
         <div class="space-y-4">
@@ -54,10 +54,19 @@
             }
 
             try {
+                if (typeof supabaseClient === 'undefined') {
+                    alert('সুপাবেজ কনফিগারেশন পাওয়া যায়নি!');
+                    return;
+                }
+
                 let userId = null;
-                if (window._supabase && window._supabase.auth) {
-                    const { data: { user } } = await window._supabase.auth.getUser();
-                    if (user) userId = user.id;
+                try {
+                    if (typeof getCurrentUser === 'function') {
+                        const user = await getCurrentUser();
+                        if (user && user.id) userId = user.id;
+                    }
+                } catch (e) {
+                    console.log('Session check error:', e);
                 }
 
                 const insertData = {
@@ -73,7 +82,7 @@
                     insertData.tic_user_id = userId;
                 }
 
-                const { data, error } = await window._supabase
+                const { data, error } = await supabaseClient
                     .from('tic_tickets')
                     .insert([insertData]);
 
