@@ -208,18 +208,18 @@ html, body {
 
       const ticketNumber = ticketData.customTicketNumber;
 
-      // ১. tic_tickets টেবিলে tic_draw_id সহ ডেটা ইনসার্ট করা
+      // ১. tic_tickets টেবিলে tic_draw_id এবং tic_ticket_status 'pending' সহ ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
           {
-            tic_draw_id: ticketData.drawId,
+            tic_draw_id: ticketData.drawId || null,
             tic_user_id: ticketData.userId,
             tic_ticket_number: ticketNumber,
             tic_buyer_name: ticketData.buyerName,
             tic_buyer_mobile: ticketData.buyerMobile,
             tic_trx_id: trxId,
-            tic_ticket_status: 'active',
+            tic_ticket_status: 'pending',
             tic_purchased_at: new Date()
           }
         ]);
@@ -244,7 +244,7 @@ html, body {
 
       localStorage.removeItem('pending_ticket_data');
 
-      notify('পেমেন্ট ভেরিফিকেশন সফল এবং আপনার সিলেক্ট করা টিকিট ইস্যু হয়েছে!');
+      notify('পেমেন্ট ভেরিফিকেশন সফল এবং আপনার টিকিট পেন্ডিং অবস্থায় জমা হয়েছে!');
 
       setTimeout(() => {
         window.location.href = 'tic-draw.html';
