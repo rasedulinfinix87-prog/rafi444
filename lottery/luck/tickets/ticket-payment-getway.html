@@ -298,14 +298,39 @@ body {
     if (!client) return;
 
     try {
-      const { data: draws, error } = await client
+      let { data: draws, error } = await client
         .from('tic_draws')
         .select('*')
         .neq('tic_status', 'completed')
         .order('tic_created_at', { ascending: false });
 
-      const selectBox = document.getElementById('activeDrawSelect');
+      // যদি কোনো active/upcoming ড্র না থাকে, তবে কোড নিজে থেকেই একটি নতুন ড্র তৈরি করে নেবে
       if (error || !draws || draws.length === 0) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const newDrawNumber = 'DRAW-' + Math.floor(1000 + Math.random() * 9000);
+        
+        const { data: insertedDraw, insertError } = await client
+          .from('tic_draws')
+          .insert([
+            {
+              tic_draw_name: 'Daily Lucky Draw (' + todayStr + ')',
+              tic_draw_number: newDrawNumber,
+              tic_draw_time: new Date(Date.now() + 86400000), // আগামিকাল
+              tic_status: 'upcoming',
+              tic_prize_amount: 1000,
+              tic_created_at: new Date()
+            }
+          ])
+          .select()
+          .single();
+
+        if (!insertError && insertedDraw) {
+          draws = [insertedDraw];
+        }
+      }
+
+      const selectBox = document.getElementById('activeDrawSelect');
+      if (!draws || draws.length === 0) {
         selectBox.innerHTML = '<option value="" disabled selected>No active draws found</option>';
         return;
       }
