@@ -130,12 +130,12 @@ td{font-size:14px}
     const client = supabaseClient;
 
     try {
-      // tic_tickets টেবিল থেকে নির্দিষ্ট ড্র আইডি এবং active বা upcoming স্ট্যাটাসের টিকিটগুলো খোঁজা
+      // পেন্ডিং স্ট্যাটাসের টিকিটগুলো খোঁজা হচ্ছে
       const { data: tickets, error: ticketError } = await client
         .from('tic_tickets')
         .select('*')
         .eq('tic_draw_id', drawId)
-        .in('tic_ticket_status', ['active', 'upcoming']);
+        .in('tic_ticket_status', ['pending', 'active']);
 
       if (ticketError) throw ticketError;
 
