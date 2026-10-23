@@ -147,7 +147,7 @@ body {
         </select>
       </div>
 
-      <!-- Custom Ticket Selection Rows -->
+      <!-- Custom Ticket Selection Rows (৫টি সারি) -->
       <div class="mb-4 bg-[#0d1b26] p-3 rounded-xl border border-blue-500/30">
         <div class="flex justify-between items-center mb-2 text-xs text-gray-400 font-semibold">
           <span>SELECT YOUR LUCKY NUMBERS</span>
@@ -291,7 +291,7 @@ body {
     document.getElementById('currentDateDisplay').textContent = `${dd}/${mm}/${yyyy}`;
   }
 
-  // প্রতি সারিতে ইউজার একটি নির্দিষ্ট চিপ বা সংখ্যা সিলেক্ট করার লজিক
+  // প্রতি সারিতে একটি মাত্র চিপ সিলেক্ট করার লজিক
   function toggleChip(element, rowNum) {
     const rowContainer = document.querySelector(`.row-chips[data-row="${rowNum}"]`);
     rowContainer.querySelectorAll('.ticket-chip').forEach(chip => {
@@ -299,8 +299,10 @@ body {
     });
     element.classList.add('selected');
     
-    // টিক মার্ক হাইড করা
-    document.getElementById(`check-icon-${rowNum}`).classList.add('hidden');
+    // কোনো সারিতে পরিবর্তন করলে আগের সব চেক মার্ক ও ভেরিফিকেশন রিসেট হবে
+    for(let i=1; i<=5; i++) {
+      document.getElementById(`check-icon-${i}`).classList.add('hidden');
+    }
     
     verifiedTicketNumber = null;
     document.getElementById('payBtn').disabled = true;
@@ -308,32 +310,31 @@ body {
     document.getElementById('payBtn').querySelector('span').textContent = "Proceed to E-Payment (Check Number First)";
   }
 
-  // Supabase-এ সম্পূর্ণ ১৪ ডিজিট ফরম্যাট (`TICK-xxxxxxxxxx`) চেক করার লজিক
+  // Supabase-এ সঠিক ১৪ ডিজিট ফরম্যাট (`TICK-` সহ মোট ১৪ ডিজিট) চেক করার লজিক
   async function checkRowAvailability(rowNum) {
-    const rowContainer = document.querySelector(`.row-chips[data-row="${rowNum}"]`);
-    const selectedChip = rowContainer.querySelector('.ticket-chip.selected');
+    // চেক করার জন্য দেখতে হবে প্রতিটি ৫টি সারি থেকেই ১টি করে মোট ৫টি সংখ্যা (১০ ডিজিট) সিলেক্ট করা হয়েছে কি না
+    const allRows = document.querySelectorAll('.row-chips');
+    let numbersCombined = '';
+    let selectedRowsCount = 0;
 
-    if (!selectedChip) {
-      notify('দয়া করে এই সারি থেকে একটি নম্বর সিলেক্ট করুন।');
+    allRows.forEach(row => {
+      const selected = row.querySelector('.ticket-chip.selected');
+      if (selected) {
+        selectedRowsCount++;
+        numbersCombined += selected.textContent.trim();
+      }
+    });
+
+    if (selectedRowsCount < 5) {
+      notify('দয়া করে ৫টি সারি থেকেই একটি করে মোট ৫টি নম্বর সিলেক্ট করুন।');
       return;
     }
 
-    // প্রতি সারিতে ইউজার যে সংখ্যাটি সিলেক্ট করেছেন সেটি দিয়ে কম্বিনেশন তৈরি (যেমন: TICK-121820223648)
-    // উদাহরণস্বরূপ: সব সারি থেকে সিলেক্ট করা বা নির্দিষ্ট ফরম্যাট অনুযায়ী সংখ্যা সংগ্রহ করা
-    // এখানে ইউজার চাচ্ছেন মোট ১৪ ডিজিট যেন হয় (TICK- সহ বা মোট সংখ্যা মিলিয়ে)
-    // চলুন সব কয়টি সারির সিলেক্টেড চিপস একত্র করে ১৪ ডিজিট তৈরি করি:
-    
-    let allSelectedChips = document.querySelectorAll('.ticket-chip.selected');
-    let numbersCombined = '';
-    allSelectedChips.forEach(chip => {
-      numbersCombined += chip.textContent.trim();
-    });
-
     const ticketNumString = `TICK-${numbersCombined}`;
 
-    // মোট ডিজিট চেক করা (TICK- হলো ৪ অক্ষর + সংখ্যাগুলো)
+    // মোট ডিজিট যাচাই (TICK- মানে ৪ অক্ষর + ১০ ডিজিট সংখ্যা = মোট ১৪ ডিজিট)
     if (ticketNumString.length !== 14) {
-      notify(`টিকিট নম্বরটি অবশ্যই মোট ১৪ ডিজিটের হতে হবে! বর্তমান সংখ্যাটি ${ticketNumString.length} ডিজিটের হয়েছে (সব সারি মিলিয়ে সিলেক্ট করুন)।`);
+      notify(`টিকিট নম্বরটি অবশ্যই মোট ১৪ ডিজিটের হতে হবে! বর্তমান সংখ্যাটি ${ticketNumString.length} ডিজিটের হয়েছে।`);
       return;
     }
 
@@ -361,15 +362,19 @@ body {
       if (data) {
         notify('দুঃখিত! এই হুবহু কম্বিনেশন নম্বরটি ইতিমধ্যে বিক্রি হয়ে গেছে। অন্য কম্বিনেশন বেছে নিন।');
         verifiedTicketNumber = null;
-        document.getElementById(`check-icon-${rowNum}`).classList.add('hidden');
+        for(let i=1; i<=5; i++) {
+          document.getElementById(`check-icon-${i}`).classList.add('hidden');
+        }
         document.getElementById('payBtn').disabled = true;
         document.getElementById('payBtn').className = "w-full mt-2 bg-gray-600 text-gray-300 font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg text-sm cursor-not-allowed";
       } else {
         notify('অভিনন্দন! এই নম্বরটি খালি আছে (Available)।');
         verifiedTicketNumber = ticketNumString;
         
-        // সফলভাবে চেক হওয়ার পর নির্দিষ্ট সারির পাশে ✅ মার্ক শো করা
-        document.getElementById(`check-icon-${rowNum}`).classList.remove('hidden');
+        // সবকটি সারির পাশেই ✅ মার্ক শো করা
+        for(let i=1; i<=5; i++) {
+          document.getElementById(`check-icon-${i}`).classList.remove('hidden');
+        }
 
         const payBtn = document.getElementById('payBtn');
         payBtn.disabled = false;
