@@ -183,14 +183,6 @@ html, body {
     document.getElementById('warnAmount').textContent = 'BDT ' + ticketData.priceAmount;
   });
 
-  // UUID জেনারেটর ফাংশন (tic_draw_id পূরণ করার জন্য)
-  function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-  }
-
   async function submitPaymentVerification(event) {
     event.preventDefault();
 
@@ -214,14 +206,14 @@ html, body {
       const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
       if (!client) throw new Error('Supabase client not initialized');
 
+      // গেটওয়ে পেজ থেকে পাঠানো কাস্টম টিকিট নম্বরটি সরাসরি ব্যবহার করা হচ্ছে
       const ticketNumber = ticketData.customTicketNumber;
 
-      // tic_tickets টেবিলে আপনার দেওয়া কলাম স্ট্রাকচার অনুযায়ী ডেটা ইনসার্ট করা
+      // ১. tic_tickets টেবিলে আপনার দেওয়া কলামগুলোর নাম অনুযায়ী ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
           {
-            tic_draw_id: generateUUID(),
             tic_user_id: ticketData.userId,
             tic_ticket_number: ticketNumber,
             tic_buyer_name: ticketData.buyerName,
@@ -232,12 +224,9 @@ html, body {
           }
         ]);
 
-      if (ticketError) {
-        console.error('Tic Tickets Insert Error:', ticketError);
-        throw ticketError;
-      }
+      if (ticketError) throw ticketError;
 
-      // ticket_prices টেবিলে রেকর্ড ইনসার্ট করা
+      // ২. ticket_prices টেবিলে প্রাইস রেকর্ড ইনসার্ট করা
       const { error: priceError } = await client
         .from('ticket_prices')
         .insert([
@@ -262,10 +251,19 @@ html, body {
       }, 2000);
 
     } catch (err) {
-      console.error('Verification error:', err);
-      notify('টেকনিক্যাল সমস্যার কারণে ভেরিফিকেশন সম্পন্ন হয়নি।');
+      // Supabase-এর প্রকৃত error console এবং toast—দুই জায়গায় দেখানো হবে
+      console.error('Verification error details:', {
+        message: err?.message,
+        details: err?.details,
+        hint: err?.hint,
+        code: err?.code,
+        error: err
+      });
+
+      const errorMessage = err?.message || err?.details || 'Unknown error';
+      notify('টিকিট সেভ হয়নি: ' + errorMessage);
       verifyBtn.disabled = false;
-      verifyBtn.textContent = 'নিশ্চিত';
+      verifyBtn.innerHTML = '<span>নিশ্চিত</span>';
     }
   }
 </script>
