@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#06152B">
+<title>Admin Draw Control | Lottery Management</title>
+<!-- Supabase JS Client & Config -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- পাথ আপনার প্রজেক্ট অনুযায়ী এডজাস্ট করে নিতে পারেন -->
+<script src="../../../supabase-config.js"></script>
+<style>
+:root{
+  --bg:#041126; --panel:#081d3a; --panel2:#0b2548; --blue:#075cff;
+  --blue2:#1f51ff; --border:#102f58; --text:#fff; --muted:#a9c8f3;
+  --green:#00c98b; --red:#ff4d4d;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#041126,#061a35 60%,#031024);color:var(--text);font-family:Arial,Helvetica,sans-serif;font-size:15px;min-height:100vh}
+header{height:70px;border-bottom:1px solid #10294a;background:rgba(3,15,33,.95);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:10}
+.brand{font-size:22px;font-weight:800;color:#00c98b}
+main{max-width:1200px;margin:30px auto;padding:0 20px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:25px;margin-bottom:25px;box-shadow:0 10px 30px rgba(0,0,0,0.3)}
+h1,h2{margin-top:0}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{padding:12px 15px;text-align:left;border-bottom:1px solid var(--border)}
+th{background:var(--panel2);color:var(--muted);font-size:13px}
+td{font-size:14px}
+.btn{background:var(--blue);color:#fff;border:0;padding:10px 20px;border-radius:10px;font-weight:700;cursor:pointer;transition:.2s}
+.btn:hover{background:var(--blue2)}
+.btn-success{background:var(--green);color:#031024}
+.btn-success:hover{background:#00b078}
+.badge{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.upcoming{background:#174c96;color:#dbeaff}
+.badge.completed{background:#004d36;color:#00c98b}
+.alert{padding:15px;border-radius:10px;margin-bottom:20px;display:none}
+.alert-success{background:rgba(0,201,139,0.15);border:1px solid var(--green);color:var(--green)}
+.alert-error{background:rgba(255,77,77,0.15);border:1px solid var(--red);color:var(--red)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">🎲 Admin Draw Panel</div>
+  <div><span id="adminName">Admin</span></div>
+</header>
+
+<main>
+  <div id="alertBox" class="alert"></div>
+
+  <div class="card">
+     <h2>Active & Upcoming Draws</h2>
+     <p style="color:var(--muted);">Select a draw to execute random winner selection based on its unique prize amount.</p>
+     <div style="overflow-x:auto;">
+       <table>
+         <thead>
+           <tr>
+             <th>Draw Name</th>
+             <th>Draw Number</th>
+             <th>Prize Amount</th>
+             <th>Draw Time</th>
+             <th>Status</th>
+             <th>Action</th>
+           </tr>
+         </thead>
+         <tbody id="drawsTableBody">
+           <tr><td colspan="6" style="text-align:center;">Loading draws...</td></tr>
+         </tbody>
+       </table>
+     </div>
+  </div>
+</main>
+
+<script>
+  async function loadDraws() {
+    const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
+    if (!client) {
+      showAlert('Supabase client not initialized.', 'error');
+      return;
+    }
+
+    try {
+      const { data: draws, error } = await client
+        .from('tic_draws')
+        .select('*')
+        .order('tic_created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const tbody = document.getElementById('drawsTableBody');
+      if (!draws || draws.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No draws found.</td></tr>';
+        return;
+      }
+
+      let html = '';
+      draws.forEach(draw => {
+        const isCompleted = draw.tic_status === 'completed';
+        const formattedDate = draw.tic_draw_time ? new Date(draw.tic_draw_time).toLocaleString() : 'N/A';
+        const prize = draw.tic_prize_amount ? `৳ ${parseFloat(draw.tic_prize_amount).toFixed(2)}` : '৳ 0.00';
+
+        html += `
+          <tr>
+            <td><strong>${escapeHTML(draw.tic_draw_name || 'N/A')}</strong></td>
+            <td>${escapeHTML(draw.tic_draw_number || 'N/A')}</td>
+            <td><strong style="color:var(--green);">${prize}</strong></td>
+            <td>${formattedDate}</td>
+            <td><span class="badge ${isCompleted ? 'completed' : 'upcoming'}">${draw.tic_status || 'upcoming'}</span></td>
+            <td>
+              ${isCompleted 
+                ? '<span style="color:var(--muted); font-size:13px;">Draw Finished</span>' 
+                : `<button class="btn btn-success" onclick="executeDraw('${draw.tic_id}', ${draw.tic_prize_amount || 0})">Run Draw</button>`
+              }
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+    } catch (err) {
+      console.error(err);
+      showAlert('Failed to load draws.', 'error');
+    }
+  }
+
+  async function executeDraw(drawId, prizeAmount) {
+    if (!confirm('Are you sure you want to run this draw? This will randomly pick a winner and distribute the prize!')) {
+      return;
+    }
+
+    const client = supabaseClient;
+
+    try {
+      // ১. ওই ড্রয়ের অধীনে থাকা সকল 'upcoming' টিকিট ফেচ করা
+      const { data: tickets, error: ticketError } = await client
+        .from('tic_tickets')
+        .select('*')
+        .eq('tic_draw_id', drawId)
+        .eq('tic_ticket_status', 'upcoming');
+
+      if (ticketError) throw ticketError;
+
+      if (!tickets || tickets.length === 0) {
+        showAlert('No pending tickets found for this draw.', 'error');
+        return;
+      }
+
+      // ২. র‍্যান্ডমলি যেকোনো একটি টিকিট বিজয়ী হিসেবে সিলেক্ট করা
+      const randomIndex = Math.floor(Math.random() * tickets.length);
+      const winningTicket = tickets[randomIndex];
+
+      // ৩. বিজয়ী টিকিটের স্ট্যাটাস 'winning' এবং বাকিদের 'not-winning' করা
+      const ticketIds = tickets.map(t => t.tic_id);
+      
+      // প্রথমে সব টিকিটকে 'not-winning' করা যাক
+      await client
+        .from('tic_tickets')
+        .update({ tic_ticket_status: 'not-winning' })
+        .in('tic_id', ticketIds);
+
+      // নির্দিষ্ট বিজয়ী টিকিটকে 'winning' করা
+      await client
+        .from('tic_tickets')
+        .update({ tic_ticket_status: 'winning' })
+        .eq('tic_id', winningTicket.tic_id);
+
+      // ৪. ড্র-এর স্ট্যাটাস 'completed' করা
+      await client
+        .from('tic_draws')
+        .update({ tic_status: 'completed' })
+        .eq('tic_id', drawId);
+
+      // ৫. বিজয়ী ইউজারের ব্যালেন্সের সাথে prize_amount যোগ করা (profiles টেবিল)
+      if (winningTicket.tic_user_id && prizeAmount > 0) {
+        const { data: profile, error: profileError } = await client
+          .from('profiles')
+          .select('balance')
+          .eq('id', winningTicket.tic_user_id)
+          .maybeSingle();
+
+        if (!profileError && profile) {
+          const currentBalance = parseFloat(profile.balance || 0);
+          const newBalance = currentBalance + parseFloat(prizeAmount);
+
+          await client
+            .from('profiles')
+            .update({ balance: newBalance })
+            .eq('id', winningTicket.tic_user_id);
+        }
+      }
+
+      showAlert(`Draw executed successfully! Winner Ticket No: ${winningTicket.tic_ticket_number}`, 'success');
+      loadDraws();
+
+    } catch (err) {
+      console.error(err);
+      showAlert('Error executing draw: ' + err.message, 'error');
+    }
+  }
+
+  function showAlert(message, type) {
+    const box = document.getElementById('alertBox');
+    box.className = 'alert ' + (type === 'success' ? 'alert-success' : 'alert-error');
+    box.textContent = message;
+    box.style.display = 'block';
+    setTimeout(() => { box.style.display = 'none'; }, 5000);
+  }
+
+  function escapeHTML(str) {
+    return String(str).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    loadDraws();
+  });
+</script>
+</body>
+</html>
