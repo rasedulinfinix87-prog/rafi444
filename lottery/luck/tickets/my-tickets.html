@@ -57,6 +57,35 @@ body {
 .ticket-card:hover {
   border-color: rgba(31, 81, 255, 0.7);
 }
+.ticket-number-block {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.ticket-number-label {
+  color: #9db2c2;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.ticket-number-value {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: #ffffff;
+  background: rgba(31, 81, 255, .16);
+  border: 1px solid rgba(31, 81, 255, .48);
+  border-radius: 9px;
+  padding: 7px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
 .toast {
   position: fixed;
   z-index: 50;
@@ -220,9 +249,12 @@ body {
         
         html += `
           <div class="ticket-card">
-            <div class="flex justify-between items-start mb-2">
-              <span class="text-xs font-mono text-blue-400 font-bold bg-blue-900/30 px-2 py-0.5 rounded border border-blue-500/20">${ticket.tic_ticket_number || 'N/A'}</span>
-              <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded border ${statusClass}">${ticket.tic_ticket_status || 'Confirmed'}</span>
+            <div class="flex justify-between items-start gap-3 mb-3">
+              <div class="ticket-number-block">
+                <span class="ticket-number-label">Your Ticket No.</span>
+                <span class="ticket-number-value">${ticket.tic_ticket_number || 'N/A'}</span>
+              </div>
+              <span class="text-[10px] uppercase font-semibold px-2 py-1 rounded border ${statusClass}">${ticket.tic_ticket_status || 'Confirmed'}</span>
             </div>
             <div class="space-y-1.5 text-xs text-gray-300">
               <div class="flex justify-between">
