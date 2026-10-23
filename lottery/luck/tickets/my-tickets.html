@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#0F212E">
+<title>My Tickets</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Supabase JS Client & Config -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../../../supabase-config.js"></script>
+
+<style>
+:root {
+  --bg: #0F212E;
+  --button: #1F51FF;
+  --text: #FFFFFF;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  overflow-x: hidden;
+}
+.app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  position: relative;
+  padding: 16px;
+  padding-bottom: 90px;
+}
+.main-wrapper {
+  background: rgba(15, 33, 46, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(31, 81, 255, 0.2);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.ticket-card {
+  background: rgba(13, 27, 38, 0.9);
+  border: 1px solid rgba(31, 81, 255, 0.3);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  transition: all 0.2s;
+}
+.ticket-card:hover {
+  border-color: rgba(31, 81, 255, 0.7);
+}
+.toast {
+  position: fixed;
+  z-index: 50;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--button);
+  color: white;
+  border-radius: 12px;
+  padding: 10px 20px;
+  display: none;
+  max-width: 90%;
+  text-align: center;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.toast.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Dynamic Header Container -->
+<div id="header-container"></div>
+
+<div class="app">
+  <div class="main-wrapper">
+    <!-- Header Title -->
+    <div class="w-full bg-[#1F51FF] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 mb-4 shadow-md text-sm">
+      <i class="fa-solid fa-ticket"></i>
+      <span>My Purchased Tickets</span>
+    </div>
+
+    <!-- Summary Count Badge -->
+    <div class="mb-4 bg-[#1a2c38]/80 p-3 rounded-xl border border-blue-500/20 text-sm flex justify-between items-center">
+      <span class="text-gray-400">Total Tickets:</span>
+      <span id="totalTicketsCount" class="font-bold text-emerald-400">0 Tickets</span>
+    </div>
+
+    <!-- Countdown Banner for Next Draw -->
+    <div class="mb-4 bg-gradient-to-r from-blue-900/40 to-indigo-900/40 p-3.5 rounded-xl border border-blue-500/30 text-center">
+      <div class="text-xs text-gray-400 mb-1 font-semibold uppercase tracking-wider">Next Draw Countdown</div>
+      <div id="drawCountdown" class="text-lg font-bold text-emerald-400">Loading time...</div>
+    </div>
+
+    <!-- Tickets Container -->
+    <div id="ticketsListContainer">
+      <div class="text-center text-gray-400 py-8 text-sm">Loading your tickets...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Dynamic Footer Container -->
+<div id="footer-container"></div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  async function loadComponents() {
+    try {
+      const headerRes = await fetch('navigation/header.html');
+      if (headerRes.ok) {
+        document.getElementById('header-container').innerHTML = await headerRes.text();
+        const scripts = document.getElementById('header-container').querySelectorAll('script');
+        scripts.forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.text = script.innerText;
+          document.body.appendChild(newScript);
+        });
+      }
+
+      const footerRes = await fetch('navigation/footer.html');
+      if (footerRes.ok) {
+        document.getElementById('footer-container').innerHTML = await footerRes.text();
+      }
+    } catch (e) {
+      console.error('Error loading header/footer components:', e);
+    }
+  }
+
+  function notify(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // ড্র কাউন্টডাউন টাইমার সেটআপ (উদাহরণস্বরূপ প্রতিদিন রাত ১২টা বা নির্দিষ্ট সময় ধরে কাউন্টডাউন)
+  function startCountdown() {
+    // টার্গেট ড্র সময় সেট করা (যেমন আজকের রাত ১১:৫৯:৫৯ অথবা নির্দিষ্ট একটি ভবিষ্যৎ সময়)
+    const now = new Date();
+    const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    
+    // যদি আজকের সময় পার হয়ে যায়, তবে আগামীকালের সময় ধরবে
+    if (now > targetDate) {
+      targetDate.setDate(targetDate.getDate() + 1);
+    }
+
+    setInterval(() => {
+      const currentTime = new Date().getTime();
+      const distance = targetDate.getTime() - currentTime;
+
+      if (distance < 0) {
+        document.getElementById('drawCountdown').textContent = "Draw is running / Expired";
+        return;
+      }
+
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById('drawCountdown').textContent = 
+        `${String(hours).padStart(2, '0')}h : ${String(minutes).padStart(2, '0')}m : ${String(seconds).padStart(2, '0')}s remaining`;
+    }, 1000);
+  }
+
+  async function fetchUserTickets() {
+    const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
+    if (!client) {
+      document.getElementById('ticketsListContainer').innerHTML = '<div class="text-center text-red-400 py-6 text-sm">Supabase connection not found.</div>';
+      return;
+    }
+
+    try {
+      const user = await getCurrentUser();
+      
+      if (!user || (!user.id && !user.user_id && !user.uid)) {
+        document.getElementById('ticketsListContainer').innerHTML = '<div class="text-center text-red-400 py-6 text-sm">Please log in to view your tickets.</div>';
+        return;
+      }
+
+      const currentUserId = user.id || user.user_id || user.uid;
+
+      // tic_tickets টেবিল থেকে বর্তমান ইউজারের টিকিটগুলো ফেচ করা
+      const { data: tickets, error } = await client
+        .from('tic_tickets')
+        .select('*')
+        .eq('tic_user_id', currentUserId)
+        .order('tic_purchased_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching tickets:', error);
+        document.getElementById('ticketsListContainer').innerHTML = '<div class="text-center text-red-400 py-6 text-sm">Failed to load tickets.</div>';
+        return;
+      }
+
+      const container = document.getElementById('ticketsListContainer');
+      
+      if (!tickets || tickets.length === 0) {
+        document.getElementById('totalTicketsCount').textContent = '0 Tickets';
+        container.innerHTML = '<div class="text-center text-gray-400 py-8 text-sm">You have not purchased any tickets yet.</div>';
+        return;
+      }
+
+      document.getElementById('totalTicketsCount').textContent = `${tickets.length} Tickets`;
+      
+      let html = '';
+      tickets.forEach(ticket => {
+        const purchasedDate = ticket.tic_purchased_at ? new Date(ticket.tic_purchased_at).toLocaleString() : 'N/A';
+        const statusClass = ticket.tic_ticket_status === 'active' ? 'text-emerald-400 bg-emerald-950/50 border-emerald-500/30' : 'text-blue-400 bg-blue-950/50 border-blue-500/30';
+        
+        html += `
+          <div class="ticket-card">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-xs font-mono text-blue-400 font-bold bg-blue-900/30 px-2 py-0.5 rounded border border-blue-500/20">${ticket.tic_ticket_number || 'N/A'}</span>
+              <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded border ${statusClass}">${ticket.tic_ticket_status || 'Confirmed'}</span>
+            </div>
+            <div class="space-y-1.5 text-xs text-gray-300">
+              <div class="flex justify-between">
+                <span class="text-gray-400">Buyer Name:</span>
+                <span class="font-medium text-white">${ticket.tic_buyer_name || 'N/A'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Mobile:</span>
+                <span class="font-medium text-white">${ticket.tic_buyer_mobile || 'N/A'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">TrxID:</span>
+                <span class="font-mono text-emerald-400">${ticket.tic_trx_id || 'N/A'}</span>
+              </div>
+              <div class="flex justify-between pt-1 border-t border-gray-800 text-[11px] text-gray-400">
+                <span>Purchased At:</span>
+                <span>${purchasedDate}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+
+    } catch (err) {
+      console.error('Error:', err);
+      document.getElementById('ticketsListContainer').innerHTML = '<div class="text-center text-red-400 py-6 text-sm">An unexpected error occurred.</div>';
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    await loadComponents();
+    startCountdown();
+    await fetchUserTickets();
+  });
+</script>
+</body>
+</html>
