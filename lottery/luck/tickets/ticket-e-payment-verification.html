@@ -172,7 +172,7 @@ html, body {
     if (!storedData) {
       notify('কোনো পেমেন্ট তথ্য পাওয়া যায়নি!');
       setTimeout(() => {
-        window.location.href = 'buy-a-tickets.html';
+        window.location.href = 'ticket-payment-getway.html';
       }, 1500);
       return;
     }
@@ -227,9 +227,10 @@ html, body {
       const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
       if (!client) throw new Error('Supabase client not initialized');
 
-      const ticketNumber = 'TICK-' + Math.floor(100000 + Math.random() * 900000);
+      // অটো জেনারেটেড নম্বরের পরিবর্তে ইউজার কর্তৃক সিলেক্ট করা কাস্টম টিকিট নম্বর ব্যবহার করা
+      const ticketNumber = ticketData.customTicketNumber || ('TICK-' + Math.floor(100000 + Math.random() * 900000));
 
-      // ১. tic_tickets টেবিলে tic_trx_id সহ ডেটা ইনসার্ট করা
+      // ১. tic_tickets টেবিলে কাস্টম টিকিট নম্বর ও TrxID সহ ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
@@ -238,7 +239,7 @@ html, body {
             tic_ticket_number: ticketNumber,
             tic_buyer_name: ticketData.buyerName,
             tic_buyer_mobile: ticketData.buyerMobile,
-            tic_trx_id: trxId, // এখানে ট্রানজেকশন আইডি যুক্ত করা হয়েছে
+            tic_trx_id: trxId,
             tic_ticket_status: 'active',
             tic_purchased_at: new Date()
           }
@@ -264,7 +265,7 @@ html, body {
 
       localStorage.removeItem('pending_ticket_data');
 
-      notify('পেমেন্ট ভেরিফিকেশন সফল এবং টিকিট ইস্যু হয়েছে!');
+      notify('পেমেন্ট ভেরিফিকেশন সফল এবং আপনার সিলেক্ট করা টিকিট ইস্যু হয়েছে!');
 
       setTimeout(() => {
         window.location.href = 'tic-draw.html';
