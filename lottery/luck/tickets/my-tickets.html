@@ -2,224 +2,182 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="format-detection" content="telephone=no">
-<meta name="theme-color" content="#0F212E">
-<title>My Tickets</title>
-<!-- Tailwind CSS CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
-<!-- Font Awesome Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#06152B">
+<title>My Tickets | Lottery Game</title>
 <!-- Supabase JS Client & Config -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../../../supabase-config.js"></script>
-
 <style>
-:root {
-  --bg: #0F212E;
-  --button: #1F51FF;
-  --text: #FFFFFF;
+:root{
+  --bg:#06152b; --panel:#081d3a; --panel2:#0b2548; --blue:#075cff;
+  --blue2:#1f51ff; --border:#102f58; --text:#fff; --muted:#a9c8f3;
+  --green:#00c98b; --green-dark:#00a96b; --gray:#365580;
+  --font-xs:11px; --font-sm:13px; --font-md:15px; --font-lg:20px;
 }
-* { box-sizing: border-box; }
-html { background: var(--bg); scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  overflow-x: hidden;
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(135deg,#041126,#061a35 60%,#031024);color:var(--text);font-family:Arial,Helvetica,sans-serif;font-size:var(--font-md);min-height:100vh}
+button,a{font:inherit}
+button{cursor:pointer}
+.topbar{height:74px;border-bottom:1px solid #10294a;background:rgba(3,15,33,.95);display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100% - 1320px)/2));gap:22px;position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;font-size:24px;font-weight:800;line-height:1}
+.brand-mark{font-size:39px;color:#00c98b}
+.brand span em{font-style:normal;color:#00d69a;display:block}
+.nav{height:100%;display:flex;align-items:stretch;gap:8px}
+.nav a{color:#b9d3f7;text-decoration:none;display:flex;align-items:center;gap:9px;padding:0 19px;border-bottom:3px solid transparent;white-space:nowrap}
+.nav a.active{color:#1680ff;border-color:#075cff}
+.right{display:flex;align-items:center;gap:22px}
+.balance{border:1px solid #123762;border-radius:28px;padding:9px 18px;display:flex;align-items:center;gap:12px;white-space:nowrap}
+.wallet{font-size:23px}
+.balance small{display:block;color:var(--muted);font-size:12px;margin-bottom:3px}
+.balance strong{font-size:15px}
+.avatar{border:0;border-radius:50%;background:#075cff;color:#fff;width:46px;height:46px;font-size:24px}
+main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
+.hero{height:183px;border-radius:23px;background:radial-gradient(ellipse at 77% 40%,#063d83 0%,#082b5c 36%,#061d40 78%);border:1px solid #0d2b53;display:flex;align-items:center;justify-content:space-between;overflow:hidden;padding:28px 35px;position:relative}
+.hero-copy{display:flex;align-items:center;gap:27px;z-index:1}
+.hero-icon{height:82px;width:82px;display:grid;place-items:center;background:#075cff;border-radius:50%;font-size:38px;flex-shrink:0}
+.hero h1{font-size:36px;margin:0 0 10px;font-weight:800;letter-spacing:-.5px}
+.hero p{margin:0;color:#bed6fa;line-height:1.55;font-size:17px;max-width:480px}
+.lottery-art{font-size:100px;letter-spacing:-13px;transform:rotate(-7deg);padding-right:14px;filter:drop-shadow(0 8px 14px #00122f);white-space:nowrap}
+.filters{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:6px;background:#071a35;border:1px solid #0b2548;border-radius:28px;margin:22px 0 26px}
+.filter{min-height:57px;border:0;border-radius:21px;background:#0a2346;color:#c5dcfb;display:flex;align-items:center;justify-content:center;gap:11px;font-size:15px;font-weight:700}
+.filter .ico{font-size:20px}
+.filter .count{min-width:25px;height:25px;padding:0 7px;border-radius:20px;background:#102b52;color:#fff;display:grid;place-items:center;font-size:13px}
+.filter.active{background:#075cff;color:white}
+.filter.active .count{background:#3b8bff}
+.tickets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.ticket{background:linear-gradient(135deg,#071c39,#061832);border:1px solid #10315b;border-radius:24px;padding:21px 25px 20px;min-height:282px;position:relative;overflow:hidden}
+.ticket-top{display:grid;grid-template-columns:116px minmax(0,1fr);gap:18px;align-items:center;padding-right:112px;min-height:78px}
+.game-logo{width:105px;min-height:78px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:25px;font-weight:900;line-height:.9;letter-spacing:-.7px;color:#ffdb37;text-shadow:2px 3px 0 #a31b05,0 0 9px #ff8c00;transform:rotate(-2deg)}
+.game-logo small{display:block;font-size:11px;letter-spacing:1px;color:white;margin-top:7px}
+.game-logo .big{font-size:35px}
+.ticket-meta{min-width:0}
+.muted{color:#a9c8f3}
+.ticket-label{font-size:13px;margin-bottom:6px}
+.ticket-id{font-weight:700;font-size:15px;overflow-wrap:anywhere}
+.ticket-date{color:#a9c8f3;font-size:13px;margin-top:10px;white-space:nowrap}
+.status{position:absolute;right:18px;top:20px;padding:9px 13px;border-radius:22px;font-size:11px;font-weight:800;white-space:nowrap}
+.status.win{background:linear-gradient(90deg,#00b875,#00a76b);color:#fff}
+.status.lose{background:linear-gradient(90deg,#31517f,#29436c);color:#fff}
+.status.upcoming{background:#174c96;color:#dbeaff}
+.numbers-title{font-size:13px;color:#a9c8f3;margin:20px 0 9px}
+.numbers{display:flex;flex-wrap:wrap;gap:10px}
+.ball{height:35px;width:35px;border-radius:50%;border:2px solid #456792;background:#071b36;display:grid;place-items:center;font-size:13px;font-weight:700;color:#f4f8ff}
+.win-ticket .ball{border-color:#00c98b;color:#00e0a0}
+.ticket-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:22px}
+.prize{display:flex;align-items:center;gap:10px;min-height:38px}
+.prize-icon{font-size:28px}
+.prize small{display:block;color:#a9c8f3;font-size:13px;margin-bottom:3px}
+.prize strong{color:#00d99a;font-size:20px}
+.details{border:1px solid #0870ff;border-radius:25px;padding:12px 19px;background:transparent;color:#fff;font-weight:700;font-size:13px;white-space:nowrap;transition:.2s}
+.details:hover{background:#075cff}
+.details span{color:#1785ff;font-size:18px;margin-left:8px}
+.empty{margin-top:19px;border:1px solid #10315b;border-radius:24px;background:linear-gradient(120deg,#071c39,#061832);text-align:center;padding:25px 15px 21px}
+.empty-icon{width:68px;height:68px;margin:0 auto 12px;border-radius:50%;background:#153d70;display:grid;place-items:center;font-size:30px}
+.empty h2{font-size:20px;margin:0 0 8px}
+.empty p{color:#a9c8f3;margin:0 0 17px;font-size:14px}
+.primary{border:0;border-radius:25px;background:#075cff;color:white;padding:13px 31px;font-weight:700;min-width:172px}
+.primary:hover{background:#1f51ff}
+.no-results{grid-column:1/-1;text-align:center;padding:45px 15px;color:#a9c8f3;background:#081d3a;border:1px solid #10315b;border-radius:20px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,7,20,.78);display:none;align-items:center;justify-content:center;padding:20px;z-index:30}
+.modal-backdrop.show{display:flex}
+.modal{width:min(440px,100%);border:1px solid #16416e;border-radius:22px;background:#081d3a;padding:25px;box-shadow:0 20px 80px #0009}
+.modal h2{margin:0 0 18px}
+.modal p{color:#b6d0f5;line-height:1.7}
+.modal-head{display:flex;justify-content:space-between;align-items:center}
+.close{border:0;background:#102e54;color:white;width:35px;height:35px;border-radius:50%;font-size:20px}
+@media(max-width:950px){
+ .topbar{padding:0 18px}.nav a{padding:0 10px}.nav a span.label{display:none}.right{gap:10px}.balance{padding:8px 12px}
+ .ticket{padding:18px}.ticket-top{grid-template-columns:88px minmax(0,1fr);gap:12px;padding-right:0}.game-logo{width:84px;font-size:21px}.status{position:static;grid-column:1/-1;justify-self:start;order:-1;margin-bottom:10px}.ticket-meta{grid-column:2;grid-row:1}.ticket-top{grid-template-columns:88px minmax(0,1fr)}.ticket-date{white-space:normal}
 }
-.app {
-  width: 100%;
-  max-width: 480px;
-  min-height: 100vh;
-  margin: 0 auto;
-  position: relative;
-  padding: 16px;
-  padding-bottom: 90px;
+@media(max-width:650px){
+ .topbar{height:auto;min-height:66px;flex-wrap:wrap;padding:12px 14px;gap:10px}.brand{font-size:20px}.brand-mark{font-size:31px}.nav{order:3;width:100%;height:43px;justify-content:space-around}.nav a{font-size:13px;padding:0 9px}.nav a span.label{display:inline}.right{margin-left:auto}.balance{font-size:12px;padding:6px 9px;gap:6px}.balance small{font-size:10px}.balance strong{font-size:12px}.avatar{width:37px;height:37px;font-size:20px}
+ main{padding:18px 12px 25px}.hero{height:auto;min-height:155px;padding:22px 17px;border-radius:18px}.hero-copy{gap:13px}.hero-icon{width:54px;height:54px;font-size:26px}.hero h1{font-size:27px}.hero p{font-size:13px}.lottery-art{font-size:54px;letter-spacing:-9px;padding:0 4px}
+ .filters{grid-template-columns:repeat(2,1fr);border-radius:19px;margin:15px 0 18px}.filter{min-height:48px;border-radius:14px;font-size:13px;gap:7px}.tickets{grid-template-columns:1fr;gap:12px}.ticket{min-height:260px;border-radius:19px;padding:17px}.ticket-top{grid-template-columns:83px minmax(0,1fr)}.game-logo{width:78px;font-size:20px}.ticket-id{font-size:13px}.ticket-date{font-size:12px}.status{font-size:10px;padding:7px 10px}.numbers{gap:8px}.ball{height:33px;width:33px}.ticket-bottom{margin-top:19px}.prize strong{font-size:18px}.details{padding:10px 13px;font-size:12px}.empty{margin-top:13px}
 }
-.main-wrapper {
-  background: rgba(15, 33, 46, 0.85);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(31, 81, 255, 0.2);
-  border-radius: 24px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-}
-.ticket-card {
-  background: rgba(13, 27, 38, 0.9);
-  border: 1px solid rgba(31, 81, 255, 0.3);
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 14px;
-  transition: all 0.2s;
-}
-.ticket-card:hover {
-  border-color: rgba(31, 81, 255, 0.7);
-}
-.ticket-number-block {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
-}
-.ticket-number-label {
-  color: #9db2c2;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-.ticket-number-value {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  color: #ffffff;
-  background: rgba(31, 81, 255, .16);
-  border: 1px solid rgba(31, 81, 255, .48);
-  border-radius: 9px;
-  padding: 7px 10px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.4;
-}
-.toast {
-  position: fixed;
-  z-index: 50;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--button);
-  color: white;
-  border-radius: 12px;
-  padding: 10px 20px;
-  display: none;
-  max-width: 90%;
-  text-align: center;
-  font-size: 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-.toast.show { display: block; }
+@media(max-width:390px){.lottery-art{display:none}.nav a span.label{display:none}.hero h1{font-size:25px}.ticket-top{grid-template-columns:70px minmax(0,1fr)}.game-logo{width:67px;font-size:17px}.ticket-bottom{align-items:center}.details{padding:10px}.numbers{gap:6px}.ball{width:31px;height:31px}}
 </style>
 </head>
 <body>
-
-<!-- Dynamic Header Container -->
-<div id="header-container"></div>
-
-<div class="app">
-  <div class="main-wrapper">
-    <!-- Header Title -->
-    <div class="w-full bg-[#1F51FF] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 mb-4 shadow-md text-sm">
-      <i class="fa-solid fa-ticket"></i>
-      <span>My Purchased Tickets</span>
-    </div>
-
-    <!-- Summary Count Badge -->
-    <div class="mb-4 bg-[#1a2c38]/80 p-3 rounded-xl border border-blue-500/20 text-sm flex justify-between items-center">
-      <span class="text-gray-400">Total Tickets:</span>
-      <span id="totalTicketsCount" class="font-bold text-emerald-400">0 Tickets</span>
-    </div>
-
-    <!-- Countdown Banner for Next Draw -->
-    <div class="mb-4 bg-gradient-to-r from-blue-900/40 to-indigo-900/40 p-3.5 rounded-xl border border-blue-500/30 text-center">
-      <div class="text-xs text-gray-400 mb-1 font-semibold uppercase tracking-wider">Next Draw Countdown</div>
-      <div id="drawCountdown" class="text-lg font-bold text-emerald-400">Loading time...</div>
-    </div>
-
-    <!-- Tickets Container -->
-    <div id="ticketsListContainer">
-      <div class="text-center text-gray-400 py-8 text-sm">Loading your tickets...</div>
-    </div>
+<header class="topbar">
+  <a class="brand" href="#" aria-label="Lottery Game home"><span class="brand-mark">✿</span><span>Lottery<em>Game</em></span></a>
+  <nav class="nav" aria-label="Main navigation">
+    <a href="index.html"><span>⌂</span><span class="label">Home</span></a>
+    <a href="draws.html"><span>✿</span><span class="label">Games</span></a>
+    <a class="active" href="my-tickets.html"><span>🎟</span><span class="label">My Tickets</span></a>
+  </nav>
+  <div class="right">
+    <div class="balance"><span class="wallet">👛</span><span><small>Balance</small><strong id="userBalance">৳ 0.00</strong></span></div>
+    <button class="avatar" aria-label="Profile">♟</button>
   </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="hero-icon">🎟</div>
+      <div><h1>My Tickets</h1><p>Check your lottery tickets, view results<br class="desktop-break"> and track your winnings all in one place.</p></div>
+    </div>
+    <div class="lottery-art" aria-hidden="true">🎱 👑</div>
+  </section>
+
+  <section class="filters" aria-label="Filter tickets">
+    <button class="filter active" data-filter="all"><span class="ico">🎟</span> All Tickets <span class="count" id="count-all">0</span></button>
+    <button class="filter" data-filter="winning"><span class="ico">🏆</span> Winning <span class="count" id="count-winning">0</span></button>
+    <button class="filter" data-filter="not-winning"><span class="ico">🎫</span> Not Winning <span class="count" id="count-not-winning">0</span></button>
+    <button class="filter" data-filter="upcoming"><span class="ico">▦</span> Upcoming <span class="count" id="count-upcoming">0</span></button>
+  </section>
+
+  <!-- Dynamic Tickets Container -->
+  <section class="tickets" id="tickets" aria-live="polite">
+    <div class="no-results">Loading your tickets...</div>
+  </section>
+
+  <section class="empty" id="emptySection" style="display: none;">
+    <div class="empty-icon">🎟</div>
+    <h2>No More Tickets</h2>
+    <p>You haven’t purchased any lottery tickets yet.</p>
+    <button class="primary" onclick="window.location.href='draws.html'">🎟 &nbsp;Play Now</button>
+  </section>
+</main>
+
+<div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="if(event.target===this)closeModal()">
+  <div class="modal"><div class="modal-head"><h2 id="modal-title">Ticket Details</h2><button class="close" onclick="closeModal()" aria-label="Close">×</button></div><div id="modal-content"></div><button class="primary" onclick="closeModal()">Close</button></div>
 </div>
 
-<!-- Dynamic Footer Container -->
-<div id="footer-container"></div>
-
-<div class="toast" id="toast" role="status"></div>
-
 <script>
-  async function loadComponents() {
-    try {
-      const headerRes = await fetch('navigation/header.html');
-      if (headerRes.ok) {
-        document.getElementById('header-container').innerHTML = await headerRes.text();
-        const scripts = document.getElementById('header-container').querySelectorAll('script');
-        scripts.forEach(script => {
-          const newScript = document.createElement('script');
-          newScript.text = script.innerText;
-          document.body.appendChild(newScript);
-        });
-      }
+  let ticketCards = [];
 
-      const footerRes = await fetch('navigation/footer.html');
-      if (footerRes.ok) {
-        document.getElementById('footer-container').innerHTML = await footerRes.text();
-      }
-    } catch (e) {
-      console.error('Error loading header/footer components:', e);
-    }
-  }
-
-  function notify(message) {
-    const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.classList.add('show');
-    clearTimeout(window.toastTimer);
-    window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
-  }
-
-  // ড্র কাউন্টডাউন টাইমার সেটআপ (উদাহরণস্বরূপ প্রতিদিন রাত ১২টা বা নির্দিষ্ট সময় ধরে কাউন্টডাউন)
-  function startCountdown() {
-    // টার্গেট ড্র সময় সেট করা (যেমন আজকের রাত ১১:৫৯:৫৯ অথবা নির্দিষ্ট একটি ভবিষ্যৎ সময়)
-    const now = new Date();
-    const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-    
-    // যদি আজকের সময় পার হয়ে যায়, তবে আগামীকালের সময় ধরবে
-    if (now > targetDate) {
-      targetDate.setDate(targetDate.getDate() + 1);
-    }
-
-    setInterval(() => {
-      const currentTime = new Date().getTime();
-      const distance = targetDate.getTime() - currentTime;
-
-      if (distance < 0) {
-        document.getElementById('drawCountdown').textContent = "Draw is running / Expired";
-        return;
-      }
-
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      document.getElementById('drawCountdown').textContent = 
-        `${String(hours).padStart(2, '0')}h : ${String(minutes).padStart(2, '0')}m : ${String(seconds).padStart(2, '0')}s remaining`;
-    }, 1000);
-  }
-
-  async function fetchUserTickets() {
+  async function fetchUserDataAndTickets() {
     const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
     if (!client) {
-      document.getElementById('ticketsListContainer').innerHTML = '<div class="text-center text-red-400 py-6 text-sm">Supabase connection not found.</div>';
+      document.getElementById('tickets').innerHTML = '<div class="no-results">Supabase connection not found.</div>';
       return;
     }
 
     try {
-      const user = await getCurrentUser();
-      
+      // ইউজারের অথ বা সেশন তথ্য সংগ্রহ
+      const user = typeof getCurrentUser === 'function' ? await getCurrentUser() : null;
       if (!user || (!user.id && !user.user_id && !user.uid)) {
-        document.getElementById('ticketsListContainer').innerHTML = '<div class="text-center text-red-400 py-6 text-sm">Please log in to view your tickets.</div>';
+        document.getElementById('tickets').innerHTML = '<div class="no-results">Please log in to view your tickets.</div>';
         return;
       }
 
       const currentUserId = user.id || user.user_id || user.uid;
 
-      // tic_tickets টেবিল থেকে বর্তমান ইউজারের টিকিটগুলো ফেচ করা
+      // ইউজারের ব্যালেন্স ফেচ করা
+      const { data: profileData } = await client
+        .from('profiles')
+        .select('balance')
+        .eq('id', currentUserId)
+        .maybeSingle();
+
+      if (profileData && profileData.balance !== undefined) {
+        document.getElementById('userBalance').textContent = `৳ ${parseFloat(profileData.balance).toFixed(2)}`;
+      }
+
+      // tic_tickets টেবিল থেকে ইউজারের টিকিটগুলো ফেচ করা
       const { data: tickets, error } = await client
         .from('tic_tickets')
         .select('*')
@@ -228,68 +186,170 @@ body {
 
       if (error) {
         console.error('Error fetching tickets:', error);
-        document.getElementById('ticketsListContainer').innerHTML = '<div class="text-center text-red-400 py-6 text-sm">Failed to load tickets.</div>';
+        document.getElementById('tickets').innerHTML = '<div class="no-results">Failed to load tickets.</div>';
         return;
       }
 
-      const container = document.getElementById('ticketsListContainer');
-      
+      const container = document.getElementById('tickets');
+      const emptySection = document.getElementById('emptySection');
+
       if (!tickets || tickets.length === 0) {
-        document.getElementById('totalTicketsCount').textContent = '0 Tickets';
-        container.innerHTML = '<div class="text-center text-gray-400 py-8 text-sm">You have not purchased any tickets yet.</div>';
+        container.innerHTML = '';
+        emptySection.style.display = 'block';
+        updateCounts([]);
         return;
       }
 
-      document.getElementById('totalTicketsCount').textContent = `${tickets.length} Tickets`;
-      
+      emptySection.style.display = 'none';
       let html = '';
+
       tickets.forEach(ticket => {
-        const purchasedDate = ticket.tic_purchased_at ? new Date(ticket.tic_purchased_at).toLocaleString() : 'N/A';
-        const statusClass = ticket.tic_ticket_status === 'active' ? 'text-emerald-400 bg-emerald-950/50 border-emerald-500/30' : 'text-blue-400 bg-blue-950/50 border-blue-500/30';
-        
+        const ticketNum = ticket.tic_ticket_number || '';
+        // স্ট্যাটাস ডিফল্টভাবে upcoming বা active থাকলে upcoming ধরবে, অথবা ডাটাবেজ অনুযায়ী সেট হবে
+        let statusKey = 'upcoming';
+        let statusClass = 'upcoming';
+        let statusText = '🕒 UPCOMING';
+
+        if (ticket.tic_ticket_status === 'winning') {
+          statusKey = 'winning';
+          statusClass = 'win';
+          statusText = '🏆 WINNING';
+        } else if (ticket.tic_ticket_status === 'not-winning' || ticket.tic_ticket_status === 'lose') {
+          statusKey = 'not-winning';
+          statusClass = 'lose';
+          statusText = '✕ NOT WINNING';
+        }
+
+        // টিকিটের নম্বর থেকে বল বা সংখ্যা আলাদা করা (যেমন TICK-12182022364859 থেকে সংখ্যাগুলো বের করা)
+        let rawNumbers = ticketNum.replace('TICK-', '');
+        let ballsHtml = '';
+        for (let i = 0; i < rawNumbers.length; i += 2) {
+          let pair = rawNumbers.substr(i, 2);
+          if (pair) {
+            ballsHtml += `<span class="ball">${pair}</span>`;
+          }
+        }
+        if (!ballsHtml) {
+          ballsHtml = `<span class="ball">--</span>`;
+        }
+
+        const formattedDate = ticket.tic_purchased_at ? new Date(ticket.tic_purchased_at).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
+        const isWin = statusKey === 'winning';
+
         html += `
-          <div class="ticket-card">
-            <div class="flex justify-between items-start gap-3 mb-3">
-              <div class="ticket-number-block">
-                <span class="ticket-number-label">Your Ticket No.</span>
-                <span class="ticket-number-value">${ticket.tic_ticket_number || 'N/A'}</span>
-              </div>
-              <span class="text-[10px] uppercase font-semibold px-2 py-1 rounded border ${statusClass}">${ticket.tic_ticket_status || 'Confirmed'}</span>
-            </div>
-            <div class="space-y-1.5 text-xs text-gray-300">
-              <div class="flex justify-between">
-                <span class="text-gray-400">Buyer Name:</span>
-                <span class="font-medium text-white">${ticket.tic_buyer_name || 'N/A'}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-400">Mobile:</span>
-                <span class="font-medium text-white">${ticket.tic_buyer_mobile || 'N/A'}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-400">TrxID:</span>
-                <span class="font-mono text-emerald-400">${ticket.tic_trx_id || 'N/A'}</span>
-              </div>
-              <div class="flex justify-between pt-1 border-t border-gray-800 text-[11px] text-gray-400">
-                <span>Purchased At:</span>
-                <span>${purchasedDate}</span>
+          <article class="ticket ${isWin ? 'win-ticket' : ''}" data-status="${statusKey}">
+            <span class="status ${statusClass}">${statusText}</span>
+            <div class="ticket-top">
+              <div class="game-logo">Lucky<br><span class="big">6</span><small>LOTTERY</small></div>
+              <div class="ticket-meta">
+                <div class="ticket-label muted">Ticket No.</div>
+                <div class="ticket-id">${ticketNum}</div>
+                <div class="ticket-date">▦ &nbsp;${formattedDate}</div>
               </div>
             </div>
-          </div>
+            <div class="numbers-title">Your Numbers</div>
+            <div class="numbers">${ballsHtml}</div>
+            <div class="ticket-bottom">
+              ${isWin ? '<div class="prize"><span class="prize-icon">🏆</span><span><small>Prize Won</small><strong>৳ 500.00</strong></span></div>' : '<div></div>'}
+              <button class="details" onclick="showTicket(this)">View Details <span>→</span></button>
+            </div>
+          </article>
         `;
       });
 
       container.innerHTML = html;
+      ticketCards = [...document.querySelectorAll('.ticket')];
+      initFilters();
 
     } catch (err) {
       console.error('Error:', err);
-      document.getElementById('ticketsListContainer').innerHTML = '<div class="text-center text-red-400 py-6 text-sm">An unexpected error occurred.</div>';
+      document.getElementById('tickets').innerHTML = '<div class="no-results">An unexpected error occurred.</div>';
     }
   }
 
+  function updateCounts(customTickets) {
+    const cards = customTickets || ticketCards;
+    const counts = {
+      all: cards.length,
+      winning: cards.filter(t => t.dataset.status === 'winning').length,
+      'not-winning': cards.filter(t => t.dataset.status === 'not-winning').length,
+      upcoming: cards.filter(t => t.dataset.status === 'upcoming').length
+    };
+    Object.entries(counts).forEach(([key, value]) => {
+      const el = document.getElementById('count-' + key);
+      if (el) el.textContent = value;
+    });
+  }
+
+  function initFilters() {
+    const filters = [...document.querySelectorAll('.filter')];
+    updateCounts();
+
+    filters.forEach(button => {
+      button.onclick = () => {
+        filters.forEach(item => item.classList.toggle('active', item === button));
+        const selected = button.dataset.filter;
+        let visible = 0;
+        ticketCards.forEach(ticket => {
+          const show = selected === 'all' || ticket.dataset.status === selected;
+          ticket.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+        let empty = document.querySelector('.no-results');
+        if (!visible && !empty) {
+          empty = document.createElement('div');
+          empty.className = 'no-results';
+          empty.textContent = selected === 'upcoming' ? 'No upcoming tickets found.' : 'No tickets found in this category.';
+          document.getElementById('tickets').appendChild(empty);
+        } else if (visible && empty) {
+          empty.remove();
+        } else if (!visible && empty) {
+          empty.textContent = selected === 'upcoming' ? 'No upcoming tickets found.' : 'No tickets found in this category.';
+        }
+      };
+    });
+  }
+
+  function showTicket(button) {
+    const card = button.closest('.ticket');
+    const title = card.querySelector('.game-logo').innerText.replace(/\n/g, ' ');
+    const id = card.querySelector('.ticket-id').innerText;
+    const date = card.querySelector('.ticket-date').innerText;
+    const numbers = [...card.querySelectorAll('.ball')].map(n => n.innerText).join(' · ');
+    const status = card.dataset.status === 'winning' ? '🏆 Winning' : card.dataset.status === 'upcoming' ? '🕒 Upcoming' : '✕ Not Winning';
+    const prize = card.querySelector('.prize strong')?.innerText || '—';
+    
+    document.getElementById('modal-title').innerText = 'Ticket Details';
+    document.getElementById('modal-content').innerHTML =
+      '<p><strong>Game:</strong> ' + escapeHTML(title) + '</p>' +
+      '<p><strong>Ticket No.:</strong> ' + escapeHTML(id) + '</p>' +
+      '<p><strong>Date:</strong> ' + escapeHTML(date) + '</p>' +
+      '<p><strong>Your Numbers:</strong><br>' + escapeHTML(numbers) + '</p>' +
+      '<p><strong>Status:</strong> ' + status + '</p>' +
+      '<p><strong>Prize:</strong> ' + escapeHTML(prize) + '</p>';
+    document.getElementById('modal').classList.add('show');
+  }
+
+  function showMessage(title, message) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-content').innerHTML = '<p>' + escapeHTML(message) + '</p>';
+    document.getElementById('modal').classList.add('show');
+  }
+
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  }
+
+  function closeModal() { 
+    document.getElementById('modal').classList.remove('show'); 
+  }
+
+  document.addEventListener('keydown', e => { 
+    if(e.key === 'Escape') closeModal(); 
+  });
+
   window.addEventListener('DOMContentLoaded', async () => {
-    await loadComponents();
-    startCountdown();
-    await fetchUserTickets();
+    await fetchUserDataAndTickets();
   });
 </script>
 </body>
