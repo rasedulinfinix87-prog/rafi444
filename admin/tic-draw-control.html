@@ -7,8 +7,7 @@
 <title>Admin Draw Control | Lottery Management</title>
 <!-- Supabase JS Client & Config -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- পাথ আপনার প্রজেক্ট অনুযায়ী এডজাস্ট করে নিতে পারেন -->
-<script src="../../../supabase-config.js"></script>
+<script src="../supabase-config.js"></script>
 <style>
 :root{
   --bg:#041126; --panel:#081d3a; --panel2:#0b2548; --blue:#075cff;
@@ -131,7 +130,6 @@ td{font-size:14px}
     const client = supabaseClient;
 
     try {
-      // ১. ওই ড্রয়ের অধীনে থাকা সকল 'upcoming' টিকিট ফেচ করা
       const { data: tickets, error: ticketError } = await client
         .from('tic_tickets')
         .select('*')
@@ -145,32 +143,26 @@ td{font-size:14px}
         return;
       }
 
-      // ২. র‍্যান্ডমলি যেকোনো একটি টিকিট বিজয়ী হিসেবে সিলেক্ট করা
       const randomIndex = Math.floor(Math.random() * tickets.length);
       const winningTicket = tickets[randomIndex];
 
-      // ৩. বিজয়ী টিকিটের স্ট্যাটাস 'winning' এবং বাকিদের 'not-winning' করা
       const ticketIds = tickets.map(t => t.tic_id);
       
-      // প্রথমে সব টিকিটকে 'not-winning' করা যাক
       await client
         .from('tic_tickets')
         .update({ tic_ticket_status: 'not-winning' })
         .in('tic_id', ticketIds);
 
-      // নির্দিষ্ট বিজয়ী টিকিটকে 'winning' করা
       await client
         .from('tic_tickets')
         .update({ tic_ticket_status: 'winning' })
         .eq('tic_id', winningTicket.tic_id);
 
-      // ৪. ড্র-এর স্ট্যাটাস 'completed' করা
       await client
         .from('tic_draws')
         .update({ tic_status: 'completed' })
         .eq('tic_id', drawId);
 
-      // ৫. বিজয়ী ইউজারের ব্যালেন্সের সাথে prize_amount যোগ করা (profiles টেবিল)
       if (winningTicket.tic_user_id && prizeAmount > 0) {
         const { data: profile, error: profileError } = await client
           .from('profiles')
