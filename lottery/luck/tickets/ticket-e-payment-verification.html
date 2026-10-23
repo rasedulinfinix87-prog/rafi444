@@ -183,6 +183,14 @@ html, body {
     document.getElementById('warnAmount').textContent = 'BDT ' + ticketData.priceAmount;
   });
 
+  // ডামি বা ভ্যালিড UUID জেনারেট করার ফাংশন (যদি tic_draw_id ফিল্ডটি নাল না নেয়)
+  function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
   async function submitPaymentVerification(event) {
     event.preventDefault();
 
@@ -206,14 +214,14 @@ html, body {
       const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
       if (!client) throw new Error('Supabase client not initialized');
 
-      // গেটওয়ে পেজ থেকে পাঠানো কাস্টম টিকিট নম্বরটি সরাসরি ব্যবহার করা হচ্ছে
       const ticketNumber = ticketData.customTicketNumber;
 
-      // ১. tic_tickets টেবিলে আপনার দেওয়া কলামগুলোর নাম অনুযায়ী ডেটা ইনসার্ট করা
+      // ১. tic_tickets টেবিলে আপনার দেওয়া কলামগুলোর নাম ও tic_draw_id সহ ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
           {
+            tic_draw_id: generateUUID(), // ড্র আইডি যুক্ত করা হলো যাতে নাল এরর না আসে
             tic_user_id: ticketData.userId,
             tic_ticket_number: ticketNumber,
             tic_buyer_name: ticketData.buyerName,
@@ -224,7 +232,10 @@ html, body {
           }
         ]);
 
-      if (ticketError) throw ticketError;
+      if (ticketError) {
+        console.error('Tic Tickets Insert Error:', ticketError);
+        throw ticketError;
+      }
 
       // ২. ticket_prices টেবিলে প্রাইস রেকর্ড ইনসার্ট করা
       const { error: priceError } = await client
@@ -252,7 +263,7 @@ html, body {
 
     } catch (err) {
       console.error('Verification error:', err);
-      notify('টেকনিক্যাল সমস্যার কারণে ভেরিফিকেশন সম্পন্ন হয়নি।');
+      notify('টেকনিক্যাল সমস্যার কারণে ভেরিফিকেশন সম্পন্ন হয়নি। কনসোল চেক করুন।');
       verifyBtn.disabled = false;
       verifyBtn.textContent = 'নিশ্চিত';
     }
