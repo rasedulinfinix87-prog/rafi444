@@ -130,7 +130,7 @@ td{font-size:14px}
     const client = supabaseClient;
 
     try {
-      // ইউজারের কেনা টিকিটগুলোর স্ট্যাটাস 'active' বা 'upcoming' যেটাই হোক না কেন তা ফেচ করা
+      // tic_tickets টেবিল থেকে নির্দিষ্ট ড্র আইডি এবং active বা upcoming স্ট্যাটাসের টিকিটগুলো খোঁজা
       const { data: tickets, error: ticketError } = await client
         .from('tic_tickets')
         .select('*')
@@ -144,7 +144,7 @@ td{font-size:14px}
         return;
       }
 
-      // জাভাস্ক্রিপ্ট লজিক দিয়ে র‍্যান্ডমলি যেকোনো একটি টিকিট সিলেক্ট করা
+      // র‍্যান্ডমলি যেকোনো একটি বিজয়ী টিকিট সিলেক্ট করা
       const randomIndex = Math.floor(Math.random() * tickets.length);
       const winningTicket = tickets[randomIndex];
 
