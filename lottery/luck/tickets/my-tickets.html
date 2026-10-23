@@ -230,9 +230,9 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
         const formattedDate = ticket.tic_purchased_at ? new Date(ticket.tic_purchased_at).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
         const isWin = statusKey === 'winning';
 
-        // টিকিটের ক্রমানুসারে win1.png, win2.png ইত্যাদি লোগো হিসেবে সিলেক্ট করা (যদি নির্দিষ্ট ইমেজ পাথ না থাকে তবে সাইকেল অনুযায়ী পরিবর্তন হবে)
+        // নির্দিষ্ট ফোল্ডার পাথ অনুযায়ী লোগো নির্বাচন
         const logoIndex = (index % 2) + 1;
-        const logoSrc = `win${logoIndex}.png`;
+        const logoSrc = `lottery/luck/tickets/images/win${logoIndex}.png`;
 
         html += `
           <article class="ticket ${isWin ? 'win-ticket' : ''}" data-status="${statusKey}">
@@ -310,7 +310,6 @@ main{max-width:1320px;margin:0 auto;padding:28px 24px 34px}
 
   function showTicket(button) {
     const card = button.closest('.ticket');
-    const logoImg = card.querySelector('.game-logo img')?.src || 'Logo';
     const id = card.querySelector('.ticket-id').innerText;
     const date = card.querySelector('.ticket-date').innerText;
     const numbers = [...card.querySelectorAll('.ball')].map(n => n.innerText).join(' · ');
