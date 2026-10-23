@@ -53,33 +53,41 @@
                 return;
             }
 
-            // Supabase এ ডাটা ইনসার্ট করার কোড (tic_tickets টেবিল অনুযায়ী)
             try {
-                // উদাহরণস্বরূপ বর্তমান ইউজারের আইডি (যদি লগইন করা থাকে) অথবা একটি ডামি UUID
+                let userId = null;
+                if (window._supabase && window._supabase.auth) {
+                    const { data: { user } } = await window._supabase.auth.getUser();
+                    if (user) userId = user.id;
+                }
+
+                const insertData = {
+                    tic_ticket_number: ticketData.ticketNumber,
+                    tic_buyer_name: ticketData.name,
+                    tic_buyer_mobile: ticketData.mobile,
+                    tic_ticket_status: 'Pending',
+                    tic_trx_id: trxId,
+                    tic_purchased_at: new Date().toISOString()
+                };
+
+                if (userId) {
+                    insertData.tic_user_id = userId;
+                }
+
                 const { data, error } = await window._supabase
                     .from('tic_tickets')
-                    .insert([
-                        {
-                            tic_ticket_number: ticketData.ticketNumber,
-                            tic_buyer_name: ticketData.name,
-                            tic_buyer_mobile: ticketData.mobile,
-                            tic_ticket_status: 'Pending',
-                            tic_trx_id: trxId,
-                            tic_purchased_at: new Date().toISOString()
-                        }
-                    ]);
+                    .insert([insertData]);
 
                 if (error) {
-                    console.error(error);
-                    alert('টিকেট সাবমিট করতে সমস্যা হয়েছে: ' + error.message);
+                    console.error('Supabase Error Details:', error);
+                    alert('ডাটাবেজ এরর: ' + error.message);
                 } else {
                     alert('আপনার টিকেট সফলভাবে সাবমিট হয়েছে!');
                     localStorage.removeItem('tempTicketData');
                     window.location.href = 'tic-draw.html';
                 }
             } catch (err) {
-                console.error(err);
-                alert('একটি ত্রুটি ঘটেছে!');
+                console.error('Catch Error:', err);
+                alert('একটি ত্রুটি ঘটেছে: ' + err.message);
             }
         });
     </script>
