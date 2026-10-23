@@ -172,7 +172,7 @@ html, body {
     if (!storedData) {
       notify('কোনো পেমেন্ট তথ্য পাওয়া যায়নি!');
       setTimeout(() => {
-        window.location.href = 'ticket-payment-getway.html';
+        window.location.href = 'buy-a-tickets.html';
       }, 1500);
       return;
     }
@@ -181,6 +181,27 @@ html, body {
 
     document.getElementById('headerAmount').textContent = 'BDT ' + ticketData.priceAmount;
     document.getElementById('warnAmount').textContent = 'BDT ' + ticketData.priceAmount;
+
+    if (ticketData.method) {
+      const method = ticketData.method.toLowerCase();
+      const logoEl = document.getElementById('methodLogo');
+      const boxEl = document.getElementById('methodBox');
+      const titleEl = document.getElementById('methodTitle');
+      
+      if (method.includes('bkash')) {
+        logoEl.src = 'images/bkash.png';
+        boxEl.className = 'bg-[#e2136e] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm';
+        titleEl.textContent = 'বিকাশ Deposit';
+      } else if (method.includes('rocket')) {
+        logoEl.src = 'images/rocket.png';
+        boxEl.className = 'bg-[#8c349b] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm';
+        titleEl.textContent = 'রকেট Deposit';
+      } else {
+        logoEl.src = 'images/nagad.png';
+        boxEl.className = 'bg-[#f24e39] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm';
+        titleEl.textContent = 'নগদ Deposit';
+      }
+    }
   });
 
   async function submitPaymentVerification(event) {
@@ -194,8 +215,8 @@ html, body {
       return;
     }
 
-    if (!ticketData || !ticketData.customTicketNumber) {
-      notify('সেশন ডেটা বা কাস্টম টিকিট নম্বর পাওয়া যায়নি।');
+    if (!ticketData) {
+      notify('সেশন ডেটা শেষ হয়ে গেছে।');
       return;
     }
 
@@ -206,10 +227,9 @@ html, body {
       const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
       if (!client) throw new Error('Supabase client not initialized');
 
-      // গেটওয়ে পেজ থেকে পাঠানো কাস্টম টিকিট নম্বরটি সরাসরি ব্যবহার করা হচ্ছে
-      const ticketNumber = ticketData.customTicketNumber;
+      const ticketNumber = 'TICK-' + Math.floor(100000 + Math.random() * 900000);
 
-      // ১. tic_tickets টেবিলে আপনার দেওয়া কলামগুলোর নাম অনুযায়ী ডেটা ইনসার্ট করা
+      // ১. tic_tickets টেবিলে tic_trx_id সহ ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
@@ -218,7 +238,7 @@ html, body {
             tic_ticket_number: ticketNumber,
             tic_buyer_name: ticketData.buyerName,
             tic_buyer_mobile: ticketData.buyerMobile,
-            tic_trx_id: trxId,
+            tic_trx_id: trxId, // এখানে ট্রানজেকশন আইডি যুক্ত করা হয়েছে
             tic_ticket_status: 'active',
             tic_purchased_at: new Date()
           }
@@ -244,26 +264,17 @@ html, body {
 
       localStorage.removeItem('pending_ticket_data');
 
-      notify('পেমেন্ট ভেরিফিকেশন সফল এবং আপনার সিলেক্ট করা টিকিট ইস্যু হয়েছে!');
+      notify('পেমেন্ট ভেরিফিকেশন সফল এবং টিকিট ইস্যু হয়েছে!');
 
       setTimeout(() => {
         window.location.href = 'tic-draw.html';
       }, 2000);
 
     } catch (err) {
-      // Supabase-এর প্রকৃত error console এবং toast—দুই জায়গায় দেখানো হবে
-      console.error('Verification error details:', {
-        message: err?.message,
-        details: err?.details,
-        hint: err?.hint,
-        code: err?.code,
-        error: err
-      });
-
-      const errorMessage = err?.message || err?.details || 'Unknown error';
-      notify('টিকিট সেভ হয়নি: ' + errorMessage);
+      console.error('Verification error:', err);
+      notify('টেকনিক্যাল সমস্যার কারণে ভেরিফিকেশন সম্পন্ন হয়নি।');
       verifyBtn.disabled = false;
-      verifyBtn.innerHTML = '<span>নিশ্চিত</span>';
+      verifyBtn.textContent = 'নিশ্চিত';
     }
   }
 </script>
