@@ -5,23 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket Payment Gateway - Lottery</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../../../supabase-config.js"></script>
-    <style>
-        .grid-circle {
-            transition: all 0.2s ease;
-        }
-        .grid-circle.selected {
-            background-color: #ef4444 !important;
-            color: white !important;
-            transform: scale(1.1);
-        }
-    </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen p-4">
+<body class="bg-slate-900 text-white min-h-screen p-4 flex items-center justify-center">
 
-    <div class="max-w-md mx-auto bg-slate-800 p-6 rounded-2xl shadow-xl">
+    <div class="max-w-md w-full bg-slate-800 p-6 rounded-2xl shadow-xl">
         <h2 class="text-2xl font-bold mb-6 text-center text-amber-400">লটারি টিকেট ক্রয় ফরম</h2>
 
         <form id="ticketForm" class="space-y-4">
@@ -44,14 +31,14 @@
                 <label class="block text-sm font-medium mb-2">লটারি নম্বর নির্বাচন করুন (ঠিক ১৪ ডিজিট)</label>
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 mb-2">
                     <p class="text-xs text-slate-400 mb-1">নির্বাচিত নম্বর:</p>
-                    <div id="selectedNumberDisplay" class="text-xl font-mono tracking-widest text-amber-400 min-h-[32px]"></div>
+                    <div id="selectedNumberDisplay" class="text-xl font-mono tracking-widest text-amber-400 min-h-[32px] break-all"></div>
                 </div>
                 
-                <!-- Number Grid (Images style simulation) -->
+                <!-- Number Grid -->
                 <div id="numberGrid" class="grid grid-cols-7 gap-2 max-h-60 overflow-y-auto p-2 bg-slate-900 rounded-xl">
-                    <!-- JavaScript দিয়ে ডায়নামিক সার্কেল তৈরি করা হবে -->
+                    <!-- Dynamic Circles -->
                 </div>
-                <p id="digitError" class="text-red-500 text-xs mt-1 hidden">অবশ্যই ঠিক ১৪ ডিজিটের নম্বর নির্বাচন করতে হবে!</p>
+                <p id="digitError" class="text-red-500 text-xs mt-1 hidden">অবश्यই ঠিক ১৪ ডিজিটের নম্বর নির্বাচন করতে হবে!</p>
             </div>
 
             <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-xl shadow-lg hover:opacity-95 transition">
@@ -66,16 +53,17 @@
         const digitError = document.getElementById('digitError');
         let selectedDigits = [];
 
-        // গ্রিডের জন্য ০ থেকে ৯ পর্যন্ত সংখ্যা দিয়ে অপশন তৈরি (বা র্যান্ডম গ্রিড)
+        // গ্রিডের জন্য র্যান্ডম নম্বর জেনারেট করা
         for (let i = 0; i < 35; i++) {
             const num = Math.floor(Math.random() * 10);
             const btn = document.createElement('div');
-            btn.className = 'grid-circle w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold cursor-pointer select-none hover:bg-slate-600';
+            btn.className = 'w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold cursor-pointer select-none hover:bg-slate-600 transition';
             btn.innerText = num;
             btn.addEventListener('click', () => {
                 if (selectedDigits.length < 14) {
                     selectedDigits.push(num);
-                    btn.classList.add('selected');
+                    btn.style.backgroundColor = '#ef4444';
+                    btn.style.color = 'white';
                     updateDisplay();
                 } else {
                     alert('সর্বোচ্চ ১৪ ডিজিট সিলেক্ট করা হয়েছে!');
@@ -105,7 +93,6 @@
                 ticketNumber: selectedDigits.join('')
             };
 
-            // লোকালস্টোরেজে ডাটা সেভ করে পেমেন্ট পেইজে পাঠানো
             localStorage.setItem('tempTicketData', JSON.stringify(formData));
             window.location.href = 'ticket-e-payment-verification.html';
         });
