@@ -64,6 +64,26 @@ body {
 .input-group select:focus, .input-group input:focus {
   border-color: #1F51FF;
 }
+.ticket-chip {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #1a2c38;
+  border: 1px solid rgba(31, 81, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ticket-chip.selected {
+  background: #1F51FF;
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+  box-shadow: 0 0 10px rgba(31, 81, 255, 0.8);
+}
 .toast {
   position: fixed;
   z-index: 50;
@@ -127,10 +147,78 @@ body {
         </select>
       </div>
 
+      <!-- Custom Ticket Selection Rows (চাহিদা অনুযায়ী ৫টি রো) -->
+      <div class="mb-4 bg-[#0d1b26] p-3 rounded-xl border border-blue-500/30">
+        <div class="flex justify-between items-center mb-2 text-xs text-gray-400 font-semibold">
+          <span>SELECT YOUR LUCKY NUMBERS</span>
+          <span id="currentDateDisplay">--/--/----</span>
+        </div>
+
+        <!-- Row 1 -->
+        <div class="flex items-center justify-between py-2 border-b border-gray-800">
+          <div class="flex gap-1.5 row-chips" data-row="1">
+            <div class="ticket-chip" onclick="toggleChip(this, 1)">12</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 1)">25</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 1)">34</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 1)">42</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 1)">50</div>
+          </div>
+          <button type="button" onclick="checkRowAvailability(1)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="flex items-center justify-between py-2 border-b border-gray-800">
+          <div class="flex gap-1.5 row-chips" data-row="2">
+            <div class="ticket-chip" onclick="toggleChip(this, 2)">05</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 2)">18</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 2)">27</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 2)">39</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 2)">48</div>
+          </div>
+          <button type="button" onclick="checkRowAvailability(2)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="flex items-center justify-between py-2 border-b border-gray-800">
+          <div class="flex gap-1.5 row-chips" data-row="3">
+            <div class="ticket-chip" onclick="toggleChip(this, 3)">08</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 3)">15</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 3)">22</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 3)">33</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 3)">45</div>
+          </div>
+          <button type="button" onclick="checkRowAvailability(3)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
+        </div>
+
+        <!-- Row 4 -->
+        <div class="flex items-center justify-between py-2 border-b border-gray-800">
+          <div class="flex gap-1.5 row-chips" data-row="4">
+            <div class="ticket-chip" onclick="toggleChip(this, 4)">03</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 4)">11్‌</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 4)">29</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 4)">36</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 4)">49</div>
+          </div>
+          <button type="button" onclick="checkRowAvailability(4)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
+        </div>
+
+        <!-- Row 5 -->
+        <div class="flex items-center justify-between py-2">
+          <div class="flex gap-1.5 row-chips" data-row="5">
+            <div class="ticket-chip" onclick="toggleChip(this, 5)">07</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 5)">19</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 5)">24</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 5)">31</div>
+            <div class="ticket-chip" onclick="toggleChip(this, 5)">44</div>
+          </div>
+          <button type="button" onclick="checkRowAvailability(5)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all">CHECK</button>
+        </div>
+      </div>
+
       <!-- Pay Button -->
-      <button type="submit" id="payBtn" class="w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98 text-sm">
+      <button type="submit" id="payBtn" disabled class="w-full mt-2 bg-gray-600 text-gray-300 font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg text-sm cursor-not-allowed">
         <i class="fa-solid fa-arrow-right"></i>
-        <span>Proceed to E-Payment</span>
+        <span>Proceed to E-Payment (Check Number First)</span>
       </button>
     </form>
   </div>
@@ -173,6 +261,81 @@ body {
   }
 
   let currentUserId = null;
+  let verifiedTicketNumber = null;
+
+  // তারিখ সেট করা
+  function setCurrentDate() {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    document.getElementById('currentDateDisplay').textContent = `${dd}/${mm}/${yyyy}`;
+  }
+
+  // চিপস সিলেকশন লজিক (প্রতি রো তে একটিভ করার জন্য)
+  function toggleChip(element, rowNum) {
+    const rowContainer = document.querySelector(`.row-chips[data-row="${rowNum}"]`);
+    rowContainer.querySelectorAll('.ticket-chip').forEach(chip => {
+      chip.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    verifiedTicketNumber = null;
+    document.getElementById('payBtn').disabled = true;
+    document.getElementById('payBtn').className = "w-full mt-2 bg-gray-600 text-gray-300 font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg text-sm cursor-not-allowed";
+    document.getElementById('payBtn').querySelector('span').textContent = "Proceed to E-Payment (Check Number First)";
+  }
+
+  // Supabase এ টিকিট নম্বর অ্যাভেইলেবিলিটি চেক করার ফাংশন
+  async function checkRowAvailability(rowNum) {
+    const rowContainer = document.querySelector(`.row-chips[data-row="${rowNum}"]`);
+    const selectedChip = rowContainer.querySelector('.ticket-chip.selected');
+
+    if (!selectedChip) {
+      notify('দয়া করে এই সারি থেকে একটি নম্বর সিলেক্ট করুন।');
+      return;
+    }
+
+    const ticketNumString = `ROW${rowNum}-TICK-${selectedChip.textContent.trim()}`;
+    
+    const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
+    if (!client) {
+      notify('সুপাবেজ কানেকশন পাওয়া যায়নি।');
+      return;
+    }
+
+    try {
+      notify('নম্বরটি চেক করা হচ্ছে...');
+      const { data, error } = await client
+        .from('tic_tickets')
+        .select('tic_ticket_number')
+        .eq('tic_ticket_number', ticketNumString)
+        .maybeSingle();
+
+      if (error) {
+        console.error('DB Check Error:', error);
+        notify('যাচাই করতে সমস্যা হয়েছে।');
+        return;
+      }
+
+      if (data) {
+        notify('দুঃখিত! এই নম্বরটি ইতিমধ্যে বিক্রি হয়ে গেছে। অন্য নম্বর বেছে নিন।');
+        verifiedTicketNumber = null;
+        document.getElementById('payBtn').disabled = true;
+        document.getElementById('payBtn').className = "w-full mt-2 bg-gray-600 text-gray-300 font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg text-sm cursor-not-allowed";
+      } else {
+        notify('অভিনন্দন! এই নম্বরটি খালি আছে (Available)।');
+        verifiedTicketNumber = ticketNumString;
+        
+        const payBtn = document.getElementById('payBtn');
+        payBtn.disabled = false;
+        payBtn.className = "w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98 text-sm cursor-pointer";
+        payBtn.querySelector('span').textContent = "Proceed to E-Payment";
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      notify('টেকনিক্যাল ত্রুটি ঘটেছে।');
+    }
+  }
 
   async function fetchUserProfile() {
     const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
@@ -214,11 +377,12 @@ body {
   }
 
   window.addEventListener('DOMContentLoaded', async () => {
+    setCurrentDate();
     await loadComponents();
     await fetchUserProfile();
   });
 
-  // ভেরিফিকেশন পেইজে ডেটা পাস করার ফাংশন
+  // পেমেন্ট পেজে রিডাইরেক্ট এবং ভেরিফিকেশনের জন্য ডেটা পাস করা
   function proceedToVerification(event) {
     event.preventDefault();
 
@@ -231,17 +395,23 @@ body {
       return;
     }
 
+    if (!verifiedTicketNumber) {
+      notify('দয়া করে আপনার পছন্দের নম্বরটি চেক করে নিশ্চিত করুন।');
+      return;
+    }
+
     if (!currentUserId) {
       notify('ইউজার লগইন করা নেই!');
       return;
     }
 
-    // ডেটাগুলো লোকালস্টোরেজে সেভ করে পরবর্তী পেজে রিডাইরেক্ট করা
+    // লোকালস্টোরেজে কাস্টম টিকিট নম্বরসহ ডেটা সংরক্ষণ করা
     localStorage.setItem('pending_ticket_data', JSON.stringify({
       userId: currentUserId,
       buyerName: name,
       buyerMobile: mobile,
-      priceAmount: priceAmount
+      priceAmount: priceAmount,
+      customTicketNumber: verifiedTicketNumber
     }));
 
     notify('পেমেন্ট পেজে redirect করা হচ্ছে...');
