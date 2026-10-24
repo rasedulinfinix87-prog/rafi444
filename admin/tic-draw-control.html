@@ -8,6 +8,7 @@
 <!-- Supabase JS Client & Config -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../supabase-config.js"></script>
+<script src="auth-guard.js"></script>
 <style>
 :root{
   --bg:#041126; --panel:#081d3a; --panel2:#0b2548; --blue:#075cff;
@@ -138,7 +139,6 @@ td{font-size:14px}
     const client = supabaseClient;
 
     try {
-      // ১. ড্রয়ের তথ্য ফেচ করা
       const { data: drawData, error: drawError } = await client
         .from('tic_draws')
         .select('*')
@@ -147,7 +147,6 @@ td{font-size:14px}
 
       if (drawError || !drawData) throw new Error('Draw information not found.');
 
-      // ২. টিকিটগুলো খোঁজা
       const { data: tickets, error: ticketError } = await client
         .from('tic_tickets')
         .select('*')
@@ -161,7 +160,6 @@ td{font-size:14px}
         return;
       }
 
-      // ৩. সমস্ত প্রাইজ অ্যামাউন্ট একটি অ্যারেতে সাজানো
       let prizeList = [];
       if (drawData.tic_prize_1st) prizeList.push(parseFloat(drawData.tic_prize_1st));
       if (drawData.tic_prize_2nd) prizeList.push(parseFloat(drawData.tic_prize_2nd));
@@ -188,13 +186,11 @@ td{font-size:14px}
 
       const ticketIds = tickets.map(t => t.tic_id);
 
-      // ৪. সব টিকিটের স্ট্যাটাস 'not-winning' করা
       await client
         .from('tic_tickets')
         .update({ tic_ticket_status: 'not-winning' })
         .in('tic_id', ticketIds);
 
-      // ৫. বিজয়ীদের প্রাইজ প্রদান ও স্ট্যাটাস আপডেট
       for (let i = 0; i < selectedWinners.length; i++) {
         const winnerTicket = selectedWinners[i];
         const prizeAmount = prizeList[i] || 0;
@@ -223,15 +219,13 @@ td{font-size:14px}
         }
       }
 
-      // ৬. বর্তমান ড্র স্ট্যাটাস completed করা
       await client
         .from('tic_draws')
         .update({ tic_status: 'completed' })
         .eq('tic_id', drawId);
 
-      // ৭. ড্র সম্পন্ন হওয়ার সাথে সাথে নতুন একটি ড্র স্বয়ংক্রিয়ভাবে তৈরি করা (যাতে সাথে সাথে আবার নতুন টিকিট কেনা যায়)
       const nextDrawNumber = 'DRAW-' + Math.floor(1000 + Math.random() * 9000);
-      const nextDrawTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // ২৪ ঘণ্টা পর পরবর্তী ড্র
+      const nextDrawTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
       await client
         .from('tic_draws')
