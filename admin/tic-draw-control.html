@@ -161,7 +161,7 @@ td{font-size:14px}
         return;
       }
 
-      // ৩. সমস্ত প্রাইজ অ্যামাউন্ট একটি অ্যারেতে সাজানো (1st, 2nd, 3rd + 7 winners + 10 winners)
+      // ৩. সমস্ত প্রাইজ অ্যামাউন্ট একটি অ্যারেতে সাজানো
       let prizeList = [];
       if (drawData.tic_prize_1st) prizeList.push(parseFloat(drawData.tic_prize_1st));
       if (drawData.tic_prize_2nd) prizeList.push(parseFloat(drawData.tic_prize_2nd));
@@ -223,13 +223,31 @@ td{font-size:14px}
         }
       }
 
-      // ৬. ড্র স্ট্যাটাস completed করা
+      // ৬. বর্তমান ড্র স্ট্যাটাস completed করা
       await client
         .from('tic_draws')
         .update({ tic_status: 'completed' })
         .eq('tic_id', drawId);
 
-      showAlert(`Draw executed successfully! Total ${selectedWinners.length} winners rewarded.`, 'success');
+      // ৭. ড্র সম্পন্ন হওয়ার সাথে সাথে নতুন একটি ড্র স্বয়ংক্রিয়ভাবে তৈরি করা (যাতে সাথে সাথে আবার নতুন টিকিট কেনা যায়)
+      const nextDrawNumber = 'DRAW-' + Math.floor(1000 + Math.random() * 9000);
+      const nextDrawTime = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // ২৪ ঘণ্টা পর পরবর্তী ড্র
+
+      await client
+        .from('tic_draws')
+        .insert([{
+          tic_draw_name: 'Next Lucky Draw',
+          tic_draw_number: nextDrawNumber,
+          tic_draw_time: nextDrawTime,
+          tic_status: 'upcoming',
+          tic_prize_1st: drawData.tic_prize_1st || '10000',
+          tic_prize_2nd: drawData.tic_prize_2nd || '5000',
+          tic_prize_3rd: drawData.tic_prize_3rd || '3000',
+          tic_7_winners_prize: drawData.tic_7_winners_prize || '1000, 1000, 1000, 500, 500, 500, 500',
+          tic_10_winners_prize: drawData.tic_10_winners_prize || '200, 200, 200, 200, 200, 100, 100, 100, 100, 100'
+        }]);
+
+      showAlert(`Draw executed successfully! Total ${selectedWinners.length} winners rewarded and a new draw has been created.`, 'success');
       loadDraws();
 
     } catch (err) {
