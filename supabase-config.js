@@ -11,6 +11,19 @@ const supabaseClient = window.supabase.createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
+// supabase-config.js
+
+const SUPABASE_URL = "https://gccxrpvmokaqotywrtgx.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjY3hycHZtb2thcW90eXdydGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNTU5MDQsImV4cCI6MjEwNjgzMTkwNH0.QEaExOgv5dIX42KqCjdG258amvR0rXTYYjFs4-yxmaI";
+
+// Initialize Supabase Client
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
       detectSessionInUrl: true
     }
   }
@@ -127,7 +140,10 @@ async function updateUserWagerAndVIP(userId, betAmount) {
       supabaseClient.from('vip_level_settings').select('*').order('level_number', { ascending: true })
     ]);
 
-    if (profileRes.error || !profileRes.data) return;
+    if (profileRes.error || !profileRes.data) {
+      console.error("Profile fetch error in wager update:", profileRes.error);
+      return;
+    }
 
     const profile = profileRes.data;
     const levels = vipSettingsRes.data || [];
@@ -151,7 +167,7 @@ async function updateUserWagerAndVIP(userId, betAmount) {
       }
     }
 
-    await supabaseClient
+    const { error: updateError } = await supabaseClient
       .from('profiles')
       .update({
         total_wager: currentTotalWager,
@@ -162,6 +178,10 @@ async function updateUserWagerAndVIP(userId, betAmount) {
         current_vip_level: newVipLevel
       })
       .eq('id', userId);
+
+    if (updateError) {
+      console.error('Profile update failed due to RLS or permission:', updateError);
+    }
 
   } catch (err) {
     console.error('Error updating wager and VIP:', err);
