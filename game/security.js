@@ -1,148 +1,97 @@
 
-/* =====================================================
-   Rafi444 Game Security
-   File: game/security.js
-
-   Verifies Supabase Auth users and checks ownership.
-   Requires ../supabase-config.js to load first.
-===================================================== */
-
+/* Rafi444 Central Game Security */
 (function () {
   "use strict";
 
-  const GameSecurity = {
+  const security = {
     client: null,
 
-    init() {
-      if (
-        !window.supabaseClient &&
-        typeof supabaseClient === "undefined"
-      ) {
-        throw new Error("Supabase client is not initialized.");
+    init(client) {
+      if (!client || !client.auth) {
+        throw new Error("Supabase client unavailable.");
       }
 
-      this.client =
-        typeof supabaseClient !== "undefined"
-          ? supabaseClient
-          : window.supabaseClient;
-
+      this.client = client;
       return this;
     },
 
-    // Verify the current user with the Supabase Auth server.
     async verifyUser() {
       try {
-        if (!this.client) this.init();
+        if (!this.client) {
+          this.init(supabaseClient);
+        }
 
-        const {
-          data: { user },
-          error
-        } = await this.client.auth.getUser();
+        const { data, error } =
+          await this.client.auth.getUser();
 
-        if (error || !user || !user.id) {
+        if (error || !data || !data.user || !data.user.id) {
           return {
             ok: false,
-            user: null,
-            error: "Authentication required."
+            user: null
           };
         }
 
         return {
           ok: true,
-          user: user,
-          userId: user.id,
-          error: null
+          user: data.user,
+          userId: data.user.id
         };
       } catch (error) {
-        console.error("Game security verification failed:", error);
+        console.error("Security verification failed:", error);
 
         return {
           ok: false,
-          user: null,
-          error: "Unable to verify your login."
+          user: null
         };
       }
     },
 
-    // Require a real Supabase Auth user.
-    async requireAuth(loginUrl) {
+    async requireAuth() {
       const result = await this.verifyUser();
 
       if (!result.ok) {
-        window.location.replace(
-          loginUrl || "../login-signup.html"
-        );
-
+        window.location.replace(getLoginPageUrl());
         return null;
       }
 
       return result.user;
     },
 
-    // Obtain the authenticated user's ID from Supabase Auth.
-    async getMyUserId() {
-      const user = await this.requireAuth();
-
-      return user ? user.id : null;
-    },
-
-    // Reject attempts to act as another user.
-    async verifyOwnership(targetUserId) {
+    async verifyOwnership(userId) {
       const user = await this.requireAuth();
 
       if (!user) {
-        throw new Error("Please log in first.");
+        throw new Error("Authentication required.");
       }
 
-      if (
-        typeof targetUserId !== "string" ||
-        targetUserId !== user.id
-      ) {
-        throw new Error("Access denied: user ID mismatch.");
+      if (!userId || user.id !== userId) {
+        throw new Error("Access denied.");
       }
 
       return user;
     },
 
-    // Read only the authenticated user's own profile.
-    async getMyProfile() {
+    async getMyUserId() {
       const user = await this.requireAuth();
-
-      if (!user) return null;
-
-      const { data, error } = await this.client
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Profile access failed:", error);
-        throw new Error("Unable to load your profile.");
-      }
-
-      return data;
-    },
-
-    // Sign out the real Supabase Auth session.
-    async logout() {
-      if (!this.client) this.init();
-
-      const { error } = await this.client.auth.signOut();
-
-      if (error) {
-        throw new Error("Logout failed.");
-      }
-
-      try {
-        localStorage.removeItem("current_user");
-      } catch (_) {}
-
-      window.location.replace("../login-signup.html");
+      return user ? user.id : null;
     }
   };
 
-  // Expose one shared security helper for game files.
-  window.GameSecurity = GameSecurity;
+  security.init(supabaseClient);
 
+  // Make security available to all game scripts.
+  window.GameSecurity = security;
+
+  // Replace the old localStorage-fallback authentication.
+  window.getCurrentUser = async function () {
+    const result = await security.verifyUser();
+    return result.ok ? result.user : null;
+  };
+
+  // Require a real Supabase Auth user.
+  window.requireAuth = async function () {
+    return await security.requireAuth();
+  };
+
+  console.log("Rafi444 Game Security initialized.");
 })();
