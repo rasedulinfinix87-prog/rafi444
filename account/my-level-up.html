@@ -49,7 +49,7 @@
         <p class="font-bold">Loading VIP details...</p>
       </div>
 
-      <!-- Content Container (Hidden initially) -->
+      <!-- Content Container -->
       <div id="mainContent" class="flex flex-col gap-4" style="display: none;">
 
         <!-- VIP Overview Card -->
@@ -79,7 +79,7 @@
           </div>
         </div>
 
-        <!-- Level Up Bonus Card (Dynamic) -->
+        <!-- Level Up Bonus Card -->
         <div id="levelBonusCard" class="card-bg p-4 flex items-center justify-between" style="display: none;">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-emerald-400 text-xl">
@@ -87,7 +87,7 @@
             </div>
             <div>
               <div class="font-bold text-sm text-white">Level Up Bonus</div>
-              <div id="txtLevelBonusAmount" class="text-xs text-[#24ee89] mt-0.5">৳0.00 available</div>
+              <div id="txtLevelBonusAmount" class="text-xs text-[#24ee89] mt-0.5">available</div>
             </div>
           </div>
           <button onclick="claimLevelBonus()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">Claim</button>
@@ -104,7 +104,7 @@
             </div>
             <div>
               <div class="font-bold text-sm text-white">Rakeback</div>
-              <div id="txtRakebackBalance" class="text-xs text-[#a9b3b5] mt-0.5">৳0.00 available</div>
+              <div id="txtRakebackBalance" class="text-xs text-[#a9b3b5] mt-0.5">available</div>
             </div>
           </div>
           <button onclick="claimRakeback()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">Claim</button>
@@ -161,58 +161,8 @@
     let globalUserProfile = null;
     let globalCurrentLevelObj = null;
 
-    // সেন্ট্রাল ওয়াগার এবং ভিআইপি লেভেল আপডেট করার ফাংশন (যাতে গেম খেলার সময় অটো আপডেট হয়)
-    async function updateUserWagerAndVIP(userId, betAmount) {
-      try {
-        if (!userId || !betAmount || betAmount <= 0) return;
-
-        const [profileRes, vipSettingsRes] = await Promise.all([
-          supabaseClient.from('profiles').select('*').eq('id', userId).maybeSingle(),
-          supabaseClient.from('vip_level_settings').select('*').order('level_number', { ascending: true })
-        ]);
-
-        if (profileRes.error || !profileRes.data) return;
-
-        const profile = profileRes.data;
-        const levels = vipSettingsRes.data || [];
-
-        const currentTotalWager = Number(profile.total_wager || 0) + Number(betAmount);
-        const currentWeeklyWager = Number(profile.weekly_wager || 0) + Number(betAmount);
-        const currentMonthlyWager = Number(profile.monthly_wager || 0) + Number(betAmount);
-        const currentLast7DaysWager = Number(profile.last_7_days_wager || 0) + Number(betAmount);
-
-        const currentLevelNum = Number(profile.current_vip_level || 1);
-        const activeLevelObj = levels.find(l => l.level_number === currentLevelNum) || levels[0];
-        const rakebackPercent = Number(activeLevelObj?.instant_rakeback_percent || 0);
-        
-        const earnedRakeback = (Number(betAmount) * rakebackPercent) / 100;
-        const newRakebackBalance = Number(profile.rakeback_balance || 0) + earnedRakeback;
-
-        let newVipLevel = currentLevelNum;
-        for (const lvl of levels) {
-          if (currentTotalWager >= Number(lvl.required_wager)) {
-            newVipLevel = lvl.level_number;
-          }
-        }
-
-        await supabaseClient
-          .from('profiles')
-          .update({
-            total_wager: currentTotalWager,
-            weekly_wager: currentWeeklyWager,
-            monthly_wager: currentMonthlyWager,
-            last_7_days_wager: currentLast7DaysWager,
-            rakeback_balance: newRakebackBalance,
-            current_vip_level: newVipLevel
-          })
-          .eq('id', userId);
-      } catch (err) {
-        console.error('Error updating wager:', err);
-      }
-    }
-
     function formatMoney(amount) {
-      return '৳' + Number(amount || 0).toLocaleString('en-BD', {
+      return Number(amount || 0).toLocaleString('en-BD', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
@@ -238,7 +188,6 @@
           throw new Error('Supabase client is not configured.');
         }
 
-        // Check if level_up_claimed column exists or select all
         const { data: profile, error: profileError } = await supabaseClient
           .from('profiles')
           .select('*')
@@ -268,7 +217,6 @@
         document.getElementById('txtCurrentLevel').textContent = `Level: ${currentLevelObj?.level_name || 'Bronze I'}`;
         document.getElementById('txtNextLevel').textContent = `Next: ${nextLevelObj?.level_name || 'Max Level'}`;
 
-        // Handle Level Up Bonus UI Check
         const levelBonusCard = document.getElementById('levelBonusCard');
         const bonusAmount = Number(currentLevelObj?.level_up_bonus || 0);
         const isClaimed = profile?.level_up_claimed === true || profile?.level_up_claimed === 1;
@@ -343,11 +291,9 @@
           })
           .eq('id', userId);
 
-        if (updateError) {
-          throw updateError;
-        }
+        if (updateError) throw updateError;
 
-        alert(`Successfully claimed ৳${rakebackBal.toFixed(2)} Rakeback!`);
+        alert(`Successfully claimed Rakeback!`);
         loadVipData();
 
       } catch (err) {
@@ -380,12 +326,12 @@
 
         if (updateError) throw updateError;
 
-        alert(`Successfully claimed ৳${bonusAmount.toFixed(2)} Level Up Bonus!`);
+        alert(`Successfully claimed Level Up Bonus!`);
         loadVipData();
 
       } catch (err) {
         console.error('Error claiming level bonus:', err);
-        alert('Failed to claim level bonus. Please ensure "level_up_claimed" column exists in profiles table.');
+        alert('Failed to claim level bonus.');
       }
     }
 
