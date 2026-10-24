@@ -11,19 +11,6 @@ const supabaseClient = window.supabase.createClient(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-// supabase-config.js
-
-const SUPABASE_URL = "https://gccxrpvmokaqotywrtgx.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjY3hycHZtb2thcW90eXdydGd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNTU5MDQsImV4cCI6MjEwNjgzMTkwNH0.QEaExOgv5dIX42KqCjdG258amvR0rXTYYjFs4-yxmaI";
-
-// Initialize Supabase Client
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
       detectSessionInUrl: true
     }
   }
@@ -33,19 +20,14 @@ const supabaseClient = window.supabase.createClient(
 function getStoredCurrentUser() {
   try {
     const stored = localStorage.getItem("current_user");
-
     if (!stored) return null;
-
     const parsed = JSON.parse(stored);
-
     if (typeof parsed === "string") {
       return { id: parsed };
     }
-
     if (parsed && (parsed.id || parsed.user_id || parsed.uid)) {
       return parsed;
     }
-
     return null;
   } catch (error) {
     console.error("Error reading stored user:", error);
@@ -57,17 +39,13 @@ function getStoredCurrentUser() {
 async function getCurrentUser() {
   try {
     const { data, error } = await supabaseClient.auth.getSession();
-
     if (!error && data && data.session && data.session.user) {
       return data.session.user;
     }
-
     const storedUser = getStoredCurrentUser();
-
     if (storedUser) {
       return storedUser;
     }
-
     return null;
   } catch (error) {
     console.error("Error checking login session:", error);
@@ -78,30 +56,25 @@ async function getCurrentUser() {
 // Get Login Page URL
 function getLoginPageUrl() {
   const path = window.location.pathname;
-
   if (path.includes("/game/") || path.includes("/color-trading/") || path.includes("/account/") || path.includes("/slot/") || path.includes("/baccarat/") || path.includes("/dragon-tiger/") || path.includes("/roulette/") || path.includes("/under-over/")) {
     return "../login-signup.html";
   }
-
   return "login-signup.html";
 }
 
 // Require Authentication
 async function requireAuth() {
   const user = await getCurrentUser();
-
   if (!user) {
     window.location.href = getLoginPageUrl();
     return null;
   }
-
   return user;
 }
 
 // Get User Profile
 async function getUserProfile(userId) {
   if (!userId) return null;
-
   const { data, error } = await supabaseClient
     .from("profiles")
     .select("*")
@@ -112,7 +85,6 @@ async function getUserProfile(userId) {
     console.error("Error fetching profile:", error);
     return null;
   }
-
   return data;
 }
 
@@ -123,7 +95,6 @@ async function logoutUser() {
   } catch (error) {
     console.error("Error signing out:", error);
   }
-
   localStorage.removeItem("current_user");
   window.location.href = getLoginPageUrl();
 }
@@ -141,7 +112,7 @@ async function updateUserWagerAndVIP(userId, betAmount) {
     ]);
 
     if (profileRes.error || !profileRes.data) {
-      console.error("Profile fetch error in wager update:", profileRes.error);
+      console.error('Profile fetch error in wager update:', profileRes.error);
       return;
     }
 
@@ -167,7 +138,7 @@ async function updateUserWagerAndVIP(userId, betAmount) {
       }
     }
 
-    const { error: updateError } = await supabaseClient
+    const { error: updateErr } = await supabaseClient
       .from('profiles')
       .update({
         total_wager: currentTotalWager,
@@ -179,16 +150,14 @@ async function updateUserWagerAndVIP(userId, betAmount) {
       })
       .eq('id', userId);
 
-    if (updateError) {
-      console.error('Profile update failed due to RLS or permission:', updateError);
+    if (updateErr) {
+      console.error('Failed to update profile wager/VIP:', updateErr);
     }
-
   } catch (err) {
     console.error('Error updating wager and VIP:', err);
   }
 }
 
-// Expose globally so any game file can trigger it if needed
 window.updateUserWagerAndVIP = updateUserWagerAndVIP;
 
 // ==========================================
