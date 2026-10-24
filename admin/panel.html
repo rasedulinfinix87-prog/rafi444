@@ -9,12 +9,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
+  <script src="auth-guard.js"></script>
 
   <style>
     body {
       background: #f8fafc;
       color: #0f172a;
-      zoom: 0.7; /* পেজ ৩০% জুম আউট */
+      zoom: 0.7;
     }
     .glass-card {
       background: rgba(255, 255, 255, 0.85);
@@ -40,10 +41,8 @@
 
 <div class="max-w-7xl mx-auto space-y-5">
 
-  <!-- TOP BAR WITH LEFT HAMBURGER MENU -->
   <header class="flex items-center justify-between gap-3 glass-card p-3 rounded-none border-x-0 border-t-0 border-b-2 border-emerald-500 relative">
     <div class="flex items-center gap-4">
-      <!-- Hamburger Menu on Left -->
       <button onclick="toggleMenu()" class="p-2 bg-gray-100 border border-gray-200 rounded-lg hover:bg-gray-200 transition text-emerald-600">
         <i class="fa-solid fa-bars text-base"></i>
       </button>
@@ -53,7 +52,6 @@
           <h1 class="text-lg font-black text-gray-900">Panel</h1>
           <p class="text-[10px] text-gray-500 mt-0.5">BDTMINER Dashboard</p>
         </div>
-        <!-- Panel নামের ডান পাশে সিম্বলসহ Game Grid Update বাটন -->
         <button onclick="openGameGridModal()" class="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 rounded-lg transition text-sm" title="Game Grid Update">
           <i class="fa-solid fa-table-cells"></i>
         </button>
@@ -65,7 +63,6 @@
     </span>
   </header>
 
-  <!-- LEFT SIDE SLIDING MODAL / DRAWER -->
   <div id="sideModalOverlay" class="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 hidden transition-opacity" onclick="toggleMenu()"></div>
   <div id="sideModal" class="fixed top-0 left-0 h-full w-80 bg-white border-r border-gray-200 shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col p-5 space-y-6">
     <div class="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -96,11 +93,9 @@
     </div>
   </div>
 
-  <!-- DYNAMIC HISTORY CLEANUP MODAL (POPUP VIEW) -->
   <div id="historyManagerModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
       
-      <!-- Modal Header -->
       <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
         <div>
           <h3 id="managerModalTitle" class="text-sm font-bold text-gray-900">History Management</h3>
@@ -111,7 +106,6 @@
         </button>
       </div>
 
-      <!-- Modal Body (Table) -->
       <div class="p-4 flex-1 overflow-y-auto table-wrap">
         <table class="w-full text-left text-xs">
           <thead class="text-gray-500 bg-gray-50 sticky top-0">
@@ -128,7 +122,6 @@
         </table>
       </div>
 
-      <!-- Modal Footer -->
       <div class="p-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
         <span id="selectedCountText" class="text-xs text-gray-600 font-bold">0 items selected for deletion</span>
         <div class="flex gap-2">
@@ -142,11 +135,9 @@
     </div>
   </div>
 
-  <!-- GAME GRID UPDATE MODAL / POPUP -->
   <div id="gameGridModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
       
-      <!-- Modal Header -->
       <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
         <div>
           <h3 class="text-sm font-bold text-gray-900">Game Grid Control Management</h3>
@@ -162,7 +153,6 @@
         </div>
       </div>
 
-      <!-- Modal Body (Table) -->
       <div class="p-4 flex-1 overflow-y-auto table-wrap">
         <table class="w-full text-left text-xs">
           <thead class="text-gray-500 bg-gray-50 sticky top-0">
@@ -184,7 +174,6 @@
         </table>
       </div>
 
-      <!-- Modal Footer -->
       <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end">
         <button onclick="closeGameGridModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold rounded-xl transition">Close</button>
       </div>
@@ -192,7 +181,6 @@
     </div>
   </div>
 
-  <!-- ADD / EDIT SUB-MODAL FOR GAME GRID -->
   <div id="gameGridFormModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
     <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-lg flex flex-col shadow-2xl overflow-hidden">
       <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
@@ -247,46 +235,36 @@
 
   <div id="messageBox" class="hidden p-3 rounded-xl text-sm break-words"></div>
 
-  <!-- STAT CARDS -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-
     <div class="glass-card p-4 rounded-xl">
       <p class="text-xs text-gray-500 font-medium">Pending Deposits</p>
       <h3 id="statPendingDeposits" class="text-2xl font-black text-amber-600 mt-2">0</h3>
     </div>
-
     <div class="glass-card p-4 rounded-xl">
       <p class="text-xs text-gray-500 font-medium">Pending Withdrawals</p>
       <h3 id="statPendingWithdrawals" class="text-2xl font-black text-rose-600 mt-2">0</h3>
     </div>
-
     <div class="glass-card p-4 rounded-xl">
       <p class="text-xs text-gray-500 font-medium">Total Users</p>
       <h3 id="statTotalUsers" class="text-2xl font-black text-cyan-600 mt-2">0</h3>
     </div>
-
     <div class="glass-card p-4 rounded-xl">
       <p class="text-xs text-gray-500 font-medium">Total Bets</p>
       <h3 id="statTotalBets" class="text-2xl font-black text-emerald-600 mt-2">0</h3>
     </div>
-
   </div>
 
-  <!-- NAVIGATION -->
   <nav class="flex gap-2 overflow-x-auto pb-2 items-center justify-between">
     <div class="flex gap-2 overflow-x-auto pb-1">
       <button id="tabDeposits" onclick="switchTab('deposits')" class="tab-btn tab-active glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
         <i class="fa-solid fa-wallet mr-1"></i> Deposits
       </button>
-
       <button id="tabWithdrawals" onclick="switchTab('withdrawals')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
         <i class="fa-solid fa-money-bill-transfer mr-1"></i> Withdrawals
       </button>
-
       <button id="tabUsers" onclick="switchTab('users')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
         <i class="fa-solid fa-users mr-1"></i> Users
       </button>
-
       <button id="tabBets" onclick="switchTab('bets')" class="tab-btn glass-card border border-gray-200 px-4 py-3 rounded-xl text-xs font-bold whitespace-nowrap text-gray-700">
         <i class="fa-solid fa-dice mr-1"></i> Recent Bets
       </button>
@@ -294,8 +272,6 @@
   </nav>
 
   <main class="glass-card rounded-2xl p-4">
-
-    <!-- DEPOSITS -->
     <section id="contentDeposits" class="tab-content space-y-4">
       <div class="flex justify-between items-center">
         <h2 class="text-sm font-bold text-gray-900">Deposit Requests</h2>
@@ -326,7 +302,6 @@
       </div>
     </section>
 
-    <!-- WITHDRAWALS -->
     <section id="contentWithdrawals" class="tab-content hidden space-y-4">
       <div class="flex justify-between items-center">
         <h2 class="text-sm font-bold text-gray-900">Withdrawal Requests</h2>
@@ -354,7 +329,6 @@
       </div>
     </section>
 
-    <!-- USERS -->
     <section id="contentUsers" class="tab-content hidden space-y-4">
       <div class="flex justify-between items-center">
         <h2 class="text-sm font-bold text-gray-900">User Database</h2>
@@ -381,7 +355,6 @@
       </div>
     </section>
 
-    <!-- BETS -->
     <section id="contentBets" class="tab-content hidden space-y-4">
       <div class="flex justify-between items-center">
         <h2 class="text-sm font-bold text-gray-900">Recent Bets</h2>
@@ -409,16 +382,10 @@
         </table>
       </div>
     </section>
-
   </main>
 </div>
 
 <script>
-/* =====================================
-   USE EXISTING supabase-config.js
-   Do not create a second client.
-===================================== */
-
 const money = value =>
   "৳" + Number(value || 0).toLocaleString("en-BD", {
     minimumFractionDigits: 2,
@@ -475,9 +442,6 @@ function switchTab(tab) {
   if (tab === "bets") loadBets();
 }
 
-/* =====================================
-   LEFT SIDE DRAWER / MODAL TOGGLE
-===================================== */
 function toggleMenu() {
   const drawer = document.getElementById("sideModal");
   const overlay = document.getElementById("sideModalOverlay");
@@ -486,9 +450,6 @@ function toggleMenu() {
   overlay.classList.toggle("hidden");
 }
 
-/* =====================================
-   AUTO & MANUAL HISTORY CLEANUP LOGIC
-===================================== */
 async function autoCleanupOldHistory() {
   const tables = ["color_game_history", "color_periods"];
   try {
@@ -623,9 +584,6 @@ async function confirmAndDeleteSelected() {
   }
 }
 
-/* =====================================
-   GAME GRID UPDATE MANAGEMENT
-===================================== */
 async function openGameGridModal() {
   const modal = document.getElementById("gameGridModal");
   modal.classList.remove("hidden");
@@ -752,10 +710,6 @@ async function deleteGameGridItem(id) {
   }
 }
 
-/* =====================================
-   DASHBOARD STATS
-===================================== */
-
 async function loadStats() {
   try {
     const results = await Promise.all([
@@ -794,10 +748,6 @@ async function loadStats() {
     showMessage("Stats error: " + error.message, true);
   }
 }
-
-/* =====================================
-   DEPOSIT REQUESTS
-===================================== */
 
 async function loadDeposits() {
   const tbody = document.getElementById("depositsTableBody");
@@ -958,10 +908,6 @@ async function rejectDeposit(depositId) {
   }
 }
 
-/* =====================================
-   WITHDRAWAL REQUESTS
-===================================== */
-
 async function loadWithdrawals() {
   const tbody = document.getElementById("withdrawalsTableBody");
   tbody.innerHTML =
@@ -1058,10 +1004,6 @@ async function updateWithdrawal(id, status) {
     showMessage("Withdrawal update failed: " + error.message, true);
   }
 }
-
-/* =====================================
-   USER MANAGEMENT
-===================================== */
 
 async function loadUsers() {
   const tbody = document.getElementById("usersTableBody");
@@ -1168,10 +1110,6 @@ async function adjustBalance(userId, userLabel) {
   }
 }
 
-/* =====================================
-   RECENT BETS
-===================================== */
-
 async function loadBets() {
   const tbody = document.getElementById("betsTableBody");
   tbody.innerHTML =
@@ -1217,10 +1155,6 @@ async function loadBets() {
     showMessage("Could not load bets: " + error.message, true);
   }
 }
-
-/* =====================================
-   INITIAL LOAD
-===================================== */
 
 (async function initAdminPanel() {
   if (!window.supabase || typeof supabaseClient === "undefined") {
