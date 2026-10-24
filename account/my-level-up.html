@@ -94,21 +94,22 @@
           </div>
         </div>
 
-        <!-- Level Up Bonus Claim -->
-        <div id="levelBonusCard" class="card-bg p-4 flex items-center justify-between" style="display:none;">
+        <!-- Level Up Bonus: Always Visible -->
+        <div id="levelBonusCard" class="card-bg p-4 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-emerald-400 text-xl">
               <i class="fa-solid fa-trophy"></i>
             </div>
             <div>
               <div class="font-bold text-sm text-white">Level Up Bonus</div>
-              <div id="txtLevelBonusAmount" class="text-xs text-[#24ee89] mt-0.5">Available</div>
+              <div id="txtLevelBonusAmount" class="text-xs text-[#a9b3b5] mt-0.5">Checking eligibility...</div>
             </div>
           </div>
           <button
             id="claimLevelBonusButton"
             type="button"
             onclick="claimLevelBonus()"
+            disabled
             class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">
             Claim
           </button>
@@ -215,21 +216,71 @@
     }
 
     /*
-      Checks whether the bonus was claimed for THIS level.
-      level_up_claimed_level is the main check.
-      level_up_claimed is used as a fallback for older records
-      where level_up_claimed_level has never been populated.
+      Older records may have level_up_claimed=true but no claimed level.
+      In that case, level 1 is treated as the legacy claimed level.
+      New claims save the actual level in level_up_claimed_level.
     */
-    function wasBonusClaimedForLevel(profile, currentLevel) {
-      if (
-        profile.level_up_claimed_level !== null &&
-        profile.level_up_claimed_level !== undefined &&
-        profile.level_up_claimed_level !== ''
-      ) {
-        return Number(profile.level_up_claimed_level) >= Number(currentLevel);
+    function getClaimedLevel(profile) {
+      const value = profile.level_up_claimed_level;
+
+      if (value !== null && value !== undefined && value !== '') {
+        const level = Number(value);
+        return Number.isFinite(level) ? level : 0;
       }
 
-      return isTrue(profile.level_up_claimed);
+      return isTrue(profile.level_up_claimed) ? 1 : 0;
+    }
+
+    function isBonusAvailable(profile, currentLevel, bonusAmount) {
+      const claimedLevel = getClaimedLevel(profile);
+
+      return (
+        currentLevel > 1 &&
+        bonusAmount > 0 &&
+        currentLevel > claimedLevel
+      );
+    }
+
+    function updateLevelBonusDisplay(profile, currentLevel, levelObj) {
+      const card = document.getElementById('levelBonusCard');
+      const button = document.getElementById('claimLevelBonusButton');
+      const amountText = document.getElementById('txtLevelBonusAmount');
+
+      const bonusAmount = Number(levelObj.level_up_bonus || 0);
+      const claimedLevel = getClaimedLevel(profile);
+      const available = isBonusAvailable(profile, currentLevel, bonusAmount);
+
+      // Always display the Level Up Bonus card.
+      card.style.display = 'flex';
+
+      if (bonusAmount <= 0) {
+        amountText.textContent = 'No bonus configured for this level';
+        button.disabled = true;
+        button.textContent = 'Claim';
+        return;
+      }
+
+      if (currentLevel <= 1) {
+        amountText.textContent =
+          formatMoney(bonusAmount) + ' — Unlock after Level Up';
+        button.disabled = true;
+        button.textContent = 'Claim';
+        return;
+      }
+
+      if (!available) {
+        amountText.textContent =
+          'Already claimed for this level';
+        button.disabled = true;
+        button.textContent = 'Claimed';
+        return;
+      }
+
+      amountText.textContent =
+        formatMoney(bonusAmount) + ' available';
+
+      button.disabled = false;
+      button.textContent = 'Claim';
     }
 
     async function loadVipData() {
@@ -288,7 +339,8 @@
           level => Number(level.level_number) === userLevelNum + 1
         ) || currentLevelObj;
 
-        document.getElementById('userName').textContent = profile.full_name || 'VIP User';
+        document.getElementById('userName').textContent =
+          profile.full_name || 'VIP User';
 
         document.getElementById('txtRakebackBalance').textContent =
           formatMoney(profile.rakeback_balance) + ' available';
@@ -301,26 +353,8 @@
             ? 'Next: ' + nextLevelObj.level_name
             : 'Next: Max Level';
 
-        /*
-          FIX:
-          Do not rely only on level_up_claimed.
-          Check the level number for which the bonus was claimed.
-        */
-        const bonusAmount = Number(currentLevelObj.level_up_bonus || 0);
-        const isClaimed = wasBonusClaimedForLevel(profile, userLevelNum);
-        const levelBonusCard = document.getElementById('levelBonusCard');
-        const claimButton = document.getElementById('claimLevelBonusButton');
-
-        if (bonusAmount > 0 && !isClaimed) {
-          document.getElementById('txtLevelBonusAmount').textContent =
-            formatMoney(bonusAmount) + ' available';
-
-          levelBonusCard.style.display = 'flex';
-          claimButton.disabled = false;
-          claimButton.textContent = 'Claim';
-        } else {
-          levelBonusCard.style.display = 'none';
-        }
+        // The card remains visible; only the Claim button changes state.
+        updateLevelBonusDisplay(profile, userLevelNum, currentLevelObj);
 
         const currentReq = Number(currentLevelObj.required_wager || 0);
         const nextReq = Number(nextLevelObj.required_wager || currentReq);
@@ -365,6 +399,8 @@
 
       const claimButton = document.getElementById('claimLevelBonusButton');
 
+      if (claimButton.disabled) return;
+
       isClaimingLevelBonus = true;
       claimButton.disabled = true;
       claimButton.textContent = 'Processing...';
@@ -377,9 +413,7 @@
 
         const userId = storedUser.id;
 
-        /*
-          Fetch the latest claim level as well as the current balance.
-        */
+        // Always fetch the latest level and claim status before paying.
         const { data: profile, error: profileError } = await client
           .from('profiles')
           .select('id, balance, current_vip_level, level_up_claimed, level_up_claimed_level')
@@ -390,9 +424,10 @@
         if (!profile) throw new Error('User profile was not found.');
 
         const currentLevel = Number(profile.current_vip_level || 1);
+        const claimedLevel = getClaimedLevel(profile);
 
-        if (wasBonusClaimedForLevel(profile, currentLevel)) {
-          alert('This Level Up Bonus has already been claimed for your current level.');
+        if (currentLevel <= 1 || currentLevel <= claimedLevel) {
+          alert('Level Up Bonus is not available for claiming at this level.');
           await loadVipData();
           return;
         }
@@ -424,9 +459,10 @@
         const newBalance = currentBalance + bonusAmount;
 
         /*
-          Update only if this level has not already been claimed.
-          The claimed level is saved so a future VIP level can have
-          its own bonus, even if the old boolean was true.
+          Conditional update:
+          If level_up_claimed_level already has a value, it must be lower
+          than the current level. If it is NULL, the NULL condition ensures
+          only one request can claim and save the current level.
         */
         let updateQuery = client
           .from('profiles')
@@ -438,25 +474,19 @@
           .eq('id', userId)
           .eq('current_vip_level', currentLevel);
 
-        const previousClaimLevel = profile.level_up_claimed_level;
-
         if (
-          previousClaimLevel !== null &&
-          previousClaimLevel !== undefined &&
-          previousClaimLevel !== ''
+          profile.level_up_claimed_level !== null &&
+          profile.level_up_claimed_level !== undefined &&
+          profile.level_up_claimed_level !== ''
         ) {
           updateQuery = updateQuery.lt(
             'level_up_claimed_level',
             currentLevel
           );
         } else {
-          /*
-            For old records with a NULL claimed level, allow the update
-            only if the old boolean is not already marked as claimed.
-          */
           updateQuery = updateQuery
             .is('level_up_claimed_level', null)
-            .eq('level_up_claimed', false);
+            .eq('level_up_claimed', isTrue(profile.level_up_claimed));
         }
 
         const { data: updatedRows, error: updateError } = await updateQuery
@@ -465,12 +495,17 @@
         if (updateError) throw updateError;
 
         if (!updatedRows || updatedRows.length !== 1) {
-          alert('The bonus may already have been claimed. Refresh the page and check your balance.');
+          alert('The bonus may already have been claimed or your VIP level changed. Refresh and check your balance.');
           await loadVipData();
           return;
         }
 
-        alert('Successfully claimed ' + formatMoney(bonusAmount) + ' Level Up Bonus!');
+        alert(
+          'Successfully claimed ' +
+          formatMoney(bonusAmount) +
+          ' Level Up Bonus!'
+        );
+
         await loadVipData();
 
       } catch (err) {
@@ -479,7 +514,8 @@
         await loadVipData();
       } finally {
         isClaimingLevelBonus = false;
-        claimButton.disabled = false;
+
+        // Do not enable the button here; loadVipData decides eligibility.
         claimButton.textContent = 'Claim';
       }
     }
