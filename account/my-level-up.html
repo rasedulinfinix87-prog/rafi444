@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,21 +15,41 @@
   <style>
     * { -webkit-tap-highlight-color: transparent; }
     html { background: #0F212E; }
-    body { background: #0F212E; color: #FFFFFF; font-size: 14px; padding-bottom: 70px; }
+    body {
+      background: #0F212E;
+      color: #FFFFFF;
+      font-size: 14px;
+      padding-bottom: 70px;
+    }
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: #0F212E; }
-    ::-webkit-scrollbar-thumb { background: #1A2C38; border-radius: 8px; }
-
-    .card-bg { background: #1A2C38; border: 1px solid #243542; border-radius: 16px; }
-    .progress-bar-bg { background: #0F212E; border: 1px solid #243542; }
-    .progress-fill { background: linear-gradient(90deg, #16a765, #2ed573); transition: width 0.4s ease; }
+    ::-webkit-scrollbar-thumb {
+      background: #1A2C38;
+      border-radius: 8px;
+    }
+    .card-bg {
+      background: #1A2C38;
+      border: 1px solid #243542;
+      border-radius: 16px;
+    }
+    .progress-bar-bg {
+      background: #0F212E;
+      border: 1px solid #243542;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, #16a765, #2ed573);
+      transition: width 0.4s ease;
+    }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 
 <body class="font-sans min-h-screen flex flex-col items-center justify-start p-0 select-none antialiased">
   <div class="w-full max-w-md min-h-screen flex flex-col overflow-x-hidden shadow-2xl relative">
 
-    <!-- Top Header -->
     <header class="px-4 py-4 bg-[#1A2C38] border-b border-[#243542] flex items-center justify-between sticky top-0 z-50">
       <div class="flex items-center gap-3">
         <a href="member.html" class="text-white hover:text-[#24ee89] text-lg p-1">
@@ -41,19 +62,15 @@
       </button>
     </header>
 
-    <!-- Main Content -->
     <main class="px-4 py-4 flex-1 flex flex-col gap-4">
 
-      <!-- Loading State -->
       <div id="loadingState" class="text-center py-20 text-[#a9b3b5]">
         <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 text-[#24ee89]"></i>
         <p class="font-bold">Loading VIP details...</p>
       </div>
 
-      <!-- Content Container -->
-      <div id="mainContent" class="flex flex-col gap-4" style="display: none;">
+      <div id="mainContent" class="flex flex-col gap-4" style="display:none;">
 
-        <!-- VIP Overview Card -->
         <div class="card-bg p-5 flex flex-col gap-4 shadow-xl relative overflow-hidden border border-[#304555]">
           <div class="flex justify-between items-start">
             <div>
@@ -68,10 +85,9 @@
             </div>
           </div>
 
-          <!-- Progress Bar Area -->
           <div class="flex flex-col gap-2">
             <div class="w-full h-3 rounded-full progress-bar-bg overflow-hidden p-0.5">
-              <div id="progressFill" class="h-full rounded-full progress-fill" style="width: 0%;"></div>
+              <div id="progressFill" class="h-full rounded-full progress-fill" style="width:0%;"></div>
             </div>
             <div class="flex justify-between text-xs font-bold">
               <span id="txtCurrentLevel" class="text-white">Level: Bronze I</span>
@@ -80,24 +96,28 @@
           </div>
         </div>
 
-        <!-- Level Up Bonus Card -->
-        <div id="levelBonusCard" class="card-bg p-4 flex items-center justify-between" style="display: none;">
+        <!-- Manual Level Up Bonus Claim -->
+        <div id="levelBonusCard" class="card-bg p-4 flex items-center justify-between" style="display:none;">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-emerald-400 text-xl">
               <i class="fa-solid fa-trophy"></i>
             </div>
             <div>
               <div class="font-bold text-sm text-white">Level Up Bonus</div>
-              <div id="txtLevelBonusAmount" class="text-xs text-[#24ee89] mt-0.5">available</div>
+              <div id="txtLevelBonusAmount" class="text-xs text-[#24ee89] mt-0.5">Available</div>
             </div>
           </div>
-          <button type="button" onclick="claimLevelBonus()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">Claim</button>
+          <button
+            id="claimLevelBonusButton"
+            type="button"
+            onclick="claimLevelBonus()"
+            class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">
+            Claim
+          </button>
         </div>
 
-        <!-- Bonuses Section Heading -->
         <h3 class="text-sm font-extrabold text-white tracking-wider uppercase mt-1">Bonuses</h3>
 
-        <!-- Rakeback Card -->
         <div class="card-bg p-4 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-amber-400 text-xl">
@@ -105,13 +125,14 @@
             </div>
             <div>
               <div class="font-bold text-sm text-white">Rakeback</div>
-              <div id="txtRakebackBalance" class="text-xs text-[#a9b3b5] mt-0.5">available</div>
+              <div id="txtRakebackBalance" class="text-xs text-[#a9b3b5] mt-0.5">Available</div>
             </div>
           </div>
-          <button type="button" onclick="claimRakeback()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">Claim</button>
+          <button type="button" onclick="claimRakeback()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">
+            Claim
+          </button>
         </div>
 
-        <!-- Weekly Boost Card -->
         <div class="card-bg p-4 flex flex-col gap-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -126,11 +147,12 @@
                 <div class="text-xs text-[#a9b3b5] mt-0.5">Based on weekly wager activity</div>
               </div>
             </div>
-            <button type="button" onclick="claimWeeklyBonus()" class="px-3 py-1.5 bg-[#1A2C38] hover:bg-[#30485a] text-white font-extrabold text-xs rounded-lg transition border border-[#3b556b]">Claim</button>
+            <button type="button" onclick="claimWeeklyBonus()" class="px-3 py-1.5 bg-[#1A2C38] hover:bg-[#30485a] text-white font-extrabold text-xs rounded-lg transition border border-[#3b556b]">
+              Claim
+            </button>
           </div>
         </div>
 
-        <!-- Monthly Bonus Card -->
         <div class="card-bg p-4 flex flex-col gap-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -150,17 +172,17 @@
         </div>
 
       </div>
-
     </main>
 
-    <!-- Bottom Navigation Bar Container -->
     <div id="bottomBarContainer"></div>
-
   </div>
 
   <script>
     let globalUserProfile = null;
     let globalCurrentLevelObj = null;
+    let isClaimingLevelBonus = false;
+    let isClaimingRakeback = false;
+    let isLoadingVipData = false;
 
     function formatMoney(amount) {
       return Number(amount || 0).toLocaleString('en-BD', {
@@ -169,7 +191,35 @@
       });
     }
 
+    function isTrue(value) {
+      return value === true ||
+        value === 1 ||
+        (typeof value === 'string' &&
+          ['true', '1', 'yes'].includes(value.trim().toLowerCase()));
+    }
+
+    function getClient() {
+      if (typeof supabaseClient === 'undefined' || !supabaseClient) {
+        throw new Error('Supabase client is not configured. Check ../supabase-config.js');
+      }
+      return supabaseClient;
+    }
+
+    async function getLoggedInUser() {
+      const storedUser = getStoredCurrentUser();
+
+      if (!storedUser || !storedUser.id) {
+        window.location.href = '../login-signup.html';
+        return null;
+      }
+
+      return storedUser;
+    }
+
     async function loadVipData() {
+      if (isLoadingVipData) return;
+      isLoadingVipData = true;
+
       const loadingState = document.getElementById('loadingState');
       const mainContent = document.getElementById('mainContent');
 
@@ -177,32 +227,25 @@
       mainContent.style.display = 'none';
 
       try {
-        const storedUser = getStoredCurrentUser();
-        if (!storedUser || !storedUser.id) {
-          window.location.href = '../login-signup.html';
-          return;
-        }
+        const client = getClient();
+        const storedUser = await getLoggedInUser();
+
+        if (!storedUser) return;
 
         const userId = storedUser.id;
 
-        if (typeof supabaseClient === 'undefined' || !supabaseClient) {
-          throw new Error('Supabase client is not configured.');
-        }
-
-        const { data: profile, error: profileError } = await supabaseClient
+        const { data: profile, error: profileError } = await client
           .from('profiles')
-          .select('*')
+          .select('id, full_name, balance, current_vip_level, total_wager, rakeback_balance, level_up_claimed')
           .eq('id', userId)
           .maybeSingle();
 
         if (profileError) throw profileError;
         if (!profile) throw new Error('User profile was not found.');
 
-        globalUserProfile = profile;
-
-        const { data: levels, error: levelError } = await supabaseClient
+        const { data: levels, error: levelError } = await client
           .from('vip_level_settings')
-          .select('*')
+          .select('level_number, level_name, required_wager, level_up_bonus, instant_rakeback_percent')
           .order('level_number', { ascending: true });
 
         if (levelError) throw levelError;
@@ -210,56 +253,60 @@
           throw new Error('No VIP level settings were found.');
         }
 
-        document.getElementById('userName').textContent = profile.full_name || 'VIP User';
-        document.getElementById('txtRakebackBalance').textContent =
-          formatMoney(profile.rakeback_balance) + ' available';
+        globalUserProfile = profile;
 
         const userLevelNum = Number(profile.current_vip_level || 1);
         const totalWager = Number(profile.total_wager || 0);
 
-        // Fix: compare level numbers as numbers, even if Supabase returns strings.
-        const currentLevelObj =
-          levels.find(l => Number(l.level_number) === userLevelNum) || levels[0];
+        const currentLevelObj = levels.find(
+          level => Number(level.level_number) === userLevelNum
+        );
+
+        if (!currentLevelObj) {
+          throw new Error('No VIP settings found for current level ' + userLevelNum);
+        }
 
         globalCurrentLevelObj = currentLevelObj;
 
-        const nextLevelObj =
-          levels.find(l => Number(l.level_number) === userLevelNum + 1) || currentLevelObj;
+        const nextLevelObj = levels.find(
+          level => Number(level.level_number) === userLevelNum + 1
+        ) || currentLevelObj;
+
+        document.getElementById('userName').textContent = profile.full_name || 'VIP User';
+        document.getElementById('txtRakebackBalance').textContent =
+          formatMoney(profile.rakeback_balance) + ' available';
 
         document.getElementById('txtCurrentLevel').textContent =
-          `Level: ${currentLevelObj.level_name || 'Bronze I'}`;
+          'Level: ' + (currentLevelObj.level_name || ('Level ' + userLevelNum));
 
         document.getElementById('txtNextLevel').textContent =
-          `Next: ${Number(nextLevelObj.level_number) > userLevelNum ? nextLevelObj.level_name : 'Max Level'}`;
+          Number(nextLevelObj.level_number) > userLevelNum
+            ? 'Next: ' + nextLevelObj.level_name
+            : 'Next: Max Level';
 
-        const levelBonusCard = document.getElementById('levelBonusCard');
         const bonusAmount = Number(currentLevelObj.level_up_bonus || 0);
-
-        // Accept common boolean representations without changing claim status.
-        const claimedValue = profile.level_up_claimed;
-        const isClaimed =
-          claimedValue === true ||
-          claimedValue === 1 ||
-          (typeof claimedValue === 'string' &&
-            ['true', '1', 'yes'].includes(claimedValue.trim().toLowerCase()));
+        const isClaimed = isTrue(profile.level_up_claimed);
+        const levelBonusCard = document.getElementById('levelBonusCard');
+        const claimButton = document.getElementById('claimLevelBonusButton');
 
         if (bonusAmount > 0 && !isClaimed) {
           document.getElementById('txtLevelBonusAmount').textContent =
             formatMoney(bonusAmount) + ' available';
+
           levelBonusCard.style.display = 'flex';
+          claimButton.disabled = false;
+          claimButton.textContent = 'Claim';
         } else {
           levelBonusCard.style.display = 'none';
         }
 
         const currentReq = Number(currentLevelObj.required_wager || 0);
         const nextReq = Number(nextLevelObj.required_wager || currentReq);
-
         let percentage = 100;
 
         if (nextReq > currentReq) {
           percentage = ((totalWager - currentReq) / (nextReq - currentReq)) * 100;
-          if (percentage < 0) percentage = 0;
-          if (percentage > 100) percentage = 100;
+          percentage = Math.max(0, Math.min(100, percentage));
         }
 
         document.getElementById('txtPercentage').textContent =
@@ -277,123 +324,177 @@
           <div class="text-red-400 flex flex-col items-center gap-2">
             <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
             <p class="text-xs">Failed to load VIP information.</p>
-            <p class="text-[10px] text-slate-400 max-w-xs text-center">${err.message || ''}</p>
+            <p class="text-[10px] text-slate-400 max-w-xs text-center"></p>
             <button type="button" onclick="loadVipData()" class="mt-2 px-3 py-1.5 bg-[#243542] text-white rounded-lg text-xs font-bold">Retry</button>
           </div>
         `;
+        loadingState.querySelector('p.text-\\[10px\\]')?.replaceChildren(
+          document.createTextNode(err.message || 'Unknown error')
+        );
+      } finally {
+        isLoadingVipData = false;
+      }
+    }
+
+    /*
+      IMPORTANT:
+      This function runs only when the user presses the Level Up Bonus Claim button.
+      It does not run during page loading or VIP data refresh.
+    */
+    async function claimLevelBonus() {
+      if (isClaimingLevelBonus) return;
+
+      const claimButton = document.getElementById('claimLevelBonusButton');
+      isClaimingLevelBonus = true;
+      claimButton.disabled = true;
+      claimButton.textContent = 'Processing...';
+
+      try {
+        const client = getClient();
+        const storedUser = await getLoggedInUser();
+
+        if (!storedUser) return;
+
+        const userId = storedUser.id;
+
+        // Always fetch the latest level, balance, and claim status.
+        const { data: profile, error: profileError } = await client
+          .from('profiles')
+          .select('id, balance, current_vip_level, level_up_claimed')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (profileError) throw profileError;
+        if (!profile) throw new Error('User profile was not found.');
+
+        if (isTrue(profile.level_up_claimed)) {
+          alert('This Level Up Bonus is already marked as claimed.');
+          await loadVipData();
+          return;
+        }
+
+        const currentLevel = Number(profile.current_vip_level || 1);
+
+        const { data: levelData, error: levelError } = await client
+          .from('vip_level_settings')
+          .select('level_number, level_name, level_up_bonus')
+          .eq('level_number', currentLevel)
+          .maybeSingle();
+
+        if (levelError) throw levelError;
+        if (!levelData) {
+          throw new Error('VIP settings for your current level were not found.');
+        }
+
+        const bonusAmount = Number(levelData.level_up_bonus || 0);
+
+        if (!Number.isFinite(bonusAmount) || bonusAmount <= 0) {
+          throw new Error('There is no Level Up Bonus available for this level.');
+        }
+
+        const currentBalance = Number(profile.balance || 0);
+
+        if (!Number.isFinite(currentBalance)) {
+          throw new Error('The current balance is invalid.');
+        }
+
+        const newBalance = currentBalance + bonusAmount;
+
+        /*
+          Conditional update:
+          The row is updated only while level_up_claimed is false.
+          After one successful claim, a subsequent request cannot match this condition.
+        */
+        const { data: updatedRows, error: updateError } = await client
+          .from('profiles')
+          .update({
+            balance: newBalance,
+            level_up_claimed: true
+          })
+          .eq('id', userId)
+          .eq('current_vip_level', currentLevel)
+          .eq('level_up_claimed', false)
+          .select('id');
+
+        if (updateError) throw updateError;
+
+        if (!updatedRows || updatedRows.length !== 1) {
+          alert('The bonus may already have been claimed. Refresh the page and check your balance.');
+          await loadVipData();
+          return;
+        }
+
+        alert('Successfully claimed ' + formatMoney(bonusAmount) + ' Level Up Bonus!');
+        await loadVipData();
+
+      } catch (err) {
+        console.error('Error claiming Level Up Bonus:', err);
+        alert('Level Up Bonus Claim failed: ' + (err.message || 'Please try again.'));
+        await loadVipData();
+      } finally {
+        isClaimingLevelBonus = false;
+        claimButton.disabled = false;
+        claimButton.textContent = 'Claim';
       }
     }
 
     async function claimRakeback() {
+      if (isClaimingRakeback) return;
+      isClaimingRakeback = true;
+
       try {
-        const storedUser = getStoredCurrentUser();
-        if (!storedUser || !storedUser.id) return;
+        const client = getClient();
+        const storedUser = await getLoggedInUser();
+
+        if (!storedUser) return;
+
         const userId = storedUser.id;
 
-        const { data: profile, error: pError } = await supabaseClient
+        const { data: profile, error: profileError } = await client
           .from('profiles')
           .select('balance, rakeback_balance')
           .eq('id', userId)
           .maybeSingle();
 
-        if (pError || !profile) {
-          alert('Failed to fetch user profile.');
-          return;
-        }
+        if (profileError) throw profileError;
+        if (!profile) throw new Error('User profile was not found.');
 
-        const rakebackBal = Number(profile.rakeback_balance || 0);
+        const rakebackBalance = Number(profile.rakeback_balance || 0);
 
-        if (rakebackBal <= 0) {
+        if (rakebackBalance <= 0) {
           alert('No rakeback available to claim.');
           return;
         }
 
-        const currentMainBalance = Number(profile.balance || 0);
-        const newMainBalance = currentMainBalance + rakebackBal;
+        const currentBalance = Number(profile.balance || 0);
+        const newBalance = currentBalance + rakebackBalance;
 
-        const { error: updateError } = await supabaseClient
+        const { data: updatedRows, error: updateError } = await client
           .from('profiles')
           .update({
-            balance: newMainBalance,
+            balance: newBalance,
             rakeback_balance: 0
           })
-          .eq('id', userId);
+          .eq('id', userId)
+          .eq('rakeback_balance', rakebackBalance)
+          .select('id');
 
         if (updateError) throw updateError;
+
+        if (!updatedRows || updatedRows.length !== 1) {
+          alert('Rakeback may have changed. Refresh and try again.');
+          await loadVipData();
+          return;
+        }
 
         alert('Successfully claimed Rakeback!');
         await loadVipData();
 
       } catch (err) {
         console.error('Error claiming rakeback:', err);
-        alert('Failed to claim rakeback. Please try again.');
-      }
-    }
-
-    async function claimLevelBonus() {
-      try {
-        if (!globalUserProfile || !globalCurrentLevelObj) {
-          alert('VIP information is not loaded. Please refresh and try again.');
-          return;
-        }
-
-        const userId = globalUserProfile.id;
-        const bonusAmount = Number(globalCurrentLevelObj.level_up_bonus || 0);
-
-        if (bonusAmount <= 0) {
-          alert('No bonus available for this level.');
-          return;
-        }
-
-        // Re-fetch current balance before claiming.
-        const { data: profile, error: profileError } = await supabaseClient
-          .from('profiles')
-          .select('balance, level_up_claimed')
-          .eq('id', userId)
-          .maybeSingle();
-
-        if (profileError) throw profileError;
-
-        if (!profile) {
-          throw new Error('User profile was not found.');
-        }
-
-        const claimedValue = profile.level_up_claimed;
-        const isClaimed =
-          claimedValue === true ||
-          claimedValue === 1 ||
-          (typeof claimedValue === 'string' &&
-            ['true', '1', 'yes'].includes(claimedValue.trim().toLowerCase()));
-
-        if (isClaimed) {
-          alert('Level Up Bonus has already been claimed.');
-          await loadVipData();
-          return;
-        }
-
-        const currentMainBalance = Number(profile.balance || 0);
-        const newMainBalance = currentMainBalance + bonusAmount;
-
-        const { error: updateError } = await supabaseClient
-          .from('profiles')
-          .update({
-            balance: newMainBalance,
-            level_up_claimed: true
-          })
-          .eq('id', userId);
-
-        if (updateError) throw updateError;
-
-        alert('Successfully claimed Level Up Bonus!');
-        await loadVipData();
-
-      } catch (err) {
-        console.error('Error claiming level bonus:', err);
-        alert(
-          err?.message && err.message.toLowerCase().includes('level_up_claimed')
-            ? 'Claim failed: the profiles table may be missing the level_up_claimed column.'
-            : 'Failed to claim level bonus. Please check the browser console and Supabase policies.'
-        );
+        alert('Failed to claim Rakeback: ' + (err.message || 'Please try again.'));
+      } finally {
+        isClaimingRakeback = false;
       }
     }
 
@@ -409,8 +510,8 @@
           document.getElementById('bottomBarContainer').innerHTML =
             await response.text();
         }
-      } catch (e) {
-        console.error('Bottom bar error:', e);
+      } catch (err) {
+        console.error('Bottom bar error:', err);
       }
     }
 
