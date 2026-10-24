@@ -1,6 +1,7 @@
 (async function () {
   'use strict';
 
+  // ১. সুপাবেজ ক্লায়েন্ট ও কনফিগ চেক
   const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
   if (!client) {
     console.error('Supabase client not initialized.');
@@ -9,24 +10,42 @@
   }
 
   try {
-    // ১. বর্তমান লগইন করা ইউজারের সেশন চেক করা
-    const { data: { session }, error: sessionError } = await client.auth.getSession();
-    
-    if (sessionError || !session || !session.user) {
+    // ২. supabase-config.js এর বিল্ট-ইন getCurrentUser() ফাংশন ব্যবহার করে ইউজার বের করা
+    let user = null;
+    if (typeof getCurrentUser === 'function') {
+      user = await getCurrentUser();
+    }
+
+    // যদি ইউজার না পাওয়া যায়, সরাসরি সুপাবেজ সেশন চেক করা
+    if (!user) {
+      const { data: { session } } = await client.auth.getSession();
+      if (session && session.user) {
+        user = session.user;
+      }
+    }
+
+    if (!user || !user.id) {
       window.location.href = '../index.html';
       return;
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
 
-    // ২. profiles টেবিল থেকে ইউজারের role চেক করা
-    const { data: profile, error: profileError } = await client
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .single();
+    // ৩. profiles টেবিল থেকে ইউজারের role চেক করা
+    let profile = null;
+    if (typeof getUserProfile === 'function') {
+      profile = await getUserProfile(userId);
+    } else {
+      const { data } = await client
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .maybeSingle();
+      profile = data;
+    }
 
-    if (profileError || !profile || profile.role !== 'admin') {
+    // ৪. রোল অ্যাডমিন কি না যাচাই করা (ছোট হাতের অক্ষরে 'admin' চেক করবে)
+    if (!profile || String(profile.role || '').trim().toLowerCase() !== 'admin') {
       alert('Unauthorized access! Admins only.');
       window.location.href = '../index.html';
       return;
