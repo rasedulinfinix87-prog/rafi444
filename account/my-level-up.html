@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -96,7 +94,7 @@
           </div>
         </div>
 
-        <!-- Manual Level Up Bonus Claim -->
+        <!-- Level Up Bonus Claim -->
         <div id="levelBonusCard" class="card-bg p-4 flex items-center justify-between" style="display:none;">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-[#0F212E] border border-[#243542] flex items-center justify-center text-emerald-400 text-xl">
@@ -216,6 +214,24 @@
       return storedUser;
     }
 
+    /*
+      Checks whether the bonus was claimed for THIS level.
+      level_up_claimed_level is the main check.
+      level_up_claimed is used as a fallback for older records
+      where level_up_claimed_level has never been populated.
+    */
+    function wasBonusClaimedForLevel(profile, currentLevel) {
+      if (
+        profile.level_up_claimed_level !== null &&
+        profile.level_up_claimed_level !== undefined &&
+        profile.level_up_claimed_level !== ''
+      ) {
+        return Number(profile.level_up_claimed_level) >= Number(currentLevel);
+      }
+
+      return isTrue(profile.level_up_claimed);
+    }
+
     async function loadVipData() {
       if (isLoadingVipData) return;
       isLoadingVipData = true;
@@ -236,7 +252,7 @@
 
         const { data: profile, error: profileError } = await client
           .from('profiles')
-          .select('id, full_name, balance, current_vip_level, total_wager, rakeback_balance, level_up_claimed')
+          .select('id, full_name, balance, current_vip_level, total_wager, rakeback_balance, level_up_claimed, level_up_claimed_level')
           .eq('id', userId)
           .maybeSingle();
 
@@ -273,6 +289,7 @@
         ) || currentLevelObj;
 
         document.getElementById('userName').textContent = profile.full_name || 'VIP User';
+
         document.getElementById('txtRakebackBalance').textContent =
           formatMoney(profile.rakeback_balance) + ' available';
 
@@ -284,8 +301,13 @@
             ? 'Next: ' + nextLevelObj.level_name
             : 'Next: Max Level';
 
+        /*
+          FIX:
+          Do not rely only on level_up_claimed.
+          Check the level number for which the bonus was claimed.
+        */
         const bonusAmount = Number(currentLevelObj.level_up_bonus || 0);
-        const isClaimed = isTrue(profile.level_up_claimed);
+        const isClaimed = wasBonusClaimedForLevel(profile, userLevelNum);
         const levelBonusCard = document.getElementById('levelBonusCard');
         const claimButton = document.getElementById('claimLevelBonusButton');
 
@@ -320,6 +342,7 @@
 
       } catch (err) {
         console.error('Error loading VIP data:', err);
+
         loadingState.innerHTML = `
           <div class="text-red-400 flex flex-col items-center gap-2">
             <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
@@ -328,6 +351,7 @@
             <button type="button" onclick="loadVipData()" class="mt-2 px-3 py-1.5 bg-[#243542] text-white rounded-lg text-xs font-bold">Retry</button>
           </div>
         `;
+
         loadingState.querySelector('p.text-\\[10px\\]')?.replaceChildren(
           document.createTextNode(err.message || 'Unknown error')
         );
@@ -336,15 +360,11 @@
       }
     }
 
-    /*
-      IMPORTANT:
-      This function runs only when the user presses the Level Up Bonus Claim button.
-      It does not run during page loading or VIP data refresh.
-    */
     async function claimLevelBonus() {
       if (isClaimingLevelBonus) return;
 
       const claimButton = document.getElementById('claimLevelBonusButton');
+
       isClaimingLevelBonus = true;
       claimButton.disabled = true;
       claimButton.textContent = 'Processing...';
@@ -357,23 +377,25 @@
 
         const userId = storedUser.id;
 
-        // Always fetch the latest level, balance, and claim status.
+        /*
+          Fetch the latest claim level as well as the current balance.
+        */
         const { data: profile, error: profileError } = await client
           .from('profiles')
-          .select('id, balance, current_vip_level, level_up_claimed')
+          .select('id, balance, current_vip_level, level_up_claimed, level_up_claimed_level')
           .eq('id', userId)
           .maybeSingle();
 
         if (profileError) throw profileError;
         if (!profile) throw new Error('User profile was not found.');
 
-        if (isTrue(profile.level_up_claimed)) {
-          alert('This Level Up Bonus is already marked as claimed.');
+        const currentLevel = Number(profile.current_vip_level || 1);
+
+        if (wasBonusClaimedForLevel(profile, currentLevel)) {
+          alert('This Level Up Bonus has already been claimed for your current level.');
           await loadVipData();
           return;
         }
-
-        const currentLevel = Number(profile.current_vip_level || 1);
 
         const { data: levelData, error: levelError } = await client
           .from('vip_level_settings')
@@ -382,6 +404,7 @@
           .maybeSingle();
 
         if (levelError) throw levelError;
+
         if (!levelData) {
           throw new Error('VIP settings for your current level were not found.');
         }
@@ -401,19 +424,42 @@
         const newBalance = currentBalance + bonusAmount;
 
         /*
-          Conditional update:
-          The row is updated only while level_up_claimed is false.
-          After one successful claim, a subsequent request cannot match this condition.
+          Update only if this level has not already been claimed.
+          The claimed level is saved so a future VIP level can have
+          its own bonus, even if the old boolean was true.
         */
-        const { data: updatedRows, error: updateError } = await client
+        let updateQuery = client
           .from('profiles')
           .update({
             balance: newBalance,
-            level_up_claimed: true
+            level_up_claimed: true,
+            level_up_claimed_level: currentLevel
           })
           .eq('id', userId)
-          .eq('current_vip_level', currentLevel)
-          .eq('level_up_claimed', false)
+          .eq('current_vip_level', currentLevel);
+
+        const previousClaimLevel = profile.level_up_claimed_level;
+
+        if (
+          previousClaimLevel !== null &&
+          previousClaimLevel !== undefined &&
+          previousClaimLevel !== ''
+        ) {
+          updateQuery = updateQuery.lt(
+            'level_up_claimed_level',
+            currentLevel
+          );
+        } else {
+          /*
+            For old records with a NULL claimed level, allow the update
+            only if the old boolean is not already marked as claimed.
+          */
+          updateQuery = updateQuery
+            .is('level_up_claimed_level', null)
+            .eq('level_up_claimed', false);
+        }
+
+        const { data: updatedRows, error: updateError } = await updateQuery
           .select('id');
 
         if (updateError) throw updateError;
