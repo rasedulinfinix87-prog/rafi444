@@ -39,9 +39,6 @@ html, body {
 .main-wrapper {
   background: #ffffff;
   color: #111827;
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
   width: 100%;
 }
 .input-group {
@@ -85,7 +82,6 @@ html, body {
 
 <div class="app">
   <div class="main-wrapper">
-    <!-- Top Amount Header -->
     <div class="bg-[#008751] text-white p-4 flex justify-between items-center w-full">
       <div>
         <h2 class="text-xl font-bold" id="headerAmount">BDT 0</h2>
@@ -95,12 +91,10 @@ html, body {
     </div>
 
     <div class="p-4">
-      <!-- Warning Text -->
       <p class="text-red-600 text-xs font-semibold mb-3 leading-relaxed text-center">
         আপনি যদি টাকার পরিমাণ পরিবর্তন করেন (<span id="warnAmount">BDT 0</span>), আপনি ক্রেডিট পেতে সক্ষম হবেন না।
       </p>
 
-      <!-- Deposit Method Box -->
       <div id="methodBox" class="bg-[#f24e39] text-white p-3.5 rounded-xl flex items-center gap-3 mb-4 shadow-sm">
         <div class="bg-white p-2 rounded-lg flex items-center justify-center w-12 h-12 shrink-0 overflow-hidden">
           <img id="methodLogo" src="images/nagad.png" alt="Payment Method" class="w-full h-full object-contain" onerror="this.src='images/nagad.png'">
@@ -111,7 +105,6 @@ html, body {
         </div>
       </div>
 
-      <!-- Wallet Number Section -->
       <div class="mb-3">
         <label class="block text-xs font-bold text-gray-800 mb-1">Wallet No<span class="text-red-500">*</span></label>
         <p id="walletInstruction" class="text-[11px] text-gray-600 mb-1">এই নাম্বারে শুধুমাত্র সেন্ড মানি গ্রহণ করা হয়</p>
@@ -123,7 +116,6 @@ html, body {
         </div>
       </div>
 
-      <!-- TrxID Input Section -->
       <form id="verificationForm" onsubmit="submitPaymentVerification(event)">
         <div class="input-group">
           <label class="block text-xs font-bold text-gray-800 mb-1">
@@ -132,17 +124,14 @@ html, body {
           <input type="text" id="trxId" placeholder="TrxID অবশ্যই পূরণ করতে হবে!" required class="border-red-500 focus:border-red-600">
         </div>
 
-        <!-- Submit Button -->
         <button type="submit" id="verifyBtn" class="w-full bg-white border border-gray-400 hover:bg-gray-50 text-gray-800 font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm text-sm">
           <span>নিশ্চিত</span>
         </button>
       </form>
 
-      <!-- Bottom Warning Footer -->
       <div class="mt-4 border-t border-gray-200 pt-3 text-[11px] text-gray-600">
         <p class="font-bold text-gray-800 mb-1">সতর্কতা:</p>
         <p class="text-red-600 mb-1">লেনদেন আইডি সঠিকভাবে পূরণ করতে হবে, অন্যথায় স্কোর ব্যর্থ হবে!</p>
-        <p>অনুগ্রহ করে নিশ্চিত হয়ে নিন যে আপনি সঠিক ওয়ালেট নাম্বারে ক্যাশ আউট করছেন।</p>
       </div>
     </div>
   </div>
@@ -178,24 +167,17 @@ html, body {
     }
 
     ticketData = JSON.parse(storedData);
-
     document.getElementById('headerAmount').textContent = 'BDT ' + ticketData.priceAmount;
     document.getElementById('warnAmount').textContent = 'BDT ' + ticketData.priceAmount;
   });
 
   async function submitPaymentVerification(event) {
     event.preventDefault();
-
     const trxId = document.getElementById('trxId').value.trim();
     const verifyBtn = document.getElementById('verifyBtn');
 
     if (!trxId) {
       notify('দয়া করে ট্রানজেকশন আইডি (Trx ID) লিখুন।');
-      return;
-    }
-
-    if (!ticketData || !ticketData.customTicketNumber) {
-      notify('সেশন ডেটা বা কাস্টম টিকিট নম্বর পাওয়া যায়নি।');
       return;
     }
 
@@ -206,16 +188,13 @@ html, body {
       const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
       if (!client) throw new Error('Supabase client not initialized');
 
-      const ticketNumber = ticketData.customTicketNumber;
-
-      // ১. tic_tickets টেবিলে tic_draw_id এবং tic_ticket_status 'pending' সহ ডেটা ইনসার্ট করা
       const { error: ticketError } = await client
         .from('tic_tickets')
         .insert([
           {
             tic_draw_id: ticketData.drawId || null,
             tic_user_id: ticketData.userId,
-            tic_ticket_number: ticketNumber,
+            tic_ticket_number: ticketData.customTicketNumber,
             tic_buyer_name: ticketData.buyerName,
             tic_buyer_mobile: ticketData.buyerMobile,
             tic_trx_id: trxId,
@@ -226,24 +205,7 @@ html, body {
 
       if (ticketError) throw ticketError;
 
-      // ২. ticket_prices টেবিলে প্রাইস রেকর্ড ইনসার্ট করা
-      const { error: priceError } = await client
-        .from('ticket_prices')
-        .insert([
-          {
-            price_amount: parseFloat(ticketData.priceAmount),
-            price_label: ticketData.priceAmount + ' BDT Ticket',
-            status: 'active',
-            created_at: new Date()
-          }
-        ]);
-
-      if (priceError) {
-        console.error('Price table insert error:', priceError);
-      }
-
       localStorage.removeItem('pending_ticket_data');
-
       notify('পেমেন্ট ভেরিফিকেশন সফল এবং আপনার টিকিট পেন্ডিং অবস্থায় জমা হয়েছে!');
 
       setTimeout(() => {
@@ -251,7 +213,7 @@ html, body {
       }, 2000);
 
     } catch (err) {
-      console.error('Verification error:', err);
+      console.error(err);
       notify('টেকনিক্যাল সমস্যার কারণে ভেরিফিকেশন সম্পন্ন হয়নি।');
       verifyBtn.disabled = false;
       verifyBtn.textContent = 'নিশ্চিত';
