@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -90,7 +91,7 @@
               <div id="txtLevelBonusAmount" class="text-xs text-[#24ee89] mt-0.5">available</div>
             </div>
           </div>
-          <button onclick="claimLevelBonus()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">Claim</button>
+          <button type="button" onclick="claimLevelBonus()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">Claim</button>
         </div>
 
         <!-- Bonuses Section Heading -->
@@ -107,7 +108,7 @@
               <div id="txtRakebackBalance" class="text-xs text-[#a9b3b5] mt-0.5">available</div>
             </div>
           </div>
-          <button onclick="claimRakeback()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">Claim</button>
+          <button type="button" onclick="claimRakeback()" class="px-3 py-1.5 bg-[#24ee89] text-black font-extrabold text-xs rounded-lg hover:brightness-110 transition">Claim</button>
         </div>
 
         <!-- Weekly Boost Card -->
@@ -125,7 +126,7 @@
                 <div class="text-xs text-[#a9b3b5] mt-0.5">Based on weekly wager activity</div>
               </div>
             </div>
-            <button onclick="claimWeeklyBonus()" class="px-3 py-1.5 bg-[#1A2C38] hover:bg-[#30485a] text-white font-extrabold text-xs rounded-lg transition border border-[#3b556b]">Claim</button>
+            <button type="button" onclick="claimWeeklyBonus()" class="px-3 py-1.5 bg-[#1A2C38] hover:bg-[#30485a] text-white font-extrabold text-xs rounded-lg transition border border-[#3b556b]">Claim</button>
           </div>
         </div>
 
@@ -195,6 +196,8 @@
           .maybeSingle();
 
         if (profileError) throw profileError;
+        if (!profile) throw new Error('User profile was not found.');
+
         globalUserProfile = profile;
 
         const { data: levels, error: levelError } = await supabaseClient
@@ -203,43 +206,67 @@
           .order('level_number', { ascending: true });
 
         if (levelError) throw levelError;
+        if (!levels || levels.length === 0) {
+          throw new Error('No VIP level settings were found.');
+        }
 
-        document.getElementById('userName').textContent = profile?.full_name || 'VIP User';
-        document.getElementById('txtRakebackBalance').textContent = formatMoney(profile?.rakeback_balance) + ' available';
+        document.getElementById('userName').textContent = profile.full_name || 'VIP User';
+        document.getElementById('txtRakebackBalance').textContent =
+          formatMoney(profile.rakeback_balance) + ' available';
 
-        const userLevelNum = Number(profile?.current_vip_level || 1);
-        const totalWager = Number(profile?.total_wager || 0);
+        const userLevelNum = Number(profile.current_vip_level || 1);
+        const totalWager = Number(profile.total_wager || 0);
 
-        const currentLevelObj = levels?.find(l => l.level_number === userLevelNum) || levels[0];
+        // Fix: compare level numbers as numbers, even if Supabase returns strings.
+        const currentLevelObj =
+          levels.find(l => Number(l.level_number) === userLevelNum) || levels[0];
+
         globalCurrentLevelObj = currentLevelObj;
-        const nextLevelObj = levels?.find(l => l.level_number === userLevelNum + 1) || currentLevelObj;
 
-        document.getElementById('txtCurrentLevel').textContent = `Level: ${currentLevelObj?.level_name || 'Bronze I'}`;
-        document.getElementById('txtNextLevel').textContent = `Next: ${nextLevelObj?.level_name || 'Max Level'}`;
+        const nextLevelObj =
+          levels.find(l => Number(l.level_number) === userLevelNum + 1) || currentLevelObj;
+
+        document.getElementById('txtCurrentLevel').textContent =
+          `Level: ${currentLevelObj.level_name || 'Bronze I'}`;
+
+        document.getElementById('txtNextLevel').textContent =
+          `Next: ${Number(nextLevelObj.level_number) > userLevelNum ? nextLevelObj.level_name : 'Max Level'}`;
 
         const levelBonusCard = document.getElementById('levelBonusCard');
-        const bonusAmount = Number(currentLevelObj?.level_up_bonus || 0);
-        const isClaimed = profile?.level_up_claimed === true || profile?.level_up_claimed === 1;
+        const bonusAmount = Number(currentLevelObj.level_up_bonus || 0);
+
+        // Accept common boolean representations without changing claim status.
+        const claimedValue = profile.level_up_claimed;
+        const isClaimed =
+          claimedValue === true ||
+          claimedValue === 1 ||
+          (typeof claimedValue === 'string' &&
+            ['true', '1', 'yes'].includes(claimedValue.trim().toLowerCase()));
 
         if (bonusAmount > 0 && !isClaimed) {
-          document.getElementById('txtLevelBonusAmount').textContent = formatMoney(bonusAmount) + ' available';
+          document.getElementById('txtLevelBonusAmount').textContent =
+            formatMoney(bonusAmount) + ' available';
           levelBonusCard.style.display = 'flex';
         } else {
           levelBonusCard.style.display = 'none';
         }
 
-        const currentReq = Number(currentLevelObj?.required_wager || 0);
-        const nextReq = Number(nextLevelObj?.required_wager || currentReq);
+        const currentReq = Number(currentLevelObj.required_wager || 0);
+        const nextReq = Number(nextLevelObj.required_wager || currentReq);
 
         let percentage = 100;
+
         if (nextReq > currentReq) {
           percentage = ((totalWager - currentReq) / (nextReq - currentReq)) * 100;
           if (percentage < 0) percentage = 0;
           if (percentage > 100) percentage = 100;
         }
 
-        document.getElementById('txtPercentage').textContent = percentage.toFixed(2) + '%';
-        document.getElementById('progressFill').style.width = percentage.toFixed(2) + '%';
+        document.getElementById('txtPercentage').textContent =
+          percentage.toFixed(2) + '%';
+
+        document.getElementById('progressFill').style.width =
+          percentage.toFixed(2) + '%';
 
         loadingState.style.display = 'none';
         mainContent.style.display = 'flex';
@@ -251,7 +278,7 @@
             <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
             <p class="text-xs">Failed to load VIP information.</p>
             <p class="text-[10px] text-slate-400 max-w-xs text-center">${err.message || ''}</p>
-            <button onclick="loadVipData()" class="mt-2 px-3 py-1.5 bg-[#243542] text-white rounded-lg text-xs font-bold">Retry</button>
+            <button type="button" onclick="loadVipData()" class="mt-2 px-3 py-1.5 bg-[#243542] text-white rounded-lg text-xs font-bold">Retry</button>
           </div>
         `;
       }
@@ -275,6 +302,7 @@
         }
 
         const rakebackBal = Number(profile.rakeback_balance || 0);
+
         if (rakebackBal <= 0) {
           alert('No rakeback available to claim.');
           return;
@@ -293,8 +321,8 @@
 
         if (updateError) throw updateError;
 
-        alert(`Successfully claimed Rakeback!`);
-        loadVipData();
+        alert('Successfully claimed Rakeback!');
+        await loadVipData();
 
       } catch (err) {
         console.error('Error claiming rakeback:', err);
@@ -304,7 +332,11 @@
 
     async function claimLevelBonus() {
       try {
-        if (!globalUserProfile || !globalCurrentLevelObj) return;
+        if (!globalUserProfile || !globalCurrentLevelObj) {
+          alert('VIP information is not loaded. Please refresh and try again.');
+          return;
+        }
+
         const userId = globalUserProfile.id;
         const bonusAmount = Number(globalCurrentLevelObj.level_up_bonus || 0);
 
@@ -313,7 +345,33 @@
           return;
         }
 
-        const currentMainBalance = Number(globalUserProfile.balance || 0);
+        // Re-fetch current balance before claiming.
+        const { data: profile, error: profileError } = await supabaseClient
+          .from('profiles')
+          .select('balance, level_up_claimed')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (profileError) throw profileError;
+
+        if (!profile) {
+          throw new Error('User profile was not found.');
+        }
+
+        const claimedValue = profile.level_up_claimed;
+        const isClaimed =
+          claimedValue === true ||
+          claimedValue === 1 ||
+          (typeof claimedValue === 'string' &&
+            ['true', '1', 'yes'].includes(claimedValue.trim().toLowerCase()));
+
+        if (isClaimed) {
+          alert('Level Up Bonus has already been claimed.');
+          await loadVipData();
+          return;
+        }
+
+        const currentMainBalance = Number(profile.balance || 0);
         const newMainBalance = currentMainBalance + bonusAmount;
 
         const { error: updateError } = await supabaseClient
@@ -326,12 +384,16 @@
 
         if (updateError) throw updateError;
 
-        alert(`Successfully claimed Level Up Bonus!`);
-        loadVipData();
+        alert('Successfully claimed Level Up Bonus!');
+        await loadVipData();
 
       } catch (err) {
         console.error('Error claiming level bonus:', err);
-        alert('Failed to claim level bonus.');
+        alert(
+          err?.message && err.message.toLowerCase().includes('level_up_claimed')
+            ? 'Claim failed: the profiles table may be missing the level_up_claimed column.'
+            : 'Failed to claim level bonus. Please check the browser console and Supabase policies.'
+        );
       }
     }
 
@@ -341,7 +403,12 @@
 
     async function loadBottomBar() {
       try {
-        (await fetch('../bar/bottom.html')).ok && (document.getElementById('bottomBarContainer').innerHTML = await (await fetch('../bar/bottom.html')).text());
+        const response = await fetch('../bar/bottom.html');
+
+        if (response.ok) {
+          document.getElementById('bottomBarContainer').innerHTML =
+            await response.text();
+        }
       } catch (e) {
         console.error('Bottom bar error:', e);
       }
