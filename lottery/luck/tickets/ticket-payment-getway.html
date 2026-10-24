@@ -105,7 +105,6 @@ body {
 </head>
 <body>
 
-<!-- Dynamic Header Container -->
 <div id="header-container"></div>
 
 <div class="app">
@@ -123,19 +122,16 @@ body {
     </div>
 
     <form id="paymentForm" onsubmit="proceedToVerification(event)">
-      <!-- Buyer Name -->
       <div class="input-group">
         <label class="block text-xs text-gray-400 mb-1">Buyer Name</label>
         <input type="text" id="buyerName" placeholder="Enter Name" required>
       </div>
 
-      <!-- Buyer Mobile -->
       <div class="input-group">
         <label class="block text-xs text-gray-400 mb-1">Mobile Number</label>
         <input type="tel" id="buyerMobile" placeholder="Enter Mobile Number" required>
       </div>
 
-      <!-- Select Active Draw -->
       <div class="input-group">
         <label class="block text-xs text-gray-400 mb-1">Select Active Draw</label>
         <select id="activeDrawSelect" required>
@@ -143,26 +139,22 @@ body {
         </select>
       </div>
 
-      <!-- Select Ticket Price -->
       <div class="input-group">
         <label class="block text-xs text-gray-400 mb-1">Select Ticket Price</label>
         <select id="ticketPriceSelect" required>
           <option value="" disabled selected>Select Price Option</option>
           <option value="50">50 BDT</option>
-          <option value="100">100 BDT</option>
-          <option value="250">250 BDT</option>
           <option value="500">500 BDT</option>
+          <option value="1000">1000 BDT</option>
         </select>
       </div>
 
-      <!-- Custom Ticket Selection Rows -->
       <div class="mb-4 bg-[#0d1b26] p-3 rounded-xl border border-blue-500/30">
         <div class="flex justify-between items-center mb-2 text-xs text-gray-400 font-semibold">
           <span>SELECT YOUR LUCKY NUMBERS</span>
           <span id="currentDateDisplay">--/--/----</span>
         </div>
 
-        <!-- Row 1 -->
         <div class="flex items-center justify-between py-2 border-b border-gray-800">
           <div class="flex gap-1.5 row-chips" data-row="1">
             <div class="ticket-chip" onclick="toggleChip(this)">12</div>
@@ -175,7 +167,6 @@ body {
           </div>
         </div>
 
-        <!-- Row 2 -->
         <div class="flex items-center justify-between py-2 border-b border-gray-800">
           <div class="flex gap-1.5 row-chips" data-row="2">
             <div class="ticket-chip" onclick="toggleChip(this)">05</div>
@@ -188,7 +179,6 @@ body {
           </div>
         </div>
 
-        <!-- Row 3 -->
         <div class="flex items-center justify-between py-2 border-b border-gray-800">
           <div class="flex gap-1.5 row-chips" data-row="3">
             <div class="ticket-chip" onclick="toggleChip(this)">08</div>
@@ -201,7 +191,6 @@ body {
           </div>
         </div>
 
-        <!-- Row 4 -->
         <div class="flex items-center justify-between py-2 border-b border-gray-800">
           <div class="flex gap-1.5 row-chips" data-row="4">
             <div class="ticket-chip" onclick="toggleChip(this)">03</div>
@@ -214,7 +203,6 @@ body {
           </div>
         </div>
 
-        <!-- Row 5 -->
         <div class="flex items-center justify-between py-2">
           <div class="flex gap-1.5 row-chips" data-row="5">
             <div class="ticket-chip" onclick="toggleChip(this)">07</div>
@@ -227,7 +215,6 @@ body {
           </div>
         </div>
 
-        <!-- Global Check Button with ✅ Mark -->
         <div class="mt-3 pt-3 border-t border-gray-800 flex items-center justify-between">
           <span class="text-xs text-gray-300" id="selectionStatus">মোট সংখ্যা: ০ ডিজিট (১৪ ডিজিট প্রয়োজন)</span>
           <div class="flex items-center gap-2">
@@ -237,7 +224,6 @@ body {
         </div>
       </div>
 
-      <!-- Pay Button -->
       <button type="submit" id="payBtn" disabled class="w-full mt-2 bg-gray-600 text-gray-300 font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg text-sm cursor-not-allowed">
         <i class="fa-solid fa-arrow-right"></i>
         <span>Proceed to E-Payment (Check Number First)</span>
@@ -246,9 +232,7 @@ body {
   </div>
 </div>
 
-<!-- Dynamic Footer Container -->
 <div id="footer-container"></div>
-
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -257,20 +241,13 @@ body {
       const headerRes = await fetch('navigation/header.html');
       if (headerRes.ok) {
         document.getElementById('header-container').innerHTML = await headerRes.text();
-        const scripts = document.getElementById('header-container').querySelectorAll('script');
-        scripts.forEach(script => {
-          const newScript = document.createElement('script');
-          newScript.text = script.innerText;
-          document.body.appendChild(newScript);
-        });
       }
-
       const footerRes = await fetch('navigation/footer.html');
       if (footerRes.ok) {
         document.getElementById('footer-container').innerHTML = await footerRes.text();
       }
     } catch (e) {
-      console.error('Error loading header/footer components:', e);
+      console.error(e);
     }
   }
 
@@ -304,7 +281,6 @@ body {
         .neq('tic_status', 'completed')
         .order('tic_created_at', { ascending: false });
 
-      // যদি কোনো active/upcoming ড্র না থাকে, তবে কোড নিজে থেকেই একটি নতুন ড্র তৈরি করে নেবে
       if (error || !draws || draws.length === 0) {
         const todayStr = new Date().toISOString().split('T')[0];
         const newDrawNumber = 'DRAW-' + Math.floor(1000 + Math.random() * 9000);
@@ -315,9 +291,13 @@ body {
             {
               tic_draw_name: 'Daily Lucky Draw (' + todayStr + ')',
               tic_draw_number: newDrawNumber,
-              tic_draw_time: new Date(Date.now() + 86400000), // আগামিকাল
+              tic_draw_time: new Date(Date.now() + 86400000),
               tic_status: 'upcoming',
-              tic_prize_amount: 1000,
+              tic_prize_1st: '10000',
+              tic_prize_2nd: '5000',
+              tic_prize_3rd: '3000',
+              tic_7_winners_prize: '1000, 1000, 1000, 500, 500, 500, 500',
+              tic_10_winners_prize: '200, 200, 200, 200, 200, 100, 100, 100, 100, 100',
               tic_created_at: new Date()
             }
           ])
@@ -341,7 +321,7 @@ body {
       });
       selectBox.innerHTML = options;
     } catch (err) {
-      console.error('Error loading draws:', err);
+      console.error(err);
     }
   }
 
@@ -367,7 +347,6 @@ body {
   async function checkTotalAvailability() {
     const selectedChips = document.querySelectorAll('.ticket-chip.selected');
     let numbersCombined = '';
-
     selectedChips.forEach(chip => {
       numbersCombined += chip.textContent.trim();
     });
@@ -379,45 +358,34 @@ body {
 
     const ticketNumString = `TICK-${numbersCombined}`;
     const client = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
-    if (!client) {
-      notify('সুপাবেজ কানেকশন পাওয়া যায়নি।');
-      return;
-    }
+    if (!client) return;
 
     try {
       notify('নম্বরটি চেক করা হচ্ছে...');
-      
-      const { data, error } = await client
+      const { data } = await client
         .from('tic_tickets')
         .select('tic_ticket_number')
         .eq('tic_ticket_number', ticketNumString)
         .maybeSingle();
 
-      if (error) {
-        console.error('DB Check Error:', error);
-        notify('যাচাই করতে সমস্যা হয়েছে।');
-        return;
-      }
-
       if (data) {
-        notify('দুঃখিত! এই হুবহু কম্বিনেশন নম্বরটি ইতিমধ্যে বিক্রি হয়ে গেছে। অন্য কম্বিনেশন বেছে নিন।');
+        notify('দুঃখিত! এই নম্বরটি ইতিমধ্যে বিক্রি হয়ে গেছে।');
         verifiedTicketNumber = null;
         document.getElementById('check-icon').classList.add('hidden');
         document.getElementById('payBtn').disabled = true;
         document.getElementById('payBtn').className = "w-full mt-2 bg-gray-600 text-gray-300 font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg text-sm cursor-not-allowed";
       } else {
-        notify('অভিনন্দন! এই নম্বরটি খালি আছে (Available)।');
+        notify('অভিনন্দন! এই নম্বরটি খালি আছে।');
         verifiedTicketNumber = ticketNumString;
         document.getElementById('check-icon').classList.remove('hidden');
 
         const payBtn = document.getElementById('payBtn');
         payBtn.disabled = false;
-        payBtn.className = "w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-98 text-sm cursor-pointer";
+        payBtn.className = "w-full mt-2 bg-[#1F51FF] hover:bg-blue-600 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg text-sm cursor-pointer";
         payBtn.querySelector('span').textContent = "Proceed to E-Payment";
       }
     } catch (err) {
-      console.error('Error:', err);
-      notify('টেকনিক্যাল ত্রুটি ঘটেছে।');
+      console.error(err);
     }
   }
 
@@ -427,14 +395,10 @@ body {
 
     try {
       const user = await getCurrentUser();
-      if (!user || (!user.id && !user.user_id && !user.uid)) {
-        document.getElementById('userBalance').textContent = '0.00 BDT';
-        return;
-      }
-
+      if (!user) return;
       currentUserId = user.id || user.user_id || user.uid;
 
-      const { data, error } = await client
+      const { data } = await client
         .from('profiles')
         .select('balance, full_name, phone_number')
         .eq('id', currentUserId)
@@ -444,12 +408,9 @@ body {
         document.getElementById('userBalance').textContent = parseFloat(data.balance || 0).toFixed(2) + ' BDT';
         if(data.full_name) document.getElementById('buyerName').value = data.full_name;
         if(data.phone_number) document.getElementById('buyerMobile').value = data.phone_number;
-      } else {
-        document.getElementById('userBalance').textContent = '0.00 BDT';
       }
     } catch (err) {
-      console.error('Auth check error:', err);
-      document.getElementById('userBalance').textContent = '0.00 BDT';
+      console.error(err);
     }
   }
 
@@ -462,24 +423,13 @@ body {
 
   function proceedToVerification(event) {
     event.preventDefault();
-
     const name = document.getElementById('buyerName').value.trim();
     const mobile = document.getElementById('buyerMobile').value.trim();
     const drawId = document.getElementById('activeDrawSelect').value;
     const priceAmount = document.getElementById('ticketPriceSelect').value;
 
-    if (!name || !mobile || !drawId || !priceAmount) {
-      notify('দয়া করে ড্র সহ সব তথ্য সঠিকভাবে পূরণ করুন।');
-      return;
-    }
-
-    if (!verifiedTicketNumber) {
-      notify('দয়া করে আপনার পছন্দের নম্বরটি চেক করে নিশ্চিত করুন।');
-      return;
-    }
-
-    if (!currentUserId) {
-      notify('ইউজার লগইন করা নেই!');
+    if (!name || !mobile || !drawId || !priceAmount || !verifiedTicketNumber) {
+      notify('সব তথ্য সঠিকভাবে পূরণ করুন এবং নম্বর চেক করুন।');
       return;
     }
 
@@ -493,7 +443,6 @@ body {
     }));
 
     notify('পেমেন্ট পেজে redirect করা হচ্ছে...');
-
     setTimeout(() => {
       window.location.href = 'ticket-e-payment-verification.html';
     }, 1000);
